@@ -1,13 +1,13 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
- * 
  * by Jay and Han
+ * New BSD Licensed: http://www.opensource.org/licenses/bsd-license.php
  * 
  * Usage:
  * [optional new] LatexRoot({element you want to insert LaTeX Math after});
  * 
  * Requires jQuery 1.4+
- * 
+ *
  */
 
 $('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css" />');
