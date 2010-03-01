@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<head>
+
+<title>LatexLive</title>
+
+<script type="text/javascript" src="../jquery.js"></script>
+
+<script type="text/javascript" src="mathtalk.js"></script>
+
+<script type="text/javascript">
+var LatexImages = false;
+$(function(){
+    var latexMath = LatexRoot('#talkmath').change(function(){
+        var latex = this.latex();
+        $('#latex-source').html(latex);
+	if(!LatexImages)
+            return;
+        latex = encodeURIComponent(latex);
+        $('#googlecharts').attr('src','http://chart.apis.google.com/chart?cht=tx&chl='+latex).next().attr('href','http://chart.apis.google.com/chart?cht=tx&chl='+latex);
+        $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).next().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
+    });
+    if(location.search && location.search.length > 1)
+        latexMath.latex(decodeURIComponent(location.search.slice(/^\?latex=/i.test(location.search)?7:1)));
+});
+</script>
+
+<style type="text/css">
+
+#latex-source {
+    font-family: "Courier New",Courier,monospace;
+}
+
+img {
+    vertical-align:middle;
+}
+
+</style>
+
+</head>
+<body style="width:6.5in;margin:0 auto;">
+
+<h1>LatexLive</h1>
+
+<h3>Type in Latex Math and watch it render in real-time</h3>
+
+<p><span id="talkmath">Talk Math:</span></p>
+
+<p>Latex source: <span id="latex-source"></span></p>
+
+<p><button onclick="LatexImages = true;$('#talkmath').next().change()">Toggle Images</button></p>
+
+<p>Google Charts: <img id="googlecharts"> <a>Link</a></p>
+
+<p>Code Cogs: <img id="codecogs"> <a>Link</a></p>
+
+</body>

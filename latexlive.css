@@ -1,0 +1,149 @@
+/*@font-face {
+    font-family: "TeX Gyre Schola";
+    src: url('fonts/texgyreschola-regular.otf');
+}
+
+@font-face {
+    font-family: "TeX Gyre Schola Italic";
+    font-style:italic;
+    src: url('fonts/texgyreschola-italic.otf');
+}
+
+@font-face {
+    font-family: "Computer Modern";
+    src: url('fonts/cmunrm.otf') format("opentype");
+}
+
+@font-face {
+    font-family: "Computer Modern";
+    font-style: italic;
+    src: url('fonts/cmunci.otf') format("opentype");
+}
+
+#font-tester {
+    font-family: "TeX Gyre Schola","Times New Roman",serif;
+}*/
+
+.latexlive-generated-math .the-cursor {
+    border-left:1px solid black;
+    margin-right:-1px;
+    padding:0;
+    display:inline;
+}
+
+.latexlive-generated-math .the-cursor.blink {
+    visibility:hidden;
+}
+
+/* *** FIXME *** This is kind of a hack and not supported in IE6 */
+.latexlive-generated-math .the-cursor:only-child:after{
+    visibility:hidden;
+    content:'.';
+}
+
+.latexlive-generated-math {
+    font-family: "Computer Modern", "Times New Roman", serif;
+    font-size:125%;
+    line-height:1;
+    padding:0 2px;
+    margin:0 6px;
+    display:inline-block;
+    position:relative;
+}
+.latexlive-generated-math.hasCursor{
+    border:solid #DEF 2px;
+    margin:-2px 4px;
+}
+
+.latexlive-generated-math * {
+    line-height:inherit;
+    margin:0;
+    padding:0 1px;
+    display:inline-block;
+    cursor:text;
+}
+.latexlive-generated-math .hasCursor {
+    border:solid #DEF 2px;
+    margin:-2px;
+    position:relative;
+    z-index:-1;
+}
+
+.latexlive-generated-math.empty, .latexlive-generated-math .empty {
+    color:lightgray;
+}
+
+.latexlive-generated-math i { /* variables -- just in case you do something weird to your <i>'s */
+    font-style:italic;
+    font-weight:normal;
+}
+
+.latexlive-generated-math .operator {
+    padding: 0 6px;
+}
+
+.latexlive-generated-math sup .operator, .latexlive-generated-math sub .operator {
+    padding: 0 3px;
+}
+
+.latexlive-generated-math .fraction {
+    display:inline-block;
+    text-align:center;
+    vertical-align:middle;
+}
+
+.latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
+    display:block;
+}
+.latexlive-generated-math .numerator {
+    border-bottom:solid black 1px;
+    padding-bottom:2px;
+    margin-bottom:0;
+}
+.latexlive-generated-math .denominator {
+    border-top:solid black 1px;
+    padding-top:2px;
+    margin-top:0;
+}
+
+.latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
+    font-size:70%;
+    vertical-align:middle;
+}
+.latexlive-generated-math sup .numerator, .latexlive-generated-math sub .numerator {
+    border-bottom:none;
+    padding-bottom:1px;
+}
+.latexlive-generated-math sup .denominator, .latexlive-generated-math sub .denominator {
+    padding-top:0;
+}
+
+.latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
+    font-family: "Courier New", monospace;
+    font-style:normal;
+}
+.latexlive-generated-math .latex-command-input:before {
+    content: '\\';
+}
+
+.latexlive-generated-math .sqrt-prefix {
+    vertical-align:top;
+    position:relative;
+    left:1px;
+    top:2px;
+}
+.latexlive-generated-math .sqrt-stem {
+    border-top:1px solid black;
+    margin-top:1px;
+}
+
+.latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
+    vertical-align:bottom;
+    position:relative;
+    top:-1px;
+}
+
+.latexlive-generated-math .selection {
+    padding: 0;
+    background-color: #DEF;
+}
