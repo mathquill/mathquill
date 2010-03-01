@@ -978,6 +978,15 @@ function chooseCommand(cmd)
         //symbols that aren't the same HTML character entity reference as they are LaTeX commands
         case '\\neg ':
             return new LatexVanillaSymbol('\\neg ','&not;');
+        case '\\Re ':
+        case '\\Real ':
+        case '\\real ':
+            return new LatexVanillaSymbol('\\Re ','&real;');
+        case '\\Im ':
+        case '\\Image ':
+        case '\\Imaginary ':
+        case '\\imaginary ':
+            return new LatexVanillaSymbol('\\Im ','&image;');
         case '\\part ':
         case '\\partial ':
             return new LatexVanillaSymbol('\\partial ','&part;');
