@@ -10,33 +10,11 @@
  *
  */
 
-$('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css" />');
+$('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css">');
  
 var LatexRoot = (function(){
 
-$('.latexlive-generated-math .empty').live('click',function()
-{
-    cursor.prependTo($(this).data('latexBlock')).jQ.show();
-    return false;
-    
-});
-$('.latexlive-generated-math *').live('click',function()
-{
-    var jQ = $(this), cmd = jQ.data('latexCmd');
-    if(!cmd)
-        return;
-    cursor.jQ.show();
-    cursor.clearSelection();
-    if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
-        cursor.insertBefore(cmd);
-    else
-        cursor.insertAfter(cmd);
-    return false;
-});
-
-
 /*************************** BLOCKS *************************/
-
 function LatexBlock(parent, position, commands)
 {
     var latex = undefined;
@@ -193,15 +171,31 @@ LatexBlock.prototype = {
     },
 };
 
+/*************************** ROOT ***************************/
 function LatexRoot(textElement, tabindex) 
 {
     if(!(this instanceof LatexRoot))
         return new LatexRoot(textElement);
-    //textElement = $(textElement);
-    LatexBlock.call(this/*, textElement.text()*/);
+    LatexBlock.call(this);
     tabindex = tabindex || 0;
-    this.jQ = $(this.html()).insertAfter(textElement)/*.css(textElement.offset())*/.data('latexBlock',this).attr('tabindex',tabindex); //link this to a jQuery object so we can find it in DOM.
-    this.input = textElement;
+    this.jQ = $(this.html()).insertAfter(textElement).data('latexBlock',this).attr('tabindex',tabindex).delegate('*,:parent','click',function()
+    {
+        var jQ = $(this), cmd = jQ.data('latexCmd');
+        if(!cmd)
+            return;
+        cursor.jQ.show();
+        cursor.clearSelection();
+        if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
+            cursor.insertBefore(cmd);
+        else
+            cursor.insertAfter(cmd);
+        return false;
+    }).delegate('.empty','click',function()
+    {
+        cursor.prependTo($(this).data('latexBlock')).jQ.show();
+        return false;
+        
+    });
     cursor.prependTo(this);
     
     //make the cursor blink
@@ -209,7 +203,7 @@ function LatexRoot(textElement, tabindex)
     var intervalId;
     var keydnTriggered = false;
     var root = this;
-    $(this.jQ).focus(function()
+    this.jQ.focus(function()
     {
         cursor.jQ.show();
         intervalId = setInterval(function(){
@@ -605,8 +599,6 @@ LatexCommand.prototype = {
     {
         this.detach();
         this.jQ.remove(); //also removes all child blocks if they exist.
-        
-        delete this; //I don't think this does anything
     },
     eachChild:function(fn)
     {
@@ -670,10 +662,10 @@ function LatexSquareRoot()
     this.blocks[0].change(function(){
         var block = this.jQ, height = block.height();
         block.css({
-            borderTopWidth: height/25+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+            borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
         }).prev().css({
             fontSize: height,
-            top: height/10+2,
+            top: height/10+1,
             left: height/30+1,
         });
     });
@@ -695,6 +687,7 @@ LatexBraces.prototype.latex = function() {
     return this.cmd + this.blocks[0].latex() + this.opposite;
 };
 
+/************************ CURSOR ****************************/
 var cursor = new LatexSymbol('the_cursor','<span class="the-cursor"></span>');
 cursor.latex = function(){ return ''; };
 cursor.jQ.unbind('click');

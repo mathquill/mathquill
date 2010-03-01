@@ -1,46 +1,3 @@
-/*@font-face {
-    font-family: "TeX Gyre Schola";
-    src: url('fonts/texgyreschola-regular.otf');
-}
-
-@font-face {
-    font-family: "TeX Gyre Schola Italic";
-    font-style:italic;
-    src: url('fonts/texgyreschola-italic.otf');
-}
-
-@font-face {
-    font-family: "Computer Modern";
-    src: url('fonts/cmunrm.otf') format("opentype");
-}
-
-@font-face {
-    font-family: "Computer Modern";
-    font-style: italic;
-    src: url('fonts/cmunci.otf') format("opentype");
-}
-
-#font-tester {
-    font-family: "TeX Gyre Schola","Times New Roman",serif;
-}*/
-
-.latexlive-generated-math .the-cursor {
-    border-left:1px solid black;
-    margin-right:-1px;
-    padding:0;
-    display:inline;
-}
-
-.latexlive-generated-math .the-cursor.blink {
-    visibility:hidden;
-}
-
-/* *** FIXME *** This is kind of a hack and not supported in IE6 */
-.latexlive-generated-math .the-cursor:only-child:after{
-    visibility:hidden;
-    content:'.';
-}
-
 .latexlive-generated-math {
     font-family: "Computer Modern", "Times New Roman", serif;
     font-size:125%;
@@ -64,13 +21,32 @@
 }
 .latexlive-generated-math .hasCursor {
     border:solid #DEF 2px;
+    border:solid rgba(187,221,255,.5) 2px;
     margin:-2px;
-    position:relative;
-    z-index:-1;
+}
+
+.latexlive-generated-math .the-cursor {
+    border-left:1px solid black;
+    margin-right:-1px;
+    padding:0;
+    display:inline;
+}
+
+.latexlive-generated-math .the-cursor.blink {
+    visibility:hidden;
+}
+
+/* *** FIXME *** This is kind of a hack and not supported in IE6 */
+.latexlive-generated-math .the-cursor:only-child:after{
+    visibility:hidden;
+    content:'.';
 }
 
 .latexlive-generated-math.empty, .latexlive-generated-math .empty {
     color:lightgray;
+}
+.latexlive-generated-math.empty {
+    left:-.3em;
 }
 
 .latexlive-generated-math i { /* variables -- just in case you do something weird to your <i>'s */
