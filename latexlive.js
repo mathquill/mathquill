@@ -17,7 +17,7 @@ var LatexRoot = (function(){
 /*************************** BLOCKS *************************/
 function LatexBlock(parent, position, commands)
 {
-    var latex = undefined;
+    var latex;
     if(typeof (latex = arguments[0]) == 'string' || typeof (latex = arguments[2]) == 'string') //we've passed in a LaTeX string!
     {
         this.latex(latex);
@@ -58,7 +58,9 @@ LatexBlock.prototype = {
         {
             this.empty().removeEmpty();
             
-            latex = latex.match(/\{.*?\}|\\[a-z]+|./ig);
+            if(typeof latex == 'string')
+                latex = latex.match(/\{|\}|\\[a-z]+|./ig);
+            
             while(latex.length)
             {
                 chooseCommand(latex.shift()).eachChild(function()
@@ -187,11 +189,11 @@ function LatexRoot(textElement, tabindex)
             return false;
         }
         var cmd = jQ.data('latexCmd');
-        if(!(cmd || cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not LatexCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+        if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not LatexCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
             return;
         cursor.jQ.show();
         cursor.clearSelection();
-        if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
+        if((e.pageX - jQ.offset().left)*2 < jQ.outerWidth())
             cursor.insertBefore(cmd);
         else
             cursor.insertAfter(cmd);
@@ -671,7 +673,7 @@ function LatexSquareRoot()
             borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
         }).prev().css({
             fontSize: height,
-            top: height/10+1,
+            top: height/10+2,
             left: height/30+1,
         });
     });
