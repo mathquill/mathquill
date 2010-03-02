@@ -39,7 +39,7 @@ LatexBlock.prototype = {
     setEmpty:function()
     {
         if(this.isEmpty())
-            this.jQ.html('<span>[ ]</span>').addClass('empty');
+            this.jQ.html('[ ]').addClass('empty');
         return this;
     },
     removeEmpty:function()
@@ -178,17 +178,17 @@ function LatexRoot(textElement, tabindex)
         return new LatexRoot(textElement);
     LatexBlock.call(this);
     tabindex = tabindex || 0;
-    this.jQ = $(this.html()).insertAfter(textElement).data('latexBlock',this).attr('tabindex',tabindex).delegate('*','click',function()
+    this.jQ = $(this.html()).insertAfter(textElement).data('latexBlock',this).attr('tabindex',tabindex).click(function(e)
     {
-        var jQ = $(this);
+        var jQ = $(e.target);
         if(jQ.hasClass('empty'))
         {
-            cursor.prependTo(jQ.data('latexBlock').removeEmpty()).jQ.show();
+            cursor.prependTo(jQ.data('latexBlock')).jQ.show();
             return false;
         }
         var cmd = jQ.data('latexCmd');
         if(!cmd)
-            return arguments.callee.call(this.parentNode);
+            cmd = (jQ = jQ.parent()).data('latexCmd'); // Besides the root, all clickable DOM Elements not LatexCommands are LatexBlocks or stuff like parens or square root radicals, whose immediate parent is always a LatexCommand
         cursor.jQ.show();
         cursor.clearSelection();
         if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
@@ -696,14 +696,14 @@ LatexBraces.prototype.latex = function() {
 /************************ CURSOR ****************************/
 var cursor = new LatexSymbol('the_cursor','<span class="the-cursor"></span>');
 cursor.latex = function(){ return ''; };
-cursor.jQ.unbind('click');
 cursor.jQ.hide = function(){ return this.addClass('blink'); };
 cursor.jQ.show = function(){ return this.removeClass('blink'); };
 cursor.jQ.toggle = function(){ return this.toggleClass('blink'); };
 cursor.detach = function()
 {
-    this.parent.setEmpty().jQ.removeClass('hasCursor');
-    LatexSymbol.prototype.detach.apply(this);
+    var p = this.parent;
+    LatexCommand.prototype.detach.apply(this);
+    p.setEmpty().jQ.removeClass('hasCursor');
     return this;
 };
 cursor.insertBefore = function(cmd)

@@ -47,6 +47,7 @@
 }
 .latexlive-generated-math.empty {
     left:-.3em;
+    cursor:text;
 }
 
 .latexlive-generated-math i { /* variables -- just in case you do something weird to your <i>'s */
