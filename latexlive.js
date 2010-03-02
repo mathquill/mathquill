@@ -188,7 +188,7 @@ function LatexRoot(textElement, tabindex)
         }
         var cmd = jQ.data('latexCmd');
         if(!cmd)
-            return arguments.callee.call(jQ.parent());
+            return arguments.callee.call(this.parentNode);
         cursor.jQ.show();
         cursor.clearSelection();
         if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
