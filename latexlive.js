@@ -1,7 +1,7 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
  * by Jay and Han
- * New BSD Licensed: http://www.opensource.org/licenses/bsd-license.php
+ * Lesser GPL Licensed: http://www.gnu.org/licenses/lgpl.html
  * 
  * Usage:
  * [optional new] LatexRoot({element you want to insert LaTeX Math after});
@@ -187,8 +187,8 @@ function LatexRoot(textElement, tabindex)
             return false;
         }
         var cmd = jQ.data('latexCmd');
-        if(!cmd)
-            cmd = (jQ = jQ.parent()).data('latexCmd'); // Besides the root, all clickable DOM Elements not LatexCommands are LatexBlocks or stuff like parens or square root radicals, whose immediate parent is always a LatexCommand
+        if(!(cmd || cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not LatexCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+            return;
         cursor.jQ.show();
         cursor.clearSelection();
         if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
