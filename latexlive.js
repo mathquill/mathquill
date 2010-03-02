@@ -178,11 +178,17 @@ function LatexRoot(textElement, tabindex)
         return new LatexRoot(textElement);
     LatexBlock.call(this);
     tabindex = tabindex || 0;
-    this.jQ = $(this.html()).insertAfter(textElement).data('latexBlock',this).attr('tabindex',tabindex).delegate('*,:parent','click',function()
+    this.jQ = $(this.html()).insertAfter(textElement).data('latexBlock',this).attr('tabindex',tabindex).delegate('*','click',function()
     {
-        var jQ = $(this), cmd = jQ.data('latexCmd');
+        var jQ = $(this);
+        if(jQ.hasClass('empty'))
+        {
+            cursor.prependTo(jQ.data('latexBlock').removeEmpty()).jQ.show();
+            return false;
+        }
+        var cmd = jQ.data('latexCmd');
         if(!cmd)
-            return;
+            return arguments.callee.call(jQ.parent());
         cursor.jQ.show();
         cursor.clearSelection();
         if((event.pageX - jQ.offset().left)*2 < jQ.outerWidth())
@@ -190,11 +196,6 @@ function LatexRoot(textElement, tabindex)
         else
             cursor.insertAfter(cmd);
         return false;
-    }).delegate('.empty','click',function()
-    {
-        cursor.prependTo($(this).data('latexBlock')).jQ.show();
-        return false;
-        
     });
     cursor.prependTo(this);
     
@@ -209,18 +210,23 @@ function LatexRoot(textElement, tabindex)
         intervalId = setInterval(function(){
             cursor.jQ.toggle();
         }, 500);
-        root.removeEmpty();
-        if(!cursor.parent)
+        if(cursor.parent)
+        {
+            if(cursor.parent.isEmpty())
+            {
+                var p = cursor.parent;
+                cursor.detach().prependTo(p);
+            }
+        }
+        else
             cursor.prependTo(root);
         cursor.parent.jQ.addClass('hasCursor');
     }).blur(function(e){
         clearInterval(intervalId);
         cursor.jQ.hide();
         cursor.parent.setEmpty().jQ.removeClass('hasCursor');
-        if(root.firstChild === root.lastChild)
-        {
+        if(root.isEmpty())
             cursor.detach();
-        }
         $(this).removeClass('hasCursor');
     }).keydown(function(e)
     {
@@ -703,13 +709,13 @@ cursor.detach = function()
 cursor.insertBefore = function(cmd)
 {
     LatexSymbol.prototype.insertBefore.apply(this, arguments);
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor');
     return this;
 };
 cursor.insertAfter = function(cmd)
 {
     LatexSymbol.prototype.insertAfter.apply(this, arguments);
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor');
     return this;
 };
 cursor.prependTo = function(block)
