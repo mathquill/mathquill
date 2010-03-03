@@ -1013,6 +1013,22 @@ function chooseCommand(cmd)
         //symbols that aren't the same HTML character entity reference as they are LaTeX commands
         case '\\neg ':
             return new LatexVanillaSymbol('\\neg ','&not;');
+        case '\\darr ':
+        case '\\dnarr ':
+        case '\\dnarrow ':
+        case '\\downarrow ':
+            return new LatexVanillaSymbol('\\downarrow ','&darr;');
+        case '\\dArr ':
+        case '\\dnArr ':
+        case '\\dnArrow ':
+        case '\\Downarrow ':
+            return new LatexVanillaSymbol('\\Downarrow ','&dArr;');
+        case '\\uarr ':
+        case '\\uparrow ':
+            return new LatexVanillaSymbol('\\uparrow ','&uarr;');
+        case '\\uArr ':
+        case '\\Uparrow ':
+            return new LatexVanillaSymbol('\\Uparrow ','&uArr;');
         case '\\Re ':
         case '\\Real ':
         case '\\real ':
