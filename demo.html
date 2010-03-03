@@ -32,7 +32,10 @@ $(function(){
     }).blur(function(){
         editingSource = false;
     }).keydown(function(){
-        latexMath.latex($(this).val());
+	var textarea = $(this);
+        setTimeout(function(){
+            latexMath.latex(textarea.val());
+        },1);
     });
 });
 </script>

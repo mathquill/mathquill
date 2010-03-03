@@ -160,9 +160,8 @@ LatexBlock.prototype = {
     },
     empty:function()
     {
-        this.eachChild(function(){
-            this.remove();
-        });
+        this.jQ.empty();
+        this.firstChild = this.lastChild = null;
         return this;
     },
     eachChild:function(fn)
