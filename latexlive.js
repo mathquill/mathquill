@@ -73,7 +73,17 @@ LatexBlock.prototype = {
                         this.latex(latex);
                     else
                         this.latex(token);
-                }).appendTo(this).jQ.change();
+                }).appendTo(this).eachChild(function recurse(){
+                    if(this.firstChild != null)
+                        this.eachChild(function(){
+                            if(this.blocks.length > 0)
+                                this.eachChild(recurse);
+                            else
+                                this.jQ.change();
+                        });
+                    else
+                        this.jQ.change();
+                });
             }
             return this.setEmpty();
         }

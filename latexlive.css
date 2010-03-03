@@ -9,6 +9,7 @@
 }
 .latexlive-generated-math.hasCursor{
     border:solid #DEF 2px;
+    border:solid rgba(119,187,255,.25) 2px;
     margin:-2px 4px;
 }
 
@@ -21,7 +22,7 @@
 }
 .latexlive-generated-math .hasCursor {
     border:solid #DEF 2px;
-    border:solid rgba(187,221,255,.5) 2px;
+    border:solid rgba(119,187,255,.25) 2px;
     margin:-2px;
 }
 
