@@ -1,5 +1,6 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
+ * v0.x
  * by Jay and Han
  * Lesser GPL Licensed: http://www.gnu.org/licenses/lgpl.html
  * 
