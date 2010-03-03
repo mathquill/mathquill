@@ -12,9 +12,10 @@
 <script type="text/javascript">
 var LatexImages = false;
 $(function(){
-    var latexMath = LatexRoot('#talkmath').change(function(){
+    var editingSource=false,latexMath = LatexRoot('#talkmath').change(function(){
         var latex = this.latex();
-        $('#latex-source').html(latex);
+        if(!editingSource)
+            $('#latex-source').val(latex);
 	if(!LatexImages)
             return;
         latex = encodeURIComponent(latex);
@@ -26,6 +27,13 @@ $(function(){
         latexMath.latex(decodeURIComponent(location.search.slice(/^\?latex=/i.test(location.search)?7:1)));
         LatexRoot.cursor.appendTo(latexMath);
     }
+    $('#latex-source').focus(function(){
+        editingSource = true;
+    }).blur(function(){
+        editingSource = false;
+    }).keydown(function(){
+        latexMath.latex($(this).val());
+    });
 });
 </script>
 
@@ -50,7 +58,7 @@ img {
 
 <p><span id="talkmath">Talk Math:</span></p>
 
-<p>Latex source: <span id="latex-source"></span></p>
+<p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
 
 <p><button onclick="LatexImages = true;$('#talkmath').next().change()">Toggle Images</button></p>
 
