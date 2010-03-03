@@ -67,11 +67,13 @@ LatexBlock.prototype = {
                 var token = latex.shift();
                 if(token == (this.parent && this.parent.end ? this.parent.end : '}'))
                     break;
+                /////////////////////////////////////////////////////////////////// THIS IS A TOTAL KLUDGE
+                if(token == '/')
+                    new LatexVanillaSymbol('/').appendTo(this);
+                else
                 chooseCommand(token).eachChild(function()
                 {
                     var token = latex.shift();
-                    if(token == '/')
-                        this.firstChild = this.lastChild = new LatexVanillaSymbol('/');
                     if(token == '{')
                         this.latex(latex);
                     else
@@ -939,6 +941,7 @@ cursor.deleteSelection = function()
     if(!this.selection)
         return this;
     this.insertBefore(this.selection.start);
+    this.jQ.insertBefore(this.selection.jQ);
     this.selection.remove();
     delete this.selection;
 }
