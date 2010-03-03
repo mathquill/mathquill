@@ -22,7 +22,10 @@ $(function(){
         $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).next().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
     });
     if(location.search && location.search.length > 1)
+    {
         latexMath.latex(decodeURIComponent(location.search.slice(/^\?latex=/i.test(location.search)?7:1)));
+        LatexRoot.cursor.appendTo(latexMath);
+    }
 });
 </script>
 

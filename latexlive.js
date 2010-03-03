@@ -63,15 +63,19 @@ LatexBlock.prototype = {
             
             while(latex.length)
             {
-                chooseCommand(latex.shift()).eachChild(function()
+                var token = latex.shift();
+                if(token == (this.parent && this.parent.end ? this.parent.end : '}'))
+                    break;
+                chooseCommand(token).eachChild(function()
                 {
-                    var blocksrc = latex.shift();
-                    if(/^\{.*\}$/.test(blocksrc))
-                        blocksrc = blocksrc.slice(1,-1); //slice off '{' and '}'
-                    this.latex(blocksrc);
-                }).appendTo(this);
+                    var token = latex.shift();
+                    if(token == '{')
+                        this.latex(latex);
+                    else
+                        this.latex(token);
+                }).appendTo(this).jQ.change();
             }
-            return this;
+            return this.setEmpty();
         }
         
         //no source was passed in; just render as latex.
@@ -684,7 +688,7 @@ LatexSquareRoot.prototype = new LatexCommand('\\sqrt ',['<span><span class="sqrt
 function LatexBraces(open, close)
 {
     LatexCommand.call(this,open,['<span><span class="open-paren">'+open+'</span><span>','</span><span class="close-paren">'+close+'</span></span>']);
-    this.opposite = close;
+    this.end = close;
     this.blocks[0].change(function(){
         var block = this.jQ;
         block.prev().add(block.next()).css('fontSize', block.height());
@@ -692,7 +696,7 @@ function LatexBraces(open, close)
 }
 LatexBraces.prototype = new LatexSymbol('LatexBraces.prototype');
 LatexBraces.prototype.latex = function() {
-    return this.cmd + this.blocks[0].latex() + this.opposite;
+    return this.cmd + this.blocks[0].latex() + this.end;
 };
 
 /************************ CURSOR ****************************/
@@ -1108,6 +1112,8 @@ function chooseCommand(cmd)
             return new LatexBraces('(',')');
         case '[':
             return new LatexBraces('[',']');
+        case '{':
+            return new LatexBraces('{','}');
         
         default:
             if(cmd.charAt(0) == '\\')
