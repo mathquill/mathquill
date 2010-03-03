@@ -979,7 +979,7 @@ function chooseCommand(cmd)
             return new LatexCommand('^', ['<sup>', '</sup>']);
 
         //these commands are sort of complicated.  We have to overload html()...maybe.
-        case '/': //falls through.  this is how to set an alias.
+        case '/':
         case '\\frac ':
             var frac = new LatexCommand('\\frac',
                 [
