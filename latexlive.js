@@ -67,7 +67,7 @@ LatexBlock.prototype = {
                 var token = latex.shift();
                 if(token == (this.parent && this.parent.end ? this.parent.end : '}'))
                     break;
-                /////////////////////////////////////////////////////////////////// THIS IS A TOTAL KLUDGE
+                /////////////////////////////////////////////////////////////////// THIS IS A TOTAL REMOVEME QUICKFIX
                 if(token == '/')
                     new LatexVanillaSymbol('/').appendTo(this);
                 else
@@ -76,6 +76,11 @@ LatexBlock.prototype = {
                     var token = latex.shift();
                     if(token == '{')
                         this.latex(latex);
+                    else if(this.parent instanceof LatexParens)
+                    {
+                        latex.unshift(token);
+                        this.latex(latex);
+                    }
                     else
                         this.latex(token);
                 }).appendTo(this).eachChild(function recurse(){
@@ -699,7 +704,7 @@ function LatexSquareRoot()
 LatexSquareRoot.prototype = new LatexCommand('\\sqrt ',['<span><span class="sqrt-prefix">&radic;</span><span class="sqrt-stem">','</span></span>']);
 
 // Parens/Brackets/Braces etc
-function LatexBraces(open, close)
+function LatexParens(open, close)
 {
     LatexCommand.call(this,open,['<span><span class="open-paren">'+open+'</span><span>','</span><span class="close-paren">'+close+'</span></span>']);
     this.end = close;
@@ -708,8 +713,8 @@ function LatexBraces(open, close)
         block.prev().add(block.next()).css('fontSize', block.height());
     });
 }
-LatexBraces.prototype = new LatexSymbol('LatexBraces.prototype');
-LatexBraces.prototype.latex = function() {
+LatexParens.prototype = new LatexSymbol('LatexParens.prototype');
+LatexParens.prototype.latex = function() {
     return this.cmd + this.blocks[0].latex() + this.end;
 };
 
@@ -1124,11 +1129,11 @@ function chooseCommand(cmd)
         
         //parens
         case '(':
-            return new LatexBraces('(',')');
+            return new LatexParens('(',')');
         case '[':
-            return new LatexBraces('[',']');
+            return new LatexParens('[',']');
         case '{':
-            return new LatexBraces('{','}');
+            return new LatexParens('{','}');
         
         default:
             if(cmd.charAt(0) == '\\')
