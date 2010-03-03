@@ -11,7 +11,7 @@
  *
  */
 
-$('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css">');
+//$('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css">');
  
 var LatexRoot = (function(){
 
@@ -70,6 +70,8 @@ LatexBlock.prototype = {
                 chooseCommand(token).eachChild(function()
                 {
                     var token = latex.shift();
+                    if(token == '/')
+                        this.firstChild = this.lastChild = new LatexVanillaSymbol('/');
                     if(token == '{')
                         this.latex(latex);
                     else
