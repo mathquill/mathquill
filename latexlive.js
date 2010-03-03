@@ -709,8 +709,8 @@ function LatexParens(open, close)
     LatexCommand.call(this,open,['<span><span class="open-paren">'+open+'</span><span>','</span><span class="close-paren">'+close+'</span></span>']);
     this.end = close;
     this.blocks[0].change(function(){
-        var block = this.jQ;
-        block.prev().add(block.next()).css('fontSize', block.height());
+        var block = this.jQ, height = block.height();
+        block.prev().add(block.next()).css('fontSize', block.height()).css('top',-height/15-1);
     });
 }
 LatexParens.prototype = new LatexSymbol('LatexParens.prototype');
@@ -988,6 +988,9 @@ function chooseCommand(cmd)
                     '</span>', //will still be length 3 despite comma
                 ]
             );
+            /*frac.blocks[1].change(function(){
+                this.parent.jQ.css('verticalAlign',-this.jQ.outerHeight()/2);
+            });*/
             if(cmd == '/')
             {
                 if(cursor.prev && $.inArray(cursor.prev.cmd,['+','-','=','\\sum ','\\prod ']) == -1)

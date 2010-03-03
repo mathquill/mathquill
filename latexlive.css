@@ -75,13 +75,13 @@
 }
 
 .latexlive-generated-math .fraction {
-    display:inline-block;
     text-align:center;
     vertical-align:middle;
 }
 
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
     display:block;
+    font-size:90%;
 }
 .latexlive-generated-math .numerator {
     border-bottom:solid black 1px;
@@ -93,10 +93,12 @@
     padding-top:2px;
     margin-top:0;
 }
+.latexlive-generated-math .numerator > .fraction, .latexlive-generated-math .denominator > .fraction {
+    font-size:90%;
+}
 
 .latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
     font-size:70%;
-    vertical-align:middle;
 }
 .latexlive-generated-math sup .numerator, .latexlive-generated-math sub .numerator {
     border-bottom:none;
@@ -126,7 +128,7 @@
 }
 
 .latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
-    vertical-align:bottom;
+    vertical-align: bottom;
     position:relative;
     top:-1px;
 }
