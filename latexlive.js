@@ -93,7 +93,7 @@ LatexBlock.prototype = {
                         });
                     else
                         this.jQ.change();
-                });
+                }).respace();
             }
             return this.setEmpty();
         }
@@ -648,7 +648,8 @@ LatexCommand.prototype = {
         return (this.next===null ||
             (this.next.cmd == 'the_cursor' && this.next.next === null)
         );
-    }
+    },
+    respace:function(){ return this; },
 };
 
 //class for symbols (lightweight commands that take no blocks)
@@ -674,7 +675,22 @@ function LatexBinaryOperator(cmd, html)
 {
     LatexSymbol.call(this, cmd, '<span class="operator">'+html+'</span>');
 }
-LatexBinaryOperator.prototype = LatexCommand.prototype;
+LatexBinaryOperator.prototype = new LatexSymbol('LatexBinaryOperator.prototype');
+
+function LatexPlusMinus(cmd, html)
+{
+    LatexVanillaSymbol.apply(this, arguments);
+}
+LatexPlusMinus.prototype = new LatexBinaryOperator('LatexPlusMinus.prototype');
+LatexPlusMinus.prototype.respace = function()
+{
+    //console.log(this.prev && this.prev.jQ.is('i') || this.prev === cursor && this.prev.prev && this.prev.prev.jQ.is('i'));
+    if(!this.prev || this.prev instanceof LatexBinaryOperator || this.prev === cursor && this.prev.prev instanceof LatexBinaryOperator)
+        this.jQ.removeClass('operator');
+    else
+        this.jQ.addClass('operator');
+    return this;
+};
 
 // Happens when someone hits backslash \: accepts arbitrary-length LaTeX commands
 function LatexCommandInput()
@@ -802,17 +818,23 @@ cursor.renderCommand=function(inputCmd)
 };
 cursor.newBefore = function(cmd)
 {
-    if(this.parent.parent instanceof LatexCommandInput && !/[a-z]/i.test(cmd))
+    if(this.parent.parent instanceof LatexCommandInput && !/[a-z,:;!]/i.test(cmd))
     {
         this.renderCommand(this.parent.parent);
         if(/\s/.test(cmd))
         {
             this.jQ.show().change();
+            this.prev.prev.respace();
             return;
         }
     }
     
     cmd = chooseCommand(cmd).insertBefore(this);
+    this.prev.respace();
+    if(this.prev.prev)
+        this.prev.prev.respace();
+    if(this.next)
+        this.next.respace();
     if(cmd.blocks.length)
         if(cmd.placeCursor)
             cmd.placeCursor(this);
@@ -833,6 +855,10 @@ cursor.backspace = function()
         this.selectLeft();
     
     this.jQ.show().change();
+    if(this.prev)
+        this.prev.respace();
+    if(this.next)
+        this.next.respace();
     
     return this;
 };
@@ -848,6 +874,10 @@ cursor.deleteForward = function()
         this.selectRight();
     
     this.jQ.show().change();
+    if(this.prev)
+        this.prev.respace();
+    if(this.next)
+        this.next.respace();
     
     return this;
 }
@@ -978,7 +1008,7 @@ function chooseCommand(cmd)
         case '^':
             return new LatexCommand('^', ['<sup>', '</sup>']);
 
-        //these commands are sort of complicated.  We have to overload html()...maybe.
+        //complicated commands
         case '/':
         case '\\frac ':
             var frac = new LatexCommand('\\frac',
@@ -1009,10 +1039,40 @@ function chooseCommand(cmd)
             }
             
             return frac;
+        /*case '\\cases ':
+        case '\\casewise ':
+            var cases = new LatexCommand('\\cases ',
+                [
+                    '<table style="display:inline-block"><tr><td>',
+                    '</td></tr></table>',
+                ]
+            );
+            return cases;*/
         
         //symbols that aren't the same HTML character entity reference as they are LaTeX commands
         case '\\neg ':
             return new LatexVanillaSymbol('\\neg ','&not;');
+        case '\\not ':
+            return new LatexSymbol('\\not ','<span class="not">/</span>');
+        case '\\quad ':
+        case '\\emsp ':
+            return new LatexVanillaSymbol('\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
+        case '\\qquad ':
+            return new LatexVanillaSymbol('\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+        case '\\, ':
+            return new LatexVanillaSymbol('\\, ','&nbsp;');
+        case '\\: ':
+            return new LatexVanillaSymbol('\\: ','&nbsp;&nbsp;');
+        case '\\; ':
+            return new LatexVanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
+        case '\\! ':
+            return new LatexSymbol('\\! ','<span style="margin-right:-.2em"></span>');
+        case '\\dots ':
+        case '\\ellip ':
+        case '\\hellip ':
+        case '\\ellipsis ':
+        case '\\hellipsis ':
+            return new LatexVanillaSymbol('\\dots ','&hellip;');
         case '\\darr ':
         case '\\dnarr ':
         case '\\dnarrow ':
@@ -1029,6 +1089,31 @@ function chooseCommand(cmd)
         case '\\uArr ':
         case '\\Uparrow ':
             return new LatexVanillaSymbol('\\Uparrow ','&uArr;');
+        case '\\to ':
+            return new LatexBinaryOperator('\\to ','&rarr;');
+        case '\\rarr ':
+        case '\\rightarrow ':
+            return new LatexVanillaSymbol('\\rightarrow ','&rarr;');
+        case '\\implies ':
+        case '\\rArr ':
+        case '\\Rightarrow ':
+            return new LatexVanillaSymbol('\\Rightarrow ','&rArr;');
+        case '\\gets ':
+        case '\\larr ':
+        case '\\leftarrow':
+            return new LatexVanillaSymbol('\\leftarrow ','&larr;');
+        case '\\lArr ':
+        case '\\Leftarrow ':
+            return new LatexVanillaSymbol('\\Leftarrow ','&lArr;');
+        case '\\harr ':
+        case '\\lrarr ':
+        case '\\leftrightarrow ':
+            return new LatexVanillaSymbol('\\leftrightarrow ','&harr;');
+        case '\\iff ':
+        case '\\hArr ':
+        case '\\lrArr ':
+        case '\Leftrightarrow ':
+            return new LatexVanillaSymbol('\\Leftrightarrow ','&hArr;');
         case '\\Re ':
         case '\\Real ':
         case '\\real ':
@@ -1067,6 +1152,7 @@ function chooseCommand(cmd)
             return new LatexVanillaSymbol('\\cap ','&cap;');
         
         case '*':
+        case '\\sdot ':
         case '\\cdot ':
             return new LatexVanillaSymbol('\\cdot ', '&sdot;');
         
@@ -1074,10 +1160,19 @@ function chooseCommand(cmd)
         case '|':
         case '=':
         case '%':
-        case '+':
             return new LatexBinaryOperator(cmd, cmd);
+        case '+':
+            return new LatexPlusMinus('+','+');
         case '-':
-            return new LatexBinaryOperator('-','&minus;');
+            return new LatexPlusMinus('-','&minus;');
+        case '\\pm ':
+        case '\\plusmn ':
+        case '\\plusminus ':
+            return new LatexPlusMinus('\\pm ','&plusmn;');
+        case '\\div ':
+        case '\\divide ':
+        case '\\divides ':
+            return new LatexBinaryOperator('\\div ','&divide;');
         case '\\ne ':
         case '\\neq ':
             return new LatexBinaryOperator(cmd,'&ne;');
@@ -1086,10 +1181,12 @@ function chooseCommand(cmd)
         //case '\\there4 ': a special exception for this one, perhaps? lol
         case '\\therefore ':
             return new LatexBinaryOperator('\\therefore ','&there4;');
-        case '\\pm ':
-        case '\\plusmn ':
-        case '\\plusminus ':
-            return new LatexBinaryOperator('\\pm ','&plusmn;');
+        case '\\prop ':
+        case '\\propto ':
+            return new LatexBinaryOperator('\\propto ','&prop;');
+        case '\\asymp ':
+        case '\\approx ':
+            return new LatexBinaryOperator('\\approx ','&asymp;');
         case '<':
         case '\\lt ':
             return new LatexBinaryOperator('<','&lt;');
@@ -1124,6 +1221,7 @@ function chooseCommand(cmd)
         case '\\ni ':
         case '\\sim ':
         case '\\equiv ':
+        case '\\times ':
             return new LatexBinaryOperator(cmd,'&'+cmd.slice(1,-1)+';');
         
         //non-italicized functions

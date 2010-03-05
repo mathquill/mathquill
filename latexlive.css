@@ -137,3 +137,7 @@
     padding: 0;
     background-color: #DEF;
 }
+
+.latexlive-generated-math .not {
+    margin-right:-1em;
+}
