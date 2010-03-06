@@ -227,7 +227,7 @@ function LatexRoot(textElement, tabindex)
     //make the cursor blink
     
     var intervalId;
-    var keydnTriggered = false;
+    var continueDefault = true;
     var root = this;
     this.jQ.focus(function()
     {
@@ -255,13 +255,14 @@ function LatexRoot(textElement, tabindex)
         $(this).removeClass('hasCursor');
     }).keydown(function(e)
     {
-        keydnTriggered = true;
+        continueDefault = false;
         if(cursor.parent)
         {
+            e.ctrlKey = e.ctrlKey || e.metaKey;
             switch(e.which)
             {
                 case 35: //end
-                    if(e.metaKey) //move to the end of the root block.
+                    if(e.ctrlKey) //move to the end of the root block.
                     {
                         root = cursor.parent;
                         while(root.parent)
@@ -276,7 +277,7 @@ function LatexRoot(textElement, tabindex)
                     }
                     return;
                 case 36: //home
-                    if(e.metaKey) //move to the start of the root block.
+                    if(e.ctrlKey) //move to the start of the root block.
                     {
                         root = cursor.parent;
                         while(root.parent)
@@ -303,54 +304,58 @@ function LatexRoot(textElement, tabindex)
                 case 40: //down
                     return false;
                 case 8: //backspace
-                    e.preventDefault();
-                    if(e.metaKey)
+                    if(e.ctrlKey)
                         while(cursor.prev)
                             cursor.backspace();
                     else
                         cursor.backspace();
                     return false;
                 case 46: //delete
-                    e.preventDefault();
-                    if(e.metaKey)
+                    if(e.ctrlKey)
                         while(cursor.next)
                             cursor.deleteForward();
                     else
                         cursor.deleteForward();
                     return false;
                 case 9: //tab
-                    e.preventDefault();
+                    var parent = cursor.parent, gramp = parent.parent;
                     if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
                     {
-                        if(cursor.parent.parent === null) //cursor is in the root block.
-                            cursor.prependTo(cursor.parent); //move it to the beginning.
-                        else if(cursor.parent.position == 0) //escape
-                            cursor.insertBefore(cursor.parent.parent);
+                        if(!gramp) //cursor is in the root
+                            if(parent.isEmpty())
+                                return continueDefault = false; //prevent default
+                            else
+                                cursor.prependTo(parent);
+                        else if(parent.position == 0) //escape
+                            cursor.insertBefore(gramp);
                         else //move one block left
-                            cursor.appendTo(cursor.parent.parent.blocks[cursor.parent.position-1]);
+                            cursor.appendTo(gramp.blocks[parent.position-1]);
                     }
                     else //plain Tab = go one block right if it exists, else 
                     {
-                        if(!cursor.parent.parent) //cursor is in the root block.
-                            cursor.appendTo(cursor.parent); //move it to the end.
-                        else if(cursor.parent.parent.constructor == LatexCommandInput)
-                            cursor.renderCommand(cursor.parent.parent);
-                        else if(cursor.parent.position == cursor.parent.parent.blocks.length - 1) //escape
-                            cursor.insertAfter(cursor.parent.parent);
+                        if(!gramp) //cursor is in the root
+                            if(parent.isEmpty())
+                                return continueDefault = false; //prevent default
+                            else
+                                cursor.appendTo(parent);
+                        else if(parent.position == gramp.blocks.length - 1) //escape this block
+                            cursor.insertAfter(gramp);
                         else //move one block right
-                            cursor.prependTo(cursor.parent.parent.blocks[cursor.parent.position+1]);
+                            cursor.prependTo(gramp.blocks[parent.position+1]);
                     }
                     return false;
                 default:
                     //do nothing, pass to keypress.
-                    keydnTriggered = false;
+                    continueDefault = true;
             }
         }
     }).keypress(function(e)
     {
-        if(!keydnTriggered && cursor.parent)
+        if(!continueDefault)
+            return false;
+        if(cursor.parent)
         {
-            if(e.metaKey)
+            if(e.ctrlKey || e.metaKey)
                 return; //don't capture Ctrl+anything.
             switch(e.which)
             {
@@ -359,15 +364,10 @@ function LatexRoot(textElement, tabindex)
                 default:
                     var cmd = String.fromCharCode(e.which);
                     if(cmd)
-                    {
-                        e.preventDefault();
                         cursor.newBefore(cmd);
-                    }
+                    return false;
             }
         }
-        else
-            keydnTriggered = false;
-        return false;
     }).focus();
     
     return this;
@@ -951,7 +951,7 @@ cursor.selectRight = function()
         }
         else
         {
-            if(!this.parent) //rootblock
+            if(!this.parent.parent) //rootblock
                 return this;
             
             this.insertAfter(this.parent.parent);
