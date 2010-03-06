@@ -14,7 +14,7 @@ var LatexImages = false;
 $(function(){
     var editingSource=false,latexMath = LatexRoot('#talkmath').change(function(){
         var latex = this.latex();
-	location.hash = '#'+latex;
+	//location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
         if(!editingSource)
             $('#latex-source').val(latex);
 	if(!LatexImages)
@@ -55,9 +55,11 @@ img {
 </head>
 <body style="width:6.5in;margin:0 auto;">
 
-<h1>LatexLive 0.x<span style="font-family:'Times New Roman',serif">&alpha;</span></h1>
+<h1><a href="http://latexlive.googlecode.com">LatexLive 0.x<span style="font-family:'Times New Roman',serif">&alpha;</span></a></h1>
 
 <h3>Type in Latex Math and watch it render in real-time</h3>
+
+<p>by Jay and Han (<a href="mailto:laughinghan@gmail.com">laughinghan@gmail.com</a>) See also: <a href="http://latexlive.googlecode.com">latexlive.googlecode.com</a>
 
 <p><span id="talkmath">Talk Math:</span></p>
 
