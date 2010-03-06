@@ -684,8 +684,7 @@ function LatexPlusMinus(cmd, html)
 LatexPlusMinus.prototype = new LatexBinaryOperator('LatexPlusMinus.prototype');
 LatexPlusMinus.prototype.respace = function()
 {
-    //console.log(this.prev && this.prev.jQ.is('i') || this.prev === cursor && this.prev.prev && this.prev.prev.jQ.is('i'));
-    if(!this.prev || this.prev instanceof LatexBinaryOperator || this.prev === cursor && this.prev.prev instanceof LatexBinaryOperator)
+    if(!this.prev || this.prev instanceof LatexBinaryOperator || this.prev === cursor && (!this.prev.prev || this.prev.prev instanceof LatexBinaryOperator))
         this.jQ.removeClass('operator');
     else
         this.jQ.addClass('operator');
@@ -818,6 +817,7 @@ cursor.renderCommand=function(inputCmd)
 };
 cursor.newBefore = function(cmd)
 {
+    this.deleteSelection();
     if(this.parent.parent instanceof LatexCommandInput && !/[a-z,:;!]/i.test(cmd))
     {
         this.renderCommand(this.parent.parent);
