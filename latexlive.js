@@ -725,7 +725,7 @@ function LatexParens(open, close)
     this.end = close;
     this.blocks[0].change(function(){
         var block = this.jQ, height = block.height();
-        block.prev().add(block.next()).css('fontSize', block.height()).css('top',-height/15-1);
+        block.prev().add(block.next()).css('fontSize', block.height()).css('top',-height/15);
     });
 }
 LatexParens.prototype = new LatexSymbol('LatexParens.prototype');

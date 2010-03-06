@@ -130,7 +130,7 @@
 .latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
     vertical-align: bottom;
     position:relative;
-    top:-1px;
+    top:1px;
 }
 
 .latexlive-generated-math .selection {
