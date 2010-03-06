@@ -822,11 +822,7 @@ cursor.newBefore = function(cmd)
     {
         this.renderCommand(this.parent.parent);
         if(/\s/.test(cmd))
-        {
-            this.jQ.show().change();
-            this.prev.prev.respace();
             return;
-        }
     }
     
     cmd = chooseCommand(cmd).insertBefore(this);
@@ -912,7 +908,7 @@ cursor.selectLeft = function(){
         }
         else
         {
-            if(!this.parent) //rootblock
+            if(!this.parent.parent) //rootblock
                 return this;
             
             //select the parent.parent command.
