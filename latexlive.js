@@ -1126,6 +1126,8 @@ function chooseCommand(cmd)
             return new LatexVanillaSymbol('\\infty ','&infin;');
         case '\\alef ':
             return new LatexVanillaSymbol('\\alef ','&alefsym;');
+        case '\\forall ':
+            return new LatexVanillaSymbol('\\forall ','&forall;');
         case '\\xist ':
         case '\\xists ': //LOL
         case '\\exist ':
