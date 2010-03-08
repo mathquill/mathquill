@@ -322,11 +322,18 @@ function LatexRoot(textElement, tabindex)
                     if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
                     {
                         if(!gramp) //cursor is in the root
+                        {
                             if(parent.isEmpty())
-                                return continueDefault = false; //prevent default
+                                continueDefault = false; //prevent default
                             else
                                 cursor.prependTo(parent);
-                        else if(parent.position == 0) //escape
+                            return false;
+                        }
+                        if(gramp instanceof LatexCommandInput)
+                            cursor.renderCommand(gramp);
+                        parent = cursor.parent;
+                        gramp = parent.parent;
+                        if(parent.position == 0) //escape
                             cursor.insertBefore(gramp);
                         else //move one block left
                             cursor.appendTo(gramp.blocks[parent.position-1]);
@@ -334,11 +341,18 @@ function LatexRoot(textElement, tabindex)
                     else //plain Tab = go one block right if it exists, else 
                     {
                         if(!gramp) //cursor is in the root
+                        {
                             if(parent.isEmpty())
-                                return continueDefault = false; //prevent default
+                                continueDefault = false; //prevent default
                             else
                                 cursor.appendTo(parent);
-                        else if(parent.position == gramp.blocks.length - 1) //escape this block
+                            return false;
+                        }
+                        if(gramp instanceof LatexCommandInput)
+                            cursor.renderCommand(gramp);
+                        parent = cursor.parent;
+                        gramp = parent.parent;
+                        if(parent.position == gramp.blocks.length - 1) //escape this block
                             cursor.insertAfter(gramp);
                         else //move one block right
                             cursor.prependTo(gramp.blocks[parent.position+1]);
@@ -695,6 +709,12 @@ LatexPlusMinus.prototype.respace = function()
 function LatexCommandInput()
 {
     LatexCommand.call(this);
+    this.blocks[0].setEmpty = function()
+    {
+        if(this.isEmpty())
+            this.jQ.html('&nbsp;&nbsp;').addClass('empty');
+        return this;
+    };
 }
 LatexCommandInput.prototype = new LatexCommand('a_latex_command_input',['<span class="latex-command-input">','</span>']);
 LatexCommandInput.prototype.latex = function()
@@ -813,7 +833,7 @@ cursor.renderCommand=function(inputCmd)
     latex = inputCmd.latex();
     this.insertAfter(inputCmd);
     inputCmd.remove();
-    this.newBefore(latex);
+    return this.newBefore(latex);
 };
 cursor.newBefore = function(cmd)
 {

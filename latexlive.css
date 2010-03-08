@@ -41,6 +41,8 @@
     margin-right:-1px;
     padding:0;
     display:inline;
+    position:relative;
+    z-index:1;
 }
 
 .latexlive-generated-math .the-cursor.blink {
@@ -108,6 +110,18 @@
     padding-top:0;
 }
 
+.latexlive-generated-math .latex-command-input {
+    border:solid gray 1px;
+    margin:-1px 1px -2px 2px;
+    padding-bottom:1px;
+}
+.latexlive-generated-math .latex-command-input.hasCursor {
+    border:solid #DEF 2px;
+    margin:-2px 0 -3px 1px;
+}
+.latexlive-generated-math .latex-command-input.empty {
+    color:inherit;
+}
 .latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
     font-family: "Courier New", monospace;
     font-style:normal;
