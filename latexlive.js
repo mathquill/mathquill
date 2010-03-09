@@ -838,7 +838,7 @@ cursor.renderCommand=function(inputCmd)
 cursor.newBefore = function(cmd)
 {
     this.deleteSelection();
-    if(this.parent.parent instanceof LatexCommandInput && !/[a-z,:;!]/i.test(cmd))
+    if(this.parent.parent instanceof LatexCommandInput && !/[a-z,:;!\{\}]/i.test(cmd))
     {
         this.renderCommand(this.parent.parent);
         if(/\s/.test(cmd))
@@ -1006,11 +1006,17 @@ function chooseCommand(cmd)
         if(cmd.match(/[a-z]/i)) //variable
             return new LatexVar(cmd);
     }
+    //now look for the "real" commands
     
+    //trig
     if(/^\\(a|arc)?(sin|cos|tan|cot|sec|csc)h? $/.test(cmd))
         return new LatexVanillaSymbol(cmd, cmd.slice(1,-1));
     
-    //now look for the "real" commands
+    //text
+    if(/^\\text\{.*\} $/.test(cmd))
+        return new LatexVanillaSymbol(cmd, cmd.slice(6,-2));
+    
+    ////////////////////////////////////////////////////////////////////////REMOVEME HACK append space if there is none
     if(cmd.length > 1 && cmd.charAt(0)=='\\' && cmd.slice(-1)!=' ')
         cmd+=' ';
     switch(cmd)
@@ -1066,10 +1072,10 @@ function chooseCommand(cmd)
             return cases;*/
         
         //symbols that aren't the same HTML character entity reference as they are LaTeX commands
+        case '\\not ':
+            //return new LatexSymbol('\\not ','<span class="not">/</span>');
         case '\\neg ':
             return new LatexVanillaSymbol('\\neg ','&not;');
-        case '\\not ':
-            return new LatexSymbol('\\not ','<span class="not">/</span>');
         case '\\quad ':
         case '\\emsp ':
             return new LatexVanillaSymbol('\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
@@ -1135,19 +1141,25 @@ function chooseCommand(cmd)
         case '\\real ':
             return new LatexVanillaSymbol('\\Re ','&real;');
         case '\\Im ':
-        case '\\Image ':
-        case '\\Imaginary ':
+        case '\\imag ':
+        case '\\image ':
+        case '\\imagin ':
         case '\\imaginary ':
+        case '\\Imaginary ':
             return new LatexVanillaSymbol('\\Im ','&image;');
         case '\\part ':
         case '\\partial ':
             return new LatexVanillaSymbol('\\partial ','&part;');
+        case '\\inf ':
+        case '\\infin ':
         case '\\infty ':
+        case '\\infinity ':
             return new LatexVanillaSymbol('\\infty ','&infin;');
         case '\\alef ':
-            return new LatexVanillaSymbol('\\alef ','&alefsym;');
-        case '\\forall ':
-            return new LatexVanillaSymbol('\\forall ','&forall;');
+        case '\\alefsym ':
+        case '\\aleph ':
+        case '\\alephsym ':
+            return new LatexVanillaSymbol('\\aleph ','&alefsym;');
         case '\\xist ':
         case '\\xists ': //LOL
         case '\\exist ':
@@ -1161,14 +1173,18 @@ function chooseCommand(cmd)
         case '\\lor ':
         case '\\vee ':
             return new LatexVanillaSymbol('\\vee ','&or;');
-        case '\\cup ':
         case '\\union ':
             return new LatexVanillaSymbol('\\cup ','&cup;');
-        case '\\cap ':
         case '\\intersect ':
         case '\\intersection ':
             return new LatexVanillaSymbol('\\cap ','&cap;');
+        case '\\deg ':
+        case '\\degree ':
+            return new LatexVanillaSymbol('^{\\circ}','&deg;');
         
+        case '\'' :
+        case '\\prime ':
+            return new LatexVanillaSymbol('\'','&prime;');
         case '*':
         case '\\sdot ':
         case '\\cdot ':
@@ -1187,6 +1203,10 @@ function chooseCommand(cmd)
         case '\\plusmn ':
         case '\\plusminus ':
             return new LatexPlusMinus('\\pm ','&plusmn;');
+        case '\\mp ':
+        case '\\mnplus ':
+        case '\\minusplus ':
+            return new LatexPlusMinus('\\mp ','&#8723;');
         case '\\div ':
         case '\\divide ':
         case '\\divides ':
@@ -1195,8 +1215,11 @@ function chooseCommand(cmd)
         case '\\neq ':
             return new LatexBinaryOperator(cmd,'&ne;');
         case '\\ast ':
+        case '\\loast ':
+        case '\\lowast ':
             return new LatexBinaryOperator('\\ast ','&lowast;');
         //case '\\there4 ': a special exception for this one, perhaps? lol
+        case '\\therefor ':
         case '\\therefore ':
             return new LatexBinaryOperator('\\therefore ','&there4;');
         case '\\prop ':
@@ -1250,7 +1273,6 @@ function chooseCommand(cmd)
         case '\\proj ':
         case '\\det ':
         case '\\dim ':
-        case '\\deg ':
         case '\\min ':
         case '\\max ':
         case '\\mod ':
@@ -1272,7 +1294,7 @@ function chooseCommand(cmd)
         
         default:
             if(cmd.charAt(0) == '\\')
-                return new LatexSymbol(cmd,'<i>&'+cmd.slice(1,-1)+';</i>');
+                return new LatexVanillaSymbol(cmd,'&'+cmd.slice(1,-1)+';');
             else
                 return new LatexVanillaSymbol(cmd);
     }
