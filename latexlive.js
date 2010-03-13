@@ -1095,6 +1095,7 @@ function chooseCommand(cmd)
         case '\\ellipsis ':
         case '\\hellipsis ':
             return new LatexVanillaSymbol('\\dots ','&hellip;');
+        case '\\converges ':
         case '\\darr ':
         case '\\dnarr ':
         case '\\dnarrow ':
@@ -1105,6 +1106,7 @@ function chooseCommand(cmd)
         case '\\dnArrow ':
         case '\\Downarrow ':
             return new LatexVanillaSymbol('\\Downarrow ','&dArr;');
+        case '\\diverges ':
         case '\\uarr ':
         case '\\uparrow ':
             return new LatexVanillaSymbol('\\uparrow ','&uarr;');
@@ -1117,13 +1119,17 @@ function chooseCommand(cmd)
         case '\\rightarrow ':
             return new LatexVanillaSymbol('\\rightarrow ','&rarr;');
         case '\\implies ':
+            return new LatexBinaryOperator('\\Rightarrow ','&rArr;');
         case '\\rArr ':
         case '\\Rightarrow ':
             return new LatexVanillaSymbol('\\Rightarrow ','&rArr;');
         case '\\gets ':
+            return new LatexBinaryOperator('\\gets ','&larr;');
         case '\\larr ':
         case '\\leftarrow':
             return new LatexVanillaSymbol('\\leftarrow ','&larr;');
+        case '\\impliedby ':
+            return new LatexBinaryOperator('\\Leftarrow ','&lArr;');
         case '\\lArr ':
         case '\\Leftarrow ':
             return new LatexVanillaSymbol('\\Leftarrow ','&lArr;');
@@ -1132,6 +1138,7 @@ function chooseCommand(cmd)
         case '\\leftrightarrow ':
             return new LatexVanillaSymbol('\\leftrightarrow ','&harr;');
         case '\\iff ':
+            return new LatexBinaryOperator('\\Leftrightarrow ','&hArr;');
         case '\\hArr ':
         case '\\lrArr ':
         case '\Leftrightarrow ':
@@ -1218,10 +1225,13 @@ function chooseCommand(cmd)
         case '\\loast ':
         case '\\lowast ':
             return new LatexBinaryOperator('\\ast ','&lowast;');
-        //case '\\there4 ': a special exception for this one, perhaps? lol
+        //case '\\there4 ': // a special exception for this one, perhaps?
         case '\\therefor ':
         case '\\therefore ':
             return new LatexBinaryOperator('\\therefore ','&there4;');
+        case '\\cuz ': // l33t
+        case '\\because ':
+            return new LatexBinaryOperator('\\because ','&#8757;');
         case '\\prop ':
         case '\\propto ':
             return new LatexBinaryOperator('\\propto ','&prop;');
