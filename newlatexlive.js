@@ -3,22 +3,20 @@
     prev: null,
     next: null,
     parent: null,
-    _jQ: false, 
-    jQ: function(el) 
+    jQ: (function() // closure around the actual jQuery object
     {
-      if(el)
-        return (this._jQ = jQuery(el));
+        var actual;
+        return function(el)
+        {
+          if(arguments.length) // not if(el), which would fail on .jQ(undefined)
+            return actual = jQuery(el);
 
-      if(this._jQ)
-        return this._jQ;
+          if(actual)
+            return actual;
 
-      if(this.html)
-        var content = this.html(); 
-      else
-        var content = '';
-
-      return jQuery(content).data('latexdom', this);
-    },
+          return actual = jQuery(this.html ? this.html() : null).data('latexlive', this);
+        };
+    }()),
     prependTo: function(el)
     {
         if(this.parent)
@@ -174,4 +172,4 @@
     }
   }
 
-})();
+}());

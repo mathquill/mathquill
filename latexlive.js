@@ -1180,6 +1180,13 @@ function chooseCommand(cmd)
         case '\\lor ':
         case '\\vee ':
             return new LatexVanillaSymbol('\\vee ','&or;');
+        case '\\o ':
+        case '\\O ':
+        case '\\empty ':
+        case '\\emptyset ':
+        case '\\nothing ':
+        case '\\varnothing ':
+            return new LatexBinaryOperator('\\O ','&empty;');
         case '\\union ':
             return new LatexVanillaSymbol('\\cup ','&cup;');
         case '\\intersect ':
@@ -1253,23 +1260,65 @@ function chooseCommand(cmd)
         case '\\sub ':
         case '\\subset ':
             return new LatexBinaryOperator('\\subset ','&sub;');
+        case '\\nsub ':
+        case '\\notsub ':
+        case '\\nsubset ':
+        case '\\notsubset ':
+            return new LatexBinaryOperator('\\not\\subset ','&#8836;');
         case '\\sup ':
         case '\\supset ':
+        case '\\superset ':
             return new LatexBinaryOperator('\\supset ','&sup;');
+        case '\\nsup ':
+        case '\\notsup ':
+        case '\\nsupset ':
+        case '\\notsupset ':
+        case '\\nsuperset ':
+        case '\\notsuperset ':
+            return new LatexBinaryOperator('\\not\\supset ','&#8837;');
         case '\\sube ':
         case '\\subeq ':
         case '\\subsete ':
         case '\\subseteq ':
             return new LatexBinaryOperator('\\subseteq ','&sube;');
+        case '\\nsube ':
+        case '\\nsubeq ':
+        case '\\notsube ':
+        case '\\notsubeq ':
+        case '\\nsubsete ':
+        case '\\nsubseteq ':
+        case '\\notsubsete ':
+        case '\\notsubseteq ':
+            return new LatexBinaryOperator('\\not\\subseteq ','&#8840;');
         case '\\supe ':
         case '\\supeq ':
         case '\\supsete ':
         case '\\supseteq ':
             return new LatexBinaryOperator('\\supseteq ','&supe;');
+        case '\\nsupe ':
+        case '\\nsupeq ':
+        case '\\notsupe ':
+        case '\\notsupeq ':
+        case '\\nsupsete ':
+        case '\\nsupseteq ':
+        case '\\notsupsete ':
+        case '\\notsupseteq ':
+        case '\\nsupersete ':
+        case '\\nsuperseteq ':
+        case '\\notsupersete ':
+        case '\\notsuperseteq ':
+            return new LatexBinaryOperator('\\not\\supseteq ','&#8841;');
         case '\\in ':
             return new LatexBinaryOperator('\\in ','&isin;');
-        case '\\notin ':
         case '\\ni ':
+        case '\\contains ':
+            return new LatexBinaryOperator('\\ni ','&ni;');
+        case '\\notni ':
+        case '\\niton ':
+        case '\\notcontains ':
+        case '\\doesnotcontain ':
+            return new LatexBinaryOperator('\\not\\ni ','&#8716;');
+        case '\\notin ':
         case '\\sim ':
         case '\\equiv ':
         case '\\times ':
