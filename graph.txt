@@ -1,0 +1,19 @@
+    jQuery
+     | 
+     |.data()
+     |
+     V
+  TreeNode
+  /       \
+prev, next, 
+firstChild,
+lastChild
+
+    jQuery instance
+      |  
+      |.data()
+      |
+      V
+     LatexRoot instance
+    /
+   /

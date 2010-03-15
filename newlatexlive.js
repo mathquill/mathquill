@@ -4,8 +4,11 @@
     next: null,
     parent: null,
     _jQ: false, 
-    jQ: function() 
+    jQ: function(el) 
     {
+      if(el)
+        return (this._jQ = jQuery(el));
+
       if(this._jQ)
         return this._jQ;
 
@@ -103,18 +106,26 @@
       for(el = this.lastChild; el !=== null; el = el.prev)
         fn.call(el);
     },
+    respace: function() { return this; }
   }
 
   function MathBlock()
   { 
+    if(commands)
+      for (var i = 0; i < commands.length; i += 1)
+        commands[i].appendTo(this);
+    return this;
   }
   MathBlock.prototype = { 
     __proto__: mathElement,
     html: function()
     { 
       var html = '';
-      
-    }
+      this.eachChild(function(){
+        html += this.html();
+      });
+      return html;
+    },
   }
 
   function RootMathBlock()
@@ -128,34 +139,39 @@
 
   function MathOperator(cmd, html_template)
   { 
-    if(cmd)
-      this.command = cmd;
-    if(html_template)
-      this.html_template = html_template;
-    
-    for(var i = 0; i < this.html_template.length - 1; i += 1)
-      (new MathBlock).appendTo(this);
-
-    if(this.html_template.length > 2)
-    {
-      var that = this;
-      this.eachChild(function()
-      { 
-        this.jQ()
-      }
-    }
+    this.command = cmd;
+    this.html_template = html_template;
+    this.__initBlocks();
   }
   MathOperator.prototype = {
     __proto__: mathElement, 
+    __initBlocks: function()
+    {
+      for(var i = 0; i < this.html_template.length - 1; i += 1)
+        (new MathBlock).appendTo(this); 
+    }
     latex: function()
-    { 
+    {
       var rendered = this.cmd
       this.eachChild(function(){
         rendered += '{' + this.latex() + '}';
       }
       return rendered;
     }
+    html: function()
+    {
+      var i = 0;
+      rendered = this.html_template[0]
 
+      that = this;
+      this.eachChild(function(){
+        i += 1;
+        try {
+          rendered += this.html() + html_template[i]
+        } catch(e) {}
+      });
+      return rendered;
+    }
   }
 
 })();
