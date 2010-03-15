@@ -1,4 +1,16 @@
-(function() { 
+/**
+ *
+ * usage:
+ * $(thing).latexlive();
+ * turns thing into a live editable thingy.
+ * AMAZORZ.
+ */
+
+jQuery.fn.latexlive = (function() { 
+  /**
+   * mathElement is the main LaTeXDOM prototype.
+   * It prototypes both Blocks and Operators.
+   */
   mathElement = { 
     prev: null,
     next: null,
@@ -101,10 +113,9 @@
     },
     eachChildRev: function(fn)
     { 
-      for(el = this.lastChild; el !=== null; el = el.prev)
+      for(el = this.lastChild; el !== null; el = el.prev)
         fn.call(el);
     },
-    respace: function() { return this; }
   }
 
   function MathBlock()
@@ -114,8 +125,7 @@
         commands[i].appendTo(this);
     return this;
   }
-  MathBlock.prototype = { 
-    __proto__: mathElement,
+  MathBlock.prototype = jQuery.extend({}, mathElement, { 
     html: function()
     { 
       var html = '';
@@ -124,16 +134,16 @@
       });
       return html;
     },
-  }
+  });
 
-  function RootMathBlock()
+  function RootMathBlock(dom)
   {
     jQuery(dom).replaceWith(this.jQ());
     this.cursor = new Cursor(this);
+    this.jQ().data('cursor', this.cursor);
   }
-  RootMathBlock.prototype = {
-    __proto__: MathBlock.prototype,
-  }
+  RootMathBlock.prototype = jQuery.extend({}, MathBlock.prototype, {
+  });
 
   function MathOperator(cmd, html_template)
   { 
@@ -141,13 +151,12 @@
     this.html_template = html_template;
     this.__initBlocks();
   }
-  MathOperator.prototype = {
-    __proto__: mathElement, 
+  MathOperator.prototype = jQuery.extend({}, mathElement, {
     __initBlocks: function()
     {
       for(var i = 0; i < this.html_template.length - 1; i += 1)
         (new MathBlock).appendTo(this); 
-    }
+    },
     latex: function()
     {
       var rendered = this.cmd
@@ -155,7 +164,7 @@
         rendered += '{' + this.latex() + '}';
       }
       return rendered;
-    }
+    },
     html: function()
     {
       var i = 0;
@@ -165,11 +174,26 @@
       this.eachChild(function(){
         i += 1;
         try {
-          rendered += this.html() + html_template[i]
-        } catch(e) {}
+          rendered += this.html() + that.html_template[i]
+        } catch(e) {
+          //since there may be any number of blocks,
+          //we have to take into account the case
+          //in which html_template.length < 1 + number of blocks.
+          //in this case, just silently fail.
+        }
       });
       return rendered;
-    }
+    },
+    //placeholder for context-sensitive spacing.
+    respace: function() { return this; }
+  });
+
+  //expose public method to jQuery.  
+  //this is intended to be called
+  //on a jQuery object.
+  return function()
+  {
+    return jQuery(this).replaceWith(new MathRootBlock());
   }
 
 }());
