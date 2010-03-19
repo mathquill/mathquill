@@ -249,6 +249,7 @@ function LatexRoot(textElement, tabindex)
     }).blur(function(e){
         clearInterval(intervalId);
         cursor.jQ.hide();
+
         cursor.parent.setEmpty().jQ.removeClass('hasCursor');
         if(root.isEmpty())
             cursor.detach();
@@ -1037,7 +1038,7 @@ function chooseCommand(cmd)
                 [
                     '<span class="fraction"><span class="numerator">',
                     '</span><span class="denominator">',
-                    '</span>', //will still be length 3 despite comma
+                    '</span>'
                 ]
             );
             /*frac.blocks[1].change(function(){
