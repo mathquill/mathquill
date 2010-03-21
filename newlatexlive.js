@@ -180,7 +180,8 @@ jQuery.fn.latexlive = (function() {
     jQ: MathElement.prototype.jQ,
     setParentEmpty: function()
     {
-      this.parent && this.parent.removeEmpty();
+      if(this.parent)
+        this.parent.setEmpty();
     },
     detach: function()
     {
@@ -230,8 +231,11 @@ jQuery.fn.latexlive = (function() {
     moveLeft: function()
     {
       if(this.prev)
-        this.insertBefore(this.prev);
-      else if(this.parent)
+        if(this.prev.lastChild)
+          this.appendTo(this.prev.lastChild)
+        else
+          this.insertBefore(this.prev);
+      else
         if(this.parent.prev)
           this.appendTo(this.parent.prev);
         else if(this.parent.parent)
@@ -242,8 +246,11 @@ jQuery.fn.latexlive = (function() {
     moveRight: function()
     {
       if(this.next)
-        this.insertAfter(this.next);
-      else if(this.parent)
+        if(this.next.firstChild)
+          this.prependTo(this.next.firstChild)
+        else
+          this.insertAfter(this.next);
+      else
         if(this.parent.next)
           this.prependTo(this.parent.next);
         else if(this.parent.parent)
