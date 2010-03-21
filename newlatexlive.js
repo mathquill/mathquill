@@ -35,115 +35,6 @@ jQuery.fn.latexlive = (function() {
     {
       return this.firstChild === null && this.lastChild === null;
     },
-    prependTo: function(el)
-    {
-      if(this.parent)
-        this.detach();
-      
-      this.parent = el;
-      this.next = el.firstChild;
-      this.prev = null;
-      if(el.firstChild)
-        el.firstChild.prev = this;
-      else
-        el.lastChild = this;
-      el.firstChild = this;
-
-      this.jQ().prependTo(el.jQ());
-      
-      return this;
-    },
-    appendTo:function(el)
-    {
-        if(this.parent)
-          this.detach();
-        
-        this.parent = el;
-        this.prev = el.lastChild;
-        this.next = null;
-        if(el.lastChild)
-          el.lastChild.next = this;
-        else
-          el.firstChild = this;
-        el.lastChild = this;
-
-        this.jQ().appendTo(el.jQ());
-        
-        return this;
-    },
-    insertBefore: function(el)
-    {
-      if(this.parent)
-        this.detach();
-      
-      this.parent = el.parent;
-      this.prev = el.prev;
-      if(this.prev)
-        this.prev.next = this;
-      this.next = el;
-      el.prev = this;
-      
-      if(this.parent && el === this.parent.firstChild)
-        this.parent.firstChild = this;
-
-      this.jQ().insertBefore(el.jQ);
-      
-      return this;
-    },
-    insertAfter:function(el)
-    {
-      if(this.parent)
-        this.detach();
-      
-      this.parent = el.parent;
-      this.next = el.next;
-      if(this.next)
-        this.next.prev = this;
-      this.prev = el;
-      el.next = this;
-      
-      if(el === this.parent.lastChild)
-        this.parent.lastChild = this;
-
-      this.jQ().insertAfter(el.jQ);
-      
-      return this;
-    },
-    detach: function()
-    {
-      this.jQ().detach();
-
-      if(this.prev)
-        this.prev.next = this.next;
-      if(this.next)
-        this.next.prev = this.prev;
-      if(this.parent.firstChild === this)
-        this.parent.firstChild = this.next;
-      if(this.parent.lastChild === this)
-        this.parent.lastChild = this.prev;
-      
-      this.prev = this.next = this.parent = null;
-
-      return this;
-    },
-    remove: function()
-    { 
-      this.detach();
-      this.jQ().remove();
-      return this;
-    },
-    eachChild: function(fn)
-    {
-      for(el = this.firstChild; el !== null; el = el.next)
-        fn.call(el);
-      return this;
-    },
-    eachChildRev: function(fn)
-    { 
-      for(el = this.lastChild; el !== null; el = el.prev)
-        fn.call(el);
-      return this;
-    },
   }
 
   function MathBlock(commands)
@@ -352,6 +243,10 @@ jQuery.fn.latexlive = (function() {
       //otherwise we're at the end of the root, so do nothing.
       return this;
     },
+    newBefore: function()
+    {
+      
+    }
   }
 
   function Selection(start, end)
