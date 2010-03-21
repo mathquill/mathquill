@@ -11,7 +11,7 @@
  *
  */
 
-//$('head').append('<link rel="stylesheet" type="text/css" href="http://latexlive.googlecode.com/files/latexlive.css">');
+//$('head').append('<link rel="stylesheet" type="text/css" href="http://github.com/jayferd/latexlive/raw/master/latexlive.css">');
  
 var LatexRoot = (function(){
 
