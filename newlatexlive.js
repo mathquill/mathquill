@@ -133,13 +133,21 @@ jQuery.fn.latexlive = (function() {
     },
     //placeholder for context-sensitive spacing.
     respace: function() { return this; }
+    placeCursor: function(cursor)
+    {
+      cursor.prependTo(this.firstChild);
+      return this;
+    }
   });
 
   function MathSymbol(cmd, html)
   {
     MathOperator.call(this, cmd, [ html ]);
   }
-  MathSymbol.prototype = MathOperator.prototype;
+  MathSymbol.prototype = $.extend(new MathOperator, {
+    //symbols don't have blocks, so don't place the cursor in any of them.
+    placeCursor: function(cursor){return this;}
+  });
 
   function MathVanillaSymbol(ch, html) 
   {
@@ -243,9 +251,31 @@ jQuery.fn.latexlive = (function() {
       //otherwise we're at the end of the root, so do nothing.
       return this;
     },
-    newBefore: function()
+    newBefore: function(el)
     {
-      
+      //this.deleteSelection //?
+      el.parent = this.parent; 
+      el.jQ().insertBefore(this.jQ()); 
+      el.next = this.next;
+      el.prev = this.prev;
+      if(this.prev)
+        this.prev.next = el;
+      if(this.next)
+        this.next.prev = el;
+
+      //respacing
+      el.respace();
+      if(this.next)
+        this.next.respace();
+      if(this.prev)
+        this.prev.respace();
+
+      this.prev = el;
+
+      if(el.isEmpty())
+        el.placeCursor(this);
+
+      this.jQ().removeClass('blink').change();
     }
   }
 
