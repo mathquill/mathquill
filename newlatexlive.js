@@ -1,7 +1,7 @@
 /**
  *
  * usage:
- * jQuery(thing).latexlive();
+ * $(thing).latexlive();
  * turns thing into a live editable thingy.
  * AMAZORZ.
  */
@@ -11,6 +11,9 @@ jQuery.fn.latexlive = (function() {
    * mathElement is the main LaTeXDOM prototype.
    * It prototypes both Blocks and Operators.
    */
+
+  var $ = jQuery;
+
   function MathElement(){}
   MathElement.prototype = { 
     prev: null,
@@ -18,54 +21,50 @@ jQuery.fn.latexlive = (function() {
     parent: null,
     firstChild: null,
     lastChild: null,
-    jQ: (function() // closure around the actual jQuery object
+    jQ: (function() // closure around the actual $ object
     {
-        var actual;
-        return function(el)
-        {
-          if(arguments.length) // not if(el), which would fail on .jQ(undefined)
-            return actual = jQuery(el);
-
-          if(actual)
-            return actual;
-
-          return actual = jQuery(this.html ? this.html() : null).data('latexlive', this);
-        };
+      var actual;
+      return function(setter)
+      {
+        if(arguments.length) // not if(el), which would fail on .jQ(undefined)
+          return actual = $(setter);
+        return actual;
+      };
     }()),
     isEmpty: function()
     {
-      return this.firstChild == null && this.lastChild === null;
+      return this.firstChild === null && this.lastChild === null;
     },
     prependTo: function(el)
     {
-        if(this.parent)
-            this.detach();
-        
-        this.parent = el;
-        this.next = el.firstChild;
-        this.prev = null;
-        if(el.firstChild)
-            el.firstChild.prev = this;
-        else
-            el.lastChild = this;
-        el.firstChild = this;
+      if(this.parent)
+        this.detach();
+      
+      this.parent = el;
+      this.next = el.firstChild;
+      this.prev = null;
+      if(el.firstChild)
+        el.firstChild.prev = this;
+      else
+        el.lastChild = this;
+      el.firstChild = this;
 
-        this.jQ().prependTo(el.jQ());
-        
-        return this;
+      this.jQ().prependTo(el.jQ());
+      
+      return this;
     },
     appendTo:function(el)
     {
         if(this.parent)
-            this.detach();
+          this.detach();
         
         this.parent = el;
         this.prev = el.lastChild;
         this.next = null;
         if(el.lastChild)
-            el.lastChild.next = this;
+          el.lastChild.next = this;
         else
-            el.firstChild = this;
+          el.firstChild = this;
         el.lastChild = this;
 
         this.jQ().appendTo(el.jQ());
@@ -74,58 +73,58 @@ jQuery.fn.latexlive = (function() {
     },
     insertBefore: function(el)
     {
-        if(this.parent)
-            this.detach();
-        
-        this.parent = el.parent;
-        this.prev = el.prev;
-        if(this.prev)
-            this.prev.next = this;
-        this.next = el;
-        el.prev = this;
-        
-        if(this.parent && el === this.parent.firstChild)
-            this.parent.firstChild = this;
+      if(this.parent)
+        this.detach();
+      
+      this.parent = el.parent;
+      this.prev = el.prev;
+      if(this.prev)
+        this.prev.next = this;
+      this.next = el;
+      el.prev = this;
+      
+      if(this.parent && el === this.parent.firstChild)
+        this.parent.firstChild = this;
 
-        this.jQ().insertBefore(el.jQ);
-        
-        return this;
+      this.jQ().insertBefore(el.jQ);
+      
+      return this;
     },
     insertAfter:function(el)
     {
-        if(this.parent)
-            this.detach();
-        
-        this.parent = el.parent;
-        this.next = el.next;
-        if(this.next)
-            this.next.prev = this;
-        this.prev = el;
-        el.next = this;
-        
-        if(el === this.parent.lastChild)
-            this.parent.lastChild = this;
+      if(this.parent)
+        this.detach();
+      
+      this.parent = el.parent;
+      this.next = el.next;
+      if(this.next)
+        this.next.prev = this;
+      this.prev = el;
+      el.next = this;
+      
+      if(el === this.parent.lastChild)
+        this.parent.lastChild = this;
 
-        this.jQ().insertAfter(el.jQ);
-        
-        return this;
+      this.jQ().insertAfter(el.jQ);
+      
+      return this;
     },
     detach: function()
     {
-        this.jQ().detach();
+      this.jQ().detach();
 
-        if(this.prev)
-            this.prev.next = this.next;
-        if(this.next)
-            this.next.prev = this.prev;
-        if(this.parent.firstChild === this)
-            this.parent.firstChild = this.next;
-        if(this.parent.lastChild === this)
-            this.parent.lastChild = this.prev;
-        
-        this.prev = this.next = this.parent = null;
+      if(this.prev)
+        this.prev.next = this.next;
+      if(this.next)
+        this.next.prev = this.prev;
+      if(this.parent.firstChild === this)
+        this.parent.firstChild = this.next;
+      if(this.parent.lastChild === this)
+        this.parent.lastChild = this.prev;
+      
+      this.prev = this.next = this.parent = null;
 
-        return this;
+      return this;
     },
     remove: function()
     { 
@@ -154,7 +153,7 @@ jQuery.fn.latexlive = (function() {
         commands[i].appendTo(this);
     return this;
   }
-  MathBlock.prototype = jQuery.extend(new MathElement, { 
+  MathBlock.prototype = $.extend(new MathElement, { 
     latex: function()
     {
       //TODO
@@ -169,34 +168,34 @@ jQuery.fn.latexlive = (function() {
     },
     setEmpty:function()
     {
-        if(this.isEmpty())
-            this.jQ().html('[ ]').addClass('empty');
-        return this;
+      if(this.isEmpty())
+        this.jQ().html('[ ]').addClass('empty');
+      return this;
     },
     removeEmpty:function()
     {
-        if(this.jQ().hasClass('empty'))
-            this.jQ().html('').removeClass('empty');
-        return this;
+      if(this.jQ().hasClass('empty'))
+        this.jQ().html('').removeClass('empty');
+      return this;
     },
   });
 
   function RootMathBlock(dom)
   {
     if(dom)
-      jQuery(dom).replaceWith(this.jQ());
+      $(dom).replaceWith(this.jQ());
     this.cursor = new Cursor(this);
     this.jQ().data('cursor', this.cursor);
   }
-  RootMathBlock.prototype = jQuery.extend(new MathBlock, {
+  RootMathBlock.prototype = $.extend(new MathBlock, {
     html: function()
     {
-        var html = '<span class="latexlive-generated-math">';
-        this.eachChild(function(){
-            html += this.html();
-        });
-        html += '</span>';
-        return html;
+      var html = '<span class="latexlive-generated-math">';
+      this.eachChild(function(){
+        html += this.html();
+      });
+      html += '</span>';
+      return html;
     },
   });
 
@@ -208,7 +207,7 @@ jQuery.fn.latexlive = (function() {
     this.html_template = html_template;
     this.__initBlocks();
   }
-  MathOperator.prototype = jQuery.extend(new MathElement, {
+  MathOperator.prototype = $.extend(new MathElement, {
     __initBlocks: function()
     {
       for(var i = 0; i < this.html_template.length - 1; i += 1)
@@ -362,12 +361,12 @@ jQuery.fn.latexlive = (function() {
     var that = this;
 
 
-    //TODO: figure out how to do this more efficiently with jQuery and .wrap()
+    //TODO: figure out how to do this more efficiently with $ and .wrap()
     this.jQ('<span class="selection"></span>').insertBefore(this.start.jQ());
     
     that = this;
     this.each(function(){
-        this.jQ().appendTo(that.jQ());
+      this.jQ().appendTo(that.jQ());
     });
   }
   Selection.prototype = {
@@ -751,15 +750,15 @@ jQuery.fn.latexlive = (function() {
 
   ////// TODO: change "cursor" to "root.cursor", and clean up a bit.
 
-  //expose public method to jQuery.  
+  //expose public method to $.  
   //this is intended to be called
-  //on a jQuery object.
+  //on a $ object.
   return function(tabindex)
   {
     root = new RootMathBlock(tabindex, this)
     root.jQ().attr('tabindex',tabindex).click(function(e)
     {
-      var jQ = jQuery(e.target);
+      var jQ = $(e.target);
       if(jQ.hasClass('empty'))
       {
         cursor.prependTo(jQ.data('latexBlock')).jQ().show();
@@ -809,7 +808,7 @@ jQuery.fn.latexlive = (function() {
       cursor.parent.setEmpty().jQ().removeClass('hasCursor');
       if(root.isEmpty())
         cursor.detach();
-      jQuery(this).removeClass('hasCursor');
+      $(this).removeClass('hasCursor');
     })
     .keydown(function(e)
     {
