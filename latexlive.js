@@ -224,11 +224,10 @@ function LatexRoot(textElement, tabindex)
     });
     cursor.prependTo(this);
     
-    //make the cursor blink
-    
-    var intervalId;
-    var continueDefault = true;
-    var root = this;
+    //closured vars for event handlers:
+    var intervalId; //blinking cursor
+    var continueDefault, keydnHandled; //keyboard event flags
+    var root = this; //to get around dynamic scoping of 'this'
     this.jQ.focus(function()
     {
         cursor.jQ.show();
@@ -249,139 +248,131 @@ function LatexRoot(textElement, tabindex)
     }).blur(function(e){
         clearInterval(intervalId);
         cursor.jQ.hide();
-
         cursor.parent.setEmpty().jQ.removeClass('hasCursor');
-        if(root.isEmpty())
+        
+        if(root.isEmpty()) //otherwise, we want the cursor to remember where it was
             cursor.detach();
-        $(this).removeClass('hasCursor');
     }).keydown(function(e)
     {
         continueDefault = false;
-        if(cursor.parent)
+        keydnHandled = true;
+        e.ctrlKey = e.ctrlKey || e.metaKey;
+        switch(e.which)
         {
-            e.ctrlKey = e.ctrlKey || e.metaKey;
-            switch(e.which)
-            {
-                case 35: //end
-                    if(e.ctrlKey) //move to the end of the root block.
-                    {
-                        root = cursor.parent;
-                        while(root.parent)
-                            root = root.parent.parent;
-                        cursor.appendTo(root);
-                        return false;
-                    }
-                    else //move to the end of the current block.
-                    {
-                        cursor.appendTo(cursor.parent);
-                        return false;
-                    }
-                    return;
-                case 36: //home
-                    if(e.ctrlKey) //move to the start of the root block.
-                    {
-                        root = cursor.parent;
-                        while(root.parent)
-                            root=root.parent.parent;
-                        cursor.prependTo(root);
-                    }
-                    else
-                        cursor.prependTo(cursor.parent);
+            case 35: //end
+                if(e.ctrlKey) //move to the end of the root block.
+                {
+                    root = cursor.parent;
+                    while(root.parent)
+                        root = root.parent.parent;
+                    cursor.appendTo(root);
                     return false;
-                case 37: //left
-                    if(e.shiftKey)
-                        cursor.selectLeft();
-                    else
-                        cursor.moveLeft();
-                    return false;
-                case 38: //up
-                    return false;
-                case 39: //right
-                    if(e.shiftKey)
-                        cursor.selectRight();
-                    else
-                        cursor.moveRight();
-                    return false;
-                case 40: //down
-                    return false;
-                case 8: //backspace
-                    if(e.ctrlKey)
-                        while(cursor.prev)
-                            cursor.backspace();
-                    else
+                }
+                //else move to the end of the current block.
+                cursor.appendTo(cursor.parent);
+                return false;
+            case 36: //home
+                if(e.ctrlKey) //move to the start of the root block.
+                {
+                    root = cursor.parent;
+                    while(root.parent)
+                        root=root.parent.parent;
+                    cursor.prependTo(root);
+                }
+                else
+                    cursor.prependTo(cursor.parent);
+                return false;
+            case 37: //left
+                if(e.shiftKey)
+                    cursor.selectLeft();
+                else
+                    cursor.moveLeft();
+                return false;
+            case 38: //up
+                return false;
+            case 39: //right
+                if(e.shiftKey)
+                    cursor.selectRight();
+                else
+                    cursor.moveRight();
+                return false;
+            case 40: //down
+                return false;
+            case 8: //backspace
+                if(e.ctrlKey)
+                    while(cursor.prev)
                         cursor.backspace();
-                    return false;
-                case 46: //delete
-                    if(e.ctrlKey)
-                        while(cursor.next)
-                            cursor.deleteForward();
-                    else
+                else
+                    cursor.backspace();
+                return false;
+            case 46: //delete
+                if(e.ctrlKey)
+                    while(cursor.next)
                         cursor.deleteForward();
-                    return false;
-                case 9: //tab
-                    var parent = cursor.parent, gramp = parent.parent;
-                    if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
-                    {
-                        if(!gramp) //cursor is in the root
-                        {
-                            if(parent.isEmpty())
-                                continueDefault = false; //prevent default
-                            else
-                                cursor.prependTo(parent);
-                            return false;
-                        }
-                        if(gramp instanceof LatexCommandInput)
-                            cursor.renderCommand(gramp);
-                        parent = cursor.parent;
-                        gramp = parent.parent;
-                        if(parent.position == 0) //escape
-                            cursor.insertBefore(gramp);
-                        else //move one block left
-                            cursor.appendTo(gramp.blocks[parent.position-1]);
-                    }
-                    else //plain Tab = go one block right if it exists, else 
-                    {
-                        if(!gramp) //cursor is in the root
-                        {
-                            if(parent.isEmpty())
-                                continueDefault = false; //prevent default
-                            else
-                                cursor.appendTo(parent);
-                            return false;
-                        }
-                        if(gramp instanceof LatexCommandInput)
-                            cursor.renderCommand(gramp);
-                        parent = cursor.parent;
-                        gramp = parent.parent;
-                        if(parent.position == gramp.blocks.length - 1) //escape this block
-                            cursor.insertAfter(gramp);
-                        else //move one block right
-                            cursor.prependTo(gramp.blocks[parent.position+1]);
-                    }
-                    return false;
-                default:
-                    //do nothing, pass to keypress.
-                    continueDefault = true;
-            }
+                else
+                    cursor.deleteForward();
+                return false;
+            case 9: //tab
+                var parent = cursor.parent, gramp = parent.parent;
+                if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
+                {
+                    if(!gramp) //cursor is in the root, allow default
+                        return continueDefault = true;
+                    if(gramp instanceof LatexCommandInput)
+                        cursor.renderCommand(gramp);
+                    parent = cursor.parent;
+                    gramp = parent.parent;
+                    if(parent.position == 0) //escape
+                        cursor.insertBefore(gramp);
+                    else //move one block left
+                        cursor.appendTo(gramp.blocks[parent.position-1]);
+                }
+                else //plain Tab = go one block right if it exists, else 
+                {
+                    if(!gramp) //cursor is in the root, allow default
+                        return continueDefault = true;
+                    if(gramp instanceof LatexCommandInput)
+                        cursor.renderCommand(gramp);
+                    parent = cursor.parent;
+                    gramp = parent.parent;
+                    if(parent.position == gramp.blocks.length - 1) //escape this block
+                        cursor.insertAfter(gramp);
+                    else //move one block right
+                        cursor.prependTo(gramp.blocks[parent.position+1]);
+                }
+                return false;
+            default:
+                //do nothing, pass to keypress.
+                keydnHandled = false;
         }
     }).keypress(function(e)
     {
-        if(!continueDefault)
-            return false;
-        if(cursor.parent)
+        if(continueDefault)
+            return;
+        if(keydnHandled)
+            return keydnHandled = false;
+        
+        //sometimes keypress gets triggered but not keydown
+        //(e.g. auto-repeat when you hold down special keys like arrow keys
+        //and backspace in Opera/Gecko -- see Wiki page "Keyboard Events")
+        if(e.originalEvent.which < 33)
         {
-            if(e.ctrlKey || e.metaKey)
-                return; //don't capture Ctrl+anything.
-            switch(e.which)
-            {
-                //eventually there'll be more cases...
-                
-                default:
-                    var cmd = String.fromCharCode(e.which);
-                    if(cmd)
-                        cursor.newBefore(cmd);
-                    return false;
-            }
+            e.type = 'keydown';
+            $(this).trigger(e);
+            if(keydnHandled)
+                return keydnHandled = false;
+        }
+
+        if(e.ctrlKey || e.metaKey)
+            return; //don't capture Ctrl+anything.
+        switch(e.which)
+        {
+            //eventually there might be more cases...
+            default:
+                var cmd = String.fromCharCode(e.which);
+                if(cmd)
+                    cursor.newBefore(cmd);
+                return false;
         }
     }).focus();
     
