@@ -355,9 +355,10 @@ function LatexRoot(textElement, tabindex)
         //sometimes keypress gets triggered but not keydown
         //(e.g. auto-repeat when you hold down special keys like arrow keys
         //and backspace in Opera/Gecko -- see Wiki page "Keyboard Events")
-        if(e.originalEvent.which < 33)
+        if(e.originalEvent.which < 33 || e.originalEvent.which == 46)
         {
             e.type = 'keydown';
+            e.which = e.which || e.keyCode; //stupid Gecko (and jQuery)
             $(this).trigger(e);
             if(keydnHandled)
                 return keydnHandled = false;
