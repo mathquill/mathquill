@@ -1,13 +1,25 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>LatexLive 0.2 Demo</title>
+    <title>LatexLive 0.2a Demo</title>
     <link rel="stylesheet" type="text/css" href="latexlive.css" />
     <script type="text/javascript" src="jquery.js"></script>
     <script type="text/javascript" src="newlatexlive.js"></script>
+    <style type="text/css">
+      body{
+        width:6.5in;
+        margin:0 auto;
+        font-family:"Times New Roman",serif;
+      }
+      span#math{
+        font-family:"Courier New",sans-serif;
+      }
+    </style>
   </head>
   <body>
-    <span id="math"></span>
-    <button onclick="$('#math').latexlive();">Click Me</button>
+    <h2>LatexLive 0.2&alpha;</h2>
+    <p>by Jay and Han</p>
+    <p><span id="math" class="latexlive-embedded-math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span>
+    <button onclick="$('#math').latexlive();">Click Me</button></p>
   </body>
 </html>

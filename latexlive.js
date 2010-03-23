@@ -1,6 +1,6 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
- * v0.x
+ * v0.1
  * by Jay and Han
  * Lesser GPL Licensed: http://www.gnu.org/licenses/lgpl.html
  * 
@@ -226,7 +226,7 @@ function LatexRoot(textElement, tabindex)
     
     //closured vars for event handlers:
     var intervalId; //blinking cursor
-    var continueDefault, keydnHandled; //keyboard event flags
+    var keydnHandled, lastKeydnEvt; //see Wiki page "Keyboard Events"
     var root = this; //to get around dynamic scoping of 'this'
     this.jQ.focus(function()
     {
@@ -254,8 +254,9 @@ function LatexRoot(textElement, tabindex)
             cursor.detach();
     }).keydown(function(e)
     {
-        continueDefault = false;
-        keydnHandled = true;
+        lastKeydnEvt = e;
+        keydnHandled = false;
+        
         e.ctrlKey = e.ctrlKey || e.metaKey;
         switch(e.which)
         {
@@ -317,7 +318,10 @@ function LatexRoot(textElement, tabindex)
                 if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
                 {
                     if(!gramp) //cursor is in the root, allow default
-                        return continueDefault = true;
+                    {
+                        keydnHandled = true;
+                        return;
+                    }
                     if(gramp instanceof LatexCommandInput)
                         cursor.renderCommand(gramp);
                     parent = cursor.parent;
@@ -330,7 +334,10 @@ function LatexRoot(textElement, tabindex)
                 else //plain Tab = go one block right if it exists, else 
                 {
                     if(!gramp) //cursor is in the root, allow default
-                        return continueDefault = true;
+                    {
+                        keydnHandled = true;
+                        return;
+                    }
                     if(gramp instanceof LatexCommandInput)
                         cursor.renderCommand(gramp);
                     parent = cursor.parent;
@@ -343,29 +350,32 @@ function LatexRoot(textElement, tabindex)
                 return false;
             default:
                 //do nothing, pass to keypress.
-                keydnHandled = false;
+                keydnHandled = null;
+                return;
         }
     }).keypress(function(e)
     {
-        if(continueDefault)
-            return;
-        if(keydnHandled)
-            return keydnHandled = false;
-        
-        //sometimes keypress gets triggered but not keydown
-        //(e.g. auto-repeat when you hold down special keys like arrow keys
-        //and backspace in Opera/Gecko -- see Wiki page "Keyboard Events")
-        if(e.originalEvent.which < 33 || e.originalEvent.which == 46)
+        if(keydnHandled === false)
         {
-            e.type = 'keydown';
-            e.which = e.which || e.keyCode; //stupid Gecko (and jQuery)
-            $(this).trigger(e);
-            if(keydnHandled)
-                return keydnHandled = false;
+            keydnHandled = undefined;
+            return false;
         }
-
+        if(keydnHandled === true)
+        {
+            keydnHandled = undefined;
+            return;
+        }
+        
+        //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
+        if(keydnHandled === undefined)
+        {
+            $(this).trigger(lastKeydnEvt);
+            return arguments.callee(e);
+        }
+        
         if(e.ctrlKey || e.metaKey)
             return; //don't capture Ctrl+anything.
+        
         switch(e.which)
         {
             //eventually there might be more cases...
@@ -420,8 +430,18 @@ Selection.prototype = {
     {
         if(this.start && this.start.prev)
             this.start.prev.next = this.end && this.end.next;
+        if(this.start === this.parent.firstChild)
+            if(this.start.prev)
+                this.parent.firstChild = this.start.prev;
+            else
+                this.parent.firstChild = this.end.next;
         if(this.end && this.end.next)
             this.end.next.prev = this.start && this.start.prev;
+        if(this.end === this.parent.lastChild)
+            if(this.end.next)
+                this.parent.lastChild = this.end.next;
+            else
+                this.parent.lastChild = this.start.prev;
         
         this.jQ.remove();
         return this;
@@ -678,6 +698,13 @@ function LatexVar(ch)
 }
 LatexVar.prototype = LatexCommand.prototype;
 
+//like lim, log, ln, sin, cos etc
+function LatexNonItalicFunctions()
+{
+    LatexVanillaSymbol.apply(this, arguments);
+}
+LatexNonItalicFunctions.prototype = new LatexSymbol('LatexNonItalicFunctions.prototype');
+
 function LatexBinaryOperator(cmd, html)
 {
     LatexSymbol.call(this, cmd, '<span class="operator">'+html+'</span>');
@@ -691,7 +718,7 @@ function LatexPlusMinus(cmd, html)
 LatexPlusMinus.prototype = new LatexBinaryOperator('LatexPlusMinus.prototype');
 LatexPlusMinus.prototype.respace = function()
 {
-    if(!this.prev || this.prev instanceof LatexBinaryOperator || this.prev === cursor && (!this.prev.prev || this.prev.prev instanceof LatexBinaryOperator))
+    if(!this.prev || this.prev instanceof LatexBinaryOperator || this.prev instanceof LatexNonItalicFunctions || this.prev === cursor && (!this.prev.prev || this.prev.prev instanceof LatexBinaryOperator))
         this.jQ.removeClass('operator');
     else
         this.jQ.addClass('operator');
@@ -1003,7 +1030,7 @@ function chooseCommand(cmd)
     
     //trig
     if(/^\\(a|arc)?(sin|cos|tan|cot|sec|csc)h? $/.test(cmd))
-        return new LatexVanillaSymbol(cmd, cmd.slice(1,-1));
+        return new LatexNonItalicFunctions(cmd, cmd.slice(1,-1));
     
     //text
     if(/^\\text\{.*\} $/.test(cmd))
@@ -1038,10 +1065,11 @@ function chooseCommand(cmd)
             });*/
             if(cmd == '/')
             {
-                if(cursor.prev && $.inArray(cursor.prev.cmd,['+','-','=','\\sum ','\\prod ']) == -1)
+                if(cursor.prev && !(cursor.prev instanceof LatexBinaryOperator || cursor.prev instanceof LatexNonItalicFunctions))
                 {
                     frac.blocks[0].removeEmpty();
-                    for(var prev = cursor.prev; prev && $.inArray(cursor.prev.cmd,['+','-','=','\\sum ','\\prod ']) == -1;)
+                    var prev = cursor.prev;
+                    while(prev && !(prev instanceof LatexBinaryOperator || prev instanceof LatexNonItalicFunctions))
                     {
                         var ele = prev;
                         prev = prev.prev;
@@ -1200,7 +1228,6 @@ function chooseCommand(cmd)
         //Binary Operators
         case '|':
         case '=':
-        case '%':
             return new LatexBinaryOperator(cmd, cmd);
         case '+':
             return new LatexPlusMinus('+','+');
@@ -1331,7 +1358,12 @@ function chooseCommand(cmd)
         case '\\lcm ':
         case '\\gcd ':
         case '\\lim ':
-            return new LatexVanillaSymbol(cmd, cmd.slice(1,-1));
+            return new LatexNonItalicFunctions(cmd, cmd.slice(1,-1));
+        case '\\sum ':
+        case '\\prod ':
+            return new LatexNonItalicFunctions(cmd, '&'+cmd.slice(1,-1)+';');
+        case '\\coprod ':
+            return new LatexNonItalicFunctions('\\coprod ','&#8720;');
         
         case '\\sqrt ':
             return new LatexSquareRoot();
