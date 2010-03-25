@@ -1,6 +1,6 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
- * v0.x
+ * v0.xa
  * by Jay and Han
  * Lesser GPL Licensed: http://www.gnu.org/licenses/lgpl.html
  * 
@@ -253,12 +253,22 @@ function LatexRoot(textElement, tabindex)
         cursor.parent.setEmpty().jQ.removeClass('hasCursor');
     }).keydown(function(e)
     {
+        //see Wiki page "Keyboard Events"
         lastKeydnEvt = e;
+        e.happened = true;
         continueDefault = false;
         
         e.ctrlKey = e.ctrlKey || e.metaKey;
         switch(e.which)
         {
+            case 8: //backspace
+                if(e.ctrlKey)
+                    while(cursor.prev)
+                        cursor.backspace();
+                else
+                    cursor.backspace();
+                return false;
+            case 27: //esc does something weird in keypress, may as well be the same as tab until we figure out what to do with it
             case 9: //tab
                 var parent = cursor.parent, gramp = parent.parent;
                 if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
@@ -330,13 +340,6 @@ function LatexRoot(textElement, tabindex)
                 return false;
             case 40: //down
                 return false;
-            case 8: //backspace
-                if(e.ctrlKey)
-                    while(cursor.prev)
-                        cursor.backspace();
-                else
-                    cursor.backspace();
-                return false;
             case 46: //delete
                 if(e.ctrlKey)
                     while(cursor.next)
@@ -351,18 +354,13 @@ function LatexRoot(textElement, tabindex)
     }).keypress(function(e)
     {
         //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
-        if(continueDefault === undefined)
+        if(!lastKeydnEvt.happened)
             $(this).trigger(lastKeydnEvt);
         
-        if(continueDefault === false)
+        if(continueDefault !== null)
         {
-            continueDefault = undefined;
-            return false;
-        }
-        if(continueDefault === true)
-        {
-            continueDefault = undefined;
-            return;
+            lastKeydnEvt.happened = false;
+            return continueDefault;
         }
         
         if(e.ctrlKey || e.metaKey)
