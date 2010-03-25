@@ -32,9 +32,11 @@ $(function(){
     }).blur(function(){
         editingSource = false;
     }).keydown(function(){
-	var textarea = $(this);
+	var textarea = $(this), oldtext = textarea.val();
         setTimeout(function(){
-            latexMath.latex(textarea.val());
+            var newtext = textarea.val();
+            if(newtext != oldtext)
+                latexMath.latex(newtext);
         },1);
     });
 });

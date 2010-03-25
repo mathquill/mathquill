@@ -1,6 +1,6 @@
 /*
  * LaTeX Math in pure HTML and CSS -- No images whatsoever
- * v0.1
+ * v0.x
  * by Jay and Han
  * Lesser GPL Licensed: http://www.gnu.org/licenses/lgpl.html
  * 
@@ -57,6 +57,8 @@ LatexBlock.prototype = {
     {
         if(latex) //passing in source!
         {
+            if(cursor.parent)
+                cursor.detach();
             this.empty().removeEmpty();
             
             if(typeof latex == 'string')
@@ -83,7 +85,7 @@ LatexBlock.prototype = {
                     }
                     else
                         this.latex(token);
-                }).appendTo(this).eachChild(function recurse(){
+                }).appendTo(this).eachChild(function recurse(){ /////////////////// This is also pretty bad--goes through the entire tree triggering the change event
                     if(this.firstChild != null)
                         this.eachChild(function(){
                             if(this.blocks.length > 0)
@@ -226,7 +228,7 @@ function LatexRoot(textElement, tabindex)
     
     //closured vars for event handlers:
     var intervalId; //blinking cursor
-    var keydnHandled, lastKeydnEvt; //see Wiki page "Keyboard Events"
+    var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
     var root = this; //to get around dynamic scoping of 'this'
     this.jQ.focus(function()
     {
@@ -249,17 +251,46 @@ function LatexRoot(textElement, tabindex)
         clearInterval(intervalId);
         cursor.jQ.hide();
         cursor.parent.setEmpty().jQ.removeClass('hasCursor');
-        
-        if(root.isEmpty()) //otherwise, we want the cursor to remember where it was
-            cursor.detach();
     }).keydown(function(e)
     {
         lastKeydnEvt = e;
-        keydnHandled = false;
+        continueDefault = false;
         
         e.ctrlKey = e.ctrlKey || e.metaKey;
         switch(e.which)
         {
+            case 9: //tab
+                var parent = cursor.parent, gramp = parent.parent;
+                if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
+                {
+                    if(!gramp) //cursor is in the root, allow default
+                        return continueDefault = true;
+                    if(gramp instanceof LatexCommandInput)
+                        cursor.renderCommand(gramp);
+                    parent = cursor.parent;
+                    gramp = parent.parent;
+                    if(parent.position == 0) //escape
+                        cursor.insertBefore(gramp);
+                    else //move one block left
+                        cursor.appendTo(gramp.blocks[parent.position-1]);
+                }
+                else //plain Tab = go one block right if it exists, else escape right.
+                {
+                    if(!gramp) //cursor is in the root, allow default
+                        return continueDefault = true;
+                    if(gramp instanceof LatexCommandInput)
+                        cursor.renderCommand(gramp);
+                    parent = cursor.parent;
+                    gramp = parent.parent;
+                    if(parent.position == gramp.blocks.length - 1) //escape this block
+                        cursor.insertAfter(gramp);
+                    else //move one block right
+                        cursor.prependTo(gramp.blocks[parent.position+1]);
+                }
+                cursor.clearSelection();
+                return false;
+            case 13: //enter
+                return false;
             case 35: //end
                 if(e.ctrlKey) //move to the end of the root block.
                 {
@@ -313,64 +344,25 @@ function LatexRoot(textElement, tabindex)
                 else
                     cursor.deleteForward();
                 return false;
-            case 9: //tab
-                var parent = cursor.parent, gramp = parent.parent;
-                if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
-                {
-                    if(!gramp) //cursor is in the root, allow default
-                    {
-                        keydnHandled = true;
-                        return;
-                    }
-                    if(gramp instanceof LatexCommandInput)
-                        cursor.renderCommand(gramp);
-                    parent = cursor.parent;
-                    gramp = parent.parent;
-                    if(parent.position == 0) //escape
-                        cursor.insertBefore(gramp);
-                    else //move one block left
-                        cursor.appendTo(gramp.blocks[parent.position-1]);
-                }
-                else //plain Tab = go one block right if it exists, else 
-                {
-                    if(!gramp) //cursor is in the root, allow default
-                    {
-                        keydnHandled = true;
-                        return;
-                    }
-                    if(gramp instanceof LatexCommandInput)
-                        cursor.renderCommand(gramp);
-                    parent = cursor.parent;
-                    gramp = parent.parent;
-                    if(parent.position == gramp.blocks.length - 1) //escape this block
-                        cursor.insertAfter(gramp);
-                    else //move one block right
-                        cursor.prependTo(gramp.blocks[parent.position+1]);
-                }
-                return false;
             default:
-                //do nothing, pass to keypress.
-                keydnHandled = null;
+                continueDefault = null; //as in 'neither'. Do nothing, pass to keypress.
                 return;
         }
     }).keypress(function(e)
     {
-        if(keydnHandled === false)
+        //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
+        if(continueDefault === undefined)
+            $(this).trigger(lastKeydnEvt);
+        
+        if(continueDefault === false)
         {
-            keydnHandled = undefined;
+            continueDefault = undefined;
             return false;
         }
-        if(keydnHandled === true)
+        if(continueDefault === true)
         {
-            keydnHandled = undefined;
+            continueDefault = undefined;
             return;
-        }
-        
-        //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
-        if(keydnHandled === undefined)
-        {
-            $(this).trigger(lastKeydnEvt);
-            return arguments.callee(e);
         }
         
         if(e.ctrlKey || e.metaKey)
@@ -1226,7 +1218,6 @@ function chooseCommand(cmd)
             return new LatexVanillaSymbol('\\cdot ', '&sdot;');
         
         //Binary Operators
-        case '|':
         case '=':
             return new LatexBinaryOperator(cmd, cmd);
         case '+':
@@ -1375,6 +1366,8 @@ function chooseCommand(cmd)
             return new LatexParens('[',']');
         case '{':
             return new LatexParens('{','}');
+        case '|':
+            return new LatexParens('|','|');
         
         default:
             if(cmd.charAt(0) == '\\')
