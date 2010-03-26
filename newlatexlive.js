@@ -25,7 +25,7 @@ jQuery.fn.latexlive = (function() {
     lastChild: null,
     eachChild: function(fn)
     {
-      for(var child = this.firstChild; child; child = child.next)
+      for(var child = this.firstChild; child !== null; child = child.next)
         fn.call(child);
       return this;
     },
