@@ -15,6 +15,46 @@
  
 var LatexRoot = (function(){
 
+//Ensure that keydown is called every auto-repeat when you hold down a key
+//even in browsers that only auto-repeat keypress. Also ensure keypress
+//doesn't get called if keydown returns false.
+function $keyEvents(jQ, keydown, keypress)
+{
+    var lastKeydnEvt;
+    jQ.keydown(keydown ?
+        function(e)
+        {
+            lastKeydnEvt = e;
+            e.happened = true;
+            return e.returnValue = keydown.apply(this,arguments);
+        }
+        :
+        function(e)
+        {
+            lastKeydnEvt = e;
+            e.happened = true;
+        }
+    ).keypress(keypress ?
+        function()
+        {
+            if(!lastKeydnEvt.happened)
+                jQuery(this).trigger(lastKeydnEvt);
+            lastKeydnEvt.happened = false;
+            if(lastKeydnEvt.returnValue === false)
+                return false;
+            return keypress.apply(this,arguments);
+        }
+        :
+        function()
+        {
+            if(!lastKeydnEvt.happened)
+                jQuery(this).trigger(lastKeydnEvt);
+            lastKeydnEvt.happened = false;
+            return lastKeydnEvt.returnValue;
+        }
+    );
+}
+
 /*************************** BLOCKS *************************/
 function LatexBlock(parent, position, commands)
 {
