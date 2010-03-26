@@ -21,12 +21,12 @@ jQuery.fn.latexlive = (function() {
     parent: null,
     firstChild: null,
     lastChild: null,
-    jQ: (function() // closure around the actual $ object
+    jQ: (function() //closure around the actual jQuery object
     {
       var actual;
       return function(setter)
       {
-        if(arguments.length) // not if(el), which would fail on .jQ(undefined)
+        if(arguments.length) //not if(setter), which would fail on .jQ(undefined)
           return actual = $(setter);
         return actual;
       };
