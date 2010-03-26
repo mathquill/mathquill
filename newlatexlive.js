@@ -1,5 +1,4 @@
-/*
- *
+/**
  * Usage:
  * $(thing).latexlive();
  * turns thing into a live editable thingy.
@@ -14,8 +13,8 @@ jQuery.fn.latexlive = (function() {
   var $ = jQuery;
   
   /**
-   * MathElement is the main LaTeXDOM prototype.
-   * It prototypes both Blocks and Operators.
+   * MathElement is the core Math DOM tree node prototype.
+   * Both MathBlock's and MathCommand's descend from it.
    */
   function MathElement(){}
   MathElement.prototype = { 
