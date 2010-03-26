@@ -1,19 +1,22 @@
-/**
+/*
  *
- * usage:
+ * Usage:
  * $(thing).latexlive();
  * turns thing into a live editable thingy.
  * AMAZORZ.
+ *
+ * Note: doesn't actually work.
+ *
  */
 
-jQuery.fn.latexlive = (function() { 
-  /**
-   * mathElement is the main LaTeXDOM prototype.
-   * It prototypes both Blocks and Operators.
-   */
+jQuery.fn.latexlive = (function() {
 
   var $ = jQuery;
-
+  
+  /**
+   * MathElement is the main LaTeXDOM prototype.
+   * It prototypes both Blocks and Operators.
+   */
   function MathElement(){}
   MathElement.prototype = { 
     prev: null,
@@ -84,7 +87,7 @@ jQuery.fn.latexlive = (function() {
       //should it be latex source to convert to html pretty math?
       //an element to replace?
     this.cursor = new Cursor(this);
-    this.jQ().data('latexCmd', this);
+    this.jQ().data('latexlive', this);
   }
   RootMathBlock.prototype = $.extend(new MathBlock, {
     html: function()
