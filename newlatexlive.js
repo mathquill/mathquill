@@ -21,6 +21,19 @@ jQuery.fn.latexlive = (function() {
     parent: null,
     firstChild: null,
     lastChild: null,
+    eachChild: function(fn)
+    {
+      for(var child = this.firstChild; child; child = child.next)
+        fn.call(child);
+      return this;
+    },
+    reduceChildren: function(fn, initVal)
+    {
+      this.eachChild(function(){
+        initVal = fn.call(this, initVal);
+      });
+      return initVal;
+    };
     jQ: (function() //closure around the actual jQuery object
     {
       var actual;
@@ -37,25 +50,19 @@ jQuery.fn.latexlive = (function() {
     },
   }
 
-  function MathBlock(commands)
-  { 
-    if(commands)
-      for (var i = 0; i < commands.length; i += 1)
-        commands[i].appendTo(this);
-    return this;
-  }
+  function MathBlock(){}
   MathBlock.prototype = $.extend(new MathElement, { 
     latex: function()
     {
-      //TODO
+      return this.reduceChildren(function(initVal){
+        return initVal + this.latex();
+      }, '');
     },
     html: function()
     { 
-      var html = '';
-      this.eachChild(function(){
-        html += this.html();
-      });
-      return html;
+      return this.reduceChildren(function(initVal){
+        return initVal + this.html();
+      }, '');
     },
     setEmpty:function()
     {
@@ -71,26 +78,22 @@ jQuery.fn.latexlive = (function() {
     },
   });
 
-  function RootMathBlock(dom)
+  function RootMathBlock(arg)
   {
-    if(dom)
-      $(dom).replaceWith(this.jQ());
+    //TODO: figure out what to do with arg
+      //should it be latex source to convert to html pretty math?
+      //an element to replace?
     this.cursor = new Cursor(this);
-    this.jQ().data('cursor', this.cursor);
+    this.jQ().data('latexCmd', this);
   }
   RootMathBlock.prototype = $.extend(new MathBlock, {
     html: function()
     {
-      var html = '<span class="latexlive-generated-math">';
-      this.eachChild(function(){
-        html += this.html();
-      });
-      html += '</span>';
-      return html;
+      return '<span class="latexlive-generated-math">' + MathBlock.prototype.html.call(this) + '</span>';
     },
   });
 
-  function MathOperator(cmd, html_template)
+  function MathCommand(cmd, html_template)
   { 
     if (arguments.length == 0)
       return;
@@ -98,7 +101,7 @@ jQuery.fn.latexlive = (function() {
     this.html_template = html_template;
     this.__initBlocks();
   }
-  MathOperator.prototype = $.extend(new MathElement, {
+  MathCommand.prototype = $.extend(new MathElement, {
     __initBlocks: function()
     {
       for(var i = 0; i < this.html_template.length - 1; i += 1)
@@ -142,9 +145,9 @@ jQuery.fn.latexlive = (function() {
 
   function MathSymbol(cmd, html)
   {
-    MathOperator.call(this, cmd, [ html ]);
+    MathCommand.call(this, cmd, [ html ]);
   }
-  MathSymbol.prototype = $.extend(new MathOperator, {
+  MathSymbol.prototype = $.extend(new MathCommand, {
     //symbols don't have blocks, so don't place the cursor in any of them.
     placeCursor: function(cursor){return this;}
   });
@@ -347,14 +350,14 @@ jQuery.fn.latexlive = (function() {
               var command = new LatexCommandInput();
               return command;
           case '_':
-              return new MathOperator('_', ['<sub>', '</sub>']);
+              return new MathCommand('_', ['<sub>', '</sub>']);
           case '^':
-              return new MathOperator('^', ['<sup>', '</sup>']);
+              return new MathCommand('^', ['<sup>', '</sup>']);
 
           //complicated commands
           case '/':
           case '\\frac ':
-              var frac = new MathOperator('\\frac',
+              var frac = new MathCommand('\\frac',
                   [
                       '<span class="fraction"><span class="numerator">',
                       '</span><span class="denominator">',
@@ -384,7 +387,7 @@ jQuery.fn.latexlive = (function() {
               return frac;
           /*case '\\cases ':
           case '\\casewise ':
-              var cases = new MathOperator('\\cases ',
+              var cases = new MathCommand('\\cases ',
                   [
                       '<table style="display:inline-block"><tr><td>',
                       '</td></tr></table>',
@@ -697,7 +700,7 @@ jQuery.fn.latexlive = (function() {
         return false;
       }
       var cmd = jQ.data('latexCmd');
-      if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not MathOperators are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+      if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
         return;
       cursor.jQ().show();
       cursor.clearSelection();
