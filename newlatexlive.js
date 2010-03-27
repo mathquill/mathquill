@@ -10,7 +10,7 @@
 
 jQuery.fn.latexlive = (function() {
 
-var $ = jQuery;
+var $ = jQuery, noop = function(){ return this; };
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -94,11 +94,12 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
  * Commands and operators, like subscripts, exponents, or fractions.
  * May contain descendant commands, organized into blocks.
  */
-function MathCommand(cmd, html_template)
+function MathCommand(cmd, num_blocks, html_template)
 { 
   if(arguments.length == 0)
     return;
   this.cmd = cmd;
+  this.num_blocks = num_blocks;
   this.html_template = html_template;
   this.jQinit();
   this.initBlocks();
@@ -106,21 +107,24 @@ function MathCommand(cmd, html_template)
 MathCommand.prototype = $.extend(new MathElement, {
   jQinit: function()
   {
-    return this.jQ(this.html_template.join(''));
+    return this.jQ(this.html_template).data('latexlive', {cmd: this});
   },
   initBlocks: function()
   {
-    var prev = null;
+    var prev = null, newBlock;
     for(var i = 1; i < this.html_template.length; i += 1)
     {
-      var newBlock = new MathBlock;
-      newBlock.jQ(this.jQ().children().eq(i-1)); //*** optimize me! ***
+      newBlock = new MathBlock;
+      newBlock.jQ(this.jQ().children().eq(i-1)).data('latexlive', {block: newBlock}); /*** optimize me! ***/
       newBlock.parent = this;
       newBlock.prev = prev;
       if(prev)
         prev.next = newBlock;
+      else
+        this.firstChild = newBlock;
       prev = newBlock;
     }
+    this.lastChild = newBlock;
     return this;
   },
   latex: function()
@@ -150,7 +154,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     return rendered;
   },*/
   //placeholder for context-sensitive spacing.
-  respace: function(){ return this; },
+  respace: noop,
   placeCursor: function(cursor)
   {
     cursor.prependTo(this.firstChild);
@@ -160,24 +164,18 @@ MathCommand.prototype = $.extend(new MathElement, {
 
 /**
  * Lightweight command without blocks or children.
- * Does not descend from MathCommand for performance reasons.
  */
 function Symbol(cmd, html)
 {
-  MathCommand.call(this, cmd, html);
+  MathCommand.call(this, cmd, 0, html);
 }
-Symbol.prototype = $.extend(new MathElement, {
-  jQinit: function()
-  {
-    return this.jQ(this.html_template);
-  },
-  initBlocks: function(){ return this; },
+Symbol.prototype = $.extend(new MathCommand, {
+  initBlocks: noop,
   latex: function()
   {
     return this.cmd;
   },
-  respace: function(){ return this; },
-  placeCursor: function(cursor){ return this; },
+  placeCursor: noop,
 });
 
 function VanillaSymbol(ch, html) 
@@ -212,14 +210,15 @@ PlusMinus.prototype.respace = function()
   return this;
 };
 
+//A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
 {
   if(block)
     this.prependTo(block);
 }
 Cursor.prototype = {
-  next: null,
   prev: null,
+  next: null,
   parent: null,
   jQ: MathElement.prototype.jQ,
   jQinit: function()
@@ -403,54 +402,53 @@ Cursor.prototype = {
   },
 }
 
-function Selection(start, end)
+//A fake selection in the fake textbox that the math is rendered in.
+function Selection(parent, prev, next)
 {
-  this.start = start;
-  this.end = end;
-  var that = this;
-
-
-  //TODO: figure out how to do this more efficiently with $ and .wrap()
-  this.jQ('<span class="selection"></span>').insertBefore(this.start.jQ());
+  if((prev && prev.parent !== parent) || (next && next.parent !== parent))
+    throw 'arguments to Selection not properly related';
+  if(parent.isEmpty())
+    return new Cursor(parent);
+  else if(!(this instanceof Selection))
+    return new Selection(parent, prev, next);
   
-  that = this;
-  this.each(function(){
-    this.jQ().appendTo(that.jQ());
-  });
+  this.parent = parent;
+  this.prev = prev;
+  this.next = next;
+  
+  if(prev)
+    prev.jQ().nextUntil(next && next.jQ()).wrapAll(this.jQ('<span class="selection"></span>'));
+  else
+    parent.firstChild.jQ().nextUntil(next && next.jQ()).andSelf().wrapAll(this.jQ('<span class="selection"></span>'));
 }
 Selection.prototype = {
-  html: function()
-  {
-    html = '<span class="selection">';
-    this.each(function() { html += this.html() } );
-    //TODO: use something like this.jQ().html() instead of this.html().
-    return html + '</span>';
-  },
   jQ: MathBlock.prototype.jQ,
   each: function(fn)
   {
-    for(el = this.start; el !== null; el = el.next)
+    for(var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
       fn.call(el);
   },
 };
 
-////// TODO: change "cursor" to "root.cursor", and clean up a bit.
+//on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
+//with RootMathBlock's.
+$(
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 return function(tabindex)
 {
-  root = new RootMathBlock(this)
-  root.jQ().attr('tabindex',tabindex).click(function(e)
+  var root = new RootMathBlock(this), cursor = root.cursor;
+  root.jQ().attr('tabindex', tabindex || 0).click(function(e)
   {
     var jQ = $(e.target);
     if(jQ.hasClass('empty'))
     {
-      cursor.prependTo(jQ.data('latexBlock')).jQ().show();
+      cursor.prependTo(jQ.data('latexlive')).jQ().show();
       return false;
     }
-    var cmd = jQ.data('latexCmd');
-    if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexCmd'))) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+    var cmd = jQ.data('latexlive');
+    if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexlive'))) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
       return;
     cursor.jQ().show();
     cursor.clearSelection();
