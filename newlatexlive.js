@@ -303,7 +303,7 @@ Cursor.prototype = {
   moveLeft: function()
   {
     if(this.selection)
-      this.insertAfter(this.selection.prev).clearSelection();
+      this.insertBefore(this.selection.prev ? this.selection.prev.next : this.parent.firstChild).clearSelection();
     else
       if(this.prev)
         if(this.prev.lastChild)
@@ -321,7 +321,7 @@ Cursor.prototype = {
   moveRight: function()
   {
     if(this.selection)
-      this.insertBefore(this.selection.next).clearSelection();
+      this.insertAfter(this.selection.next ? this.selection.next.prev : this.parent.lastChild).clearSelection();
     else
       if(this.next)
         if(this.next.firstChild)
