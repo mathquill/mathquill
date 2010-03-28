@@ -216,7 +216,8 @@ function Cursor(block)
   };
   this.hide = function()
   {
-    clearInterval(intervalId);
+    if(intervalId)
+      clearInterval(intervalId);
     intervalId = undefined;
     this.jQ.addClass('blink');
     return this;
@@ -301,36 +302,38 @@ Cursor.prototype = {
   },
   moveLeft: function()
   {
-    this.clearSelection();
-    if(this.prev)
-      if(this.prev.lastChild)
-        this.appendTo(this.prev.lastChild)
-      else
-        this.hopLeft();
-    else //we're at the beginning of a block
-      if(this.parent.prev)
-        this.appendTo(this.parent.prev);
-      else if(this.parent.parent)
-        this.insertBefore(this.parent.parent);
+    if(this.selection)
+      this.insertAfter(this.selection.prev).clearSelection();
+    else
+      if(this.prev)
+        if(this.prev.lastChild)
+          this.appendTo(this.prev.lastChild)
+        else
+          this.hopLeft();
+      else //we're at the beginning of a block
+        if(this.parent.prev)
+          this.appendTo(this.parent.prev);
+        else if(this.parent.parent)
+          this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    this.show();
     return this;
   },
   moveRight: function()
   {
-    this.clearSelection();
-    if(this.next)
-      if(this.next.firstChild)
-        this.prependTo(this.next.firstChild)
-      else
-        this.hopRight();
-    else //we're at the end of a block
-      if(this.parent.next)
-        this.prependTo(this.parent.next);
-      else if(this.parent.parent)
-        this.insertAfter(this.parent.parent);
+    if(this.selection)
+      this.insertBefore(this.selection.next).clearSelection();
+    else
+      if(this.next)
+        if(this.next.firstChild)
+          this.prependTo(this.next.firstChild)
+        else
+          this.hopRight();
+      else //we're at the end of a block
+        if(this.parent.next)
+          this.prependTo(this.parent.next);
+        else if(this.parent.parent)
+          this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    this.show();
     return this;
   },
   hopLeft: function()
@@ -374,14 +377,13 @@ Cursor.prototype = {
 
     el.placeCursor(this);
 
-    this.show().jQ.change();
+    this.jQ.change();
     
     return this;
   },
   backspace: function()
   {
-    if(this.selection)
-      this.deleteSelection();
+    if(this.deleteSelection());
     else if(this.prev && this.prev.isEmpty())
       this.prev = this.prev.remove().prev;
     else if(!this.prev && this.parent.parent && this.parent.parent.isEmpty())
@@ -389,7 +391,7 @@ Cursor.prototype = {
     else
       this.selectLeft();
     
-    this.show().jQ.change();
+    this.jQ.change();
     if(this.prev)
       this.prev.respace();
     if(this.next)
@@ -399,8 +401,7 @@ Cursor.prototype = {
   },
   deleteForward: function()
   {
-    if(this.selection)
-      this.deleteSelection();
+    if(this.deleteSelection());
     else if(this.next && this.next.isEmpty())
       this.next = this.next.remove().next;
     else if(!this.next && this.parent.parent && this.parent.parent.isEmpty())
@@ -408,7 +409,7 @@ Cursor.prototype = {
     else
       this.selectRight();
     
-    this.show().jQ.change();
+    this.jQ.change();
     if(this.prev)
       this.prev.respace();
     if(this.next)
@@ -419,52 +420,64 @@ Cursor.prototype = {
   selectLeft: function()
   {
     if(this.selection)
-      if(this.selection.prev === this.prev)
+      if(this.selection.prev === this.prev) //if cursor is at left edge of selection,
       {
-        if(this.prev)
+        if(this.prev) //then extend left if possible
         {
           this.prev.jQ.prependTo(this.selection.jQ);
           this.hopLeft();
           this.selection.prev = this.prev;
         }
-        else if(this.parent.parent)
+        else if(this.parent.parent) //else level up if possible
           this.insertBefore(this.parent.parent).selection.levelUp();
       }
-      else
-        this.selection.retractLeft();
+      else //else cursor is at right edge of selection, retract left
+      {
+        this.prev.jQ.insertAfter(this.selection.jQ);
+        this.hopLeft();
+        this.selection.next = this.next;
+        if(this.selection.prev === this.prev)
+          this.deleteSelection();
+      }
     else
       if(this.prev)
-        this.hopLeft().selection = new Selection(this.parent, this.prev, this.next.next);
+        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertBefore(this.parent.parent).selection = new Selection(this.parent, this.next.next, this.prev);
+          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.next.next, this.prev);
   },
   selectRight: function()
   {
     if(this.selection)
-      if(this.selection.next === this.next)
+      if(this.selection.next === this.next) //if cursor is at right edge of selection,
       {
-        if(this.next)
+        if(this.next) //then extend right if possible
         {
           this.next.jQ.appendTo(this.selection.jQ);
           this.hopRight();
           this.selection.next = this.next;
         }
-        else if(this.parent.parent)
+        else if(this.parent.parent) //else level up if possible
           this.insertAfter(this.parent.parent).selection.levelUp();
       }
-      else
-        this.selection.retractRight();
+      else //else cursor is at left edge of selection, retract right
+      {
+        this.next.jQ.insertBefore(this.selection.jQ);
+        this.hopRight();
+        this.selection.prev = this.prev;
+        if(this.selection.next === this.next)
+          this.deleteSelection();
+      }
     else
       if(this.next)
-        this.hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
+        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   },
   clearSelection: function()
   {
-    if(this.selection)
+    if(this.show().selection)
     {
       this.selection.clear();
       delete this.selection;
@@ -473,11 +486,14 @@ Cursor.prototype = {
   },
   deleteSelection: function()
   {
-    if(this.selection)
+    if(this.show().selection)
     {
       this.selection.remove();
       delete this.selection;
+      return true;
     }
+    else
+      return false;
   },
 }
 
@@ -496,7 +512,6 @@ Selection.prototype = {
   remove: MathCommand.prototype.remove,
   clear: function()
   {
-    console.log(this.jQ);
     this.jQ.replaceWith(this.jQ.children());
     return this;
   },
@@ -523,8 +538,6 @@ Selection.prototype = {
     this.prev = this.parent.parent.prev;
     this.next = this.parent.parent.next;
   },
-  retractRight: todo,
-  retractLeft: todo,
 };
 
 //on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
@@ -566,7 +579,7 @@ return function(tabindex)
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.prependTo(clicked.data('latexlive').block).jQ.show();
+        cursor.prependTo(clicked.data('latexlive').block);
         return false;
       }
       var cmd = clicked.data('latexlive');
@@ -574,7 +587,7 @@ return function(tabindex)
       //both of whose immediate parents are LatexCommands
       if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('latexlive')) || !(cmd = cmd.cmd))) 
         return;
-      cursor.clearSelection().show();
+      cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
         cursor.insertBefore(cmd);
       else
@@ -631,26 +644,15 @@ return function(tabindex)
         case 13: //enter
           return false;
         case 35: //end
-          if(e.ctrlKey) //move to the end of the root block.
-          {
-            root = cursor.parent;
-            while(root.parent)
-              root = root.parent.parent;
-            cursor.appendTo(root);
-            return false;
-          }
-          //else move to the end of the current block.
-          cursor.appendTo(cursor.parent);
+          if(e.ctrlKey) //move to the end of the root math block.
+            cursor.appendTo(math);
+          else //else move to the end of the current block.
+            cursor.appendTo(cursor.parent);
           return false;
         case 36: //home
-          if(e.ctrlKey) //move to the start of the root block.
-          {
-            root = cursor.parent;
-            while(root.parent)
-              root=root.parent.parent;
-            cursor.prependTo(root);
-          }
-          else
+          if(e.ctrlKey) //move to the start of the root math block.
+            cursor.prependTo(math);
+          else //else move to the start of the current block.
             cursor.prependTo(cursor.parent);
           return false;
         case 37: //left
