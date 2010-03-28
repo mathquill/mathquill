@@ -9,6 +9,8 @@
  */
  
 .latexlive-generated-math {
+  color: black;
+  background-color: white;
   font-family: "Computer Modern", "Times New Roman", serif;
   font-size: 125%;
   line-height: 1;
@@ -27,6 +29,8 @@
 }
 
 .latexlive-generated-math * {
+  color: inherit;
+  background-color: transparent;
   line-height: inherit;
   margin: 0;
   padding: 0;
@@ -40,7 +44,6 @@
 .latexlive-generated-math .cursor {
   border-left: 1px solid black;
   margin-right: -1px;
-  display: inline;
   position: relative;
   z-index: 1;
 }

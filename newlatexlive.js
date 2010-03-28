@@ -201,7 +201,7 @@ SupSub.prototype = $.extend(new MathCommand, {
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
 {
-  this.jQinit();
+  //API for the blinking cursor
   var intervalId;
   this.show = function()
   {
@@ -221,6 +221,8 @@ function Cursor(block)
     this.jQ.addClass('blink');
     return this;
   };
+  
+  this.jQ = $('<span class="cursor"></span>');
   if(block)
     this.prependTo(block);
 }
@@ -228,10 +230,6 @@ Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
-  jQinit: function()
-  {
-    return this.jQ = $('<span class="cursor"></span>');
-  },
   setParentEmpty: function()
   {
     if(this.parent)
@@ -422,12 +420,21 @@ Cursor.prototype = {
   {
     if(this.selection)
       if(this.selection.prev === this.prev)
-        this.selection.extendLeft();
+      {
+        if(this.prev)
+        {
+          this.prev.jQ.prependTo(this.selection.jQ);
+          this.hopLeft();
+          this.selection.prev = this.prev;
+        }
+        else if(this.parent.parent)
+          this.insertBefore(this.parent.parent).selection.levelUp();
+      }
       else
         this.selection.retractLeft();
     else
       if(this.prev)
-        this.hopLeft().selection = new Selection(this.parent, this.next.next, this.prev);
+        this.hopLeft().selection = new Selection(this.parent, this.prev, this.next.next);
       else //end of a block
         if(this.parent.parent)
           this.insertBefore(this.parent.parent).selection = new Selection(this.parent, this.next.next, this.prev);
@@ -436,7 +443,16 @@ Cursor.prototype = {
   {
     if(this.selection)
       if(this.selection.next === this.next)
-        this.selection.extendRight();
+      {
+        if(this.next)
+        {
+          this.next.jQ.appendTo(this.selection.jQ);
+          this.hopRight();
+          this.selection.next = this.next;
+        }
+        else if(this.parent.parent)
+          this.insertAfter(this.parent.parent).selection.levelUp();
+      }
       else
         this.selection.retractRight();
     else
@@ -472,18 +488,15 @@ function Selection(parent, prev, next)
   this.prev = prev;
   this.next = next;
   
-  this.jQ = $('<span class="selection"></span>');
-  if(prev)
-    prev.jQ.nextUntil(next && next.jQ).wrapAll(this.jQ);
-  else if(next)
-    next.jQ.prevUntil(prev && prev.jQ).wrapAll(this.jQ);
-  else
-    parent.jQ.wrapInner(this.jQ);
+  this.jQ = this.reduce(function(initVal){ return initVal.add(this.jQ); }, $())
+    .wrapAll('<span class="selection"></span>').parent();
+    //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
 }
 Selection.prototype = {
   remove: MathCommand.prototype.remove,
   clear: function()
   {
+    console.log(this.jQ);
     this.jQ.replaceWith(this.jQ.children());
     return this;
   },
@@ -493,41 +506,22 @@ Selection.prototype = {
       fn.call(el);
     return this;
   },
-  extendLeft: function()
+  reduce: function(fn, initVal)
   {
-    if(this.prev)
+    this.each(function()
     {
-      this.prev.jQ.prependTo(this.jQ)
-      this.prev = this.prev.prev; 
-    }
-    else if(this.parent && this.parent.parent)
-    {
-      this.jQ.children().unwrap();
-      this.jQ = this.parent.parent.jQ
-        .wrap('<span class="selection"></span>').parent();
-
-      this.prev = this.parent.parent.prev;
-      this.next = this.parent.parent.next;
-    }
-    return this;
+      initVal = fn.call(this, initVal);
+    });
+    return initVal;
   },
-  extendRight: function()
+  levelUp: function()
   {
-    if(this.next)
-    {
-      this.next.jQ.appendTo(this.jQ)
-      this.next = this.next.next;
-    }
-    else if(this.parent && this.parent.parent)
-    {
-      this.jQ.children().unwrap();
-      this.jQ = this.parent.parent.jQ
-        .wrap('<span class="selection"></span>').parent();
+    this.jQ.children().unwrap();
+    this.jQ = this.parent.parent.jQ.wrap('<span class="selection"></span>').parent();
 
-      this.prev = this.parent.parent.prev;
-      this.next = this.parent.parent.next;
-    }
-    return this;
+    this.parent = this.parent.parent.parent;
+    this.prev = this.parent.parent.prev;
+    this.next = this.parent.parent.next;
   },
   retractRight: todo,
   retractLeft: todo,
