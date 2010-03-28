@@ -340,12 +340,14 @@ Cursor.prototype = {
     this.jQ.insertBefore(this.prev.jQ);
     this.next = this.prev;
     this.prev = this.prev.prev;
+    return this;
   },
   hopRight: function()
   {
     this.jQ.insertAfter(this.next.jQ);
     this.prev = this.next;
     this.next = this.next.next;
+    return this;
   },
   newBefore: function(el)
   {
@@ -375,6 +377,8 @@ Cursor.prototype = {
     el.placeCursor(this);
 
     this.show().jQ.change();
+    
+    return this;
   },
   backspace: function()
   {
@@ -417,16 +421,16 @@ Cursor.prototype = {
   selectLeft: function()
   {
     if(this.selection)
-      if(this.selection.next === this.next)
-        this.selection.extendRight();
+      if(this.selection.prev === this.prev)
+        this.selection.extendLeft();
       else
-        this.selection.retractRight();
+        this.selection.retractLeft();
     else
-      if(this.next)
-        this.hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
+      if(this.prev)
+        this.hopLeft().selection = new Selection(this.parent, this.next.next, this.prev);
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.insertBefore(this.parent.parent).selection = new Selection(this.parent, this.next.next, this.prev);
   },
   selectRight: function()
   {
@@ -694,7 +698,7 @@ return function(tabindex)
         return continueDefault;
       }
       
-      if(e.ctrlKey)
+      if(e.ctrlKey || e.metaKey)
         return; //don't capture Ctrl+anything.
       
       var cmd = String.fromCharCode(e.which);
