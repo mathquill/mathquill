@@ -59,7 +59,7 @@
 }
 
 .latexlive-generated-math .empty {
-  color: lightgray;
+  color: darkgray;
 }
 .latexlive-generated-math.empty {
   cursor: text;
@@ -155,9 +155,11 @@
   top: 1px;
 }
 
-.latexlive-generated-math .selection {
-  padding: 0;
+.latexlive-generated-math:focus .highlight {
   background-color: #ADF;
+}
+.latexlive-generated-math .highlight {
+  background-color: lightgray;
 }
 
 /*.latexlive-generated-math .not {

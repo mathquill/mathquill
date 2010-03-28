@@ -441,10 +441,10 @@ Cursor.prototype = {
       }
     else
       if(this.prev)
-        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next);
+        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next, true);
       else //end of a block
         if(this.parent.parent)
-          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.next.next, this.prev);
+          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.next.next, this.prev, true);
   },
   selectRight: function()
   {
@@ -470,10 +470,10 @@ Cursor.prototype = {
       }
     else
       if(this.next)
-        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next, true);
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next, true);
   },
   clearSelection: function()
   {
@@ -498,14 +498,14 @@ Cursor.prototype = {
 }
 
 //A fake selection in the fake textbox that the math is rendered in.
-function Selection(parent, prev, next)
+function Selection(parent, prev, next, highlight)
 {
   this.parent = parent;
   this.prev = prev;
   this.next = next;
   
   this.jQ = this.reduce(function(initVal){ return initVal.add(this.jQ); }, $())
-    .wrapAll('<span class="selection"></span>').parent();
+    .wrapAll('<span'+(highlight?' class="highlight"':'')+'></span>').parent();
     //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
 }
 Selection.prototype = {
@@ -532,7 +532,7 @@ Selection.prototype = {
   levelUp: function()
   {
     this.jQ.children().unwrap();
-    this.jQ = this.parent.parent.jQ.wrap('<span class="selection"></span>').parent();
+    this.jQ = this.parent.parent.jQ.wrap(this.jQ).parent();
 
     this.parent = this.parent.parent.parent;
     this.prev = this.parent.parent.prev;
@@ -571,7 +571,9 @@ return function(tabindex)
       }
       else
         cursor.appendTo(root);
-      cursor.show().parent.jQ.addClass('hasCursor');
+      cursor.parent.jQ.addClass('hasCursor');
+      if(!cursor.selection)
+        cursor.show();
     }).blur(function(e){
       cursor.setParentEmpty().hide();
     }).click(function(e)
@@ -615,10 +617,8 @@ return function(tabindex)
           var parent = cursor.parent, gramp = parent.parent;
           if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
           {
-            if(!gramp) //cursor is in the root, allow default
+            if(!gramp) //cursor is in the root, continue default
               return continueDefault = true;
-            if(gramp instanceof LatexCommandInput)
-              cursor.renderCommand(gramp);
             parent = cursor.parent;
             gramp = parent.parent;
             if(parent.position == 0) //escape
@@ -628,10 +628,8 @@ return function(tabindex)
           }
           else //plain Tab = go one block right if it exists, else escape right.
           {
-            if(!gramp) //cursor is in the root, allow default
+            if(!gramp) //cursor is in the root, continue default
               return continueDefault = true;
-            if(gramp instanceof LatexCommandInput)
-              cursor.renderCommand(gramp);
             parent = cursor.parent;
             gramp = parent.parent;
             if(parent.position == gramp.blocks.length - 1) //escape this block
@@ -645,15 +643,15 @@ return function(tabindex)
           return false;
         case 35: //end
           if(e.ctrlKey) //move to the end of the root math block.
-            cursor.appendTo(math);
+            cursor.clearSelection().appendTo(math);
           else //else move to the end of the current block.
-            cursor.appendTo(cursor.parent);
+            cursor.clearSelection().appendTo(cursor.parent);
           return false;
         case 36: //home
           if(e.ctrlKey) //move to the start of the root math block.
-            cursor.prependTo(math);
+            cursor.clearSelection().prependTo(math);
           else //else move to the start of the current block.
-            cursor.prependTo(cursor.parent);
+            cursor.clearSelection().prependTo(cursor.parent);
           return false;
         case 37: //left
           if(e.shiftKey)
