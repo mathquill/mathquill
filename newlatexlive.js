@@ -10,7 +10,7 @@
 
 jQuery.fn.latexlive = (function() {
 
-var $ = jQuery, noop = function(){ return this; }, todo = function(){ alert('BOOM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
+var $ = jQuery, noop = function(){ return this; }, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -202,6 +202,25 @@ SupSub.prototype = $.extend(new MathCommand, {
 function Cursor(block)
 {
   this.jQinit();
+  var intervalId;
+  this.show = function()
+  {
+    if(intervalId)
+      clearInterval(intervalId);
+    this.jQ.removeClass('blink');
+    var cursor = this;
+    intervalId = setInterval(function(){
+      cursor.jQ.toggleClass('blink');
+    }, 500);
+    return this;
+  };
+  this.hide = function()
+  {
+    clearInterval(intervalId);
+    intervalId = undefined;
+    this.jQ.addClass('blink');
+    return this;
+  };
   if(block)
     this.prependTo(block);
 }
@@ -296,7 +315,7 @@ Cursor.prototype = {
       else if(this.parent.parent)
         this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    this.jQ.removeClass('blink');
+    this.show();
     return this;
   },
   moveRight: function()
@@ -313,7 +332,7 @@ Cursor.prototype = {
       else if(this.parent.parent)
         this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    this.jQ.removeClass('blink');
+    this.show();
     return this;
   },
   hopLeft: function()
@@ -355,7 +374,7 @@ Cursor.prototype = {
 
     el.placeCursor(this);
 
-    this.jQ.removeClass('blink').change();
+    this.show().jQ.change();
   },
   backspace: function()
   {
@@ -368,7 +387,7 @@ Cursor.prototype = {
     else
       this.selectLeft();
     
-    this.jQ.removeClass('blink').change();
+    this.show().jQ.change();
     if(this.prev)
       this.prev.respace();
     if(this.next)
@@ -387,7 +406,7 @@ Cursor.prototype = {
     else
       this.selectRight();
     
-    this.jQ.removeClass('blink').change();
+    this.show().jQ.change();
     if(this.prev)
       this.prev.respace();
     if(this.next)
@@ -531,15 +550,9 @@ return function(tabindex)
     math.jQ = $(tabindex.apply(this, arguments)).data('latexlive', {block: math}).replaceAll(this);
     var cursor = math.cursor = new Cursor(math);
     
-    //closured vars for event handlers:
-    var intervalId; //blinking cursor
     var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
     math.jQ.focus(function()
     {
-      cursor.jQ.removeClass('blink');
-      intervalId = setInterval(function(){
-        cursor.jQ.toggleClass('blink');
-      }, 500);
       if(cursor.parent)
       {
         if(cursor.parent.isEmpty())
@@ -547,10 +560,9 @@ return function(tabindex)
       }
       else
         cursor.appendTo(root);
-      cursor.parent.jQ.addClass('hasCursor');
+      cursor.show().parent.jQ.addClass('hasCursor');
     }).blur(function(e){
-      clearInterval(intervalId);
-      cursor.setParentEmpty().jQ.addClass('blink');
+      cursor.setParentEmpty().hide();
     }).click(function(e)
     {
       var clicked = $(e.target);
@@ -564,7 +576,7 @@ return function(tabindex)
       //both of whose immediate parents are LatexCommands
       if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('latexlive')) || !(cmd = cmd.cmd))) 
         return;
-      cursor.clearSelection().jQ.removeClass('blink');
+      cursor.clearSelection().show();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
         cursor.insertBefore(cmd);
       else
