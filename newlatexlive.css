@@ -29,7 +29,7 @@
 .latexlive-generated-math * {
   line-height: inherit;
   margin: 0;
-  padding: 0 1px;
+  padding: 0;
   cursor: text;
 }
 .latexlive-generated-math .hasCursor {
@@ -40,7 +40,6 @@
 .latexlive-generated-math .cursor {
   border-left: 1px solid black;
   margin-right: -1px;
-  padding: 0;
   display: inline;
   position: relative;
   z-index: 1;
