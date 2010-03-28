@@ -10,7 +10,7 @@
 
 jQuery.fn.latexlive = (function() {
 
-var $ = jQuery, noop = function(){ return this; };
+var $ = jQuery, noop = function(){ return this; }, todo = function(){ alert('BOOM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -36,16 +36,6 @@ MathElement.prototype = {
     });
     return initVal;
   },
-  jQ: (function() //closure around the actual jQuery object
-  {
-    var actual;
-    return function(setter)
-    {
-      if(arguments.length) //not if(setter), which would fail on .jQ(undefined)
-        return actual = $(setter);
-      return actual;
-    };
-  }()),
   isEmpty: function()
   {
     return this.firstChild === null && this.lastChild === null;
@@ -65,13 +55,6 @@ MathBlock.prototype = $.extend(new MathElement, {
       return initVal + this.latex();
     }, '');
   },
-  /* Remove this?
-  html: function()
-  { 
-    return this.reduceChildren(function(initVal){
-      return initVal + this.html();
-    }, '');
-  },*/
 });
 
 function RootMathBlock(arg)
@@ -79,16 +62,11 @@ function RootMathBlock(arg)
   //TODO: figure out what to do with arg
     //should it be latex source to convert to html pretty math?
     //an element to replace?
+  this.jQ = $('<span class="latexlive-generated-math"></span>');
+  this.jQ.data('latexlive', {block: this});
   this.cursor = new Cursor(this);
-  this.jQ().data('latexlive', this);
 }
-RootMathBlock.prototype = $.extend(new MathBlock, {
-  /* Remove this?
-  html: function()
-  {
-    return '<span class="latexlive-generated-math">' + MathBlock.prototype.html.call(this) + '</span>';
-  },*/
-});
+RootMathBlock.prototype = MathBlock.prototype;
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -96,7 +74,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
  */
 function MathCommand(cmd, num_blocks, html_template)
 { 
-  if(arguments.length == 0)
+  if(!arguments.length)
     return;
   this.cmd = cmd;
   this.num_blocks = num_blocks;
@@ -107,15 +85,15 @@ function MathCommand(cmd, num_blocks, html_template)
 MathCommand.prototype = $.extend(new MathElement, {
   jQinit: function()
   {
-    return this.jQ(this.html_template).data('latexlive', {cmd: this});
+    return this.jQ = $(this.html_template).data('latexlive', {cmd: this});
   },
   initBlocks: function()
   {
-    var prev = null, newBlock;
-    for(var i = 1; i < this.html_template.length; i += 1)
+    var newBlock, prev = null, children = this.jQ.children();
+    for(var i = 0; i < this.num_blocks; i += 1)
     {
       newBlock = new MathBlock;
-      newBlock.jQ(this.jQ().children().eq(i-1)).data('latexlive', {block: newBlock}); /*** optimize me! ***/
+      newBlock.jQ = $(children[i]).data('latexlive', {block: newBlock}); /*** optimize me! ***/
       newBlock.parent = this;
       newBlock.prev = prev;
       if(prev)
@@ -125,7 +103,6 @@ MathCommand.prototype = $.extend(new MathElement, {
       prev = newBlock;
     }
     this.lastChild = newBlock;
-    return this;
   },
   latex: function()
   {
@@ -133,26 +110,22 @@ MathCommand.prototype = $.extend(new MathElement, {
       return initVal + '{' + this.latex() + '}';
     }, '');
   },
-  /* Remove this?
-  html: function()
+  remove: function()
   {
-    var i = 0;
-    rendered = this.html_template[0];
-
-    that = this;
-    this.eachChild(function(){
-      i += 1;
-      try {
-        rendered += this.html() + that.html_template[i];
-      } catch(e) {
-        //since there may be any number of blocks,
-        //we have to take into account the case
-        //in which html_template.length < 1 + number of blocks.
-        //in this case, just silently fail.
-      }
-    });
-    return rendered;
-  },*/
+    if(this.prev)
+      this.prev.next = this.next;
+    else
+      this.parent.firstChild = this.next;
+    
+    if(this.next)
+      this.next.prev = this.prev;
+    else
+      this.parent.lastChild = this.prev;
+    
+    this.jQ.remove();
+    
+    return this;
+  },
   //placeholder for context-sensitive spacing.
   respace: noop,
   placeCursor: function(cursor)
@@ -204,15 +177,42 @@ PlusMinus.prototype = new BinaryOperator('PlusMinus.prototype'); //so instanceof
 PlusMinus.prototype.respace = function()
 {
   if(!this.prev || this.prev instanceof BinaryOperator)
-    this.jQ().removeClass('operator');
+    this.jQ.removeClass('operator');
   else
-    this.jQ().addClass('operator');
+    this.jQ.addClass('operator');
   return this;
 };
+
+function SupSub(cmd, html)
+{
+  MathCommand.call(this, cmd, 1, html);
+}
+SupSub.prototype = $.extend(new MathCommand, {
+  initBlocks: function()
+  {
+    this.jQ.data('latexlive').block = this.firstChild = this.lastChild = new MathBlock;
+    this.firstChild.jQ = this.jQ;
+  },
+  respace: function()
+  {
+    if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
+      this.jQ.css({
+        left: -this.prev.jQ.innerWidth(),
+        marginRight: -Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())
+      });
+    else
+      this.jQ.css({
+        left: 0,
+        marginRight: 0
+      });
+    return this;
+  }
+});
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
 {
+  this.jQinit();
   if(block)
     this.prependTo(block);
 }
@@ -220,32 +220,27 @@ Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
-  jQ: MathElement.prototype.jQ,
   jQinit: function()
   {
-    return this.jQ('<span class="cursor"></span>');
+    return this.jQ = $('<span class="cursor"></span>');
   },
   setParentEmpty: function()
   {
-    if(this.parent)
-    {
-      this.parent.jQ().removeClass('hasCursor');
-      if(this.parent.isEmpty())
-        this.paren.jQ().html('[ ]').addClass('empty');
-    }
+    if(this.parent && this.parent.isEmpty())
+        this.parent.jQ.html('[ ]').addClass('empty');
     return this;
   },
   rmParentEmpty:function()
   {
     if(this.parent.isEmpty())
-      this.parent.jQ().html('').removeClass('empty');
+      this.parent.jQ.html('').removeClass('empty');
     return this;
   },
   detach: function()
   {
     this.setParentEmpty();
     this.prev = this.next = this.parent = null;
-    this.jQ().detach();
+    this.jQ.detach();
     return this;
   },
   insertBefore: function(el)
@@ -254,8 +249,7 @@ Cursor.prototype = {
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
-    this.parent.addClass('hasCursor');
-    this.jQ().insertBefore(el.jQ()); 
+    this.jQ.insertBefore(el.jQ); 
     return this;
   },
   insertAfter: function(el)
@@ -264,8 +258,7 @@ Cursor.prototype = {
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
-    this.parent.addClass('hasCursor');
-    this.jQ().insertAfter(el.jQ());
+    this.jQ.insertAfter(el.jQ);
     return this;
   }, 
   prependTo: function(el)
@@ -275,8 +268,7 @@ Cursor.prototype = {
     this.prev = null;
     this.parent = el;
     this.rmParentEmpty();
-    this.parent.addClass('hasCursor');
-    this.jQ().prependTo(el.jQ());
+    this.jQ.prependTo(el.jQ);
     return this;
   },
   appendTo: function(el)
@@ -286,55 +278,58 @@ Cursor.prototype = {
     this.next = null;
     this.parent = el;
     this.rmParentEmpty();
-    this.parent.addClass('hasCursor');
-    this.jQ().prependTo(el.jQ());
+    this.jQ.prependTo(el.jQ);
     return this;
   },
   moveLeft: function()
   {
-    //this.clearSelection();
+    this.clearSelection();
     if(this.prev)
       if(this.prev.lastChild)
         this.appendTo(this.prev.lastChild)
       else
-      {
-        this.next = this.prev;
-        this.prev = this.prev.prev;
-        this.jQ().insertBefore(this.prev.jQ());
-      }
+        this.hopLeft();
     else //we're at the beginning of a block
       if(this.parent.prev)
         this.appendTo(this.parent.prev);
       else if(this.parent.parent)
         this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    this.jQ().removeClass('blink');
+    this.jQ.removeClass('blink');
     return this;
   },
   moveRight: function()
   {
-    //this.clearSelection();
+    this.clearSelection();
     if(this.next)
       if(this.next.firstChild)
         this.prependTo(this.next.firstChild)
       else
-      {
-        this.prev = this.next;
-        this.next = this.next.next;
-        this.jQ().insertAfter(this.prev.jQ());
-      }
+        this.hopRight();
     else //we're at the end of a block
       if(this.parent.next)
         this.prependTo(this.parent.next);
       else if(this.parent.parent)
         this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    this.jQ().removeClass('blink');
+    this.jQ.removeClass('blink');
     return this;
+  },
+  hopLeft: function()
+  {
+    this.next = this.prev;
+    this.prev = this.prev.prev;
+    this.jQ.insertBefore(this.prev.jQ);
+  },
+  hopRight: function()
+  {
+    this.prev = this.next;
+    this.next = this.next.next;
+    this.jQ.insertAfter(this.prev.jQ);
   },
   newBefore: function(el)
   {
-    //this.deleteSelection();
+    this.deleteSelection();
     el.parent = this.parent; 
     el.next = this.next;
     el.prev = this.prev;
@@ -346,9 +341,9 @@ Cursor.prototype = {
       this.next.prev = el;
     else
       this.parent.lastChild = el;
-    el.jQ().insertBefore(this.jQ()); 
+    el.jQ.insertBefore(this.jQ); 
 
-    //respacing
+    //adjust context-sensitive spacing
     el.respace();
     if(this.next)
       this.next.respace();
@@ -357,19 +352,18 @@ Cursor.prototype = {
 
     this.prev = el;
 
-    if(el.isEmpty())
-      el.placeCursor(this);
+    el.placeCursor(this);
 
-    this.jQ().removeClass('blink').change();
+    this.jQ.removeClass('blink').change();
   },
   backspace: function()
   {
     if(this.selection)
       this.deleteSelection();
-    else if(this.prev && this.prev.isEmpty()) //it's a symbol, delete it.
-      this.prev.remove();
+    else if(this.prev && this.prev.isEmpty())
+      this.prev = this.prev.remove().prev;
     else if(!this.prev && this.parent.parent && this.parent.parent.isEmpty())
-      this.insertBefore(this.parent.parent).next.remove();
+      return this.insertAfter(this.parent.parent).backspace();
     else
       this.selectLeft();
     
@@ -385,10 +379,10 @@ Cursor.prototype = {
   {
     if(this.selection)
       this.deleteSelection();
-    else if(this.next && this.next.isEmpty()) //it's a symbol!
-      this.next.remove();
+    else if(this.next && this.next.isEmpty())
+      this.next = this.next.remove().next;
     else if(!this.next && this.parent.parent && this.parent.parent.isEmpty())
-      this.insertBefore(this.parent.parent).next.remove();
+      return this.insertBefore(this.parent.parent).deleteForward();
     else
       this.selectRight();
     
@@ -400,65 +394,114 @@ Cursor.prototype = {
     
     return this;
   },
+  selectLeft: function()
+  {
+    if(this.selection)
+      if(this.selection.next === this.next)
+        this.selection.extendRight();
+      else
+        this.selection.retractRight();
+    else
+      if(this.next)
+        this.hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
+      else //end of a block
+        if(this.parent.parent)
+          this.insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
+  },
+  selectRight: function()
+  {
+    if(this.selection)
+      if(this.selection.next === this.next)
+        this.selection.extendRight();
+      else
+        this.selection.retractRight();
+    else
+      if(this.next)
+        this.hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
+      else //end of a block
+        if(this.parent.parent)
+          this.insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
+  },
+  clearSelection: function()
+  {
+    this.selection.clear();
+    delete this.selection;
+  },
+  deleteSelection: function()
+  {
+    this.selection.remove();
+    delete this.selection;
+  },
 }
 
 //A fake selection in the fake textbox that the math is rendered in.
 function Selection(parent, prev, next)
 {
-  if((prev && prev.parent !== parent) || (next && next.parent !== parent))
-    throw 'arguments to Selection not properly related';
-  if(parent.isEmpty())
-    return new Cursor(parent);
-  else if(!(this instanceof Selection))
-    return new Selection(parent, prev, next);
-  
   this.parent = parent;
   this.prev = prev;
   this.next = next;
   
+  this.jQ = $('<span class="selection"></span>');
   if(prev)
-    prev.jQ().nextUntil(next && next.jQ()).wrapAll(this.jQ('<span class="selection"></span>'));
+    prev.jQ.nextUntil(next && next.jQ).wrapAll(this.jQ);
+  else if(next)
+    next.jQ.prevUntil(prev && prev.jQ).wrapAll(this.jQ);
   else
-    parent.firstChild.jQ().nextUntil(next && next.jQ()).andSelf().wrapAll(this.jQ('<span class="selection"></span>'));
+    parent.jQ.wrapInner(this.jQ);
 }
 Selection.prototype = {
-  jQ: MathBlock.prototype.jQ,
+  remove: MathCommand.prototype.remove,
+  clear: function()
+  {
+    this.jQ.replaceWith(this.jQ.children());
+    return this;
+  },
   each: function(fn)
   {
     for(var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
       fn.call(el);
+    return this;
   },
+  extendRight: todo,
+  extendLeft: todo,
+  retractRight: todo,
+  retractLeft: todo,
 };
 
 //on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
 //with RootMathBlock's.
-$(
+$(function(){
+  $('.latexlive-embedded-math').latexlive();
+});
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 return function(tabindex)
 {
-  var root = new RootMathBlock(this), cursor = root.cursor;
-  root.jQ().attr('tabindex', tabindex || 0).click(function(e)
+  tabindex = tabindex || 0;
+  return this.each(function()
   {
-    var jQ = $(e.target);
-    if(jQ.hasClass('empty'))
+    var root = new RootMathBlock(this), cursor = root.cursor;
+    root.jQ.attr('tabindex', tabindex).click(function(e)
     {
-      cursor.prependTo(jQ.data('latexlive')).jQ().show();
+      var jQ = $(e.target);
+      if(jQ.hasClass('empty'))
+      {
+        cursor.prependTo(jQ.data('latexlive').block).jQ.show();
+        return false;
+      }
+      var cmd = jQ.data('latexlive').cmd;
+      if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexlive').cmd)) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+        return;
+      cursor.jQ.show();
+      cursor.clearSelection();
+      if((e.pageX - jQ.offset().left)*2 < jQ.outerWidth())
+        cursor.insertBefore(cmd);
+      else
+        cursor.insertAfter(cmd);
       return false;
-    }
-    var cmd = jQ.data('latexlive');
-    if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexlive'))) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
-      return;
-    cursor.jQ().show();
-    cursor.clearSelection();
-    if((e.pageX - jQ.offset().left)*2 < jQ.outerWidth())
-      cursor.insertBefore(cmd);
-    else
-      cursor.insertAfter(cmd);
-    return false;
+    });
   });
-  cursor.prependTo(this);
 };
 
 })();

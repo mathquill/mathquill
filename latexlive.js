@@ -755,6 +755,35 @@ LatexPlusMinus.prototype.respace = function()
     return this;
 };
 
+function LatexSupSub(cmd, html)
+{
+  LatexCommand.apply(this, arguments);
+  var that = this;
+  this.jQ.change(function()
+  {
+    that.respace();
+    if(that.next)
+      that.next.respace();
+    if(that.prev)
+      that.prev.respace();
+  });
+}
+LatexSupSub.prototype = new LatexSymbol;
+LatexSupSub.prototype.respace = function()
+{
+  if(this.respaced = (this.prev && ((this.prev instanceof LatexSupSub && this.prev.cmd != this.cmd && !this.prev.respaced) || (this.prev.cmd == 'the_cursor' && this.prev.prev instanceof LatexSupSub && this.prev.prev.cmd != this.cmd && !this.prev.prev.respaced))))
+    this.jQ.css({
+      left: -this.prev.jQ.innerWidth(),
+      marginRight: -Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())
+    });
+  else
+    this.jQ.css({
+      left: 0,
+      marginRight: 0
+    });
+  return this;
+};
+
 // Happens when someone hits backslash \: accepts arbitrary-length LaTeX commands
 function LatexCommandInput()
 {
@@ -1076,9 +1105,9 @@ function chooseCommand(cmd)
             var command = new LatexCommandInput();
             return command;
         case '_':
-            return new LatexCommand('_', ['<sub>', '</sub>']);
+            return new LatexSupSub('_', ['<sub>', '</sub>']);
         case '^':
-            return new LatexCommand('^', ['<sup>', '</sup>']);
+            return new LatexSupSub('^', ['<sup>', '</sup>']);
 
         //complicated commands
         case '/':
