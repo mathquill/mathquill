@@ -316,7 +316,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    return this;
+    return this.show();
   },
   moveRight: function()
   {
@@ -334,7 +334,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    return this;
+    return this.show();
   },
   hopLeft: function()
   {
