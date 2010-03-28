@@ -363,6 +363,8 @@ Cursor.prototype = {
       this.deleteSelection();
     else if(this.prev && this.prev.isEmpty())
       this.prev = this.prev.remove().prev;
+    else if(!this.prev && this.parent.parent && this.parent.parent.isEmpty())
+      return this.insertAfter(this.parent.parent).backspace();
     else
       this.selectLeft();
     
