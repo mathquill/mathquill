@@ -468,8 +468,42 @@ Selection.prototype = {
       fn.call(el);
     return this;
   },
-  extendRight: todo,
-  extendLeft: todo,
+  extendLeft: function()
+  {
+    if(this.prev)
+    {
+      this.prev.jQ.prependTo(this.jQ)
+      this.prev = this.prev.prev; 
+    }
+    else if(this.parent && this.parent.parent)
+    {
+      this.jQ.children().unwrap();
+      this.jQ = this.parent.parent.jQ
+        .wrap('<span class="selection"></span>').parent();
+
+      this.prev = this.parent.parent.prev;
+      this.next = this.parent.parent.next;
+    }
+    return this;
+  },
+  extendRight: function()
+  {
+    if(this.next)
+    {
+      this.next.jQ.appendTo(this.jQ)
+      this.next = this.next.next;
+    }
+    else if(this.parent && this.parent.parent)
+    {
+      this.jQ.children().unwrap();
+      this.jQ = this.parent.parent.jQ
+        .wrap('<span class="selection"></span>').parent();
+
+      this.prev = this.parent.parent.prev;
+      this.next = this.parent.parent.next;
+    }
+    return this;
+  },
   retractRight: todo,
   retractLeft: todo,
 };
