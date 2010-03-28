@@ -57,17 +57,6 @@ MathBlock.prototype = $.extend(new MathElement, {
   },
 });
 
-function RootMathBlock(arg)
-{
-  //TODO: figure out what to do with arg
-    //should it be latex source to convert to html pretty math?
-    //an element to replace?
-  this.jQ = $('<span class="latexlive-generated-math"></span>');
-  this.jQ.data('latexlive', {block: this});
-  this.cursor = new Cursor(this);
-}
-RootMathBlock.prototype = MathBlock.prototype;
-
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
  * May contain descendant commands, organized into blocks.
@@ -226,13 +215,21 @@ Cursor.prototype = {
   },
   setParentEmpty: function()
   {
-    if(this.parent && this.parent.isEmpty())
-        this.parent.jQ.html('[ ]').addClass('empty');
+    if(this.parent)
+    {
+      this.parent.jQ.removeClass('hasCursor');
+      if(this.parent.isEmpty())
+      {
+        this.parent.jQ.addClass('empty');
+        if(this.parent.parent)
+          this.parent.jQ.html('[ ]');
+      }
+    }
     return this;
   },
   rmParentEmpty:function()
   {
-    if(this.parent.isEmpty())
+    if(this.parent.jQ.hasClass('empty'))
       this.parent.jQ.html('').removeClass('empty');
     return this;
   },
@@ -249,6 +246,7 @@ Cursor.prototype = {
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ); 
     return this;
   },
@@ -258,6 +256,7 @@ Cursor.prototype = {
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ);
     return this;
   }, 
@@ -268,6 +267,7 @@ Cursor.prototype = {
     this.prev = null;
     this.parent = el;
     this.rmParentEmpty();
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.prependTo(el.jQ);
     return this;
   },
@@ -278,7 +278,8 @@ Cursor.prototype = {
     this.next = null;
     this.parent = el;
     this.rmParentEmpty();
-    this.jQ.prependTo(el.jQ);
+    this.parent.jQ.addClass('hasCursor');
+    this.jQ.appendTo(el.jQ);
     return this;
   },
   moveLeft: function()
@@ -424,13 +425,20 @@ Cursor.prototype = {
   },
   clearSelection: function()
   {
-    this.selection.clear();
-    delete this.selection;
+    if(this.selection)
+    {
+      this.selection.clear();
+      delete this.selection;
+    }
+    return this;
   },
   deleteSelection: function()
   {
-    this.selection.remove();
-    delete this.selection;
+    if(this.selection)
+    {
+      this.selection.remove();
+      delete this.selection;
+    }
   },
 }
 
@@ -478,29 +486,183 @@ $(function(){
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 return function(tabindex)
 {
-  tabindex = tabindex || 0;
+  if(!(typeof tabindex === 'function'))
+  {
+    var html = '<span class="latexlive-generated-math" tabindex="'+(tabindex || 0)+'"></span>';
+    tabindex = function(){ return html; };
+  }
   return this.each(function()
   {
-    var root = new RootMathBlock(this), cursor = root.cursor;
-    root.jQ.attr('tabindex', tabindex).click(function(e)
+    var math = new MathBlock;
+    math.jQ = $(tabindex.apply(this, arguments)).data('latexlive', {block: math}).replaceAll(this);
+    var cursor = math.cursor = new Cursor(math);
+    
+    //closured vars for event handlers:
+    var intervalId; //blinking cursor
+    var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
+    math.jQ.focus(function()
     {
-      var jQ = $(e.target);
-      if(jQ.hasClass('empty'))
+      cursor.jQ.removeClass('blink');
+      intervalId = setInterval(function(){
+        cursor.jQ.toggleClass('blink');
+      }, 500);
+      if(cursor.parent)
       {
-        cursor.prependTo(jQ.data('latexlive').block).jQ.show();
+        if(cursor.parent.isEmpty())
+          cursor.rmParentEmpty().jQ.appendTo(cursor.parent.jQ);
+      }
+      else
+        cursor.appendTo(root);
+      cursor.parent.jQ.addClass('hasCursor');
+    }).blur(function(e){
+      clearInterval(intervalId);
+      cursor.setParentEmpty().jQ.addClass('blink');
+    }).click(function(e)
+    {
+      var clicked = $(e.target);
+      if(clicked.hasClass('empty'))
+      {
+        cursor.prependTo(clicked.data('latexlive').block).jQ.show();
         return false;
       }
-      var cmd = jQ.data('latexlive').cmd;
-      if(!cmd && !(cmd = (jQ = jQ.parent()).data('latexlive').cmd)) // all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens, both of whose immediate parents are LatexCommands
+      var cmd = clicked.data('latexlive');
+      //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
+      //both of whose immediate parents are LatexCommands
+      if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('latexlive')) || !(cmd = cmd.cmd))) 
         return;
-      cursor.jQ.show();
-      cursor.clearSelection();
-      if((e.pageX - jQ.offset().left)*2 < jQ.outerWidth())
+      cursor.clearSelection().jQ.removeClass('blink');
+      if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
         cursor.insertBefore(cmd);
       else
         cursor.insertAfter(cmd);
       return false;
-    });
+    }).keydown(function(e)
+    {
+      //see Wiki page "Keyboard Events"
+      lastKeydnEvt = e;
+      e.happened = true;
+      continueDefault = false;
+      
+      e.ctrlKey = e.ctrlKey || e.metaKey;
+      switch(e.which)
+      {
+        case 8: //backspace
+          if(e.ctrlKey)
+            while(cursor.prev)
+              cursor.backspace();
+          else
+            cursor.backspace();
+          return false;
+        case 27: //esc does something weird in keypress, may as well be the same as tab until we figure out what to do with it
+        case 9: //tab
+          var parent = cursor.parent, gramp = parent.parent;
+          if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
+          {
+            if(!gramp) //cursor is in the root, allow default
+              return continueDefault = true;
+            if(gramp instanceof LatexCommandInput)
+              cursor.renderCommand(gramp);
+            parent = cursor.parent;
+            gramp = parent.parent;
+            if(parent.position == 0) //escape
+              cursor.insertBefore(gramp);
+            else //move one block left
+              cursor.appendTo(gramp.blocks[parent.position-1]);
+          }
+          else //plain Tab = go one block right if it exists, else escape right.
+          {
+            if(!gramp) //cursor is in the root, allow default
+              return continueDefault = true;
+            if(gramp instanceof LatexCommandInput)
+              cursor.renderCommand(gramp);
+            parent = cursor.parent;
+            gramp = parent.parent;
+            if(parent.position == gramp.blocks.length - 1) //escape this block
+              cursor.insertAfter(gramp);
+            else //move one block right
+              cursor.prependTo(gramp.blocks[parent.position+1]);
+          }
+          cursor.clearSelection();
+          return false;
+        case 13: //enter
+          return false;
+        case 35: //end
+          if(e.ctrlKey) //move to the end of the root block.
+          {
+            root = cursor.parent;
+            while(root.parent)
+              root = root.parent.parent;
+            cursor.appendTo(root);
+            return false;
+          }
+          //else move to the end of the current block.
+          cursor.appendTo(cursor.parent);
+          return false;
+        case 36: //home
+          if(e.ctrlKey) //move to the start of the root block.
+          {
+            root = cursor.parent;
+            while(root.parent)
+              root=root.parent.parent;
+            cursor.prependTo(root);
+          }
+          else
+            cursor.prependTo(cursor.parent);
+          return false;
+        case 37: //left
+          if(e.shiftKey)
+            cursor.selectLeft();
+          else
+            cursor.moveLeft();
+          return false;
+        case 38: //up
+          return false;
+        case 39: //right
+          if(e.shiftKey)
+            cursor.selectRight();
+          else
+            cursor.moveRight();
+          return false;
+        case 40: //down
+          return false;
+        case 46: //delete
+          if(e.ctrlKey)
+            while(cursor.next)
+              cursor.deleteForward();
+          else
+            cursor.deleteForward();
+          return false;
+        default:
+          continueDefault = null; //as in 'neither'. Do nothing, pass to keypress.
+          return;
+      }
+    }).keypress(function(e)
+    {
+      //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
+      if(!lastKeydnEvt.happened)
+        $(this).trigger(lastKeydnEvt);
+      
+      if(continueDefault !== null)
+      {
+        lastKeydnEvt.happened = false;
+        return continueDefault;
+      }
+      
+      if(e.ctrlKey)
+        return; //don't capture Ctrl+anything.
+      
+      var cmd = String.fromCharCode(e.which);
+      if(cmd.match(/[a-z]/i))
+        cmd = new Variable(cmd);
+      else if(cmd.match(/\d/))
+        cmd = new VanillaSymbol(cmd);
+      else
+        return todo(), false;
+      
+      cursor.newBefore(cmd);
+      
+      return false;
+    }).focus();
   });
 };
 

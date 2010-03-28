@@ -285,7 +285,7 @@ function LatexRoot(textElement, tabindex)
             }
         }
         else
-            cursor.prependTo(root);
+            cursor.appendTo(root);
         cursor.parent.jQ.addClass('hasCursor');
     }).blur(function(e){
         clearInterval(intervalId);
@@ -316,7 +316,7 @@ function LatexRoot(textElement, tabindex)
                     if(!gramp) //cursor is in the root, allow default
                         return continueDefault = true;
                     if(gramp instanceof LatexCommandInput)
-                        cursor.renderCommand(gramp);
+                        return cursor.renderCommand(gramp), false;
                     parent = cursor.parent;
                     gramp = parent.parent;
                     if(parent.position == 0) //escape
@@ -329,7 +329,7 @@ function LatexRoot(textElement, tabindex)
                     if(!gramp) //cursor is in the root, allow default
                         return continueDefault = true;
                     if(gramp instanceof LatexCommandInput)
-                        cursor.renderCommand(gramp);
+                        return cursor.renderCommand(gramp), false;
                     parent = cursor.parent;
                     gramp = parent.parent;
                     if(parent.position == gramp.blocks.length - 1) //escape this block
@@ -416,8 +416,6 @@ function LatexRoot(textElement, tabindex)
                 return false;
         }
     }).focus();
-    
-    return this;
 }
 LatexRoot.prototype = new LatexBlock;
 LatexRoot.prototype.html = function()
