@@ -318,15 +318,15 @@ Cursor.prototype = {
   },
   hopLeft: function()
   {
+    this.jQ.insertBefore(this.prev.jQ);
     this.next = this.prev;
     this.prev = this.prev.prev;
-    this.jQ.insertBefore(this.prev.jQ);
   },
   hopRight: function()
   {
+    this.jQ.insertAfter(this.next.jQ);
     this.prev = this.next;
     this.next = this.next.next;
-    this.jQ.insertAfter(this.prev.jQ);
   },
   newBefore: function(el)
   {
