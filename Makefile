@@ -17,7 +17,7 @@ all: ${FILES}
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'Done.'
 
-git:
+gsync:
 	@@git pull
 	@@git push
 
