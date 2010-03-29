@@ -2,8 +2,11 @@ SOURCE_DIR = src
 
 # TODO: put real files here.
 FILES = \
-latexlive.css \
-newdemo.html
+intro.js
+backend.js \
+commands.js \
+frontend.js \
+outro.js
 
 BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/latexlive.js
