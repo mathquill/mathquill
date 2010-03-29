@@ -11,10 +11,15 @@ BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/latexlive.js
 
 all: ${FILES}
-	@@echo "Building..."
+	@@if test ! -d ${BUILD_DIR}; then mkdir ${BUILD_DIR}; fi
+	@@echo 'Building...'
 	@@echo ${FILES} | tr ' ' '\n'
 	@@cat ${FILES} > ${BUILD_FILE}
-	@@echo 'done.'
+	@@echo 'Done.'
+
+git:
+	@@git pull
+	@@git push
 
 lol:
 	@@echo "LOL!"
