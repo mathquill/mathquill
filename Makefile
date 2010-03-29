@@ -2,7 +2,7 @@ SOURCE_DIR = src
 
 # TODO: put real files here.
 FILES = \
-${SOURCE_DIR}/intro.js
+${SOURCE_DIR}/intro.js \
 ${SOURCE_DIR}/backend.js \
 ${SOURCE_DIR}/commands.js \
 ${SOURCE_DIR}/frontend.js \
