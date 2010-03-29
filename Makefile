@@ -10,7 +10,7 @@ BUILD_FILE = ${BUILD_DIR}/latexlive.js
 
 all: ${FILES}
 	@@echo "Building the following files:"
-	@@echo ${FILES} | sed s/\ /\n/
+	@@echo ${FILES} | tr ' ' '\n'
 	@@echo '...'
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'done.'
