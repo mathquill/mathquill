@@ -44,6 +44,7 @@
 .latexlive-generated-math .cursor {
   border-left: 1px solid black;
   margin-right: -1px;
+  display: inline;
   position: relative;
   z-index: 1;
 }
@@ -72,14 +73,15 @@
 
 .latexlive-generated-math sup, .latexlive-generated-math sub {
   position: relative;
+  display: inline-block;
 }
 
 .latexlive-generated-math .operator {
-  padding: 0 6px;
+  padding: 0 .4em;
 }
 
 .latexlive-generated-math sup .operator, .latexlive-generated-math sub .operator {
-  padding: 0 4px;
+  padding: 0 .3em;
 }
 
 .latexlive-generated-math .fraction {

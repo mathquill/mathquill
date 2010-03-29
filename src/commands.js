@@ -59,7 +59,7 @@ SupSub.prototype = $.extend(new MathCommand, {
     if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
       this.jQ.css({
         left: -this.prev.jQ.innerWidth(),
-        marginRight: -Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())
+        marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
       });
     else
       this.jQ.css({
