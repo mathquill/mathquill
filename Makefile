@@ -12,6 +12,7 @@ BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/latexlive.js
 
 all: ${FILES}
+	@@if test ! -d ${BUILD_DIR}; then mkdir ${BUILD_DIR}; fi
 	@@echo "Building the following files:"
 	@@echo ${FILES} | tr ' ' '\n'
 	@@echo '...'
