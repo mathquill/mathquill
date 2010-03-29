@@ -157,10 +157,10 @@
   top: 1px;
 }
 
-.latexlive-generated-math:focus .highlight, .latexlive-generated-math:focus .highlight * {
+.latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection * {
   background-color: #ADF;
 }
-.latexlive-generated-math .highlight, .latexlive-generated-math .highlight * {
+.latexlive-generated-math .selection, .latexlive-generated-math .selection * {
   background-color: lightgray;
 }
 

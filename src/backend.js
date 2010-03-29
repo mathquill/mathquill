@@ -32,25 +32,6 @@ MathElement.prototype = {
 };
 
 /**
- * Children and parent of MathCommand's. Basically partitions all the
- * symbols and operators that descend (in the Math DOM tree) from
- * ancestor operators.
- */
-function MathBlock(){}
-MathBlock.prototype = $.extend(new MathElement, { 
-  latex: function()
-  {
-    return this.reduceChildren(function(initVal){
-      return initVal + this.latex();
-    }, '');
-  },
-  isEmpty: function()
-  {
-    return this.firstChild === null && this.lastChild === null;
-  },
-});
-
-/**
  * Commands and operators, like subscripts, exponents, or fractions.
  * May contain descendant commands, organized into blocks.
  */
@@ -58,6 +39,7 @@ function MathCommand(cmd, num_blocks, html_template)
 { 
   if(!arguments.length)
     return;
+  
   this.cmd = cmd;
   this.num_blocks = num_blocks;
   this.html_template = html_template;
@@ -139,3 +121,72 @@ Symbol.prototype = $.extend(new MathCommand, {
   placeCursor: noop,
   isEmpty: function(){ return true; },
 });
+
+/**
+ * Children and parent of MathCommand's. Basically partitions all the
+ * symbols and operators that descend (in the Math DOM tree) from
+ * ancestor operators.
+ */
+function MathBlock(){}
+MathBlock.prototype = $.extend(new MathElement, { 
+  latex: function()
+  {
+    return this.reduceChildren(function(initVal){
+      return initVal + this.latex();
+    }, '');
+  },
+  isEmpty: function()
+  {
+    return this.firstChild === null && this.lastChild === null;
+  },
+});
+
+/**
+ * An entity outside the Math DOM tree with one-way pointers (so it's only
+ * a "view" of part of the tree, not an actual node/entity in the tree)
+ * that delimit a list of symbols and operators.
+ */
+function MathFragment(parent, prev, next, highlight)
+{
+  if(!arguments.length)
+    return;
+
+  this.parent = parent;
+  this.prev = prev;
+  this.next = next;
+
+  this.jQinit(this.reduce(function(initVal){ return initVal.add(this.jQ); }, $()));
+}
+MathFragment.prototype = {
+  remove: MathCommand.prototype.remove,
+  jQinit: function(children)
+  {
+    return this.jQ = children.wrapAll('<span></span>').parent();
+      //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
+  },
+  each: function(fn)
+  {
+    for(var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
+      fn.call(el);
+    return this;
+  },
+  reduce: function(fn, initVal)
+  {
+    this.each(function()
+    {
+      initVal = fn.call(this, initVal);
+    });
+    return initVal;
+  },
+  levelUp: function()
+  {
+    this.jQ.children().unwrap();
+    this.jQinit(this.parent.parent.jQ);
+
+    this.prev = this.parent.parent.prev;
+    this.next = this.parent.parent.next;
+    this.parent = this.parent.parent.parent;
+
+    return this;
+  },
+};

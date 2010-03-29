@@ -233,7 +233,7 @@ Cursor.prototype = {
           this.selection.prev = this.prev;
         }
         else if(this.parent.parent) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp().jQ.addClass('selection');
+          this.insertBefore(this.parent.parent).selection.levelUp();
       }
       else //else cursor is at right edge of selection, retract left
       {
@@ -245,12 +245,10 @@ Cursor.prototype = {
       }
     else
       if(this.prev)
-        (this.hopLeft().hide().selection =
-          new Selection(this.parent, this.prev, this.next.next)).jQ.addClass('selection');
+        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next);
       else //end of a block
         if(this.parent.parent)
-          (this.insertBefore(this.parent.parent).hide().selection =
-            new Selection(this.parent, this.prev, this.next.next)).jQ.addClass('selection');
+          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.prev, this.next.next);
   },
   selectRight: function()
   {
@@ -264,7 +262,7 @@ Cursor.prototype = {
           this.selection.next = this.next;
         }
         else if(this.parent.parent) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp().jQ.addClass('selection');
+          this.insertAfter(this.parent.parent).selection.levelUp();
       }
       else //else cursor is at left edge of selection, retract right
       {
@@ -276,12 +274,10 @@ Cursor.prototype = {
       }
     else
       if(this.next)
-        (this.hopRight().hide().selection =
-          new Selection(this.parent, this.prev.prev, this.next)).jQ.addClass('selection');
+        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next);
       else //end of a block
         if(this.parent.parent)
-          (this.insertAfter(this.parent.parent).hide().selection =
-            new Selection(this.parent, this.prev.prev, this.next)).jQ.addClass('selection');
+          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   },
   clearSelection: function()
   {
@@ -296,6 +292,9 @@ Cursor.prototype = {
   {
     if(this.show().selection)
     {
+      this.jQ.insertBefore(this.selection.jQ);
+      this.prev = this.selection.prev;
+      this.next = this.selection.next;
       this.selection.remove();
       delete this.selection;
       return true;
@@ -305,50 +304,21 @@ Cursor.prototype = {
   },
 }
 
-//A fake selection in the fake textbox that the math is rendered in.
-function Selection(parent, prev, next, highlight)
+function Selection(parent, prev, next)
 {
-  this.parent = parent;
-  this.prev = prev;
-  this.next = next;
-  
-  this.jQ = this.reduce(function(initVal){ return initVal.add(this.jQ); }, $())
-    .wrapAll('<span></span>').parent();
-    //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
+  MathFragment.apply(this, arguments);
 }
-Selection.prototype = {
-  remove: MathCommand.prototype.remove,
+Selection.prototype = $.extend(new MathFragment, {
+  jQinit: function(children)
+  {
+    return this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+  },
   clear: function()
   {
     this.jQ.replaceWith(this.jQ.children());
     return this;
   },
-  each: function(fn)
-  {
-    for(var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
-      fn.call(el);
-    return this;
-  },
-  reduce: function(fn, initVal)
-  {
-    this.each(function()
-    {
-      initVal = fn.call(this, initVal);
-    });
-    return initVal;
-  },
-  levelUp: function()
-  {
-    this.jQ.children().unwrap();
-    this.jQ = this.parent.parent.jQ.wrap('<span></span>').parent();
-
-    this.prev = this.parent.parent.prev;
-    this.next = this.parent.parent.next;
-    this.parent = this.parent.parent.parent;
-    
-    return this;
-  },
-};
+});
 
 //on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
 //with RootMathBlock's.
