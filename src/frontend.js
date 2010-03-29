@@ -233,7 +233,7 @@ Cursor.prototype = {
           this.selection.prev = this.prev;
         }
         else if(this.parent.parent) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp();
+          this.insertBefore(this.parent.parent).selection.levelUp().jQ.addClass('selection');
       }
       else //else cursor is at right edge of selection, retract left
       {
@@ -245,10 +245,12 @@ Cursor.prototype = {
       }
     else
       if(this.prev)
-        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next, true);
+        (this.hopLeft().hide().selection =
+          new Selection(this.parent, this.prev, this.next.next)).jQ.addClass('selection');
       else //end of a block
         if(this.parent.parent)
-          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.next.next, this.prev, true);
+          (this.insertBefore(this.parent.parent).hide().selection =
+            new Selection(this.parent, this.prev, this.next.next)).jQ.addClass('selection');
   },
   selectRight: function()
   {
@@ -262,7 +264,7 @@ Cursor.prototype = {
           this.selection.next = this.next;
         }
         else if(this.parent.parent) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp();
+          this.insertAfter(this.parent.parent).selection.levelUp().jQ.addClass('selection');
       }
       else //else cursor is at left edge of selection, retract right
       {
@@ -274,10 +276,12 @@ Cursor.prototype = {
       }
     else
       if(this.next)
-        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next, true);
+        (this.hopRight().hide().selection =
+          new Selection(this.parent, this.prev.prev, this.next)).jQ.addClass('selection');
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next, true);
+          (this.insertAfter(this.parent.parent).hide().selection =
+            new Selection(this.parent, this.prev.prev, this.next)).jQ.addClass('selection');
   },
   clearSelection: function()
   {
@@ -309,7 +313,7 @@ function Selection(parent, prev, next, highlight)
   this.next = next;
   
   this.jQ = this.reduce(function(initVal){ return initVal.add(this.jQ); }, $())
-    .wrapAll('<span'+(highlight?' class="highlight"':'')+'></span>').parent();
+    .wrapAll('<span></span>').parent();
     //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
 }
 Selection.prototype = {
@@ -336,11 +340,13 @@ Selection.prototype = {
   levelUp: function()
   {
     this.jQ.children().unwrap();
-    this.jQ = this.parent.parent.jQ.wrap(this.jQ).parent();
+    this.jQ = this.parent.parent.jQ.wrap('<span></span>').parent();
 
     this.prev = this.parent.parent.prev;
     this.next = this.parent.parent.next;
     this.parent = this.parent.parent.parent;
+    
+    return this;
   },
 };
 
