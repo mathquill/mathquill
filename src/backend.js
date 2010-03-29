@@ -146,7 +146,7 @@ MathBlock.prototype = $.extend(new MathElement, {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-function MathFragment(parent, prev, next, highlight)
+function MathFragment(parent, prev, next)
 {
   if(!arguments.length)
     return;
