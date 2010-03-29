@@ -26,7 +26,8 @@ MathElement.prototype = {
   eachChild: function(fn)
   {
     for(var child = this.firstChild; child !== null; child = child.next)
-      fn.call(child);
+      if(fn.call(child) === false)
+        break;
     return this;
   },
   reduceChildren: function(fn, initVal)
@@ -36,11 +37,7 @@ MathElement.prototype = {
     });
     return initVal;
   },
-  isEmpty: function()
-  {
-    return this.firstChild === null && this.lastChild === null;
-  },
-}
+};
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the
@@ -54,6 +51,10 @@ MathBlock.prototype = $.extend(new MathElement, {
     return this.reduceChildren(function(initVal){
       return initVal + this.latex();
     }, '');
+  },
+  isEmpty: function()
+  {
+    return this.firstChild === null && this.lastChild === null;
   },
 });
 
@@ -122,6 +123,12 @@ MathCommand.prototype = $.extend(new MathElement, {
     cursor.prependTo(this.firstChild);
     return this;
   },
+  isEmpty: function()
+  {
+    return this.reduceChildren(function(initVal){
+      return initVal && this.isEmpty();
+    }, true);
+  },
 });
 
 /**
@@ -138,6 +145,7 @@ Symbol.prototype = $.extend(new MathCommand, {
     return this.cmd;
   },
   placeCursor: noop,
+  isEmpty: function(){ return true; },
 });
 
 function VanillaSymbol(ch, html) 
@@ -156,13 +164,13 @@ function BinaryOperator(cmd, html)
 {
   Symbol.call(this, cmd, '<span class="operator">'+html+'</span>');
 }
-BinaryOperator.prototype = Symbol.prototype;
+BinaryOperator.prototype = new Symbol; //so instanceof will work
 
 function PlusMinus(cmd, html)
 {
   VanillaSymbol.apply(this, arguments);
 }
-PlusMinus.prototype = new BinaryOperator('PlusMinus.prototype'); //so instanceof will work
+PlusMinus.prototype = new BinaryOperator; //so instanceof will work
 PlusMinus.prototype.respace = function()
 {
   if(!this.prev || this.prev instanceof BinaryOperator)
@@ -180,7 +188,17 @@ SupSub.prototype = $.extend(new MathCommand, {
   initBlocks: function()
   {
     this.jQ.data('latexlive').block = this.firstChild = this.lastChild = new MathBlock;
+    this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ;
+    var me = this;
+    this.jQ.change(function()
+    {
+      me.respace();
+      if(me.next)
+        me.next.respace();
+      if(me.prev)
+        me.prev.respace();
+    });
   },
   respace: function()
   {
@@ -197,6 +215,18 @@ SupSub.prototype = $.extend(new MathCommand, {
     return this;
   }
 });
+
+var SingleCharacterCommands = {
+  '=': function(){ return new BinaryOperator('=', '='); },
+  '<': function(){ return new BinaryOperator('<', '&lt;'); },
+  '>': function(){ return new BinaryOperator('>', '&gt;'); },
+  '+': function(){ return new PlusMinus('+'); },
+  '-': function(){ return new PlusMinus('-', '&minus;'); },
+  '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
+  "'": function(){ return new VanillaSymbol("'", '&prime;');},
+  '^': function(){ return new SupSub('^', '<sup></sup>'); },
+  '_': function(){ return new SupSub('_', '<sub></sub>'); },
+};
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
@@ -619,23 +649,19 @@ return function(tabindex)
           {
             if(!gramp) //cursor is in the root, continue default
               return continueDefault = true;
-            parent = cursor.parent;
-            gramp = parent.parent;
-            if(parent.position == 0) //escape
+            else if(parent.prev) //go one block left
+              cursor.appendTo(parent.prev);
+            else //get out of the block
               cursor.insertBefore(gramp);
-            else //move one block left
-              cursor.appendTo(gramp.blocks[parent.position-1]);
           }
           else //plain Tab = go one block right if it exists, else escape right.
           {
             if(!gramp) //cursor is in the root, continue default
               return continueDefault = true;
-            parent = cursor.parent;
-            gramp = parent.parent;
-            if(parent.position == gramp.blocks.length - 1) //escape this block
+            else if(parent.next) //go one block right
+              cursor.prependTo(parent.next);
+            else //get out of the block
               cursor.insertAfter(gramp);
-            else //move one block right
-              cursor.prependTo(gramp.blocks[parent.position+1]);
           }
           cursor.clearSelection();
           return false;
@@ -700,6 +726,8 @@ return function(tabindex)
         cmd = new Variable(cmd);
       else if(cmd.match(/\d/))
         cmd = new VanillaSymbol(cmd);
+      else if(cmd = SingleCharacterCommands[cmd])
+        cmd = cmd();
       else
         return todo(), false;
       
