@@ -312,6 +312,18 @@ Selection.prototype = $.extend(new MathFragment, {
   jQinit: function(children)
   {
     return this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+      //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
+  },
+  levelUp: function()
+  {
+    this.jQ.children().unwrap();
+    this.jQinit(this.parent.parent.jQ);
+
+    this.prev = this.parent.parent.prev;
+    this.next = this.parent.parent.next;
+    this.parent = this.parent.parent.parent;
+
+    return this;
   },
   clear: function()
   {
@@ -321,7 +333,7 @@ Selection.prototype = $.extend(new MathFragment, {
 });
 
 //on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
-//with RootMathBlock's.
+//with root MathBlock's.
 $(function(){
   $('.latexlive-embedded-math').latexlive();
 });
@@ -331,14 +343,13 @@ $(function(){
 return function(tabindex)
 {
   if(!(typeof tabindex === 'function'))
-  {
-    var html = '<span class="latexlive-generated-math" tabindex="'+(tabindex || 0)+'"></span>';
-    tabindex = function(){ return html; };
-  }
+    var i = tabindex || 0, tabindex = function(){ return i; };
+
   return this.each(function()
   {
     var math = new MathBlock;
-    math.jQ = $(tabindex.apply(this, arguments)).data('[[latexlive internal data]]', {block: math}).replaceAll(this);
+    math.jQ = $('<span class="latexlive-generated-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>')
+      .data('[[latexlive internal data]]', {block: math}).replaceAll(this);
     var cursor = math.cursor = new Cursor(math);
     
     var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
@@ -367,7 +378,7 @@ return function(tabindex)
       var cmd = clicked.data('[[latexlive internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('[[latexlive internal data]]'('latexlive')) || !(cmd = cmd.cmd))) 
+      if(!(cmd && (cmd = cmd.cmd)) && !((cmd = (clicked = clicked.parent()).data('[[latexlive internal data]]')) && (cmd = cmd.cmd)))
         return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())

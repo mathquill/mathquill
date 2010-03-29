@@ -86,21 +86,24 @@
 
 .latexlive-generated-math .fraction {
   text-align: center;
+  display: inline-block;
   vertical-align: middle;
+  padding: 0 .1em;
 }
 
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
   display: block;
   font-size: 90%;
+  padding: 0 .2em;
 }
 .latexlive-generated-math .numerator {
-  border-bottom: solid black 1px;
-  padding-bottom: 2px;
+  border-bottom: solid #444 1px;
+  padding-bottom: .1em;
   margin-bottom: 0;
 }
 .latexlive-generated-math .denominator {
-  border-top: solid black 1px;
-  padding-top: 2px;
+  border-top: solid #444 1px;
+  padding-top: .1em;
   margin-top: 0;
 }
 .latexlive-generated-math .numerator > .fraction, .latexlive-generated-math .denominator > .fraction {
@@ -112,7 +115,7 @@
 }
 .latexlive-generated-math sup .numerator, .latexlive-generated-math sub .numerator {
   border-bottom: none;
-  padding-bottom: 1px;
+  padding-bottom: 0;
 }
 .latexlive-generated-math sup .denominator, .latexlive-generated-math sub .denominator {
   padding-top: 0;

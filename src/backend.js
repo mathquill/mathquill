@@ -128,7 +128,7 @@ Symbol.prototype = $.extend(new MathCommand, {
  * ancestor operators.
  */
 function MathBlock(){}
-MathBlock.prototype = $.extend(new MathElement, { 
+MathBlock.prototype = $.extend(new MathElement, {
   latex: function()
   {
     return this.reduceChildren(function(initVal){
@@ -152,8 +152,8 @@ function MathFragment(parent, prev, next)
     return;
 
   this.parent = parent;
-  this.prev = prev;
-  this.next = next;
+  this.prev = prev || null; //so you can do 'new MathFragment(block)' without
+  this.next = next || null; //ending up with this.prev or this.next === undefined
 
   this.jQinit(this.reduce(function(initVal){ return initVal.add(this.jQ); }, $()));
 }
@@ -161,13 +161,13 @@ MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
   jQinit: function(children)
   {
-    return this.jQ = children.wrapAll('<span></span>').parent();
-      //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
+    return this.jQ = children;
   },
   each: function(fn)
   {
     for(var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
-      fn.call(el);
+      if(fn.call(el) === false)
+        break;
     return this;
   },
   reduce: function(fn, initVal)
@@ -178,15 +178,27 @@ MathFragment.prototype = {
     });
     return initVal;
   },
-  levelUp: function()
+  blockify: function()
   {
-    this.jQ.children().unwrap();
-    this.jQinit(this.parent.parent.jQ);
+    var newBlock = new MathBlock;
+    if(this.prev)
+      newBlock.firstChild = this.prev.next, this.prev.next = this.next;
+    else
+      newBlock.firstChild = this.parent.firstChild, this.parent.firstChild = this.next;
 
-    this.prev = this.parent.parent.prev;
-    this.next = this.parent.parent.next;
-    this.parent = this.parent.parent.parent;
+    if(this.next)
+      newBlock.lastChild = this.next.prev, this.next.prev = this.prev;
+    else
+      newBlock.lastChild = this.parent.lastChild, this.parent.lastChild = this.prev;
 
-    return this;
+    newBlock.firstChild.prev = this.prev = null;
+    newBlock.lastChild.next = this.next = null;
+
+    this.parent = newBlock;
+    this.each(function(){ this.parent = newBlock; });
+
+    newBlock.jQ = this.jQ;
+    
+    return newBlock;
   },
 };

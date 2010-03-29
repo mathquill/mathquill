@@ -70,6 +70,35 @@ SupSub.prototype = $.extend(new MathCommand, {
   }
 });
 
+function Fraction()
+{
+  MathCommand.call(this, '\\frac ', 2,
+    '<span class="fraction"><span class="numerator"></span><span class="denominator"></span></span>');
+}
+Fraction.prototype = new MathCommand;
+function LiveFraction()
+{
+  Fraction.call(this);
+}
+LiveFraction.prototype = new Fraction;
+LiveFraction.prototype.placeCursor = function(cursor)
+{
+  var prev = this.prev;
+  while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
+    prev = prev.prev;
+  if(prev === this.prev)
+    cursor.prependTo(this.firstChild);
+  else
+  {
+    var newBlock = new MathFragment(this.parent, prev, this).blockify();
+    newBlock.jQ = this.firstChild.jQ.prepend(newBlock.jQ);
+    this.firstChild = this.lastChild.prev = newBlock;
+    newBlock.parent = this;
+
+    cursor.prependTo(this.lastChild);
+  }
+};
+
 var SingleCharacterCommands = {
   '=': function(){ return new BinaryOperator('=', '='); },
   '<': function(){ return new BinaryOperator('<', '&lt;'); },
@@ -80,4 +109,5 @@ var SingleCharacterCommands = {
   "'": function(){ return new VanillaSymbol("'", '&prime;');},
   '^': function(){ return new SupSub('^', '<sup></sup>'); },
   '_': function(){ return new SupSub('_', '<sub></sub>'); },
+  '/': function(){ return new LiveFraction(); },
 };
