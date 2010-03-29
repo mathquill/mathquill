@@ -511,5 +511,3 @@ return function(tabindex)
     }).focus();
   });
 };
-
-})();
