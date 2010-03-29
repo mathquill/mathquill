@@ -15,5 +15,5 @@ all: ${FILES}
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'done.'
 
-lol: lol.txt
+lol:
 	@@echo "LOL!"
