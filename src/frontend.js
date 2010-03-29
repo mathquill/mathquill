@@ -338,7 +338,7 @@ return function(tabindex)
   return this.each(function()
   {
     var math = new MathBlock;
-    math.jQ = $(tabindex.apply(this, arguments)).data('latexlive', {block: math}).replaceAll(this);
+    math.jQ = $(tabindex.apply(this, arguments)).data('[[latexlive internal data]]', {block: math}).replaceAll(this);
     var cursor = math.cursor = new Cursor(math);
     
     var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
@@ -361,13 +361,13 @@ return function(tabindex)
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.prependTo(clicked.data('latexlive').block);
+        cursor.prependTo(clicked.data('[[latexlive internal data]]').block);
         return false;
       }
-      var cmd = clicked.data('latexlive');
+      var cmd = clicked.data('[[latexlive internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('latexlive')) || !(cmd = cmd.cmd))) 
+      if((!cmd || !(cmd = cmd.cmd)) && (!(cmd = (clicked = clicked.parent()).data('[[latexlive internal data]]'('latexlive')) || !(cmd = cmd.cmd))) 
         return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())

@@ -41,7 +41,7 @@ function SupSub(cmd, html)
 SupSub.prototype = $.extend(new MathCommand, {
   initBlocks: function()
   {
-    this.jQ.data('latexlive').block = this.firstChild = this.lastChild = new MathBlock;
+    this.jQ.data('[[latexlive internal data]]').block = this.firstChild = this.lastChild = new MathBlock;
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ;
     var me = this;

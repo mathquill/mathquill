@@ -49,7 +49,7 @@ function MathCommand(cmd, num_blocks, html_template)
 MathCommand.prototype = $.extend(new MathElement, {
   jQinit: function()
   {
-    return this.jQ = $(this.html_template).data('latexlive', {cmd: this});
+    return this.jQ = $(this.html_template).data('[[latexlive internal data]]', {cmd: this});
   },
   initBlocks: function()
   {
@@ -57,7 +57,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     for(var i = 0; i < this.num_blocks; i += 1)
     {
       newBlock = new MathBlock;
-      newBlock.jQ = $(children[i]).data('latexlive', {block: newBlock}); /*** optimize me! ***/
+      newBlock.jQ = $(children[i]).data('[[latexlive internal data]]', {block: newBlock}); /*** optimize me! ***/
       newBlock.parent = this;
       newBlock.prev = prev;
       if(prev)
