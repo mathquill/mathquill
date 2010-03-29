@@ -564,9 +564,9 @@ Selection.prototype = {
     this.jQ.children().unwrap();
     this.jQ = this.parent.parent.jQ.wrap(this.jQ).parent();
 
-    this.parent = this.parent.parent.parent;
     this.prev = this.parent.parent.prev;
     this.next = this.parent.parent.next;
+    this.parent = this.parent.parent.parent;
   },
 };
 
