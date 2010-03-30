@@ -139,7 +139,6 @@ function LatexCommandInput()
     if(char === ' ')
       return false;
   });
-  setTimeout(function(){ commandInput.jQ.focus(); }, 0);
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="latex-command-input" tabindex=0></span>'],
