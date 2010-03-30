@@ -35,13 +35,12 @@ MathElement.prototype = {
  * Commands and operators, like subscripts, exponents, or fractions.
  * May contain descendant commands, organized into blocks.
  */
-function MathCommand(cmd, num_blocks, html_template)
+function MathCommand(cmd, html_template)
 { 
   if(!arguments.length)
     return;
-  
+
   this.cmd = cmd;
-  this.num_blocks = num_blocks;
   this.html_template = html_template;
   this.jQinit();
   this.initBlocks();
@@ -53,8 +52,8 @@ MathCommand.prototype = $.extend(new MathElement, {
   },
   initBlocks: function()
   {
-    var newBlock, prev = null, children = this.jQ.children();
-    for(var i = 0; i < this.num_blocks; i += 1)
+    var newBlock, prev = null, children = this.jQ.children(), num_blocks = children.length;
+    for(var i = 0; i < num_blocks; i += 1)
     {
       newBlock = new MathBlock;
       newBlock.parent = this;
@@ -112,7 +111,7 @@ MathCommand.prototype = $.extend(new MathElement, {
  */
 function Symbol(cmd, html)
 {
-  MathCommand.call(this, cmd, 0, html);
+  MathCommand.call(this, cmd, html);
 }
 Symbol.prototype = $.extend(new MathCommand, {
   initBlocks: noop,

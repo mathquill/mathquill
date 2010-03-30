@@ -36,7 +36,7 @@ PlusMinus.prototype.respace = function()
 
 function SupSub(cmd, html)
 {
-  MathCommand.call(this, cmd, 1, html);
+  MathCommand.call(this, cmd, html);
 }
 SupSub.prototype = $.extend(new MathCommand, {
   initBlocks: function()
@@ -72,8 +72,7 @@ SupSub.prototype = $.extend(new MathCommand, {
 
 function Fraction()
 {
-  MathCommand.call(this, '\\frac ', 2,
-    '<span class="fraction"><span class="numerator"></span><span class="denominator"></span></span>');
+  MathCommand.call(this, '\\frac ', '<span class="fraction"><span class="numerator"></span><span class="denominator"></span></span>');
 }
 Fraction.prototype = new MathCommand;
 function LiveFraction()
