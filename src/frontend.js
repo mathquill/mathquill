@@ -38,21 +38,7 @@ Cursor.prototype = {
   setParentEmpty: function()
   {
     if(this.parent)
-    {
-      this.parent.jQ.removeClass('hasCursor');
-      if(this.parent.isEmpty())
-      {
-        this.parent.jQ.addClass('empty');
-        if(this.parent.parent)
-          this.parent.jQ.html('[ ]');
-      }
-    }
-    return this;
-  },
-  rmParentEmpty:function()
-  {
-    if(this.parent.jQ.hasClass('empty'))
-      this.parent.jQ.html('').removeClass('empty');
+      this.parent.setEmpty().jQ.removeClass('hasCursor');
     return this;
   },
   detach: function()
@@ -88,8 +74,7 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.rmParentEmpty();
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.prependTo(el.jQ);
     return this;
   },
@@ -99,8 +84,7 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.rmParentEmpty();
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.appendTo(el.jQ);
     return this;
   },
@@ -358,7 +342,7 @@ return function(tabindex)
       if(cursor.parent)
       {
         if(cursor.parent.isEmpty())
-          cursor.rmParentEmpty().jQ.appendTo(cursor.parent.jQ);
+          cursor.jQ.appendTo(cursor.parent.removeEmpty().jQ);
       }
       else
         cursor.appendTo(root);

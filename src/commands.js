@@ -86,17 +86,15 @@ LiveFraction.prototype.placeCursor = function(cursor)
   var prev = this.prev;
   while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
     prev = prev.prev;
-  if(prev === this.prev)
-    cursor.prependTo(this.firstChild);
-  else
+  if(prev !== this.prev)
   {
     var newBlock = new MathFragment(this.parent, prev, this).blockify();
-    newBlock.jQ = this.firstChild.jQ.prepend(newBlock.jQ);
-    this.firstChild = this.lastChild.prev = newBlock;
+    newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
+    newBlock.next = this.lastChild;
     newBlock.parent = this;
-
-    cursor.prependTo(this.lastChild);
+    this.firstChild = this.lastChild.prev = newBlock;
   }
+  cursor.prependTo(this.lastChild);
 };
 
 var SingleCharacterCommands = {

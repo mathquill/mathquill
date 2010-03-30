@@ -106,9 +106,6 @@
   padding-top: .1em;
   margin-top: 0;
 }
-.latexlive-generated-math .numerator > .fraction, .latexlive-generated-math .denominator > .fraction {
-  font-size: 90%;
-}
 
 .latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
   font-size: 70%;

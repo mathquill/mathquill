@@ -57,7 +57,6 @@ MathCommand.prototype = $.extend(new MathElement, {
     for(var i = 0; i < this.num_blocks; i += 1)
     {
       newBlock = new MathBlock;
-      newBlock.jQ = $(children[i]).data('[[latexlive internal data]]', {block: newBlock}); /*** optimize me! ***/
       newBlock.parent = this;
       newBlock.prev = prev;
       if(prev)
@@ -65,6 +64,9 @@ MathCommand.prototype = $.extend(new MathElement, {
       else
         this.firstChild = newBlock;
       prev = newBlock;
+
+      newBlock.jQ = children.eq(i).data('[[latexlive internal data]]', {block: newBlock});
+      newBlock.setEmpty();
     }
     this.lastChild = newBlock;
   },
@@ -138,6 +140,22 @@ MathBlock.prototype = $.extend(new MathElement, {
   isEmpty: function()
   {
     return this.firstChild === null && this.lastChild === null;
+  },
+  setEmpty: function()
+  {
+    if(this.isEmpty())
+    {
+      this.jQ.addClass('empty');
+      if(this.parent)
+        this.jQ.html('[ ]');
+    }
+    return this;
+  },
+  removeEmpty:function()
+  {
+    if(this.jQ.hasClass('empty'))
+      this.jQ.html('').removeClass('empty');
+    return this;
   },
 });
 
