@@ -193,4 +193,10 @@ var SingleCharacterCommands = {
   '[': function(){ return new Parens('[', ']'); },
   '{': function(){ return new Parens('{', '}'); },
   '|': function(){ return new Parens('|', '|'); },
+  '\\': function(){ return new LatexCommandInput(); },
 };
+
+function chooseLatexCommand(latex)
+{
+  return new VanillaSymbol(latex.slice(1), '&'+latex.slice(1)+';');
+}
