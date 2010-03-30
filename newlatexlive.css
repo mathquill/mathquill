@@ -157,6 +157,11 @@
   top: 1px;
 }
 
+.latexlive-generated-math .selection {
+  display: inline-block;
+  padding: 1px; /* add a pixel to the box without taking up space, */
+  margin: -1px; /* or else things will stick out by a pixel or two */
+}
 .latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection * {
   background-color: #ADF;
 }
