@@ -22,16 +22,16 @@
   outline: none;
 }
 .latexlive-generated-math.hasCursor{
-  border: none;
-  margin: 1px 7px;
-  outline: solid #DEF 2px;
-  outline: solid rgba(119,187,255,.25) 2px;
+  border: solid #DEF 2px;
+  border: solid rgba(119,187,255,.25) 2px;
+  margin: -1px 5px;
 }
 
 .latexlive-generated-math * {
   color: inherit;
   background-color: transparent;
   line-height: inherit;
+  display: inline-block;
   margin: 0;
   padding: 0;
   cursor: text;
@@ -73,7 +73,6 @@
 
 .latexlive-generated-math sup, .latexlive-generated-math sub {
   position: relative;
-  display: inline-block;
 }
 
 .latexlive-generated-math .operator {
@@ -86,7 +85,6 @@
 
 .latexlive-generated-math .fraction {
   text-align: center;
-  display: inline-block;
   vertical-align: middle;
   padding: 0 .1em;
 }
@@ -94,15 +92,15 @@
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
   display: block;
   font-size: 90%;
-  padding: 0 .2em;
+  padding: .1em .2em;
 }
 .latexlive-generated-math .numerator {
-  border-bottom: solid #444 1px;
+  border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
   padding-bottom: .1em;
   margin-bottom: 0;
 }
 .latexlive-generated-math .denominator {
-  border-top: solid #444 1px;
+  border-top: solid #333 1px;
   padding-top: .1em;
   margin-top: 0;
 }
@@ -158,14 +156,13 @@
 }
 
 .latexlive-generated-math .selection {
-  display: inline-block;
   padding: 1px; /* add a pixel to the box without taking up space, */
   margin: -1px; /* or else things will stick out by a pixel or two */
 }
-.latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection * {
+.latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection sup, .latexlive-generated-math:focus .selection sub {
   background-color: #ADF;
 }
-.latexlive-generated-math .selection, .latexlive-generated-math .selection * {
+.latexlive-generated-math .selection, .latexlive-generated-math .selection sup, .latexlive-generated-math .selection sub {
   background-color: lightgray;
 }
 

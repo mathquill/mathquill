@@ -96,6 +96,28 @@ LiveFraction.prototype.placeCursor = function(cursor)
   cursor.prependTo(this.lastChild);
 };
 
+// Parens/Brackets/Braces etc
+function Parens(open, close)
+{
+  MathCommand.call(this, open, '<span><span class="open-paren">'+open+'</span><span class="parens"></span><span class="close-paren">'+close+'</span></span>');
+  this.end = close;
+  this.firstChild.jQ.change(function()
+  {
+    var block = $(this), height = block.height();
+    block.prev().add(block.next()).css('fontSize', block.height()).css('top', -2-height/15);
+  });
+}
+Parens.prototype = $.extend(new MathCommand, {
+  initBlocks: function(){
+    this.firstChild = this.lastChild = new MathBlock;
+    this.firstChild.parent = this;
+    this.firstChild.jQ = this.jQ.children().eq(1);
+  },
+  latex: function(){
+    return this.cmd + this.firstChild.latex() + this.end;
+  },
+});
+
 var SingleCharacterCommands = {
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
@@ -108,4 +130,8 @@ var SingleCharacterCommands = {
   '^': function(){ return new SupSub('^', '<sup></sup>'); },
   '_': function(){ return new SupSub('_', '<sub></sub>'); },
   '/': function(){ return new LiveFraction(); },
+  '(': function(){ return new Parens('(', ')'); },
+  '[': function(){ return new Parens('[', ']'); },
+  '{': function(){ return new Parens('{', '}'); },
+  '|': function(){ return new Parens('|', '|'); },
 };
