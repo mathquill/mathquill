@@ -48,6 +48,15 @@ function MathCommand(cmd, html_template)
 MathCommand.prototype = $.extend(new MathElement, {
   initBlocks: function()
   {
+    //single-block commands
+    if(this.html_template.length === 1)
+    {
+      this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block = new MathBlock;
+      this.firstChild.parent = this;
+      this.firstChild.jQ = this.jQ;
+      return;
+    }
+    //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev = null, num_blocks = this.html_template.length;
     for(var i = 1; i < num_blocks; i += 1)
     {

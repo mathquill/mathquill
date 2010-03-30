@@ -37,38 +37,31 @@ PlusMinus.prototype.respace = function()
 function SupSub(cmd, html)
 {
   MathCommand.call(this, cmd, [ html ]);
+  var me = this;
+  this.jQ.change(function()
+  {
+    me.respace();
+    if(me.next)
+      me.next.respace();
+    if(me.prev)
+      me.prev.respace();
+  });
 }
-SupSub.prototype = $.extend(new MathCommand, {
-  initBlocks: function()
-  {
-    this.jQ.data('[[latexlive internal data]]').block = this.firstChild = this.lastChild = new MathBlock;
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ;
-    var me = this;
-    this.jQ.change(function()
-    {
-      me.respace();
-      if(me.next)
-        me.next.respace();
-      if(me.prev)
-        me.prev.respace();
+SupSub.prototype = new MathCommand;
+SupSub.prototype.respace = function()
+{
+  if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
+    this.jQ.css({
+      left: -this.prev.jQ.innerWidth(),
+      marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
     });
-  },
-  respace: function()
-  {
-    if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
-      this.jQ.css({
-        left: -this.prev.jQ.innerWidth(),
-        marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
-      });
-    else
-      this.jQ.css({
-        left: 0,
-        marginRight: 0
-      });
-    return this;
-  }
-});
+  else
+    this.jQ.css({
+      left: 0,
+      marginRight: 0
+    });
+  return this;
+};
 
 function Fraction()
 {
@@ -123,8 +116,7 @@ Parens.prototype = $.extend(new MathCommand, {
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput()
 {
-  MathCommand.call(this, '\\',
-    ['<span class="latex-command-input" tabindex=0>\\</span>', '<span></span>']);
+  MathCommand.call(this, '\\', ['<span class="latex-command-input" tabindex=0></span>']);
   var commandInput = this;
   this.jQ.keydown(function(e)
   {
