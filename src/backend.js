@@ -42,18 +42,14 @@ function MathCommand(cmd, html_template)
 
   this.cmd = cmd;
   this.html_template = html_template;
-  this.jQinit();
+  this.jQ = $(html_template[0]).data('[[latexlive internal data]]', {cmd: this});
   this.initBlocks();
 }
 MathCommand.prototype = $.extend(new MathElement, {
-  jQinit: function()
-  {
-    return this.jQ = $(this.html_template).data('[[latexlive internal data]]', {cmd: this});
-  },
   initBlocks: function()
   {
-    var newBlock, prev = null, children = this.jQ.children(), num_blocks = children.length;
-    for(var i = 0; i < num_blocks; i += 1)
+    var newBlock, prev = null, num_blocks = this.html_template.length;
+    for(var i = 1; i < num_blocks; i += 1)
     {
       newBlock = new MathBlock;
       newBlock.parent = this;
@@ -64,7 +60,7 @@ MathCommand.prototype = $.extend(new MathElement, {
         this.firstChild = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = children.eq(i).data('[[latexlive internal data]]', {block: newBlock});
+      newBlock.jQ = $(this.html_template[i]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ);
       newBlock.setEmpty();
     }
     this.lastChild = newBlock;
@@ -96,7 +92,6 @@ MathCommand.prototype = $.extend(new MathElement, {
   placeCursor: function(cursor)
   {
     cursor.prependTo(this.firstChild);
-    return this;
   },
   isEmpty: function()
   {
@@ -111,7 +106,7 @@ MathCommand.prototype = $.extend(new MathElement, {
  */
 function Symbol(cmd, html)
 {
-  MathCommand.call(this, cmd, html);
+  MathCommand.call(this, cmd, [ html ]);
 }
 Symbol.prototype = $.extend(new MathCommand, {
   initBlocks: noop,

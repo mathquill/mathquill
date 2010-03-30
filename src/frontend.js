@@ -55,7 +55,7 @@ Cursor.prototype = {
     this.prev = el.prev;
     this.parent = el.parent;
     this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ); 
+    this.jQ.insertBefore(el.jQ.first()); 
     return this;
   },
   insertAfter: function(el)
@@ -65,7 +65,7 @@ Cursor.prototype = {
     this.next = el.next
     this.parent = el.parent;
     this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertAfter(el.jQ);
+    this.jQ.insertAfter(el.jQ.last());
     return this;
   }, 
   prependTo: function(el)
@@ -389,6 +389,8 @@ return function(tabindex)
           return false;
         case 27: //esc does something weird in keypress, may as well be the same as tab until we figure out what to do with it
         case 9: //tab
+          if(e.ctrlKey)
+            return continueDefault = true;
           var parent = cursor.parent, gramp = parent.parent;
           if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
           {
@@ -411,6 +413,8 @@ return function(tabindex)
           cursor.clearSelection();
           return false;
         case 13: //enter
+          if(e.ctrlKey)
+            return continueDefault = true;
           return false;
         case 35: //end
           if(e.ctrlKey) //move to the end of the root math block.
@@ -425,20 +429,28 @@ return function(tabindex)
             cursor.clearSelection().prependTo(cursor.parent);
           return false;
         case 37: //left
+          if(e.ctrlKey)
+            return continueDefault = true;
           if(e.shiftKey)
             cursor.selectLeft();
           else
             cursor.moveLeft();
           return false;
         case 38: //up
+          if(e.ctrlKey)
+            return continueDefault = true;
           return false;
         case 39: //right
+          if(e.ctrlKey)
+            return continueDefault = true;
           if(e.shiftKey)
             cursor.selectRight();
           else
             cursor.moveRight();
           return false;
         case 40: //down
+          if(e.ctrlKey)
+            return continueDefault = true;
           return false;
         case 46: //delete
           if(e.ctrlKey)
@@ -448,6 +460,8 @@ return function(tabindex)
             cursor.deleteForward();
           return false;
         default:
+          if(e.ctrlKey)
+            return continueDefault = true; //don't capture Ctrl+anything other than the above
           continueDefault = null; //as in 'neither'. Do nothing, pass to keypress.
           return;
       }
@@ -462,9 +476,6 @@ return function(tabindex)
         lastKeydnEvt.happened = false;
         return continueDefault;
       }
-      
-      if(e.ctrlKey || e.metaKey)
-        return; //don't capture Ctrl+anything.
       
       var cmd = String.fromCharCode(e.which);
       if(cmd.match(/[a-z]/i))

@@ -36,7 +36,7 @@ PlusMinus.prototype.respace = function()
 
 function SupSub(cmd, html)
 {
-  MathCommand.call(this, cmd, html);
+  MathCommand.call(this, cmd, [ html ]);
 }
 SupSub.prototype = $.extend(new MathCommand, {
   initBlocks: function()
@@ -72,7 +72,8 @@ SupSub.prototype = $.extend(new MathCommand, {
 
 function Fraction()
 {
-  MathCommand.call(this, '\\frac ', '<span class="fraction"><span class="numerator"></span><span class="denominator"></span></span>');
+  MathCommand.call(this, '\\frac ', ['<span class="fraction"></span>',
+    '<span class="numerator"></span>', '<span class="denominator"></span></span>']);
 }
 Fraction.prototype = new MathCommand;
 function LiveFraction()
@@ -99,22 +100,80 @@ LiveFraction.prototype.placeCursor = function(cursor)
 // Parens/Brackets/Braces etc
 function Parens(open, close)
 {
-  MathCommand.call(this, open, '<span><span class="open-paren">'+open+'</span><span class="parens"></span><span class="close-paren">'+close+'</span></span>');
+  MathCommand.call(this, open,
+    ['<span class="open-paren">'+open+'</span><span></span><span class="close-paren">'+close+'</span>']);
   this.end = close;
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
-    block.prev().add(block.next()).css('fontSize', block.height()).css('top', -2-height/15);
+    block.prev().add(block.next()).css('fontSize', block.height()).css('top', -2-height/12);
   });
 }
 Parens.prototype = $.extend(new MathCommand, {
   initBlocks: function(){
     this.firstChild = this.lastChild = new MathBlock;
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.children().eq(1);
+    this.firstChild.jQ = this.jQ.eq(1);
   },
   latex: function(){
     return this.cmd + this.firstChild.latex() + this.end;
+  },
+});
+
+// input box to type a variety of LaTeX commands beginning with a backslash
+function LatexCommandInput()
+{
+  MathCommand.call(this, '\\',
+    ['<span class="latex-command-input" tabindex=0>\\</span>', '<span></span>']);
+  var commandInput = this;
+  this.jQ.keydown(function(e)
+  {
+    if(e.ctrlKey || e.metaKey)
+      return;
+    if(e.which === 9 || e.which === 13) //tab or enter
+      setTimeout(function(){ commandInput.renderCommand(); }, 0); //delay until after tab or whatever has happened
+    console.log('latex command input keydown');
+  }).keypress(function(e)
+  {
+    if(e.ctrlKey || e.metaKey)
+      return;
+    var char = String.fromCharCode(e.which);
+    if(char.match(/[a-z]/i))
+      return;
+    commandInput.cursor.insertAfter(commandInput);
+    commandInput.renderCommand();
+    if(char === ' ')
+      return false;
+    console.log('latex command input keypress');
+  }).focus();
+}
+LatexCommandInput.prototype = $.extend(new MathCommand, {
+  placeCursor: function(cursor)
+  {
+    this.cursor = cursor.prependTo(this.firstChild);
+  },
+  latex: function()
+  {
+    return '\\' + this.firstChild.latex() + ' ';
+  },
+  renderCommand: function()
+  {
+    var newCmd = chooseLatexCommand('\\'+this.firstChild.latex());
+    newCmd.parent = this.parent;
+    newCmd.prev = this.prev;
+    if(this.prev)
+      this.prev.next = newCmd;
+    else
+      this.parent.firstChild = newCmd;
+    newCmd.next = this.next;
+    if(this.next)
+      this.next.prev = newCmd;
+    else
+      this.parent.lastChild = newCmd;
+
+    this.cursor.prev = newCmd;
+
+    newCmd.jQ.replaceAll(this.jQ);
   },
 });
 
