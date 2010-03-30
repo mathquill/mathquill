@@ -54,7 +54,7 @@ Cursor.prototype = {
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
-    this.parent.jQ.addClass('hasCursor').focus();
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first()); 
     return this;
   },
@@ -64,7 +64,7 @@ Cursor.prototype = {
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
-    this.parent.jQ.addClass('hasCursor').focus();
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   }, 
@@ -74,7 +74,7 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor').focus();
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.prependTo(el.jQ);
     return this;
   },
@@ -84,7 +84,7 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor').focus();
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.appendTo(el.jQ);
     return this;
   },
@@ -332,6 +332,7 @@ return function(tabindex)
   return this.each(function()
   {
     var math = new MathBlock;
+    math.focus = function(){ this.jQ.focus(); };
     math.jQ = $('<span class="latexlive-generated-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>')
       .data('[[latexlive internal data]]', {block: math}).replaceAll(this);
     var cursor = math.cursor = new Cursor(math);

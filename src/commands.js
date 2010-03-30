@@ -65,10 +65,10 @@ SupSub.prototype.respace = function()
 
 function Fraction()
 {
-  MathCommand.call(this, '\\frac ', ['<span class="fraction"></span>',
-    '<span class="numerator"></span>', '<span class="denominator"></span></span>']);
+  MathCommand.call(this, '\\frac ');
 }
 Fraction.prototype = new MathCommand;
+Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
 function LiveFraction()
 {
   Fraction.call(this);
@@ -116,15 +116,14 @@ Parens.prototype = $.extend(new MathCommand, {
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput()
 {
-  MathCommand.call(this, '\\', ['<span class="latex-command-input" tabindex=0></span>']);
+  MathCommand.call(this, '\\');
   var commandInput = this;
   this.jQ.keydown(function(e)
   {
     if(e.ctrlKey || e.metaKey)
       return;
     if(e.which === 9 || e.which === 13) //tab or enter
-      setTimeout(function(){ commandInput.renderCommand(); }, 0); //delay until after tab or whatever has happened
-    console.log('latex command input keydown');
+      commandInput.renderCommand(); //delay until after tab or whatever has happened
   }).keypress(function(e)
   {
     if(e.ctrlKey || e.metaKey)
@@ -132,14 +131,14 @@ function LatexCommandInput()
     var char = String.fromCharCode(e.which);
     if(char.match(/[a-z]/i))
       return;
-    commandInput.cursor.insertAfter(commandInput);
     commandInput.renderCommand();
     if(char === ' ')
       return false;
-    console.log('latex command input keypress');
   });
+  setTimeout(function(){ commandInput.jQ.focus(); }, 0);
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
+  html_template: ['<span class="latex-command-input" tabindex=0></span>'],
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
@@ -148,24 +147,19 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     return '\\' + this.firstChild.latex() + ' ';
   },
+  focus: function()
+  {
+    this.jQ.focus();
+  },
   renderCommand: function()
   {
-    var newCmd = chooseLatexCommand('\\'+this.firstChild.latex());
-    newCmd.parent = this.parent;
-    newCmd.prev = this.prev;
+    var newCmd = chooseLatexCommand(this.firstChild.latex());
+    this.remove();
     if(this.prev)
-      this.prev.next = newCmd;
+      this.cursor.insertAfter(this.prev).newBefore(newCmd);
     else
-      this.parent.firstChild = newCmd;
-    newCmd.next = this.next;
-    if(this.next)
-      this.next.prev = newCmd;
-    else
-      this.parent.lastChild = newCmd;
-
-    this.cursor.prev = newCmd;
-
-    newCmd.jQ.replaceAll(this.jQ);
+      this.cursor.prependTo(this.parent).newBefore(newCmd);
+    this.cursor.parent.focus();
   },
 });
 
@@ -188,7 +182,30 @@ var SingleCharacterCommands = {
   '\\': function(){ return new LatexCommandInput(); },
 };
 
+function SquareRoot()
+{
+    MathCommand.call(this, '\\sqrt ');
+    this.firstChild.jQ.change(function(){
+        var block = $(this), height = block.height();
+        block.css({
+            borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+        }).prev().css({
+            fontSize: height,
+            top: height/10+2,
+            left: height/30+1,
+        });
+    });
+}
+SquareRoot.prototype = new MathCommand;
+SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+
 function chooseLatexCommand(latex)
 {
-  return new VanillaSymbol(latex.slice(1), '&'+latex.slice(1)+';');
+  switch(latex)
+  {
+  case 'sqrt':
+    return new SquareRoot();
+  default:
+    return new VanillaSymbol(latex.slice, '&'+latex+';');
+  }
 }

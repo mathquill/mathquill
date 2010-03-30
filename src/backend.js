@@ -29,6 +29,10 @@ MathElement.prototype = {
     });
     return initVal;
   },
+  focus: function()
+  {
+    this.parent.focus();
+  },
 };
 
 /**
@@ -36,13 +40,15 @@ MathElement.prototype = {
  * May contain descendant commands, organized into blocks.
  */
 function MathCommand(cmd, html_template)
-{ 
+{
   if(!arguments.length)
     return;
 
   this.cmd = cmd;
-  this.html_template = html_template;
-  this.jQ = $(html_template[0]).data('[[latexlive internal data]]', {cmd: this});
+  if(html_template)
+    this.html_template = html_template;
+
+  this.jQ = $(this.html_template[0]).data('[[latexlive internal data]]', {cmd: this});
   this.initBlocks();
 }
 MathCommand.prototype = $.extend(new MathElement, {

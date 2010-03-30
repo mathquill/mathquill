@@ -130,10 +130,12 @@
 .latexlive-generated-math .latex-command-input.empty {
   color: inherit;
 }
+.latexlive-generated-math .latex-command-input:before {
+  content: '\\';
+}
 .latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
   font-family: "Courier New", monospace;
   font-style: normal;
-  content: '\\';
 }
 
 .latexlive-generated-math .sqrt-prefix {
