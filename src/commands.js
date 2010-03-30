@@ -94,7 +94,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
 function Parens(open, close)
 {
   MathCommand.call(this, open,
-    ['<span class="open-paren">'+open+'</span><span></span><span class="close-paren">'+close+'</span>']);
+    ['<span><span class="open-paren">'+open+'</span><span></span><span class="close-paren">'+close+'</span></span>']);
   this.end = close;
   this.firstChild.jQ.change(function()
   {
@@ -106,7 +106,7 @@ Parens.prototype = $.extend(new MathCommand, {
   initBlocks: function(){
     this.firstChild = this.lastChild = new MathBlock;
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.eq(1);
+    this.firstChild.jQ = this.jQ.children().eq(1);
   },
   latex: function(){
     return this.cmd + this.firstChild.latex() + this.end;
