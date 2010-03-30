@@ -32,6 +32,7 @@ MathElement.prototype = {
   focus: function()
   {
     this.parent.focus();
+    return this;
   },
 };
 

@@ -117,16 +117,20 @@ Parens.prototype = $.extend(new MathCommand, {
 function LatexCommandInput()
 {
   MathCommand.call(this, '\\');
-  var commandInput = this;
+  var commandInput = this, skipKeypress;
   this.jQ.keydown(function(e)
   {
-    if(e.ctrlKey || e.metaKey)
-      return;
+    skipKeypress = false;
+    if(e.ctrlKey || e.metaKey || $.inArray(e.which, [8, 27, 35, 36, 37, 38, 39, 40, 46]) >= 0)
+      return skipKeypress = true;
     if(e.which === 9 || e.which === 13) //tab or enter
+    {
       commandInput.renderCommand(); //delay until after tab or whatever has happened
+      return skipKeypress = true;
+    }
   }).keypress(function(e)
   {
-    if(e.ctrlKey || e.metaKey)
+    if(skipKeypress)
       return;
     var char = String.fromCharCode(e.which);
     if(char.match(/[a-z]/i))
@@ -150,16 +154,17 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   focus: function()
   {
     this.jQ.focus();
+    return this;
   },
   renderCommand: function()
   {
     var newCmd = chooseLatexCommand(this.firstChild.latex());
     this.remove();
     if(this.prev)
-      this.cursor.insertAfter(this.prev).newBefore(newCmd);
+      this.cursor.insertAfter(this.prev);
     else
-      this.cursor.prependTo(this.parent).newBefore(newCmd);
-    this.cursor.parent.focus();
+      this.cursor.prependTo(this.parent);
+    this.cursor.newBefore(newCmd);
   },
 });
 

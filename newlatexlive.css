@@ -56,7 +56,7 @@
 /* *** FIXME *** This is kind of a hack and is not supported in IE6 */
 .latexlive-generated-math .cursor:only-child:after{
   visibility: hidden;
-  content: '.';
+  content: 'x';
 }
 
 .latexlive-generated-math .empty {
@@ -118,19 +118,21 @@
 
 .latexlive-generated-math .latex-command-input {
   border: solid gray 1px;
-  padding-bottom: 1px;
+  padding-right: 1px;
+  margin: 0 1px;
   outline: none;
 }
 .latexlive-generated-math .latex-command-input.hasCursor {
   border: none;
-  margin: 1px;
+  margin: 1px 2px;
   outline: solid #DEF 2px;
   outline: solid rgba(119,187,255,.25) 2px;
 }
 .latexlive-generated-math .latex-command-input.empty {
-  color: inherit;
+  color: transparent;
 }
 .latexlive-generated-math .latex-command-input:before {
+  color: black;
   content: '\\';
 }
 .latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
