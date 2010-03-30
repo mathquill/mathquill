@@ -98,13 +98,14 @@ LiveFraction.prototype.placeCursor = function(cursor)
 };
 
 var SingleCharacterCommands = {
+  ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
+  '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
+  "'": function(){ return new VanillaSymbol("'", '&prime;');},
   '=': function(){ return new BinaryOperator('=', '='); },
   '<': function(){ return new BinaryOperator('<', '&lt;'); },
   '>': function(){ return new BinaryOperator('>', '&gt;'); },
   '+': function(){ return new PlusMinus('+'); },
   '-': function(){ return new PlusMinus('-', '&minus;'); },
-  '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
-  "'": function(){ return new VanillaSymbol("'", '&prime;');},
   '^': function(){ return new SupSub('^', '<sup></sup>'); },
   '_': function(){ return new SupSub('_', '<sub></sub>'); },
   '/': function(){ return new LiveFraction(); },
