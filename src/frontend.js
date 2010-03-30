@@ -54,7 +54,7 @@ Cursor.prototype = {
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor').focus();
     this.jQ.insertBefore(el.jQ.first()); 
     return this;
   },
@@ -64,7 +64,7 @@ Cursor.prototype = {
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor').focus();
     this.jQ.insertAfter(el.jQ.last());
     return this;
   }, 
@@ -74,7 +74,7 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor').focus();
     this.jQ.prependTo(el.jQ);
     return this;
   },
@@ -84,7 +84,7 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor').focus();
     this.jQ.appendTo(el.jQ);
     return this;
   },

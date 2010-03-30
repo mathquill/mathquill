@@ -137,7 +137,7 @@ function LatexCommandInput()
     if(char === ' ')
       return false;
     console.log('latex command input keypress');
-  }).focus();
+  });
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
   placeCursor: function(cursor)
