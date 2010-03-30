@@ -76,10 +76,6 @@
 }
 
 .latexlive-generated-math .operator {
-  padding: 0 .4em;
-}
-
-.latexlive-generated-math sup .operator, .latexlive-generated-math sub .operator {
   padding: 0 .3em;
 }
 

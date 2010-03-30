@@ -99,7 +99,7 @@ function Parens(open, close)
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
-    block.prev().add(block.next()).css('fontSize', block.height()).css('top', -2-height/12);
+    block.prev().add(block.next()).css('fontSize', height/16+'em').css('top', -height/2000+'em');
   });
 }
 Parens.prototype = $.extend(new MathCommand, {
@@ -126,7 +126,7 @@ function LatexCommandInput()
     if(e.which === 9 || e.which === 13) //tab or enter
     {
       commandInput.renderCommand(); //delay until after tab or whatever has happened
-      return skipKeypress = true;
+      return false;
     }
   }).keypress(function(e)
   {
