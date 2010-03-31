@@ -145,6 +145,7 @@
 .latexlive-generated-math .sqrt-stem {
   border-top: 1px solid black;
   margin-top: 1px;
+  padding-left: 2px;
 }
 
 .latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
@@ -153,10 +154,6 @@
   top: 1px;
 }
 
-.latexlive-generated-math .selection {
-  padding: 1px; /* add a pixel to the box without taking up space, */
-  margin: -1px; /* or else things will stick out by a pixel or two */
-}
 .latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection sup, .latexlive-generated-math:focus .selection sub {
   background-color: #ADF;
 }

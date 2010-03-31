@@ -332,14 +332,12 @@ return function(tabindex)
   return this.each(function()
   {
     var math = new MathBlock;
-    math.focus = function(){
-      this.jQ.focus();
-      return this;
-    };
+    math.focus = function(){ this.jQ.focus(); return this; };
     math.jQ = $('<span class="latexlive-generated-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>')
       .data('[[latexlive internal data]]', {block: math}).replaceAll(this);
+
     var cursor = math.cursor = new Cursor(math);
-    
+
     var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
     math.jQ.focus(function()
     {
