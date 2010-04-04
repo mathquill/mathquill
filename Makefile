@@ -1,3 +1,5 @@
+BRANCH = master
+
 SOURCE_DIR = src
 
 FILES = \
@@ -18,11 +20,10 @@ all:
 	@@echo 'Done.'
 
 gsync:
-	${BRANCH=`git branch | grep \*.* | sed 's/\* *//'`}
+	${override BRANCH := `git branch | grep '\*' | sed 's/\* *//'`}
 	@@git checkout master
 	@@git pull --all
 	@@git push --all
-	@@echo ${BRANCH}
 	@@git checkout ${BRANCH}
 
 lol:
