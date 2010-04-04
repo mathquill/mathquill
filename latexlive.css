@@ -76,7 +76,7 @@
 }
 
 .latexlive-generated-math .operator {
-  padding: 0 .3em;
+  padding: 0 .2em;
 }
 
 .latexlive-generated-math .fraction {
@@ -131,7 +131,6 @@
   color: black;
   content: '\\';
 }
-/* stupid vim syntax highlighting ' */
 .latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
   font-family: "Courier New", monospace;
   font-style: normal;
@@ -152,7 +151,7 @@
 .latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
   vertical-align: bottom;
   position: relative;
-  top: 1px;
+  top: -.1em;
 }
 
 .latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection sup, .latexlive-generated-math:focus .selection sub {

@@ -98,8 +98,8 @@ function Parens(open, close)
   this.end = close;
   this.firstChild.jQ.change(function()
   {
-    var block = $(this), height = block.height();
-    block.prev().add(block.next()).css('fontSize', height/16+'em').css('top', -height/2000+'em');
+    var block = $(this);
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)+1)+'em');
   });
 }
 Parens.prototype = $.extend(new MathCommand, {
