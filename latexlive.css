@@ -131,6 +131,7 @@
   color: black;
   content: '\\';
 }
+/* stupid vim syntax highlighting ' */
 .latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
   font-family: "Courier New", monospace;
   font-style: normal;
