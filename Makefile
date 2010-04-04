@@ -21,6 +21,7 @@ all:
 
 gsync:
 	${override BRANCH := `git branch | grep '\*' | sed 's/\* *//'`}
+	@@echo ${BRANCH}
 	@@git checkout master
 	@@git pull --all
 	@@git push --all
