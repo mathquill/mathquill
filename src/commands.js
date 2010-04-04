@@ -110,7 +110,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
 function Parens(open, close)
 {
   MathCommand.call(this, open,
-    ['<span><span class="open-paren">'+open+'</span><span></span><span class="close-paren">'+close+'</span></span>']);
+    ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>']);
   this.end = close;
   this.firstChild.jQ.change(function()
   {

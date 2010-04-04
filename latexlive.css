@@ -11,7 +11,12 @@
   display: inline-block;
   border: solid gray 1px;
   margin: 0 6px;
-  padding: 2px;
+}
+.latexlive-editable-math.hasCursor{
+  outline: none;
+  border: solid #DEF 2px;
+  border: solid rgba(119,187,255,.25) 2px;
+  margin: -1px 5px;
 }
 
 .latexlive-rendered-math {
@@ -22,13 +27,8 @@
   line-height: 1;
   position: relative;
   outline: none;
+  padding: 2px;
 }
-.latexlive-rendered-math.hasCursor{
-  border: solid #DEF 2px;
-  border: solid rgba(119,187,255,.25) 2px;
-  margin: -1px 5px;
-}
-
 .latexlive-rendered-math * {
   color: inherit;
   background-color: transparent;
@@ -91,10 +91,10 @@
   font-size: 90%;
 }
 .latexlive-rendered-math .numerator {
-  border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
+  border-bottom: solid #222 1px; /* black is too black, contrasts with antialised text */
 }
 .latexlive-rendered-math .denominator {
-  border-top: solid #333 1px;
+  border-top: solid #222 1px;
 }
 
 .latexlive-rendered-math sup .fraction, .latexlive-rendered-math sub .fraction {
@@ -144,7 +144,7 @@
   padding-left: 2px;
 }
 
-.latexlive-rendered-math .open-paren, .latexlive-rendered-math .close-paren {
+.latexlive-rendered-math .paren {
   vertical-align: bottom;
   position: relative;
   top: -.1em;
