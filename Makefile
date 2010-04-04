@@ -18,8 +18,11 @@ all: ${FILES}
 	@@echo 'Done.'
 
 gsync:
+	${BRANCH=`git branch | grep \*.* | sed 's/\* *//'`}
+	@@git checkout master
 	@@git pull --all
 	@@git push --all
+	git checkout ${BRANCH}
 
 lol:
 	@@echo "LOL!"
