@@ -167,6 +167,23 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
 });
 
+function SquareRoot()
+{
+    MathCommand.call(this, '\\sqrt ');
+    this.firstChild.jQ.change(function(){
+        var block = $(this), height = block.height();
+        block.css({
+            borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+        }).prev().css({
+            fontSize: height,
+            top: height/10+2,
+            left: height/30+1,
+        });
+    });
+}
+SquareRoot.prototype = new MathCommand;
+SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+
 var SingleCharacterCommands = {
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
@@ -185,23 +202,6 @@ var SingleCharacterCommands = {
   '|': function(){ return new Parens('|', '|'); },
   '\\': function(){ return new LatexCommandInput(); },
 };
-
-function SquareRoot()
-{
-    MathCommand.call(this, '\\sqrt ');
-    this.firstChild.jQ.change(function(){
-        var block = $(this), height = block.height();
-        block.css({
-            borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
-        }).prev().css({
-            fontSize: height,
-            top: height/10+2,
-            left: height/30+1,
-        });
-    });
-}
-SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
 function chooseLatexCommand(latex)
 {
