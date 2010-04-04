@@ -56,7 +56,7 @@
 /* *** FIXME *** This is kind of a hack and is not supported in IE6 */
 .latexlive-generated-math .cursor:only-child:after{
   visibility: hidden;
-  content: 'x';
+  content: 'c';
 }
 
 .latexlive-generated-math .empty {
@@ -84,7 +84,6 @@
   vertical-align: middle;
   padding: 0 .1em;
 }
-
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
   display: block;
   font-size: 90%;
@@ -92,13 +91,9 @@
 }
 .latexlive-generated-math .numerator {
   border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
-  padding-bottom: .1em;
-  margin-bottom: 0;
 }
 .latexlive-generated-math .denominator {
   border-top: solid #333 1px;
-  padding-top: .1em;
-  margin-top: 0;
 }
 
 .latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
