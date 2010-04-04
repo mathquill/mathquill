@@ -184,6 +184,13 @@ function SquareRoot()
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
+function NonItalicizedFunction(cmd, text)
+{
+  text = text || cmd;
+  Symbol.call(this, '\\'+cmd+' ', '<span class="non-italicized-function">'+text+'</span>');
+}
+NonItalicizedFunction.prototype = Symbol.prototype;
+
 var SingleCharacterCommands = {
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
@@ -207,9 +214,26 @@ function chooseLatexCommand(latex)
 {
   switch(latex)
   {
-  case 'sqrt':
-    return new SquareRoot();
-  default:
-    return new VanillaSymbol(latex.slice, '&'+latex+';');
+    //non-italicized functions
+    case 'ln':
+    case 'lg':
+    case 'log':
+    case 'span':
+    case 'proj':
+    case 'det':
+    case 'dim':
+    case 'min':
+    case 'max':
+    case 'mod':
+    case 'lcm':
+    case 'gcd':
+    case 'lim':
+      return new NonItalicizedFunction(latex);
+    case 'sqrt':
+      return new SquareRoot();
+    case 'frac':
+      return new Fraction();
+    default:
+      return new VanillaSymbol(latex.slice, '&'+latex+';');
   }
 }

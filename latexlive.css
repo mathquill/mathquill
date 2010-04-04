@@ -161,6 +161,9 @@
 .latexlive-generated-math .selection, .latexlive-generated-math .selection sup, .latexlive-generated-math .selection sub {
   background-color: lightgray;
 }
+.latexlive-generated-math .non-italicized-function {
+  margin-right: 3px;
+}
 
 /*.latexlive-generated-math .not {
   margin-right: -.75em;
