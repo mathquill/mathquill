@@ -10,7 +10,7 @@ ${SOURCE_DIR}/outro.js
 BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/latexlive.js
 
-all: ${FILES}
+all:
 	@@if test ! -d ${BUILD_DIR}; then mkdir ${BUILD_DIR}; fi
 	@@echo 'Building...'
 	@@echo ${FILES} | tr ' ' '\n'
@@ -22,6 +22,7 @@ gsync:
 	@@git checkout master
 	@@git pull --all
 	@@git push --all
+	@@echo ${BRANCH}
 	@@git checkout ${BRANCH}
 
 lol:
