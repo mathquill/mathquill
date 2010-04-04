@@ -18,8 +18,8 @@ all: ${FILES}
 	@@echo 'Done.'
 
 gsync:
-	@@git pull
-	@@git push
+	@@git pull --all
+	@@git push --all
 
 lol:
 	@@echo "LOL!"
