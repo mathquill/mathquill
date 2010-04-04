@@ -9,155 +9,158 @@
  */
  
 .latexlive-generated-math {
-    font-family: "Computer Modern", "Times New Roman", serif;
-    font-size: 125%;
-    line-height: 1;
-    padding: 2px;
-    margin: 0 6px;
-    display: inline-block;
-    position: relative;
-    outline: none;
+  color: black;
+  background-color: white;
+  font-family: "Computer Modern", "Times New Roman", serif;
+  font-size: 125%;
+  line-height: 1;
+  padding: 2px;
+  margin: 0 6px;
+  border: solid gray 1px;
+  display: inline-block;
+  position: relative;
+  outline: none;
 }
 .latexlive-generated-math.hasCursor{
-    border: solid #DEF 2px;
-    border: solid rgba(119,187,255,.25) 2px;
-    margin: -2px 4px;
+  border: solid #DEF 2px;
+  border: solid rgba(119,187,255,.25) 2px;
+  margin: -1px 5px;
 }
 
 .latexlive-generated-math * {
-    line-height: inherit;
-    margin: 0;
-    padding: 0 1px;
-    display: inline-block;
-    cursor: text;
+  color: inherit;
+  background-color: transparent;
+  line-height: inherit;
+  display: inline-block;
+  margin: 0;
+  padding: 0;
+  cursor: text;
 }
 .latexlive-generated-math .hasCursor {
-    border: solid #DEF 2px;
-    border: solid rgba(119,187,255,.25) 2px;
-    margin: -2px;
+  outline: solid #DEF 2px;
+  outline: solid rgba(119,187,255,.25) 2px;
 }
 
-.latexlive-generated-math .the-cursor {
-    border-left: 1px solid black;
-    margin-right: -1px;
-    padding: 0;
-    display: inline;
-    position: relative;
-    z-index: 1;
+.latexlive-generated-math .cursor {
+  border-left: 1px solid black;
+  margin-right: -1px;
+  display: inline;
+  position: relative;
+  z-index: 1;
 }
 
-.latexlive-generated-math .the-cursor.blink {
-    visibility: hidden;
+.latexlive-generated-math .cursor.blink {
+  visibility: hidden;
 }
 
-/* *** FIXME *** This is kind of a hack and not supported in IE6 */
-.latexlive-generated-math .the-cursor:only-child:after{
-    visibility: hidden;
-    content: '.';
+/* *** FIXME *** This is kind of a hack and is not supported in IE6 */
+.latexlive-generated-math .cursor:only-child:after{
+  visibility: hidden;
+  content: 'x';
 }
 
-.latexlive-generated-math.empty, .latexlive-generated-math .empty {
-    color: lightgray;
+.latexlive-generated-math .empty {
+  color: darkgray;
 }
 .latexlive-generated-math.empty {
-    left: -.3em;
-    cursor: text;
+  cursor: text;
 }
 
 .latexlive-generated-math i { /* variables -- just in case you do something weird to your <i>'s */
-    font-style: italic;
-    font-weight: normal;
+  font-style: italic;
+  font-weight: normal;
 }
 
 .latexlive-generated-math sup, .latexlive-generated-math sub {
-    position: relative;
+  position: relative;
 }
 
 .latexlive-generated-math .operator {
-    padding: 0 6px;
-}
-
-.latexlive-generated-math sup .operator, .latexlive-generated-math sub .operator {
-    padding: 0 3px;
+  padding: 0 .3em;
 }
 
 .latexlive-generated-math .fraction {
-    text-align: center;
-    vertical-align: middle;
+  text-align: center;
+  vertical-align: middle;
+  padding: 0 .1em;
 }
 
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
-    display: block;
-    font-size: 90%;
+  display: block;
+  font-size: 90%;
+  padding: .1em .2em;
 }
 .latexlive-generated-math .numerator {
-    border-bottom: solid black 1px;
-    padding-bottom: 2px;
-    margin-bottom: 0;
+  border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
+  padding-bottom: .1em;
+  margin-bottom: 0;
 }
 .latexlive-generated-math .denominator {
-    border-top: solid black 1px;
-    padding-top: 2px;
-    margin-top: 0;
-}
-.latexlive-generated-math .numerator > .fraction, .latexlive-generated-math .denominator > .fraction {
-    font-size: 90%;
+  border-top: solid #333 1px;
+  padding-top: .1em;
+  margin-top: 0;
 }
 
 .latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
-    font-size: 70%;
+  font-size: 70%;
 }
 .latexlive-generated-math sup .numerator, .latexlive-generated-math sub .numerator {
-    border-bottom: none;
-    padding-bottom: 1px;
+  border-bottom: none;
+  padding-bottom: 0;
 }
 .latexlive-generated-math sup .denominator, .latexlive-generated-math sub .denominator {
-    padding-top: 0;
+  padding-top: 0;
 }
 
 .latexlive-generated-math .latex-command-input {
-    border: solid gray 1px;
-    margin: -1px 1px -2px 2px;
-    padding-bottom: 1px;
+  border: solid gray 1px;
+  padding-right: 1px;
+  margin: 0 1px;
+  outline: none;
 }
 .latexlive-generated-math .latex-command-input.hasCursor {
-    border: solid #DEF 2px;
-    border: solid rgba(119,187,255,.25) 2px;
-    margin: -2px 0 -3px 1px;
+  border: none;
+  margin: 1px 2px;
+  outline: solid #DEF 2px;
+  outline: solid rgba(119,187,255,.25) 2px;
 }
 .latexlive-generated-math .latex-command-input.empty {
-    color: inherit;
-}
-.latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
-    font-family: "Courier New", monospace;
-    font-style: normal;
+  color: transparent;
 }
 .latexlive-generated-math .latex-command-input:before {
-    content: '\\';
+  color: black;
+  content: '\\';
+}
+.latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
+  font-family: "Courier New", monospace;
+  font-style: normal;
 }
 
 .latexlive-generated-math .sqrt-prefix {
-    vertical-align: top;
-    position: relative;
-    left: 1px;
-    top: 2px;
+  vertical-align: top;
+  position: relative;
+  left: 1px;
+  top: 2px;
 }
 .latexlive-generated-math .sqrt-stem {
-    border-top: 1px solid black;
-    margin-top: 1px;
+  border-top: 1px solid black;
+  margin-top: 1px;
+  padding-left: 2px;
 }
 
 .latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
-    vertical-align: bottom;
-    position: relative;
-    top: 1px;
+  vertical-align: bottom;
+  position: relative;
+  top: 1px;
 }
 
-.latexlive-generated-math .selection {
-    padding: 0;
-    background-color: #ADF;
+.latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection sup, .latexlive-generated-math:focus .selection sub {
+  background-color: #ADF;
+}
+.latexlive-generated-math .selection, .latexlive-generated-math .selection sup, .latexlive-generated-math .selection sub {
+  background-color: lightgray;
 }
 
 /*.latexlive-generated-math .not {
-    margin-right: -.75em;
+  margin-right: -.75em;
 }*/
