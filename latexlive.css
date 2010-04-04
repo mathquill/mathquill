@@ -87,7 +87,6 @@
 .latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
   display: block;
   font-size: 90%;
-  padding: .1em .2em;
 }
 .latexlive-generated-math .numerator {
   border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
