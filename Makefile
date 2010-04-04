@@ -22,7 +22,7 @@ gsync:
 	@@git checkout master
 	@@git pull --all
 	@@git push --all
-	git checkout ${BRANCH}
+	@@git checkout ${BRANCH}
 
 lol:
 	@@echo "LOL!"
