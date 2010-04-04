@@ -8,7 +8,7 @@
  *
  */
  
-.latexlive-generated-math {
+.latexlive-rendered-math {
   color: black;
   background-color: white;
   font-family: "Computer Modern", "Times New Roman", serif;
@@ -21,13 +21,13 @@
   position: relative;
   outline: none;
 }
-.latexlive-generated-math.hasCursor{
+.latexlive-rendered-math.hasCursor{
   border: solid #DEF 2px;
   border: solid rgba(119,187,255,.25) 2px;
   margin: -1px 5px;
 }
 
-.latexlive-generated-math * {
+.latexlive-rendered-math * {
   color: inherit;
   background-color: transparent;
   line-height: inherit;
@@ -36,12 +36,12 @@
   padding: 0;
   cursor: text;
 }
-.latexlive-generated-math .hasCursor {
+.latexlive-rendered-math .hasCursor {
   outline: solid #DEF 2px;
   outline: solid rgba(119,187,255,.25) 2px;
 }
 
-.latexlive-generated-math .cursor {
+.latexlive-rendered-math .cursor {
   border-left: 1px solid black;
   margin-right: -1px;
   display: inline;
@@ -49,116 +49,116 @@
   z-index: 1;
 }
 
-.latexlive-generated-math .cursor.blink {
+.latexlive-rendered-math .cursor.blink {
   visibility: hidden;
 }
 
 /* *** FIXME *** This is kind of a hack and is not supported in IE6 */
-.latexlive-generated-math .cursor:only-child:after{
+.latexlive-rendered-math .cursor:only-child:after{
   visibility: hidden;
   content: 'c';
 }
 
-.latexlive-generated-math .empty {
+.latexlive-rendered-math .empty {
   color: darkgray;
 }
-.latexlive-generated-math.empty {
+.latexlive-rendered-math.empty {
   cursor: text;
 }
 
-.latexlive-generated-math i { /* variables -- just in case you do something weird to your <i>'s */
+.latexlive-rendered-math i { /* variables -- just in case you do something weird to your <i>'s */
   font-style: italic;
   font-weight: normal;
 }
 
-.latexlive-generated-math sup, .latexlive-generated-math sub {
+.latexlive-rendered-math sup, .latexlive-rendered-math sub {
   position: relative;
 }
 
-.latexlive-generated-math .operator {
+.latexlive-rendered-math .operator {
   padding: 0 .2em;
 }
 
-.latexlive-generated-math .fraction {
+.latexlive-rendered-math .fraction {
   text-align: center;
   vertical-align: middle;
   padding: 0 .1em;
 }
-.latexlive-generated-math .numerator, .latexlive-generated-math .denominator {
+.latexlive-rendered-math .numerator, .latexlive-rendered-math .denominator {
   display: block;
   font-size: 90%;
 }
-.latexlive-generated-math .numerator {
+.latexlive-rendered-math .numerator {
   border-bottom: solid #333 1px; /* black is too black, contrasts with antialised text */
 }
-.latexlive-generated-math .denominator {
+.latexlive-rendered-math .denominator {
   border-top: solid #333 1px;
 }
 
-.latexlive-generated-math sup .fraction, .latexlive-generated-math sub .fraction {
+.latexlive-rendered-math sup .fraction, .latexlive-rendered-math sub .fraction {
   font-size: 70%;
 }
-.latexlive-generated-math sup .numerator, .latexlive-generated-math sub .numerator {
+.latexlive-rendered-math sup .numerator, .latexlive-rendered-math sub .numerator {
   border-bottom: none;
   padding-bottom: 0;
 }
-.latexlive-generated-math sup .denominator, .latexlive-generated-math sub .denominator {
+.latexlive-rendered-math sup .denominator, .latexlive-rendered-math sub .denominator {
   padding-top: 0;
 }
 
-.latexlive-generated-math .latex-command-input {
+.latexlive-rendered-math .latex-command-input {
   border: solid gray 1px;
   padding-right: 1px;
   margin: 0 1px;
   outline: none;
 }
-.latexlive-generated-math .latex-command-input.hasCursor {
+.latexlive-rendered-math .latex-command-input.hasCursor {
   border: none;
   margin: 1px 2px;
   outline: solid #DEF 2px;
   outline: solid rgba(119,187,255,.25) 2px;
 }
-.latexlive-generated-math .latex-command-input.empty {
+.latexlive-rendered-math .latex-command-input.empty {
   color: transparent;
 }
-.latexlive-generated-math .latex-command-input:before {
+.latexlive-rendered-math .latex-command-input:before {
   color: black;
   content: '\\';
 }
-.latexlive-generated-math .latex-command-input:before, .latexlive-generated-math .latex-command-input * {
+.latexlive-rendered-math .latex-command-input:before, .latexlive-rendered-math .latex-command-input * {
   font-family: "Courier New", monospace;
   font-style: normal;
 }
 
-.latexlive-generated-math .sqrt-prefix {
+.latexlive-rendered-math .sqrt-prefix {
   vertical-align: top;
   position: relative;
   left: 1px;
   top: 2px;
 }
-.latexlive-generated-math .sqrt-stem {
+.latexlive-rendered-math .sqrt-stem {
   border-top: 1px solid black;
   margin-top: 1px;
   padding-left: 2px;
 }
 
-.latexlive-generated-math .open-paren, .latexlive-generated-math .close-paren {
+.latexlive-rendered-math .open-paren, .latexlive-rendered-math .close-paren {
   vertical-align: bottom;
   position: relative;
   top: -.1em;
 }
 
-.latexlive-generated-math:focus .selection, .latexlive-generated-math:focus .selection sup, .latexlive-generated-math:focus .selection sub {
+.latexlive-rendered-math:focus .selection, .latexlive-rendered-math:focus .selection sup, .latexlive-rendered-math:focus .selection sub {
   background-color: #ADF;
 }
-.latexlive-generated-math .selection, .latexlive-generated-math .selection sup, .latexlive-generated-math .selection sub {
+.latexlive-rendered-math .selection, .latexlive-rendered-math .selection sup, .latexlive-rendered-math .selection sub {
   background-color: lightgray;
 }
 
-.latexlive-generated-math .non-italicized-function {
+.latexlive-rendered-math .non-italicized-function {
   padding-right: .2em;
 }
 
-/*.latexlive-generated-math .not {
+/*.latexlive-rendered-math .not {
   margin-right: -.75em;
 }*/
