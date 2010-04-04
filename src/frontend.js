@@ -38,7 +38,7 @@ Cursor.prototype = {
   setParentEmpty: function()
   {
     if(this.parent)
-      this.parent.setEmpty().jQ.removeClass('hasCursor');
+      this.parent.setEmpty().jQ.removeClass('hasCursor').change();
     return this;
   },
   detach: function()
@@ -104,7 +104,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    return this.show();
+    return this.show().jQ.change();
   },
   moveRight: function()
   {
@@ -122,7 +122,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    return this.show();
+    return this.show().jQ.change();
   },
   hopLeft: function()
   {
@@ -344,7 +344,7 @@ return function(tabindex)
       if(cursor.parent)
       {
         if(cursor.parent.isEmpty())
-          cursor.jQ.appendTo(cursor.parent.removeEmpty().jQ);
+          cursor.jQ.appendTo(cursor.parent.removeEmpty().jQ).change();
       }
       else
         cursor.appendTo(root);
@@ -358,7 +358,7 @@ return function(tabindex)
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.prependTo(clicked.data('[[latexlive internal data]]').block);
+        cursor.prependTo(clicked.data('[[latexlive internal data]]').block).jQ.change();
         return false;
       }
       var cmd = clicked.data('[[latexlive internal data]]');
