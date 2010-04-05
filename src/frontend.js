@@ -166,7 +166,7 @@ Cursor.prototype = {
     el.placeCursor(this);
 
     this.jQ.change();
-    
+
     return this;
   },
   backspace: function()
@@ -178,13 +178,13 @@ Cursor.prototype = {
       return this.insertAfter(this.parent.parent).backspace();
     else
       this.selectLeft();
-    
-    this.jQ.change();
+
     if(this.prev)
       this.prev.respace();
     if(this.next)
       this.next.respace();
-    
+    this.jQ.change();
+
     return this;
   },
   deleteForward: function()
@@ -196,13 +196,13 @@ Cursor.prototype = {
       return this.insertBefore(this.parent.parent).deleteForward();
     else
       this.selectRight();
-    
-    this.jQ.change();
+
     if(this.prev)
       this.prev.respace();
     if(this.next)
       this.next.respace();
-    
+    this.jQ.change();
+
     return this;
   },
   selectLeft: function()
