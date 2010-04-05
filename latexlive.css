@@ -83,7 +83,7 @@
 
 .latexlive-rendered-math .fraction {
   text-align: center;
-  vertical-align: middle;
+  vertical-align: -.6em;
   padding: 0 .1em;
 }
 .latexlive-rendered-math .numerator, .latexlive-rendered-math .denominator {
@@ -95,6 +95,8 @@
 }
 .latexlive-rendered-math .denominator {
   border-top: solid #222 1px;
+  float: right; /* take out of normal flow to manipulate baseline */
+  width: 100%;
 }
 
 .latexlive-rendered-math sup .fraction, .latexlive-rendered-math sub .fraction {

@@ -66,22 +66,7 @@ SupSub.prototype.respace = function()
 function Fraction()
 {
   MathCommand.call(this, '\\frac ');
-  var fractionJQ = this.jQ;
-  if($.browser.opera) //because fucking Gecko and Webkit look really shitty if this is in the stylesheet
-    fractionJQ.css('overflow', 'hidden').children().css({
-      paddingLeft: '.2em',
-      paddingRight: '.2em',
-    });
-  else //because fucking Opera's padding/margin/position is unfixably 1px off if this is in the stylesheet
-    fractionJQ.children().css({
-      float: 'left',
-      width: '100%',
-    });
-  this.lastChild.jQ.change(function()
-  {
-    var denominatorJQ = $(this);
-    fractionJQ.css('verticalAlign', .2-.9*denominatorJQ.height()/+denominatorJQ.css('fontSize').slice(0,-2)+'em');
-  });
+  this.jQ.append('<span style="width:0;color:transparent">\'</span>');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
