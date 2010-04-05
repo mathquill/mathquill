@@ -32,6 +32,7 @@
 .latexlive-rendered-math * {
   color: inherit;
   background-color: transparent;
+  font-size: inherit;
   line-height: inherit;
   display: inline-block;
   margin: 0;
@@ -75,6 +76,7 @@
 
 .latexlive-rendered-math sup, .latexlive-rendered-math sub {
   position: relative;
+  font-size: 90%;
 }
 
 .latexlive-rendered-math .operator {
@@ -86,13 +88,13 @@
 }
 
 .latexlive-rendered-math .fraction {
+  font-size: 90%;
   text-align: center;
   vertical-align: -.5em;
   padding: 0 .1em;
 }
 .latexlive-rendered-math .numerator, .latexlive-rendered-math .denominator {
   display: block;
-  font-size: 90%;
 }
 .latexlive-rendered-math .numerator {
   border-bottom: solid #222 1px; /* black is too black, contrasts with antialised text */
@@ -106,6 +108,7 @@
 
 .latexlive-rendered-math sup .fraction, .latexlive-rendered-math sub .fraction {
   font-size: 70%;
+  vertical-align: -.4em;
 }
 .latexlive-rendered-math sup .numerator, .latexlive-rendered-math sub .numerator {
   border-bottom: none;
