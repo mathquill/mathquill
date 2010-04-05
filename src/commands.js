@@ -16,21 +16,23 @@ Variable.prototype = Symbol.prototype;
 
 function BinaryOperator(cmd, html)
 {
-  Symbol.call(this, cmd, '<span class="operator">'+html+'</span>');
+  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
 }
 BinaryOperator.prototype = new Symbol; //so instanceof will work
 
 function PlusMinus(cmd, html)
 {
-  BinaryOperator.apply(this, arguments);
+  VanillaSymbol.apply(this, arguments);
 }
 PlusMinus.prototype = new BinaryOperator; //so instanceof will work
 PlusMinus.prototype.respace = function()
 {
-  if((!this.prev || this.prev instanceof BinaryOperator) && this.next && !(this.next instanceof BinaryOperator))
-    this.jQ.addClass('plusminus');
+  if(!this.prev)
+    this.jQ[0].className = '';
+  else if(this.prev instanceof BinaryOperator && this.next && !(this.next instanceof BinaryOperator))
+    this.jQ[0].className = 'unary-operator';
   else
-    this.jQ.removeClass('plusminus');
+    this.jQ[0].className = 'binary-operator';
   return this;
 };
 
@@ -199,7 +201,7 @@ var SingleCharacterCommands = {
   '=': function(){ return new BinaryOperator('=', '='); },
   '<': function(){ return new BinaryOperator('<', '&lt;'); },
   '>': function(){ return new BinaryOperator('>', '&gt;'); },
-  '+': function(){ return new PlusMinus('+', '+'); },
+  '+': function(){ return new PlusMinus('+'); },
   '-': function(){ return new PlusMinus('-', '&minus;'); },
   '^': function(){ return new SupSub('^', '<sup></sup>'); },
   '_': function(){ return new SupSub('_', '<sub></sub>'); },

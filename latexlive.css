@@ -79,12 +79,12 @@
   font-size: 90%;
 }
 
-.latexlive-rendered-math .operator {
+.latexlive-rendered-math .binary-operator {
   padding: 0 .2em;
 }
 
-.latexlive-rendered-math .plusminus {
-  padding-right: 0;
+.latexlive-rendered-math .unary-operator {
+  padding-left: .2em;
 }
 
 .latexlive-rendered-math .fraction {
