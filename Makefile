@@ -1,5 +1,3 @@
-BRANCH = master
-
 SOURCE_DIR = src
 
 FILES = \
@@ -18,14 +16,6 @@ all:
 	@@echo ${FILES} | tr ' ' '\n'
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'Done.'
-
-gsync:
-	${override BRANCH := `git branch | grep '\*' | sed 's/\* *//'`}
-	@@echo ${BRANCH}
-	@@git checkout master
-	@@git pull --all
-	@@git push --all
-	@@git checkout ${BRANCH}
 
 lol:
 	@@echo "LOL!"
