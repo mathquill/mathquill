@@ -83,7 +83,7 @@
 
 .latexlive-rendered-math .fraction {
   text-align: center;
-  vertical-align: -.6em;
+  vertical-align: -.5em;
   padding: 0 .1em;
 }
 .latexlive-rendered-math .numerator, .latexlive-rendered-math .denominator {
@@ -92,6 +92,7 @@
 }
 .latexlive-rendered-math .numerator {
   border-bottom: solid #222 1px; /* black is too black, contrasts with antialised text */
+  padding: 0 .2em;
 }
 .latexlive-rendered-math .denominator {
   border-top: solid #222 1px;
