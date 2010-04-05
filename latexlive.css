@@ -81,6 +81,10 @@
   padding: 0 .2em;
 }
 
+.latexlive-rendered-math .plusminus {
+  padding-right: 0;
+}
+
 .latexlive-rendered-math .fraction {
   text-align: center;
   vertical-align: -.5em;

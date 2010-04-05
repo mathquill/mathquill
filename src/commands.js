@@ -22,15 +22,15 @@ BinaryOperator.prototype = new Symbol; //so instanceof will work
 
 function PlusMinus(cmd, html)
 {
-  VanillaSymbol.apply(this, arguments);
+  BinaryOperator.apply(this, arguments);
 }
 PlusMinus.prototype = new BinaryOperator; //so instanceof will work
 PlusMinus.prototype.respace = function()
 {
-  if(!this.prev || this.prev instanceof BinaryOperator)
-    this.jQ.removeClass('operator');
+  if((!this.prev || this.prev instanceof BinaryOperator) && this.next && !(this.next instanceof BinaryOperator))
+    this.jQ.addClass('plusminus');
   else
-    this.jQ.addClass('operator');
+    this.jQ.removeClass('plusminus');
   return this;
 };
 
