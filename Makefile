@@ -17,5 +17,8 @@ all:
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'Done.'
 
+gitsync:
+	$(shell ./gitsync.sh)
+
 lol:
 	@@echo "LOL!"
