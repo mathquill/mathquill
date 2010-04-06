@@ -169,15 +169,70 @@ Cursor.prototype = {
 
     return this;
   },
+  unwrapParent: function()
+  {
+    var gramp = this.parent.parent, greatgramp = gramp.parent, cursor = this, prev = gramp.prev;
+    gramp.eachChild(function()
+    {
+      if(this.isEmpty())
+        return;
+
+      this.eachChild(function()
+      {
+        this.parent = greatgramp;
+        this.jQ.insertBefore(gramp.jQ);
+      });
+      this.firstChild.prev = prev;
+      if(prev)
+        prev.next = this.firstChild;
+      else
+        this.firstChild.parent.firstChild = this.firstChild;
+
+      prev = this.lastChild;
+    });
+    prev.next = gramp.next;
+    if(prev.next)
+      prev.next.prev = prev;
+    else
+      greatgramp.lastChild = prev;
+
+    if(!this.prev)
+      if(this.next)
+        this.prev = this.next.prev;
+      else
+        while(!this.prev)
+          if(this.parent = this.parent.prev)
+            this.prev = this.parent.lastChild;
+          else
+          {
+            this.prev = gramp.prev;
+            break;
+          }
+    if(this.prev)
+      this.insertAfter(this.prev);
+    else
+      this.insertBefore(greatgramp.firstChild);
+
+    gramp.jQ.remove();
+
+    if(gramp.prev)
+      gramp.prev.respace();
+    if(gramp.next)
+      gramp.next.respace();
+  },
   backspace: function()
   {
     if(this.deleteSelection());
-    else if(this.prev && this.prev.isEmpty())
-      this.prev = this.prev.remove().prev;
-    else if(!this.prev && this.parent.parent && this.parent.parent.isEmpty())
-      return this.insertAfter(this.parent.parent).backspace();
-    else
-      this.selectLeft();
+    else if(this.prev)
+      if(this.prev.isEmpty())
+        this.prev = this.prev.remove().prev;
+      else
+        this.selectLeft();
+    else if(this.parent.parent)
+      if(this.parent.parent.isEmpty())
+        return this.insertAfter(this.parent.parent).backspace();
+      else
+        this.unwrapParent();
 
     if(this.prev)
       this.prev.respace();
@@ -190,12 +245,16 @@ Cursor.prototype = {
   deleteForward: function()
   {
     if(this.deleteSelection());
-    else if(this.next && this.next.isEmpty())
-      this.next = this.next.remove().next;
-    else if(!this.next && this.parent.parent && this.parent.parent.isEmpty())
-      return this.insertBefore(this.parent.parent).deleteForward();
-    else
-      this.selectRight();
+    else if(this.next)
+      if(this.next.isEmpty())
+        this.next = this.next.remove().next;
+      else
+        this.selectRight();
+    else if(this.parent.parent)
+      if(this.parent.parent.isEmpty())
+        return this.insertBefore(this.parent.parent).deleteForward();
+      else
+        this.unwrapParent();
 
     if(this.prev)
       this.prev.respace();
