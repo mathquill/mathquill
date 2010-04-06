@@ -169,7 +169,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.insertCommand(newCmd);
+    this.cursor.insertNew(newCmd);
   },
 });
 

@@ -138,7 +138,7 @@ Cursor.prototype = {
     this.next = this.next.next;
     return this;
   },
-  insertCommand: function(cmd)
+  insertNew: function(cmd)
   {
     this.deleteSelection();
     cmd.parent = this.parent; 
@@ -547,7 +547,7 @@ return function(tabindex)
       else
         return todo(), false;
       
-      cursor.insertCommand(cmd);
+      cursor.insertNew(cmd);
       
       return false;
     }).focus();
