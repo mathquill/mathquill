@@ -142,9 +142,9 @@ Cursor.prototype = {
   {
     if(this.selection)
     {
-      var newBlock = this.selection.blockify();
       this.prev = this.selection.prev;
       this.next = this.selection.next;
+      var newBlock = this.selection.blockify();
     }
 
     cmd.parent = this.parent; 
