@@ -160,13 +160,13 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
   renderCommand: function()
   {
-    var newCmd = chooseLatexCommand(this.firstChild.latex());
+    var newCmd = createLatexCommand(this.firstChild.latex());
     this.remove();
     if(this.prev)
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.newBefore(newCmd);
+    this.cursor.insertCommand(newCmd);
   },
 });
 
@@ -213,7 +213,7 @@ var SingleCharacterCommands = {
   '\\': function(){ return new LatexCommandInput(); },
 };
 
-function chooseLatexCommand(latex)
+function createLatexCommand(latex)
 {
   switch(latex)
   {

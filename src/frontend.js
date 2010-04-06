@@ -138,32 +138,32 @@ Cursor.prototype = {
     this.next = this.next.next;
     return this;
   },
-  newBefore: function(el)
+  insertCommand: function(cmd)
   {
     this.deleteSelection();
-    el.parent = this.parent; 
-    el.next = this.next;
-    el.prev = this.prev;
+    cmd.parent = this.parent; 
+    cmd.next = this.next;
+    cmd.prev = this.prev;
     if(this.prev)
-      this.prev.next = el;
+      this.prev.next = cmd;
     else
-      this.parent.firstChild = el;
+      this.parent.firstChild = cmd;
     if(this.next)
-      this.next.prev = el;
+      this.next.prev = cmd;
     else
-      this.parent.lastChild = el;
-    el.jQ.insertBefore(this.jQ); 
+      this.parent.lastChild = cmd;
+    cmd.jQ.insertBefore(this.jQ); 
 
     //adjust context-sensitive spacing
-    el.respace();
+    cmd.respace();
     if(this.next)
       this.next.respace();
     if(this.prev)
       this.prev.respace();
 
-    this.prev = el;
+    this.prev = cmd;
 
-    el.placeCursor(this);
+    cmd.placeCursor(this);
 
     this.jQ.change();
 
@@ -547,7 +547,7 @@ return function(tabindex)
       else
         return todo(), false;
       
-      cursor.newBefore(cmd);
+      cursor.insertCommand(cmd);
       
       return false;
     }).focus();
