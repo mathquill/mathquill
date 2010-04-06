@@ -79,6 +79,9 @@ function LiveFraction()
 LiveFraction.prototype = new Fraction;
 LiveFraction.prototype.placeCursor = function(cursor)
 {
+  if(!this.firstChild.isEmpty())
+    return;
+
   var prev = this.prev;
   while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
     prev = prev.prev;
@@ -90,7 +93,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
     newBlock.parent = this;
     this.firstChild = this.lastChild.prev = newBlock;
   }
-  cursor.prependTo(this.lastChild);
+  cursor.appendTo(this.lastChild);
 };
 
 // Parens/Brackets/Braces etc
