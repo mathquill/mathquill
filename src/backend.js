@@ -2,7 +2,7 @@
  * Back-end code: Core abstract classes and architecture.
  */
 
-var $ = jQuery, noop = function(){ return this; }, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
+var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -61,7 +61,6 @@ MathCommand.prototype = $.extend(new MathElement, {
       this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block = new MathBlock;
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ;
-      return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev = null, num_blocks = this.html_template.length;
@@ -104,7 +103,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     return this;
   },
   //placeholder for context-sensitive spacing.
-  respace: noop,
+  respace: $.noop,
   placeCursor: function(cursor)
   {
     cursor.prependTo(this.firstChild);
@@ -125,12 +124,12 @@ function Symbol(cmd, html)
   MathCommand.call(this, cmd, [ html ]);
 }
 Symbol.prototype = $.extend(new MathCommand, {
-  initBlocks: noop,
+  initBlocks: $.noop,
   latex: function()
   {
     return this.cmd;
   },
-  placeCursor: noop,
+  placeCursor: $.noop,
   isEmpty: function(){ return true; },
 });
 
