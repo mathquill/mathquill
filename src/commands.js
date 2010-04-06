@@ -94,7 +94,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
 };
 
 // Parens/Brackets/Braces etc
-function Parens(open, close)
+function Paren(open, close)
 {
   MathCommand.call(this, open,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>']);
@@ -105,7 +105,7 @@ function Parens(open, close)
     block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)+1)+'em');
   });
 }
-Parens.prototype = $.extend(new MathCommand, {
+Paren.prototype = $.extend(new MathCommand, {
   initBlocks: function(){
     this.firstChild = this.lastChild = new MathBlock;
     this.firstChild.parent = this;
@@ -206,10 +206,10 @@ var SingleCharacterCommands = {
   '^': function(){ return new SupSub('^', '<sup></sup>'); },
   '_': function(){ return new SupSub('_', '<sub></sub>'); },
   '/': function(){ return new LiveFraction(); },
-  '(': function(){ return new Parens('(', ')'); },
-  '[': function(){ return new Parens('[', ']'); },
-  '{': function(){ return new Parens('{', '}'); },
-  '|': function(){ return new Parens('|', '|'); },
+  '(': function(){ return new Paren('(', ')'); },
+  '[': function(){ return new Paren('[', ']'); },
+  '{': function(){ return new Paren('{', '}'); },
+  '|': function(){ return new Paren('|', '|'); },
   '\\': function(){ return new LatexCommandInput(); },
 };
 
