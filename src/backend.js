@@ -61,6 +61,7 @@ MathCommand.prototype = $.extend(new MathElement, {
       this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block = new MathBlock;
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ;
+      return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev = null, num_blocks = this.html_template.length;
