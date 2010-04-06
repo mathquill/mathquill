@@ -79,19 +79,19 @@ function LiveFraction()
 LiveFraction.prototype = new Fraction;
 LiveFraction.prototype.placeCursor = function(cursor)
 {
-  if(!this.firstChild.isEmpty())
-    return;
-
-  var prev = this.prev;
-  while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
-    prev = prev.prev;
-  if(prev !== this.prev)
+  if(this.firstChild.isEmpty())
   {
-    var newBlock = new MathFragment(this.parent, prev, this).blockify();
-    newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
-    newBlock.next = this.lastChild;
-    newBlock.parent = this;
-    this.firstChild = this.lastChild.prev = newBlock;
+    var prev = this.prev;
+    while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
+      prev = prev.prev;
+    if(prev !== this.prev)
+    {
+      var newBlock = new MathFragment(this.parent, prev, this).blockify();
+      newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
+      newBlock.next = this.lastChild;
+      newBlock.parent = this;
+      this.firstChild = this.lastChild.prev = newBlock;
+    }
   }
   cursor.appendTo(this.lastChild);
 };

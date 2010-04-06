@@ -26,7 +26,7 @@ function Cursor(block)
     this.jQ.addClass('blink');
     return this;
   };
-  
+
   this.jQ = $('<span class="cursor"></span>');
   if(block)
     this.prependTo(block);
@@ -140,7 +140,13 @@ Cursor.prototype = {
   },
   insertNew: function(cmd)
   {
-    this.deleteSelection();
+    if(this.selection)
+    {
+      var newBlock = this.selection.blockify();
+      this.prev = this.selection.prev;
+      this.next = this.selection.next;
+    }
+
     cmd.parent = this.parent; 
     cmd.next = this.next;
     cmd.prev = this.prev;
@@ -163,6 +169,20 @@ Cursor.prototype = {
 
     this.prev = cmd;
 
+    if(cmd instanceof Symbol)
+      this.deleteSelection();
+    else if(this.selection)
+    {
+      newBlock.jQ = cmd.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
+      newBlock.next = cmd.firstChild.next;
+      newBlock.parent = cmd;
+      if(newBlock.next)
+        newBlock.next.prev = newBlock;
+      else
+        cmd.lastChild = newBlock;
+      cmd.firstChild = newBlock;
+      delete this.selection;
+    }
     cmd.placeCursor(this);
 
     this.jQ.change();
@@ -372,6 +392,13 @@ Selection.prototype = $.extend(new MathFragment, {
   {
     this.jQ.replaceWith(this.jQ.children());
     return this;
+  },
+  blockify: function()
+  {
+    var selectedJQ = this.jQ.children();
+    this.jQ.replaceWith(selectedJQ);
+    this.jQ = selectedJQ;
+    return MathFragment.prototype.blockify.call(this);
   },
 });
 
