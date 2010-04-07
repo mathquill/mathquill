@@ -206,14 +206,16 @@ function NonItalicizedFunction(cmd, text)
 NonItalicizedFunction.prototype = Symbol.prototype;
 
 var SingleCharacterCommands = {
-  ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;', replacedFragment); },
-  '*': function(replacedFragment){ return new VanillaSymbol('\\cdot ', '&sdot;', replacedFragment); },
-  "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;', replacedFragment);},
-  '=': function(replacedFragment){ return new BinaryOperator('=', '=', replacedFragment); },
-  '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;', replacedFragment); },
-  '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;', replacedFragment); },
-  '+': function(replacedFragment){ return new PlusMinus('+', replacedFragment); },
-  '-': function(replacedFragment){ return new PlusMinus('-', '&minus;', replacedFragment); },
+  //Symbols:
+  ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;'); },
+  '*': function(replacedFragment){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
+  "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;');},
+  '=': function(replacedFragment){ return new BinaryOperator('=', '='); },
+  '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;'); },
+  '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;'); },
+  '+': function(replacedFragment){ return new PlusMinus('+'); },
+  '-': function(replacedFragment){ return new PlusMinus('-', '&minus;'); },
+  //Commands and Operators:
   '^': function(replacedFragment){ return new SupSub('^', '<sup></sup>', replacedFragment); },
   '_': function(replacedFragment){ return new SupSub('_', '<sub></sub>', replacedFragment); },
   '/': function(replacedFragment){ return new LiveFraction(replacedFragment); },

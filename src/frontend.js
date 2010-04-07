@@ -140,6 +140,14 @@ Cursor.prototype = {
   },
   write: function(cmd)
   {
+    if(this.selection)
+    {
+      this.prev = this.selection.prev;
+      this.next = this.selection.next;
+      if(cmd instanceof Symbol)
+        this.selection.remove();
+      delete this.selection;
+    }
     cmd.parent = this.parent;
     cmd.next = this.next;
     cmd.prev = this.prev;
@@ -165,13 +173,6 @@ Cursor.prototype = {
     cmd.placeCursor(this);
 
     this.jQ.change();
-  },
-  writeOverSelection: function(cmd)
-  {
-    this.prev = this.selection.prev;
-    this.next = this.selection.next;
-    this.write(cmd(this.selection));
-    delete this.selection;
   },
   unwrapParent: function()
   {
@@ -558,10 +559,7 @@ return function(tabindex)
       else if(cmd.match(/\d/))
         cursor.write(new VanillaSymbol(cmd));
       else if(cmd = SingleCharacterCommands[cmd])
-        if(cursor.selection)
-          cursor.writeOverSelection(cmd);
-        else
-          cursor.write(cmd());
+        cursor.write(cmd);
       else
       {
         todo();
