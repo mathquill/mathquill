@@ -69,7 +69,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     var newBlock, prev, num_blocks = this.html_template.length;
     this.firstChild = newBlock = prev = replacedFragment ? replacedFragment.blockify() : new MathBlock;
     newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ);
+    newBlock.jQ = $(this.html_template[1]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ).prepend(newBlock.jQ);
     newBlock.setEmpty();
     for(var i = 2; i < num_blocks; i += 1)
     {

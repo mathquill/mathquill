@@ -67,7 +67,7 @@ SupSub.prototype.respace = function()
 
 function Fraction(replacedFragment)
 {
-  MathCommand.call(this, '\\frac ', replacedFragment);
+  MathCommand.call(this, '\\frac ', undefined, replacedFragment);
   this.jQ.append('<span style="width:0;color:transparent">/</span>');
 }
 Fraction.prototype = new MathCommand;
