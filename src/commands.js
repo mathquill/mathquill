@@ -36,9 +36,9 @@ PlusMinus.prototype.respace = function()
   return this;
 };
 
-function SupSub(cmd, html, replacedFragment)
+function SupSub(cmd, html)
 {
-  MathCommand.call(this, cmd, [ html ], replacedFragment);
+  MathCommand.call(this, cmd, [ html ]);
   var me = this;
   this.jQ.change(function()
   {
@@ -65,16 +65,16 @@ SupSub.prototype.respace = function()
   return this;
 };
 
-function Fraction(replacedFragment)
+function Fraction()
 {
-  MathCommand.call(this, '\\frac ', replacedFragment);
+  MathCommand.call(this, '\\frac ');
   this.jQ.append('<span style="width:0;color:transparent">/</span>');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
-function LiveFraction(replacedFragment)
+function LiveFraction()
 {
-  Fraction.apply(this, arguments);
+  Fraction.call(this);
 }
 LiveFraction.prototype = new Fraction;
 LiveFraction.prototype.placeCursor = function(cursor)
@@ -97,11 +97,10 @@ LiveFraction.prototype.placeCursor = function(cursor)
 };
 
 // Parens/Brackets/Braces etc
-function Paren(open, close, replacedFragment)
+function Paren(open, close)
 {
   MathCommand.call(this, open,
-    ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
-    replacedFragment);
+    ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>']);
   this.end = close;
   this.firstChild.jQ.change(function()
   {
@@ -110,10 +109,10 @@ function Paren(open, close, replacedFragment)
   });
 }
 Paren.prototype = $.extend(new MathCommand, {
-  initBlocks: function(replacedFragment){
-    this.firstChild = this.lastChild = replacedFragment ? replacedFragment.blockify() : new MathBlock;
+  initBlocks: function(){
+    this.firstChild = this.lastChild = new MathBlock;
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children().eq(1).prepend(this.firstChild.jQ) : this.jQ.children().eq(1);
+    this.firstChild.jQ = this.jQ.children().eq(1);
   },
   latex: function(){
     return this.cmd + this.firstChild.latex() + this.end;
@@ -121,7 +120,7 @@ Paren.prototype = $.extend(new MathCommand, {
 });
 
 // input box to type a variety of LaTeX commands beginning with a backslash
-function LatexCommandInput(replacedFragment)
+function LatexCommandInput()
 {
   MathCommand.call(this, '\\');
   var commandInput = this, skipKeypress;
@@ -132,7 +131,7 @@ function LatexCommandInput(replacedFragment)
       return skipKeypress = true;
     if(e.which === 9 || e.which === 13) //tab or enter
     {
-      commandInput.renderCommand(replacedFragment); //delay until after tab or whatever has happened
+      commandInput.renderCommand(); //delay until after tab or whatever has happened
       return false;
     }
   }).keypress(function(e)
@@ -142,7 +141,7 @@ function LatexCommandInput(replacedFragment)
     var char = String.fromCharCode(e.which);
     if(char.match(/[a-z]/i))
       return;
-    commandInput.renderCommand(replacedFragment);
+    commandInput.renderCommand();
     if(char === ' ')
       return false;
   });
@@ -162,21 +161,21 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     this.jQ.focus();
     return this;
   },
-  renderCommand: function(replacedFragment)
+  renderCommand: function()
   {
-    var newCmd = createLatexCommand(this.firstChild.latex(), replacedFragment);
+    var newCmd = createLatexCommand(this.firstChild.latex());
     this.remove();
     if(this.prev)
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.write(newCmd);
+    this.cursor.insertNew(newCmd);
   },
 });
 
-function SquareRoot(replacedFragment)
+function SquareRoot()
 {
-    MathCommand.call(this, '\\sqrt ', replacedFragment);
+    MathCommand.call(this, '\\sqrt ');
     this.firstChild.jQ.change(function(){
         var block = $(this), height = block.height();
         block.css({
@@ -199,25 +198,25 @@ function NonItalicizedFunction(cmd, text)
 NonItalicizedFunction.prototype = Symbol.prototype;
 
 var SingleCharacterCommands = {
-  ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;', replacedFragment); },
-  '*': function(replacedFragment){ return new VanillaSymbol('\\cdot ', '&sdot;', replacedFragment); },
-  "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;', replacedFragment);},
-  '=': function(replacedFragment){ return new BinaryOperator('=', '=', replacedFragment); },
-  '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;', replacedFragment); },
-  '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;', replacedFragment); },
-  '+': function(replacedFragment){ return new PlusMinus('+', replacedFragment); },
-  '-': function(replacedFragment){ return new PlusMinus('-', '&minus;', replacedFragment); },
-  '^': function(replacedFragment){ return new SupSub('^', '<sup></sup>', replacedFragment); },
-  '_': function(replacedFragment){ return new SupSub('_', '<sub></sub>', replacedFragment); },
-  '/': function(replacedFragment){ return new LiveFraction(replacedFragment); },
-  '(': function(replacedFragment){ return new Paren('(', ')', replacedFragment); },
-  '[': function(replacedFragment){ return new Paren('[', ']', replacedFragment); },
-  '{': function(replacedFragment){ return new Paren('{', '}', replacedFragment); },
-  '|': function(replacedFragment){ return new Paren('|', '|', replacedFragment); },
-  '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
+  ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
+  '*': function(){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
+  "'": function(){ return new VanillaSymbol("'", '&prime;');},
+  '=': function(){ return new BinaryOperator('=', '='); },
+  '<': function(){ return new BinaryOperator('<', '&lt;'); },
+  '>': function(){ return new BinaryOperator('>', '&gt;'); },
+  '+': function(){ return new PlusMinus('+'); },
+  '-': function(){ return new PlusMinus('-', '&minus;'); },
+  '^': function(){ return new SupSub('^', '<sup></sup>'); },
+  '_': function(){ return new SupSub('_', '<sub></sub>'); },
+  '/': function(){ return new LiveFraction(); },
+  '(': function(){ return new Paren('(', ')'); },
+  '[': function(){ return new Paren('[', ']'); },
+  '{': function(){ return new Paren('{', '}'); },
+  '|': function(){ return new Paren('|', '|'); },
+  '\\': function(){ return new LatexCommandInput(); },
 };
 
-function createLatexCommand(latex, replacedFragment)
+function createLatexCommand(latex)
 {
   switch(latex)
   {
@@ -237,9 +236,9 @@ function createLatexCommand(latex, replacedFragment)
     case 'lim':
       return new NonItalicizedFunction(latex);
     case 'sqrt':
-      return new SquareRoot(replacedFragment);
+      return new SquareRoot();
     case 'frac':
-      return new Fraction(replacedFragment);
+      return new Fraction();
     default:
       return new VanillaSymbol(latex.slice, '&'+latex+';');
   }
