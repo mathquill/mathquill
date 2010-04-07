@@ -164,8 +164,8 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
   renderCommand: function(replacedFragment)
   {
-    var newCmd = createLatexCommand(this.firstChild.latex(), replacedFragment);
     this.remove();
+    var newCmd = createLatexCommand(this.firstChild.latex(), replacedFragment);
     if(this.prev)
       this.cursor.insertAfter(this.prev);
     else
@@ -176,17 +176,17 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
 
 function SquareRoot(replacedFragment)
 {
-    MathCommand.call(this, '\\sqrt ', replacedFragment);
-    this.firstChild.jQ.change(function(){
-        var block = $(this), height = block.height();
-        block.css({
-            borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
-        }).prev().css({
-            fontSize: height,
-            top: height/10+2,
-            left: height/30+1,
-        });
+  MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
+  this.firstChild.jQ.change(function(){
+    var block = $(this), height = block.height();
+    block.css({
+      borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+    }).prev().css({
+      fontSize: height,
+      top: height/10+2,
+      left: height/30+1,
     });
+  });
 }
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];

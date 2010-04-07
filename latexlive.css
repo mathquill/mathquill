@@ -152,6 +152,8 @@
   border-top: 1px solid black;
   margin-top: 1px;
   padding-left: 2px;
+  padding-right: .1em;
+  margin-right: .1em;
 }
 
 .latexlive-rendered-math .paren {
