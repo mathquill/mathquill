@@ -163,10 +163,10 @@
   top: -.1em;
 }
 
-.mathquill-rendered-math:focus .selection, .mathquill-rendered-math:focus .selection sup, .mathquill-rendered-math:focus .selection sub {
+.mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
   background-color: #ADF;
 }
-.mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
+.mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {
   background-color: lightgray;
 }
 

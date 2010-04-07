@@ -244,4 +244,10 @@ MathFragment.prototype = {
     
     return newBlock;
   },
+  detach: function()
+  {
+    MathFragment.prototype.blockify.call(this);
+    this.jQ.detach();
+    return this;
+  },
 };

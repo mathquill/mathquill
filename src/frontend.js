@@ -382,8 +382,7 @@ Selection.prototype = $.extend(new MathFragment, {
     var selectedJQ = this.jQ.children();
     this.jQ.replaceWith(selectedJQ);
     this.jQ = selectedJQ;
-    this.blockify = MathFragment.prototype.blockify;
-    return this.blockify();
+    return MathFragment.prototype.blockify.call(this);
   },
 });
 
@@ -419,10 +418,14 @@ return function(tabindex)
       else
         cursor.appendTo(root);
       cursor.parent.jQ.addClass('hasCursor');
-      if(!cursor.selection)
+      if(cursor.selection)
+        cursor.selection.jQ.removeClass('blur');
+      else
         cursor.show();
     }).blur(function(e){
       cursor.setParentEmpty().hide();
+      if(cursor.selection)
+        cursor.selection.jQ.addClass('blur');
     }).click(function(e)
     {
       var clicked = $(e.target);

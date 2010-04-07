@@ -132,7 +132,7 @@ function LatexCommandInput(replacedFragment)
       return skipKeypress = true;
     if(e.which === 9 || e.which === 13) //tab or enter
     {
-      commandInput.renderCommand(replacedFragment); //delay until after tab or whatever has happened
+      commandInput.renderCommand(); //delay until after tab or whatever has happened
       return false;
     }
   }).keypress(function(e)
@@ -142,14 +142,13 @@ function LatexCommandInput(replacedFragment)
     var char = String.fromCharCode(e.which);
     if(char.match(/[a-z]/i))
       return;
-    commandInput.renderCommand(replacedFragment);
+    commandInput.renderCommand();
     if(char === ' ')
       return false;
   });
   if(replacedFragment)
   {
-    replacedFragment.blockify();
-    this.jQ = this.jQ.add(replacedFragment.jQ);
+    this.replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
   }
 }
@@ -158,6 +157,8 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
+    if(this.replacedFragment)
+      this.jQ.add(this.replacedFragment.jQ.insertAfter(this.jQ).addClass('blur'));
   },
   latex: function()
   {
@@ -168,7 +169,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     this.jQ.focus();
     return this;
   },
-  renderCommand: function(replacedFragment)
+  renderCommand: function()
   {
     this.jQ = this.jQ.first();
     this.remove();
@@ -176,7 +177,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.write(createLatexCommand(this.firstChild.latex(), replacedFragment));
+    this.cursor.write(createLatexCommand(this.firstChild.latex(), this.replacedFragment));
   },
 });
 
