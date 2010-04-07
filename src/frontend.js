@@ -386,10 +386,10 @@ Selection.prototype = $.extend(new MathFragment, {
   },
 });
 
-//on document ready, replace the contents of all <tag class="latexlive-embedded-math"></tag> elements
+//on document ready, replace the contents of all <tag class="mathquill-embedded-math"></tag> elements
 //with root MathBlock's.
 $(function(){
-  $('.latexlive-embedded-math').latexlive();
+  $('.mathquill-embedded-math').mathquill();
 });
 
 //The actual, publically exposed method of jQuery.prototype, available
@@ -403,7 +403,7 @@ return function(tabindex)
   {
     var math = new MathBlock;
     math.focus = function(){ this.jQ.focus(); return this; };
-    math.jQ = $('<span class="latexlive-editable-math latexlive-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[latexlive internal data]]', {block: math}).replaceAll(this);
+    math.jQ = $('<span class="mathquill-editable-math mathquill-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[mathquill internal data]]', {block: math}).replaceAll(this);
 
     var cursor = math.cursor = new Cursor(math);
 
@@ -427,13 +427,13 @@ return function(tabindex)
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.prependTo(clicked.data('[[latexlive internal data]]').block).jQ.change();
+        cursor.prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
         return false;
       }
-      var cmd = clicked.data('[[latexlive internal data]]');
+      var cmd = clicked.data('[[mathquill internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if(!(cmd && (cmd = cmd.cmd)) && !((cmd = (clicked = clicked.parent()).data('[[latexlive internal data]]')) && (cmd = cmd.cmd)))
+      if(!(cmd && (cmd = cmd.cmd)) && !((cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')) && (cmd = cmd.cmd)))
         return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())

@@ -50,7 +50,7 @@ function MathCommand(cmd, html_template, replacedFragment)
   if(html_template)
     this.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]).data('[[latexlive internal data]]', {cmd: this});
+  this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
   this.initBlocks(replacedFragment);
 }
 MathCommand.prototype = $.extend(new MathElement, {
@@ -59,7 +59,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     //single-block commands
     if(this.html_template.length === 1)
     {
-      this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block =
+      this.firstChild = this.lastChild = this.jQ.data('[[mathquill internal data]]').block =
         replacedFragment ? replacedFragment.blockify() : new MathBlock;
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ.prepend(this.firstChild.jQ);
@@ -69,7 +69,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     var newBlock, prev, num_blocks = this.html_template.length;
     this.firstChild = newBlock = prev = replacedFragment ? replacedFragment.blockify() : new MathBlock;
     newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ).prepend(newBlock.jQ);
+    newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ).prepend(newBlock.jQ);
     newBlock.setEmpty();
     for(var i = 2; i < num_blocks; i += 1)
     {
@@ -79,7 +79,7 @@ MathCommand.prototype = $.extend(new MathElement, {
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(this.html_template[i]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ);
+      newBlock.jQ = $(this.html_template[i]).data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
       newBlock.setEmpty();
     }
     this.lastChild = newBlock;
