@@ -170,6 +170,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
   renderCommand: function(replacedFragment)
   {
+    this.jQ = this.jQ.first();
     this.remove();
     var newCmd = createLatexCommand(this.firstChild.latex(), replacedFragment);
     if(this.prev)
