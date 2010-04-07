@@ -213,14 +213,26 @@ MathFragment.prototype = {
   {
     var newBlock = new MathBlock;
     if(this.prev)
-      newBlock.firstChild = this.prev.next, this.prev.next = this.next;
+    {
+      newBlock.firstChild = this.prev.next;
+      this.prev.next = this.next;
+    }
     else
-      newBlock.firstChild = this.parent.firstChild, this.parent.firstChild = this.next;
+    {
+      newBlock.firstChild = this.parent.firstChild;
+      this.parent.firstChild = this.next;
+    }
 
     if(this.next)
-      newBlock.lastChild = this.next.prev, this.next.prev = this.prev;
+    {
+      newBlock.lastChild = this.next.prev;
+      this.next.prev = this.prev;
+    }
     else
-      newBlock.lastChild = this.parent.lastChild, this.parent.lastChild = this.prev;
+    {
+      newBlock.lastChild = this.parent.lastChild;
+      this.parent.lastChild = this.prev;
+    }
 
     newBlock.firstChild.prev = this.prev = null;
     newBlock.lastChild.next = this.next = null;
