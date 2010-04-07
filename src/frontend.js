@@ -382,7 +382,8 @@ Selection.prototype = $.extend(new MathFragment, {
     var selectedJQ = this.jQ.children();
     this.jQ.replaceWith(selectedJQ);
     this.jQ = selectedJQ;
-    return MathFragment.prototype.blockify.call(this);
+    this.blockify = MathFragment.prototype.blockify;
+    return this.blockify();
   },
 });
 
