@@ -38,9 +38,10 @@ MathElement.prototype = {
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
- * May contain descendant commands, organized into blocks.
+ * Descendant commands are organized into blocks.
+ * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template)
+function MathCommand(cmd, html_template, replacedFragment)
 {
   if(!arguments.length)
     return;
@@ -50,30 +51,32 @@ function MathCommand(cmd, html_template)
     this.html_template = html_template;
 
   this.jQ = $(this.html_template[0]).data('[[latexlive internal data]]', {cmd: this});
-  this.initBlocks();
+  this.initBlocks(replacedFragment);
 }
 MathCommand.prototype = $.extend(new MathElement, {
-  initBlocks: function()
+  initBlocks: function(replacedFragment)
   {
     //single-block commands
     if(this.html_template.length === 1)
     {
-      this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block = new MathBlock;
+      this.firstChild = this.lastChild = this.jQ.data('[[latexlive internal data]]').block =
+        replacedFragment ? replacedFragment.blockify() : new MathBlock;
       this.firstChild.parent = this;
-      this.firstChild.jQ = this.jQ;
+      this.firstChild.jQ = this.jQ.prepend(this.firstChild.jQ);
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev = null, num_blocks = this.html_template.length;
-    for(var i = 1; i < num_blocks; i += 1)
+    var newBlock, prev, num_blocks = this.html_template.length;
+    this.firstChild = newBlock = prev = replacedFragment ? replacedFragment.blockify() : new MathBlock;
+    newBlock.parent = this;
+    newBlock.jQ = $(this.html_template[1]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ);
+    newBlock.setEmpty();
+    for(var i = 2; i < num_blocks; i += 1)
     {
       newBlock = new MathBlock;
       newBlock.parent = this;
       newBlock.prev = prev;
-      if(prev)
-        prev.next = newBlock;
-      else
-        this.firstChild = newBlock;
+      prev.next = newBlock;
       prev = newBlock;
 
       newBlock.jQ = $(this.html_template[i]).data('[[latexlive internal data]]', {block: newBlock}).appendTo(this.jQ);

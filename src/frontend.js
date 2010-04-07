@@ -138,13 +138,13 @@ Cursor.prototype = {
     this.next = this.next.next;
     return this;
   },
-  insertNew: function(cmd)
+  write: function(cmd)
   {
     if(this.selection)
     {
+      var newBlock = this.selection.blockify();
       this.prev = this.selection.prev;
       this.next = this.selection.next;
-      var newBlock = this.selection.blockify();
     }
 
     cmd.parent = this.parent; 
@@ -169,25 +169,16 @@ Cursor.prototype = {
 
     this.prev = cmd;
 
-    if(cmd instanceof Symbol)
-      this.deleteSelection();
-    else if(this.selection)
-    {
-      newBlock.jQ = cmd.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
-      newBlock.next = cmd.firstChild.next;
-      newBlock.parent = cmd;
-      if(newBlock.next)
-        newBlock.next.prev = newBlock;
-      else
-        cmd.lastChild = newBlock;
-      cmd.firstChild = newBlock;
-      delete this.selection;
-    }
     cmd.placeCursor(this);
 
     this.jQ.change();
-
-    return this;
+  },
+  writeOverSelection: function(cmd)
+  {
+    this.prev = this.selection.prev;
+    this.next = this.selection.next;
+    this.write(cmd(this.selection));
+    delete this.selection;
   },
   unwrapParent: function()
   {
@@ -291,8 +282,8 @@ Cursor.prototype = {
       {
         if(this.prev) //then extend left if possible
         {
-          this.prev.jQ.prependTo(this.selection.jQ);
-          this.hopLeft();
+          this.hopLeft(); //we want to insertBefore(prev.jQ) before we do prependTo so this.jQ will be outside selection.jQ
+          this.next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
         }
         else if(this.parent.parent) //else level up if possible
@@ -320,8 +311,8 @@ Cursor.prototype = {
       {
         if(this.next) //then extend right if possible
         {
-          this.next.jQ.appendTo(this.selection.jQ);
           this.hopRight();
+          this.prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
         }
         else if(this.parent.parent) //else level up if possible
@@ -563,19 +554,25 @@ return function(tabindex)
         lastKeydnEvt.happened = false;
         return continueDefault;
       }
-      
+
       var cmd = String.fromCharCode(e.which);
       if(cmd.match(/[a-z]/i))
-        cmd = new Variable(cmd);
+        cursor.write(new Variable(cmd));
       else if(cmd.match(/\d/))
-        cmd = new VanillaSymbol(cmd);
+        cursor.write(new VanillaSymbol(cmd));
       else if(cmd = SingleCharacterCommands[cmd])
-        cmd = cmd();
+        if(cursor.selection)
+          cursor.writeOverSelection(cmd);
+        else
+          cursor.write(cmd());
       else
-        return todo(), false;
-      
-      cursor.insertNew(cmd);
-      
+      {
+        todo();
+        return false;
+      }
+
+      cursor.show();
+
       return false;
     }).focus();
   });
