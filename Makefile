@@ -8,7 +8,7 @@ ${SOURCE_DIR}/frontend.js \
 ${SOURCE_DIR}/outro.js
 
 BUILD_DIR = ./build
-BUILD_FILE = ${BUILD_DIR}/latexlive.js
+BUILD_FILE = ${BUILD_DIR}/mathquill.js
 
 all:
 	@@if test ! -d ${BUILD_DIR}; then mkdir ${BUILD_DIR}; fi
