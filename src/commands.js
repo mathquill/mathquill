@@ -172,12 +172,11 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.jQ = this.jQ.first();
     this.remove();
-    var newCmd = createLatexCommand(this.firstChild.latex(), replacedFragment);
     if(this.prev)
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.write(newCmd);
+    this.cursor.write(createLatexCommand(this.firstChild.latex(), replacedFragment));
   },
 });
 
