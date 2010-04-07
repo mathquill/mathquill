@@ -126,14 +126,14 @@ Cursor.prototype = {
   },
   hopLeft: function()
   {
-    this.jQ.insertBefore(this.prev.jQ);
+    this.jQ.insertBefore(this.prev.jQ.first());
     this.next = this.prev;
     this.prev = this.prev.prev;
     return this;
   },
   hopRight: function()
   {
-    this.jQ.insertAfter(this.next.jQ);
+    this.jQ.insertAfter(this.next.jQ.last());
     this.prev = this.next;
     this.next = this.next.next;
     return this;
