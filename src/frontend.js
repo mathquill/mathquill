@@ -140,14 +140,7 @@ Cursor.prototype = {
   },
   write: function(cmd)
   {
-    if(this.selection)
-    {
-      var newBlock = this.selection.blockify();
-      this.prev = this.selection.prev;
-      this.next = this.selection.next;
-    }
-
-    cmd.parent = this.parent; 
+    cmd.parent = this.parent;
     cmd.next = this.next;
     cmd.prev = this.prev;
     if(this.prev)
@@ -158,7 +151,7 @@ Cursor.prototype = {
       this.next.prev = cmd;
     else
       this.parent.lastChild = cmd;
-    cmd.jQ.insertBefore(this.jQ); 
+    cmd.jQ.insertBefore(this.jQ);
 
     //adjust context-sensitive spacing
     cmd.respace();
