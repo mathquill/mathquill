@@ -140,6 +140,13 @@ Cursor.prototype = {
   },
   write: function(cmd)
   {
+    if(this.selection)
+    {
+      var newBlock = this.selection.blockify();
+      this.prev = this.selection.prev;
+      this.next = this.selection.next;
+    }
+
     cmd.parent = this.parent; 
     cmd.next = this.next;
     cmd.prev = this.prev;
