@@ -146,6 +146,11 @@ function LatexCommandInput(replacedFragment)
     if(char === ' ')
       return false;
   });
+  if(replacedFragment)
+  {
+    this.jQ = this.jQ.add(replacedFragment.jQ);
+    this.isEmpty = function(){ return false; };
+  }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="latex-command-input" tabindex=0></span>'],
