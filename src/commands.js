@@ -148,6 +148,7 @@ function LatexCommandInput(replacedFragment)
   });
   if(replacedFragment)
   {
+    replacedFragment.blockify();
     this.jQ = this.jQ.add(replacedFragment.jQ);
     this.isEmpty = function(){ return false; };
   }
