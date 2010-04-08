@@ -124,6 +124,16 @@ Paren.prototype = $.extend(new MathCommand, {
 function LatexCommandInput(replacedFragment)
 {
   MathCommand.call(this, '\\');
+  this.firstChild.setEmpty = function()
+  {
+    if(this.isEmpty())
+    {
+      this.jQ.addClass('empty');
+      if(this.parent)
+        this.jQ.html('<span>&nbsp;</span>');
+    }
+    return this;
+  };
   var commandInput = this, skipKeypress;
   this.jQ.keydown(function(e)
   {
@@ -158,7 +168,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.cursor = cursor.prependTo(this.firstChild);
     if(this.replacedFragment)
-      this.jQ.add(this.replacedFragment.jQ.insertAfter(this.jQ).addClass('blur'));
+      this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertAfter(this.jQ));
   },
   latex: function()
   {
@@ -177,7 +187,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.write(createLatexCommand(this.firstChild.latex(), this.replacedFragment));
+    this.cursor.insertNew(createLatexCommand(this.firstChild.latex(), this.replacedFragment));
   },
 });
 

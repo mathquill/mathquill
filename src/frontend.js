@@ -144,10 +144,31 @@ Cursor.prototype = {
     {
       this.prev = this.selection.prev;
       this.next = this.selection.next;
+    }
+
+    if(cmd.match(/[a-z]/i))
+      cmd = new Variable(cmd);
+    else if(cmd.match(/\d/))
+      cmd = new VanillaSymbol(cmd);
+    else if(cmd = SingleCharacterCommands[cmd])
+      cmd = cmd(this.selection);
+    else
+    {
+      todo();
+      return {show: $.noop};
+    }
+
+    if(this.selection)
+    {
       if(cmd instanceof Symbol)
         this.selection.remove();
       delete this.selection;
     }
+
+    return this.insertNew(cmd);
+  },
+  insertNew: function(cmd)
+  {
     cmd.parent = this.parent;
     cmd.next = this.next;
     cmd.prev = this.prev;
@@ -173,6 +194,8 @@ Cursor.prototype = {
     cmd.placeCursor(this);
 
     this.jQ.change();
+
+    return this;
   },
   unwrapParent: function()
   {
@@ -553,20 +576,7 @@ return function(tabindex)
         return continueDefault;
       }
 
-      var cmd = String.fromCharCode(e.which);
-      if(cmd.match(/[a-z]/i))
-        cursor.write(new Variable(cmd));
-      else if(cmd.match(/\d/))
-        cursor.write(new VanillaSymbol(cmd));
-      else if(cmd = SingleCharacterCommands[cmd])
-        cursor.write(cmd);
-      else
-      {
-        todo();
-        return false;
-      }
-
-      cursor.show();
+      cursor.write(String.fromCharCode(e.which)).show();
 
       return false;
     }).focus();
