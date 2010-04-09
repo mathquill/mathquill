@@ -410,15 +410,9 @@ Selection.prototype = $.extend(new MathFragment, {
   },
 });
 
-//on document ready, replace the contents of all <tag class="mathquill-embedded-math"></tag> elements
-//with root MathBlock's.
-$(function(){
-  $('.mathquill-embedded-math').mathquill();
-});
-
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
-return function(tabindex)
+function mathquill(tabindex)
 {
   if(!(typeof tabindex === 'function'))
     var i = tabindex || 0, tabindex = function(){ return i; };
@@ -475,7 +469,7 @@ return function(tabindex)
       lastKeydnEvt = e;
       e.happened = true;
       continueDefault = false;
-      
+
       e.ctrlKey = e.ctrlKey || e.metaKey;
       switch(e.which)
       {
@@ -569,7 +563,7 @@ return function(tabindex)
       //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
       if(!lastKeydnEvt.happened)
         $(this).trigger(lastKeydnEvt);
-      
+
       if(continueDefault !== null)
       {
         lastKeydnEvt.happened = false;
