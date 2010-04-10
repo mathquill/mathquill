@@ -110,12 +110,14 @@ function Paren(open, close, replacedFragment)
   });
 }
 Paren.prototype = $.extend(new MathCommand, {
-  initBlocks: function(replacedFragment){
+  initBlocks: function(replacedFragment)
+  {
     this.firstChild = this.lastChild = replacedFragment ? replacedFragment.blockify() : new MathBlock;
     this.firstChild.parent = this;
     this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children().eq(1).prepend(this.firstChild.jQ) : this.jQ.children().eq(1);
   },
-  latex: function(){
+  latex: function()
+  {
     return this.cmd + this.firstChild.latex() + this.end;
   },
 });
@@ -134,28 +136,6 @@ function LatexCommandInput(replacedFragment)
     }
     return this;
   };
-  var commandInput = this, skipKeypress;
-  this.jQ.keydown(function(e)
-  {
-    skipKeypress = false;
-    if(e.ctrlKey || e.metaKey || $.inArray(e.which, [8, 27, 35, 36, 37, 38, 39, 40, 46]) >= 0)
-      return skipKeypress = true;
-    if(e.which === 9 || e.which === 13) //tab or enter
-    {
-      commandInput.renderCommand(); //delay until after tab or whatever has happened
-      return false;
-    }
-  }).keypress(function(e)
-  {
-    if(skipKeypress)
-      return;
-    var char = String.fromCharCode(e.which);
-    if(char.match(/[a-z]/i))
-      return;
-    commandInput.renderCommand();
-    if(char === ' ')
-      return false;
-  });
   if(replacedFragment)
   {
     this.replacedFragment = replacedFragment.detach();
@@ -163,7 +143,7 @@ function LatexCommandInput(replacedFragment)
   }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="latex-command-input" tabindex=0></span>'],
+  html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
@@ -174,10 +154,25 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     return '\\' + this.firstChild.latex() + ' ';
   },
-  focus: function()
+  keydown: function(e)
   {
-    this.jQ.focus();
-    return this;
+    if(e.which === 9 || e.which === 13) //tab or enter
+    {
+      this.renderCommand();
+      return false;
+    }
+    return this.parent.keydown(e);
+  },
+  keypress: function(e)
+  {
+    var char = String.fromCharCode(e.which);
+    if(!char.match(/[a-z]/i))
+    {
+      this.renderCommand();
+      if(char === ' ')
+        return false;
+    }
+    return this.parent.keypress(e);
   },
   renderCommand: function()
   {
@@ -194,7 +189,8 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
 function SquareRoot(replacedFragment)
 {
   MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
-  this.firstChild.jQ.change(function(){
+  this.firstChild.jQ.change(function()
+  {
     var block = $(this), height = block.height();
     block.css({
       borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman

@@ -54,7 +54,7 @@ Cursor.prototype = {
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
-    this.parent.focus().jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first()); 
     return this;
   },
@@ -64,7 +64,7 @@ Cursor.prototype = {
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
-    this.parent.focus().jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   }, 
@@ -74,7 +74,7 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty().focus().jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.prependTo(el.jQ);
     return this;
   },
@@ -84,7 +84,7 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty().focus().jQ.addClass('hasCursor');
+    this.parent.removeEmpty().jQ.addClass('hasCursor');
     this.jQ.appendTo(el.jQ);
     return this;
   },
@@ -410,6 +410,108 @@ Selection.prototype = $.extend(new MathFragment, {
   },
 });
 
+function RootMathBlock(){}
+RootMathBlock.prototype = $.extend(new MathBlock, {
+  keydown: function(e)
+  {
+    e.ctrlKey = e.ctrlKey || e.metaKey;
+    switch(e.which)
+    {
+    case 8: //backspace
+      if(e.ctrlKey)
+        while(this.cursor.prev)
+          this.cursor.backspace();
+      else
+        this.cursor.backspace();
+      return false;
+    case 27: //esc does something weird in keypress, may as well be the same as tab
+             //  until we figure out what to do with it
+    case 9: //tab
+      if(e.ctrlKey)
+        return true;
+      var parent = this.cursor.parent, gramp = parent.parent;
+      if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
+      {
+        if(!gramp) //cursor is in the root, continue default
+          return true;
+        else if(parent.prev) //go one block left
+          this.cursor.appendTo(parent.prev);
+        else //get out of the block
+          this.cursor.insertBefore(gramp);
+      }
+      else //plain Tab = go one block right if it exists, else escape right.
+      {
+        if(!gramp) //cursor is in the root, continue default
+          return true;
+        else if(parent.next) //go one block right
+          this.cursor.prependTo(parent.next);
+        else //get out of the block
+          this.cursor.insertAfter(gramp);
+      }
+      this.cursor.clearSelection();
+      return false;
+    case 13: //enter
+      return e.ctrlKey; //ignore unless Ctrl
+    case 35: //end
+      //move to the end of the root block or the current block.
+      this.cursor.clearSelection().appendTo(e.ctrlKey ? root : this.cursor.parent);
+      return false;
+    case 36: //home
+      //move to the start of the root block or the current block.
+      this.cursor.clearSelection().prependTo(e.ctrlKey ? root : this.cursor.parent);
+      return false;
+    case 37: //left
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectLeft();
+      else
+        this.cursor.moveLeft();
+      return false;
+    case 38: //up
+      if(e.ctrlKey)
+        return true;
+      if(this.cursor.parent.prev)
+        this.cursor.appendTo(this.cursor.parent.prev);
+      else
+        this.cursor.prependTo(this.cursor.parent);
+      return false;
+    case 39: //right
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectRight();
+      else
+        this.cursor.moveRight();
+      return false;
+    case 40: //down
+      if(e.ctrlKey)
+        return true;
+      if(this.cursor.parent.next)
+        this.cursor.prependTo(this.cursor.parent.next);
+      else
+        this.cursor.appendTo(this.cursor.parent);
+      return false;
+    case 46: //delete
+      if(e.ctrlKey)
+        while(this.cursor.next)
+          this.cursor.deleteForward();
+      else
+        this.cursor.deleteForward();
+      return false;
+    default:
+      return true;
+    }
+  },
+  keypress: function(e)
+  {
+    if(e.ctrlKey || e.metaKey)
+      return true;
+    this.cursor.write(String.fromCharCode(e.which)).show();
+    return false;
+  },
+});
+
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 function mathquill(tabindex)
@@ -419,14 +521,13 @@ function mathquill(tabindex)
 
   return this.each(function()
   {
-    var math = new MathBlock;
-    math.focus = function(){ this.jQ.focus(); return this; };
-    math.jQ = $('<span class="mathquill-editable-math mathquill-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[mathquill internal data]]', {block: math}).replaceAll(this);
+    var root = new RootMathBlock;
+    root.jQ = $('<span class="mathquill-editable-math mathquill-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[mathquill internal data]]', {block: root}).replaceAll(this);
 
-    var cursor = math.cursor = new Cursor(math);
+    var cursor = root.cursor = new Cursor(root);
 
-    var continueDefault, lastKeydnEvt; //see Wiki page "Keyboard Events"
-    math.jQ.focus(function()
+    var lastKeydnEvt; //see Wiki page "Keyboard Events"
+    root.jQ.focus(function()
     {
       if(cursor.parent)
       {
@@ -440,11 +541,13 @@ function mathquill(tabindex)
         cursor.selection.jQ.removeClass('blur');
       else
         cursor.show();
-    }).blur(function(e){
+    }
+    ).blur(function(e){
       cursor.setParentEmpty().hide();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
-    }).click(function(e)
+    }
+    ).click(function(e)
     {
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
@@ -463,116 +566,24 @@ function mathquill(tabindex)
       else
         cursor.insertAfter(cmd);
       return false;
-    }).keydown(function(e)
+    }
+    ).keydown(function(e) //see Wiki page "Keyboard Events"
     {
-      //see Wiki page "Keyboard Events"
       lastKeydnEvt = e;
       e.happened = true;
-      continueDefault = false;
-
-      e.ctrlKey = e.ctrlKey || e.metaKey;
-      switch(e.which)
-      {
-        case 8: //backspace
-          if(e.ctrlKey)
-            while(cursor.prev)
-              cursor.backspace();
-          else
-            cursor.backspace();
-          return false;
-        case 27: //esc does something weird in keypress, may as well be the same as tab until we figure out what to do with it
-        case 9: //tab
-          if(e.ctrlKey)
-            return continueDefault = true;
-          var parent = cursor.parent, gramp = parent.parent;
-          if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
-          {
-            if(!gramp) //cursor is in the root, continue default
-              return continueDefault = true;
-            else if(parent.prev) //go one block left
-              cursor.appendTo(parent.prev);
-            else //get out of the block
-              cursor.insertBefore(gramp);
-          }
-          else //plain Tab = go one block right if it exists, else escape right.
-          {
-            if(!gramp) //cursor is in the root, continue default
-              return continueDefault = true;
-            else if(parent.next) //go one block right
-              cursor.prependTo(parent.next);
-            else //get out of the block
-              cursor.insertAfter(gramp);
-          }
-          cursor.clearSelection();
-          return false;
-        case 13: //enter
-          if(e.ctrlKey)
-            return continueDefault = true;
-          return false;
-        case 35: //end
-          if(e.ctrlKey) //move to the end of the root math block.
-            cursor.clearSelection().appendTo(math);
-          else //else move to the end of the current block.
-            cursor.clearSelection().appendTo(cursor.parent);
-          return false;
-        case 36: //home
-          if(e.ctrlKey) //move to the start of the root math block.
-            cursor.clearSelection().prependTo(math);
-          else //else move to the start of the current block.
-            cursor.clearSelection().prependTo(cursor.parent);
-          return false;
-        case 37: //left
-          if(e.ctrlKey)
-            return continueDefault = true;
-          if(e.shiftKey)
-            cursor.selectLeft();
-          else
-            cursor.moveLeft();
-          return false;
-        case 38: //up
-          if(e.ctrlKey)
-            return continueDefault = true;
-          return false;
-        case 39: //right
-          if(e.ctrlKey)
-            return continueDefault = true;
-          if(e.shiftKey)
-            cursor.selectRight();
-          else
-            cursor.moveRight();
-          return false;
-        case 40: //down
-          if(e.ctrlKey)
-            return continueDefault = true;
-          return false;
-        case 46: //delete
-          if(e.ctrlKey)
-            while(cursor.next)
-              cursor.deleteForward();
-          else
-            cursor.deleteForward();
-          return false;
-        default:
-          if(e.ctrlKey)
-            return continueDefault = true; //don't capture Ctrl+anything other than the above
-          continueDefault = null; //as in 'neither'. Do nothing, pass to keypress.
-          return;
-      }
-    }).keypress(function(e)
+      return e.returnValue = cursor.parent.keydown(e);
+    }
+    ).keypress(function(e)
     {
-      //on auto-repeat, keypress may get triggered but not keydown (see Wiki page "Keyboard Events")
-      if(!lastKeydnEvt.happened)
-        $(this).trigger(lastKeydnEvt);
-
-      if(continueDefault !== null)
-      {
+      //on auto-repeated key events, keypress may get triggered but not keydown
+      //  (see Wiki page "Keyboard Events")
+      if(lastKeydnEvt.happened)
         lastKeydnEvt.happened = false;
-        return continueDefault;
-      }
-
-      cursor.write(String.fromCharCode(e.which)).show();
-
-      return false;
-    }).focus();
+      else
+        lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
+      //only call keypress if keydown returned true
+      return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
+    }
+    ).focus();
   });
 };

@@ -29,10 +29,13 @@ MathElement.prototype = {
     });
     return initVal;
   },
-  focus: function()
+  keydown: function(e)
   {
-    this.parent.focus();
-    return this;
+    return this.parent.keydown(e);
+  },
+  keypress: function(e)
+  {
+    return this.parent.keypress(e);
   },
 };
 
