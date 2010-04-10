@@ -8,15 +8,25 @@
 <title>MathQuill on GitHub</title>
 
 <style type="text/css">
+html {
+  background-color: #EDF;
+}
 body {
   max-width: 6.5in;
   margin: 0 auto;
+  padding: 12pt;
   font: 12pt "Times New Roman";
   color: black;
   background-color: white;
 }
 code {
   font-style: "Courier New";
+}
+a {
+  color: mediumblue;
+}
+a:focus {
+  color: purple;
 }
 </style>
 
@@ -38,15 +48,15 @@ code {
 
 <p>All you need is a script include in your header:</p>
 
-<code>&lt;script src=&quot;http://github.com/jayferd/latexlive/raw/master/latexlive.js&quot;&gt;&lt;/script&gt;</code>
+<code>&lt;script src=&quot;http://laughinghan.github.com/mathquill/mathquill.js&quot;&gt;&lt;/script&gt;</code>
 
-<p>and wherever you’d like to convert LaTeX math to HTML or embed an editable math-textbox:</p>
+<p>and wherever you&rsquo;d like to convert LaTeX math to HTML or embed an editable math-textbox:</p>
 
-<code>&lt;span class=&quot;latexlive-embedded-math&quot;&gt;[optional LaTeX source]&lt;/span&gt;</code>
+<code>&lt;span class=&quot;mathquill-embedded-math&quot;&gt;[optional LaTeX source]&lt;/span&gt;</code>
 
 <p>Note that for dynamically created elements, you will need to call our jQuery plugin:</p>
 
-<code>$('<some set of dynamically created elements>').latexlive();</code>
+<code>$('<some set of dynamically created elements>').mathquill();</code>
 
 <h2>Dependencies</h2>
 
