@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MathQuill 0.2a Demo</title>
+    <link rel="stylesheet" type="text/css" href="mathquill.css" />
+    <script type="text/javascript" src="vendor/jquery.min.js"></script>
+    <script type="text/javascript" src="build/mathquill.js"></script>
+    <style type="text/css">
+      body{
+        width:6.5in;
+        margin:0 auto;
+        font-family:"Times New Roman",serif;
+      }
+      span#math, span.latexlive-embedded-math{
+        font-family:"Courier New",sans-serif;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>MathQuill 0.2&alpha;</h2>
+    <p>by Jay and Han</p>
+    <p>This gets automatically turned into pretty math: <span class="mathquill-embedded-math">e^{i\pi}+1=0</span></p>
+    <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span id="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p>
+  </body>
+</html>
