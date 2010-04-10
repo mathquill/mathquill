@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>MathQuill on GitHub</title>
+
+<style type="text/css">
+body {
+  max-width: 6.5in;
+  margin: 0 auto;
+  font: 12pt "Times New Roman";
+  color: black;
+  background-color: white;
+}
+code {
+  font-style: "Courier New";
+}
+</style>
+
+</head>
+<body>
+
+<h1><a href="http://github.com/laughinghan/mathquill">MathQuill</a>
+  <small>by <a href="http://github.com/laughinghan">laughinghan</a></small></h1>
+
+<p><i>Render LaTeX math as pure HTML/CSS that is WYSIWYG editable</i></p>
+
+<p>HTML and CSS are now mature enough that generating images with server-side scripts is no longer the best way to embed LaTeX-quality mathematical expressions and equations in web pages. The MathQuill JavaScript library not only efficiently renders LaTeX math as HTML, but to also, showcasing the power of the HTML DOM, allows real-time WYSIWYG editing of the embedded math.</p>
+
+<p>We have a working demo here: <a href="http://www.ocf.berkeley.edu/~hanwei/demo.html">http://www.ocf.berkeley.edu/~hanwei/demo.html</a></p>
+
+<p>(Please note that this is an alpha version, so bugs and unimplemented features are all over the place.)</p>
+
+<h2>Usage</h2>
+
+<p>All you need is a script include in your header:</p>
+
+<code>&lt;script src=&quot;http://github.com/jayferd/latexlive/raw/master/latexlive.js&quot;&gt;&lt;/script&gt;</code>
+
+<p>and wherever you’d like to convert LaTeX math to HTML or embed an editable math-textbox:</p>
+
+<code>&lt;span class=&quot;latexlive-embedded-math&quot;&gt;[optional LaTeX source]&lt;/span&gt;</code>
+
+<p>Note that for dynamically created elements, you will need to call our jQuery plugin:</p>
+
+<code>$('<some set of dynamically created elements>').latexlive();</code>
+
+<h2>Dependencies</h2>
+
+<p>Powered by jQuery, v1.4+ required. Get it from http://jquery.com.</p>
+
+<h2>License</h2>
+
+<p><a href="http://www.gnu.org/licenses/lgpl.html">GNU Lesser General Public License</a></p>
+
+<h2>Authors</h2>
+<p>Jay Adkisson (jay[at]causes[dot]com)<br>
+Han (<a href="mailto:laughinghan@gmail.com">laughinghan@gmail.com</a>)</p>
+
+<h2>Project Contact</h2>
+<p>Han (<a href="mailto:laughinghan@gmail.com">laughinghan@gmail.com</a>)</p>
+
+<p>Source code hosting graciously provided by GitHub: <a href="http://github.com/laughinghan/mathquill">laughinghan/mathquill</a></p>
+
+</body>
+</html>
