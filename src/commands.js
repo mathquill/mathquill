@@ -121,6 +121,33 @@ Paren.prototype = $.extend(new MathCommand, {
     return this.cmd + this.firstChild.latex() + this.end;
   },
 });
+// Closing parens/brackets/braces matching Parens/Brackets/Braces above
+function CloseParen(open, close, replacedFragment)
+{
+  Paren.call(this, open, close, replacedFragment);
+}
+CloseParen.prototype = new Paren;
+CloseParen.prototype.placeCursor = function(cursor)
+{
+  //if I'm at the end of my parent who is a matching open-paren, and I was not passed
+  //  a selection fragment, get rid of me and put cursor after my parent
+  if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+    cursor.insertAfter(this);
+};
+function Pipes(replacedFragment)
+{
+  Paren.call(this, '|', '|', replacedFragment);
+}
+Pipes.prototype = new Paren;
+Pipes.prototype.placeCursor = function(cursor)
+{
+  if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+    cursor.prependTo(this.firstChild);
+};
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment)
@@ -228,7 +255,10 @@ var SingleCharacterCommands = {
   '(': function(replacedFragment){ return new Paren('(', ')', replacedFragment); },
   '[': function(replacedFragment){ return new Paren('[', ']', replacedFragment); },
   '{': function(replacedFragment){ return new Paren('{', '}', replacedFragment); },
-  '|': function(replacedFragment){ return new Paren('|', '|', replacedFragment); },
+  ')': function(replacedFragment){ return new CloseParen('(', ')', replacedFragment); },
+  ']': function(replacedFragment){ return new CloseParen('[', ']', replacedFragment); },
+  '}': function(replacedFragment){ return new CloseParen('{', '}', replacedFragment); },
+  '|': function(replacedFragment){ return new Pipes(replacedFragment); },
   '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
 };
 
