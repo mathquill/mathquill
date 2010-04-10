@@ -4,12 +4,12 @@ Please note that this is an alpha version, so bugs and unimplemented features ar
 
 All you need is a script include in your header:
 
-@<script src="http://github.com/jayferd/latexlive/raw/master/latexlive.js">@
+@<script src="http://laughinghan.github.com/mathquill/mathquill.js">@
 
 and wherever you'd like to convert LaTeX math to HTML or embed an editable math-textbox:
 
-@<span class="latexlive-embedded-math">[optional LaTeX source]</span>@
+@<span class="mathquill-embedded-math">[optional LaTeX source]</span>@
 
 Note that for dynamically created elements, you will need to call our jQuery plugin:
 
-@$('<some set of dynamically created elements>').latexlive();@
+@$('<some set of dynamically created elements>').mathquill();@
