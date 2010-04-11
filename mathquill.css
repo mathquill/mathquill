@@ -80,11 +80,11 @@
 }
 
 .mathquill-rendered-math .binary-operator {
-  padding: 0 .2em;
+  padding: 0 .3em;
 }
 
 .mathquill-rendered-math .unary-operator {
-  padding-left: .2em;
+  padding-left: .3em;
 }
 
 .mathquill-rendered-math .fraction {
