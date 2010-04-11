@@ -20,5 +20,8 @@ all:
 gitsync:
 	@@echo ${shell ./gitsync.sh}
 
+publish:
+	@@echo ${shell ./publish.sh}
+
 lol:
 	@@echo "LOL!"
