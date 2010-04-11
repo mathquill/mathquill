@@ -136,7 +136,7 @@ CloseParen.prototype.placeCursor = function(cursor)
   else
   {
     cursor.insertAfter(this);
-    this.firstChild.setEmpty();
+    this.firstChild.setEmpty().jQ.change();
   }
 };
 function Pipes(replacedFragment)
@@ -199,7 +199,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     if(!char.match(/[a-z]/i))
     {
       this.renderCommand();
-      if(char === ' ')
+      if(char === ' ' || (char === '\\' && this.firstChild.isEmpty()))
         return false;
     }
     return this.parent.keypress(e);
@@ -212,7 +212,8 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertAfter(this.prev);
     else
       this.cursor.prependTo(this.parent);
-    this.cursor.insertNew(createLatexCommand(this.firstChild.latex(), this.replacedFragment));
+    this.cursor.insertNew(this.firstChild.isEmpty() ?
+      new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedFragment));
   },
 });
 
