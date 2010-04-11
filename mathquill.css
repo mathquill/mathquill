@@ -78,6 +78,12 @@
   position: relative;
   font-size: 90%;
 }
+.mathquill-rendered-math sup {
+  vertical-align: .5em;
+}
+.mathquill-rendered-math sub {
+  vertical-align: -.5em;
+}
 
 .mathquill-rendered-math .binary-operator {
   padding: 0 .3em;
