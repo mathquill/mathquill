@@ -8,9 +8,9 @@ function VanillaSymbol(ch, html)
 }
 VanillaSymbol.prototype = Symbol.prototype;
 
-function Variable(ch)
+function Variable(ch, html)
 {
-  Symbol.call(this, ch, '<i>'+ch+'</i>');
+  Symbol.call(this, ch, '<i>'+(html || ch)+'</i>');
 }
 Variable.prototype = Symbol.prototype;
 
@@ -234,10 +234,9 @@ function SquareRoot(replacedFragment)
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
-function NonItalicizedFunction(cmd, text)
+function NonItalicizedFunction(fn)
 {
-  text = text || cmd;
-  Symbol.call(this, '\\'+cmd+' ', '<span class="non-italicized-function">'+text+'</span>');
+  Symbol.call(this, '\\'+fn+' ', '<span class="non-italicized-function">'+fn+'</span>');
 }
 NonItalicizedFunction.prototype = Symbol.prototype;
 
@@ -264,11 +263,18 @@ var SingleCharacterCommands = {
   '|': function(replacedFragment){ return new Pipes(replacedFragment); },
   '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
 };
-
 function createLatexCommand(latex, replacedFragment)
 {
+  if(latex.match(/^(a|arc)?(sin|cos|tan)h?$/))
+    return new NonItalicizedFunction(latex);
   switch(latex)
   {
+    //"real" commands
+    case 'sqrt':
+      return new SquareRoot(replacedFragment);
+    case 'frac':
+      return new Fraction(replacedFragment);
+
     //non-italicized functions
     case 'ln':
     case 'lg':
@@ -284,12 +290,297 @@ function createLatexCommand(latex, replacedFragment)
     case 'gcd':
     case 'lim':
       return new NonItalicizedFunction(latex);
-    case 'sqrt':
-      return new SquareRoot(replacedFragment);
-    case 'frac':
-      return new Fraction(replacedFragment);
+
+    /*** Symbols and Special Characters ***/
+
+    //lowercase greek letter variables
+    case 'alpha':
+    case 'beta':
+    case 'gamma':
+    case 'delta':
+    case 'epsilon':
+    case 'zeta':
+    case 'eta':
+    case 'theta':
+    case 'iota':
+    case 'kappa':
+    case 'mu':
+    case 'nu':
+    case 'xi':
+    case 'omicron':
+    case 'rho ':
+    case 'sigma':
+    case 'sigmaf':
+    case 'tau':
+    case 'upsilon':
+    case 'phi':
+    case 'chi':
+    case 'psi':
+    case 'omega':
+      return new Variable('\\'+latex+' ', '&'+latex+';');
+    //greek letter constants, uppercase greek letters,
+    case 'pi':
+    case 'lambda':
+    case 'Gamma':
+    case 'Delta':
+    case 'Theta':
+    case 'Lambda':
+    case 'Xi':
+    case 'Pi':
+    case 'Sigma':
+    case 'Phi':
+    case 'Psi':
+    case 'Omega':
+    //other symbols with the same LaTeX command and HTML character entity reference
+    case 'int':
+    case 'perp':
+    case 'forall':
+      return new VanillaSymbol('\\'+latex+' ', '&'+latex+';');
+    case 'not':
+      //return new Symbol('\\not ','<span class="not">/</span>');
+    case 'neg':
+      return new VanillaSymbol('\\neg ','&not;');
+    case 'quad':
+    case 'emsp':
+      return new VanillaSymbol('\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
+    case 'qquad':
+      return new VanillaSymbol('\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+    /* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
+    case ',':
+      return new VanillaSymbol('\\, ','&nbsp;');
+    case':':
+      return new VanillaSymbol('\\: ','&nbsp;&nbsp;');
+    case ';':
+      return new VanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
+    case '!':
+      return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
+    */
+    case 'dots':
+    case 'ellip':
+    case 'hellip':
+    case 'ellipsis':
+    case 'hellipsis':
+      return new VanillaSymbol('\\dots ','&hellip;');
+    case 'converges':
+    case 'darr':
+    case 'dnarr':
+    case 'dnarrow':
+    case 'downarrow':
+      return new VanillaSymbol('\\downarrow ','&darr;');
+    case 'dArr':
+    case 'dnArr':
+    case 'dnArrow':
+    case 'Downarrow':
+      return new VanillaSymbol('\\Downarrow ','&dArr;');
+    case 'diverges':
+    case 'uarr':
+    case 'uparrow':
+      return new VanillaSymbol('\\uparrow ','&uarr;');
+    case 'uArr':
+    case 'Uparrow':
+      return new VanillaSymbol('\\Uparrow ','&uArr;');
+    case 'to':
+      return new BinaryOperator('\\to ','&rarr;');
+    case 'rarr':
+    case 'rightarrow':
+      return new VanillaSymbol('\\rightarrow ','&rarr;');
+    case 'implies':
+      return new BinaryOperator('\\Rightarrow ','&rArr;');
+    case 'rArr':
+    case 'Rightarrow':
+      return new VanillaSymbol('\\Rightarrow ','&rArr;');
+    case 'gets':
+      return new BinaryOperator('\\gets ','&larr;');
+    case 'larr':
+    case 'leftarrow':
+      return new VanillaSymbol('\\leftarrow ','&larr;');
+    case 'impliedby':
+      return new BinaryOperator('\\Leftarrow ','&lArr;');
+    case 'lArr':
+    case 'Leftarrow':
+      return new VanillaSymbol('\\Leftarrow ','&lArr;');
+    case 'harr':
+    case 'lrarr':
+    case 'leftrightarrow':
+      return new VanillaSymbol('\\leftrightarrow ','&harr;');
+    case 'iff':
+      return new BinaryOperator('\\Leftrightarrow ','&hArr;');
+    case 'hArr':
+    case 'lrArr':
+    case '\Leftrightarrow':
+      return new VanillaSymbol('\\Leftrightarrow ','&hArr;');
+    case 'Re':
+    case 'Real':
+    case 'real':
+      return new VanillaSymbol('\\Re ','&real;');
+    case 'Im':
+    case 'imag':
+    case 'image':
+    case 'imagin':
+    case 'imaginary':
+    case 'Imaginary':
+      return new VanillaSymbol('\\Im ','&image;');
+    case 'part':
+    case 'partial':
+      return new VanillaSymbol('\\partial ','&part;');
+    case 'inf':
+    case 'infin':
+    case 'infty':
+    case 'infinity':
+      return new VanillaSymbol('\\infty ','&infin;');
+    case 'alef':
+    case 'alefsym':
+    case 'aleph':
+    case 'alephsym':
+      return new VanillaSymbol('\\aleph ','&alefsym;');
+    case 'xist': //LOL
+    case 'xists':
+    case 'exist':
+    case 'exists':
+      return new VanillaSymbol('\\exists ','&exist;');
+    case 'and':
+    case 'land':
+    case 'wedge':
+      return new VanillaSymbol('\\wedge ','&and;');
+    case 'or':
+    case 'lor':
+    case 'vee':
+      return new VanillaSymbol('\\vee ','&or;');
+    case 'O':
+    case 'empty':
+    case 'emptyset':
+    case 'nothing':
+    case 'varnothing':
+      return new BinaryOperator('\\O ','&empty;');
+    case 'cup':
+    case 'union':
+      return new VanillaSymbol('\\cup ','&cup;');
+    case 'cap':
+    case 'intersect':
+    case 'intersection':
+      return new VanillaSymbol('\\cap ','&cap;');
+    case 'deg':
+    case 'degree':
+      return new VanillaSymbol('^{\\circ}','&deg;');
+    case 'prime':
+      return new VanillaSymbol('\'','&prime;');
+    case 'sdot':
+    case 'cdot':
+      return new VanillaSymbol('\\cdot ', '&sdot;');
+
+    //Binary Operators
+    case 'notin':
+    case 'sim':
+    case 'equiv':
+    case 'times':
+    case 'oplus':
+    case 'otimes':
+      return new BinaryOperator('\\'+latex+' ','&'+latex+';');
+    case 'pm':
+    case 'plusmn':
+    case 'plusminus':
+      return new PlusMinus('\\pm ','&plusmn;');
+    case 'mp':
+    case 'mnplus':
+    case 'minusplus':
+      return new PlusMinus('\\mp ','&#8723;');
+    case 'div':
+    case 'divide':
+    case 'divides':
+      return new BinaryOperator('\\div ','&divide;');
+    case 'ne':
+    case 'neq':
+      return new BinaryOperator('\\'+latex+' ','&ne;');
+    case 'ast':
+    case 'loast':
+    case 'lowast':
+      return new BinaryOperator('\\ast ','&lowast;');
+    //case 'there4': // a special exception for this one, perhaps?
+    case 'therefor':
+    case 'therefore':
+      return new BinaryOperator('\\therefore ','&there4;');
+    case 'cuz': // l33t
+    case 'because':
+      return new BinaryOperator('\\because ','&#8757;');
+    case 'prop':
+    case 'propto':
+      return new BinaryOperator('\\propto ','&prop;');
+    case 'asymp':
+    case 'approx':
+      return new BinaryOperator('\\approx ','&asymp;');
+    case 'lt':
+      return new BinaryOperator('<','&lt;');
+    case 'gt':
+      return new BinaryOperator('<','&gt;');
+    case 'le':
+    case 'leq':
+      return new BinaryOperator('\\'+latex+' ','&le;');
+    case 'ge':
+    case 'geq':
+      return new BinaryOperator('\\'+latex+' ','&ge;');
+    case 'in':
+      return new BinaryOperator('\\in ','&isin;');
+    case 'ni':
+    case 'contains':
+      return new BinaryOperator('\\ni ','&ni;');
+    case 'notni':
+    case 'niton':
+    case 'notcontains':
+    case 'doesnotcontain':
+      return new BinaryOperator('\\not\\ni ','&#8716;');
+    case 'sub':
+    case 'subset':
+      return new BinaryOperator('\\subset ','&sub;');
+    case 'nsub':
+    case 'notsub':
+    case 'nsubset':
+    case 'notsubset':
+      return new BinaryOperator('\\not\\subset ','&#8836;');
+    case 'sup':
+    case 'supset':
+    case 'superset':
+      return new BinaryOperator('\\supset ','&sup;');
+    case 'nsup':
+    case 'notsup':
+    case 'nsupset':
+    case 'notsupset':
+    case 'nsuperset':
+    case 'notsuperset':
+      return new BinaryOperator('\\not\\supset ','&#8837;');
+    case 'sube':
+    case 'subeq':
+    case 'subsete':
+    case 'subseteq':
+      return new BinaryOperator('\\subseteq ','&sube;');
+    case 'nsube':
+    case 'nsubeq':
+    case 'notsube':
+    case 'notsubeq':
+    case 'nsubsete':
+    case 'nsubseteq':
+    case 'notsubsete':
+    case 'notsubseteq':
+      return new BinaryOperator('\\not\\subseteq ','&#8840;');
+    case 'supe':
+    case 'supeq':
+    case 'supsete':
+    case 'supseteq':
+      return new BinaryOperator('\\supseteq ','&supe;');
+    case 'nsupe':
+    case 'nsupeq':
+    case 'notsupe':
+    case 'notsupeq':
+    case 'nsupsete':
+    case 'nsupseteq':
+    case 'notsupsete':
+    case 'notsupseteq':
+    case 'nsupersete':
+    case 'nsuperseteq':
+    case 'notsupersete':
+    case 'notsuperseteq':
+      return new BinaryOperator('\\not\\supseteq ','&#8841;');
     default:
-      return new VanillaSymbol(latex.slice, '&'+latex+';');
+      return new VanillaSymbol(latex);
   }
 }
 

@@ -138,7 +138,7 @@ Cursor.prototype = {
     this.next = this.next.next;
     return this;
   },
-  write: function(cmd)
+  write: function(ch)
   {
     if(this.selection)
     {
@@ -146,17 +146,13 @@ Cursor.prototype = {
       this.next = this.selection.next;
     }
 
-    if(cmd.match(/[a-z]/i))
-      cmd = new Variable(cmd);
-    else if(cmd.match(/\d/))
-      cmd = new VanillaSymbol(cmd);
-    else if(cmd = SingleCharacterCommands[cmd])
+    var cmd;
+    if(ch.match(/[a-z]/i))
+      cmd = new Variable(ch);
+    else if(cmd = SingleCharacterCommands[ch])
       cmd = cmd(this.selection);
     else
-    {
-      todo();
-      return {show: $.noop};
-    }
+      cmd = new VanillaSymbol(ch);
 
     if(this.selection)
     {
