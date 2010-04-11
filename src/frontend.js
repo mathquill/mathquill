@@ -454,12 +454,18 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 13: //enter
       return e.ctrlKey; //ignore unless Ctrl
     case 35: //end
-      //move to the end of the root block or the current block.
-      this.cursor.clearSelection().appendTo(e.ctrlKey ? root : this.cursor.parent);
+      if(e.shiftKey)
+        while(this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
+          this.cursor.selectRight();
+      else //move to the end of the root block or the current block.
+        this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
       return false;
     case 36: //home
-      //move to the start of the root block or the current block.
-      this.cursor.clearSelection().prependTo(e.ctrlKey ? root : this.cursor.parent);
+      if(e.shiftKey)
+        while(this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent))
+          this.cursor.selectLeft();
+      else //move to the start of the root block or the current block.
+        this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
       return false;
     case 37: //left
       if(e.ctrlKey)
@@ -472,10 +478,13 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 38: //up
       if(e.ctrlKey)
         return true;
-      if(this.cursor.parent.prev)
-        this.cursor.appendTo(this.cursor.parent.prev);
+      if(e.shiftKey)
+        while(this.cursor.prev)
+          this.cursor.selectLeft();
+      else if(this.cursor.parent.prev)
+        this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
       else
-        this.cursor.prependTo(this.cursor.parent);
+        this.cursor.clearSelection().prependTo(this.cursor.parent);
       return false;
     case 39: //right
       if(e.ctrlKey)
@@ -488,10 +497,13 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 40: //down
       if(e.ctrlKey)
         return true;
-      if(this.cursor.parent.next)
-        this.cursor.prependTo(this.cursor.parent.next);
+      if(e.shiftKey)
+        while(this.cursor.next)
+          this.cursor.selectRight();
+      else if(this.cursor.parent.next)
+        this.cursor.clearSelection().prependTo(this.cursor.parent.next);
       else
-        this.cursor.appendTo(this.cursor.parent);
+        this.cursor.clearSelection().appendTo(this.cursor.parent);
       return false;
     case 46: //delete
       if(e.ctrlKey)
