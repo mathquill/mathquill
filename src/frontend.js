@@ -412,6 +412,7 @@ Selection.prototype = $.extend(new MathFragment, {
 
 function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
+  skipKeypress: false,
   keydown: function(e)
   {
     e.ctrlKey = e.ctrlKey || e.metaKey;
@@ -433,7 +434,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
       {
         if(!gramp) //cursor is in the root, continue default
-          return true;
+          return this.skipKeypress = true;
         else if(parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
@@ -442,7 +443,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       else //plain Tab = go one block right if it exists, else escape right.
       {
         if(!gramp) //cursor is in the root, continue default
-          return true;
+          return this.skipKeypress = true;
         else if(parent.next) //go one block right
           this.cursor.prependTo(parent.next);
         else //get out of the block
@@ -505,7 +506,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey)
+    if(e.ctrlKey || e.metaKey || (this.skipKeypress && !(this.skipKeypress = false)))
       return true;
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
