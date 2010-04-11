@@ -13,9 +13,10 @@ jQuery.fn.mathquill = (function($){ //takes in the jQuery function as an argumen
 $('head').append('<link rel="stylesheet" type="text/css" href="http://laughinghan.github.com/mathquill/mathquill.css">');
 
 var noop = function(){ return this; }, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
-/**
+
+/**********************************************************
  * Back-end code: Core abstract classes and architecture.
- */
+ *********************************************************/
 
 var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
@@ -269,9 +270,10 @@ MathFragment.prototype = {
     return this;
   },
 };
-/**
+
+/********************************************
  * All the symbols, operators and commands.
- */
+ *******************************************/
 
 function VanillaSymbol(ch, html) 
 {
@@ -563,9 +565,10 @@ function createLatexCommand(latex, replacedFragment)
       return new VanillaSymbol(latex.slice, '&'+latex+';');
   }
 }
-/**
+
+/**********************************************************************
  * Front-end code: Event-handling, HTML DOM manipulation (via jQuery)
- */
+ *********************************************************************/
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
@@ -1153,6 +1156,7 @@ function mathquill(tabindex)
     ).focus();
   });
 };
+
 //on document ready, replace the contents of all <tag class="mathquill-embedded-math"></tag> elements
 //with root MathBlock's.
 $(function(){
