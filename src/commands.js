@@ -134,7 +134,10 @@ CloseParen.prototype.placeCursor = function(cursor)
   if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
+  {
     cursor.insertAfter(this);
+    this.firstChild.setEmpty();
+  }
 };
 function Pipes(replacedFragment)
 {
