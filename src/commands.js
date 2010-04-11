@@ -1,6 +1,6 @@
-/**
+/********************************************
  * All the symbols, operators and commands.
- */
+ *******************************************/
 
 function VanillaSymbol(ch, html) 
 {
@@ -292,3 +292,4 @@ function createLatexCommand(latex, replacedFragment)
       return new VanillaSymbol(latex.slice, '&'+latex+';');
   }
 }
+

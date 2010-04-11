@@ -1,6 +1,6 @@
-/**
+/**********************************************************************
  * Front-end code: Event-handling, HTML DOM manipulation (via jQuery)
- */
+ *********************************************************************/
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(block)
@@ -588,3 +588,4 @@ function mathquill(tabindex)
     ).focus();
   });
 };
+

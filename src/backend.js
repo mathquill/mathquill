@@ -1,6 +1,6 @@
-/**
+/**********************************************************
  * Back-end code: Core abstract classes and architecture.
- */
+ *********************************************************/
 
 var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
@@ -254,3 +254,4 @@ MathFragment.prototype = {
     return this;
   },
 };
+
