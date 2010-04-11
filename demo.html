@@ -5,6 +5,40 @@
     <link rel="stylesheet" type="text/css" href="mathquill.css" />
     <script type="text/javascript" src="vendor/jquery.min.js"></script>
     <script type="text/javascript" src="build/mathquill.js"></script>
+    <script type="text/javascript">
+      var LatexImages = false;
+      $(function(){
+        var editingSource = false, latexMath = $('#editable-math').change(function()
+        {
+          var latex = $(this).mathquill('latex');
+          //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
+          if(!editingSource)
+            $('#latex-source').val(latex);
+          if(!LatexImages)
+            return;
+          latex = encodeURIComponent(latex);
+          $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).next().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
+        });
+        if(location.hash && location.hash.length > 1){
+          latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1)));
+          latexMath.cursor.appendTo(latexMath);
+        }
+        $('#latex-source').focus(function(){
+          editingSource = true;
+        }).blur(function(){
+          editingSource = false;
+        }).keydown(function()
+        {
+          var textarea = $(this), oldtext = textarea.val();
+          setTimeout(function()
+          {
+            var newtext = textarea.val();
+            if(newtext != oldtext)
+              latexMath.mathquill('latex', newtext);
+          },0);
+        });
+      });
+    </script>
     <style type="text/css">
       body{
         width:6.5in;
@@ -14,6 +48,11 @@
       span#math, span.latexlive-embedded-math{
         font-family:"Courier New",sans-serif;
       }
+      img#codecogs{
+        vertical-align:middle;
+        text-decoration: none;
+        outline: none;
+      }
     </style>
   </head>
   <body>
@@ -21,5 +60,8 @@
     <p>by Jay and Han</p>
     <p>This gets automatically turned into pretty math: <span class="mathquill-embedded-math">e^{i\pi}+1=0</span></p>
     <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span id="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p>
+    <!--p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math">&nbsp;&nbsp;</span></p>
+    <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
+    <p><button onclick="LatexImages = true; $('#editable-math').change()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p-->
   </body>
 </html>
