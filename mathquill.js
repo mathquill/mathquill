@@ -392,6 +392,36 @@ Paren.prototype = $.extend(new MathCommand, {
     return this.cmd + this.firstChild.latex() + this.end;
   },
 });
+// Closing parens/brackets/braces matching Parens/Brackets/Braces above
+function CloseParen(open, close, replacedFragment)
+{
+  Paren.call(this, open, close, replacedFragment);
+}
+CloseParen.prototype = new Paren;
+CloseParen.prototype.placeCursor = function(cursor)
+{
+  //if I'm at the end of my parent who is a matching open-paren, and I was not passed
+  //  a selection fragment, get rid of me and put cursor after my parent
+  if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+  {
+    cursor.insertAfter(this);
+    this.firstChild.setEmpty();
+  }
+};
+function Pipes(replacedFragment)
+{
+  Paren.call(this, '|', '|', replacedFragment);
+}
+Pipes.prototype = new Paren;
+Pipes.prototype.placeCursor = function(cursor)
+{
+  if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+    cursor.backspace().insertAfter(this.parent.parent);
+  else
+    cursor.prependTo(this.firstChild);
+};
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment)
@@ -499,7 +529,10 @@ var SingleCharacterCommands = {
   '(': function(replacedFragment){ return new Paren('(', ')', replacedFragment); },
   '[': function(replacedFragment){ return new Paren('[', ']', replacedFragment); },
   '{': function(replacedFragment){ return new Paren('{', '}', replacedFragment); },
-  '|': function(replacedFragment){ return new Paren('|', '|', replacedFragment); },
+  ')': function(replacedFragment){ return new CloseParen('(', ')', replacedFragment); },
+  ']': function(replacedFragment){ return new CloseParen('[', ']', replacedFragment); },
+  '}': function(replacedFragment){ return new CloseParen('{', '}', replacedFragment); },
+  '|': function(replacedFragment){ return new Pipes(replacedFragment); },
   '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
 };
 
@@ -944,6 +977,7 @@ Selection.prototype = $.extend(new MathFragment, {
 
 function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
+  skipKeypress: false,
   keydown: function(e)
   {
     e.ctrlKey = e.ctrlKey || e.metaKey;
@@ -965,7 +999,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.shiftKey) //shift+Tab = go one block left if it exists, else escape left.
       {
         if(!gramp) //cursor is in the root, continue default
-          return true;
+          return this.skipKeypress = true;
         else if(parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
@@ -974,7 +1008,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       else //plain Tab = go one block right if it exists, else escape right.
       {
         if(!gramp) //cursor is in the root, continue default
-          return true;
+          return this.skipKeypress = true;
         else if(parent.next) //go one block right
           this.cursor.prependTo(parent.next);
         else //get out of the block
@@ -1037,7 +1071,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey)
+    if(e.ctrlKey || e.metaKey || (this.skipKeypress && !(this.skipKeypress = false)))
       return true;
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
