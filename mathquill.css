@@ -63,7 +63,7 @@
 }
 
 .mathquill-rendered-math .empty {
-  color: darkgray;
+  color: silver;
 }
 .mathquill-rendered-math.empty {
   cursor: text;
@@ -86,11 +86,11 @@
 }
 
 .mathquill-rendered-math .binary-operator {
-  padding: 0 .3em;
+  padding: 0 .2em;
 }
 
 .mathquill-rendered-math .unary-operator {
-  padding-left: .3em;
+  padding-left: .2em;
 }
 
 .mathquill-rendered-math .fraction {
@@ -104,7 +104,7 @@
 }
 .mathquill-rendered-math .numerator {
   border-bottom: solid #222 1px; /* black is too black, contrasts with antialised text */
-  padding: 0 .2em;
+  padding: 0 .1em;
 }
 .mathquill-rendered-math .denominator {
   border-top: solid #222 1px;
