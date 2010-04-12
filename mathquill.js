@@ -180,7 +180,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     {
       this.jQ.addClass('empty');
       if(this.parent)
-        this.jQ.html('[ ]');
+        this.jQ.html('&empty;');
     }
     return this;
   },
