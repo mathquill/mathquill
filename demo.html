@@ -12,7 +12,8 @@
           var latex = $(this).mathquill('latex');
           //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
           if(!editingSource)
-            $('#latex-source').val(latex);
+            //$('#latex-source').val(latex);
+            $('#latex-source').text(latex);
           if(!LatexImages)
             return;
           latex = encodeURIComponent(latex);
@@ -55,12 +56,12 @@
     </style>
   </head>
   <body>
-    <h2>MathQuill 0.2&alpha;</h2>
-    <p>by Jay and Han</p>
+    <h2><a href="http://laughinghan.github.com/mathquill">MathQuill 0.2&alpha;</a></h2>
+    <p>by Jay and <a href="http://github.com/laughinghan">Han (laughinghan)</a></p>
     <!--p>This gets automatically turned into pretty math: <span class="math mathquill-embedded-math">e^{i\pi}+1=0</span></p>
     <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p-->
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math"></span></p>
-    <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
+    <p>Latex source: <span id="latex-source" class="math"></span><!--textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p-->
     <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p>
   </body>
 </html>
