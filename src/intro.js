@@ -1,10 +1,11 @@
 /**
 * Usage:
 * $(thing).mathquill();
-* turns thing into a live editable thingy.
+* turns thing into a live editable math thingy.
 * AMAZORZ.
 *
-* Note: doesn't actually work.
+* Note: turning into a live editable math thingmajiggie works, but
+* any LaTeX math in it won't be rendered.
 *
 */
 

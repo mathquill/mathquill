@@ -8,7 +8,7 @@ All you need is a script include in your header:
 
 and wherever you'd like to convert LaTeX math to HTML or embed an editable math-textbox:
 
-@<span class="mathquill-embedded-math">[optional LaTeX source]</span>@
+@<span class="mathquill-embedded-math">[optional LaTeX math]</span>@
 
 Note that for dynamically created elements, you will need to call our jQuery plugin:
 
