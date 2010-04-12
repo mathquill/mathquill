@@ -17,7 +17,7 @@
           if(!LatexImages)
             return;
           latex = encodeURIComponent(latex);
-          $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).next().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
+          $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).parent().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
         });
         if(location.hash && location.hash.length > 1){
           latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1)));
@@ -45,7 +45,7 @@
         margin:0 auto;
         font-family:"Times New Roman",serif;
       }
-      span#math, span.latexlive-embedded-math{
+      span.math{
         font-family:"Courier New",sans-serif;
       }
       img#codecogs{
@@ -58,10 +58,10 @@
   <body>
     <h2>MathQuill 0.2&alpha;</h2>
     <p>by Jay and Han</p>
-    <p>This gets automatically turned into pretty math: <span class="mathquill-embedded-math">e^{i\pi}+1=0</span></p>
-    <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span id="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p>
-    <!--p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math">&nbsp;&nbsp;</span></p>
+    <!--p>This gets automatically turned into pretty math: <span class="math mathquill-embedded-math">e^{i\pi}+1=0</span></p>
+    <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p-->
+    <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math"></span></p>
     <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
-    <p><button onclick="LatexImages = true; $('#editable-math').change()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p-->
+    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p>
   </body>
 </html>

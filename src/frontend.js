@@ -408,6 +408,10 @@ Selection.prototype = $.extend(new MathFragment, {
 
 function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
+  latex: function()
+  {
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+  },
   skipKeypress: false,
   keydown: function(e)
   {
@@ -523,15 +527,26 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
-function mathquill(tabindex)
+function mathquill(editable, tabindex)
 {
+  if(editable === 'latex')
+  {
+    var mathObj = this.data('[[mathquill internal data]]');
+    if(mathObj && mathObj.block)
+      return mathObj.block.latex();
+    return this;
+  }
+
+  editable = editable === 'editable';
   if(!(typeof tabindex === 'function'))
     var i = tabindex || 0, tabindex = function(){ return i; };
 
   return this.each(function()
   {
     var root = new RootMathBlock;
-    root.jQ = $('<span class="mathquill-editable-math mathquill-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[mathquill internal data]]', {block: root}).replaceAll(this);
+    root.jQ = $(this).addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {block: root});
+    if(editable)
+      root.jQ.addClass('mathquill-editable-math').attr('tabindex', tabindex.apply(this, arguments));
 
     var cursor = root.cursor = new Cursor(root);
 

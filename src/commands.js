@@ -99,14 +99,14 @@ LiveFraction.prototype.placeCursor = function(cursor)
 // Parens/Brackets/Braces etc
 function Paren(open, close, replacedFragment)
 {
-  MathCommand.call(this, open,
+  MathCommand.call(this, '\\left'+open,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     replacedFragment);
-  this.end = close;
+  this.end = '\\right'+close;
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)+2)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/+block.css('fontSize').slice(0,-2)+2)+'em');
   });
 }
 Paren.prototype = $.extend(new MathCommand, {
