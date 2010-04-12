@@ -18,10 +18,10 @@ all:
 	@@echo 'Done.'
 
 gitsync:
-	@@echo ${shell ./gitsync.sh}
+	@@${shell ./gitsync.sh}
 
 publish:
-	@@echo ${shell ./publish.sh}
+	@@${shell ./publish.sh}
 
 lol:
 	@@echo "LOL!"

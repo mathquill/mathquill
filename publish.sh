@@ -15,4 +15,3 @@ rm build/mathquill.css
 git commit -a -m "publish new mathquill.js"
 git push
 git checkout $branch
-echo '\n'
