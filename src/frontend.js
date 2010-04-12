@@ -561,7 +561,7 @@ function mathquill(tabindex)
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
+        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
         return false;
       }
       var cmd = clicked.data('[[mathquill internal data]]');
