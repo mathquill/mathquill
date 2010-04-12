@@ -374,14 +374,14 @@ LiveFraction.prototype.placeCursor = function(cursor)
 // Parens/Brackets/Braces etc
 function Paren(open, close, replacedFragment)
 {
-  MathCommand.call(this, open,
+  MathCommand.call(this, '\\left'+open,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     replacedFragment);
-  this.end = close;
+  this.end = '\\right'+close;
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)+2)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
   });
 }
 Paren.prototype = $.extend(new MathCommand, {
@@ -1315,6 +1315,10 @@ Selection.prototype = $.extend(new MathFragment, {
 
 function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
+  latex: function()
+  {
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+  },
   skipKeypress: false,
   keydown: function(e)
   {
@@ -1382,12 +1386,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
-        while(this.cursor.prev)
+        if(this.cursor.prev)
+          while(this.cursor.prev)
+            this.cursor.selectLeft();
+        else
           this.cursor.selectLeft();
       else if(this.cursor.parent.prev)
         this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      else
+      else if(this.cursor.prev)
         this.cursor.clearSelection().prependTo(this.cursor.parent);
+      else if(this.cursor.parent.parent)
+        this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
       return false;
     case 39: //right
       if(e.ctrlKey)
@@ -1401,12 +1410,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
-        while(this.cursor.next)
+        if(this.cursor.next)
+          while(this.cursor.next)
+            this.cursor.selectRight();
+        else
           this.cursor.selectRight();
       else if(this.cursor.parent.next)
         this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      else
+      else if(this.cursor.next)
         this.cursor.clearSelection().appendTo(this.cursor.parent);
+      else if(this.cursor.parent.parent)
+        this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
       return false;
     case 46: //delete
       if(e.ctrlKey)
@@ -1430,15 +1444,26 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
-function mathquill(tabindex)
+function mathquill(editable, tabindex)
 {
+  if(editable === 'latex')
+  {
+    var mathObj = this.data('[[mathquill internal data]]');
+    if(mathObj && mathObj.block)
+      return mathObj.block.latex();
+    return this;
+  }
+
+  editable = editable === 'editable';
   if(!(typeof tabindex === 'function'))
     var i = tabindex || 0, tabindex = function(){ return i; };
 
   return this.each(function()
   {
     var root = new RootMathBlock;
-    root.jQ = $('<span class="mathquill-editable-math mathquill-rendered-math" tabindex="'+tabindex.apply(this,arguments)+'"></span>').data('[[mathquill internal data]]', {block: root}).replaceAll(this);
+    root.jQ = $(this).addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {block: root});
+    if(editable)
+      root.jQ.addClass('mathquill-editable-math').attr('tabindex', tabindex.apply(this, arguments));
 
     var cursor = root.cursor = new Cursor(root);
 
@@ -1504,10 +1529,11 @@ function mathquill(tabindex)
   });
 };
 
-//on document ready, replace the contents of all <tag class="mathquill-embedded-math"></tag> elements
-//with root MathBlock's.
+//on document ready, transmogrify all <tag class="mathquill-embedded-math"></tag> elements to
+//  possibly editable mathquill elements.
 $(function(){
-  $('.mathquill-embedded-math').mathquill();
+  //$('.mathquill-embedded-math').mathquill(); //LaTeX parsing doesn't work yet, so this is useless
+  $('.mathquill-editable-math').mathquill('editable');
 });
 
 return mathquill;

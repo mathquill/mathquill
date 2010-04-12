@@ -82,7 +82,7 @@
   vertical-align: .5em;
 }
 .mathquill-rendered-math sub {
-  vertical-align: -.5em;
+  vertical-align: -.4em;
 }
 
 .mathquill-rendered-math .binary-operator {
