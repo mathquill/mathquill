@@ -479,12 +479,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
-        while(this.cursor.prev)
+        if(this.cursor.prev)
+          while(this.cursor.prev)
+            this.cursor.selectLeft();
+        else
           this.cursor.selectLeft();
       else if(this.cursor.parent.prev)
         this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      else
+      else if(this.cursor.prev)
         this.cursor.clearSelection().prependTo(this.cursor.parent);
+      else if(this.cursor.parent.parent)
+        this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
       return false;
     case 39: //right
       if(e.ctrlKey)
@@ -498,12 +503,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
-        while(this.cursor.next)
+        if(this.cursor.next)
+          while(this.cursor.next)
+            this.cursor.selectRight();
+        else
           this.cursor.selectRight();
       else if(this.cursor.parent.next)
         this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      else
+      else if(this.cursor.next)
         this.cursor.clearSelection().appendTo(this.cursor.parent);
+      else if(this.cursor.parent.parent)
+        this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
       return false;
     case 46: //delete
       if(e.ctrlKey)
