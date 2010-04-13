@@ -414,6 +414,21 @@ CloseParen.prototype.placeCursor = function(cursor)
     this.firstChild.setEmpty().jQ.change();
   }
 };
+function Brace(replacedFragment)
+{
+  Paren.call(this, '{', '}', replacedFragment);
+}
+Brace.prototype = new Paren;
+Brace.prototype.latex = function()
+{
+  return '\\left\\{' + this.firstChild.latex() + '\\right\\}';
+};
+function CloseBrace(replacedFragment)
+{
+  CloseParen.call(this, '{', '}', replacedFragment);
+}
+CloseBrace.prototype = new CloseParen;
+CloseBrace.prototype.latex = Brace.prototype.latex;
 function Pipes(replacedFragment)
 {
   Paren.call(this, '|', '|', replacedFragment);
@@ -532,10 +547,10 @@ var SingleCharacterCommands = {
   '/': function(replacedFragment){ return new LiveFraction(replacedFragment); },
   '(': function(replacedFragment){ return new Paren('(', ')', replacedFragment); },
   '[': function(replacedFragment){ return new Paren('[', ']', replacedFragment); },
-  '{': function(replacedFragment){ return new Paren('{', '}', replacedFragment); },
+  '{': function(replacedFragment){ return new Brace(replacedFragment); },
   ')': function(replacedFragment){ return new CloseParen('(', ')', replacedFragment); },
   ']': function(replacedFragment){ return new CloseParen('[', ']', replacedFragment); },
-  '}': function(replacedFragment){ return new CloseParen('{', '}', replacedFragment); },
+  '}': function(replacedFragment){ return new CloseBrace(replacedFragment); },
   '|': function(replacedFragment){ return new Pipes(replacedFragment); },
   '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
 };
