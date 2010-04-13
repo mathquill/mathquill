@@ -295,12 +295,13 @@ function createLatexCommand(latex, replacedFragment)
 
   /*** Symbols and Special Characters ***/
 
+  //the following are all greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
+
   //lowercase greek letter variables
   case 'alpha':
   case 'beta':
   case 'gamma':
   case 'delta':
-  case 'epsilon':
   case 'zeta':
   case 'eta':
   case 'theta':
@@ -310,21 +311,57 @@ function createLatexCommand(latex, replacedFragment)
   case 'nu':
   case 'xi':
   case 'omicron':
-  case 'rho ':
+  case 'rho':
   case 'sigma':
-  case 'sigmaf':
   case 'tau':
   case 'upsilon':
   case 'chi':
   case 'psi':
   case 'omega':
     return new Variable('\\'+latex+' ','&'+latex+';');
-  case 'phi': //don't ask me why the W3C defined &phi; to be the wrong one
-              //  or why there are even two in the first place
+
+  //why can't anybody FUCKING agree on these
+  case 'phi': //W3C or Unicode?
     return new Variable('\\phi ','&#981;');
-  case 'varphi':
-  case 'variantphi':
+  case 'phiv': //Elsevier and 9573-13
+  case 'varphi': //AMS and LaTeX
     return new Variable('\\varphi ','&phi;');
+  case 'epsilon': //W3C or Unicode?
+    return new Variable('\\epsilon ','&#1013;');
+  case 'epsiv': //Elsevier and 9573-13
+  case 'varepsilon': //AMS and LaTeX
+    return new Variable('\\varepsilon ','&epsilon;');
+  case 'sigmaf': //W3C/Unicode
+  case 'sigmav': //Elsevier
+  case 'varsigma': //LaTeX
+    return new Variable('\\varsigma ','&sigmaf;');
+
+  //these aren't even mentioned in the HTML character entity references
+  case 'gammad': //Elsevier
+  case 'Gammad': //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
+  case 'digamma': //LaTeX
+    return new Variable('\\digamma ','&#989;');
+  case 'kappav': //Elsevier
+  case 'varkappa': //AMS and LaTeX
+    return new Variable('\\varkappa ','&#1008;');
+  case 'piv': //Elsevier and 9573-13
+  case 'varpi': //AMS and LaTeX
+    return new Variable('\\varpi ','&#982;');
+  case 'rhov': //Elsevier and 9573-13
+  case 'varrho': //AMS and LaTeX
+    return new Variable('\\varrho ','&#1009;');
+  case 'thetav': //Elsevier and 9573-13
+  case 'vartheta': //AMS and LaTeX
+    return new Variable('\\vartheta ','&#977;');
+  case '':
+    return new Variable('\\ ','&#;');
+  case '':
+    return new Variable('\\ ','&#;');
+  case '':
+    return new Variable('\\ ','&#;');
+  case '':
+    return new Variable('\\ ','&#;');
+
   //greek letter constants, uppercase greek letters,
   case 'pi':
   case 'lambda':
@@ -335,21 +372,27 @@ function createLatexCommand(latex, replacedFragment)
   case 'Xi':
   case 'Pi':
   case 'Sigma':
+  case 'Upsilon':
   case 'Phi':
   case 'Psi':
   case 'Omega':
+
   //other symbols with the same LaTeX command and HTML character entity reference
   case 'int':
   case 'perp':
   case 'forall':
   case 'sum':
     return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
+
+  //product and coproduct, goes together with sum
   case 'prod':
   case 'product':
     return new VanillaSymbol('\\prod ','&prod;');
   case 'coprod':
   case 'coproduct':
     return new VanillaSymbol('\\coprod ','&#8720;');
+
+  //the canonical sets of numbers
   case 'N':
   case 'naturals':
   case 'Naturals':
@@ -373,16 +416,14 @@ function createLatexCommand(latex, replacedFragment)
   case 'C':
   case 'complex':
   case 'Complex':
+  case 'complexes':
+  case 'Complexes':
   case 'complexplane':
   case 'Complexplane':
   case 'ComplexPlane':
     return new VanillaSymbol('\\mathbb{C}','&#8450;');
-  case 'setminus':
-    return new VanillaSymbol('\\','&#8726;');
-  case 'not':
-    //return new Symbol('\\not ','<span class="not">/</span>');
-  case 'neg':
-    return new VanillaSymbol('\\neg ','&not;');
+
+  //spacing
   case 'quad':
   case 'emsp':
     return new VanillaSymbol('\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
@@ -398,6 +439,14 @@ function createLatexCommand(latex, replacedFragment)
   case '!':
     return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
   */
+
+  //various symbols
+  case 'setminus':
+    return new VanillaSymbol('\\','&#8726;');
+  case 'not':
+    //return new Symbol('\\not ','<span class="not">/</span>');
+  case 'neg':
+    return new VanillaSymbol('\\neg ','&not;');
   case 'dots':
   case 'ellip':
   case 'hellip':
