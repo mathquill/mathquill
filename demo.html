@@ -49,14 +49,9 @@
       span.math{
         font-family:"Courier New",sans-serif;
       }
-      a#codecogslink{
-        text-decoration: none;
-      }
-      a#codecogslink:link span,a#codecogslink:visited span{
-        text-decoration: underline;
-      }
       img#codecogs{
         vertical-align:middle;
+        text-decoration: none;
         outline: none;
       }
     </style>
@@ -67,7 +62,8 @@
     <!--p>This gets automatically turned into pretty math: <span class="math mathquill-embedded-math">e^{i\pi}+1=0</span></p>
     <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p-->
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math"></span></p>
+    <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('less &laquo;').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
     <p>Latex source: <span id="latex-source" class="math"></span><!--textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p-->
-    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs"> <span>Link</span></a></p>
+    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p>
   </body>
 </html>
