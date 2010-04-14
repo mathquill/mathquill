@@ -668,8 +668,8 @@ function createLatexCommand(latex, replacedFragment)
   case 'Omega':
 
   //other symbols with the same LaTeX command and HTML character entity reference
-  case 'int':
   case 'perp':
+  case 'nabla':
   case 'forall':
   case 'sum':
     return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
@@ -681,6 +681,11 @@ function createLatexCommand(latex, replacedFragment)
   case 'coprod':
   case 'coproduct':
     return new VanillaSymbol('\\coprod ','&#8720;');
+
+  //integral
+  case 'int':
+  case 'integral':
+    return new VanillaSymbol('\\int ','&int;');
 
   //the canonical sets of numbers
   case 'N':
@@ -731,8 +736,16 @@ function createLatexCommand(latex, replacedFragment)
   */
 
   //various symbols
+  case 'ring':
+  case 'circ':
+  case 'circle':
+    return new VanillaSymbol('\\circ ','&#8728;');
+  case 'bull':
+  case 'bullet':
+    return new VanillaSymbol('\\bullet ','&bull;');
   case 'setminus':
-    return new VanillaSymbol('\\','&#8726;');
+  case 'smallsetminus':
+    return new VanillaSymbol('\\setminus ','&#8726;');
   case 'not':
     //return new Symbol('\\not ','<span class="not">/</span>');
   case 'neg':
@@ -828,9 +841,12 @@ function createLatexCommand(latex, replacedFragment)
   case 'lor':
   case 'vee':
     return new VanillaSymbol('\\vee ','&or;');
+  case 'o':
   case 'O':
   case 'empty':
   case 'emptyset':
+  case 'oslash':
+  case 'Oslash':
   case 'nothing':
   case 'varnothing':
     return new BinaryOperator('\\varnothing ','&empty;');
@@ -843,7 +859,7 @@ function createLatexCommand(latex, replacedFragment)
     return new VanillaSymbol('\\cap ','&cap;');
   case 'deg':
   case 'degree':
-    return new VanillaSymbol('^{\\circ}','&deg;');
+    return new VanillaSymbol('^\\circ ','&deg;');
   case 'ang':
   case 'angle':
     return new VanillaSymbol('\\angle ','&ang;');
@@ -904,6 +920,7 @@ function createLatexCommand(latex, replacedFragment)
   case 'geq':
     return new BinaryOperator('\\'+latex+' ','&ge;');
   case 'in':
+  case 'isin':
     return new BinaryOperator('\\in ','&isin;');
   case 'ni':
   case 'contains':
