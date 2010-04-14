@@ -393,7 +393,6 @@ function createLatexCommand(latex, replacedFragment)
   case 'Omega':
 
   //other symbols with the same LaTeX command and HTML character entity reference
-  case 'int':
   case 'perp':
   case 'nabla':
   case 'forall':
@@ -407,6 +406,11 @@ function createLatexCommand(latex, replacedFragment)
   case 'coprod':
   case 'coproduct':
     return new VanillaSymbol('\\coprod ','&#8720;');
+
+  //integral
+  case 'int':
+  case 'integral':
+    return new VanillaSymbol('\\int ','&int;');
 
   //the canonical sets of numbers
   case 'N':
@@ -457,8 +461,16 @@ function createLatexCommand(latex, replacedFragment)
   */
 
   //various symbols
+  case 'ring':
+  case 'circ':
+  case 'circle':
+    return new VanillaSymbol('\\circ ','&#8728;');
+  case 'bull':
+  case 'bullet':
+    return new VanillaSymbol('\\bullet ','&bull;');
   case 'setminus':
-    return new VanillaSymbol('\\','&#8726;');
+  case 'smallsetminus':
+    return new VanillaSymbol('\\setminus ','&#8726;');
   case 'not':
     //return new Symbol('\\not ','<span class="not">/</span>');
   case 'neg':
