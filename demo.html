@@ -49,9 +49,14 @@
       span.math{
         font-family:"Courier New",sans-serif;
       }
+      a#codecogslink{
+        text-decoration: none;
+      }
+      a#codecogslink:link span,a#codecogslink:visited span{
+        text-decoration: underline;
+      }
       img#codecogs{
         vertical-align:middle;
-        text-decoration: none;
         outline: none;
       }
     </style>
@@ -63,6 +68,6 @@
     <p><button onclick="$(this).next().mathquill();">$(this).next().mathquill()</button> <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p-->
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable-math"></span></p>
     <p>Latex source: <span id="latex-source" class="math"></span><!--textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p-->
-    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a><img id="codecogs"> Link</a></p>
+    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs"> <span>Link</span></a></p>
   </body>
 </html>
