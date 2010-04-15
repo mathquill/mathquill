@@ -27,13 +27,14 @@ All the CSS is in mathquill.css.
    and the choice of utility methods of the nodes in the tree.
 #* Some of the initialization code is a bit obscure, don't worry about it.
 
-# With that in mind, you can skip to the tree traversal and manipulation in frontend.js.
-## Start with RootMathBlock.prototype.keydown(),
-##* notice how varies keystrokes, such as arrow keys, map to methods of Cursor
+# With that in mind, you can now understand Cursor's tree traversal and manipulation methods in frontend.js.
+## Before you dig in to Cursor.prototype, take peek at RootMathBlock.prototype.keydown()
+##* ignore the arcane logic and find calls to Cursor's methods where it's blatantly obvious
+    what they're supposed to do, such as .moveLeft() when the left key is pressed
 ##* don't worry about the abstraction layer between our keydown and keypress
     event handling system and jQuery's (which corresponds much more closely to
     the actual HTML DOM's) until later. (See the Wiki page "Keybard Events".)
-## after that, you can take a peek at Cursor's Math DOM tree traversal and manipulation methods.
+## after that, you can read through Cursor's Math DOM tree traversal and manipulation methods.
 ##* they pretty much just do what they say on the tin
 ##* after seeing how they're called (in RootMathBlock.prototype.keydown()) it
     should be pretty obvious what each of them are supposed to do
