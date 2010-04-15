@@ -22,24 +22,24 @@ All the JavaScript that you actually want to read is in src/, build/ just contai
 
 All the CSS is in mathquill.css.
 
-1. To get a general idea of our program model, you want to start by skimming backend.js.
-    * What you want to pay attention to is the structure of the Math DOM tree,
-        and the choice of utility methods of the nodes in the tree.
-    * Some of the initialization code is a bit obscure, don't worry about it.
+# To get a general idea of our program model, you want to start by skimming backend.js.
+#* What you want to pay attention to is the structure of the Math DOM tree,
+   and the choice of utility methods of the nodes in the tree.
+#* Some of the initialization code is a bit obscure, don't worry about it.
 
-2. With that in mind, you can skip to the tree traversal and manipulation in frontend.js.
-    1. Start with RootMathBlock.prototype.keydown(),
-        * notice how varies keystrokes, such as arrow keys, map to methods of Cursor
-        * don't worry about the abstraction layer between our keydown and keypress
-          event handling system and jQuery's (which corresponds much more closely to
-          the actual HTML DOM's) until later. (See the Wiki page "Keybard Events".)
-    2. after that, you can take a peek at Cursor's Math DOM tree traversal and manipulation methods.
-        * they pretty much just do what they say on the tin
-        * after seeing how they're called (in RootMathBlock.prototype.keydown()) it
-          should be pretty obvious what each of them are supposed to do
-    3. Now check out how RootMathBlock.prototype.keypress() calls Cursor.prototype.write()
-        * and how that calls Cursor.prototype.insertNew()
-        * and what Cursor.prototype.insertNew() does to commands and the tree.
+# With that in mind, you can skip to the tree traversal and manipulation in frontend.js.
+## Start with RootMathBlock.prototype.keydown(),
+##* notice how varies keystrokes, such as arrow keys, map to methods of Cursor
+##* don't worry about the abstraction layer between our keydown and keypress
+    event handling system and jQuery's (which corresponds much more closely to
+    the actual HTML DOM's) until later. (See the Wiki page "Keybard Events".)
+## after that, you can take a peek at Cursor's Math DOM tree traversal and manipulation methods.
+##* they pretty much just do what they say on the tin
+##* after seeing how they're called (in RootMathBlock.prototype.keydown()) it
+    should be pretty obvious what each of them are supposed to do
+## Now check out how RootMathBlock.prototype.keypress() calls Cursor.prototype.write()
+##* and how that calls Cursor.prototype.insertNew()
+##* and what Cursor.prototype.insertNew() does to commands and the tree.
 
 3. Once you've seen what the Math DOM tree is supposed to be like, how we traverse and
     manipulate it, and how commands are created and inserted, you can read through commands.js
