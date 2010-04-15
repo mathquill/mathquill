@@ -18,7 +18,7 @@ Note that for dynamically created elements, you will need to call our jQuery plu
 `$('<some set of dynamically created elements>').mathquill();`
 
 Understanding The Code
-______________________
+----------------------
 
 All the JavaScript that you actually want to read is in src/, build/ just contains a cat'ed (and eventually, minified) version of all that.
 
