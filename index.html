@@ -24,6 +24,7 @@ small {
 }
 code {
   font-style: "Courier New";
+  font-size: 100%;
 }
 a {
   color: mediumblue;
@@ -53,9 +54,13 @@ a:focus {
 
 <code>&lt;script src=&quot;http://laughinghan.github.com/mathquill/mathquill.js&quot;&gt;&lt;/script&gt;</code>
 
-<p>and wherever you&rsquo;d like to convert LaTeX math to HTML or embed an editable math-textbox:</p>
+and wherever you&rsquo;d like to have an editable math textbox:
 
-<code>&lt;span class=&quot;mathquill-embedded-math&quot;&gt;[optional LaTeX math]&lt;/span&gt;</code>
+<code>&lt;span class="mathquill-editable"&gt;&lt;/span&gt;</code>
+
+<p>or to convert LaTeX math to HTML, replacing `\frac{d}{dx}e^x` with your LaTeX source:</p>
+
+<code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}e^x&lt;/span&gt;</code>
 
 <p>Note that for dynamically created elements, you will need to call our jQuery plugin:</p>
 
