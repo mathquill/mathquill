@@ -29,7 +29,7 @@ function Cursor(block)
 
   this.jQ = $('<span class="cursor"></span>');
   if(block)
-    this.prependTo(block);
+    this.appendTo(block);
 }
 Cursor.prototype = {
   prev: null,
@@ -410,7 +410,55 @@ function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
   latex: function()
   {
-    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])|\{([a-z0-9])\}/ig,'$1$2');
+  },
+  renderLatex: function(latex)
+  {
+    latex = latex.match(/\\[a-z]+|[^\s]/ig);
+    this.jQ.empty();
+    this.firstChild = this.lastChild = null;
+    this.cursor.appendTo(this);
+    if(!latex)
+      return;
+    (function recurse(cursor)
+    {
+      while(latex.length)
+      {
+        var token = latex.shift(); //pop first item
+        if(!token)
+          return false;
+        if(token === '}')
+        {
+          if(cursor.parent.parent)
+            cursor.insertAfter(cursor.parent.parent);
+          return;
+        }
+        var cmd;
+        if(/^\\[a-z]+$/.test(token))
+        {
+          cmd = createLatexCommand(token.slice(1));
+          cursor.insertNew(cmd);
+        }
+        else
+        {
+          cursor.write(token);
+          cmd = cursor.prev || cursor.parent.parent;
+        }
+        cmd.eachChild(function()
+        {
+          cursor.appendTo(this);
+          var token = latex.shift();
+          if(!token)
+            return false;
+          if(token === '{')
+            recurse(cursor);
+          else
+            cursor.write(token);
+        });
+        cursor.insertAfter(cmd);
+      }
+    }(this.cursor));
+    this.jQ.removeClass('hasCursor');
   },
   skipKeypress: false,
   keydown: function(e)
