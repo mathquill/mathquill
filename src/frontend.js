@@ -458,6 +458,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         cursor.insertAfter(cmd);
       }
     }(this.cursor));
+    this.cursor.hide();
     this.jQ.removeClass('hasCursor');
   },
   skipKeypress: false,
@@ -615,13 +616,13 @@ function mathquill()
 
   this.filter('.mathquill-editable, .mathquill-embedded-latex').each(function()
   {
-    var jQ = $(this), children = jQ.children().detach(), root = new RootMathBlock;
+    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
     root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
       block: root,
       revert: function()
       {
         jQ.children().remove();
-        jQ.append(children);
+        jQ.replaceWith(children.wrapInner(jQ).children());
       },
     });
 
