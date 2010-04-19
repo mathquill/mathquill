@@ -1602,7 +1602,8 @@ function mathquill()
         mathObj.revert();
     });
 
-  this.filter('.mathquill-editable, .mathquill-embedded-latex').each(function()
+  var editable = arguments[0] === 'editable';
+  this.each(function()
   {
     var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
     root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
@@ -1610,7 +1611,7 @@ function mathquill()
       revert: function()
       {
         jQ.children().remove();
-        jQ.removeClass('mathquill-rendered-math').append(children).children().children().unwrap();
+        jQ.removeClass('mathquill-rendered-math mathquill-editable').append(children).children().children().unwrap();
       },
     });
 
@@ -1618,10 +1619,10 @@ function mathquill()
 
     root.renderLatex(children.text());
 
-    if(!root.jQ.hasClass('mathquill-editable'))
+    if(!editable)
       return;
 
-    root.jQ.attr('tabindex', 0);
+    root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.focus(function()
@@ -1690,7 +1691,8 @@ function mathquill()
 //on document ready, transmogrify all <tag class="mathquill-editable"></tag> and
 //  <tag class="mathquill-embedded-latex"></tag> elements to mathquill elements.
 $(function(){
-  $('.mathquill-editable, .mathquill-embedded-latex').mathquill();
+  $('.mathquill-embedded-latex').mathquill();
+  $('.mathquill-editable').mathquill('editable');
 });
 
 return mathquill;
