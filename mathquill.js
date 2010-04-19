@@ -1610,7 +1610,7 @@ function mathquill()
       revert: function()
       {
         jQ.children().remove();
-        jQ.replaceWith(children.wrapInner(jQ).children());
+        jQ.removeClass('mathquill-rendered-math').append(children).children().children().unwrap();
       },
     });
 
