@@ -13,15 +13,15 @@ and wherever you'd like to have an editable math textbox:
 
 `<span class="mathquill-editable"></span>`
 
-or to convert LaTeX math to HTML, replacing `\frac{d}{dx}e^x` with your LaTeX source:
+or to convert LaTeX math to HTML:
 
-`<span class="mathquill-embedded-latex">\frac{d}{dx}e^x</span>`
+`<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>`
 
-Note that for dynamically created elements, you will need to call our jQuery plugin:
+Note that for dynamically created elements, you will need to call our jQuery plugin after inserting into the visible HTML DOM:
 
-`$('<elements with class="mathquill-embedded-latex" or "mathquill-editable">').mathquill();`
+`$('<span>\sqrt{e^x}</span>').appendTo('body').mathquill()` or `.mathquill('editable')`
 
-Dynamically created or otherwise, any element that has been MathQuill-ified can be reverted:
+Any element that has been MathQuill-ified can be reverted:
 
 `$('.mathquill-embedded-latex').mathquill('revert');`
 
