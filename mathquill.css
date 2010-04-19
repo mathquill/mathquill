@@ -7,12 +7,12 @@
  * This file is automatically included by mathquill.js
  *
  */
-.mathquill-editable-math {
+.mathquill-editable {
   display: inline-block;
   border: solid gray 1px;
   margin: 0 6px;
 }
-.mathquill-editable-math.hasCursor{
+.mathquill-editable.hasCursor{
   outline: none;
   border: solid #DEF 2px;
   border: solid rgba(119,187,255,.25) 2px;

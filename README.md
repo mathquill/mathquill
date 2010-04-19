@@ -9,9 +9,13 @@ All you need is a script include in your header:
 
 `<script src="http://laughinghan.github.com/mathquill/mathquill.js">`
 
-and wherever you'd like to convert LaTeX math to HTML or embed an editable math-textbox:
+and wherever you'd like to have an editable math textbox:
 
-`<span class="mathquill-embedded-math">[optional LaTeX math]</span>`
+`<span class="mathquill-editable"></span>`
+
+or to convert LaTeX math to HTML, replacing '\frac{d}{dx}e^x' with your LaTeX source:
+
+`<span class="mathquill-embedded-latex">\frac{d}{dx}e^x</span>`
 
 Note that for dynamically created elements, you will need to call our jQuery plugin:
 
