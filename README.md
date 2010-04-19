@@ -19,7 +19,11 @@ or to convert LaTeX math to HTML, replacing `\frac{d}{dx}e^x` with your LaTeX so
 
 Note that for dynamically created elements, you will need to call our jQuery plugin:
 
-`$('<some set of dynamically created elements>').mathquill();`
+`$('<elements with class="mathquill-embedded-latex" or "mathquill-editable">').mathquill();`
+
+Dynamically created or otherwise, any element that has been MathQuill-ified can be reverted:
+
+`$('.mathquill-embedded-latex').mathquill('revert');`
 
 Understanding The Code
 ----------------------

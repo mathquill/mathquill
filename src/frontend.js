@@ -537,28 +537,54 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
-function mathquill(editable, tabindex)
+function mathquill()
 {
-  if(editable === 'latex')
+  if(arguments[0] === 'latex')
   {
+    if(arguments.length > 1)
+    {
+      var latex = arguments[1];
+      return this.each(function()
+      {
+        var mathObj = $(this).data('[[mathquill internal data]]');
+        if(mathObj && mathObj.block && mathObj.block.renderLatex)
+          mathObj.block.renderLatex(latex);
+      });
+    }
     var mathObj = this.data('[[mathquill internal data]]');
     if(mathObj && mathObj.block)
       return mathObj.block.latex();
-    return this;
+    return;
   }
 
-  editable = editable === 'editable';
-  if(!(typeof tabindex === 'function'))
-    var i = tabindex || 0, tabindex = function(){ return i; };
+  if(arguments[0] === 'revert')
+    return this.each(function()
+    {
+      var mathObj = $(this).data('[[mathquill internal data]]');
+      if(mathObj && mathObj.revert)
+        mathObj.revert();
+    });
 
-  return this.each(function()
+  this.filter('.mathquill-editable, .mathquill-embedded-latex').each(function()
   {
-    var root = new RootMathBlock;
-    root.jQ = $(this).addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {block: root});
-    if(editable)
-      root.jQ.addClass('mathquill-editable-math').attr('tabindex', tabindex.apply(this, arguments));
+    var jQ = $(this), children = jQ.children().detach(), root = new RootMathBlock;
+    root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
+      block: root,
+      revert: function()
+      {
+        jQ.children().remove();
+        jQ.append(children);
+      },
+    });
 
     var cursor = root.cursor = new Cursor(root);
+
+    root.renderLatex(children.text());
+
+    if(!root.jQ.hasClass('mathquill-editable'))
+      return;
+
+    root.jQ.attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.focus(function()
@@ -576,7 +602,8 @@ function mathquill(editable, tabindex)
       else
         cursor.show();
     }
-    ).blur(function(e){
+    ).blur(function(e)
+    {
       cursor.setParentEmpty().hide();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
@@ -617,8 +644,9 @@ function mathquill(editable, tabindex)
         lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
       //only call keypress if keydown returned true
       return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
-    }
-    ).focus();
+    }).blur();
   });
+
+  return this;
 };
 
