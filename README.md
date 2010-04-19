@@ -13,7 +13,7 @@ and wherever you'd like to have an editable math textbox:
 
 `<span class="mathquill-editable"></span>`
 
-or to convert LaTeX math to HTML, replacing '\frac{d}{dx}e^x' with your LaTeX source:
+or to convert LaTeX math to HTML, replacing `\frac{d}{dx}e^x` with your LaTeX source:
 
 `<span class="mathquill-embedded-latex">\frac{d}{dx}e^x</span>`
 
