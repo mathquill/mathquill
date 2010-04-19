@@ -2,6 +2,22 @@
 <html>
   <head>
     <title>MathQuill 0.2a Demo</title>
+    <style type="text/css">
+      body{
+        width:6.5in;
+        margin:0 auto;
+        font-family:"Times New Roman",serif;
+      }
+      .math{
+        font-family:"Courier New",sans-serif;
+        display: inline-block;
+      }
+      img#codecogs{
+        vertical-align:middle;
+        text-decoration: none;
+        outline: none;
+      }
+    </style>
     <script type="text/javascript" src="vendor/jquery.min.js"></script>
     <script type="text/javascript" src="build/mathquill.js"></script>
     <script type="text/javascript">
@@ -39,29 +55,13 @@
         });
       });
     </script>
-    <style type="text/css">
-      body{
-        width:6.5in;
-        margin:0 auto;
-        font-family:"Times New Roman",serif;
-      }
-      .math{
-        font-family:"Courier New",sans-serif;
-        display: inline-block;
-      }
-      img#codecogs{
-        vertical-align:middle;
-        text-decoration: none;
-        outline: none;
-      }
-    </style>
     <link rel="stylesheet" type="text/css" href="mathquill.css">
   </head>
   <body>
     <h2><a href="http://laughinghan.github.com/mathquill">MathQuill 0.2&alpha;</a></h2>
     <p>by Jay and <a href="http://github.com/laughinghan">Han (laughinghan)</a></p>
     <p>This gets automatically turned into pretty math: <span class="math mathquill-embedded-latex">e^{i\pi}+1=0</span></p>
-    <p><button onclick="$(this).next().addClass('mathquill-editable').mathquill().focus()">$(this).next().addClass('mathquill-editable').mathquill().focus()</button>
+    <p><button onclick="$(this).text('$(this).next().mathquill(\'revert\').removeClass(\'mathquill-editable\')').next().addClass('mathquill-editable').mathquill().focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().addClass(\'mathquill-editable\').mathquill()').next().mathquill('revert').removeClass('mathquill-editable'); this.onclick = orig;$};">$(this).next().addClass('mathquill-editable').mathquill().focus()</button>
        <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p>
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable"></span></p>
     <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('less &laquo;').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
