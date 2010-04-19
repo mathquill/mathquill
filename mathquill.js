@@ -1017,7 +1017,7 @@ function Cursor(block)
 
   this.jQ = $('<span class="cursor"></span>');
   if(block)
-    this.prependTo(block);
+    this.appendTo(block);
 }
 Cursor.prototype = {
   prev: null,
@@ -1398,7 +1398,56 @@ function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
   latex: function()
   {
-    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])|\{([a-z0-9])\}/ig,'$1$2');
+  },
+  renderLatex: function(latex)
+  {
+    latex = latex.match(/\\[a-z]+|[^\s]/ig);
+    this.jQ.empty();
+    this.firstChild = this.lastChild = null;
+    this.cursor.appendTo(this);
+    if(!latex)
+      return;
+    (function recurse(cursor)
+    {
+      while(latex.length)
+      {
+        var token = latex.shift(); //pop first item
+        if(!token)
+          return false;
+        if(token === '}')
+        {
+          if(cursor.parent.parent)
+            cursor.insertAfter(cursor.parent.parent);
+          return;
+        }
+        var cmd;
+        if(/^\\[a-z]+$/.test(token))
+        {
+          cmd = createLatexCommand(token.slice(1));
+          cursor.insertNew(cmd);
+        }
+        else
+        {
+          cursor.write(token);
+          cmd = cursor.prev || cursor.parent.parent;
+        }
+        cmd.eachChild(function()
+        {
+          cursor.appendTo(this);
+          var token = latex.shift();
+          if(!token)
+            return false;
+          if(token === '{')
+            recurse(cursor);
+          else
+            cursor.write(token);
+        });
+        cursor.insertAfter(cmd);
+      }
+    }(this.cursor));
+    this.cursor.hide();
+    this.jQ.removeClass('hasCursor');
   },
   skipKeypress: false,
   keydown: function(e)
@@ -1525,28 +1574,54 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
-function mathquill(editable, tabindex)
+function mathquill()
 {
-  if(editable === 'latex')
+  if(arguments[0] === 'latex')
   {
+    if(arguments.length > 1)
+    {
+      var latex = arguments[1];
+      return this.each(function()
+      {
+        var mathObj = $(this).data('[[mathquill internal data]]');
+        if(mathObj && mathObj.block && mathObj.block.renderLatex)
+          mathObj.block.renderLatex(latex);
+      });
+    }
     var mathObj = this.data('[[mathquill internal data]]');
     if(mathObj && mathObj.block)
       return mathObj.block.latex();
-    return this;
+    return;
   }
 
-  editable = editable === 'editable';
-  if(!(typeof tabindex === 'function'))
-    var i = tabindex || 0, tabindex = function(){ return i; };
+  if(arguments[0] === 'revert')
+    return this.each(function()
+    {
+      var mathObj = $(this).data('[[mathquill internal data]]');
+      if(mathObj && mathObj.revert)
+        mathObj.revert();
+    });
 
-  return this.each(function()
+  this.filter('.mathquill-editable, .mathquill-embedded-latex').each(function()
   {
-    var root = new RootMathBlock;
-    root.jQ = $(this).addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {block: root});
-    if(editable)
-      root.jQ.addClass('mathquill-editable-math').attr('tabindex', tabindex.apply(this, arguments));
+    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
+    root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
+      block: root,
+      revert: function()
+      {
+        jQ.children().remove();
+        jQ.replaceWith(children.wrapInner(jQ).children());
+      },
+    });
 
     var cursor = root.cursor = new Cursor(root);
+
+    root.renderLatex(children.text());
+
+    if(!root.jQ.hasClass('mathquill-editable'))
+      return;
+
+    root.jQ.attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.focus(function()
@@ -1564,7 +1639,8 @@ function mathquill(editable, tabindex)
       else
         cursor.show();
     }
-    ).blur(function(e){
+    ).blur(function(e)
+    {
       cursor.setParentEmpty().hide();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
@@ -1605,16 +1681,16 @@ function mathquill(editable, tabindex)
         lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
       //only call keypress if keydown returned true
       return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
-    }
-    ).focus();
+    }).blur();
   });
+
+  return this;
 };
 
-//on document ready, transmogrify all <tag class="mathquill-embedded-math"></tag> elements to
-//  possibly editable mathquill elements.
+//on document ready, transmogrify all <tag class="mathquill-editable"></tag> and
+//  <tag class="mathquill-embedded-latex"></tag> elements to mathquill elements.
 $(function(){
-  //$('.mathquill-embedded-math').mathquill(); //LaTeX parsing doesn't work yet, so this is useless
-  $('.mathquill-editable-math').mathquill('editable');
+  $('.mathquill-editable, .mathquill-embedded-latex').mathquill();
 });
 
 return mathquill;
