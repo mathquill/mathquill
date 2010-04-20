@@ -410,7 +410,7 @@ function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
   latex: function()
   {
-    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])|\{([a-z0-9])\}/ig,'$1$2');
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
   },
   renderLatex: function(latex)
   {
