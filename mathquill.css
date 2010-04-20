@@ -7,6 +7,12 @@
  * This file is automatically included by mathquill.js
  *
  */
+
+@font-face {
+  font-family: Symbola;
+  src: url(vendor/Symbola.otf) format(opentype);
+}
+
 .mathquill-editable {
   display: inline-block;
   border: solid gray 1px;
@@ -22,7 +28,7 @@
 .mathquill-rendered-math {
   color: black;
   background-color: white;
-  font-family: "Computer Modern", "Times New Roman", serif;
+  font-family: Symbola, "Times New Roman", serif;
   font-size: 125%;
   line-height: 1;
   position: relative;
@@ -70,6 +76,7 @@
 }
 
 .mathquill-rendered-math i { /* variables -- just in case you do something weird to your <i>'s */
+  font-family: "Times New Roman", serif;
   font-style: italic;
   font-weight: normal;
 }

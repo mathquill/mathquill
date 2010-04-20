@@ -375,18 +375,13 @@ function createLatexCommand(latex, replacedFragment)
   case 'thetav': //Elsevier and 9573-13
   case 'vartheta': //AMS and LaTeX
     return new Variable('\\vartheta ','&#977;');
-  case '':
-    return new Variable('\\ ','&#;');
-  case '':
-    return new Variable('\\ ','&#;');
-  case '':
-    return new Variable('\\ ','&#;');
-  case '':
-    return new Variable('\\ ','&#;');
 
-  //greek letter constants, uppercase greek letters,
+  //greek constants, look best in un-italicised Times New Roman
   case 'pi':
   case 'lambda':
+    return new Symbol('\\'+latex+' ','<i style="font-style:normal">&'+latex+';</i>');
+
+  //uppercase greek letters
   case 'Gamma':
   case 'Delta':
   case 'Theta':
@@ -427,6 +422,10 @@ function createLatexCommand(latex, replacedFragment)
   case 'P':
   case 'primes':
   case 'Primes':
+  case 'projective':
+  case 'Projective':
+  case 'probability':
+  case 'Probability':
     return new VanillaSymbol('\\mathbb{P}','&#8473;');
   case 'Z':
   case 'integers':
@@ -449,6 +448,11 @@ function createLatexCommand(latex, replacedFragment)
   case 'Complexplane':
   case 'ComplexPlane':
     return new VanillaSymbol('\\mathbb{C}','&#8450;');
+  case 'H':
+  case 'Hamiltonian':
+  case 'quaternions':
+  case 'Quaternions':
+    return new VanillaSymbol('\\mathbb{H}','&#8461;');
 
   //spacing
   case 'quad':
