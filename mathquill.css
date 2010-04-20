@@ -11,9 +11,9 @@
 @font-face {
   font-family: Symbola;
   src: url(font/Symbola.eot);
-  src: local("Symbola Regular"), local(Symbola),
-    url(font/Symbola.otf) format(opentype),
-    url(font/Symbola.ttf) format(truetype);
+  src: local("Symbola Regular"), local("Symbola"),
+    url(font/Symbola.otf) format("opentype"),
+    url(font/Symbola.ttf) format("truetype");
 }
 
 .mathquill-editable {
@@ -37,6 +37,9 @@
   position: relative;
   outline: none;
   padding: 2px;
+}
+.mathquill-rendered-math i, .mathquill-rendered-math .nonSymbola {
+  font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {
   color: inherit;
@@ -79,7 +82,6 @@
 }
 
 .mathquill-rendered-math i { /* variables -- just in case you do something weird to your <i>'s */
-  font-family: "Times New Roman", serif;
   font-style: italic;
   font-weight: normal;
 }
