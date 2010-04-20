@@ -623,7 +623,8 @@ function mathquill()
       revert: function()
       {
         jQ.children().remove();
-        jQ.removeClass('mathquill-rendered-math mathquill-editable').append(children).children().children().unwrap();
+        children.appendTo(jQ).children().unwrap();
+        jQ.removeClass('mathquill-rendered-math mathquill-editable').unbind('.mathquill');
       },
     });
 
@@ -637,7 +638,7 @@ function mathquill()
     root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
-    root.jQ.focus(function()
+    root.jQ.bind('focus.mathquill',function()
     {
       if(cursor.parent)
       {
@@ -652,13 +653,13 @@ function mathquill()
       else
         cursor.show();
     }
-    ).blur(function(e)
+    ).bind('blur.mathquill',function(e)
     {
       cursor.setParentEmpty().hide();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
     }
-    ).click(function(e)
+    ).bind('click.mathquill',function(e)
     {
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
@@ -678,13 +679,13 @@ function mathquill()
         cursor.insertAfter(cmd);
       return false;
     }
-    ).keydown(function(e) //see Wiki page "Keyboard Events"
+    ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
     {
       lastKeydnEvt = e;
       e.happened = true;
       return e.returnValue = cursor.parent.keydown(e);
     }
-    ).keypress(function(e)
+    ).bind('keypress.mathquill',function(e)
     {
       //on auto-repeated key events, keypress may get triggered but not keydown
       //  (see Wiki page "Keyboard Events")
