@@ -266,8 +266,12 @@ NonItalicizedFunction.prototype = Symbol.prototype;
 var SingleCharacterCommands = {
   //Symbols:
   ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;'); },
-  '*': function(replacedFragment){ return new VanillaSymbol('\\cdot ', '&sdot;'); },
   "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;');},
+  '@': function(replacedFragment){ return new Symbol('@', '<span class="nonSymbola">@</span>'); },
+  '&': function(replacedFragment){ return new Symbol('\\&', '<span class="nonSymbola">&</span>'); },
+  '%': function(replacedFragment){ return new Symbol('\\%', '<span class="nonSymbola">%</span>'); },
+  '*': function(replacedFragment){ return new BinaryOperator('\\cdot ', '&middot;'); },
+  //'*': function(replacedFragment){ return new Symbol('\\cdot ', '<span class="nonSymbola">&sdot;</span>'); },
   '=': function(replacedFragment){ return new BinaryOperator('=', '='); },
   '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;'); },
   '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;'); },
@@ -379,7 +383,7 @@ function createLatexCommand(latex, replacedFragment)
   //greek constants, look best in un-italicised Times New Roman
   case 'pi':
   case 'lambda':
-    return new Symbol('\\'+latex+' ','<i style="font-style:normal">&'+latex+';</i>');
+    return new Symbol('\\'+latex+' ','<span class="nonSymbola">&'+latex+';</span>');
 
   //uppercase greek letters
   case 'Gamma':
@@ -472,6 +476,10 @@ function createLatexCommand(latex, replacedFragment)
   */
 
   //various symbols
+  case 'AA':
+  case 'Angstrom':
+  case 'angstrom':
+    return new VanillaSymbol('\\text{\\AA}','&#8491;');
   case 'ring':
   case 'circ':
   case 'circle':
@@ -629,6 +637,7 @@ function createLatexCommand(latex, replacedFragment)
   case 'neq':
     return new BinaryOperator('\\'+latex+' ','&ne;');
   case 'ast':
+  case 'star':
   case 'loast':
   case 'lowast':
     return new BinaryOperator('\\ast ','&lowast;');
@@ -718,7 +727,7 @@ function createLatexCommand(latex, replacedFragment)
   case 'notsuperseteq':
     return new BinaryOperator('\\not\\supseteq ','&#8841;');
   default:
-    return new VanillaSymbol(latex);
+    return new VanillaSymbol('\\text{'+latex+'}',latex);
   }
 }
 

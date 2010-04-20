@@ -38,6 +38,9 @@
   outline: none;
   padding: 2px;
 }
+.mathquill-rendered-math i, .mathquill-rendered-math .nonSymbola {
+  font-family: "Times New Roman", serif;
+}
 .mathquill-rendered-math * {
   color: inherit;
   background-color: transparent;
@@ -79,7 +82,6 @@
 }
 
 .mathquill-rendered-math i { /* variables -- just in case you do something weird to your <i>'s */
-  font-family: "Times New Roman", serif;
   font-style: italic;
   font-weight: normal;
 }

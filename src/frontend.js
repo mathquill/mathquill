@@ -147,7 +147,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-z]/i))
+    if(ch.match(/[a-z,]/i))
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
       cmd = cmd(this.selection);
