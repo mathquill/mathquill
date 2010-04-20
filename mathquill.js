@@ -325,6 +325,13 @@ function SupSub(cmd, html, replacedFragment)
   });
 }
 SupSub.prototype = new MathCommand;
+SupSub.prototype.latex = function()
+{
+  var latex = this.firstChild.latex();
+  if(latex.length === 1)
+    return this.cmd + latex;
+  return this.cmd + '{' + latex + '}';
+};
 SupSub.prototype.respace = function()
 {
   if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
@@ -1398,7 +1405,7 @@ function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
   latex: function()
   {
-    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])|\{([a-z0-9])\}/ig,'$1$2');
+    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
   },
   renderLatex: function(latex)
   {
