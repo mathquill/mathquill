@@ -58,13 +58,17 @@ a:focus {
 
 <code>&lt;span class="mathquill-editable"&gt;&lt;/span&gt;</code>
 
-<p>or to convert LaTeX math to HTML, replacing <code>\frac{d}{dx}e^x</code> with your LaTeX source:</p>
+<p>or to convert LaTeX math to HTML:</p>
 
-<code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}e^x&lt;/span&gt;</code>
+<code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}\sqrt{x}&lt;/span&gt;</code>
 
-<p>Note that for dynamically created elements, you will need to call our jQuery plugin:</p>
+<p>Note that for dynamically created elements, you will need to call our jQuery plugin after inserting into the visible HTML DOM:</p>
 
-<code>$('&lt;some set of dynamically created elements&gt;').mathquill();</code>
+<code>$('&lt;span&gt;\sqrt{e^x}&lt;/span&gt;').appendTo('body').mathquill()</code> or <code>.mathquill('editable')</code>
+
+<p>Any element that has been MathQuill-ified can be reverted:</p>
+
+<code>$('.mathquill-embedded-latex').mathquill('revert');</code>
 
 <h2>Dependencies</h2>
 
