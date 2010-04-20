@@ -166,7 +166,6 @@
 .mathquill-rendered-math .paren {
   vertical-align: bottom;
   position: relative;
-  top: -.1em;
 }
 
 .mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
