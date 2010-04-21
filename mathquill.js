@@ -291,7 +291,7 @@ NonSymbolaSymbol.prototype = Symbol.prototype;
 
 function Variable(ch, html)
 {
-  Symbol.call(this, ch, '<i>'+(html || ch)+'</i>');
+  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
 Variable.prototype = Symbol.prototype;
 
@@ -664,7 +664,7 @@ function createLatexCommand(latex, replacedFragment)
   //greek constants, look best in un-italicised Times New Roman
   case 'pi':
   case 'lambda':
-    return new Symbol('\\'+latex+' ','<span class="nonSymbola">&'+latex+';</span>');
+    return new NonSymbolaSymbol('\\'+latex+' ','&'+latex+';');
 
   //uppercase greek letters
   case 'Gamma':
