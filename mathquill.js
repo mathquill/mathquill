@@ -1509,7 +1509,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       this.cursor.clearSelection();
       return false;
     case 13: //enter
-      return e.ctrlKey; //ignore unless Ctrl
+      return this.skipKeypress = true;
     case 35: //end
       if(e.shiftKey)
         while(this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
