@@ -160,18 +160,32 @@
   font-style: normal;
 }
 
+.mathquill-rendered-math .sqrt {
+  position: relative;
+  z-index: 0;
+}
 .mathquill-rendered-math .sqrt-prefix {
   vertical-align: top;
   position: relative;
-  left: 1px;
-  top: 2px;
+  top: 1px;
+  padding-top: 1px;
+  background-color: white;
+  z-index: 1;
 }
 .mathquill-rendered-math .sqrt-stem {
-  border-top: 1px solid black;
+  border-top: 1px solid #444;
   margin-top: 1px;
-  padding-left: 2px;
-  padding-right: .1em;
-  margin-right: .1em;
+  padding-top: .1em;
+  margin-left: -.3em;
+  padding-left: .3em;
+  padding-right: .3em;
+}
+.mathquill-rendered-math .sqrt-suffix {
+  vertical-align: top;
+  position: relative;
+  margin-left: -.55em;
+  top: 1.5pt;
+  margin-right: -.3em;
 }
 
 .mathquill-rendered-math .paren {
@@ -179,10 +193,10 @@
   position: relative;
 }
 
-.mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
+.mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub, .mathquill-rendered-math .selection .sqrt-prefix {
   background-color: #ADF;
 }
-.mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {
+.mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub, .mathquill-rendered-math .selection.blur .sqrt-prefix {
   background-color: lightgray;
 }
 

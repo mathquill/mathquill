@@ -250,18 +250,22 @@ function SquareRoot(replacedFragment)
   MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
   this.firstChild.jQ.change(function()
   {
-    var block = $(this), height = block.height();
+    var block = $(this), height = block.height()/+block.css('fontSize').slice(0,-2);
     block.css({
-      borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+      marginLeft: -height*.82+'em',
+      paddingLeft: height*.82+'em',
+      borderTopWidth: (height+2)/30+'em' // NOTE: Formula will need to change if we change our font from Symbola
     }).prev().css({
-      fontSize: height,
-      top: height/10+2,
-      left: height/30+1,
+      fontSize: height+'em'
+    });
+    block.next().css({
+      fontSize: height*.5+'em'
     });
   });
 }
 SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+SquareRoot.prototype.html_template = ['<span class="sqrt"><span class="sqrt-prefix">&radic;</span><span class="sqrt-stem"></span><span class="sqrt-suffix">&#9589;</span></span>'];
+SquareRoot.prototype.initBlocks = Paren.prototype.initBlocks;
 
 function NonItalicizedFunction(fn)
 {
