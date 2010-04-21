@@ -2,15 +2,21 @@
  * All the symbols, operators and commands.
  *******************************************/
 
-function VanillaSymbol(ch, html) 
+function VanillaSymbol(ch, html)
 {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
 }
 VanillaSymbol.prototype = Symbol.prototype;
 
-function Variable(ch, html)
+function NonSymbolaSymbol(ch, html) //does not use Symbola font
 {
-  Symbol.call(this, ch, '<i>'+(html || ch)+'</i>');
+  Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+}
+NonSymbolaSymbol.prototype = Symbol.prototype;
+
+function Variable(ch)
+{
+  Symbol.call(this, ch, '<i>'+ch+'</i>');
 }
 Variable.prototype = Symbol.prototype;
 
@@ -267,11 +273,11 @@ var SingleCharacterCommands = {
   //Symbols:
   ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;'); },
   "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;');},
-  '@': function(replacedFragment){ return new Symbol('@', '<span class="nonSymbola">@</span>'); },
-  '&': function(replacedFragment){ return new Symbol('\\&', '<span class="nonSymbola">&</span>'); },
-  '%': function(replacedFragment){ return new Symbol('\\%', '<span class="nonSymbola">%</span>'); },
+  '@': function(replacedFragment){ return new NonSymbolaSymbol('@'); },
+  '&': function(replacedFragment){ return new NonSymbolaSymbol('\\&', '&'); },
+  '%': function(replacedFragment){ return new NonSymbolaSymbol('\\%', '%'); },
   '*': function(replacedFragment){ return new BinaryOperator('\\cdot ', '&middot;'); },
-  //'*': function(replacedFragment){ return new Symbol('\\cdot ', '<span class="nonSymbola">&sdot;</span>'); },
+    //semantically should be &sdot;, but &middot; looks better in both Symbola and Times New Roman
   '=': function(replacedFragment){ return new BinaryOperator('=', '='); },
   '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;'); },
   '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;'); },

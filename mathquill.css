@@ -37,7 +37,7 @@
   outline: none;
   padding: 2px;
 }
-.mathquill-rendered-math .nonSymbola {
+.mathquill-rendered-math i, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {
