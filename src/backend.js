@@ -36,7 +36,7 @@ MathElement.prototype = {
   keypress: function(e)
   {
     return this.parent.keypress(e);
-  }
+  },
 };
 
 /**
@@ -120,7 +120,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     return this.reduceChildren(function(initVal){
       return initVal && this.isEmpty();
     }, true);
-  }
+  },
 });
 
 /**
@@ -137,7 +137,7 @@ Symbol.prototype = $.extend(new MathCommand, {
     return this.cmd;
   },
   placeCursor: $.noop,
-  isEmpty: function(){ return true; }
+  isEmpty: function(){ return true; },
 });
 
 /**
@@ -172,7 +172,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.jQ.hasClass('empty'))
       this.jQ.html('').removeClass('empty');
     return this;
-  }
+  },
 });
 
 /**
@@ -252,6 +252,6 @@ MathFragment.prototype = {
     MathFragment.prototype.blockify.call(this);
     this.jQ.detach();
     return this;
-  }
+  },
 };
 
