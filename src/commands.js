@@ -255,7 +255,7 @@ function SquareRoot(replacedFragment)
       borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
     }).prev().css({
       fontSize: height,
-      top: height/10+2,
+      //top: height/10+2,
       left: height/30+1,
     });
   });
