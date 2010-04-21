@@ -16,7 +16,7 @@ NonSymbolaSymbol.prototype = Symbol.prototype;
 
 function Variable(ch, html)
 {
-  Symbol.call(this, ch, '<i>'+(html || ch)+'</i>');
+  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
 Variable.prototype = Symbol.prototype;
 

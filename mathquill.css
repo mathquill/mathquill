@@ -37,7 +37,7 @@
   outline: none;
   padding: 2px;
 }
-.mathquill-rendered-math i, .mathquill-rendered-math .nonSymbola {
+.mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {
@@ -80,7 +80,7 @@
   cursor: text;
 }
 
-.mathquill-rendered-math i { /* variables -- just in case you do something weird to your <i>'s */
+.mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
   font-style: italic;
   font-weight: normal;
 }
