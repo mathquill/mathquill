@@ -81,7 +81,7 @@ SupSub.prototype.respace = function()
 function Fraction(replacedFragment)
 {
   MathCommand.call(this, '\\frac ', undefined, replacedFragment);
-  this.jQ.append('<span style="width:0;color:transparent">/</span>');
+  this.jQ.append('<span style="width:0;visibility:hidden">/</span>');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
