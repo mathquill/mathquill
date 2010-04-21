@@ -19,13 +19,12 @@
 .mathquill-editable {
   display: inline-block;
   border: solid gray 1px;
-  margin: 0 .2em;
 }
 .mathquill-editable.hasCursor{
   outline: none;
   border: solid #DEF 2px;
   border: solid rgba(119,187,255,.25) 2px;
-  margin: -1px 5px;
+  margin: -1px;
 }
 
 .mathquill-rendered-math {
