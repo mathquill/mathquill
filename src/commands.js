@@ -14,9 +14,9 @@ function NonSymbolaSymbol(ch, html) //does not use Symbola font
 }
 NonSymbolaSymbol.prototype = Symbol.prototype;
 
-function Variable(ch)
+function Variable(ch, html)
 {
-  Symbol.call(this, ch, '<i>'+ch+'</i>');
+  Symbol.call(this, ch, '<i>'+(html || ch)+'</i>');
 }
 Variable.prototype = Symbol.prototype;
 
