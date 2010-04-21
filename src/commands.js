@@ -389,7 +389,7 @@ function createLatexCommand(latex, replacedFragment)
   //greek constants, look best in un-italicised Times New Roman
   case 'pi':
   case 'lambda':
-    return new Symbol('\\'+latex+' ','<span class="nonSymbola">&'+latex+';</span>');
+    return new NonSymbolaSymbol('\\'+latex+' ','&'+latex+';');
 
   //uppercase greek letters
   case 'Gamma':
