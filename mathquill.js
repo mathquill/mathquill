@@ -525,22 +525,16 @@ function SquareRoot(replacedFragment)
   MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
   this.firstChild.jQ.change(function()
   {
-    var block = $(this), height = block.height()/+block.css('fontSize').slice(0,-2);
+    var block = $(this), height = block.height();
     block.css({
-      marginLeft: -height*.82+'em',
-      paddingLeft: height*.82+'em',
-      borderTopWidth: (height+2)/30+'em' // NOTE: Formula will need to change if we change our font from Symbola
+      borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
     }).prev().css({
-      fontSize: height+'em'
-    });
-    block.next().css({
-      fontSize: height*.5+'em'
+      fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
     });
   });
 }
 SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = ['<span class="sqrt"><span class="sqrt-prefix">&radic;</span><span class="sqrt-stem"></span><span class="sqrt-suffix">&#9589;</span></span>'];
-SquareRoot.prototype.initBlocks = Paren.prototype.initBlocks;
+SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
 function NonItalicizedFunction(fn)
 {
@@ -1724,12 +1718,6 @@ function mathquill()
 $(function(){
   $('.mathquill-embedded-latex').mathquill();
   $('.mathquill-editable').mathquill('editable');
-  var _onerror = window.onerror;
-  window.onerror = function(){
-    if(_onerror)
-      _onerror.apply(this, arguments);
-    return true;
-  };
 });
 
 return mathquill;
