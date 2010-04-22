@@ -252,11 +252,9 @@ function SquareRoot(replacedFragment)
   {
     var block = $(this), height = block.height();
     block.css({
-      borderTopWidth: height/30+1, // NOTE: Formula will need to be redetermined if we change our font from Times New Roman
+      borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
     }).prev().css({
-      fontSize: height,
-      top: height/10+2,
-      left: height/30+1,
+      fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
     });
   });
 }

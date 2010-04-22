@@ -171,14 +171,13 @@
 .mathquill-rendered-math .sqrt-prefix {
   vertical-align: top;
   position: relative;
-  left: 1px;
   top: 2px;
 }
 .mathquill-rendered-math .sqrt-stem {
   border-top: 1px solid black;
   margin-top: 1px;
   padding-left: 2px;
-  padding-right: .1em;
+  padding-right: .2em;
   margin-right: .1em;
 }
 
