@@ -80,7 +80,7 @@ SupSub.prototype.respace = function()
 
 function Fraction(replacedFragment)
 {
-  MathCommand.call(this, '\\frac ', undefined, replacedFragment);
+  MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0;visibility:hidden">/</span>');
 }
 Fraction.prototype = new MathCommand;
@@ -247,7 +247,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
 
 function SquareRoot(replacedFragment)
 {
-  MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
+  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
