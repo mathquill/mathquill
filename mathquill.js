@@ -513,6 +513,13 @@ Text.prototype = $.extend(new MathCommand, {
   {
     this.cursor.insertNew(new VanillaSymbol(ch)).show();
   },
+  keydown: function(e)
+  {
+    //backspace and delete and ends of block don't unwrap
+    if((e.which === 8 && this.cursor.prev === null) || (e.which === 46 && this.cursor.next === null))
+      return false;
+    return this.parent.keydown(e);
+  },
   keypress: function(e)
   {
     if(e.ctrlKey || e.metaKey)
@@ -1675,6 +1682,18 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
 });
 
+function RootTextBlock(){}
+RootTextBlock.prototype = $.extend(new Text, {
+  keydown: function(e)
+  {
+    //tab and arrow keys don't move out of block
+    if(e.which === 9 || (this.cursor.prev === null && (e.which === 37 || e.which === 38))
+      || (this.cursor.next === null && (e.which === 39 || e.which === 40)))
+      return false;
+    return Text.prototype.keydown.apply(this, arguments);
+  },
+});
+
 //The actual, publically exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 function mathquill()
@@ -1705,7 +1724,7 @@ function mathquill()
         mathObj.revert();
     });
 
-  var editable = arguments[0] === 'editable';
+  var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
   this.each(function()
   {
     var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
@@ -1727,6 +1746,9 @@ function mathquill()
       return;
 
     root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
+
+    if(textbox)
+      cursor.insertNew(new Text);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
@@ -1797,6 +1819,7 @@ function mathquill()
 $(function(){
   $('.mathquill-embedded-latex').mathquill();
   $('.mathquill-editable').mathquill('editable');
+  $('.mathquill-textbox').mathquill('textbox');
 });
 
 return mathquill;
