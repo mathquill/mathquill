@@ -238,6 +238,13 @@ Text.prototype = $.extend(new MathCommand, {
   {
     this.cursor.insertNew(new VanillaSymbol(ch)).show();
   },
+  keydown: function(e)
+  {
+    //backspace and delete and ends of block don't unwrap
+    if((e.which === 8 && this.cursor.prev === null) || (e.which === 46 && this.cursor.next === null))
+      return false;
+    return this.parent.keydown(e);
+  },
   keypress: function(e)
   {
     if(e.ctrlKey || e.metaKey)
