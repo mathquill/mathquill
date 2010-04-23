@@ -3,7 +3,7 @@
 $(function(){
   $('.mathquill-embedded-latex').mathquill();
   $('.mathquill-editable').mathquill('editable');
-  $('.mathquill-textbox').mathqiull('textbox');
+  $('.mathquill-textbox').mathquill('textbox');
 });
 
 return mathquill;
