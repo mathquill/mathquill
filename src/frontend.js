@@ -41,13 +41,6 @@ Cursor.prototype = {
       this.parent.setEmpty().jQ.removeClass('hasCursor').change();
     return this;
   },
-  detach: function()
-  {
-    this.setParentEmpty();
-    this.prev = this.next = this.parent = null;
-    this.jQ.detach();
-    return this;
-  },
   insertBefore: function(el)
   {
     this.setParentEmpty();
