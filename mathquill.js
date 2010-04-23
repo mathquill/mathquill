@@ -181,7 +181,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     {
       this.jQ.addClass('empty');
       if(this.parent)
-        this.jQ[0].innerHTML = '&empty;';
+        this.jQ.html('&empty;');
     }
     return this;
   },
@@ -355,7 +355,7 @@ SupSub.prototype.respace = function()
 
 function Fraction(replacedFragment)
 {
-  MathCommand.call(this, '\\frac ', undefined, replacedFragment);
+  MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0;visibility:hidden">/</span>');
 }
 Fraction.prototype = new MathCommand;
@@ -455,6 +455,55 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
+function Text(replacedFragment)
+{
+  MathCommand.call(this, '\\text');
+  if(replacedFragment)
+    for(var i = 0, text = replacedFragment.blockify().jQ.text(); i < text.length; i += 1)
+      this.write(text.charAt(i));
+  this.firstChild.setEmpty = function()
+  {
+    if(this.isEmpty())
+    {
+      var textblock = this.parent;
+      setTimeout(function() //defer execution until after completion of this thread
+                            //not the wrong way to do things, merely poorly named
+      {
+        textblock.remove();
+        if(textblock.cursor.prev === textblock)
+          textblock.cursor.prev = textblock.prev;
+        else if(textblock.cursor.next === textblock)
+          textblock.cursor.next = textblock.next;
+      },0);
+    }
+    return this;
+  };
+}
+Text.prototype = $.extend(new MathCommand, {
+  html_template: ['<span></span>'],
+  placeCursor: function(cursor)
+  {
+    this.cursor = cursor.prependTo(this.firstChild);
+  },
+  write: function(ch)
+  {
+    this.cursor.insertNew(new VanillaSymbol(ch)).show();
+  },
+  keypress: function(e)
+  {
+    if(e.ctrlKey || e.metaKey)
+      return true;
+    var ch = String.fromCharCode(e.which);
+    if(ch === '$')
+      this.cursor.insertAfter(this);
+    else if(ch === ' ')
+      this.cursor.insertNew(new VanillaSymbol('\\,', '&nbsp;')).show();
+    else
+      this.write(ch);
+    return false;
+  },
+});
+
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment)
 {
@@ -522,7 +571,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
 
 function SquareRoot(replacedFragment)
 {
-  MathCommand.call(this, '\\sqrt ', undefined, replacedFragment);
+  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
@@ -567,6 +616,7 @@ var SingleCharacterCommands = {
   ']': function(replacedFragment){ return new CloseParen('[', ']', replacedFragment); },
   '}': function(replacedFragment){ return new CloseBrace(replacedFragment); },
   '|': function(replacedFragment){ return new Pipes(replacedFragment); },
+  '$': function(replacedFragment){ return new Text(replacedFragment); },
   '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
 };
 function createLatexCommand(latex, replacedFragment)
@@ -581,6 +631,8 @@ function createLatexCommand(latex, replacedFragment)
     return new SquareRoot(replacedFragment);
   case 'frac':
     return new Fraction(replacedFragment);
+  case 'text':
+    return new Text(replacedFragment);
 
   //non-italicized functions
   case 'ln':
@@ -1006,7 +1058,7 @@ function createLatexCommand(latex, replacedFragment)
   case 'notsuperseteq':
     return new BinaryOperator('\\not\\supseteq ','&#8841;');
   default:
-    return new VanillaSymbol('\\text{'+latex+'}',latex);
+    return new Text(latex);
   }
 }
 
@@ -1051,13 +1103,6 @@ Cursor.prototype = {
   {
     if(this.parent)
       this.parent.setEmpty().jQ.removeClass('hasCursor').change();
-    return this;
-  },
-  detach: function()
-  {
-    this.setParentEmpty();
-    this.prev = this.next = this.parent = null;
-    this.jQ.detach();
     return this;
   },
   insertBefore: function(el)
