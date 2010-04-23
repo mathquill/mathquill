@@ -459,8 +459,7 @@ function Text(replacedFragment)
 {
   MathCommand.call(this, '\\text');
   if(replacedFragment)
-    for(var i = 0, text = replacedFragment.blockify().jQ.text(); i < text.length; i += 1)
-      this.write(text.charAt(i));
+    this.replacedText = replacedFragment.detach().jQ.text();
   this.firstChild.setEmpty = function()
   {
     if(this.isEmpty())
@@ -469,13 +468,18 @@ function Text(replacedFragment)
       setTimeout(function() //defer execution until after completion of this thread
                             //not the wrong way to do things, merely poorly named
       {
-        textblock.remove();
         if(textblock.cursor.prev === textblock)
+        {
+          textblock.remove();
           textblock.cursor.prev = textblock.prev;
+        }
         else if(textblock.cursor.next === textblock)
+        {
+          textblock.remove();
           textblock.cursor.next = textblock.next;
+        }
       },0);
-    }
+    };
     return this;
   };
 }
@@ -484,6 +488,26 @@ Text.prototype = $.extend(new MathCommand, {
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
+    if(this.replacedText)
+      for(var i = 0; i < this.replacedText.length; i += 1)
+        this.write(this.replacedText.charAt(i));
+  },
+  respace: function()
+  {
+    if(this.prev instanceof Text)
+    { //merge textblocks
+      var textblock = this;
+      setTimeout(function()
+      {
+        textblock.cursor.prependTo(textblock.firstChild);
+        textblock.prev.firstChild.eachChild(function()
+        {
+          textblock.write(this.cmd);
+        });
+        textblock.prev.remove();
+        textblock.jQ.change();
+      });
+    }
   },
   write: function(ch)
   {
@@ -495,9 +519,19 @@ Text.prototype = $.extend(new MathCommand, {
       return true;
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
-      this.cursor.insertAfter(this);
+      if(this.cursor.next === null)
+        this.cursor.insertAfter(this);
+      else if(this.cursor.prev === null)
+        this.cursor.insertBefore(this);
+      else //split apart
+      {
+        var next = new Text(new MathFragment(this.firstChild, this.cursor.prev));
+        next.respace = $.noop;
+        this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
+        delete next.respace;
+      }
     else if(ch === ' ')
-      this.cursor.insertNew(new VanillaSymbol('\\,', '&nbsp;')).show();
+      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
     else
       this.write(ch);
     return false;
