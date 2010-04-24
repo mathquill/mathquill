@@ -143,7 +143,10 @@ Cursor.prototype = {
     if(ch.match(/[a-z,]/i))
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
-      cmd = cmd(this.selection);
+      if(this.selection)
+        cmd = cmd(this.selection.blockify(), this.selection);
+      else
+        cmd = cmd();
     else
       cmd = new VanillaSymbol(ch);
 
@@ -580,8 +583,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
 });
 
+function RootMathCommand(cursor)
+{
+  MathCommand.call(this, '$', undefined, new RootMathBlock);
+  this.firstChild.cursor = cursor;
+}
+RootMathCommand.prototype = new MathCommand;
+RootMathCommand.prototype.html_template = ['<span></span>'];
+
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
+  renderLatex: $.noop,
   skipKeypress: false,
   keydown: function(e)
   {
@@ -668,8 +680,11 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     }
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
-      this.cursor.insertNew //:( need a RootMathBlock that's actually a MathCommand
-    this.cursor.insertNew(String.fromCharCode(e.which)).show();
+      this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
+    else if(ch === ' ')
+      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
+    else
+      this.cursor.insertNew(new VanillaSymbol(ch)).show();
     return false;
   },
 });
@@ -707,7 +722,7 @@ function mathquill()
   var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
   this.each(function()
   {
-    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
+    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new (textbox?RootTextBlock:RootMathBlock);
     root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
       block: root,
       revert: function()
@@ -725,12 +740,7 @@ function mathquill()
     if(!editable)
       return;
 
-    root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
-
-    if(textbox)
-    {
-      cursor.insertNew(new RootTextBlock);
-    }
+    root.jQ.addClass(textbox?'mathquill-textbox':'mathquill-editable').attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
