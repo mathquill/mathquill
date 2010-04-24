@@ -62,7 +62,7 @@ MathElement.prototype = {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template, replacedFragment)
+function MathCommand(cmd, html_template, replacedBlock)
 {
   if(!arguments.length)
     return;
@@ -72,23 +72,23 @@ function MathCommand(cmd, html_template, replacedFragment)
     this.html_template = html_template;
 
   this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
-  this.initBlocks(replacedFragment);
+  this.initBlocks(replacedBlock);
 }
 MathCommand.prototype = $.extend(new MathElement, {
-  initBlocks: function(replacedFragment)
+  initBlocks: function(replacedBlock)
   {
     //single-block commands
     if(this.html_template.length === 1)
     {
       this.firstChild = this.lastChild = this.jQ.data('[[mathquill internal data]]').block =
-        replacedFragment ? replacedFragment.blockify() : new MathBlock;
+        replacedBlock || new MathBlock;
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ.prepend(this.firstChild.jQ);
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev, num_blocks = this.html_template.length;
-    this.firstChild = newBlock = prev = replacedFragment ? replacedFragment.blockify() : new MathBlock;
+    this.firstChild = newBlock = prev = replacedBlock || new MathBlock;
     newBlock.parent = this;
     newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ).prepend(newBlock.jQ);
     newBlock.setEmpty();
@@ -265,12 +265,6 @@ MathFragment.prototype = {
     
     return newBlock;
   },
-  detach: function()
-  {
-    MathFragment.prototype.blockify.call(this);
-    this.jQ.detach();
-    return this;
-  },
 };
 
 /********************************************
@@ -317,9 +311,9 @@ PlusMinus.prototype.respace = function()
   return this;
 };
 
-function SupSub(cmd, html, replacedFragment)
+function SupSub(cmd, html, replacedBlock)
 {
-  MathCommand.call(this, cmd, [ html ], replacedFragment);
+  MathCommand.call(this, cmd, [ html ], replacedBlock);
   var me = this;
   this.jQ.change(function()
   {
@@ -353,14 +347,14 @@ SupSub.prototype.respace = function()
   return this;
 };
 
-function Fraction(replacedFragment)
+function Fraction(replacedBlock)
 {
-  MathCommand.call(this, '\\frac', undefined, replacedFragment);
+  MathCommand.call(this, '\\frac', undefined, replacedBlock);
   this.jQ.append('<span style="width:0;visibility:hidden">/</span>');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
-function LiveFraction(replacedFragment)
+function LiveFraction(replacedBlock)
 {
   Fraction.apply(this, arguments);
 }
@@ -385,11 +379,11 @@ LiveFraction.prototype.placeCursor = function(cursor)
 };
 
 // Parens/Brackets/Braces etc
-function Paren(open, close, replacedFragment)
+function Paren(open, close, replacedBlock)
 {
   MathCommand.call(this, '\\left'+open,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
-    replacedFragment);
+    replacedBlock);
   this.end = '\\right'+close;
   this.firstChild.jQ.change(function()
   {
@@ -398,9 +392,9 @@ function Paren(open, close, replacedFragment)
   });
 }
 Paren.prototype = $.extend(new MathCommand, {
-  initBlocks: function(replacedFragment)
+  initBlocks: function(replacedBlock)
   {
-    this.firstChild = this.lastChild = replacedFragment ? replacedFragment.blockify() : new MathBlock;
+    this.firstChild = this.lastChild = replacedBlock || new MathBlock;
     this.firstChild.parent = this;
     this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children().eq(1).prepend(this.firstChild.jQ) : this.jQ.children().eq(1);
   },
@@ -410,9 +404,9 @@ Paren.prototype = $.extend(new MathCommand, {
   },
 });
 // Closing parens/brackets/braces matching Parens/Brackets/Braces above
-function CloseParen(open, close, replacedFragment)
+function CloseParen(open, close, replacedBlock)
 {
-  Paren.call(this, open, close, replacedFragment);
+  Paren.call(this, open, close, replacedBlock);
 }
 CloseParen.prototype = new Paren;
 CloseParen.prototype.placeCursor = function(cursor)
@@ -427,24 +421,24 @@ CloseParen.prototype.placeCursor = function(cursor)
     this.firstChild.setEmpty().jQ.change();
   }
 };
-function Brace(replacedFragment)
+function Brace(replacedBlock)
 {
-  Paren.call(this, '{', '}', replacedFragment);
+  Paren.call(this, '{', '}', replacedBlock);
 }
 Brace.prototype = new Paren;
 Brace.prototype.latex = function()
 {
   return '\\left\\{' + this.firstChild.latex() + '\\right\\}';
 };
-function CloseBrace(replacedFragment)
+function CloseBrace(replacedBlock)
 {
-  CloseParen.call(this, '{', '}', replacedFragment);
+  CloseParen.call(this, '{', '}', replacedBlock);
 }
 CloseBrace.prototype = new CloseParen;
 CloseBrace.prototype.latex = Brace.prototype.latex;
-function Pipes(replacedFragment)
+function Pipes(replacedBlock)
 {
-  Paren.call(this, '|', '|', replacedFragment);
+  Paren.call(this, '|', '|', replacedBlock);
 }
 Pipes.prototype = new Paren;
 Pipes.prototype.placeCursor = function(cursor)
@@ -455,11 +449,13 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function Text(replacedFragment)
+function Text(replacedBlock)
 {
   MathCommand.call(this, '\\text');
-  if(replacedFragment)
-    this.replacedText = replacedFragment.detach().jQ.text();
+  if(replacedBlock instanceof MathBlock)
+    this.replacedText = replacedBlock.jQ.detach().text();
+  else
+    this.replacedText = replacedBlock;
   this.firstChild.setEmpty = function()
   {
     if(this.isEmpty())
@@ -516,7 +512,7 @@ Text.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if((e.which === 8 && this.cursor.prev === null) || (e.which === 46 && this.cursor.next === null))
+    if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
       return false;
     return this.parent.keydown(e);
   },
@@ -546,7 +542,7 @@ Text.prototype = $.extend(new MathCommand, {
 });
 
 // input box to type a variety of LaTeX commands beginning with a backslash
-function LatexCommandInput(replacedFragment)
+function LatexCommandInput(replacedBlock, replacedFragment)
 {
   MathCommand.call(this, '\\');
   this.firstChild.setEmpty = function()
@@ -559,9 +555,11 @@ function LatexCommandInput(replacedFragment)
     }
     return this;
   };
-  if(replacedFragment)
+  if(replacedBlock)
   {
-    this.replacedFragment = replacedFragment.detach();
+    replacedBlock.jQ.detach();
+    this.replacedBlock = replacedBlock;
+    this.replacedFragment = replacedFragment;
     this.isEmpty = function(){ return false; };
   }
 }
@@ -606,13 +604,13 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     else
       this.cursor.prependTo(this.parent);
     this.cursor.insertNew(this.firstChild.isEmpty() ?
-      new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedFragment));
+      new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
   },
 });
 
-function SquareRoot(replacedFragment)
+function SquareRoot(replacedBlock)
 {
-  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
+  MathCommand.call(this, '\\sqrt', undefined, replacedBlock);
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
@@ -634,33 +632,35 @@ NonItalicizedFunction.prototype = Symbol.prototype;
 
 var SingleCharacterCommands = {
   //Symbols:
-  ' ': function(replacedFragment){ return new VanillaSymbol('\\,', '&nbsp;'); },
-  "'": function(replacedFragment){ return new VanillaSymbol("'", '&prime;');},
-  '@': function(replacedFragment){ return new NonSymbolaSymbol('@'); },
-  '&': function(replacedFragment){ return new NonSymbolaSymbol('\\&', '&'); },
-  '%': function(replacedFragment){ return new NonSymbolaSymbol('\\%', '%'); },
-  '*': function(replacedFragment){ return new BinaryOperator('\\cdot ', '&middot;'); },
+  ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
+  "'": function(){ return new VanillaSymbol("'", '&prime;');},
+  '@': function(){ return new NonSymbolaSymbol('@'); },
+  '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
+  '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },
+  '*': function(){ return new BinaryOperator('\\cdot ', '&middot;'); },
     //semantically should be &sdot;, but &middot; looks better in both Symbola and Times New Roman
-  '=': function(replacedFragment){ return new BinaryOperator('=', '='); },
-  '<': function(replacedFragment){ return new BinaryOperator('<', '&lt;'); },
-  '>': function(replacedFragment){ return new BinaryOperator('>', '&gt;'); },
-  '+': function(replacedFragment){ return new PlusMinus('+'); },
-  '-': function(replacedFragment){ return new PlusMinus('-', '&minus;'); },
+  '=': function(){ return new BinaryOperator('=', '='); },
+  '<': function(){ return new BinaryOperator('<', '&lt;'); },
+  '>': function(){ return new BinaryOperator('>', '&gt;'); },
+  '+': function(){ return new PlusMinus('+'); },
+  '-': function(){ return new PlusMinus('-', '&minus;'); },
   //Commands and Operators:
-  '^': function(replacedFragment){ return new SupSub('^', '<sup></sup>', replacedFragment); },
-  '_': function(replacedFragment){ return new SupSub('_', '<sub></sub>', replacedFragment); },
-  '/': function(replacedFragment){ return new LiveFraction(replacedFragment); },
-  '(': function(replacedFragment){ return new Paren('(', ')', replacedFragment); },
-  '[': function(replacedFragment){ return new Paren('[', ']', replacedFragment); },
-  '{': function(replacedFragment){ return new Brace(replacedFragment); },
-  ')': function(replacedFragment){ return new CloseParen('(', ')', replacedFragment); },
-  ']': function(replacedFragment){ return new CloseParen('[', ']', replacedFragment); },
-  '}': function(replacedFragment){ return new CloseBrace(replacedFragment); },
-  '|': function(replacedFragment){ return new Pipes(replacedFragment); },
-  '$': function(replacedFragment){ return new Text(replacedFragment); },
-  '\\': function(replacedFragment){ return new LatexCommandInput(replacedFragment); },
+  '^': function(replacedBlock){ return new SupSub('^', '<sup></sup>', replacedBlock); },
+  '_': function(replacedBlock){ return new SupSub('_', '<sub></sub>', replacedBlock); },
+  '/': function(replacedBlock){ return new LiveFraction(replacedBlock); },
+  '(': function(replacedBlock){ return new Paren('(', ')', replacedBlock); },
+  '[': function(replacedBlock){ return new Paren('[', ']', replacedBlock); },
+  '{': function(replacedBlock){ return new Brace(replacedBlock); },
+  ')': function(replacedBlock){ return new CloseParen('(', ')', replacedBlock); },
+  ']': function(replacedBlock){ return new CloseParen('[', ']', replacedBlock); },
+  '}': function(replacedBlock){ return new CloseBrace(replacedBlock); },
+  '|': function(replacedBlock){ return new Pipes(replacedBlock); },
+  '$': function(replacedBlock){ return new Text(replacedBlock); },
+  '\\': function(replacedBlock, replacedFragment){
+    return new LatexCommandInput(replacedBlock, replacedFragment);
+  }
 };
-function createLatexCommand(latex, replacedFragment)
+function createLatexCommand(latex, replacedBlock)
 {
   if(latex.match(/^(a|arc)?(sin|cos|tan)h?$/))
     return new NonItalicizedFunction(latex);
@@ -669,11 +669,11 @@ function createLatexCommand(latex, replacedFragment)
   {
   //"real" commands
   case 'sqrt':
-    return new SquareRoot(replacedFragment);
+    return new SquareRoot(replacedBlock);
   case 'frac':
-    return new Fraction(replacedFragment);
+    return new Fraction(replacedBlock);
   case 'text':
-    return new Text(replacedFragment);
+    return new Text(replacedBlock);
 
   //non-italicized functions
   case 'ln':
@@ -1248,7 +1248,10 @@ Cursor.prototype = {
     if(ch.match(/[a-z,]/i))
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
-      cmd = cmd(this.selection);
+      if(this.selection)
+        cmd = cmd(this.selection.blockify(), this.selection);
+      else
+        cmd = cmd();
     else
       cmd = new VanillaSymbol(ch);
 
@@ -1675,26 +1678,123 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey || (this.skipKeypress && !(this.skipKeypress = false)))
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
       return true;
+    }
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
   },
 });
 
+function RootMathCommand(cursor)
+{
+  MathCommand.call(this, '$', undefined, new RootMathBlock);
+  this.firstChild.cursor = cursor;
+}
+RootMathCommand.prototype = new MathCommand;
+RootMathCommand.prototype.html_template = ['<span></span>'];
+
 function RootTextBlock(){}
-RootTextBlock.prototype = $.extend(new Text, {
+RootTextBlock.prototype = $.extend(new MathBlock, {
+  renderLatex: $.noop,
+  skipKeypress: false,
   keydown: function(e)
   {
-    //tab and arrow keys don't move out of block
-    if(e.which === 9 || (this.cursor.prev === null && (e.which === 37 || e.which === 38))
-      || (this.cursor.next === null && (e.which === 39 || e.which === 40)))
+    e.ctrlKey = e.ctrlKey || e.metaKey;
+    switch(e.which)
+    {
+    case 8: //backspace
+      if(e.ctrlKey)
+        while(this.cursor.prev)
+          this.cursor.backspace();
+      else
+        this.cursor.backspace();
       return false;
-    return Text.prototype.keydown.apply(this, arguments);
+    case 27: //esc does something weird in keypress, may as well be the same as tab
+             //  until we figure out what to do with it
+    case 9: //tab
+    case 13: //enter
+      return this.skipKeypress = true;
+    case 35: //end
+      if(e.shiftKey)
+        while(this.cursor.next)
+          this.cursor.selectRight();
+      else //move to the end of the root block or the current block.
+        this.cursor.clearSelection().appendTo(this);
+      return false;
+    case 36: //home
+      if(e.shiftKey)
+        while(this.cursor.prev)
+          this.cursor.selectLeft();
+      else //move to the start of the root block or the current block.
+        this.cursor.clearSelection().prependTo(this);
+      return false;
+    case 37: //left
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectLeft();
+      else
+        this.cursor.moveLeft();
+      return false;
+    case 38: //up
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        while(this.cursor.prev)
+          this.cursor.selectLeft();
+      else if(this.cursor.prev)
+        this.cursor.clearSelection().prependTo(this);
+      return false;
+    case 39: //right
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectRight();
+      else
+        this.cursor.moveRight();
+      return false;
+    case 40: //down
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        while(this.cursor.next)
+          this.cursor.selectRight();
+      else if(this.cursor.next)
+        this.cursor.clearSelection().appendTo(this);
+      return false;
+    case 46: //delete
+      if(e.ctrlKey)
+        while(this.cursor.next)
+          this.cursor.deleteForward();
+      else
+        this.cursor.deleteForward();
+      return false;
+    default:
+      return true;
+    }
+  },
+  keypress: function(e)
+  {
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
+      return true;
+    }
+    var ch = String.fromCharCode(e.which);
+    if(ch === '$')
+      this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
+    else if(ch === ' ')
+      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
+    else
+      this.cursor.insertNew(new VanillaSymbol(ch)).show();
+    return false;
   },
 });
 
-//The actual, publically exposed method of jQuery.prototype, available
+//The actual, publicly exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 function mathquill()
 {
@@ -1727,7 +1827,7 @@ function mathquill()
   var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
   this.each(function()
   {
-    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new RootMathBlock;
+    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new (textbox?RootTextBlock:RootMathBlock);
     root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
       block: root,
       revert: function()
@@ -1745,10 +1845,7 @@ function mathquill()
     if(!editable)
       return;
 
-    root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
-
-    if(textbox)
-      cursor.insertNew(new Text);
+    root.jQ.addClass(textbox?'mathquill-textbox':'mathquill-editable').attr('tabindex', 0);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
