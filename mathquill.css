@@ -29,10 +29,8 @@
   border: solid gray 1px;
 }
 .mathquill-editable.hasCursor{
-  outline: none;
-  border: solid #DEF 2px;
-  border: solid rgba(119,187,255,.25) 2px;
-  margin: -1px;
+  outline: solid #DEF 2px;
+  outline: solid rgba(119,187,255,.25) 2px;
 }
 
 .mathquill-rendered-math {
