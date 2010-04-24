@@ -283,6 +283,12 @@ function NonSymbolaSymbol(ch, html) //does not use Symbola font
 }
 NonSymbolaSymbol.prototype = Symbol.prototype;
 
+function BigSymbol(ch, html)
+{
+  Symbol.call(this, ch, '<big>'+(html || ch)+'</big>');
+}
+BigSymbol.prototype = Symbol.prototype;
+
 function Variable(ch, html)
 {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
@@ -639,7 +645,7 @@ var SingleCharacterCommands = {
   //Symbols:
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   "'": function(){ return new VanillaSymbol("'", '&prime;'); },
-  'f': function(){ return new VanillaSymbol('f', '<var style="margin-left:-.1em">&fnof;</var>'); },
+  'f': function(){ return new VanillaSymbol('f', '<var style="margin:0 -.1em">&fnof;</var>'); },
   '@': function(){ return new NonSymbolaSymbol('@'); },
   '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
   '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },
@@ -780,21 +786,21 @@ function createLatexCommand(latex, replacedBlock)
   case 'perp':
   case 'nabla':
   case 'forall':
-  case 'sum':
     return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
 
-  //product and coproduct, goes together with sum
+  //sum, product, coproduct, integral
+  case 'sum':
+  case 'summation':
+    return new BigSymbol('\\sum ','&sum;');
   case 'prod':
   case 'product':
-    return new VanillaSymbol('\\prod ','&prod;');
+    return new BigSymbol('\\prod ','&prod;');
   case 'coprod':
   case 'coproduct':
-    return new VanillaSymbol('\\coprod ','&#8720;');
-
-  //integral
+    return new BigSymbol('\\coprod ','&#8720;');
   case 'int':
   case 'integral':
-    return new VanillaSymbol('\\int ','&int;');
+    return new BigSymbol('\\int ','&int;');
 
   //the canonical sets of numbers
   case 'N':
@@ -1251,7 +1257,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-eg-z,]/i))
+    if(ch.match(/[a-eg-z,]/i)) //exclude f because want florin in SingleCharacterCommands
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
       if(this.selection)
@@ -1798,7 +1804,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    if(e.ctrlKey || e.metaKey || this.skipKeypress || e.which < 32 || e.which > 126)
     {
       this.skipKeypress = false;
       return true;

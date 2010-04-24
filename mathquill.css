@@ -26,6 +26,7 @@
 
 .mathquill-editable, .mathquill-textbox {
   display: inline-block;
+  display: -moz-inline-stack;
   border: solid gray 1px;
 }
 
@@ -48,6 +49,7 @@
   font-size: inherit;
   line-height: inherit;
   display: inline-block;
+  display: -moz-inline-stack;
   margin: 0;
   padding: 0;
   cursor: text;
@@ -85,6 +87,11 @@
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
   font-style: italic;
   font-weight: normal;
+}
+
+.mathquill-rendered-math big {
+  font-size: 125%;
+  vertical-align: middle;
 }
 
 .mathquill-rendered-math sup, .mathquill-rendered-math sub {
