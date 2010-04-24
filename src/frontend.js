@@ -570,28 +570,111 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey || (this.skipKeypress && !(this.skipKeypress = false)))
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
       return true;
+    }
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
   },
 });
 
-function RootTextBlock(){
-  Text.apply(this, arguments);
-}
-RootTextBlock.prototype = $.extend(new Text, {
+function RootTextBlock(){}
+RootTextBlock.prototype = $.extend(new MathBlock, {
+  skipKeypress: false,
   keydown: function(e)
   {
-    //tab and arrow keys don't move out of block
-    if(e.which === 9 || (this.cursor.prev === null && (e.which === 37 || e.which === 38))
-      || (this.cursor.next === null && (e.which === 39 || e.which === 40)))
+    e.ctrlKey = e.ctrlKey || e.metaKey;
+    switch(e.which)
+    {
+    case 8: //backspace
+      if(e.ctrlKey)
+        while(this.cursor.prev)
+          this.cursor.backspace();
+      else
+        this.cursor.backspace();
       return false;
-    return Text.prototype.keydown.apply(this, arguments);
+    case 27: //esc does something weird in keypress, may as well be the same as tab
+             //  until we figure out what to do with it
+    case 9: //tab
+    case 13: //enter
+      return this.skipKeypress = true;
+    case 35: //end
+      if(e.shiftKey)
+        while(this.cursor.next)
+          this.cursor.selectRight();
+      else //move to the end of the root block or the current block.
+        this.cursor.clearSelection().appendTo(this);
+      return false;
+    case 36: //home
+      if(e.shiftKey)
+        while(this.cursor.prev)
+          this.cursor.selectLeft();
+      else //move to the start of the root block or the current block.
+        this.cursor.clearSelection().prependTo(this);
+      return false;
+    case 37: //left
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectLeft();
+      else
+        this.cursor.moveLeft();
+      return false;
+    case 38: //up
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        while(this.cursor.prev)
+          this.cursor.selectLeft();
+      else if(this.cursor.prev)
+        this.cursor.clearSelection().prependTo(this);
+      return false;
+    case 39: //right
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        this.cursor.selectRight();
+      else
+        this.cursor.moveRight();
+      return false;
+    case 40: //down
+      if(e.ctrlKey)
+        return true;
+      if(e.shiftKey)
+        while(this.cursor.next)
+          this.cursor.selectRight();
+      else if(this.cursor.next)
+        this.cursor.clearSelection().appendTo(this);
+      return false;
+    case 46: //delete
+      if(e.ctrlKey)
+        while(this.cursor.next)
+          this.cursor.deleteForward();
+      else
+        this.cursor.deleteForward();
+      return false;
+    default:
+      return true;
+    }
+  },
+  keypress: function(e)
+  {
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
+      return true;
+    }
+    var ch = String.fromCharCode(e.which);
+    if(ch === '$')
+      this.cursor.insertNew //:( need a RootMathBlock that's actually a MathCommand
+    this.cursor.insertNew(String.fromCharCode(e.which)).show();
+    return false;
   },
 });
 
-//The actual, publically exposed method of jQuery.prototype, available
+//The actual, publicly exposed method of jQuery.prototype, available
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 function mathquill()
 {
@@ -645,7 +728,9 @@ function mathquill()
     root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
 
     if(textbox)
+    {
       cursor.insertNew(new RootTextBlock);
+    }
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
