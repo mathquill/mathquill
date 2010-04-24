@@ -28,10 +28,6 @@
   display: inline-block;
   border: solid gray 1px;
 }
-.mathquill-editable.hasCursor, .mathquill-textbox.hasCursor {
-  outline: solid #DEF 2px;
-  outline: solid rgba(119,187,255,.25) 2px;
-}
 
 .mathquill-rendered-math {
   color: black;
@@ -56,9 +52,9 @@
   padding: 0;
   cursor: text;
 }
-.mathquill-rendered-math .hasCursor {
-  outline: solid #DEF 2px;
-  outline: solid rgba(119,187,255,.25) 2px;
+.mathquill-editable.hasCursor, .mathquill-textbox.hasCursor, .mathquill-rendered-math .hasCursor {
+  outline: solid rgb(180,230,255) 2px;
+  outline: solid rgba(0,155,255,.2) 2px;
 }
 
 .mathquill-rendered-math .cursor {
@@ -146,13 +142,6 @@
   padding-right: 1px;
   margin-right: 1px;
   margin-left: 2px;
-  outline: none;
-}
-.mathquill-rendered-math .latex-command-input.hasCursor {
-  border: none;
-  margin: 1px 2px 1px 3px;
-  outline: solid #DEF 2px;
-  outline: solid rgba(119,187,255,.25) 2px;
 }
 .mathquill-rendered-math .latex-command-input.empty {
   color: transparent;
