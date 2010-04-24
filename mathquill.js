@@ -339,6 +339,11 @@ SupSub.prototype.respace = function()
       left: -this.prev.jQ.innerWidth(),
       marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
     });
+  else if(this.prev && this.prev.cmd === '\\int ')
+    this.jQ.css({
+      left: '-.1em',
+      marginRight: 0
+    });
   else
     this.jQ.css({
       left: 0,
@@ -350,7 +355,7 @@ SupSub.prototype.respace = function()
 function Fraction(replacedBlock)
 {
   MathCommand.call(this, '\\frac', undefined, replacedBlock);
-  this.jQ.append('<span style="width:0;visibility:hidden">&nbsp;</span>');
+  this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
@@ -633,7 +638,8 @@ NonItalicizedFunction.prototype = Symbol.prototype;
 var SingleCharacterCommands = {
   //Symbols:
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
-  "'": function(){ return new VanillaSymbol("'", '&prime;');},
+  "'": function(){ return new VanillaSymbol("'", '&prime;'); },
+  'f': function(){ return new VanillaSymbol('f', '<var style="margin-left:-.1em">&fnof;</var>'); },
   '@': function(){ return new NonSymbolaSymbol('@'); },
   '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
   '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },
@@ -1245,7 +1251,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-z,]/i))
+    if(ch.match(/[a-eg-z,]/i))
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
       if(this.selection)
@@ -1692,6 +1698,20 @@ function RootMathCommand(cursor)
 {
   MathCommand.call(this, '$', undefined, new RootMathBlock);
   this.firstChild.cursor = cursor;
+  this.firstChild.keypress = function(e)
+  {
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
+      return true;
+    }
+    var ch = String.fromCharCode(e.which);
+    if(!this.cursor.next && ch === '$')
+      this.cursor.insertAfter(this.parent);
+    else
+      this.cursor.write(ch).show();
+    return false;
+  };
 }
 RootMathCommand.prototype = new MathCommand;
 RootMathCommand.prototype.html_template = ['<span></span>'];
