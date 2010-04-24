@@ -1804,11 +1804,12 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey || this.skipKeypress || e.which < 32 || e.which > 126)
+    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32 || e.which > 126)
     {
       this.skipKeypress = false;
       return true;
     }
+    alert(e.which);
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
