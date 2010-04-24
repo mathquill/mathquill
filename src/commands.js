@@ -183,8 +183,10 @@ Pipes.prototype.placeCursor = function(cursor)
 function Text(replacedFragment)
 {
   MathCommand.call(this, '\\text');
-  if(replacedFragment)
+  if(replacedFragment instanceof MathFragment)
     this.replacedText = replacedFragment.detach().jQ.text();
+  else
+    this.replacedText = replacedFragment;
   this.firstChild.setEmpty = function()
   {
     if(this.isEmpty())
@@ -241,7 +243,7 @@ Text.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if((e.which === 8 && this.cursor.prev === null) || (e.which === 46 && this.cursor.next === null))
+    if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
       return false;
     return this.parent.keydown(e);
   },
