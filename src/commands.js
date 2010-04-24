@@ -364,7 +364,8 @@ NonItalicizedFunction.prototype = Symbol.prototype;
 var SingleCharacterCommands = {
   //Symbols:
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
-  "'": function(){ return new VanillaSymbol("'", '&prime;');},
+  "'": function(){ return new VanillaSymbol("'", '&prime;'); },
+  'f': function(){ return new VanillaSymbol('f', '<var style="margin-left:-.1em">&fnof;</var>'); },
   '@': function(){ return new NonSymbolaSymbol('@'); },
   '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
   '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },

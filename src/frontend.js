@@ -140,7 +140,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-z,]/i))
+    if(ch.match(/[a-eg-z,]/i)) //exclude f because want florin in SingleCharacterCommands
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
       if(this.selection)
