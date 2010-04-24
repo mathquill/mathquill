@@ -26,6 +26,7 @@
 }*/
 
 .mathquill-editable, .mathquill-textbox {
+  display: -moz-inline-box;
   display: inline-block;
   border: solid gray 1px;
 }
@@ -48,6 +49,7 @@
   background-color: transparent;
   font-size: inherit;
   line-height: inherit;
+  display: -moz-inline-box;
   display: inline-block;
   margin: 0;
   padding: 0;
