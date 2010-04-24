@@ -1690,7 +1690,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32 || e.which > 126)
+    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
     {
       this.skipKeypress = false;
       return true;
@@ -1804,7 +1804,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32 || e.which > 126)
+    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
     {
       this.skipKeypress = false;
       return true;
