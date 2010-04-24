@@ -8,9 +8,8 @@
         margin:0 auto;
         font-family:"Times New Roman",serif;
       }
-      .math{
+      code{
         font-family:"Courier New",sans-serif;
-        display: inline-block;
       }
       a#codecogslink{
         text-decoration: none;
@@ -65,13 +64,13 @@
   <body>
     <h2><a href="http://laughinghan.github.com/mathquill">MathQuill 0.2&alpha;</a></h2>
     <p>by Jay and <a href="http://github.com/laughinghan">Han (laughinghan)</a></p>
-    <p>This gets automatically turned into pretty math: <span class="math mathquill-embedded-latex">e^{i\pi}+1=0</span></p>
-    <p><button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
-       <span class="math">\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}</span></p>
+    <p>The HTML source <code>&lt;span class="mathquill-embedded-latex"&gt;e^{i\pi}+1=0&lt;/span&gt;</code> with LaTeX math embedded in it and wrapped in an element with CSS class "mathquill-embedded-latex" get's turned into the inline equation <span class="mathquill-embedded-latex">e^{i\pi}+1=0</span>.
+    <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;code&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
+       <code>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</code></p>
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable"></span></p>
     <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('less &laquo;').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
     <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
     <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs"> <span>Link</span></a></p>
-    <p>MathQuill Textbox: <span class="mathquill-textbox"></span></p>
+    <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox"></span></p>
   </body>
 </html>
