@@ -587,6 +587,20 @@ function RootMathCommand(cursor)
 {
   MathCommand.call(this, '$', undefined, new RootMathBlock);
   this.firstChild.cursor = cursor;
+  this.firstChild.keypress = function(e)
+  {
+    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    {
+      this.skipKeypress = false;
+      return true;
+    }
+    var ch = String.fromCharCode(e.which);
+    if(!this.cursor.next && ch === '$')
+      this.cursor.insertAfter(this.parent);
+    else
+      this.cursor.write(ch).show();
+    return false;
+  };
 }
 RootMathCommand.prototype = new MathCommand;
 RootMathCommand.prototype.html_template = ['<span></span>'];
