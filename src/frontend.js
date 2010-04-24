@@ -577,7 +577,9 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
 });
 
-function RootTextBlock(){}
+function RootTextBlock(){
+  Text.apply(this, arguments);
+}
 RootTextBlock.prototype = $.extend(new Text, {
   keydown: function(e)
   {
@@ -643,7 +645,7 @@ function mathquill()
     root.jQ.addClass('mathquill-editable').attr('tabindex', 0);
 
     if(textbox)
-      cursor.insertNew(new Text);
+      cursor.insertNew(new RootTextBlock);
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
