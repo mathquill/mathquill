@@ -70,6 +70,11 @@ SupSub.prototype.respace = function()
       left: -this.prev.jQ.innerWidth(),
       marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
     });
+  else if(this.prev && this.prev.cmd === '\\int ')
+    this.jQ.css({
+      left: '-.1em',
+      marginRight: 0
+    });
   else
     this.jQ.css({
       left: 0,
