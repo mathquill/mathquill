@@ -718,9 +718,31 @@ function mathquill()
         return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
+      {
         cursor.insertBefore(cmd);
+        var prevDist, dist = e.pageX - cursor.jQ.offset().left;
+        do
+        {
+          cursor.moveRight();
+          prevDist = dist;
+          dist = Math.abs(e.pageX - cursor.jQ.offset().left);
+        }
+        while(dist <= prevDist);
+        cursor.moveLeft();
+      }
       else
+      {
         cursor.insertAfter(cmd);
+        var prevDist, dist = cursor.jQ.offset().left - e.pageX;
+        do
+        {
+          cursor.moveLeft();
+          prevDist = dist;
+          dist = Math.abs(cursor.jQ.offset().left - e.pageX);
+        }
+        while(dist <= prevDist);
+        cursor.moveRight();
+      }
       return false;
     }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
