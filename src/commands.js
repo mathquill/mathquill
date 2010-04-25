@@ -193,7 +193,7 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function Text(replacedBlock)
+function TextBlock(replacedBlock)
 {
   MathCommand.call(this, '\\text');
   if(replacedBlock instanceof MathBlock)
@@ -223,7 +223,7 @@ function Text(replacedBlock)
     return this;
   };
 }
-Text.prototype = $.extend(new MathCommand, {
+TextBlock.prototype = $.extend(new MathCommand, {
   html_template: ['<span></span>'],
   placeCursor: function(cursor)
   {
@@ -234,7 +234,7 @@ Text.prototype = $.extend(new MathCommand, {
   },
   respace: function()
   {
-    if(this.prev instanceof Text)
+    if(this.prev instanceof TextBlock)
     { //merge textblocks
       var textblock = this;
       setTimeout(function()
@@ -273,7 +273,7 @@ Text.prototype = $.extend(new MathCommand, {
         this.cursor.insertBefore(this);
       else //split apart
       {
-        var next = new Text(new MathFragment(this.firstChild, this.cursor.prev));
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
         next.respace = $.noop;
         this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
         delete next.respace;
@@ -401,7 +401,7 @@ var SingleCharacterCommands = {
   ']': function(replacedBlock){ return new CloseParen('[', ']', replacedBlock); },
   '}': function(replacedBlock){ return new CloseBrace(replacedBlock); },
   '|': function(replacedBlock){ return new Pipes(replacedBlock); },
-  '$': function(replacedBlock){ return new Text(replacedBlock); },
+  '$': function(replacedBlock){ return new TextBlock(replacedBlock); },
   '\\': function(replacedBlock, replacedFragment){
     return new LatexCommandInput(replacedBlock, replacedFragment);
   }
@@ -419,7 +419,7 @@ function createLatexCommand(latex, replacedBlock)
   case 'frac':
     return new Fraction(replacedBlock);
   case 'text':
-    return new Text(replacedBlock);
+    return new TextBlock(replacedBlock);
 
   //non-italicized functions
   case 'ln':
@@ -845,7 +845,7 @@ function createLatexCommand(latex, replacedBlock)
   case 'notsuperseteq':
     return new BinaryOperator('\\not\\supseteq ','&#8841;');
   default:
-    return new Text(latex);
+    return new TextBlock(latex);
   }
 }
 
