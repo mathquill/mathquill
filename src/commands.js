@@ -219,6 +219,33 @@ MagicBlock.prototype = $.extend(new MathBlock, {
     };
     return this;
   },
+  removeEmpty: function()
+  {
+    if(this.parent.prev instanceof TextBlock)
+    {
+      var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
+      setTimeout(function() //defer
+      {
+        prev.eachChild(function(){
+          this.parent = me;
+          this.jQ.insertBefore(me.firstChild.jQ);
+        });
+        prev.lastChild.next = me.firstChild;
+        me.firstChild.prev = prev.lastChild;
+        me.firstChild = prev.firstChild;
+        textblock.prev.remove();
+        if(textblock.cursor.next)
+          textblock.cursor.insertBefore(textblock.cursor.next);
+        else
+          textblock.cursor.appendTo(me);
+        me.jQ.change();
+      },0);
+    }
+    else if(this.parent.next instanceof TextBlock)
+      this.parent.next.firstChild.removeEmpty();
+
+    return this;
+  },
 });
 function TextBlock(replacedBlock)
 {
@@ -266,7 +293,9 @@ TextBlock.prototype = $.extend(new MathCommand, {
       else //split apart
       {
         var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        next.firstChild.removeEmpty = function(){ return this; };
         this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
+        delete next.firstChild.removeEmpty;
       }
     else
       this.write(ch);
