@@ -76,15 +76,15 @@ SupSub.prototype.respace = function()
       left: -this.prev.jQ.innerWidth(),
       marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
     });
-  else if(this.prev && this.prev.cmd === '\\int ')
+  else if(this.cmd === '_' && this.prev && this.prev.cmd === '\\int ')
     this.jQ.css({
       left: '-.1em',
-      marginRight: 0
+      marginRight: ''
     });
   else
     this.jQ.css({
-      left: 0,
-      marginRight: 0
+      left: '',
+      marginRight: ''
     });
   return this;
 };
@@ -378,7 +378,7 @@ var SingleCharacterCommands = {
   //Symbols:
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   "'": function(){ return new VanillaSymbol("'", '&prime;'); },
-  'f': function(){ return new VanillaSymbol('f', '<var style="margin:0 -.1em">&fnof;</var>'); },
+  'f': function(){ return new Symbol('f', '<var class="florin">&fnof;</var>'); },
   '@': function(){ return new NonSymbolaSymbol('@'); },
   '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
   '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },

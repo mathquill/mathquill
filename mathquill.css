@@ -89,6 +89,9 @@
   font-style: italic;
   font-weight: normal;
 }
+.mathquill-rendered-math var.florin { /* florin looks so much better than italic f */
+  margin: 0 -.1em;
+}
 
 .mathquill-rendered-math big {
   font-size: 125%;

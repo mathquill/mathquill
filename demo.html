@@ -8,7 +8,7 @@
         margin:0 auto;
         font-family:"Times New Roman",serif;
       }
-      code{
+      code,#html-source{
         font-family:"Courier New",sans-serif;
       }
       a#codecogslink{
@@ -21,6 +21,12 @@
         vertical-align:middle;
         border: none;
       }
+      span.mathquill-textbox{
+        width:100%;
+      }
+      #html-source{
+        display:none;
+      }
     </style>
     <script type="text/javascript" src="vendor/jquery.min.js"></script>
     <script type="text/javascript" src="build/mathquill.js"></script>
@@ -29,11 +35,39 @@
       $(function(){
         var editingSource = false, latexMath = $('#editable-math').change(function()
         {
+          function printTree(html)
+          {
+            html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
+            if(!html) return;
+            var indent = '\n', tree = '';
+            while(html.length)
+            {
+              var token = html.shift();
+              if(token.charAt(0) === '<')
+              {
+                if(token.charAt(1) === '/')
+                {
+                  indent = indent.slice(0,-2);
+                  if(html[0] && html[0].slice(0,2) === '</')
+                    token += indent.slice(0,-2);
+                }
+                else
+                {
+                  tree += indent;
+                  indent += '  ';
+                 }
+                token = token.toLowerCase();
+              }
+
+              tree += token;
+            }
+            return tree.slice(1);
+          }
+          $('#html-source').text(printTree($(this).html().replace(/<span class="cursor( blink)?"><\/span>/i,'')));
           var latex = $(this).mathquill('latex');
           //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
           if(!editingSource)
-            //$('#latex-source').val(latex);
-            $('#latex-source').text(latex);
+            $('#latex-source').val(latex);
           if(!LatexImages)
             return;
           latex = encodeURIComponent(latex);
@@ -70,7 +104,10 @@
     <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable"></span></p>
     <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('less &laquo;').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
     <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
-    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs"> <span>Link</span></a></p>
+    <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
+    <p>If all you want is to include a static math expression in your web page, you can simply type it in the editable math textbox above, copy and paste the following HTML code into your page source, link to our stylesheet in your header, and you won't need to bother with the JavaScript file.</p>
+    <p><a href="javascript:void(0)" onclick="$(this).html('Hide HTML Source (Note how semantically meaningful it is)').parent().next().show(); var show = arguments.callee; this.onclick=function(){ $(this).html('Show HTML Source (Note how semantically meaningful it is)').parent().next().hide(); this.onclick = show; };">Show HTML Source (Note how semantically meaningful it is)</a></p>
+    <pre id="html-source"></pre>
     <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox"></span></p>
   </body>
 </html>
