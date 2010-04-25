@@ -88,6 +88,10 @@
   cursor: text;
 }
 
+.mathquill-rendered-math .text {
+  display: inline;
+}
+
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
   font-style: italic;
   font-weight: normal;
