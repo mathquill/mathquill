@@ -242,7 +242,10 @@ MagicBlock.prototype = $.extend(new MathBlock, {
       },0);
     }
     else if(this.parent.next instanceof TextBlock)
-      this.parent.next.firstChild.removeEmpty();
+      if(this.parent.cursor.next)
+        this.parent.next.firstChild.removeEmpty();
+      else
+        this.parent.cursor.prependTo(this.parent.next.firstChild);
 
     return this;
   },
