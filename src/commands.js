@@ -256,6 +256,7 @@ Text.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
+    if(!this.isEmpty())
     if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
       return false;
     return this.parent.keydown(e);
