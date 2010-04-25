@@ -345,15 +345,15 @@ SupSub.prototype.respace = function()
       left: -this.prev.jQ.innerWidth(),
       marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
     });
-  else if(this.prev && this.prev.cmd === '\\int ')
+  else if(this.cmd === '_' && this.prev && this.prev.cmd === '\\int ')
     this.jQ.css({
       left: '-.1em',
-      marginRight: 0
+      marginRight: ''
     });
   else
     this.jQ.css({
-      left: 0,
-      marginRight: 0
+      left: '',
+      marginRight: ''
     });
   return this;
 };
@@ -462,7 +462,7 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function Text(replacedBlock)
+function TextBlock(replacedBlock)
 {
   MathCommand.call(this, '\\text');
   if(replacedBlock instanceof MathBlock)
@@ -492,7 +492,7 @@ function Text(replacedBlock)
     return this;
   };
 }
-Text.prototype = $.extend(new MathCommand, {
+TextBlock.prototype = $.extend(new MathCommand, {
   html_template: ['<span></span>'],
   placeCursor: function(cursor)
   {
@@ -503,7 +503,7 @@ Text.prototype = $.extend(new MathCommand, {
   },
   respace: function()
   {
-    if(this.prev instanceof Text)
+    if(this.prev instanceof TextBlock)
     { //merge textblocks
       var textblock = this;
       setTimeout(function()
@@ -525,6 +525,7 @@ Text.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
+    if(!this.isEmpty())
     if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
       return false;
     return this.parent.keydown(e);
@@ -541,7 +542,7 @@ Text.prototype = $.extend(new MathCommand, {
         this.cursor.insertBefore(this);
       else //split apart
       {
-        var next = new Text(new MathFragment(this.firstChild, this.cursor.prev));
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
         next.respace = $.noop;
         this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
         delete next.respace;
@@ -647,7 +648,7 @@ var SingleCharacterCommands = {
   //Symbols:
   ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
   "'": function(){ return new VanillaSymbol("'", '&prime;'); },
-  'f': function(){ return new VanillaSymbol('f', '<var style="margin:0 -.1em">&fnof;</var>'); },
+  'f': function(){ return new Symbol('f', '<var class="florin">&fnof;</var>'); },
   '@': function(){ return new NonSymbolaSymbol('@'); },
   '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
   '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },
@@ -669,7 +670,7 @@ var SingleCharacterCommands = {
   ']': function(replacedBlock){ return new CloseParen('[', ']', replacedBlock); },
   '}': function(replacedBlock){ return new CloseBrace(replacedBlock); },
   '|': function(replacedBlock){ return new Pipes(replacedBlock); },
-  '$': function(replacedBlock){ return new Text(replacedBlock); },
+  '$': function(replacedBlock){ return new TextBlock(replacedBlock); },
   '\\': function(replacedBlock, replacedFragment){
     return new LatexCommandInput(replacedBlock, replacedFragment);
   }
@@ -687,7 +688,7 @@ function createLatexCommand(latex, replacedBlock)
   case 'frac':
     return new Fraction(replacedBlock);
   case 'text':
-    return new Text(replacedBlock);
+    return new TextBlock(replacedBlock);
 
   //non-italicized functions
   case 'ln':
@@ -1113,7 +1114,7 @@ function createLatexCommand(latex, replacedBlock)
   case 'notsuperseteq':
     return new BinaryOperator('\\not\\supseteq ','&#8841;');
   default:
-    return new Text(latex);
+    return new TextBlock(latex);
   }
 }
 
@@ -1728,82 +1729,7 @@ function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
   renderLatex: $.noop,
   skipKeypress: false,
-  keydown: function(e)
-  {
-    e.ctrlKey = e.ctrlKey || e.metaKey;
-    switch(e.which)
-    {
-    case 8: //backspace
-      if(e.ctrlKey)
-        while(this.cursor.prev)
-          this.cursor.backspace();
-      else
-        this.cursor.backspace();
-      return false;
-    case 27: //esc does something weird in keypress, may as well be the same as tab
-             //  until we figure out what to do with it
-    case 9: //tab
-    case 13: //enter
-      return this.skipKeypress = true;
-    case 35: //end
-      if(e.shiftKey)
-        while(this.cursor.next)
-          this.cursor.selectRight();
-      else //move to the end of the root block or the current block.
-        this.cursor.clearSelection().appendTo(this);
-      return false;
-    case 36: //home
-      if(e.shiftKey)
-        while(this.cursor.prev)
-          this.cursor.selectLeft();
-      else //move to the start of the root block or the current block.
-        this.cursor.clearSelection().prependTo(this);
-      return false;
-    case 37: //left
-      if(e.ctrlKey)
-        return true;
-      if(e.shiftKey)
-        this.cursor.selectLeft();
-      else
-        this.cursor.moveLeft();
-      return false;
-    case 38: //up
-      if(e.ctrlKey)
-        return true;
-      if(e.shiftKey)
-        while(this.cursor.prev)
-          this.cursor.selectLeft();
-      else if(this.cursor.prev)
-        this.cursor.clearSelection().prependTo(this);
-      return false;
-    case 39: //right
-      if(e.ctrlKey)
-        return true;
-      if(e.shiftKey)
-        this.cursor.selectRight();
-      else
-        this.cursor.moveRight();
-      return false;
-    case 40: //down
-      if(e.ctrlKey)
-        return true;
-      if(e.shiftKey)
-        while(this.cursor.next)
-          this.cursor.selectRight();
-      else if(this.cursor.next)
-        this.cursor.clearSelection().appendTo(this);
-      return false;
-    case 46: //delete
-      if(e.ctrlKey)
-        while(this.cursor.next)
-          this.cursor.deleteForward();
-      else
-        this.cursor.deleteForward();
-      return false;
-    default:
-      return true;
-    }
-  },
+  keydown: RootMathBlock.prototype.keydown,
   keypress: function(e)
   {
     if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
