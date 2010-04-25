@@ -189,7 +189,7 @@ function MathFragment(parent, prev, next)
   this.prev = prev || null; //so you can do 'new MathFragment(block)' without
   this.next = next || null; //ending up with this.prev or this.next === undefined
 
-  this.jQinit(this.reduce(function(initVal){ return initVal.add(this.jQ); }, $()));
+  this.jQinit(this.reduce(function(initVal){ return this.jQ.add(initVal); }, $()));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,

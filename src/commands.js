@@ -193,14 +193,106 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function TextBlock(replacedBlock)
+//fake MathCommands to fool fake cursor when inside TextBlock -- LOL
+//each character gets its own Math DOM element, but everything before
+//the cursor shares an HTML DOM element, and everything after the cursor
+//shares an HTML DOM element
+function MagicText(ch)
 {
-  MathCommand.call(this, '\\text');
-  if(replacedBlock instanceof MathBlock)
-    this.replacedText = replacedBlock.jQ.detach().text();
-  else
-    this.replacedText = replacedBlock;
-  this.firstChild.setEmpty = function()
+  this.cmd = ch;
+  this.jQ = this;
+}
+MagicText.prototype = $.extend(new Symbol, {
+  insertBefore: function(cursorJQ) //as called by Cursor.prototype.insertNew()
+  {
+    if(cursorJQ[0].previousSibling)
+      cursorJQ[0].previousSibling.nodeValue += this.cmd;
+    else
+      cursorJQ[0].parentNode.insertBefore(document.createTextNode(this.cmd), cursorJQ[0]);
+    this.htmlNode = cursorJQ[0].previousSibling;
+  },
+  remove: function() //as called by Cursor.prototype.backspace() and deleteForward()
+  {
+    if(this.prev)
+      this.prev.next = this.next;
+    else
+      this.parent.firstChild = this.next;
+    
+    if(this.next)
+      this.next.prev = this.prev;
+    else
+      this.parent.lastChild = this.prev;
+
+    if(this.prev)
+      if(this.prev.htmlNode === this.htmlNode)
+        this.htmlNode.nodeValue = this.htmlNode.nodeValue.slice(0,-1);
+      else
+        this.htmlNode.nodeValue = this.htmlNode.nodeValue.slice(1);
+    else
+      this.htmlNode.parentNode.removeChild(this.htmlNode);
+
+    return this;
+  },
+  first: function() //as called by Cursor.prototype.hopLeft()
+  {
+    var me = this.htmlNode;
+    if(this.next)
+      (this.htmlNode = this.next.htmlNode).nodeValue = this.cmd + this.next.htmlNode.nodeValue;
+    else
+      me.parentNode.appendChild(this.htmlNode = document.createTextNode(this.cmd));
+    if(this.prev)
+      me.nodeValue = me.nodeValue.slice(0,-1);
+    else
+      me.parentNode.removeChild(me);
+    return this.htmlNode;
+  },
+  last: function() //as called by Cursor.prototype.hopRight()
+  {
+    var me = this.htmlNode;
+    if(this.prev)
+      (this.htmlNode = this.prev.htmlNode).nodeValue += this.cmd;
+    else
+      me.parentNode.insertBefore(this.htmlNode = document.createTextNode(this.cmd), me);
+    if(this.next)
+      me.nodeValue = me.nodeValue.slice(1);
+    else
+      me.parentNode.removeChild(me);
+    return this.htmlNode;
+  },
+  add: function(jQ) //as called by the Selection constructor (via the MathFragment constructor)
+  {
+    var me = this.htmlNode;
+    if(this.prev && this.prev.htmlNode === this.htmlNode)
+      me.parentNode.insertBefore(this.htmlNode = document.createTextNode(this.cmd), me.nextSibling);
+    else
+      me.parentNode.insertBefore(this.htmlNode = document.createTextNode(this.cmd), me);
+    if(this.prev)
+      if(this.prev.htmlNode === me)
+        me.nodeValue = me.nodeValue.slice(0,-1);
+      else
+        me.nodeValue = me.nodeValue.slice(1);
+    else
+      me.parentNode.removeChild(me);
+    return $(this.htmlNode).add(jQ);
+  },
+  prependTo: function(jQ) //as called by Cursor.prototype.selectLeft() when extending left
+  {
+    this.add($()).prependTo(jQ);
+  },
+  appendTo: function(jQ) //as called by Cursor.prototype.selectRight() when extending right
+  {
+    this.add($()).appendTo(jQ);
+  },
+  insertAfter: function(jQ) //as called by Cursor.prototype.selectLeft() when retracting left
+  {
+  },
+  insertBefore: function(jQ) //as called by Cursor.prototype.selectRight() when retracting right
+  {
+  },
+});
+function MagicBlock(){}
+MagicBlock.prototype = $.extend(new MathBlock, {
+  setEmpty: function()
   {
     if(this.isEmpty())
     {
@@ -209,22 +301,28 @@ function TextBlock(replacedBlock)
                             //not the wrong way to do things, merely poorly named
       {
         if(textblock.cursor.prev === textblock)
-        {
-          textblock.remove();
-          textblock.cursor.prev = textblock.prev;
-        }
+          textblock.cursor.backspace();
         else if(textblock.cursor.next === textblock)
-        {
-          textblock.remove();
-          textblock.cursor.next = textblock.next;
-        }
+          textblock.cursor.deleteForward();
+        //else must be blur, don't remove textblock
       },0);
     };
     return this;
-  };
+  },
+});
+function TextBlock(replacedBlock)
+{
+  MathCommand.call(this, '\\text', undefined, new MagicBlock);
+  if(replacedBlock instanceof MathBlock)
+  {
+    this.replacedText = replacedBlock.jQ.text();
+    replacedBlock.jQ.remove();
+  }
+  else
+    this.replacedText = replacedBlock;
 }
 TextBlock.prototype = $.extend(new MathCommand, {
-  html_template: ['<span></span>'],
+  html_template: ['<span class="text"></span>'],
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
@@ -232,38 +330,22 @@ TextBlock.prototype = $.extend(new MathCommand, {
       for(var i = 0; i < this.replacedText.length; i += 1)
         this.write(this.replacedText.charAt(i));
   },
-  respace: function()
-  {
-    if(this.prev instanceof TextBlock)
-    { //merge textblocks
-      var textblock = this;
-      setTimeout(function()
-      {
-        textblock.cursor.prependTo(textblock.firstChild);
-        textblock.prev.firstChild.eachChild(function()
-        {
-          textblock.write(this.cmd);
-        });
-        textblock.prev.remove();
-        textblock.jQ.change();
-      });
-    }
-  },
   write: function(ch)
   {
-    this.cursor.insertNew(new VanillaSymbol(ch)).show();
+    this.cursor.insertNew(new MagicText(ch)).show();
   },
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if(!this.isEmpty())
-    if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
+    if(!this.isEmpty() &&
+        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
+          (e.which === 46 && !this.cursor.next)))
       return false;
     return this.parent.keydown(e);
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey)
+    if(e.ctrlKey || e.metaKey || e.which < 32)
       return true;
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
@@ -273,13 +355,9 @@ TextBlock.prototype = $.extend(new MathCommand, {
         this.cursor.insertBefore(this);
       else //split apart
       {
-        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-        next.respace = $.noop;
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
         this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
-        delete next.respace;
       }
-    else if(ch === ' ')
-      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
     else
       this.write(ch);
     return false;
