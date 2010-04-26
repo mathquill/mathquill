@@ -27,7 +27,7 @@ var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, 
  * Both MathBlock's and MathCommand's descend from it.
  */
 function MathElement(){}
-MathElement.prototype = { 
+MathElement.prototype = {
   prev: null,
   next: null,
   parent: null,
@@ -54,7 +54,7 @@ MathElement.prototype = {
   keypress: function(e)
   {
     return this.parent.keypress(e);
-  },
+  }
 };
 
 /**
@@ -117,14 +117,14 @@ MathCommand.prototype = $.extend(new MathElement, {
       this.prev.next = this.next;
     else
       this.parent.firstChild = this.next;
-    
+
     if(this.next)
       this.next.prev = this.prev;
     else
       this.parent.lastChild = this.prev;
-    
+
     this.jQ.remove();
-    
+
     return this;
   },
   //placeholder for context-sensitive spacing.
@@ -138,7 +138,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     return this.reduceChildren(function(initVal){
       return initVal && this.isEmpty();
     }, true);
-  },
+  }
 });
 
 /**
@@ -155,7 +155,7 @@ Symbol.prototype = $.extend(new MathCommand, {
     return this.cmd;
   },
   placeCursor: $.noop,
-  isEmpty: function(){ return true; },
+  isEmpty: function(){ return true; }
 });
 
 /**
@@ -190,7 +190,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.jQ.hasClass('empty'))
       this.jQ.html('').removeClass('empty');
     return this;
-  },
+  }
 });
 
 /**
@@ -262,9 +262,9 @@ MathFragment.prototype = {
     this.each(function(){ this.parent = newBlock; });
 
     newBlock.jQ = this.jQ;
-    
+
     return newBlock;
-  },
+  }
 };
 
 /********************************************
@@ -1186,7 +1186,7 @@ Cursor.prototype = {
     this.prev = el.prev;
     this.parent = el.parent;
     this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ.first()); 
+    this.jQ.insertBefore(el.jQ.first());
     return this;
   },
   insertAfter: function(el)
@@ -1198,7 +1198,7 @@ Cursor.prototype = {
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
-  }, 
+  },
   prependTo: function(el)
   {
     this.setParentEmpty();
@@ -1502,7 +1502,7 @@ Cursor.prototype = {
     }
     else
       return false;
-  },
+  }
 }
 
 function Selection(parent, prev, next)
@@ -1537,7 +1537,7 @@ Selection.prototype = $.extend(new MathFragment, {
     this.jQ.replaceWith(selectedJQ);
     this.jQ = selectedJQ;
     return MathFragment.prototype.blockify.call(this);
-  },
+  }
 });
 
 function RootMathBlock(){}
@@ -1718,7 +1718,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     }
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
-  },
+  }
 });
 
 function RootMathCommand(cursor)
@@ -1763,7 +1763,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     else
       this.cursor.insertNew(new TextNode(ch)).show();
     return false;
-  },
+  }
 });
 
 //The actual, publicly exposed method of jQuery.prototype, available
