@@ -72,13 +72,10 @@
   visibility: hidden;
 }
 
-/* *** FIXME *** This is kind of a hack and is not supported in IE6 */
-.mathquill-rendered-math .cursor:only-child:after {
+/* *** FIXME *** This is kind of a hack and is not supported in IE */
+.mathquill-rendered-math :empty .cursor:after {
   visibility: hidden;
   content: 'c';
-}
-.mathquill-rendered-math .text .cursor:after {
-  content: '';
 }
 
 .mathquill-rendered-math .empty {
