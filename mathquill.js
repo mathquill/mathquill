@@ -366,7 +366,7 @@ function Fraction(replacedBlock)
     this.jQ.css('display','-moz-groupbox');
 }
 Fraction.prototype = new MathCommand;
-Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span></span>'];
+Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span>'];
 function LiveFraction(replacedBlock)
 {
   Fraction.apply(this, arguments);
