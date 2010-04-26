@@ -48,7 +48,7 @@ Cursor.prototype = {
     this.prev = el.prev;
     this.parent = el.parent;
     this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ.first()); 
+    this.jQ.insertBefore(el.jQ.first());
     return this;
   },
   insertAfter: function(el)
@@ -60,7 +60,7 @@ Cursor.prototype = {
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
-  }, 
+  },
   prependTo: function(el)
   {
     this.setParentEmpty();
@@ -364,7 +364,7 @@ Cursor.prototype = {
     }
     else
       return false;
-  },
+  }
 }
 
 function Selection(parent, prev, next)
@@ -399,7 +399,7 @@ Selection.prototype = $.extend(new MathFragment, {
     this.jQ.replaceWith(selectedJQ);
     this.jQ = selectedJQ;
     return MathFragment.prototype.blockify.call(this);
-  },
+  }
 });
 
 function RootMathBlock(){}
@@ -580,7 +580,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     }
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
-  },
+  }
 });
 
 function RootMathCommand(cursor)
@@ -625,7 +625,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     else
       this.cursor.insertNew(new TextNode(ch)).show();
     return false;
-  },
+  }
 });
 
 //The actual, publicly exposed method of jQuery.prototype, available

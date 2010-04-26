@@ -9,7 +9,7 @@ var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, 
  * Both MathBlock's and MathCommand's descend from it.
  */
 function MathElement(){}
-MathElement.prototype = { 
+MathElement.prototype = {
   prev: null,
   next: null,
   parent: null,
@@ -36,7 +36,7 @@ MathElement.prototype = {
   keypress: function(e)
   {
     return this.parent.keypress(e);
-  },
+  }
 };
 
 /**
@@ -99,14 +99,14 @@ MathCommand.prototype = $.extend(new MathElement, {
       this.prev.next = this.next;
     else
       this.parent.firstChild = this.next;
-    
+
     if(this.next)
       this.next.prev = this.prev;
     else
       this.parent.lastChild = this.prev;
-    
+
     this.jQ.remove();
-    
+
     return this;
   },
   //placeholder for context-sensitive spacing.
@@ -120,7 +120,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     return this.reduceChildren(function(initVal){
       return initVal && this.isEmpty();
     }, true);
-  },
+  }
 });
 
 /**
@@ -137,7 +137,7 @@ Symbol.prototype = $.extend(new MathCommand, {
     return this.cmd;
   },
   placeCursor: $.noop,
-  isEmpty: function(){ return true; },
+  isEmpty: function(){ return true; }
 });
 
 /**
@@ -172,7 +172,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.jQ.hasClass('empty'))
       this.jQ.html('').removeClass('empty');
     return this;
-  },
+  }
 });
 
 /**
@@ -244,8 +244,8 @@ MathFragment.prototype = {
     this.each(function(){ this.parent = newBlock; });
 
     newBlock.jQ = this.jQ;
-    
+
     return newBlock;
-  },
+  }
 };
 
