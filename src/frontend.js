@@ -597,6 +597,8 @@ function RootMathCommand(cursor)
     var ch = String.fromCharCode(e.which);
     if(!this.cursor.next && ch === '$')
       this.cursor.insertAfter(this.parent);
+    else if(!this.cursor.prev && ch === '$')
+      this.cursor.insertBefore(this.parent);
     else
       this.cursor.write(ch).show();
     return false;
@@ -620,10 +622,8 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
-    else if(ch === ' ')
-      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
     else
-      this.cursor.insertNew(new VanillaSymbol(ch)).show();
+      this.cursor.insertNew(new TextNode(ch)).show();
     return false;
   },
 });
@@ -714,34 +714,54 @@ function mathquill()
       var cmd = clicked.data('[[mathquill internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if(!(cmd && (cmd = cmd.cmd)) && !((cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')) && (cmd = cmd.cmd)))
-        return;
+      if(cmd)
+        if(cmd.cmd)
+          cmd = cmd.cmd;
+        else if(cmd.block === root)
+          cmd = root;
+        else
+          return;
+      else
+        if((clicked = clicked.parent()) && (cmd = clicked.data('[[mathquill internal data]]')) && cmd.cmd)
+          cmd = cmd.cmd;
+        else
+          return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
       {
-        cursor.insertBefore(cmd);
-        var prevDist, dist = e.pageX - cursor.jQ.offset().left;
+        if(cmd === root)
+          cursor.prependTo(root)
+        else
+          cursor.insertBefore(cmd);
+        var prevPrevDist, prevDist, dist = e.pageX - cursor.jQ.offset().left;
         do
         {
           cursor.moveRight();
+          prevPrevDist = prevDist;
           prevDist = dist;
           dist = Math.abs(e.pageX - cursor.jQ.offset().left);
         }
-        while(dist <= prevDist);
-        cursor.moveLeft();
+        while(dist <= prevDist && dist != prevPrevDist);
+        if(dist != prevPrevDist)
+          cursor.moveLeft();
       }
       else
       {
-        cursor.insertAfter(cmd);
-        var prevDist, dist = cursor.jQ.offset().left - e.pageX;
+        if(cmd === root)
+          cursor.appendTo(root);
+        else
+          cursor.insertAfter(cmd);
+        var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
         do
         {
           cursor.moveLeft();
+          prevPrevDist = prevDist;
           prevDist = dist;
           dist = Math.abs(cursor.jQ.offset().left - e.pageX);
         }
-        while(dist <= prevDist);
-        cursor.moveRight();
+        while(dist <= prevDist && dist != prevPrevDist);
+        if(dist != prevPrevDist)
+          cursor.moveRight();
       }
       return false;
     }
