@@ -71,9 +71,16 @@ function MathCommand(cmd, html_template, replacedBlock)
   if(html_template)
     this.html_template = html_template;
 
-  try{ //IE throws an error if you try to add an expando to a text node, which $.fn.data() does
-    this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
-  }catch(e){}
+  this.jQ = $(this.html_template[0]);
+  try{ this.jQ.data('[[mathquill internal data]]', {cmd: this}); }
+  catch(e)
+  {
+    //IE throws an error if you try to add an expando to a text node, which $.fn.data() does,
+    //but it's ok because only event handlers (which only have immediate access to the
+    //HTML DOM elements and jQuery objects thereof) use $.fn.data() and we can't assign
+    //event handlers to text nodes anyway.
+    //We just need to catch the error here to so execution of the script isn't halted
+  }
   this.initBlocks(replacedBlock);
 }
 MathCommand.prototype = $.extend(new MathElement, {
