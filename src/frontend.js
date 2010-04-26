@@ -769,8 +769,10 @@ function mathquill()
         lastKeydnEvt.happened = false;
       else
         lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
+      if(e.ctrlKey || e.metaKey || e.which < 32)
+        return true;
       //only call keypress if keydown returned true
-      return lastKeydnEvt.returnValue && !(e.ctrlKey || e.metaKey || e.which < 32) && cursor.parent.keypress(e);
+      return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
     }).blur();
   });
 
