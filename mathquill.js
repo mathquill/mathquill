@@ -71,7 +71,9 @@ function MathCommand(cmd, html_template, replacedBlock)
   if(html_template)
     this.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
+  try{ //IE throws an error if you try to add an expando to a text node, which $.fn.data() does
+    this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
+  }catch(){}
   this.initBlocks(replacedBlock);
 }
 MathCommand.prototype = $.extend(new MathElement, {
