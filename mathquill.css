@@ -5,7 +5,7 @@
  * Lesser GPL Licensed: http: //www.gnu.org/licenses/lgpl.html
  * 
  * This file is automatically included by mathquill.js
- *
+ * 
  */
 
 @font-face {
@@ -84,6 +84,9 @@
 .mathquill-textbox:after {
   visibility: hidden;
   content: '.';
+}
+.mathquill-textbox {
+  overflow-x: auto;
 }
 
 .mathquill-rendered-math .empty {
