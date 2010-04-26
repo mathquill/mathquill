@@ -414,7 +414,7 @@ Paren.prototype = $.extend(new MathCommand, {
   latex: function()
   {
     return this.cmd + this.firstChild.latex() + this.end;
-  },
+  }
 });
 // Closing parens/brackets/braces matching Parens/Brackets/Braces above
 function CloseParen(open, close, replacedBlock)
@@ -517,7 +517,7 @@ MagicBlock.prototype = $.extend(new MathBlock, {
         this.parent.cursor.prependTo(this.parent.next.firstChild);
 
     return this;
-  },
+  }
 });
 function TextBlock(replacedBlock)
 {
@@ -570,7 +570,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
     else
       this.write(ch);
     return false;
-  },
+  }
 });
 
 // input box to type a variety of LaTeX commands beginning with a backslash
@@ -637,7 +637,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.prependTo(this.parent);
     this.cursor.insertNew(this.firstChild.isEmpty() ?
       new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
-  },
+  }
 });
 
 function SquareRoot(replacedBlock)
