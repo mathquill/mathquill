@@ -714,25 +714,15 @@ function mathquill()
       var cmd = clicked.data('[[mathquill internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if(cmd)
-        if(cmd.cmd)
-          cmd = cmd.cmd;
-        else if(cmd.block === root)
-          cmd = root;
-        else
-          return;
-      else
-        if((clicked = clicked.parent()) && (cmd = clicked.data('[[mathquill internal data]]')) && cmd.cmd)
-          cmd = cmd.cmd;
-        else
+      if(!cmd && (clicked = clicked.parent()) && !(cmd = clicked.data('[[mathquill internal data]]')))
           return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
       {
-        if(cmd === root)
-          cursor.prependTo(root)
+        if(cmd.cmd)
+          cursor.insertBefore(cmd.cmd);
         else
-          cursor.insertBefore(cmd);
+          cursor.prependTo(cmd.block);
         var prevPrevDist, prevDist, dist = e.pageX - cursor.jQ.offset().left;
         do
         {
@@ -747,10 +737,10 @@ function mathquill()
       }
       else
       {
-        if(cmd === root)
-          cursor.appendTo(root);
+        if(cmd.cmd)
+          cursor.insertAfter(cmd.cmd);
         else
-          cursor.insertAfter(cmd);
+          cursor.appendTo(cmd.block);
         var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
         do
         {
