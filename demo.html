@@ -63,7 +63,7 @@
             }
             return tree.slice(1);
           }
-          $('#html-source').text(printTree($(this).html().replace(/<span class="?cursor( blink)?">><\/span>/i,'')));
+          $('#html-source').text(printTree($(this).html().replace(/<span class="?cursor( blink)?"?><\/span>/i,'')));
           var latex = $(this).mathquill('latex');
           //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
           if(!editingSource)
