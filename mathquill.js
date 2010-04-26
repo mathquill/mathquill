@@ -1807,7 +1807,7 @@ function mathquill()
         jQ.children().remove();
         children.appendTo(jQ).children().unwrap();
         jQ.removeClass('mathquill-rendered-math mathquill-editable').unbind('.mathquill');
-      },
+      }
     });
 
     var cursor = root.cursor = new Cursor(root);
