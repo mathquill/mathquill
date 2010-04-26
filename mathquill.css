@@ -8,9 +8,9 @@
  * 
  */
 
-/*@font-face {
+@font-face {
   font-family: Symbola;
-  /*src: url(font/Symbola.eot); Horridly aliased! * /
+  /*src: url(font/Symbola.eot); Horridly aliased! */
   src: local("Symbola Regular"), local("Symbola"),
     url(font/Symbola.ttf) format("truetype"),
     url(font/Symbola.otf) format("opentype"),
@@ -35,7 +35,7 @@
 .mathquill-rendered-math {
   color: black;
   background-color: white;
-  font-family: Symbola, "Times New Roman", serif;
+  font-family: "Times New Roman", serif;
   font-size: 110%;
   line-height: 1;
   position: relative;
