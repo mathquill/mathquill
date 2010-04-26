@@ -81,6 +81,10 @@
 .mathquill-editable .text .cursor:after {
   content: '';
 }
+.mathquill-textbox:after {
+  visibility: hidden;
+  content: '.';
+}
 
 .mathquill-rendered-math .empty {
   color: silver;
