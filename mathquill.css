@@ -29,6 +29,7 @@
   display: -moz-inline-box;
   display: inline-block;
   border: solid gray 1px;
+  white-space: pre-wrap;
 }
 
 .mathquill-rendered-math {
@@ -73,9 +74,12 @@
 }
 
 /* *** FIXME *** This is kind of a hack and is not supported in IE6 */
-.mathquill-rendered-math .cursor:only-child:after{
+.mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
+}
+.mathquill-editable .text .cursor:after {
+  content: '';
 }
 
 .mathquill-rendered-math .empty {
@@ -83,6 +87,10 @@
 }
 .mathquill-rendered-math.empty {
   cursor: text;
+}
+
+.mathquill-rendered-math .text {
+  display: inline;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */

@@ -207,7 +207,7 @@ function MathFragment(parent, prev, next)
   this.prev = prev || null; //so you can do 'new MathFragment(block)' without
   this.next = next || null; //ending up with this.prev or this.next === undefined
 
-  this.jQinit(this.reduce(function(initVal){ return initVal.add(this.jQ); }, $()));
+  this.jQinit(this.reduce(function(initVal){ return this.jQ.add(initVal); }, $()));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
@@ -462,14 +462,16 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function TextBlock(replacedBlock)
+//only give individual characters their own TextNode, but not <span>'s, inside
+//TextBlocks, in order to preserver word-wrapping.
+function TextNode(ch)
 {
-  MathCommand.call(this, '\\text');
-  if(replacedBlock instanceof MathBlock)
-    this.replacedText = replacedBlock.jQ.detach().text();
-  else
-    this.replacedText = replacedBlock;
-  this.firstChild.setEmpty = function()
+  Symbol.call(this, ch, [ document.createTextNode(ch) ]);
+}
+TextNode.prototype = Symbol.prototype;
+function MagicBlock(){}
+MagicBlock.prototype = $.extend(new MathBlock, {
+  setEmpty: function()
   {
     if(this.isEmpty())
     {
@@ -478,22 +480,58 @@ function TextBlock(replacedBlock)
                             //not the wrong way to do things, merely poorly named
       {
         if(textblock.cursor.prev === textblock)
-        {
-          textblock.remove();
-          textblock.cursor.prev = textblock.prev;
-        }
+          textblock.cursor.backspace();
         else if(textblock.cursor.next === textblock)
-        {
-          textblock.remove();
-          textblock.cursor.next = textblock.next;
-        }
+          textblock.cursor.deleteForward();
+        //else must be blur, don't remove textblock
       },0);
     };
     return this;
-  };
+  },
+  removeEmpty: function()
+  {
+    if(this.parent.prev instanceof TextBlock)
+    {
+      var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
+      setTimeout(function() //defer
+      {
+        prev.eachChild(function(){
+          this.parent = me;
+          this.jQ.insertBefore(me.firstChild.jQ);
+        });
+        prev.lastChild.next = me.firstChild;
+        me.firstChild.prev = prev.lastChild;
+        me.firstChild = prev.firstChild;
+        textblock.prev.remove();
+        if(textblock.cursor.next)
+          textblock.cursor.insertBefore(textblock.cursor.next);
+        else
+          textblock.cursor.appendTo(me);
+        me.jQ.change();
+      },0);
+    }
+    else if(this.parent.next instanceof TextBlock)
+      if(this.parent.cursor.next)
+        this.parent.next.firstChild.removeEmpty();
+      else
+        this.parent.cursor.prependTo(this.parent.next.firstChild);
+
+    return this;
+  },
+});
+function TextBlock(replacedBlock)
+{
+  MathCommand.call(this, '\\text', undefined, new MagicBlock);
+  if(replacedBlock instanceof MathBlock)
+  {
+    this.replacedText = replacedBlock.jQ.text();
+    replacedBlock.jQ.remove();
+  }
+  else
+    this.replacedText = replacedBlock;
 }
 TextBlock.prototype = $.extend(new MathCommand, {
-  html_template: ['<span></span>'],
+  html_template: ['<span class="text"></span>'],
   placeCursor: function(cursor)
   {
     this.cursor = cursor.prependTo(this.firstChild);
@@ -501,39 +539,21 @@ TextBlock.prototype = $.extend(new MathCommand, {
       for(var i = 0; i < this.replacedText.length; i += 1)
         this.write(this.replacedText.charAt(i));
   },
-  respace: function()
-  {
-    if(this.prev instanceof TextBlock)
-    { //merge textblocks
-      var textblock = this;
-      setTimeout(function()
-      {
-        textblock.cursor.prependTo(textblock.firstChild);
-        textblock.prev.firstChild.eachChild(function()
-        {
-          textblock.write(this.cmd);
-        });
-        textblock.prev.remove();
-        textblock.jQ.change();
-      });
-    }
-  },
   write: function(ch)
   {
-    this.cursor.insertNew(new VanillaSymbol(ch)).show();
+    this.cursor.insertNew(new TextNode(ch)).show();
   },
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if(!this.isEmpty())
-    if((e.which === 8 && !this.cursor.prev && !this.cursor.selection) || (e.which === 46 && !this.cursor.next))
+    if(!this.isEmpty() &&
+        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
+          (e.which === 46 && !this.cursor.next)))
       return false;
     return this.parent.keydown(e);
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey)
-      return true;
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       if(this.cursor.next === null)
@@ -542,13 +562,11 @@ TextBlock.prototype = $.extend(new MathCommand, {
         this.cursor.insertBefore(this);
       else //split apart
       {
-        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-        next.respace = $.noop;
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        next.firstChild.removeEmpty = function(){ return this; };
         this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
-        delete next.respace;
+        delete next.firstChild.removeEmpty;
       }
-    else if(ch === ' ')
-      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
     else
       this.write(ch);
     return false;
@@ -1693,7 +1711,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -1709,7 +1727,7 @@ function RootMathCommand(cursor)
   this.firstChild.cursor = cursor;
   this.firstChild.keypress = function(e)
   {
-    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -1717,6 +1735,8 @@ function RootMathCommand(cursor)
     var ch = String.fromCharCode(e.which);
     if(!this.cursor.next && ch === '$')
       this.cursor.insertAfter(this.parent);
+    else if(!this.cursor.prev && ch === '$')
+      this.cursor.insertBefore(this.parent);
     else
       this.cursor.write(ch).show();
     return false;
@@ -1732,7 +1752,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -1740,10 +1760,8 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
-    else if(ch === ' ')
-      this.cursor.insertNew(new VanillaSymbol(' ', '&nbsp;')).show();
     else
-      this.cursor.insertNew(new VanillaSymbol(ch)).show();
+      this.cursor.insertNew(new TextNode(ch)).show();
     return false;
   },
 });
@@ -1834,13 +1852,45 @@ function mathquill()
       var cmd = clicked.data('[[mathquill internal data]]');
       //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
       //both of whose immediate parents are LatexCommands
-      if(!(cmd && (cmd = cmd.cmd)) && !((cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')) && (cmd = cmd.cmd)))
-        return;
+      if(!cmd && (clicked = clicked.parent()) && !(cmd = clicked.data('[[mathquill internal data]]')))
+          return;
       cursor.clearSelection();
       if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
-        cursor.insertBefore(cmd);
+      {
+        if(cmd.cmd)
+          cursor.insertBefore(cmd.cmd);
+        else
+          cursor.prependTo(cmd.block);
+        var prevPrevDist, prevDist, dist = e.pageX - cursor.jQ.offset().left;
+        do
+        {
+          cursor.moveRight();
+          prevPrevDist = prevDist;
+          prevDist = dist;
+          dist = Math.abs(e.pageX - cursor.jQ.offset().left);
+        }
+        while(dist <= prevDist && dist != prevPrevDist);
+        if(dist != prevPrevDist)
+          cursor.moveLeft();
+      }
       else
-        cursor.insertAfter(cmd);
+      {
+        if(cmd.cmd)
+          cursor.insertAfter(cmd.cmd);
+        else
+          cursor.appendTo(cmd.block);
+        var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
+        do
+        {
+          cursor.moveLeft();
+          prevPrevDist = prevDist;
+          prevDist = dist;
+          dist = Math.abs(cursor.jQ.offset().left - e.pageX);
+        }
+        while(dist <= prevDist && dist != prevPrevDist);
+        if(dist != prevPrevDist)
+          cursor.moveRight();
+      }
       return false;
     }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
@@ -1858,7 +1908,7 @@ function mathquill()
       else
         lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
       //only call keypress if keydown returned true
-      return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
+      return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 || cursor.parent.keypress(e));
     }).blur();
   });
 
