@@ -57,7 +57,7 @@
   cursor: text;
 }
 .mathquill-editable.hasCursor, .mathquill-textbox.hasCursor, .mathquill-rendered-math .hasCursor {
-  outline: solid rgb(180,230,255) 2px;
+  outline: solid rgb(205,235,255) 2px;
   outline: solid rgba(0,155,255,.2) 2px;
 }
 
