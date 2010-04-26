@@ -573,7 +573,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -589,7 +589,7 @@ function RootMathCommand(cursor)
   this.firstChild.cursor = cursor;
   this.firstChild.keypress = function(e)
   {
-    if(e.ctrlKey || e.metaKey || this.skipKeypress)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -612,7 +612,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e)
   {
-    if(this.skipKeypress || e.ctrlKey || e.metaKey || e.which < 32)
+    if(this.skipKeypress)
     {
       this.skipKeypress = false;
       return true;
@@ -760,7 +760,7 @@ function mathquill()
       else
         lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
       //only call keypress if keydown returned true
-      return lastKeydnEvt.returnValue && cursor.parent.keypress(e);
+      return lastKeydnEvt.returnValue && !(e.ctrlKey || e.metaKey || e.which < 32) && cursor.parent.keypress(e);
     }).blur();
   });
 

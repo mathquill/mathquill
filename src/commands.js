@@ -285,8 +285,6 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   keypress: function(e)
   {
-    if(e.ctrlKey || e.metaKey || e.which < 32)
-      return true;
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       if(this.cursor.next === null)
