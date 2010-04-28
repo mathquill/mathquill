@@ -28,6 +28,7 @@
 .mathquill-editable, .mathquill-textbox {
   display: -moz-inline-box;
   display: inline-block;
+  zoom: 1;
   border: solid gray 1px;
   white-space: pre-wrap;
 }
@@ -52,6 +53,7 @@
   line-height: inherit;
   display: -moz-inline-box;
   display: inline-block;
+  zoom: 1;
   margin: 0;
   padding: 0;
   cursor: text;
