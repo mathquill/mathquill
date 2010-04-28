@@ -132,6 +132,7 @@
 }
 
 .mathquill-rendered-math .fraction {
+  position: relative;
   font-size: 90%;
   text-align: center;
   vertical-align: -.5em;
