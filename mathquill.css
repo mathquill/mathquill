@@ -28,7 +28,6 @@
 .mathquill-editable, .mathquill-textbox {
   display: -moz-inline-box;
   display: inline-block;
-  zoom: 1; /* famous IE6-7 hasLayout fix */
   border: solid gray 1px;
   white-space: pre-wrap;
 }
