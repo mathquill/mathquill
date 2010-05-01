@@ -28,7 +28,7 @@
 .mathquill-editable, .mathquill-textbox {
   display: -moz-inline-box;
   display: inline-block;
-  border: solid gray 1px;
+  border: 1px solid gray;
   white-space: pre-wrap;
 }
 .mathquill-textbox {
@@ -64,8 +64,8 @@
   cursor: text;
 }
 .mathquill-editable.hasCursor, .mathquill-textbox.hasCursor, .mathquill-rendered-math .hasCursor {
-  outline: solid rgb(205,235,255) 2px;
-  outline: solid rgba(0,155,255,.2) 2px;
+  outline: 2px solid rgb(205,235,255);
+  outline: 2px solid rgba(0,155,255,.2);
 }
 
 .mathquill-rendered-math .cursor {
@@ -81,7 +81,7 @@
 }
 
 .mathquill-rendered-math .empty {
-  color: silver;
+  color: darkgray;
 }
 .mathquill-rendered-math.empty {
   cursor: text;
@@ -133,11 +133,11 @@
   display: block;
 }
 .mathquill-rendered-math .numerator {
-  border-bottom: solid #222 1px; /* black is too black, contrasts with antialised text */
+  border-bottom: 1px solid #222; /* black is too black, contrasts with antialised text */
   padding: 0 .1em;
 }
 .mathquill-rendered-math .denominator {
-  border-top: solid #222 1px;
+  border-top: 1px solid #222;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
 }
@@ -155,21 +155,19 @@
 }
 
 .mathquill-rendered-math .latex-command-input {
-  border: solid gray 1px;
+  font-family: "Courier New", monospace;
+  border: 1px solid gray;
   padding-right: 1px;
   margin-right: 1px;
   margin-left: 2px;
 }
 .mathquill-rendered-math .latex-command-input.empty {
+  color: white;
   color: transparent;
 }
 .mathquill-rendered-math .latex-command-input:before {
   color: black;
   content: '\\';
-}
-.mathquill-rendered-math .latex-command-input:before, .mathquill-rendered-math .latex-command-input * {
-  font-family: "Courier New", monospace;
-  font-style: normal;
 }
 
 .mathquill-rendered-math .sqrt-prefix {
@@ -194,7 +192,7 @@
   background-color: #ADF;
 }
 .mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {
-  background-color: lightgray;
+  background-color: silver;
 }
 
 .mathquill-rendered-math .non-italicized-function {

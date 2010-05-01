@@ -630,12 +630,14 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   keypress: function(e)
   {
     var char = String.fromCharCode(e.which);
-    if(!char.match(/[a-z]/i))
+    if(char.match(/[a-z]/i))
     {
-      this.renderCommand();
-      if(char === ' ' || (char === '\\' && this.firstChild.isEmpty()))
-        return false;
+      this.cursor.insertNew(new VanillaSymbol(char)).show();
+      return false;
     }
+    this.renderCommand();
+    if(char === ' ' || (char === '\\' && this.firstChild.isEmpty()))
+      return false;
     return this.parent.keypress(e);
   },
   renderCommand: function()
