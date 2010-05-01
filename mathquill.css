@@ -81,7 +81,7 @@
 }
 
 .mathquill-rendered-math .empty {
-  color: darkgray;
+  color: #AAA;
 }
 .mathquill-rendered-math.empty {
   cursor: text;
@@ -192,7 +192,7 @@
   background-color: #ADF;
 }
 .mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {
-  background-color: silver;
+  background-color: #CCC;
 }
 
 .mathquill-rendered-math .non-italicized-function {
