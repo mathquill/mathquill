@@ -31,6 +31,13 @@
   border: solid gray 1px;
   white-space: pre-wrap;
 }
+.mathquill-textbox {
+  overflow-x: auto;
+}
+.mathquill-editable:after, .mathquill-textbox:after {
+  visibility: hidden;
+  content: 'c';
+}
 
 .mathquill-rendered-math {
   color: black;
@@ -71,22 +78,6 @@
 
 .mathquill-rendered-math .cursor.blink {
   visibility: hidden;
-}
-
-/* *** FIXME *** This is kind of a hack and is not supported in IE6 */
-.mathquill-editable .cursor:only-child:after {
-  visibility: hidden;
-  content: 'c';
-}
-.mathquill-editable .text .cursor:after {
-  content: '';
-}
-.mathquill-textbox:after {
-  visibility: hidden;
-  content: '.';
-}
-.mathquill-textbox {
-  overflow-x: auto;
 }
 
 .mathquill-rendered-math .empty {

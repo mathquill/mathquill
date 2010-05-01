@@ -565,9 +565,11 @@ TextBlock.prototype = $.extend(new MathCommand, {
   {
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
-      if(this.cursor.next === null)
+      if(this.isEmpty())
+        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+      else if(!this.cursor.next)
         this.cursor.insertAfter(this);
-      else if(this.cursor.prev === null)
+      else if(!this.cursor.prev)
         this.cursor.insertBefore(this);
       else //split apart
       {
@@ -1742,12 +1744,19 @@ function RootMathCommand(cursor)
       return true;
     }
     var ch = String.fromCharCode(e.which);
-    if(!this.cursor.next && ch === '$')
-      this.cursor.insertAfter(this.parent);
-    else if(!this.cursor.prev && ch === '$')
-      this.cursor.insertBefore(this.parent);
-    else
-      this.cursor.write(ch).show();
+    if(ch === '$')
+    {
+      if(this.isEmpty())
+        this.cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+      else if(!this.cursor.next)
+        this.cursor.insertAfter(this.parent);
+      else if(!this.cursor.prev)
+        this.cursor.insertBefore(this.parent);
+      else
+        this.cursor.write(ch).show();
+      return false;
+    }
+    this.cursor.write(ch).show();
     return false;
   };
 }
