@@ -155,6 +155,7 @@
 }
 
 .mathquill-rendered-math .latex-command-input {
+  font-family: "Courier New", monospace;
   border: solid gray 1px;
   padding-right: 1px;
   margin-right: 1px;
@@ -166,10 +167,6 @@
 .mathquill-rendered-math .latex-command-input:before {
   color: black;
   content: '\\';
-}
-.mathquill-rendered-math .latex-command-input:before, .mathquill-rendered-math .latex-command-input * {
-  font-family: "Courier New", monospace;
-  font-style: normal;
 }
 
 .mathquill-rendered-math .sqrt-prefix {
