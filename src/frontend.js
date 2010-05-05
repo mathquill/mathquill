@@ -673,9 +673,9 @@ function mathquill()
       block: root,
       revert: function()
       {
-        jQ.wrapInner('<span>').children().remove();
-        children.appendTo(jQ).children().unwrap();
-        jQ.removeClass('mathquill-rendered-math mathquill-editable').unbind('.mathquill');
+        children.appendTo(jQ.empty().unbind('.mathquill')
+          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox'))
+        .children().unwrap();
       }
     });
 
