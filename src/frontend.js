@@ -673,7 +673,7 @@ function mathquill()
       block: root,
       revert: function()
       {
-        jQ.children().remove();
+        jQ.wrapInner('<span>').children().remove();
         children.appendTo(jQ).children().unwrap();
         jQ.removeClass('mathquill-rendered-math mathquill-editable').unbind('.mathquill');
       }
