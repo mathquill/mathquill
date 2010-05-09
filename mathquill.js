@@ -1746,19 +1746,19 @@ function RootMathCommand(cursor)
       return true;
     }
     var ch = String.fromCharCode(e.which);
-    if(ch === '$')
+    if(ch === '$' && cursor.parent == this)
     {
       if(this.isEmpty())
-        this.cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
-      else if(!this.cursor.next)
-        this.cursor.insertAfter(this.parent);
-      else if(!this.cursor.prev)
-        this.cursor.insertBefore(this.parent);
+        cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+      else if(!cursor.next)
+        cursor.insertAfter(this.parent);
+      else if(!cursor.prev)
+        cursor.insertBefore(this.parent);
       else
-        this.cursor.write(ch).show();
+        cursor.write(ch).show();
       return false;
     }
-    this.cursor.write(ch).show();
+    cursor.write(ch).show();
     return false;
   };
 }
