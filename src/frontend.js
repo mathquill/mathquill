@@ -595,7 +595,7 @@ function RootMathCommand(cursor)
       return true;
     }
     var ch = String.fromCharCode(e.which);
-    if(ch === '$')
+    if(ch === '$' && cursor.parent == this)
     {
       if(this.isEmpty())
         this.cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
