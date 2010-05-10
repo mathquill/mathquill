@@ -686,7 +686,9 @@ function mathquill()
     if(!editable)
       return;
 
-    root.jQ.addClass(textbox?'mathquill-textbox':'mathquill-editable').attr('tabindex', 0);
+    jQ.addClass('mathquill-editable').attr('tabindex', 0);
+    if(textbox)
+      jQ.addClass('mathquill-textbox');
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
     root.jQ.bind('focus.mathquill',function()
