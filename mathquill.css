@@ -92,7 +92,13 @@
   color: #AAA;
 }
 
-.mathquill-rendered-math .text {
+.mathquill-rendered-math .text, .mathquill-rendered-math .text *, .mathquill-textbox * {
+  display: inline;
+}
+.mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
+  display: inline-block;
+}
+.mathquill-textbox .mathquill-rendered-math .cursor { /* seriously */
   display: inline;
 }
 
@@ -193,7 +199,7 @@
   position: relative;
 }
 
-.mathquill-rendered-math .selection, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
+.mathquill-rendered-math .selection, .mathquill-rendered-math .selection .mathquill-rendered-math, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
   background-color: #ADF;
 }
 .mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {

@@ -71,16 +71,7 @@ function MathCommand(cmd, html_template, replacedBlock)
   if(html_template)
     this.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]);
-  try{ this.jQ.data('[[mathquill internal data]]', {cmd: this}); }
-  catch(e)
-  {
-    //IE throws an error if you try to add an expando to a text node, which $.fn.data() does,
-    //but it's ok because only event handlers (which only have immediate access to the
-    //HTML DOM elements and jQuery objects thereof) use $.fn.data() and we can't assign
-    //event handlers to text nodes anyway.
-    //We just need to catch the error here to so execution of the script isn't halted
-  }
+  this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
   this.initBlocks(replacedBlock);
 }
 MathCommand.prototype = $.extend(new MathElement, {
@@ -471,15 +462,63 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-//only give individual characters their own TextNode, but not <span>'s, inside
-//TextBlocks, in order to preserver word-wrapping.
-function TextNode(ch)
+function TextBlock(replacedBlock)
 {
-  Symbol.call(this, ch, [ document.createTextNode(ch) ]);
+  MathCommand.call(this, '\\text', undefined, new InnerTextBlock);
+  if(replacedBlock instanceof MathBlock)
+  {
+    this.replacedText = replacedBlock.jQ.text();
+    replacedBlock.jQ.remove();
+  }
+  else
+    this.replacedText = replacedBlock;
 }
-TextNode.prototype = Symbol.prototype;
-function MagicBlock(){}
-MagicBlock.prototype = $.extend(new MathBlock, {
+TextBlock.prototype = $.extend(new MathCommand, {
+  html_template: ['<span class="text"></span>'],
+  placeCursor: function(cursor)
+  {
+    this.cursor = cursor.prependTo(this.firstChild);
+    if(this.replacedText)
+      for(var i = 0; i < this.replacedText.length; i += 1)
+        this.write(this.replacedText.charAt(i));
+  },
+  write: function(ch)
+  {
+    this.cursor.insertNew(new VanillaSymbol(ch)).show();
+  },
+  keydown: function(e)
+  {
+    //backspace and delete and ends of block don't unwrap
+    if(!this.isEmpty() &&
+        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
+          (e.which === 46 && !this.cursor.next)))
+      return false;
+    return this.parent.keydown(e);
+  },
+  keypress: function(e)
+  {
+    var ch = String.fromCharCode(e.which);
+    if(ch === '$')
+      if(this.isEmpty())
+        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+      else if(!this.cursor.next)
+        this.cursor.insertAfter(this);
+      else if(!this.cursor.prev)
+        this.cursor.insertBefore(this);
+      else //split apart
+      {
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        next.firstChild.removeEmpty = function(){ return this; };
+        this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
+        delete next.firstChild.removeEmpty;
+      }
+    else
+      this.write(ch);
+    return false;
+  }
+});
+function InnerTextBlock(){}
+InnerTextBlock.prototype = $.extend(new MathBlock, {
   setEmpty: function()
   {
     if(this.isEmpty())
@@ -526,61 +565,6 @@ MagicBlock.prototype = $.extend(new MathBlock, {
         this.parent.cursor.prependTo(this.parent.next.firstChild);
 
     return this;
-  }
-});
-function TextBlock(replacedBlock)
-{
-  MathCommand.call(this, '\\text', undefined, new MagicBlock);
-  if(replacedBlock instanceof MathBlock)
-  {
-    this.replacedText = replacedBlock.jQ.text();
-    replacedBlock.jQ.remove();
-  }
-  else
-    this.replacedText = replacedBlock;
-}
-TextBlock.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="text"></span>'],
-  placeCursor: function(cursor)
-  {
-    this.cursor = cursor.prependTo(this.firstChild);
-    if(this.replacedText)
-      for(var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  },
-  write: function(ch)
-  {
-    this.cursor.insertNew(new TextNode(ch)).show();
-  },
-  keydown: function(e)
-  {
-    //backspace and delete and ends of block don't unwrap
-    if(!this.isEmpty() &&
-        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
-          (e.which === 46 && !this.cursor.next)))
-      return false;
-    return this.parent.keydown(e);
-  },
-  keypress: function(e)
-  {
-    var ch = String.fromCharCode(e.which);
-    if(ch === '$')
-      if(this.isEmpty())
-        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
-      else if(!this.cursor.next)
-        this.cursor.insertAfter(this);
-      else if(!this.cursor.prev)
-        this.cursor.insertBefore(this);
-      else //split apart
-      {
-        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
-        next.firstChild.removeEmpty = function(){ return this; };
-        this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
-        delete next.firstChild.removeEmpty;
-      }
-    else
-      this.write(ch);
-    return false;
   }
 });
 
@@ -1763,7 +1747,7 @@ function RootMathCommand(cursor)
   };
 }
 RootMathCommand.prototype = new MathCommand;
-RootMathCommand.prototype.html_template = ['<span></span>'];
+RootMathCommand.prototype.html_template = ['<span class="mathquill-rendered-math"></span>'];
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
@@ -1781,7 +1765,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
     else
-      this.cursor.insertNew(new TextNode(ch)).show();
+      this.cursor.insertNew(new VanillaSymbol(ch)).show();
     return false;
   }
 });
@@ -1871,48 +1855,41 @@ function mathquill()
         cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
         return false;
       }
+
       var cmd = clicked.data('[[mathquill internal data]]');
-      //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
-      //both of whose immediate parents are LatexCommands
-      if(!cmd && (clicked = clicked.parent()) && !(cmd = clicked.data('[[mathquill internal data]]')))
+      if(cmd)
+      {
+        if(cmd.cmd && !cmd.block)
+        {
+          cursor.clearSelection();
+          if(clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
+            cursor.insertBefore(cmd.cmd);
+          else
+            cursor.insertAfter(cmd.cmd);
+          return false;
+        }
+      }
+      else if(!(cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')))
           return;
+
       cursor.clearSelection();
-      if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
-      {
-        if(cmd.cmd)
-          cursor.insertBefore(cmd.cmd);
-        else
-          cursor.prependTo(cmd.block);
-        var prevPrevDist, prevDist, dist = e.pageX - cursor.jQ.offset().left;
-        do
-        {
-          cursor.moveRight();
-          prevPrevDist = prevDist;
-          prevDist = dist;
-          dist = Math.abs(e.pageX - cursor.jQ.offset().left);
-        }
-        while(dist <= prevDist && dist != prevPrevDist);
-        if(dist != prevPrevDist)
-          cursor.moveLeft();
-      }
+      if(cmd.cmd)
+        cursor.insertAfter(cmd.cmd);
       else
+        cursor.appendTo(cmd.block);
+      //move cursor to position closest to click
+      var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
+      do
       {
-        if(cmd.cmd)
-          cursor.insertAfter(cmd.cmd);
-        else
-          cursor.appendTo(cmd.block);
-        var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-        do
-        {
-          cursor.moveLeft();
-          prevPrevDist = prevDist;
-          prevDist = dist;
-          dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-        }
-        while(dist <= prevDist && dist != prevPrevDist);
-        if(dist != prevPrevDist)
-          cursor.moveRight();
+        cursor.moveLeft();
+        prevPrevDist = prevDist;
+        prevDist = dist;
+        dist = Math.abs(cursor.jQ.offset().left - e.pageX);
       }
+      while(dist <= prevDist && dist != prevPrevDist);
+      if(dist != prevPrevDist)
+        cursor.moveRight();
+
       return false;
     }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
