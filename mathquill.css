@@ -25,7 +25,7 @@
   src: url(font/STIXBeta/STIXGeneralItalic.otf) format("opentype");
 }*/
 
-.mathquill-editable, .mathquill-textbox {
+.mathquill-editable {
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
@@ -34,9 +34,18 @@
 .mathquill-textbox {
   overflow-x: auto;
 }
-.mathquill-editable:after, .mathquill-textbox:after {
+.mathquill-editable * {
+  cursor: text;
+}
+.mathquill-editable.empty {
+  cursor: text;
+}
+.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
+}
+.mathquill-textbox > .cursor:only-child:after, .mathquill-editable .text .cursor:only-child:after {
+  content: '';
 }
 
 .mathquill-rendered-math {
@@ -61,9 +70,8 @@
   display: inline-block;
   margin: 0;
   padding: 0;
-  cursor: text;
 }
-.mathquill-editable.hasCursor, .mathquill-textbox.hasCursor, .mathquill-rendered-math .hasCursor {
+.mathquill-editable.hasCursor, .mathquill-rendered-math .hasCursor {
   outline: 2px solid rgb(205,235,255);
   outline: 2px solid rgba(0,155,255,.2);
 }
@@ -82,9 +90,6 @@
 
 .mathquill-rendered-math .empty {
   color: #AAA;
-}
-.mathquill-rendered-math.empty {
-  cursor: text;
 }
 
 .mathquill-rendered-math .text {
