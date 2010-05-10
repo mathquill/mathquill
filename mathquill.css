@@ -29,7 +29,6 @@
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
-  white-space: pre-wrap;
 }
 .mathquill-textbox {
   overflow-x: auto;
@@ -51,6 +50,7 @@
 .mathquill-rendered-math {
   color: black;
   background-color: white;
+  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
   font-size: 110%;
   line-height: 1;
