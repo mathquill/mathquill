@@ -193,59 +193,9 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-function MagicBlock(){}
-MagicBlock.prototype = $.extend(new MathBlock, {
-  setEmpty: function()
-  {
-    if(this.isEmpty())
-    {
-      var textblock = this.parent;
-      setTimeout(function() //defer execution until after completion of this thread
-                            //not the wrong way to do things, merely poorly named
-      {
-        if(textblock.cursor.prev === textblock)
-          textblock.cursor.backspace();
-        else if(textblock.cursor.next === textblock)
-          textblock.cursor.deleteForward();
-        //else must be blur, don't remove textblock
-      },0);
-    };
-    return this;
-  },
-  removeEmpty: function()
-  {
-    if(this.parent.prev instanceof TextBlock)
-    {
-      var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
-      setTimeout(function() //defer
-      {
-        prev.eachChild(function(){
-          this.parent = me;
-          this.jQ.insertBefore(me.firstChild.jQ);
-        });
-        prev.lastChild.next = me.firstChild;
-        me.firstChild.prev = prev.lastChild;
-        me.firstChild = prev.firstChild;
-        textblock.prev.remove();
-        if(textblock.cursor.next)
-          textblock.cursor.insertBefore(textblock.cursor.next);
-        else
-          textblock.cursor.appendTo(me);
-        me.jQ.change();
-      },0);
-    }
-    else if(this.parent.next instanceof TextBlock)
-      if(this.parent.cursor.next)
-        this.parent.next.firstChild.removeEmpty();
-      else
-        this.parent.cursor.prependTo(this.parent.next.firstChild);
-
-    return this;
-  }
-});
 function TextBlock(replacedBlock)
 {
-  MathCommand.call(this, '\\text', undefined, new MagicBlock);
+  MathCommand.call(this, '\\text', undefined, new InnerTextBlock);
   if(replacedBlock instanceof MathBlock)
   {
     this.replacedText = replacedBlock.jQ.text();
@@ -296,6 +246,56 @@ TextBlock.prototype = $.extend(new MathCommand, {
     else
       this.write(ch);
     return false;
+  }
+});
+function InnerTextBlock(){}
+InnerTextBlock.prototype = $.extend(new MathBlock, {
+  setEmpty: function()
+  {
+    if(this.isEmpty())
+    {
+      var textblock = this.parent;
+      setTimeout(function() //defer execution until after completion of this thread
+                            //not the wrong way to do things, merely poorly named
+      {
+        if(textblock.cursor.prev === textblock)
+          textblock.cursor.backspace();
+        else if(textblock.cursor.next === textblock)
+          textblock.cursor.deleteForward();
+        //else must be blur, don't remove textblock
+      },0);
+    };
+    return this;
+  },
+  removeEmpty: function()
+  {
+    if(this.parent.prev instanceof TextBlock)
+    {
+      var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
+      setTimeout(function() //defer
+      {
+        prev.eachChild(function(){
+          this.parent = me;
+          this.jQ.insertBefore(me.firstChild.jQ);
+        });
+        prev.lastChild.next = me.firstChild;
+        me.firstChild.prev = prev.lastChild;
+        me.firstChild = prev.firstChild;
+        textblock.prev.remove();
+        if(textblock.cursor.next)
+          textblock.cursor.insertBefore(textblock.cursor.next);
+        else
+          textblock.cursor.appendTo(me);
+        me.jQ.change();
+      },0);
+    }
+    else if(this.parent.next instanceof TextBlock)
+      if(this.parent.cursor.next)
+        this.parent.next.firstChild.removeEmpty();
+      else
+        this.parent.cursor.prependTo(this.parent.next.firstChild);
+
+    return this;
   }
 });
 
