@@ -34,6 +34,12 @@
 .mathquill-textbox {
   overflow-x: auto;
 }
+.mathquill-editable * {
+  cursor: text;
+}
+.mathquill-editable.empty {
+  cursor: text;
+}
 .mathquill-editable.empty:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
@@ -64,7 +70,6 @@
   display: inline-block;
   margin: 0;
   padding: 0;
-  cursor: text;
 }
 .mathquill-editable.hasCursor, .mathquill-rendered-math .hasCursor {
   outline: 2px solid rgb(205,235,255);
@@ -85,9 +90,6 @@
 
 .mathquill-rendered-math .empty {
   color: #AAA;
-}
-.mathquill-rendered-math.empty {
-  cursor: text;
 }
 
 .mathquill-rendered-math .text {
