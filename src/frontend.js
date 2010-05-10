@@ -761,7 +761,8 @@ function mathquill()
     {
       lastKeydnEvt = e;
       e.happened = true;
-      return e.returnValue = cursor.parent.keydown(e);
+      return e.returnValue = cursor.parent.keydown(e) ||
+        (e.stopImmediatePropagation(), false);
     }
     ).bind('keypress.mathquill',function(e)
     {
