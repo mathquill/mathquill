@@ -612,7 +612,7 @@ function RootMathCommand(cursor)
   };
 }
 RootMathCommand.prototype = new MathCommand;
-RootMathCommand.prototype.html_template = ['<span></span>'];
+RootMathCommand.prototype.html_template = ['<span class="mathquill-rendered-math"></span>'];
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
@@ -630,7 +630,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
     else
-      this.cursor.insertNew(new TextNode(ch)).show();
+      this.cursor.insertNew(new VanillaSymbol(ch)).show();
     return false;
   }
 });
@@ -720,48 +720,41 @@ function mathquill()
         cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
         return false;
       }
+
       var cmd = clicked.data('[[mathquill internal data]]');
-      //all clickables not MathCommands are either LatexBlocks or like sqrt radicals or parens,
-      //both of whose immediate parents are LatexCommands
-      if(!cmd && (clicked = clicked.parent()) && !(cmd = clicked.data('[[mathquill internal data]]')))
+      if(cmd)
+      {
+        if(cmd.cmd && !cmd.block)
+        {
+          cursor.clearSelection();
+          if(clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
+            cursor.insertBefore(cmd.cmd);
+          else
+            cursor.insertAfter(cmd.cmd);
+          return false;
+        }
+      }
+      else if(!(cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')))
           return;
+
       cursor.clearSelection();
-      if((e.pageX - clicked.offset().left)*2 < clicked.outerWidth())
-      {
-        if(cmd.cmd)
-          cursor.insertBefore(cmd.cmd);
-        else
-          cursor.prependTo(cmd.block);
-        var prevPrevDist, prevDist, dist = e.pageX - cursor.jQ.offset().left;
-        do
-        {
-          cursor.moveRight();
-          prevPrevDist = prevDist;
-          prevDist = dist;
-          dist = Math.abs(e.pageX - cursor.jQ.offset().left);
-        }
-        while(dist <= prevDist && dist != prevPrevDist);
-        if(dist != prevPrevDist)
-          cursor.moveLeft();
-      }
+      if(cmd.cmd)
+        cursor.insertAfter(cmd.cmd);
       else
+        cursor.appendTo(cmd.block);
+      //move cursor to position closest to click
+      var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
+      do
       {
-        if(cmd.cmd)
-          cursor.insertAfter(cmd.cmd);
-        else
-          cursor.appendTo(cmd.block);
-        var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-        do
-        {
-          cursor.moveLeft();
-          prevPrevDist = prevDist;
-          prevDist = dist;
-          dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-        }
-        while(dist <= prevDist && dist != prevPrevDist);
-        if(dist != prevPrevDist)
-          cursor.moveRight();
+        cursor.moveLeft();
+        prevPrevDist = prevDist;
+        prevDist = dist;
+        dist = Math.abs(cursor.jQ.offset().left - e.pageX);
       }
+      while(dist <= prevDist && dist != prevPrevDist);
+      if(dist != prevPrevDist)
+        cursor.moveRight();
+
       return false;
     }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"

@@ -193,13 +193,6 @@ Pipes.prototype.placeCursor = function(cursor)
     cursor.prependTo(this.firstChild);
 };
 
-//only give individual characters their own TextNode, but not <span>'s, inside
-//TextBlocks, in order to preserver word-wrapping.
-function TextNode(ch)
-{
-  Symbol.call(this, ch, [ document.createTextNode(ch) ]);
-}
-TextNode.prototype = Symbol.prototype;
 function MagicBlock(){}
 MagicBlock.prototype = $.extend(new MathBlock, {
   setEmpty: function()
@@ -272,7 +265,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   write: function(ch)
   {
-    this.cursor.insertNew(new TextNode(ch)).show();
+    this.cursor.insertNew(new VanillaSymbol(ch)).show();
   },
   keydown: function(e)
   {
