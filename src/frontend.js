@@ -567,6 +567,15 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       else
         this.cursor.deleteForward();
       return false;
+    case 65: //'a' character, as in Select All
+      if(!e.ctrlKey || e.shiftKey || e.altKey)
+        return true;
+      if(this.parent) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+      this.cursor.clearSelection().appendTo(this);
+      while(this.cursor.prev)
+        this.cursor.selectLeft();
+      return false;
     default:
       return true;
     }
