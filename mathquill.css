@@ -40,11 +40,11 @@
 .mathquill-editable.empty {
   cursor: text;
 }
-.mathquill-editable.empty:after, .mathquill-editable .cursor:only-child:after {
+.mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
 }
-.mathquill-editable .text .cursor:only-child:after {
+.mathquill-textbox .cursor:only-child:after, .mathquill-editable .text .cursor:only-child:after {
   content: '';
 }
 
