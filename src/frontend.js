@@ -410,7 +410,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   renderLatex: function(latex)
   {
-    latex = latex.match(/\\[a-z]+|[^\s]/ig);
+    latex = latex.match(/\\[a-z]*|[^\s]/ig);
     this.jQ.empty();
     this.firstChild = this.lastChild = null;
     this.cursor.appendTo(this);
@@ -430,7 +430,19 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           return;
         }
         var cmd;
-        if(/^\\[a-z]+$/.test(token))
+        if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
+        {
+          token = latex.shift();
+          if(token === '\\')
+            token = latex.shift();
+          cursor.write(token);
+          cmd = cursor.prev || cursor.parent.parent;
+          if(cursor.prev)
+            continue;
+          else
+            latex.unshift('{');
+        }
+        else if(/^\\[a-z]+$/.test(token))
         {
           cmd = createLatexCommand(token.slice(1));
           cursor.insertNew(cmd);
