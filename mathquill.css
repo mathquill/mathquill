@@ -33,12 +33,8 @@
 .mathquill-textbox {
   overflow-x: auto;
 }
-.mathquill-editable * {
+.mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
-}
-.mathquill-editable.empty {
-  cursor: text;
-}
 .mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
