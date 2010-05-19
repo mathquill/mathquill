@@ -425,7 +425,9 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           return false;
         if(token === '}')
         {
-          if(cursor.parent.parent)
+          if(cursor.parent.next)
+            cursor.prependTo(cursor.parent.next);
+          else if(cursor.parent.parent)
             cursor.insertAfter(cursor.parent.parent);
           return;
         }
