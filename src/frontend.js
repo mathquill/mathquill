@@ -424,13 +424,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         if(!token)
           return false;
         if(token === '}')
-        {
-          if(cursor.parent.next)
-            cursor.prependTo(cursor.parent.next);
-          else if(cursor.parent.parent)
-            cursor.insertAfter(cursor.parent.parent);
           return;
-        }
         var cmd;
         if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
         {
