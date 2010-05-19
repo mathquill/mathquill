@@ -424,7 +424,20 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         if(!token || token === '}')
           return;
         var cmd;
-        if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
+        if(token === '\\text')
+        {
+          var text = token = latex.shift();
+          while(token !== '}')
+          {
+            if(token === '\\') //skip tokens immediately following backslash
+              text += token = latex.shift();
+            text += token = latex.shift();
+          }
+          cmd = new TextBlock(text.slice(0,-1));
+          cursor.insertNew(cmd).insertAfter(cmd);
+          continue;
+        }
+        else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
         {
           token = latex.shift();
           if(token === '\\')
