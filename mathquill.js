@@ -1556,16 +1556,23 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       while(latex.length)
       {
         var token = latex.shift(); //pop first item
-        if(!token)
-          return false;
-        if(token === '}')
-        {
-          if(cursor.parent.parent)
-            cursor.insertAfter(cursor.parent.parent);
+        if(!token || token === '}')
           return;
-        }
         var cmd;
-        if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
+        if(token === '\\text')
+        {
+          var text = token = latex.shift();
+          while(token !== '}')
+          {
+            if(token === '\\') //skip tokens immediately following backslash
+              text += token = latex.shift();
+            text += token = latex.shift();
+          }
+          cmd = new TextBlock(text.slice(0,-1));
+          cursor.insertNew(cmd).insertAfter(cmd);
+          continue;
+        }
+        else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
         {
           token = latex.shift();
           if(token === '\\')
@@ -1573,7 +1580,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           cursor.write(token);
           cmd = cursor.prev || cursor.parent.parent;
           if(cursor.prev)
-            continue;
+            return;
           else
             latex.unshift('{');
         }
