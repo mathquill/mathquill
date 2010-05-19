@@ -421,9 +421,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       while(latex.length)
       {
         var token = latex.shift(); //pop first item
-        if(!token)
-          return false;
-        if(token === '}')
+        if(!token || token === '}')
           return;
         var cmd;
         if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
