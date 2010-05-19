@@ -432,7 +432,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           cursor.write(token);
           cmd = cursor.prev || cursor.parent.parent;
           if(cursor.prev)
-            continue;
+            return;
           else
             latex.unshift('{');
         }
