@@ -1561,14 +1561,19 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         var cmd;
         if(token === '\\text')
         {
-          var text = token = latex.shift();
-          while(token !== '}')
+          var text = latex.shift();
+          if(text === '{')
           {
-            if(token === '\\') //skip tokens immediately following backslash
+            text = token = latex.shift();
+            while(token !== '}')
+            {
+              if(token === '\\') //skip tokens immediately following backslash
+                text += token = latex.shift();
               text += token = latex.shift();
-            text += token = latex.shift();
+            }
+            text = text.slice(0,-1); //cut trailing '}'
           }
-          cmd = new TextBlock(text.slice(0,-1));
+          cmd = new TextBlock(text);
           cursor.insertNew(cmd).insertAfter(cmd);
           continue;
         }
@@ -1946,7 +1951,8 @@ function mathquill()
 
 //on document ready, transmogrify all <tag class="mathquill-editable"></tag> and
 //  <tag class="mathquill-embedded-latex"></tag> elements to mathquill elements.
-$(function(){
+$(function()
+{
   $('.mathquill-embedded-latex').mathquill();
   $('.mathquill-editable').mathquill('editable');
   $('.mathquill-textbox').mathquill('textbox');
