@@ -1618,9 +1618,9 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     this.cursor.hide();
     this.jQ.removeClass('hasCursor');
   },
-  skipKeypress: false,
   keydown: function(e)
   {
+    this.skipKeypress = false;
     e.ctrlKey = e.ctrlKey || e.metaKey;
     switch(e.which)
     {
@@ -1744,10 +1744,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   keypress: function(e)
   {
     if(this.skipKeypress)
-    {
-      this.skipKeypress = false;
       return true;
-    }
     this.cursor.write(String.fromCharCode(e.which)).show();
     return false;
   }
@@ -1760,10 +1757,7 @@ function RootMathCommand(cursor)
   this.firstChild.keypress = function(e)
   {
     if(this.skipKeypress)
-    {
-      this.skipKeypress = false;
       return true;
-    }
     var ch = String.fromCharCode(e.which);
     if(ch === '$' && cursor.parent == this)
     {
@@ -1787,15 +1781,11 @@ RootMathCommand.prototype.html_template = ['<span class="mathquill-rendered-math
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
   renderLatex: $.noop,
-  skipKeypress: false,
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e)
   {
     if(this.skipKeypress)
-    {
-      this.skipKeypress = false;
       return true;
-    }
     this.cursor.deleteSelection();
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
