@@ -659,6 +659,12 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
       this.skipKeypress = false;
       return true;
     }
+    if(this.cursor.selection)
+    {
+      if(cmd instanceof Symbol)
+        this.cursor.selection.remove();
+      delete this.cursor.selection;
+    }
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor)).show();

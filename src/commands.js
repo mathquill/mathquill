@@ -228,6 +228,12 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   keypress: function(e)
   {
+    if(this.cursor.selection)
+    {
+      if(cmd instanceof Symbol)
+        this.cursor.selection.remove();
+      delete this.cursor.selection;
+    }
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       if(this.isEmpty())
