@@ -659,17 +659,12 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
       this.skipKeypress = false;
       return true;
     }
-    if(this.cursor.selection)
-    {
-      if(cmd instanceof Symbol)
-        this.cursor.selection.remove();
-      delete this.cursor.selection;
-    }
+    this.cursor.deleteSelection();
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
-      this.cursor.insertNew(new RootMathCommand(this.cursor)).show();
+      this.cursor.insertNew(new RootMathCommand(this.cursor));
     else
-      this.cursor.insertNew(new VanillaSymbol(ch)).show();
+      this.cursor.insertNew(new VanillaSymbol(ch));
     return false;
   }
 });

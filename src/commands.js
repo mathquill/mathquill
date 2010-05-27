@@ -215,7 +215,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   write: function(ch)
   {
-    this.cursor.insertNew(new VanillaSymbol(ch)).show();
+    this.cursor.insertNew(new VanillaSymbol(ch));
   },
   keydown: function(e)
   {
@@ -228,16 +228,11 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   keypress: function(e)
   {
-    if(this.cursor.selection)
-    {
-      if(cmd instanceof Symbol)
-        this.cursor.selection.remove();
-      delete this.cursor.selection;
-    }
+    this.cursor.deleteSelection();
     var ch = String.fromCharCode(e.which);
     if(ch === '$')
       if(this.isEmpty())
-        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
       else if(!this.cursor.next)
         this.cursor.insertAfter(this);
       else if(!this.cursor.prev)
@@ -353,7 +348,8 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     var char = String.fromCharCode(e.which);
     if(char.match(/[a-z]/i))
     {
-      this.cursor.insertNew(new VanillaSymbol(char)).show();
+      this.cursor.deleteSelection();
+      this.cursor.insertNew(new VanillaSymbol(char));
       return false;
     }
     this.renderCommand();
