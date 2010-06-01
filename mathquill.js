@@ -1833,7 +1833,9 @@ function mathquill()
   this.each(function()
   {
     var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new (textbox?RootTextBlock:RootMathBlock);
-    root.jQ = jQ.addClass('mathquill-rendered-math').data('[[mathquill internal data]]', {
+    if(!textbox)
+      jQ.addClass('mathquill-rendered-math');
+    root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
       revert: function()
       {

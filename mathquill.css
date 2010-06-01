@@ -29,6 +29,7 @@
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
+  outline: none;
 }
 .mathquill-textbox {
   overflow-x: auto;
@@ -36,12 +37,27 @@
 .mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
 }
+
+.mathquill-editable .cursor {
+  border-left: 1px solid black;
+  margin-right: -1px;
+  display: inline;
+  position: relative;
+  z-index: 1;
+}
+.mathquill-editable .cursor.blink {
+  visibility: hidden;
+}
 .mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
 }
-.mathquill-textbox > .cursor:only-child:after, .mathquill-editable .text .cursor:only-child:after {
-  content: '';
+
+.mathquill-editable .selection, .mathquill-editable .selection .mathquill-rendered-math, .mathquill-editable .selection sup, .mathquill-editable .selection sub {
+  background-color: #ADF;
+}
+.mathquill-editable .selection.blur, .mathquill-editable .selection.blur .mathquill-rendered-math, .mathquill-editable .selection.blur sup, .mathquill-editable .selection.blur sub {
+  background-color: #CCC;
 }
 
 .mathquill-rendered-math {
@@ -49,10 +65,9 @@
   background-color: white;
   white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
-  font-size: 110%;
+  font-size: 120%;
   line-height: 1;
   position: relative;
-  outline: none;
   padding: 2px;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
@@ -68,28 +83,16 @@
   margin: 0;
   padding: 0;
 }
-.mathquill-editable.hasCursor, .mathquill-rendered-math .hasCursor {
+.mathquill-editable.hasCursor, .mathquill-editable .hasCursor {
   outline: 2px solid rgb(205,235,255);
   outline: 2px solid rgba(0,155,255,.2);
-}
-
-.mathquill-rendered-math .cursor {
-  border-left: 1px solid black;
-  margin-right: -1px;
-  display: inline;
-  position: relative;
-  z-index: 1;
-}
-
-.mathquill-rendered-math .cursor.blink {
-  visibility: hidden;
 }
 
 .mathquill-rendered-math .empty {
   color: #AAA;
 }
 
-.mathquill-rendered-math .text, .mathquill-rendered-math .text *, .mathquill-textbox * {
+.mathquill-rendered-math .text, .mathquill-rendered-math .text * {
   display: inline;
 }
 .mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
@@ -194,13 +197,6 @@
 .mathquill-rendered-math .paren {
   vertical-align: bottom;
   position: relative;
-}
-
-.mathquill-rendered-math .selection, .mathquill-rendered-math .selection .mathquill-rendered-math, .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
-  background-color: #ADF;
-}
-.mathquill-rendered-math .selection.blur, .mathquill-rendered-math .selection.blur .mathquill-rendered-math, .mathquill-rendered-math .selection.blur sup, .mathquill-rendered-math .selection.blur sub {
-  background-color: #CCC;
 }
 
 .mathquill-rendered-math .non-italicized-function {
