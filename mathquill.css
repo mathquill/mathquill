@@ -38,6 +38,17 @@
   cursor: text;
 }
 .mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
+
+.mathquill-editable .cursor {
+  border-left: 1px solid black;
+  margin-right: -1px;
+  display: inline;
+  position: relative;
+  z-index: 1;
+}
+.mathquill-editable .cursor.blink {
+  visibility: hidden;
+}
   visibility: hidden;
   content: 'c';
 }
@@ -77,18 +88,6 @@
 .mathquill-editable.hasCursor, .mathquill-editable .hasCursor {
   outline: 2px solid rgb(205,235,255);
   outline: 2px solid rgba(0,155,255,.2);
-}
-
-.mathquill-rendered-math .cursor {
-  border-left: 1px solid black;
-  margin-right: -1px;
-  display: inline;
-  position: relative;
-  z-index: 1;
-}
-
-.mathquill-rendered-math .cursor.blink {
-  visibility: hidden;
 }
 
 .mathquill-rendered-math .empty {
