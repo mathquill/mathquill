@@ -74,7 +74,7 @@
   margin: 0;
   padding: 0;
 }
-.mathquill-editable.hasCursor, .mathquill-rendered-math .hasCursor {
+.mathquill-editable.hasCursor, .mathquill-editable .hasCursor {
   outline: 2px solid rgb(205,235,255);
   outline: 2px solid rgba(0,155,255,.2);
 }
@@ -95,7 +95,7 @@
   color: #AAA;
 }
 
-.mathquill-rendered-math .text, .mathquill-rendered-math .text *, .mathquill-textbox * {
+.mathquill-rendered-math .text, .mathquill-rendered-math .text * {
   display: inline;
 }
 .mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
