@@ -37,7 +37,6 @@
 .mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
 }
-.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
 
 .mathquill-editable .cursor {
   border-left: 1px solid black;
@@ -49,11 +48,10 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
+.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
 }
-.mathquill-textbox > .cursor:only-child:after, .mathquill-editable .text .cursor:only-child:after {
-  content: '';
 
 .mathquill-editable .selection, .mathquill-editable .selection .mathquill-rendered-math, .mathquill-editable .selection sup, .mathquill-editable .selection sub {
   background-color: #ADF;
