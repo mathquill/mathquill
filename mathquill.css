@@ -55,10 +55,10 @@
 .mathquill-textbox > .cursor:only-child:after, .mathquill-editable .text .cursor:only-child:after {
   content: '';
 
-.mathquill-editable .selection, .mathquill-editable .selection .mathquill-editable, .mathquill-editable .selection sup, .mathquill-editable .selection sub {
+.mathquill-editable .selection, .mathquill-editable .selection .mathquill-rendered-math, .mathquill-editable .selection sup, .mathquill-editable .selection sub {
   background-color: #ADF;
 }
-.mathquill-editable .selection.blur, .mathquill-editable .selection.blur .mathquill-editable, .mathquill-editable .selection.blur sup, .mathquill-editable .selection.blur sub {
+.mathquill-editable .selection.blur, .mathquill-editable .selection.blur .mathquill-rendered-math, .mathquill-editable .selection.blur sup, .mathquill-editable .selection.blur sub {
   background-color: #CCC;
 }
 
