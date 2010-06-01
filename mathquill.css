@@ -29,6 +29,7 @@
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
+  outline: none;
 }
 .mathquill-textbox {
   overflow-x: auto;
@@ -58,7 +59,6 @@
   font-size: 110%;
   line-height: 1;
   position: relative;
-  outline: none;
   padding: 2px;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
