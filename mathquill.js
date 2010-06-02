@@ -657,9 +657,13 @@ SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</
 
 function NonItalicizedFunction(fn)
 {
-  Symbol.call(this, '\\'+fn+' ', '<span class="non-italicized-function">'+fn+'</span>');
+  Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
-NonItalicizedFunction.prototype = Symbol.prototype;
+NonItalicizedFunction.prototype = new Symbol;
+NonItalicizedFunction.prototype.respace = function()
+{
+  this.jQ[0].className = (this.next instanceof SupSub) ? '' : 'non-italicized-function';
+};
 
 var SingleCharacterCommands = {
   //Symbols:
