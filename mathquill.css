@@ -94,6 +94,7 @@
 
 .mathquill-rendered-math .text, .mathquill-rendered-math .text * {
   display: inline;
+  font-family: serif;
 }
 .mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
   display: inline-block;
