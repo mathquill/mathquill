@@ -84,7 +84,7 @@
           editingSource = true;
         }).blur(function(){
           editingSource = false;
-        }).keypress(function()
+        }).keydown(function()
         {
           var textarea = $(this), oldtext = textarea.val();
           setTimeout(function()
@@ -93,6 +93,9 @@
             if(newtext != oldtext)
               latexMath.mathquill('latex', newtext);
           },0);
+        }).keypress(function()
+        {
+          $(this).triggerHandler('keydown');
         });
       });
     </script>
