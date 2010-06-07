@@ -122,20 +122,20 @@ LiveFraction.prototype.placeCursor = function(cursor)
   cursor.appendTo(this.lastChild);
 };
 
-// Parens/Brackets/Braces etc
-function Paren(open, close, replacedBlock)
+// Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
+function Bracket(open, close, cmd, end, replacedBlock)
 {
-  MathCommand.call(this, '\\left'+open,
+  MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     replacedBlock);
-  this.end = '\\right'+close;
+  this.end = '\\right'+end;
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.8+3)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+3)+'em');
   });
 }
-Paren.prototype = $.extend(new MathCommand, {
+Bracket.prototype = $.extend(new MathCommand, {
   initBlocks: function(replacedBlock)
   {
     this.firstChild = this.lastChild = replacedBlock || new MathBlock;
@@ -147,13 +147,13 @@ Paren.prototype = $.extend(new MathCommand, {
     return this.cmd + this.firstChild.latex() + this.end;
   }
 });
-// Closing parens/brackets/braces matching Parens/Brackets/Braces above
-function CloseParen(open, close, replacedBlock)
+// Closing bracket matching opening bracket above
+function CloseBracket(open, close, cmd, end, replacedBlock)
 {
-  Paren.call(this, open, close, replacedBlock);
+  Bracket.apply(this, arguments);
 }
-CloseParen.prototype = new Paren;
-CloseParen.prototype.placeCursor = function(cursor)
+CloseBracket.prototype = new Bracket;
+CloseBracket.prototype.placeCursor = function(cursor)
 {
   //if I'm at the end of my parent who is a matching open-paren, and I was not passed
   //  a selection fragment, get rid of me and put cursor after my parent
@@ -165,21 +165,16 @@ CloseParen.prototype.placeCursor = function(cursor)
     this.firstChild.setEmpty().jQ.change();
   }
 };
-function Brace(replacedBlock)
+function Paren(open, close, replacedBlock)
 {
-  Paren.call(this, '{', '}', replacedBlock);
+  Bracket.call(this, open, close, open, close, replacedBlock);
 }
-Brace.prototype = new Paren;
-Brace.prototype.latex = function()
+Paren.prototype = Bracket.prototype;
+function CloseParen(open, close, replacedBlock)
 {
-  return '\\left\\{' + this.firstChild.latex() + '\\right\\}';
-};
-function CloseBrace(replacedBlock)
-{
-  CloseParen.call(this, '{', '}', replacedBlock);
+  CloseBracket.call(this, open, close, open, close, replacedBlock);
 }
-CloseBrace.prototype = new CloseParen;
-CloseBrace.prototype.latex = Brace.prototype.latex;
+CloseParen.prototype = CloseBracket.prototype;
 function Pipes(replacedBlock)
 {
   Paren.call(this, '|', '|', replacedBlock);
@@ -417,10 +412,10 @@ var SingleCharacterCommands = {
   '/': function(replacedBlock){ return new LiveFraction(replacedBlock); },
   '(': function(replacedBlock){ return new Paren('(', ')', replacedBlock); },
   '[': function(replacedBlock){ return new Paren('[', ']', replacedBlock); },
-  '{': function(replacedBlock){ return new Brace(replacedBlock); },
+  '{': function(replacedBlock){ return new Bracket('{','}','\\{','\\}',replacedBlock); },
   ')': function(replacedBlock){ return new CloseParen('(', ')', replacedBlock); },
   ']': function(replacedBlock){ return new CloseParen('[', ']', replacedBlock); },
-  '}': function(replacedBlock){ return new CloseBrace(replacedBlock); },
+  '}': function(replacedBlock){ return new CloseBracket('{','}','\\{','\\}',replacedBlock); },
   '|': function(replacedBlock){ return new Pipes(replacedBlock); },
   '$': function(replacedBlock){ return new TextBlock(replacedBlock); },
   '\\': function(replacedBlock, replacedFragment){
