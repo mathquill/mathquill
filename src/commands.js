@@ -436,6 +436,10 @@ function createLatexCommand(latex, replacedBlock)
     return new Fraction(replacedBlock);
   case 'text':
     return new TextBlock(replacedBlock);
+  case 'langle':
+    return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
+  case 'rangle':
+    return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
 
   //non-italicized functions
   case 'ln':
