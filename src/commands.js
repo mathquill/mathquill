@@ -395,7 +395,7 @@ Array.prototype.keydown = function(e)
 {
   var currentBlock = this.cursor.parent;
   if(currentBlock.parent === this)
-    if(e.which === 9 || e.which === 13) //tab or enter
+    if(e.which === 13) //enter
     {
       var newBlock = new MathBlock;
       newBlock.parent = this;
@@ -405,6 +405,31 @@ Array.prototype.keydown = function(e)
       else
         this.lastChild = newBlock;
       newBlock.next = currentBlock.next;
+      currentBlock.next = newBlock;
+      newBlock.prev = currentBlock;
+      this.cursor.appendTo(newBlock);
+      newBlock.jQ.change();
+      return false;
+    }
+    else if(e.which === 9 && !e.shiftKey && !currentBlock.next) //tab
+    {
+      if(currentBlock.isEmpty())
+        if(currentBlock.prev)
+        {
+          this.cursor.insertAfter(this);
+          delete currentBlock.prev.next;
+          this.lastChild = currentBlock.prev;
+          currentBlock.jQ.remove();
+          this.jQ.change();
+          return false;
+        }
+        else
+          return this.parent.keydown(e);
+
+      var newBlock = new MathBlock;
+      newBlock.parent = this;
+      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
+      this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock);
