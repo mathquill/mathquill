@@ -361,7 +361,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     else
       this.cursor.prependTo(this.parent);
     this.cursor.insertNew(this.firstChild.isEmpty() ?
-      new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
+      new VanillaSymbol('\\backslash ','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
   }
 });
 
