@@ -381,6 +381,19 @@ function SquareRoot(replacedBlock)
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
+function Binomial(replacedBlock)
+{
+  MathCommand.call(this, '\\binom', undefined, replacedBlock);
+  this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
+  this.firstChild.jQ.parent().change(function()
+  {
+    var block = $(this);
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
+  });
+}
+Binomial.prototype = new MathCommand;
+Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></span>'];
+
 function Vector(replacedBlock)
 {
   MathCommand.call(this, '\\vector', undefined, replacedBlock);
@@ -530,6 +543,9 @@ function createLatexCommand(latex, replacedBlock)
     return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
   case 'rangle':
     return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
+  case 'binom':
+  case 'binomial':
+    return new Binomial(replacedBlock);
   case 'vector':
     return new Vector(replacedBlock);
 
