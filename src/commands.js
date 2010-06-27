@@ -514,7 +514,7 @@ var SingleCharacterCommands = {
 };
 function createLatexCommand(latex, replacedBlock)
 {
-  if(latex.match(/^(a|arc)?(sin|cos|tan)h?$/))
+  if(latex.match(/^(a|arc)?(sin|cos|tan|sec|cosec|csc|cotan|cot)h?$/))
     return new NonItalicizedFunction(latex);
 
   switch(latex)
