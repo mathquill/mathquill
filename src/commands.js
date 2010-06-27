@@ -381,17 +381,23 @@ function SquareRoot(replacedBlock)
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
-function Array(replacedBlock)
+function Vector(replacedBlock)
 {
-  MathCommand.call(this, '\\array', undefined, replacedBlock);
+  MathCommand.call(this, '\\vector', undefined, replacedBlock);
 }
-Array.prototype = new MathCommand;
-Array.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
-Array.prototype.placeCursor = function(cursor)
+Vector.prototype = new MathCommand;
+Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
+Vector.prototype.latex = function()
+{
+  return '\\begin{matrix}' + this.reduceChildren(function(initValue){
+    return initValue.push(this.latex());
+  }, []).join('\\\\') + '\\end{matrix}';
+};
+Vector.prototype.placeCursor = function(cursor)
 {
   this.cursor = cursor.prependTo(this.firstChild);
 };
-Array.prototype.keydown = function(e)
+Vector.prototype.keydown = function(e)
 {
   var currentBlock = this.cursor.parent;
   if(currentBlock.parent === this)
@@ -524,8 +530,8 @@ function createLatexCommand(latex, replacedBlock)
     return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
   case 'rangle':
     return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
-  case 'array':
-    return new Array(replacedBlock);
+  case 'vector':
+    return new Vector(replacedBlock);
 
   //non-italicized functions
   case 'ln':
