@@ -199,6 +199,15 @@
   position: relative;
 }
 
+.mathquill-rendered-math .array {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.mathquill-rendered-math .array > span {
+  display: block;
+}
+
 .mathquill-rendered-math .non-italicized-function {
   padding-right: .2em;
 }

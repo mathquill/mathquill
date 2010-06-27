@@ -381,6 +381,65 @@ function SquareRoot(replacedBlock)
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
 
+function Array(replacedBlock)
+{
+  MathCommand.call(this, '\\array', undefined, replacedBlock);
+}
+Array.prototype = new MathCommand;
+Array.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
+Array.prototype.placeCursor = function(cursor)
+{
+  this.cursor = cursor.prependTo(this.firstChild);
+};
+Array.prototype.keydown = function(e)
+{
+  var currentBlock = this.cursor.parent;
+  if(currentBlock.parent === this)
+    if(e.which === 9 || e.which === 13) //tab or enter
+    {
+      var newBlock = new MathBlock;
+      newBlock.parent = this;
+      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).insertAfter(currentBlock.jQ);
+      if(currentBlock.next)
+        currentBlock.next.prev = newBlock;
+      else
+        this.lastChild = newBlock;
+      newBlock.next = currentBlock.next;
+      currentBlock.next = newBlock;
+      newBlock.prev = currentBlock;
+      this.cursor.appendTo(newBlock);
+      newBlock.jQ.change();
+      return false;
+    }
+    else if(e.which === 8) //backspace
+      if(currentBlock.isEmpty())
+      {
+        if(currentBlock.prev)
+        {
+          this.cursor.appendTo(currentBlock.prev)
+          currentBlock.prev.next = currentBlock.next;
+        }
+        else
+        {
+          this.cursor.insertBefore(this);
+          this.firstChild = currentBlock.next;
+        }
+        if(currentBlock.next)
+          currentBlock.next.prev = currentBlock.prev;
+        else
+          this.lastChild = currentBlock.prev;
+        currentBlock.jQ.remove();
+        if(this.isEmpty())
+          this.cursor.deleteForward();
+        else
+          this.jQ.change();
+        return false;
+      }
+      else if(!this.cursor.prev)
+        return false;
+  return this.parent.keydown(e);
+};
+
 function NonItalicizedFunction(fn)
 {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
@@ -440,6 +499,8 @@ function createLatexCommand(latex, replacedBlock)
     return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
   case 'rangle':
     return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
+  case 'array':
+    return new Array(replacedBlock);
 
   //non-italicized functions
   case 'ln':
