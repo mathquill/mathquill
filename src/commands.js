@@ -113,7 +113,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
+      newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
