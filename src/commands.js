@@ -403,7 +403,8 @@ Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'
 Vector.prototype.latex = function()
 {
   return '\\begin{matrix}' + this.reduceChildren(function(initValue){
-    return initValue.push(this.latex());
+    initValue.push(this.latex());
+    return initValue;
   }, []).join('\\\\') + '\\end{matrix}';
 };
 Vector.prototype.placeCursor = function(cursor)
