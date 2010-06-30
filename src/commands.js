@@ -726,7 +726,7 @@ function createLatexCommand(latex, replacedBlock)
   case 'AA':
   case 'Angstrom':
   case 'angstrom':
-    return new VanillaSymbol('\\text{\\AA}','&#8491;');
+    return new VanillaSymbol('\\text\\AA ','&#8491;');
   case 'ring':
   case 'circ':
   case 'circle':
