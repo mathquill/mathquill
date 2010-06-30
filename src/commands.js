@@ -534,6 +534,10 @@ function createLatexCommand(latex, replacedBlock)
   switch(latex)
   {
   //"real" commands
+  case 'sup':
+    return new SupSub('^', '<sup></sup>', replacedBlock);
+  case 'sub':
+    return new SupSub('_', '<sub></sub>', replacedBlock);
   case 'sqrt':
     return new SquareRoot(replacedBlock);
   case 'frac':
@@ -723,6 +727,10 @@ function createLatexCommand(latex, replacedBlock)
   */
 
   //various symbols
+  case 'caret':
+    return new VanillaSymbol('\\caret ','^');
+  case 'underscore':
+    return new VanillaSymbol('\\underscore ','_');
   case 'AA':
   case 'Angstrom':
   case 'angstrom':
