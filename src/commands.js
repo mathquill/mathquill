@@ -393,6 +393,11 @@ function Binomial(replacedBlock)
 }
 Binomial.prototype = new MathCommand;
 Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></span>'];
+function Choose(binomial)
+{
+  binomial.placeCursor = LiveFraction.prototype.placeCursor;
+  return binomial;
+}
 
 function Vector(replacedBlock)
 {
@@ -551,6 +556,8 @@ function createLatexCommand(latex, replacedBlock)
   case 'binom':
   case 'binomial':
     return new Binomial(replacedBlock);
+  case 'choose':
+    return Choose(new Binomial(replacedBlock));
   case 'vector':
     return new Vector(replacedBlock);
 
