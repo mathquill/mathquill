@@ -159,18 +159,23 @@ MathBlock.prototype = $.extend(new MathElement, {
   },
   setEmpty: function()
   {
+    this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
-      this.jQ.addClass('empty');
       if(this.parent)
         this.jQ.html('&empty;');
+      this.jQ.addClass('empty').change();
     }
     return this;
   },
   removeEmpty:function()
   {
-    if(this.jQ.hasClass('empty'))
-      this.jQ.html('').removeClass('empty');
+    if(this.jQ.addClass('hasCursor').hasClass('empty'))
+    {
+      if(this.parent)
+        this.jQ.html('');
+      this.jQ.removeClass('empty');
+    }
     return this;
   }
 });

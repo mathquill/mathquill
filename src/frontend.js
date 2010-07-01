@@ -3,7 +3,7 @@
  *********************************************************************/
 
 //A fake cursor in the fake textbox that the math is rendered in.
-function Cursor(block)
+function Cursor(root)
 {
   //API for the blinking cursor
   var intervalId;
@@ -11,7 +11,14 @@ function Cursor(block)
   {
     if(intervalId)
       clearInterval(intervalId);
-    this.jQ.removeClass('blink');
+    this.jQ = this._jQ.removeClass('blink');
+    if(this.next)
+      if(this.selection && this.selection.prev === this.prev)
+        this.jQ.insertBefore(this.selection.jQ);
+      else
+        this.jQ.insertBefore(this.next.jQ);
+    else
+      this.jQ.appendTo(this.parent.jQ);
     var cursor = this;
     intervalId = setInterval(function(){
       cursor.jQ.toggleClass('blink');
@@ -23,27 +30,21 @@ function Cursor(block)
     if(intervalId)
       clearInterval(intervalId);
     intervalId = undefined;
-    this.jQ.addClass('blink');
+    this._jQ = this.jQ.detach();
+    this.jQ = $();
     return this;
   };
 
   this.jQ = $('<span class="cursor"></span>');
-  if(block)
-    this.appendTo(block);
+  this.appendTo(root);
 }
 Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
-  setParentEmpty: function()
-  {
-    if(this.parent)
-      this.parent.setEmpty().jQ.removeClass('hasCursor').change();
-    return this;
-  },
   insertBefore: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
@@ -53,7 +54,7 @@ Cursor.prototype = {
   },
   insertAfter: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
@@ -63,21 +64,22 @@ Cursor.prototype = {
   },
   prependTo: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.removeEmpty();
     this.jQ.prependTo(el.jQ);
     return this;
   },
   appendTo: function(el)
   {
-    this.setParentEmpty();
+    if(this.parent)
+      this.parent.setEmpty();
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.removeEmpty();
     this.jQ.appendTo(el.jQ);
     return this;
   },
@@ -291,8 +293,7 @@ Cursor.prototype = {
       {
         if(this.prev) //then extend left if possible
         {
-          this.hopLeft(); //we want to insertBefore(prev.jQ) before we do prependTo so this.jQ will be outside selection.jQ
-          this.next.jQ.prependTo(this.selection.jQ);
+          this.hopLeft().next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
         }
         else if(this.parent.parent) //else level up if possible
@@ -301,17 +302,16 @@ Cursor.prototype = {
       else //else cursor is at right edge of selection, retract left
       {
         this.prev.jQ.insertAfter(this.selection.jQ);
-        this.hopLeft();
-        this.selection.next = this.next;
+        this.hopLeft().selection.next = this.next;
         if(this.selection.prev === this.prev)
           this.deleteSelection();
       }
     else
       if(this.prev)
-        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next);
+        this.hide().hopLeft().selection = new Selection(this.parent, this.prev, this.next.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.prev, this.next.next);
+          this.hide().insertBefore(this.parent.parent).selection = new Selection(this.parent, this.prev, this.next.next);
   },
   selectRight: function()
   {
@@ -320,8 +320,7 @@ Cursor.prototype = {
       {
         if(this.next) //then extend right if possible
         {
-          this.hopRight();
-          this.prev.jQ.appendTo(this.selection.jQ);
+          this.hopRight().prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
         }
         else if(this.parent.parent) //else level up if possible
@@ -330,17 +329,16 @@ Cursor.prototype = {
       else //else cursor is at left edge of selection, retract right
       {
         this.next.jQ.insertBefore(this.selection.jQ);
-        this.hopRight();
-        this.selection.prev = this.prev;
+        this.hopRight().selection.prev = this.prev;
         if(this.selection.next === this.next)
           this.deleteSelection();
       }
     else
       if(this.next)
-        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+        this.hide().hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.hide().insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
   },
   clearSelection: function()
   {
@@ -608,7 +606,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   {
     if(this.skipKeypress)
       return true;
-    this.cursor.write(String.fromCharCode(e.which)).show();
+    this.cursor.show().write(String.fromCharCode(e.which));
     return false;
   }
 });
@@ -631,10 +629,10 @@ function RootMathCommand(cursor)
       else if(!cursor.prev)
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch).show();
+        cursor.show().write(ch);
       return false;
     }
-    cursor.write(ch).show();
+    cursor.show().write(ch);
     return false;
   };
 }

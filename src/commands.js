@@ -113,7 +113,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
+      newBlock.jQ = this.firstChild.removeEmpty().jQ.removeClass('hasCursor').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
@@ -258,7 +258,8 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
           textblock.cursor.backspace();
         else if(textblock.cursor.next === textblock)
           textblock.cursor.deleteForward();
-        //else must be blur, don't remove textblock
+        else //must be blur, don't remove textblock
+          this.jQ.removeClass('hasCursor');
       },0);
     };
     return this;
@@ -302,11 +303,7 @@ function LatexCommandInput(replacedBlock, replacedFragment)
   this.firstChild.setEmpty = function()
   {
     if(this.isEmpty())
-    {
-      this.jQ.addClass('empty');
-      if(this.parent)
-        this.jQ.html('<span>&nbsp;</span>');
-    }
+      this.jQ.removeClass('hasCursor').addClass('empty').html('&nbsp;');
     return this;
   };
   if(replacedBlock)
