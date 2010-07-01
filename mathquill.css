@@ -38,6 +38,18 @@
   cursor: text;
 }
 
+.mathquill-editable .textarea {
+  position: relative;
+}
+.mathquill-editable .textarea textarea {
+  position: absolute;
+  z-index: -1;
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+  outline: none;
+}
+
 .mathquill-editable .cursor {
   border-left: 1px solid black;
   margin-right: -1px;
@@ -48,7 +60,7 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
+.mathquill-editable:after, .mathquill-editable .cursor:only-child:after {
   visibility: hidden;
   content: 'c';
 }

@@ -713,31 +713,34 @@ function mathquill()
     if(!editable)
       return;
 
-    jQ.addClass('mathquill-editable').attr('tabindex', 0);
+    var textarea = $('<span class="textarea"><textarea></textarea></span>')
+      .prependTo(jQ.addClass('mathquill-editable')).children();
     if(textbox)
       jQ.addClass('mathquill-textbox');
 
-    var lastKeydnEvt; //see Wiki page "Keyboard Events"
-    root.jQ.bind('focus.mathquill',function()
+    textarea.focus(function(e)
     {
-      if(cursor.parent)
-      {
-        if(cursor.parent.isEmpty())
-          cursor.jQ.appendTo(cursor.parent.removeEmpty().jQ).change();
-      }
-      else
+      if(!cursor.parent)
         cursor.appendTo(root);
       cursor.parent.jQ.addClass('hasCursor');
       if(cursor.selection)
         cursor.selection.jQ.removeClass('blur');
       else
         cursor.show();
+      e.stopPropagation();
     }
-    ).bind('blur.mathquill',function(e)
+    ).blur(function(e)
     {
-      cursor.setParentEmpty().hide();
+      cursor.hide().parent.setEmpty();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
+      e.stopPropagation();
+    });
+
+    var lastKeydnEvt; //see Wiki page "Keyboard Events"
+    root.jQ.bind('focus.mathquill blur.mathquill',function(e)
+    {
+      textarea.trigger(e);
     }
     ).bind('click.mathquill',function(e)
     {
@@ -784,6 +787,10 @@ function mathquill()
 
       return false;
     }
+    ).bind('click.mathquill',function()
+    {
+      textarea.focus();
+    }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
     {
       lastKeydnEvt = e;
@@ -802,7 +809,8 @@ function mathquill()
       //only call keypress if keydown returned true
       return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 ||
         cursor.parent.keypress(e) || (e.stopImmediatePropagation(), false));
-    }).blur();
+    }
+    ).blur();
   });
 
   return this;
