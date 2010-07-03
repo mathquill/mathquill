@@ -30,12 +30,12 @@ function Cursor(root)
     if(intervalId)
       clearInterval(intervalId);
     intervalId = undefined;
-    this._jQ = this.jQ.detach();
+    this.jQ.detach();
     this.jQ = $();
     return this;
   };
 
-  this.jQ = $('<span class="cursor"></span>');
+  this.jQ = this._jQ = $('<span class="cursor"></span>');
   this.appendTo(root);
 }
 Cursor.prototype = {
