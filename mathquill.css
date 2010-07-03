@@ -29,7 +29,6 @@
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
-  outline: none;
   padding: 2px;
 }
 .mathquill-textbox {
@@ -77,12 +76,9 @@
 }
 
 .mathquill-rendered-math {
-  color: black;
-  background-color: white;
   font-family: Symbola, "Times New Roman", serif;
   font-size: 120%;
   line-height: 1;
-  position: relative;
 }
 .mathquill-textbox, .mathquill-rendered-math {
   white-space: pre-wrap;
@@ -91,8 +87,6 @@
   font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {
-  color: inherit;
-  background-color: transparent;
   font-size: inherit;
   line-height: inherit;
   display: -moz-inline-box;
