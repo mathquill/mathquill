@@ -737,7 +737,7 @@ function mathquill()
     });
 
     var lastKeydnEvt; //see Wiki page "Keyboard Events"
-    root.jQ.bind('focus.mathquill blur.mathquill',function(e)
+    jQ.bind('focus.mathquill blur.mathquill',function(e)
     {
       textarea.trigger(e);
     }
