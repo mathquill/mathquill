@@ -30,6 +30,7 @@
   display: inline-block;
   border: 1px solid gray;
   outline: none;
+  padding: 2px;
 }
 .mathquill-textbox {
   overflow-x: auto;
@@ -78,12 +79,13 @@
 .mathquill-rendered-math {
   color: black;
   background-color: white;
-  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
   font-size: 120%;
   line-height: 1;
   position: relative;
-  padding: 2px;
+}
+.mathquill-textbox, .mathquill-rendered-math {
+  white-space: pre-wrap;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
