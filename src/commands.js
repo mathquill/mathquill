@@ -537,10 +537,11 @@ function createLatexCommand(latex, replacedBlock)
   switch(latex)
   {
   //"real" commands
-  case 'sup':
-    return new SupSub('^', '<sup></sup>', replacedBlock);
-  case 'sub':
+  case 'subscript':
     return new SupSub('_', '<sub></sub>', replacedBlock);
+  case 'supscript':
+  case 'superscript':
+    return new SupSub('^', '<sup></sup>', replacedBlock);
   case 'sqrt':
     return new SquareRoot(replacedBlock);
   case 'frac':
@@ -972,6 +973,8 @@ function createLatexCommand(latex, replacedBlock)
   case 'supeq':
   case 'supsete':
   case 'supseteq':
+  case 'supersete':
+  case 'superseteq':
     return new BinaryOperator('\\supseteq ','&supe;');
   case 'nsupe':
   case 'nsupeq':
