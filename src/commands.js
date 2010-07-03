@@ -248,6 +248,7 @@ function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
   setEmpty: function()
   {
+    this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
       var textblock = this.parent;
@@ -258,14 +259,14 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
           textblock.cursor.backspace();
         else if(textblock.cursor.next === textblock)
           textblock.cursor.deleteForward();
-        else //must be blur, don't remove textblock
-          this.jQ.removeClass('hasCursor');
+        //else must be blur, don't remove textblock
       },0);
     };
     return this;
   },
   removeEmpty: function()
   {
+    this.jQ.addClass('hasCursor');
     if(this.parent.prev instanceof TextBlock)
     {
       var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
