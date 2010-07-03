@@ -409,11 +409,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   renderLatex: function(latex)
   {
     latex = latex.match(/\\[a-z]*|[^\s]/ig);
-    this.jQ.empty();
+    this.jQ.children(':not(.textarea)').remove();
     this.firstChild = this.lastChild = null;
-    this.cursor.appendTo(this);
-    if(!latex)
-      return;
+    this.cursor.show().appendTo(this);
+    if(latex)
     (function recurse(cursor)
     {
       while(latex.length)
@@ -477,7 +476,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       }
     }(this.cursor));
     this.cursor.hide();
-    this.jQ.removeClass('hasCursor');
+    this.setEmpty();
   },
   keydown: function(e)
   {
