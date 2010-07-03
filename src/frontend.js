@@ -413,68 +413,68 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     this.firstChild = this.lastChild = null;
     this.cursor.show().appendTo(this);
     if(latex)
-    (function recurse(cursor)
-    {
-      while(latex.length)
+      (function recurse(cursor)
       {
-        var token = latex.shift(); //pop first item
-        if(!token || token === '}')
-          return;
-        var cmd;
-        if(token === '\\text')
+        while(latex.length)
         {
-          var text = latex.shift();
-          if(text === '{')
-          {
-            text = token = latex.shift();
-            while(token !== '}')
-            {
-              if(token === '\\') //skip tokens immediately following backslash
-                text += token = latex.shift();
-              text += token = latex.shift();
-            }
-            text = text.slice(0,-1); //cut trailing '}'
-          }
-          cmd = new TextBlock(text);
-          cursor.insertNew(cmd).insertAfter(cmd);
-          continue;
-        }
-        else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
-        {
-          token = latex.shift();
-          if(token === '\\')
-            token = latex.shift();
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-          if(cursor.prev)
+          var token = latex.shift(); //pop first item
+          if(!token || token === '}')
             return;
-          else
-            latex.unshift('{');
-        }
-        else if(/^\\[a-z]+$/.test(token))
-        {
-          cmd = createLatexCommand(token.slice(1));
-          cursor.insertNew(cmd);
-        }
-        else
-        {
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-        }
-        cmd.eachChild(function()
-        {
-          cursor.appendTo(this);
-          var token = latex.shift();
-          if(!token)
-            return false;
-          if(token === '{')
-            recurse(cursor);
-          else
+          var cmd;
+          if(token === '\\text')
+          {
+            var text = latex.shift();
+            if(text === '{')
+            {
+              text = token = latex.shift();
+              while(token !== '}')
+              {
+                if(token === '\\') //skip tokens immediately following backslash
+                  text += token = latex.shift();
+                text += token = latex.shift();
+              }
+              text = text.slice(0,-1); //cut trailing '}'
+            }
+            cmd = new TextBlock(text);
+            cursor.insertNew(cmd).insertAfter(cmd);
+            continue;
+          }
+          else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
+          {
+            token = latex.shift();
+            if(token === '\\')
+              token = latex.shift();
             cursor.write(token);
-        });
-        cursor.insertAfter(cmd);
-      }
-    }(this.cursor));
+            cmd = cursor.prev || cursor.parent.parent;
+            if(cursor.prev)
+              return;
+            else
+              latex.unshift('{');
+          }
+          else if(/^\\[a-z]+$/.test(token))
+          {
+            cmd = createLatexCommand(token.slice(1));
+            cursor.insertNew(cmd);
+          }
+          else
+          {
+            cursor.write(token);
+            cmd = cursor.prev || cursor.parent.parent;
+          }
+          cmd.eachChild(function()
+          {
+            cursor.appendTo(this);
+            var token = latex.shift();
+            if(!token)
+              return false;
+            if(token === '{')
+              recurse(cursor);
+            else
+              cursor.write(token);
+          });
+          cursor.insertAfter(cmd);
+        }
+      }(this.cursor));
     this.cursor.hide();
     this.setEmpty();
   },
