@@ -939,15 +939,15 @@ function createLatexCommand(latex, replacedBlock)
   case 'sub':
   case 'subset':
     return new BinaryOperator('\\subset ','&sub;');
+  case 'sup':
+  case 'supset':
+  case 'superset':
+    return new BinaryOperator('\\supset ','&sup;');
   case 'nsub':
   case 'notsub':
   case 'nsubset':
   case 'notsubset':
     return new BinaryOperator('\\not\\subset ','&#8836;');
-  case 'sup':
-  case 'supset':
-  case 'superset':
-    return new BinaryOperator('\\supset ','&sup;');
   case 'nsup':
   case 'notsup':
   case 'nsupset':
@@ -960,6 +960,13 @@ function createLatexCommand(latex, replacedBlock)
   case 'subsete':
   case 'subseteq':
     return new BinaryOperator('\\subseteq ','&sube;');
+  case 'supe':
+  case 'supeq':
+  case 'supsete':
+  case 'supseteq':
+  case 'supersete':
+  case 'superseteq':
+    return new BinaryOperator('\\supseteq ','&supe;');
   case 'nsube':
   case 'nsubeq':
   case 'notsube':
@@ -969,13 +976,6 @@ function createLatexCommand(latex, replacedBlock)
   case 'notsubsete':
   case 'notsubseteq':
     return new BinaryOperator('\\not\\subseteq ','&#8840;');
-  case 'supe':
-  case 'supeq':
-  case 'supsete':
-  case 'supseteq':
-  case 'supersete':
-  case 'superseteq':
-    return new BinaryOperator('\\supseteq ','&supe;');
   case 'nsupe':
   case 'nsupeq':
   case 'notsupe':
