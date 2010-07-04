@@ -9,16 +9,17 @@ function Cursor(root)
   var intervalId;
   this.show = function()
   {
+    this.jQ = this._jQ.removeClass('blink');
     if(intervalId)
       clearInterval(intervalId);
-    this.jQ = this._jQ.removeClass('blink');
-    if(this.next)
-      if(this.selection && this.selection.prev === this.prev)
-        this.jQ.insertBefore(this.selection.jQ);
-      else
-        this.jQ.insertBefore(this.next.jQ);
     else
-      this.jQ.appendTo(this.parent.jQ);
+      if(this.next)
+        if(this.selection && this.selection.prev === this.prev)
+          this.jQ.insertBefore(this.selection.jQ);
+        else
+          this.jQ.insertBefore(this.next.jQ);
+      else
+        this.jQ.appendTo(this.parent.jQ);
     var cursor = this;
     intervalId = setInterval(function(){
       cursor.jQ.toggleClass('blink');
