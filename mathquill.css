@@ -41,7 +41,7 @@
 
 .mathquill-editable .textarea {
   position: relative;
-  display: inline-block;
+  display: inline; /*so Firefox 3.6 (Gecko 1.9.2) won't wrap the box to 2 lines*/
 }
 .mathquill-editable .textarea textarea {
   position: absolute;
