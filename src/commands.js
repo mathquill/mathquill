@@ -16,7 +16,7 @@ NonSymbolaSymbol.prototype = Symbol.prototype;
 
 function BigSymbol(ch, html)
 {
-  Symbol.call(this, ch, '<big>'+(html || ch)+'</big>');
+  Symbol.call(this, ch, '<big>'+html+'</big>');
 }
 BigSymbol.prototype = Symbol.prototype;
 
@@ -71,16 +71,45 @@ SupSub.prototype.latex = function()
 };
 SupSub.prototype.respace = function()
 {
+  if(this.prev && (this.prev.cmd === '\\int '
+    || (this.prev instanceof SupSub && this.prev.cmd != this.cmd
+      && this.prev.prev && this.prev.prev.cmd === '\\int ')))
+  {
+    if(!this.limit)
+    {
+      this.limit = true;
+      this.jQ.addClass('limit');
+    }
+  }
+  else
+  {
+    if(this.limit)
+    {
+      this.limit = false;
+      this.jQ.removeClass('limit');
+    }
+  }
   if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
+    if(this.limit && this.cmd === '_')
+      this.jQ.css({
+        left: -.3-this.prev.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+      });
+    else
+      this.jQ.css({
+        left: -this.prev.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+      });
+  else if(this.limit && this.cmd === '_')
     this.jQ.css({
-      left: -this.prev.jQ.innerWidth(),
-      marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
-    });
-  else if(this.cmd === '_' && this.prev && this.prev.cmd === '\\int ')
-    this.jQ.css({
-      left: '-.1em',
+      left: '-.3em',
       marginRight: ''
     });
+  else if(this.cmd === '^' && this.next && this.next.cmd === '\\sqrt')
+    this.jQ.css({
+      left: '',
+      marginRight: Math.max(-.3, .1-this.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+    }).addClass('limit');
   else
     this.jQ.css({
       left: '',
