@@ -70,7 +70,10 @@ Cursor.prototype = {
     this.prev = null;
     this.parent = el;
     this.parent.removeEmpty();
-    this.jQ.prependTo(el.jQ);
+    if(el.parent)
+      this.jQ.prependTo(el.jQ);
+    else
+      this.jQ.insertAfter(el.jQ[0].firstChild);
     return this;
   },
   appendTo: function(el)

@@ -354,10 +354,10 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.jQ = this.jQ.first();
     this.remove();
-    if(this.prev)
-      this.cursor.insertAfter(this.prev);
+    if(this.next)
+      this.cursor.insertBefore(this.next);
     else
-      this.cursor.prependTo(this.parent);
+      this.cursor.appendTo(this.parent);
     this.cursor.insertNew(this.firstChild.isEmpty() ?
       new VanillaSymbol('\\backslash ','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
   }
