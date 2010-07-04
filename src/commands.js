@@ -18,7 +18,7 @@ function BigSymbol(ch, html)
 {
   Symbol.call(this, ch, '<big>'+html+'</big>');
 }
-BigSymbol.prototype = Symbol.prototype;
+BigSymbol.prototype = new Symbol; //so instanceof will work
 
 function Variable(ch, html)
 {
@@ -137,8 +137,16 @@ LiveFraction.prototype.placeCursor = function(cursor)
   if(this.firstChild.isEmpty())
   {
     var prev = this.prev;
-    while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
+    while(prev && !(prev instanceof BinaryOperator || prev instanceof TextBlock
+        || prev instanceof BigSymbol)) //lookbehind for operator
       prev = prev.prev;
+    if(prev instanceof BigSymbol)
+      if(prev.next instanceof SupSub)
+      {
+        prev = prev.next;
+        if(prev.next instanceof SupSub && prev.next.cmd != prev.cmd)
+          prev = prev.next;
+      }
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
