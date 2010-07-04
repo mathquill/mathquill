@@ -79,6 +79,8 @@
   font-family: Symbola, "Times New Roman", serif;
   font-size: 120%;
   line-height: 1;
+  display: -moz-inline-box;
+  display: inline-block;
 }
 .mathquill-textbox, .mathquill-rendered-math {
   white-space: pre-wrap;
@@ -106,12 +108,6 @@
 .mathquill-rendered-math .text, .mathquill-rendered-math .text * {
   display: inline;
   font-family: serif;
-}
-.mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
-  display: inline-block;
-}
-.mathquill-textbox .mathquill-rendered-math .cursor { /* seriously */
-  display: inline;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
