@@ -92,23 +92,23 @@ SupSub.prototype.respace = function()
   if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
     if(this.limit && this.cmd === '_')
       this.jQ.css({
-        left: -.3-this.prev.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
-        marginRight: .1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+        left: -.25-this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
       });
     else
       this.jQ.css({
-        left: -this.prev.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
-        marginRight: .1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+        left: -this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
       });
   else if(this.limit && this.cmd === '_')
     this.jQ.css({
-      left: '-.3em',
+      left: '-.25em',
       marginRight: ''
     });
   else if(this.cmd === '^' && this.next && this.next.cmd === '\\sqrt')
     this.jQ.css({
       left: '',
-      marginRight: Math.max(-.3, .1-this.jQ.innerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
     }).addClass('limit');
   else
     this.jQ.css({
