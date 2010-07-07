@@ -29,13 +29,28 @@
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
-  outline: none;
+  padding: 2px;
 }
 .mathquill-textbox {
   overflow-x: auto;
+  overflow-y: hidden; /*so IE8 won't show a vertical scrollbar*/
 }
 .mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
+}
+
+.mathquill-editable .textarea {
+  position: relative;
+  display: inline; /*so Firefox 3.6 (Gecko 1.9.2) won't wrap the box to 2 lines*/
+}
+.mathquill-editable .textarea textarea {
+  position: absolute;
+  z-index: -1;
+  height: 1px;
+  width: 1px;
+  opacity: 0;
+  border: none;
+  outline: none;
 }
 
 .mathquill-editable .cursor {
@@ -48,7 +63,7 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after {
+.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
@@ -61,21 +76,19 @@
 }
 
 .mathquill-rendered-math {
-  color: black;
-  background-color: white;
-  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
   font-size: 120%;
   line-height: 1;
-  position: relative;
-  padding: 2px;
+  display: -moz-inline-box;
+  display: inline-block;
+}
+.mathquill-textbox, .mathquill-rendered-math {
+  white-space: pre-wrap;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {
-  color: inherit;
-  background-color: transparent;
   font-size: inherit;
   line-height: inherit;
   display: -moz-inline-box;
@@ -95,12 +108,6 @@
 .mathquill-rendered-math .text, .mathquill-rendered-math .text * {
   display: inline;
   font-family: serif;
-}
-.mathquill-textbox .mathquill-rendered-math, .mathquill-textbox .mathquill-rendered-math * { /* stupid no-granularity cascading */
-  display: inline-block;
-}
-.mathquill-textbox .mathquill-rendered-math .cursor { /* seriously */
-  display: inline;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
@@ -125,6 +132,15 @@
 .mathquill-rendered-math sub {
   vertical-align: -.4em;
 }
+.mathquill-rendered-math sup.limit, .mathquill-rendered-math sub.limit {
+  font-size: 80%;
+}
+.mathquill-rendered-math sup.limit {
+  vertical-align: .8em;
+}
+.mathquill-rendered-math sub.limit {
+  vertical-align: -.6em;
+}
 
 .mathquill-rendered-math .binary-operator {
   padding: 0 .2em;
@@ -135,7 +151,6 @@
 }
 
 .mathquill-rendered-math .fraction {
-  position: relative;
   font-size: 90%;
   text-align: center;
   vertical-align: -.5em;
@@ -198,6 +213,15 @@
 .mathquill-rendered-math .paren {
   vertical-align: bottom;
   position: relative;
+}
+
+.mathquill-rendered-math .array {
+  vertical-align: middle;
+  text-align: center;
+}
+
+.mathquill-rendered-math .array > span {
+  display: block;
 }
 
 .mathquill-rendered-math .non-italicized-function {

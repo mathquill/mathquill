@@ -177,18 +177,23 @@ MathBlock.prototype = $.extend(new MathElement, {
   },
   setEmpty: function()
   {
+    this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
-      this.jQ.addClass('empty');
       if(this.parent)
         this.jQ.html('&empty;');
+      this.jQ.addClass('empty').change();
     }
     return this;
   },
   removeEmpty:function()
   {
-    if(this.jQ.hasClass('empty'))
-      this.jQ.html('').removeClass('empty');
+    if(this.jQ.addClass('hasCursor').hasClass('empty'))
+    {
+      if(this.parent)
+        this.jQ.html('');
+      this.jQ.removeClass('empty');
+    }
     return this;
   }
 });
@@ -285,9 +290,9 @@ NonSymbolaSymbol.prototype = Symbol.prototype;
 
 function BigSymbol(ch, html)
 {
-  Symbol.call(this, ch, '<big>'+(html || ch)+'</big>');
+  Symbol.call(this, ch, '<big>'+html+'</big>');
 }
-BigSymbol.prototype = Symbol.prototype;
+BigSymbol.prototype = new Symbol; //so instanceof will work
 
 function Variable(ch, html)
 {
@@ -340,16 +345,45 @@ SupSub.prototype.latex = function()
 };
 SupSub.prototype.respace = function()
 {
+  if(this.prev && (this.prev.cmd === '\\int '
+    || (this.prev instanceof SupSub && this.prev.cmd != this.cmd
+      && this.prev.prev && this.prev.prev.cmd === '\\int ')))
+  {
+    if(!this.limit)
+    {
+      this.limit = true;
+      this.jQ.addClass('limit');
+    }
+  }
+  else
+  {
+    if(this.limit)
+    {
+      this.limit = false;
+      this.jQ.removeClass('limit');
+    }
+  }
   if(this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced)
+    if(this.limit && this.cmd === '_')
+      this.jQ.css({
+        left: -.25-this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+      });
+    else
+      this.jQ.css({
+        left: -this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
+        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
+      });
+  else if(this.limit && this.cmd === '_')
     this.jQ.css({
-      left: -this.prev.jQ.innerWidth(),
-      marginRight: 1-Math.min(this.jQ.innerWidth(), this.prev.jQ.innerWidth()) //1px adjustment very important!
-    });
-  else if(this.cmd === '_' && this.prev && this.prev.cmd === '\\int ')
-    this.jQ.css({
-      left: '-.1em',
+      left: '-.25em',
       marginRight: ''
     });
+  else if(this.cmd === '^' && this.next && this.next.cmd === '\\sqrt')
+    this.jQ.css({
+      left: '',
+      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+    }).addClass('limit');
   else
     this.jQ.css({
       left: '',
@@ -377,12 +411,20 @@ LiveFraction.prototype.placeCursor = function(cursor)
   if(this.firstChild.isEmpty())
   {
     var prev = this.prev;
-    while(prev && !(prev instanceof BinaryOperator)) //lookbehind for operator
+    while(prev && !(prev instanceof BinaryOperator || prev instanceof TextBlock
+        || prev instanceof BigSymbol)) //lookbehind for operator
       prev = prev.prev;
+    if(prev instanceof BigSymbol)
+      if(prev.next instanceof SupSub)
+      {
+        prev = prev.next;
+        if(prev.next instanceof SupSub && prev.next.cmd != prev.cmd)
+          prev = prev.next;
+      }
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.removeEmpty().jQ.prepend(newBlock.jQ);
+      newBlock.jQ = this.firstChild.removeEmpty().jQ.removeClass('hasCursor').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
@@ -401,7 +443,7 @@ function Bracket(open, close, cmd, end, replacedBlock)
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+3)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
   });
 }
 Bracket.prototype = $.extend(new MathCommand, {
@@ -517,6 +559,7 @@ function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
   setEmpty: function()
   {
+    this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
       var textblock = this.parent;
@@ -534,6 +577,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
   },
   removeEmpty: function()
   {
+    this.jQ.addClass('hasCursor');
     if(this.parent.prev instanceof TextBlock)
     {
       var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
@@ -571,11 +615,7 @@ function LatexCommandInput(replacedBlock, replacedFragment)
   this.firstChild.setEmpty = function()
   {
     if(this.isEmpty())
-    {
-      this.jQ.addClass('empty');
-      if(this.parent)
-        this.jQ.html('<span>&nbsp;</span>');
-    }
+      this.jQ.removeClass('hasCursor').addClass('empty').html('&nbsp;');
     return this;
   };
   if(replacedBlock)
@@ -625,12 +665,12 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.jQ = this.jQ.first();
     this.remove();
-    if(this.prev)
-      this.cursor.insertAfter(this.prev);
+    if(this.next)
+      this.cursor.insertBefore(this.next);
     else
-      this.cursor.prependTo(this.parent);
+      this.cursor.appendTo(this.parent);
     this.cursor.insertNew(this.firstChild.isEmpty() ?
-      new VanillaSymbol('\\\\','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
+      new VanillaSymbol('\\backslash ','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
   }
 });
 
@@ -649,6 +689,115 @@ function SquareRoot(replacedBlock)
 }
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+
+function Binomial(replacedBlock)
+{
+  MathCommand.call(this, '\\binom', undefined, replacedBlock);
+  this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
+  this.firstChild.jQ.parent().change(function()
+  {
+    var block = $(this);
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
+  });
+}
+Binomial.prototype = new MathCommand;
+Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></span>'];
+function Choose(binomial)
+{
+  binomial.placeCursor = LiveFraction.prototype.placeCursor;
+  return binomial;
+}
+
+function Vector(replacedBlock)
+{
+  MathCommand.call(this, '\\vector', undefined, replacedBlock);
+}
+Vector.prototype = new MathCommand;
+Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
+Vector.prototype.latex = function()
+{
+  return '\\begin{matrix}' + this.reduceChildren(function(initValue){
+    initValue.push(this.latex());
+    return initValue;
+  }, []).join('\\\\') + '\\end{matrix}';
+};
+Vector.prototype.placeCursor = function(cursor)
+{
+  this.cursor = cursor.prependTo(this.firstChild);
+};
+Vector.prototype.keydown = function(e)
+{
+  var currentBlock = this.cursor.parent;
+  if(currentBlock.parent === this)
+    if(e.which === 13) //enter
+    {
+      var newBlock = new MathBlock;
+      newBlock.parent = this;
+      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).insertAfter(currentBlock.jQ);
+      if(currentBlock.next)
+        currentBlock.next.prev = newBlock;
+      else
+        this.lastChild = newBlock;
+      newBlock.next = currentBlock.next;
+      currentBlock.next = newBlock;
+      newBlock.prev = currentBlock;
+      this.cursor.appendTo(newBlock);
+      newBlock.jQ.change();
+      return false;
+    }
+    else if(e.which === 9 && !e.shiftKey && !currentBlock.next) //tab
+    {
+      if(currentBlock.isEmpty())
+        if(currentBlock.prev)
+        {
+          this.cursor.insertAfter(this);
+          delete currentBlock.prev.next;
+          this.lastChild = currentBlock.prev;
+          currentBlock.jQ.remove();
+          this.jQ.change();
+          return false;
+        }
+        else
+          return this.parent.keydown(e);
+
+      var newBlock = new MathBlock;
+      newBlock.parent = this;
+      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
+      this.lastChild = newBlock;
+      currentBlock.next = newBlock;
+      newBlock.prev = currentBlock;
+      this.cursor.appendTo(newBlock);
+      newBlock.jQ.change();
+      return false;
+    }
+    else if(e.which === 8) //backspace
+      if(currentBlock.isEmpty())
+      {
+        if(currentBlock.prev)
+        {
+          this.cursor.appendTo(currentBlock.prev)
+          currentBlock.prev.next = currentBlock.next;
+        }
+        else
+        {
+          this.cursor.insertBefore(this);
+          this.firstChild = currentBlock.next;
+        }
+        if(currentBlock.next)
+          currentBlock.next.prev = currentBlock.prev;
+        else
+          this.lastChild = currentBlock.prev;
+        currentBlock.jQ.remove();
+        if(this.isEmpty())
+          this.cursor.deleteForward();
+        else
+          this.jQ.change();
+        return false;
+      }
+      else if(!this.cursor.prev)
+        return false;
+  return this.parent.keydown(e);
+};
 
 function NonItalicizedFunction(fn)
 {
@@ -693,12 +842,17 @@ var SingleCharacterCommands = {
 };
 function createLatexCommand(latex, replacedBlock)
 {
-  if(latex.match(/^(a|arc)?(sin|cos|tan)h?$/))
+  if(latex.match(/^(a|arc)?(sin|cos|tan|sec|cosec|csc|cotan|cot)h?$/))
     return new NonItalicizedFunction(latex);
 
   switch(latex)
   {
   //"real" commands
+  case 'subscript':
+    return new SupSub('_', '<sub></sub>', replacedBlock);
+  case 'supscript':
+  case 'superscript':
+    return new SupSub('^', '<sup></sup>', replacedBlock);
   case 'sqrt':
     return new SquareRoot(replacedBlock);
   case 'frac':
@@ -709,6 +863,13 @@ function createLatexCommand(latex, replacedBlock)
     return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
   case 'rangle':
     return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
+  case 'binom':
+  case 'binomial':
+    return new Binomial(replacedBlock);
+  case 'choose':
+    return Choose(new Binomial(replacedBlock));
+  case 'vector':
+    return new Vector(replacedBlock);
 
   //non-italicized functions
   case 'ln':
@@ -883,10 +1044,14 @@ function createLatexCommand(latex, replacedBlock)
   */
 
   //various symbols
+  case 'caret':
+    return new VanillaSymbol('\\caret ','^');
+  case 'underscore':
+    return new VanillaSymbol('\\underscore ','_');
   case 'AA':
   case 'Angstrom':
   case 'angstrom':
-    return new VanillaSymbol('\\text{\\AA}','&#8491;');
+    return new VanillaSymbol('\\text\\AA ','&#8491;');
   case 'ring':
   case 'circ':
   case 'circle':
@@ -1085,15 +1250,15 @@ function createLatexCommand(latex, replacedBlock)
   case 'sub':
   case 'subset':
     return new BinaryOperator('\\subset ','&sub;');
+  case 'sup':
+  case 'supset':
+  case 'superset':
+    return new BinaryOperator('\\supset ','&sup;');
   case 'nsub':
   case 'notsub':
   case 'nsubset':
   case 'notsubset':
     return new BinaryOperator('\\not\\subset ','&#8836;');
-  case 'sup':
-  case 'supset':
-  case 'superset':
-    return new BinaryOperator('\\supset ','&sup;');
   case 'nsup':
   case 'notsup':
   case 'nsupset':
@@ -1106,6 +1271,13 @@ function createLatexCommand(latex, replacedBlock)
   case 'subsete':
   case 'subseteq':
     return new BinaryOperator('\\subseteq ','&sube;');
+  case 'supe':
+  case 'supeq':
+  case 'supsete':
+  case 'supseteq':
+  case 'supersete':
+  case 'superseteq':
+    return new BinaryOperator('\\supseteq ','&supe;');
   case 'nsube':
   case 'nsubeq':
   case 'notsube':
@@ -1115,11 +1287,6 @@ function createLatexCommand(latex, replacedBlock)
   case 'notsubsete':
   case 'notsubseteq':
     return new BinaryOperator('\\not\\subseteq ','&#8840;');
-  case 'supe':
-  case 'supeq':
-  case 'supsete':
-  case 'supseteq':
-    return new BinaryOperator('\\supseteq ','&supe;');
   case 'nsupe':
   case 'nsupeq':
   case 'notsupe':
@@ -1143,15 +1310,23 @@ function createLatexCommand(latex, replacedBlock)
  *********************************************************************/
 
 //A fake cursor in the fake textbox that the math is rendered in.
-function Cursor(block)
+function Cursor(root)
 {
   //API for the blinking cursor
   var intervalId;
   this.show = function()
   {
+    this.jQ = this._jQ.removeClass('blink');
     if(intervalId)
       clearInterval(intervalId);
-    this.jQ.removeClass('blink');
+    else
+      if(this.next)
+        if(this.selection && this.selection.prev === this.prev)
+          this.jQ.insertBefore(this.selection.jQ);
+        else
+          this.jQ.insertBefore(this.next.jQ);
+      else
+        this.jQ.appendTo(this.parent.jQ);
     var cursor = this;
     intervalId = setInterval(function(){
       cursor.jQ.toggleClass('blink');
@@ -1163,27 +1338,21 @@ function Cursor(block)
     if(intervalId)
       clearInterval(intervalId);
     intervalId = undefined;
-    this.jQ.addClass('blink');
+    this.jQ.detach();
+    this.jQ = $();
     return this;
   };
 
-  this.jQ = $('<span class="cursor"></span>');
-  if(block)
-    this.appendTo(block);
+  this.jQ = this._jQ = $('<span class="cursor"></span>');
+  this.appendTo(root);
 }
 Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
-  setParentEmpty: function()
-  {
-    if(this.parent)
-      this.parent.setEmpty().jQ.removeClass('hasCursor').change();
-    return this;
-  },
   insertBefore: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.next = el;
     this.prev = el.prev;
     this.parent = el.parent;
@@ -1193,7 +1362,7 @@ Cursor.prototype = {
   },
   insertAfter: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.prev = el;
     this.next = el.next
     this.parent = el.parent;
@@ -1203,21 +1372,25 @@ Cursor.prototype = {
   },
   prependTo: function(el)
   {
-    this.setParentEmpty();
+    this.parent.setEmpty();
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
-    this.jQ.prependTo(el.jQ);
+    this.parent.removeEmpty();
+    if(el.parent)
+      this.jQ.prependTo(el.jQ);
+    else
+      this.jQ.insertAfter(el.jQ[0].firstChild);
     return this;
   },
   appendTo: function(el)
   {
-    this.setParentEmpty();
+    if(this.parent)
+      this.parent.setEmpty();
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty().jQ.addClass('hasCursor');
+    this.parent.removeEmpty();
     this.jQ.appendTo(el.jQ);
     return this;
   },
@@ -1280,7 +1453,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-eg-z,]/i)) //exclude f because want florin in SingleCharacterCommands
+    if(ch.match(/[a-eg-z]/i)) //exclude f because want florin in SingleCharacterCommands
       cmd = new Variable(ch);
     else if(cmd = SingleCharacterCommands[ch])
       if(this.selection)
@@ -1431,8 +1604,7 @@ Cursor.prototype = {
       {
         if(this.prev) //then extend left if possible
         {
-          this.hopLeft(); //we want to insertBefore(prev.jQ) before we do prependTo so this.jQ will be outside selection.jQ
-          this.next.jQ.prependTo(this.selection.jQ);
+          this.hopLeft().next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
         }
         else if(this.parent.parent) //else level up if possible
@@ -1441,17 +1613,16 @@ Cursor.prototype = {
       else //else cursor is at right edge of selection, retract left
       {
         this.prev.jQ.insertAfter(this.selection.jQ);
-        this.hopLeft();
-        this.selection.next = this.next;
+        this.hopLeft().selection.next = this.next;
         if(this.selection.prev === this.prev)
           this.deleteSelection();
       }
     else
       if(this.prev)
-        this.hopLeft().hide().selection = new Selection(this.parent, this.prev, this.next.next);
+        this.hide().hopLeft().selection = new Selection(this.parent, this.prev, this.next.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertBefore(this.parent.parent).hide().selection = new Selection(this.parent, this.prev, this.next.next);
+          this.hide().insertBefore(this.parent.parent).selection = new Selection(this.parent, this.prev, this.next.next);
   },
   selectRight: function()
   {
@@ -1460,8 +1631,7 @@ Cursor.prototype = {
       {
         if(this.next) //then extend right if possible
         {
-          this.hopRight();
-          this.prev.jQ.appendTo(this.selection.jQ);
+          this.hopRight().prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
         }
         else if(this.parent.parent) //else level up if possible
@@ -1470,17 +1640,16 @@ Cursor.prototype = {
       else //else cursor is at left edge of selection, retract right
       {
         this.next.jQ.insertBefore(this.selection.jQ);
-        this.hopRight();
-        this.selection.prev = this.prev;
+        this.hopRight().selection.prev = this.prev;
         if(this.selection.next === this.next)
           this.deleteSelection();
       }
     else
       if(this.next)
-        this.hopRight().hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+        this.hide().hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
       else //end of a block
         if(this.parent.parent)
-          this.insertAfter(this.parent.parent).hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.hide().insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
   },
   clearSelection: function()
   {
@@ -1551,75 +1720,74 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   renderLatex: function(latex)
   {
     latex = latex.match(/\\[a-z]*|[^\s]/ig);
-    this.jQ.empty();
+    this.jQ.children(':not(.textarea)').remove();
     this.firstChild = this.lastChild = null;
-    this.cursor.appendTo(this);
-    if(!latex)
-      return;
-    (function recurse(cursor)
-    {
-      while(latex.length)
+    this.cursor.show().appendTo(this);
+    if(latex)
+      (function recurse(cursor)
       {
-        var token = latex.shift(); //pop first item
-        if(!token || token === '}')
-          return;
-        var cmd;
-        if(token === '\\text')
+        while(latex.length)
         {
-          var text = latex.shift();
-          if(text === '{')
-          {
-            text = token = latex.shift();
-            while(token !== '}')
-            {
-              if(token === '\\') //skip tokens immediately following backslash
-                text += token = latex.shift();
-              text += token = latex.shift();
-            }
-            text = text.slice(0,-1); //cut trailing '}'
-          }
-          cmd = new TextBlock(text);
-          cursor.insertNew(cmd).insertAfter(cmd);
-          continue;
-        }
-        else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
-        {
-          token = latex.shift();
-          if(token === '\\')
-            token = latex.shift();
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-          if(cursor.prev)
+          var token = latex.shift(); //pop first item
+          if(!token || token === '}')
             return;
-          else
-            latex.unshift('{');
-        }
-        else if(/^\\[a-z]+$/.test(token))
-        {
-          cmd = createLatexCommand(token.slice(1));
-          cursor.insertNew(cmd);
-        }
-        else
-        {
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-        }
-        cmd.eachChild(function()
-        {
-          cursor.appendTo(this);
-          var token = latex.shift();
-          if(!token)
-            return false;
-          if(token === '{')
-            recurse(cursor);
-          else
+          var cmd;
+          if(token === '\\text')
+          {
+            var text = latex.shift();
+            if(text === '{')
+            {
+              text = token = latex.shift();
+              while(token !== '}')
+              {
+                if(token === '\\') //skip tokens immediately following backslash
+                  text += token = latex.shift();
+                text += token = latex.shift();
+              }
+              text = text.slice(0,-1); //cut trailing '}'
+            }
+            cmd = new TextBlock(text);
+            cursor.insertNew(cmd).insertAfter(cmd);
+            continue;
+          }
+          else if(token === '\\left' || token === '\\right') //REMOVEME HACK for parens
+          {
+            token = latex.shift();
+            if(token === '\\')
+              token = latex.shift();
             cursor.write(token);
-        });
-        cursor.insertAfter(cmd);
-      }
-    }(this.cursor));
+            cmd = cursor.prev || cursor.parent.parent;
+            if(cursor.prev)
+              return;
+            else
+              latex.unshift('{');
+          }
+          else if(/^\\[a-z]+$/.test(token))
+          {
+            cmd = createLatexCommand(token.slice(1));
+            cursor.insertNew(cmd);
+          }
+          else
+          {
+            cursor.write(token);
+            cmd = cursor.prev || cursor.parent.parent;
+          }
+          cmd.eachChild(function()
+          {
+            cursor.appendTo(this);
+            var token = latex.shift();
+            if(!token)
+              return false;
+            if(token === '{')
+              recurse(cursor);
+            else
+              cursor.write(token);
+          });
+          cursor.insertAfter(cmd);
+        }
+      }(this.cursor));
     this.cursor.hide();
-    this.jQ.removeClass('hasCursor');
+    this.setEmpty();
   },
   keydown: function(e)
   {
@@ -1748,7 +1916,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   {
     if(this.skipKeypress)
       return true;
-    this.cursor.write(String.fromCharCode(e.which)).show();
+    this.cursor.show().write(String.fromCharCode(e.which));
     return false;
   }
 });
@@ -1771,10 +1939,10 @@ function RootMathCommand(cursor)
       else if(!cursor.prev)
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch).show();
+        cursor.show().write(ch);
       return false;
     }
-    cursor.write(ch).show();
+    cursor.show().write(ch);
     return false;
   };
 }
@@ -1855,31 +2023,34 @@ function mathquill()
     if(!editable)
       return;
 
-    jQ.addClass('mathquill-editable').attr('tabindex', 0);
+    var textarea = $('<span class="textarea"><textarea></textarea></span>')
+      .prependTo(jQ.addClass('mathquill-editable')).children();
     if(textbox)
       jQ.addClass('mathquill-textbox');
 
-    var lastKeydnEvt; //see Wiki page "Keyboard Events"
-    root.jQ.bind('focus.mathquill',function()
+    textarea.focus(function(e)
     {
-      if(cursor.parent)
-      {
-        if(cursor.parent.isEmpty())
-          cursor.jQ.appendTo(cursor.parent.removeEmpty().jQ).change();
-      }
-      else
+      if(!cursor.parent)
         cursor.appendTo(root);
       cursor.parent.jQ.addClass('hasCursor');
       if(cursor.selection)
         cursor.selection.jQ.removeClass('blur');
       else
         cursor.show();
+      e.stopPropagation();
     }
-    ).bind('blur.mathquill',function(e)
+    ).blur(function(e)
     {
-      cursor.setParentEmpty().hide();
+      cursor.hide().parent.setEmpty();
       if(cursor.selection)
         cursor.selection.jQ.addClass('blur');
+      e.stopPropagation();
+    });
+
+    var lastKeydnEvt; //see Wiki page "Keyboard Events"
+    jQ.bind('focus.mathquill blur.mathquill',function(e)
+    {
+      textarea.trigger(e);
     }
     ).bind('click.mathquill',function(e)
     {
@@ -1926,6 +2097,10 @@ function mathquill()
 
       return false;
     }
+    ).bind('click.mathquill',function()
+    {
+      textarea.focus();
+    }
     ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
     {
       lastKeydnEvt = e;
@@ -1944,7 +2119,8 @@ function mathquill()
       //only call keypress if keydown returned true
       return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 ||
         cursor.parent.keypress(e) || (e.stopImmediatePropagation(), false));
-    }).blur();
+    }
+    ).blur();
   });
 
   return this;
