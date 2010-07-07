@@ -24,6 +24,9 @@
       span.mathquill-textbox{
         width:100%;
       }
+      span.mathquill-textbox, span.mathquill-textbox .text{
+        font-family:sans-serif;
+      }
       #html-source{
         display:none;
       }
@@ -33,7 +36,7 @@
     <script type="text/javascript">
       var LatexImages = false;
       $(function(){
-        var editingSource = false, latexMath = $('#editable-math').change(function()
+        var editingSource = false, latexSource = $('#latex-source'), latexMath = $('#editable-math').change(function()
         {
           function printTree(html)
           {
@@ -63,14 +66,14 @@
             }
             return tree.slice(1);
           }
-          $('#html-source').text(printTree($(this).html().replace(/<span class="?cursor( blink)?"?><\/span>/i,'')));
+          $('#html-source').text(printTree($(this).mathquill('html')));
           var latex = $(this).mathquill('latex');
           //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
           if(!editingSource)
-            $('#latex-source').val(latex);
+            latexSource.val(latex);
           if(!LatexImages)
             return;
-          latex = encodeURIComponent(latex);
+          latex = encodeURIComponent(latexSource.val());
           $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).parent().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
         }).focus();
         if(location.hash && location.hash.length > 1){
@@ -81,7 +84,7 @@
           editingSource = true;
         }).blur(function(){
           editingSource = false;
-        }).keypress(function()
+        }).keydown(function()
         {
           var textarea = $(this), oldtext = textarea.val();
           setTimeout(function()
@@ -90,6 +93,9 @@
             if(newtext != oldtext)
               latexMath.mathquill('latex', newtext);
           },0);
+        }).keypress(function()
+        {
+          $(this).triggerHandler('keydown');
         });
       });
     </script>
@@ -104,7 +110,6 @@
     <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('less &laquo;').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
     <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
     <p><button onclick="LatexImages = true; $('#editable-math').change(); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
-    <p>If all you want is to include a static math expression in your web page, you can simply type it in the editable math textbox above, copy and paste the following HTML code into your page source, link to our stylesheet in your header, and you won't need to bother with the JavaScript file.</p>
     <p><a href="javascript:void(0)" onclick="$(this).html('Hide HTML Source (Note how semantically meaningful it is)').parent().next().show(); var show = arguments.callee; this.onclick=function(){ $(this).html('Show HTML Source (Note how semantically meaningful it is)').parent().next().hide(); this.onclick = show; };">Show HTML Source (Note how semantically meaningful it is)</a></p>
     <pre id="html-source"></pre>
     <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox"></span></p>
