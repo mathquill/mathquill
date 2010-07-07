@@ -664,6 +664,9 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
 //(and meant to be called) on jQuery-wrapped HTML DOM elements.
 function mathquill()
 {
+  if(arguments[0] === 'html')
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig,'');
+
   if(arguments[0] === 'latex')
   {
     if(arguments.length > 1)
