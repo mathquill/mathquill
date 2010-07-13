@@ -904,7 +904,6 @@ function createLatexCommand(latex, replacedBlock)
   case 'mu':
   case 'nu':
   case 'xi':
-  case 'omicron':
   case 'rho':
   case 'sigma':
   case 'tau':
@@ -1762,7 +1761,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             else
               latex.unshift('{');
           }
-          else if(/^\\[a-z]+$/.test(token))
+          else if(/^\\[a-z]+$/i.test(token))
           {
             cmd = createLatexCommand(token.slice(1));
             cursor.insertNew(cmd);
@@ -1793,9 +1792,11 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   {
     this.skipKeypress = false;
     e.ctrlKey = e.ctrlKey || e.metaKey;
-    switch(e.which)
+    switch(e.originalEvent.keyIdentifier || e.which)
     {
     case 8: //backspace
+    case 'Backspace':
+    case 'U+0008':
       if(e.ctrlKey)
         while(this.cursor.prev)
           this.cursor.backspace();
@@ -1804,7 +1805,11 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       return false;
     case 27: //esc does something weird in keypress, may as well be the same as tab
              //  until we figure out what to do with it
+    case 'Esc':
+    case 'U+001B':
     case 9: //tab
+    case 'Tab':
+    case 'U+0009':
       if(e.ctrlKey)
         return true;
       var parent = this.cursor.parent, gramp = parent.parent;
@@ -1829,8 +1834,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       this.cursor.clearSelection();
       return false;
     case 13: //enter
+    case 'Enter':
       return this.skipKeypress = true;
     case 35: //end
+    case 'End':
       if(e.shiftKey)
         while(this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
           this.cursor.selectRight();
@@ -1838,6 +1845,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
       return false;
     case 36: //home
+    case 'Home':
       if(e.shiftKey)
         while(this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent))
           this.cursor.selectLeft();
@@ -1845,6 +1853,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
       return false;
     case 37: //left
+    case 'Left':
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
@@ -1853,6 +1862,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.moveLeft();
       return false;
     case 38: //up
+    case 'Up':
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
@@ -1869,6 +1879,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
       return false;
     case 39: //right
+    case 'Right':
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
@@ -1877,6 +1888,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.moveRight();
       return false;
     case 40: //down
+    case 'Down':
       if(e.ctrlKey)
         return true;
       if(e.shiftKey)
@@ -1893,6 +1905,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
       return false;
     case 46: //delete
+    case 'Del':
+    case 'U+007F':
       if(e.ctrlKey)
         while(this.cursor.next)
           this.cursor.deleteForward();
@@ -1900,6 +1914,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.deleteForward();
       return false;
     case 65: //'a' character, as in Select All
+    case 'A':
+    case 'U+0041':
       if(!e.ctrlKey || e.shiftKey || e.altKey)
         return true;
       if(this.parent) //so not stopPropagation'd at RootMathCommand
