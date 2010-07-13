@@ -630,7 +630,6 @@ function createLatexCommand(latex, replacedBlock)
   case 'mu':
   case 'nu':
   case 'xi':
-  case 'omicron':
   case 'rho':
   case 'sigma':
   case 'tau':
