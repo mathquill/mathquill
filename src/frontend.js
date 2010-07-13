@@ -455,7 +455,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             else
               latex.unshift('{');
           }
-          else if(/^\\[a-z]+$/.test(token))
+          else if(/^\\[a-z]+$/i.test(token))
           {
             cmd = createLatexCommand(token.slice(1));
             cursor.insertNew(cmd);
