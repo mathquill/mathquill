@@ -237,10 +237,17 @@ TextBlock.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="text"></span>'],
   placeCursor: function(cursor)
   {
-    this.cursor = cursor.prependTo(this.firstChild);
-    if(this.replacedText)
-      for(var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
+    if(this.prev instanceof TextBlock)
+      cursor.appendTo(this.remove().prev.firstChild);
+    else if(this.next instanceof TextBlock)
+      cursor.prependTo(this.remove().next.firstChild);
+    else
+    {
+      this.cursor = cursor.prependTo(this.firstChild);
+      if(this.replacedText)
+        for(var i = 0; i < this.replacedText.length; i += 1)
+          this.write(this.replacedText.charAt(i));
+    }
   },
   write: function(ch)
   {
@@ -269,8 +276,16 @@ TextBlock.prototype = $.extend(new MathCommand, {
       else //split apart
       {
         var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
+        {
+          this.prev = null;
+          delete this.placeCursor;
+          this.placeCursor(cursor);
+        };
         next.firstChild.removeEmpty = function(){ return this; };
-        this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
+        this.cursor.insertAfter(this).insertNew(next);
+        next.prev = this;
+        this.cursor.insertBefore(next);
         delete next.firstChild.removeEmpty;
       }
     else
