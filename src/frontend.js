@@ -529,7 +529,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       return false;
     case 13: //enter
     case 'Enter':
-      return this.skipKeypress = true;
+      return false;
     case 35: //end
     case 'End':
       if(e.shiftKey)
