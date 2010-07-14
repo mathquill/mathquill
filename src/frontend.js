@@ -711,7 +711,7 @@ function mathquill()
     });
 
   if(arguments[0] === 'redraw')
-    return this.find('*').change().end();
+    return this.find(':not(:has(:first))').change().end();
 
   var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
   this.each(function()
