@@ -197,10 +197,7 @@ CloseBracket.prototype.placeCursor = function(cursor)
   if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-  {
-    cursor.insertAfter(this);
-    this.firstChild.setEmpty().jQ.change();
-  }
+    this.firstChild.setEmpty();
 };
 function Paren(open, close, replacedBlock)
 {
@@ -338,12 +335,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
 function LatexCommandInput(replacedBlock, replacedFragment)
 {
   MathCommand.call(this, '\\');
-  this.firstChild.setEmpty = function()
-  {
-    if(this.isEmpty())
-      this.jQ.removeClass('hasCursor').addClass('empty').html('&nbsp;');
-    return this;
-  };
+  this.firstChild.setEmpty = this.setEmpty;
   if(replacedBlock)
   {
     replacedBlock.jQ.detach();
@@ -353,6 +345,13 @@ function LatexCommandInput(replacedBlock, replacedFragment)
   }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
+  setEmpty: function()
+  {
+    this.jQ.removeClass('hasCursor');
+    if(this.isEmpty())
+      this.jQ.html('&nbsp;');
+    return this;
+  },
   html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {

@@ -69,11 +69,11 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty();
-    if(el.parent)
-      this.jQ.prependTo(el.jQ);
-    else
-      this.jQ.insertAfter(el.jQ[0].firstChild);
+    if(el.removeEmpty(this.jQ))
+      if(el.parent)
+        this.jQ.prependTo(el.jQ);
+      else
+        this.jQ.insertAfter(el.jQ[0].firstChild);
     return this;
   },
   appendTo: function(el)
@@ -83,8 +83,8 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty();
-    this.jQ.appendTo(el.jQ);
+    if(el.removeEmpty(this.jQ))
+      this.jQ.appendTo(el.jQ);
     return this;
   },
   moveLeft: function()
@@ -103,7 +103,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    return this.show().jQ.change();
+    return this.show();
   },
   moveRight: function()
   {
@@ -121,7 +121,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    return this.show().jQ.change();
+    return this.show();
   },
   hopLeft: function()
   {
@@ -771,7 +771,7 @@ function mathquill()
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
+        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
         return false;
       }
 

@@ -168,15 +168,17 @@ MathBlock.prototype = $.extend(new MathElement, {
     }
     return this;
   },
-  removeEmpty:function()
+  removeEmpty:function(cursorJQ)
   {
-    if(this.jQ.addClass('hasCursor').hasClass('empty'))
+    this.jQ.addClass('hasCursor');
+    if(this.isEmpty())
     {
       if(this.parent)
-        this.jQ.html('');
+        this.jQ.empty().append(cursorJQ).change();
       this.jQ.removeClass('empty');
+      return false;
     }
-    return this;
+    return true;
   }
 });
 
