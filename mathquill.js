@@ -443,7 +443,7 @@ function Bracket(open, close, cmd, end, replacedBlock)
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
   });
 }
 Bracket.prototype = $.extend(new MathCommand, {
@@ -970,6 +970,10 @@ function createLatexCommand(latex, replacedBlock)
   case 'nabla':
   case 'forall':
     return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
+  case 'perpendicular':
+    return new VanillaSymbol('\\perp ','&perp;');
+  case 'del':
+    return new VanillaSymbol('\\nabla ','&nabla;');
 
   //sum, product, coproduct, integral
   case 'sum':
@@ -1047,6 +1051,8 @@ function createLatexCommand(latex, replacedBlock)
     return new VanillaSymbol('\\caret ','^');
   case 'underscore':
     return new VanillaSymbol('\\underscore ','_');
+  case 'backslash':
+    return new VanillaSymbol('\\backslash ','\\');
   case 'AA':
   case 'Angstrom':
   case 'angstrom':
@@ -1835,7 +1841,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       return false;
     case 13: //enter
     case 'Enter':
-      return this.skipKeypress = true;
+      return false;
     case 35: //end
     case 'End':
       if(e.shiftKey)
