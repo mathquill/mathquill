@@ -467,7 +467,7 @@ Vector.prototype.keydown = function(e)
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock);
-      newBlock.jQ.change();
+      this.jQ.change();
       return false;
     }
     else if(e.which === 9 && !e.shiftKey && !currentBlock.next) //tab
@@ -492,7 +492,7 @@ Vector.prototype.keydown = function(e)
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock);
-      newBlock.jQ.change();
+      this.jQ.change();
       return false;
     }
     else if(e.which === 8) //backspace
