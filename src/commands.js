@@ -169,7 +169,7 @@ function Bracket(open, close, cmd, end, replacedBlock)
   this.firstChild.jQ.change(function()
   {
     var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
+    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
   });
 }
 Bracket.prototype = $.extend(new MathCommand, {
