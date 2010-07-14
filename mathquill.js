@@ -1798,7 +1798,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   {
     this.skipKeypress = false;
     e.ctrlKey = e.ctrlKey || e.metaKey;
-    switch(e.originalEvent.keyIdentifier || e.which)
+    switch((e.originalEvent && e.originalEvent.keyIdentifier) || e.which)
     {
     case 8: //backspace
     case 'Backspace':
