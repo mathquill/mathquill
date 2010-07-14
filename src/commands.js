@@ -696,6 +696,10 @@ function createLatexCommand(latex, replacedBlock)
   case 'nabla':
   case 'forall':
     return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
+  case 'perpendicular':
+    return new VanillaSymbol('\\perp ','&perp;');
+  case 'del':
+    return new VanillaSymbol('\\nabla ','&nabla;');
 
   //sum, product, coproduct, integral
   case 'sum':
@@ -773,6 +777,8 @@ function createLatexCommand(latex, replacedBlock)
     return new VanillaSymbol('\\caret ','^');
   case 'underscore':
     return new VanillaSymbol('\\underscore ','_');
+  case 'backslash':
+    return new VanillaSymbol('\\backslash ','\\');
   case 'AA':
   case 'Angstrom':
   case 'angstrom':
