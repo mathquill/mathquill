@@ -63,7 +63,7 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after {
+.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after, .mathquill-rendered-math .latex-command-input.empty:after {
   visibility: hidden;
   content: 'c';
 }
@@ -182,18 +182,14 @@
 }
 
 .mathquill-rendered-math .latex-command-input {
+  color: inherit;
   font-family: "Courier New", monospace;
   border: 1px solid gray;
   padding-right: 1px;
   margin-right: 1px;
   margin-left: 2px;
 }
-.mathquill-rendered-math .latex-command-input.empty {
-  color: white;
-  color: transparent;
-}
 .mathquill-rendered-math .latex-command-input:before {
-  color: black;
   content: '\\';
 }
 

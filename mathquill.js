@@ -186,15 +186,17 @@ MathBlock.prototype = $.extend(new MathElement, {
     }
     return this;
   },
-  removeEmpty:function()
+  removeEmpty:function(cursorJQ)
   {
-    if(this.jQ.addClass('hasCursor').hasClass('empty'))
+    this.jQ.addClass('hasCursor');
+    if(this.isEmpty())
     {
       if(this.parent)
-        this.jQ.html('');
+        this.jQ.empty().append(cursorJQ).change();
       this.jQ.removeClass('empty');
+      return false;
     }
-    return this;
+    return true;
   }
 });
 
@@ -471,10 +473,7 @@ CloseBracket.prototype.placeCursor = function(cursor)
   if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-  {
-    cursor.insertAfter(this);
-    this.firstChild.setEmpty().jQ.change();
-  }
+    this.firstChild.setEmpty();
 };
 function Paren(open, close, replacedBlock)
 {
@@ -514,10 +513,17 @@ TextBlock.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="text"></span>'],
   placeCursor: function(cursor)
   {
-    this.cursor = cursor.prependTo(this.firstChild);
-    if(this.replacedText)
-      for(var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
+    if(this.prev instanceof TextBlock)
+      cursor.appendTo(this.remove().prev.firstChild);
+    else if(this.next instanceof TextBlock)
+      cursor.prependTo(this.remove().next.firstChild);
+    else
+    {
+      this.cursor = cursor.prependTo(this.firstChild);
+      if(this.replacedText)
+        for(var i = 0; i < this.replacedText.length; i += 1)
+          this.write(this.replacedText.charAt(i));
+    }
   },
   write: function(ch)
   {
@@ -546,8 +552,16 @@ TextBlock.prototype = $.extend(new MathCommand, {
       else //split apart
       {
         var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
+        {
+          this.prev = null;
+          delete this.placeCursor;
+          this.placeCursor(cursor);
+        };
         next.firstChild.removeEmpty = function(){ return this; };
-        this.cursor.insertAfter(this).insertNew(next).insertBefore(next);
+        this.cursor.insertAfter(this).insertNew(next);
+        next.prev = this;
+        this.cursor.insertBefore(next);
         delete next.firstChild.removeEmpty;
       }
     else
@@ -612,12 +626,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
 function LatexCommandInput(replacedBlock, replacedFragment)
 {
   MathCommand.call(this, '\\');
-  this.firstChild.setEmpty = function()
-  {
-    if(this.isEmpty())
-      this.jQ.removeClass('hasCursor').addClass('empty').html('&nbsp;');
-    return this;
-  };
+  this.firstChild.setEmpty = this.setEmpty;
   if(replacedBlock)
   {
     replacedBlock.jQ.detach();
@@ -627,6 +636,13 @@ function LatexCommandInput(replacedBlock, replacedFragment)
   }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
+  setEmpty: function()
+  {
+    this.jQ.removeClass('hasCursor');
+    if(this.isEmpty())
+      this.jQ.html('&nbsp;');
+    return this;
+  },
   html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {
@@ -742,7 +758,7 @@ Vector.prototype.keydown = function(e)
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock);
-      newBlock.jQ.change();
+      this.jQ.change();
       return false;
     }
     else if(e.which === 9 && !e.shiftKey && !currentBlock.next) //tab
@@ -767,7 +783,7 @@ Vector.prototype.keydown = function(e)
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock);
-      newBlock.jQ.change();
+      this.jQ.change();
       return false;
     }
     else if(e.which === 8) //backspace
@@ -1348,8 +1364,8 @@ function Cursor(root)
     return this;
   };
 
-  this.jQ = this._jQ = $('<span class="cursor"></span>');
-  this.appendTo(root);
+  this.jQ = this._jQ = $('<span class="cursor"></span>').appendTo(root.jQ);
+  this.parent = root;
 }
 Cursor.prototype = {
   prev: null,
@@ -1381,22 +1397,21 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    this.parent.removeEmpty();
-    if(el.parent)
-      this.jQ.prependTo(el.jQ);
-    else
-      this.jQ.insertAfter(el.jQ[0].firstChild);
+    if(el.removeEmpty(this.jQ))
+      if(el.parent)
+        this.jQ.prependTo(el.jQ);
+      else
+        this.jQ.insertAfter(el.jQ[0].firstChild);
     return this;
   },
   appendTo: function(el)
   {
-    if(this.parent)
-      this.parent.setEmpty();
+    this.parent.setEmpty();
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    this.parent.removeEmpty();
-    this.jQ.appendTo(el.jQ);
+    if(el.removeEmpty(this.jQ))
+      this.jQ.appendTo(el.jQ);
     return this;
   },
   moveLeft: function()
@@ -1415,7 +1430,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertBefore(this.parent.parent);
     //otherwise we're at the beginning of the root, so do nothing.
-    return this.show().jQ.change();
+    return this.show();
   },
   moveRight: function()
   {
@@ -1433,7 +1448,7 @@ Cursor.prototype = {
         else if(this.parent.parent)
           this.insertAfter(this.parent.parent);
     //otherwise we're at the end of the root, so do nothing.
-    return this.show().jQ.change();
+    return this.show();
   },
   hopLeft: function()
   {
@@ -2024,7 +2039,7 @@ function mathquill()
     });
 
   if(arguments[0] === 'redraw')
-    return this.find('*').change().end();
+    return this.find(':not(:has(:first))').change().end();
 
   var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
   this.each(function()
@@ -2083,7 +2098,7 @@ function mathquill()
       var clicked = $(e.target);
       if(clicked.hasClass('empty'))
       {
-        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block).jQ.change();
+        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
         return false;
       }
 
