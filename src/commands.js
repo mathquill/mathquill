@@ -150,7 +150,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.removeEmpty().jQ.removeClass('hasCursor').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
+      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
