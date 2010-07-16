@@ -1,11 +1,30 @@
 /**
 * Usage:
-* $(thing).mathquill();
-* turns thing into a live editable math thingy.
-* AMAZORZ.
 *
-* Note: turning into a live editable math thingmajiggie works, but
-* any LaTeX math in it won't be rendered.
+* Wherever you'd like to have an editable math textbox:
+
+    <span class="mathquill-editable"></span>
+
+* or to convert LaTeX math to HTML:
+
+    <span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+
+* Note that for dynamically created elements, you will need to call our
+* jQuery plugin after inserting into the visible HTML DOM:
+
+    $('<span>\sqrt{e^x}</span>').appendTo('body').mathquill() or .mathquill('editable')
+
+* If it's necessary to call the plugin before inserting into the visible DOM,
+* you can redraw once it is visible:
+
+    $('<span>a_n x^n</span>').mathquill().appendTo('body').mathquill('redraw');
+
+* (Do be warned that will trigger a flurry of change events.)
+*
+* Any element that has been MathQuill-ified can be reverted:
+
+    $('.mathquill-embedded-latex').mathquill('revert');
+
 *
 */
 
