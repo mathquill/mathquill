@@ -414,7 +414,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.cursor = cursor.appendTo(this.firstChild);
     if(this.replacedFragment)
-      this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertAfter(this.jQ));
+      this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
   },
   latex: function()
   {
@@ -445,7 +445,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
   renderCommand: function()
   {
-    this.jQ = this.jQ.first();
+    this.jQ = this.jQ.last();
     this.remove();
     if(this.next)
       this.cursor.insertBefore(this.next);
