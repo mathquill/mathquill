@@ -258,19 +258,23 @@ Pipes.prototype.placeCursor = function(cursor)
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
-function TextBlock(replacedBlock)
+function TextBlock(replacedText)
 {
-  MathCommand.call(this, '\\text', undefined, new InnerTextBlock);
-  if(replacedBlock instanceof MathBlock)
-  {
-    this.replacedText = replacedBlock.jQ.text();
-    replacedBlock.jQ.remove();
-  }
+  if(replacedText instanceof MathBlock)
+    this.replacedText = replacedText.remove().jQ.text();
   else
-    this.replacedText = replacedBlock;
+    this.replacedText = replacedText.toString();
+  MathCommand.call(this, '\\text');
 }
 TextBlock.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="text"></span>'],
+  initBlocks: function()
+  {
+    this.firstChild = this.lastChild =
+      this.jQ.data('[[mathquill internal data]]').block = new InnerTextBlock;
+    this.firstChild.parent = this;
+    this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+  },
   placeCursor: function(cursor)
   {
     if(this.prev instanceof TextBlock)
