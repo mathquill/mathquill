@@ -196,7 +196,9 @@ Cursor.prototype = {
   },
   unwrapParent: function()
   {
-    var gramp = this.parent.parent, greatgramp = gramp.parent, cursor = this, prev = gramp.prev;
+    var gramp = this.parent.parent, greatgramp = gramp.parent,
+      cursor = this, prev = gramp.prev;
+
     gramp.eachChild(function()
     {
       if(this.isEmpty())
@@ -234,10 +236,11 @@ Cursor.prototype = {
             this.parent = greatgramp;
             break;
           }
-    if(this.prev)
-      this.insertAfter(this.prev);
+
+    if(this.next)
+      this.insertBefore(this.next);
     else
-      this.insertBefore(greatgramp.firstChild);
+      this.appendTo(greatgramp);
 
     gramp.jQ.remove();
 
