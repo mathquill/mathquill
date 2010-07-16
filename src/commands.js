@@ -470,16 +470,14 @@ Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></s
 
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
-function Choose(binom)
-{
-  binom.placeCursor = LiveFraction.prototype.placeCursor;
-  return binom;
-}
-
-LatexCmds.choose = proto(Choose(new Binomial), function()
+function Choose()
 {
   Binomial.apply(this, arguments);
-});
+}
+Choose.prototype = new Binomial;
+Choose.prototype.placeCursor = LiveFraction.prototype.placeCursor;
+
+LatexCmds.choose = Choose;
 
 function Vector(replacedBlock)
 {
