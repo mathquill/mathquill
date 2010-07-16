@@ -174,8 +174,8 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.isEmpty())
     {
       if(this.parent)
-        this.jQ.empty().append(cursorJQ).change();
-      this.jQ.removeClass('empty');
+        this.jQ.empty().change();
+      this.jQ.removeClass('empty').append(cursorJQ);
       return false;
     }
     return true;
