@@ -163,8 +163,8 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.isEmpty())
     {
       if(this.parent)
-        this.jQ.html('&empty;');
-      this.jQ.addClass('empty').change();
+        this.jQ.html('&empty;').change();
+      this.jQ.addClass('empty');
     }
     return this;
   },
