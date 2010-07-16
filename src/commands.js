@@ -84,7 +84,8 @@ LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedBlock)
 {
   SupSub.call(this, '_', '<sub></sub>', replacedBlock);
 });
-LatexCmds.superscript = LatexCmds.supscript = LatexCmds['^'] = proto(SupSub, function(replacedBlock)
+LatexCmds.superscript = LatexCmds.supscript = LatexCmds['^'] =
+  proto(SupSub, function(replacedBlock)
 {
   SupSub.call(this, '^', '<sup></sup>', replacedBlock);
 });
@@ -171,7 +172,7 @@ Bracket.prototype.initBlocks = function(replacedBlock)
 {
   this.firstChild = this.lastChild = replacedBlock || new MathBlock;
   this.firstChild.parent = this;
-  this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children(':eq(1)').prepend(this.firstChild.jQ) : this.jQ.children(':eq(1)');
+  this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children(':eq(1)').append(this.firstChild.jQ) : this.jQ.children(':eq(1)');
 };
 Bracket.prototype.latex = function()
 {
@@ -252,7 +253,7 @@ Pipes.prototype.placeCursor = function(cursor)
   if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-    cursor.prependTo(this.firstChild);
+    cursor.appendTo(this.firstChild);
 };
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
@@ -278,7 +279,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
       cursor.prependTo(this.remove().next.firstChild);
     else
     {
-      this.cursor = cursor.prependTo(this.firstChild);
+      this.cursor = cursor.appendTo(this.firstChild);
       if(this.replacedText)
         for(var i = 0; i < this.replacedText.length; i += 1)
           this.write(this.replacedText.charAt(i));
@@ -407,7 +408,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {
-    this.cursor = cursor.prependTo(this.firstChild);
+    this.cursor = cursor.appendTo(this.firstChild);
     if(this.replacedFragment)
       this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertAfter(this.jQ));
   },
@@ -494,7 +495,7 @@ Vector.prototype.latex = function()
 };
 Vector.prototype.placeCursor = function(cursor)
 {
-  this.cursor = cursor.prependTo(this.firstChild);
+  this.cursor = cursor.appendTo(this.firstChild);
 };
 Vector.prototype.keydown = function(e)
 {

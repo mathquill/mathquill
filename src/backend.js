@@ -62,17 +62,19 @@ MathCommand.prototype = $.extend(new MathElement, {
     //single-block commands
     if(this.html_template.length === 1)
     {
-      this.firstChild = this.lastChild = this.jQ.data('[[mathquill internal data]]').block =
-        replacedBlock || new MathBlock;
+      this.firstChild = this.lastChild =
+        this.jQ.data('[[mathquill internal data]]').block =
+          replacedBlock || new MathBlock;
       this.firstChild.parent = this;
-      this.firstChild.jQ = this.jQ.prepend(this.firstChild.jQ);
+      this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev, num_blocks = this.html_template.length;
     this.firstChild = newBlock = prev = replacedBlock || new MathBlock;
     newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ).prepend(newBlock.jQ);
+    newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]',
+      {block: newBlock}).appendTo(this.jQ).append(newBlock.jQ);
     newBlock.setEmpty();
     for(var i = 2; i < num_blocks; i += 1)
     {
@@ -82,7 +84,8 @@ MathCommand.prototype = $.extend(new MathElement, {
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(this.html_template[i]).data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
+      newBlock.jQ = $(this.html_template[i]).data('[[mathquill internal data]]',
+        {block: newBlock}).appendTo(this.jQ);
       newBlock.setEmpty();
     }
     this.lastChild = newBlock;
@@ -113,7 +116,7 @@ MathCommand.prototype = $.extend(new MathElement, {
   respace: $.noop,
   placeCursor: function(cursor)
   {
-    cursor.prependTo(this.firstChild);
+    cursor.appendTo(this.firstChild);
   },
   isEmpty: function()
   {
