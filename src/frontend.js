@@ -231,6 +231,7 @@ Cursor.prototype = {
           else
           {
             this.prev = gramp.prev;
+            this.parent = greatgramp;
             break;
           }
     if(this.prev)
