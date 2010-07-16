@@ -145,13 +145,13 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-eg-z]/i)) //exclude f because want florin in SingleCharacterCommands
+    if(ch.match(/[a-eg-zA-Z]/)) //exclude f because want florin
       cmd = new Variable(ch);
-    else if(cmd = SingleCharacterCommands[ch])
+    else if(cmd = CharCmds[ch] || LatexCmds[ch])
       if(this.selection)
-        cmd = cmd(this.selection.blockify(), this.selection);
+        cmd = new cmd(this.selection.blockify(), this.selection);
       else
-        cmd = cmd();
+        cmd = new cmd;
     else
       cmd = new VanillaSymbol(ch);
 
@@ -461,8 +461,13 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           }
           else
           {
-            cursor.write(token);
-            cmd = cursor.prev || cursor.parent.parent;
+            if(token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
+              cmd = new Variable(token);
+            else if(cmd = LatexCmds[token])
+              cmd = new cmd;
+            else
+              cmd = new VanillaSymbol(token);
+            cursor.insertNew(cmd);
           }
           cmd.eachChild(function()
           {

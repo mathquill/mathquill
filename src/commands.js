@@ -2,51 +2,13 @@
  * All the symbols, operators and commands.
  *******************************************/
 
-function VanillaSymbol(ch, html)
-{
-  Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
-}
-VanillaSymbol.prototype = Symbol.prototype;
+var CharCmds = {}, LatexCmds = {}; //single character commands, LaTeX commands
 
-function NonSymbolaSymbol(ch, html) //does not use Symbola font
+function proto(parent, child) //shorthand for prototyping
 {
-  Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+  child.prototype = parent.prototype;
+  return child;
 }
-NonSymbolaSymbol.prototype = Symbol.prototype;
-
-function BigSymbol(ch, html)
-{
-  Symbol.call(this, ch, '<big>'+html+'</big>');
-}
-BigSymbol.prototype = new Symbol; //so instanceof will work
-
-function Variable(ch, html)
-{
-  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
-}
-Variable.prototype = Symbol.prototype;
-
-function BinaryOperator(cmd, html)
-{
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
-}
-BinaryOperator.prototype = new Symbol; //so instanceof will work
-
-function PlusMinus(cmd, html)
-{
-  VanillaSymbol.apply(this, arguments);
-}
-PlusMinus.prototype = new BinaryOperator; //so instanceof will work
-PlusMinus.prototype.respace = function()
-{
-  if(!this.prev)
-    this.jQ[0].className = '';
-  else if(this.prev instanceof BinaryOperator && this.next && !(this.next instanceof BinaryOperator))
-    this.jQ[0].className = 'unary-operator';
-  else
-    this.jQ[0].className = 'binary-operator';
-  return this;
-};
 
 function SupSub(cmd, html, replacedBlock)
 {
@@ -118,6 +80,15 @@ SupSub.prototype.respace = function()
   return this;
 };
 
+LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedBlock)
+{
+  SupSub.call(this, '_', '<sub></sub>', replacedBlock);
+});
+LatexCmds.superscript = LatexCmds.supscript = LatexCmds['^'] = proto(SupSub, function(replacedBlock)
+{
+  SupSub.call(this, '^', '<sup></sup>', replacedBlock);
+});
+
 function Fraction(replacedBlock)
 {
   MathCommand.call(this, '\\frac', undefined, replacedBlock);
@@ -127,7 +98,10 @@ function Fraction(replacedBlock)
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span>'];
-function LiveFraction(replacedBlock)
+
+LatexCmds.frac = LatexCmds.fraction = Fraction;
+
+function LiveFraction()
 {
   Fraction.apply(this, arguments);
 }
@@ -150,7 +124,7 @@ LiveFraction.prototype.placeCursor = function(cursor)
     if(prev !== this.prev)
     {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.removeEmpty().jQ.removeClass('hasCursor').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
+      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
@@ -158,6 +132,26 @@ LiveFraction.prototype.placeCursor = function(cursor)
   }
   cursor.appendTo(this.lastChild);
 };
+
+CharCmds['/'] = LiveFraction;
+
+function SquareRoot(replacedBlock)
+{
+  MathCommand.call(this, '\\sqrt', undefined, replacedBlock);
+  this.firstChild.jQ.change(function()
+  {
+    var block = $(this), height = block.height();
+    block.css({
+      borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
+    }).prev().css({
+      fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
+    });
+  });
+}
+SquareRoot.prototype = new MathCommand;
+SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+
+LatexCmds.sqrt = SquareRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedBlock)
@@ -172,18 +166,27 @@ function Bracket(open, close, cmd, end, replacedBlock)
     block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
   });
 }
-Bracket.prototype = $.extend(new MathCommand, {
-  initBlocks: function(replacedBlock)
-  {
-    this.firstChild = this.lastChild = replacedBlock || new MathBlock;
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children().eq(1).prepend(this.firstChild.jQ) : this.jQ.children().eq(1);
-  },
-  latex: function()
-  {
-    return this.cmd + this.firstChild.latex() + this.end;
-  }
+Bracket.prototype = new MathCommand;
+Bracket.prototype.initBlocks = function(replacedBlock)
+{
+  this.firstChild = this.lastChild = replacedBlock || new MathBlock;
+  this.firstChild.parent = this;
+  this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children(':eq(1)').prepend(this.firstChild.jQ) : this.jQ.children(':eq(1)');
+};
+Bracket.prototype.latex = function()
+{
+  return this.cmd + this.firstChild.latex() + this.end;
+};
+
+LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedBlock)
+{
+  Bracket.call(this, '{', '}', '\\{', '\\}', replacedBlock);
 });
+LatexCmds.langle = LatexCmds.lang = proto(Bracket, function(replacedBlock)
+{
+  Bracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedBlock);
+});
+
 // Closing bracket matching opening bracket above
 function CloseBracket(open, close, cmd, end, replacedBlock)
 {
@@ -197,18 +200,48 @@ CloseBracket.prototype.placeCursor = function(cursor)
   if(!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-    this.firstChild.setEmpty();
+    this.firstChild.setEmpty().jQ.change();
 };
+
+LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedBlock)
+{
+  CloseBracket.call(this, '{','}','\\{','\\}',replacedBlock);
+});
+LatexCmds.rangle = LatexCmds.rang = proto(CloseBracket, function(replacedBlock)
+{
+  CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedBlock);
+});
+
 function Paren(open, close, replacedBlock)
 {
   Bracket.call(this, open, close, open, close, replacedBlock);
 }
 Paren.prototype = Bracket.prototype;
+
+LatexCmds.lparen = CharCmds['('] = proto(Paren, function(replacedBlock)
+{
+  Paren.call(this, '(', ')', replacedBlock);
+});
+LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Paren, function(replacedBlock)
+{
+  Paren.call(this, '[', ']', replacedBlock);
+});
+
 function CloseParen(open, close, replacedBlock)
 {
   CloseBracket.call(this, open, close, open, close, replacedBlock);
 }
 CloseParen.prototype = CloseBracket.prototype;
+
+LatexCmds.rparen = CharCmds[')'] = proto(CloseParen, function(replacedBlock)
+{
+  CloseParen.call(this, '(', ')', replacedBlock);
+});
+LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, function(replacedBlock)
+{
+  CloseParen.call(this, '[', ']', replacedBlock);
+});
+
 function Pipes(replacedBlock)
 {
   Paren.call(this, '|', '|', replacedBlock);
@@ -221,6 +254,8 @@ Pipes.prototype.placeCursor = function(cursor)
   else
     cursor.prependTo(this.firstChild);
 };
+
+LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
 function TextBlock(replacedBlock)
 {
@@ -346,6 +381,8 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
   }
 });
 
+LatexCmds.text = CharCmds.$ = TextBlock;
+
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedBlock, replacedFragment)
 {
@@ -409,27 +446,15 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertBefore(this.next);
     else
       this.cursor.appendTo(this.parent);
-    this.cursor.insertNew(this.firstChild.isEmpty() ?
-      new VanillaSymbol('\\backslash ','\\') : createLatexCommand(this.firstChild.latex(), this.replacedBlock));
+    var latex = this.firstChild.latex();
+    this.cursor.insertNew(latex ?
+      createLatexCommand(latex, this.replacedBlock) :
+      new VanillaSymbol('\\backslash ','\\'));
   }
 });
 
-function SquareRoot(replacedBlock)
-{
-  MathCommand.call(this, '\\sqrt', undefined, replacedBlock);
-  this.firstChild.jQ.change(function()
-  {
-    var block = $(this), height = block.height();
-    block.css({
-      borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
-    }).prev().css({
-      fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
-    });
-  });
-}
-SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
-
+CharCmds['\\'] = LatexCommandInput;
+  
 function Binomial(replacedBlock)
 {
   MathCommand.call(this, '\\binom', undefined, replacedBlock);
@@ -442,11 +467,19 @@ function Binomial(replacedBlock)
 }
 Binomial.prototype = new MathCommand;
 Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></span>'];
-function Choose(binomial)
+
+LatexCmds.binom = LatexCmds.binomial = Binomial;
+
+function Choose(binom)
 {
-  binomial.placeCursor = LiveFraction.prototype.placeCursor;
-  return binomial;
+  binom.placeCursor = LiveFraction.prototype.placeCursor;
+  return binom;
 }
+
+LatexCmds.choose = proto(Choose(new Binomial), function()
+{
+  Binomial.apply(this, arguments);
+});
 
 function Vector(replacedBlock)
 {
@@ -539,7 +572,424 @@ Vector.prototype.keydown = function(e)
   return this.parent.keydown(e);
 };
 
-function NonItalicizedFunction(fn)
+LatexCmds.vector = Vector;
+
+/********** Symbols and Special Characters **********/
+
+function bind(cons) //shorthand for binding arguments to constructor
+{
+  var args = []; //arguments after cons
+  for(var i = 1; i < arguments.length; ++i)
+    args.push(arguments[i]);
+
+  return proto(cons, function()
+  {
+    cons.apply(this, args);
+  });
+}
+
+LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
+
+function Variable(ch, html)
+{
+  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
+}
+Variable.prototype = Symbol.prototype;
+
+function VanillaSymbol(ch, html)
+{
+  Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
+}
+VanillaSymbol.prototype = Symbol.prototype;
+
+CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
+
+LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
+
+function NonSymbolaSymbol(ch, html) //does not use Symbola font
+{
+  Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+}
+NonSymbolaSymbol.prototype = Symbol.prototype;
+
+LatexCmds['@'] = NonSymbolaSymbol;
+LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&');
+LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
+
+//the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
+
+//lowercase Greek letter variables
+LatexCmds.alpha =
+LatexCmds.beta =
+LatexCmds.gamma =
+LatexCmds.delta =
+LatexCmds.zeta =
+LatexCmds.eta =
+LatexCmds.theta =
+LatexCmds.iota =
+LatexCmds.kappa =
+LatexCmds.mu =
+LatexCmds.nu =
+LatexCmds.xi =
+LatexCmds.rho =
+LatexCmds.sigma =
+LatexCmds.tau =
+LatexCmds.chi =
+LatexCmds.psi =
+LatexCmds.omega = proto(Symbol, function(replacedBlock, latex)
+{
+  Variable.call(this,'\\'+latex+' ','&'+latex+';');
+});
+
+//why can't anybody FUCKING agree on these
+LatexCmds.phi = //W3C or Unicode?
+  bind(Variable,'\\phi ','&#981;');
+
+LatexCmds.phiv = //Elsevier and 9573-13
+LatexCmds.varphi = //AMS and LaTeX
+  bind(Variable,'\\varphi ','&phi;');
+
+LatexCmds.epsilon = //W3C or Unicode?
+  bind(Variable,'\\epsilon ','&#1013;');
+
+LatexCmds.epsiv = //Elsevier and 9573-13
+LatexCmds.varepsilon = //AMS and LaTeX
+  bind(Variable,'\\varepsilon ','&epsilon;');
+
+LatexCmds.sigmaf = //W3C/Unicode
+LatexCmds.sigmav = //Elsevier
+LatexCmds.varsigma = //LaTeX
+  bind(Variable,'\\varsigma ','&sigmaf;');
+
+LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
+LatexCmds.upsi = //Elsevier and 9573-13
+  bind(Variable,'\\upsilon ','&upsilon;');
+
+//these aren't even mentioned in the HTML character entity references
+LatexCmds.gammad = //Elsevier
+LatexCmds.Gammad = //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
+LatexCmds.digamma = //LaTeX
+  bind(Variable,'\\digamma ','&#989;');
+
+LatexCmds.kappav = //Elsevier
+LatexCmds.varkappa = //AMS and LaTeX
+  bind(Variable,'\\varkappa ','&#1008;');
+
+LatexCmds.piv = //Elsevier and 9573-13
+LatexCmds.varpi = //AMS and LaTeX
+  bind(Variable,'\\varpi ','&#982;');
+
+LatexCmds.rhov = //Elsevier and 9573-13
+LatexCmds.varrho = //AMS and LaTeX
+  bind(Variable,'\\varrho ','&#1009;');
+
+LatexCmds.thetav = //Elsevier and 9573-13
+LatexCmds.vartheta = //AMS and LaTeX
+  bind(Variable,'\\vartheta ','&#977;');
+
+//Greek constants, look best in un-italicised Times New Roman
+LatexCmds.pi = bind(NonSymbolaSymbol,'\\pi ','&pi;');
+LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
+
+//uppercase greek letters
+
+LatexCmds.Upsilon = //AMS and LaTeX and W3C/Unicode
+LatexCmds.Upsi = //Elsevier and 9573-13
+  bind(Variable,'\\Upsilon ','&Upsilon;');
+
+LatexCmds.Gamma =
+LatexCmds.Delta =
+LatexCmds.Theta =
+LatexCmds.Lambda =
+LatexCmds.Xi =
+LatexCmds.Pi =
+LatexCmds.Sigma =
+LatexCmds.Phi =
+LatexCmds.Psi =
+LatexCmds.Omega =
+
+//other symbols with the same LaTeX command and HTML character entity reference
+LatexCmds.forall = proto(Symbol, function(replacedBlock, latex)
+{
+  VanillaSymbol('\\'+latex+' ','&'+latex+';');
+});
+
+function BinaryOperator(cmd, html)
+{
+  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
+}
+BinaryOperator.prototype = new Symbol; //so instanceof will work
+
+function PlusMinus(cmd, html)
+{
+  VanillaSymbol.apply(this, arguments);
+}
+PlusMinus.prototype = new BinaryOperator; //so instanceof will work
+PlusMinus.prototype.respace = function()
+{
+  if(!this.prev)
+    this.jQ[0].className = '';
+  else if(this.prev instanceof BinaryOperator && this.next && !(this.next instanceof BinaryOperator))
+    this.jQ[0].className = 'unary-operator';
+  else
+    this.jQ[0].className = 'binary-operator';
+  return this;
+};
+
+LatexCmds['+'] = bind(PlusMinus, '+');
+LatexCmds['-'] = bind(PlusMinus, '-', '&minus;');
+LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
+  bind(PlusMinus,'\\pm ','&plusmn;');
+LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
+  bind(PlusMinus,'\\mp ','&#8723;');
+
+CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
+  bind(BinaryOperator, '\\cdot ', '&middot;');
+//semantically should be &sdot;, but &middot; looks better
+
+LatexCmds['='] = bind(BinaryOperator, '=', '=');
+LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
+LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+
+LatexCmds.notin =
+LatexCmds.sim =
+LatexCmds.equiv =
+LatexCmds.times =
+LatexCmds.oplus =
+LatexCmds.otimes = proto(BinaryOperator, function(replacedBlock, latex)
+{
+  BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
+});
+
+LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
+  bind(BinaryOperator,'\\div ','&divide;');
+
+LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
+
+LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
+  bind(BinaryOperator,'\\ast ','&lowast;');
+  //case 'there4 = // a special exception for this one, perhaps?
+LatexCmds.therefor = LatexCmds.therefore =
+  bind(BinaryOperator,'\\therefore ','&there4;');
+
+LatexCmds.cuz = // l33t
+LatexCmds.because = bind(BinaryOperator,'\\because ','&#8757;');
+
+LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
+
+LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
+
+LatexCmds.lt = bind(BinaryOperator,'<','&lt;');
+
+LatexCmds.gt = bind(BinaryOperator,'<','&gt;');
+
+LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','&le;');
+
+LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','&ge;');
+
+LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
+
+LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
+
+LatexCmds.notni = LatexCmds.niton = LatexCmds.notcontains = LatexCmds.doesnotcontain =
+  bind(BinaryOperator,'\\not\\ni ','&#8716;');
+
+LatexCmds.sub = LatexCmds.subset = bind(BinaryOperator,'\\subset ','&sub;');
+
+LatexCmds.sup = LatexCmds.supset = LatexCmds.superset =
+  bind(BinaryOperator,'\\supset ','&sup;');
+
+LatexCmds.nsub = LatexCmds.notsub =
+LatexCmds.nsubset = LatexCmds.notsubset =
+  bind(BinaryOperator,'\\not\\subset ','&#8836;');
+
+LatexCmds.nsup = LatexCmds.notsup =
+LatexCmds.nsupset = LatexCmds.notsupset =
+LatexCmds.nsuperset = LatexCmds.notsuperset =
+  bind(BinaryOperator,'\\not\\supset ','&#8837;');
+
+LatexCmds.sube = LatexCmds.subeq = LatexCmds.subsete = LatexCmds.subseteq =
+  bind(BinaryOperator,'\\subseteq ','&sube;');
+
+LatexCmds.supe = LatexCmds.supeq =
+LatexCmds.supsete = LatexCmds.supseteq =
+LatexCmds.supersete = LatexCmds.superseteq =
+  bind(BinaryOperator,'\\supseteq ','&supe;');
+
+LatexCmds.nsube = LatexCmds.nsubeq =
+LatexCmds.notsube = LatexCmds.notsubeq =
+LatexCmds.nsubsete = LatexCmds.nsubseteq =
+LatexCmds.notsubsete = LatexCmds.notsubseteq =
+  bind(BinaryOperator,'\\not\\subseteq ','&#8840;');
+
+LatexCmds.nsupe = LatexCmds.nsupeq =
+LatexCmds.notsupe = LatexCmds.notsupeq =
+LatexCmds.nsupsete = LatexCmds.nsupseteq =
+LatexCmds.notsupsete = LatexCmds.notsupseteq =
+LatexCmds.nsupersete = LatexCmds.nsuperseteq =
+LatexCmds.notsupersete = LatexCmds.notsuperseteq =
+  bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
+
+
+//sum, product, coproduct, integral
+function BigSymbol(ch, html)
+{
+  Symbol.call(this, ch, '<big>'+html+'</big>');
+}
+BigSymbol.prototype = new Symbol; //so instanceof will work
+
+LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
+LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
+LatexCmds.coprod = LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
+LatexCmds.int = LatexCmds.integral = bind(BigSymbol,'\\int ','&int;');
+
+
+
+//the canonical sets of numbers
+LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
+  bind(VanillaSymbol,'\\mathbb{N}','&#8469;');
+
+LatexCmds.P =
+LatexCmds.primes = LatexCmds.Primes =
+LatexCmds.projective = LatexCmds.Projective =
+LatexCmds.probability = LatexCmds.Probability =
+  bind(VanillaSymbol,'\\mathbb{P}','&#8473;');
+
+LatexCmds.Z = LatexCmds.integers = LatexCmds.Integers =
+  bind(VanillaSymbol,'\\mathbb{Z}','&#8484;');
+
+LatexCmds.Q = LatexCmds.rationals = LatexCmds.Rationals =
+  bind(VanillaSymbol,'\\mathbb{Q}','&#8474;');
+
+LatexCmds.R = LatexCmds.reals = LatexCmds.Reals =
+  bind(VanillaSymbol,'\\mathbb{R}','&#8477;');
+
+LatexCmds.C =
+LatexCmds.complex = LatexCmds.Complex =
+LatexCmds.complexes = LatexCmds.Complexes =
+LatexCmds.complexplane = LatexCmds.Complexplane = LatexCmds.ComplexPlane =
+  bind(VanillaSymbol,'\\mathbb{C}','&#8450;');
+
+LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaternions =
+  bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
+
+//spacing
+LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
+LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+/* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
+case ',':
+  return new VanillaSymbol('\\, ','&nbsp;');
+case ':':
+  return new VanillaSymbol('\\: ','&nbsp;&nbsp;');
+case ';':
+  return new VanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
+case '!':
+  return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
+*/
+
+//various symbols
+
+LatexCmds.caret = bind(VanillaSymbol,'\\caret ','^');
+LatexCmds.underscore = bind(VanillaSymbol,'\\underscore ','_');
+LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
+LatexCmds.vert = bind(VanillaSymbol,'|');
+LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
+LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
+
+LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
+  bind(VanillaSymbol,'\\text\\AA ','&#8491;');
+
+LatexCmds.ring = LatexCmds.circ = LatexCmds.circle =
+  bind(VanillaSymbol,'\\circ ','&#8728;');
+
+LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
+
+LatexCmds.setminus = LatexCmds.smallsetminus =
+  bind(VanillaSymbol,'\\setminus ','&#8726;');
+
+LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>');
+LatexCmds.neg = bind(VanillaSymbol,'\\neg ','&not;');
+
+LatexCmds.dots = LatexCmds.ellip = LatexCmds.hellip =
+LatexCmds.ellipsis = LatexCmds.hellipsis =
+  bind(VanillaSymbol,'\\dots ','&hellip;');
+
+LatexCmds.converges =
+LatexCmds.darr = LatexCmds.dnarr = LatexCmds.dnarrow = LatexCmds.downarrow =
+  bind(VanillaSymbol,'\\downarrow ','&darr;');
+
+LatexCmds.dArr = LatexCmds.dnArr = LatexCmds.dnArrow = LatexCmds.Downarrow =
+  bind(VanillaSymbol,'\\Downarrow ','&dArr;');
+
+LatexCmds.diverges = LatexCmds.uarr = LatexCmds.uparrow =
+  bind(VanillaSymbol,'\\uparrow ','&uarr;');
+
+LatexCmds.uArr = LatexCmds.Uparrow = bind(VanillaSymbol,'\\Uparrow ','&uArr;');
+
+LatexCmds.to = bind(BinaryOperator,'\\to ','&rarr;');
+
+LatexCmds.rarr = LatexCmds.rightarrow = bind(VanillaSymbol,'\\rightarrow ','&rarr;');
+
+LatexCmds.implies = bind(BinaryOperator,'\\Rightarrow ','&rArr;');
+
+LatexCmds.rArr = LatexCmds.Rightarrow = bind(VanillaSymbol,'\\Rightarrow ','&rArr;');
+
+LatexCmds.gets = bind(BinaryOperator,'\\gets ','&larr;');
+
+LatexCmds.larr = LatexCmds.leftarrow = bind(VanillaSymbol,'\\leftarrow ','&larr;');
+
+LatexCmds.impliedby = bind(BinaryOperator,'\\Leftarrow ','&lArr;');
+
+LatexCmds.lArr = LatexCmds.Leftarrow = bind(VanillaSymbol,'\\Leftarrow ','&lArr;');
+
+LatexCmds.harr = LatexCmds.lrarr = LatexCmds.leftrightarrow =
+  bind(VanillaSymbol,'\\leftrightarrow ','&harr;');
+
+LatexCmds.iff = bind(BinaryOperator,'\\Leftrightarrow ','&hArr;');
+
+LatexCmds.hArr = LatexCmds.lrArr = LatexCmds.Leftrightarrow =
+  bind(VanillaSymbol,'\\Leftrightarrow ','&hArr;');
+
+LatexCmds.Re = LatexCmds.Real = LatexCmds.real = bind(VanillaSymbol,'\\Re ','&real;');
+
+LatexCmds.Im = LatexCmds.imag =
+LatexCmds.image = LatexCmds.imagin = LatexCmds.imaginary = LatexCmds.Imaginary =
+  bind(VanillaSymbol,'\\Im ','&image;');
+
+LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;');
+
+LatexCmds.inf = LatexCmds.infin = LatexCmds.infty = LatexCmds.infinity =
+  bind(VanillaSymbol,'\\infty ','&infin;');
+
+LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
+  bind(VanillaSymbol,'\\aleph ','&alefsym;');
+
+LatexCmds.xist = //LOL
+LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
+  bind(VanillaSymbol,'\\exists ','&exist;');
+
+LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
+  bind(VanillaSymbol,'\\wedge ','&and;');
+
+LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','&or;');
+
+LatexCmds.o = LatexCmds.O =
+LatexCmds.empty = LatexCmds.emptyset =
+LatexCmds.oslash = LatexCmds.Oslash =
+LatexCmds.nothing = LatexCmds.varnothing =
+  bind(BinaryOperator,'\\varnothing ','&empty;');
+
+LatexCmds.cup = LatexCmds.union = bind(VanillaSymbol,'\\cup ','&cup;');
+
+LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
+  bind(VanillaSymbol,'\\cap ','&cap;');
+
+LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
+
+LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
+
+
+function NonItalicizedFunction(replacedBlock, fn)
 {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
@@ -549,504 +999,37 @@ NonItalicizedFunction.prototype.respace = function()
   this.jQ[0].className = (this.next instanceof SupSub) ? '' : 'non-italicized-function';
 };
 
-var SingleCharacterCommands = {
-  //Symbols:
-  ' ': function(){ return new VanillaSymbol('\\,', '&nbsp;'); },
-  "'": function(){ return new VanillaSymbol("'", '&prime;'); },
-  'f': function(){ return new Symbol('f', '<var class="florin">&fnof;</var>'); },
-  '@': function(){ return new NonSymbolaSymbol('@'); },
-  '&': function(){ return new NonSymbolaSymbol('\\&', '&'); },
-  '%': function(){ return new NonSymbolaSymbol('\\%', '%'); },
-  '*': function(){ return new BinaryOperator('\\cdot ', '&middot;'); },
-    //semantically should be &sdot;, but &middot; looks better in both Symbola and Times New Roman
-  '=': function(){ return new BinaryOperator('=', '='); },
-  '<': function(){ return new BinaryOperator('<', '&lt;'); },
-  '>': function(){ return new BinaryOperator('>', '&gt;'); },
-  '+': function(){ return new PlusMinus('+'); },
-  '-': function(){ return new PlusMinus('-', '&minus;'); },
-  //Commands and Operators:
-  '^': function(replacedBlock){ return new SupSub('^', '<sup></sup>', replacedBlock); },
-  '_': function(replacedBlock){ return new SupSub('_', '<sub></sub>', replacedBlock); },
-  '/': function(replacedBlock){ return new LiveFraction(replacedBlock); },
-  '(': function(replacedBlock){ return new Paren('(', ')', replacedBlock); },
-  '[': function(replacedBlock){ return new Paren('[', ']', replacedBlock); },
-  '{': function(replacedBlock){ return new Bracket('{','}','\\{','\\}',replacedBlock); },
-  ')': function(replacedBlock){ return new CloseParen('(', ')', replacedBlock); },
-  ']': function(replacedBlock){ return new CloseParen('[', ']', replacedBlock); },
-  '}': function(replacedBlock){ return new CloseBracket('{','}','\\{','\\}',replacedBlock); },
-  '|': function(replacedBlock){ return new Pipes(replacedBlock); },
-  '$': function(replacedBlock){ return new TextBlock(replacedBlock); },
-  '\\': function(replacedBlock, replacedFragment){
-    return new LatexCommandInput(replacedBlock, replacedFragment);
-  }
-};
+LatexCmds.ln =
+LatexCmds.lg =
+LatexCmds.log =
+LatexCmds.span =
+LatexCmds.proj =
+LatexCmds.det =
+LatexCmds.dim =
+LatexCmds.min =
+LatexCmds.max =
+LatexCmds.mod =
+LatexCmds.lcm =
+LatexCmds.gcd =
+LatexCmds.gcf =
+LatexCmds.hcf =
+LatexCmds.lim = NonItalicizedFunction;
+
+(function()
+{
+  var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
+  for(var i in trig)
+    LatexCmds[trig[i]] =
+    LatexCmds[trig[i]+'h'] =
+    LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
+    LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
+      NonItalicizedFunction;
+}());
+
 function createLatexCommand(latex, replacedBlock)
 {
-  if(latex.match(/^(a|arc)?(sin|cos|tan|sec|cosec|csc|cotan|cot)h?$/))
-    return new NonItalicizedFunction(latex);
-
-  switch(latex)
-  {
-  //"real" commands
-  case 'subscript':
-    return new SupSub('_', '<sub></sub>', replacedBlock);
-  case 'supscript':
-  case 'superscript':
-    return new SupSub('^', '<sup></sup>', replacedBlock);
-  case 'sqrt':
-    return new SquareRoot(replacedBlock);
-  case 'frac':
-    return new Fraction(replacedBlock);
-  case 'text':
-    return new TextBlock(replacedBlock);
-  case 'langle':
-    return new Bracket('<','>','\\langle ','\\rangle ',replacedBlock);
-  case 'rangle':
-    return new CloseBracket('<','>','\\langle ','\\rangle ',replacedBlock);
-  case 'binom':
-  case 'binomial':
-    return new Binomial(replacedBlock);
-  case 'choose':
-    return Choose(new Binomial(replacedBlock));
-  case 'vector':
-    return new Vector(replacedBlock);
-
-  //non-italicized functions
-  case 'ln':
-  case 'lg':
-  case 'log':
-  case 'span':
-  case 'proj':
-  case 'det':
-  case 'dim':
-  case 'min':
-  case 'max':
-  case 'mod':
-  case 'lcm':
-  case 'gcd':
-  case 'lim':
-    return new NonItalicizedFunction(latex);
-
-  /*** Symbols and Special Characters ***/
-
-  //the following are all greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
-
-  //lowercase greek letter variables
-  case 'alpha':
-  case 'beta':
-  case 'gamma':
-  case 'delta':
-  case 'zeta':
-  case 'eta':
-  case 'theta':
-  case 'iota':
-  case 'kappa':
-  case 'mu':
-  case 'nu':
-  case 'xi':
-  case 'rho':
-  case 'sigma':
-  case 'tau':
-  case 'upsilon':
-  case 'chi':
-  case 'psi':
-  case 'omega':
-    return new Variable('\\'+latex+' ','&'+latex+';');
-
-  //why can't anybody FUCKING agree on these
-  case 'phi': //W3C or Unicode?
-    return new Variable('\\phi ','&#981;');
-  case 'phiv': //Elsevier and 9573-13
-  case 'varphi': //AMS and LaTeX
-    return new Variable('\\varphi ','&phi;');
-  case 'epsilon': //W3C or Unicode?
-    return new Variable('\\epsilon ','&#1013;');
-  case 'epsiv': //Elsevier and 9573-13
-  case 'varepsilon': //AMS and LaTeX
-    return new Variable('\\varepsilon ','&epsilon;');
-  case 'sigmaf': //W3C/Unicode
-  case 'sigmav': //Elsevier
-  case 'varsigma': //LaTeX
-    return new Variable('\\varsigma ','&sigmaf;');
-
-  //these aren't even mentioned in the HTML character entity references
-  case 'gammad': //Elsevier
-  case 'Gammad': //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
-  case 'digamma': //LaTeX
-    return new Variable('\\digamma ','&#989;');
-  case 'kappav': //Elsevier
-  case 'varkappa': //AMS and LaTeX
-    return new Variable('\\varkappa ','&#1008;');
-  case 'piv': //Elsevier and 9573-13
-  case 'varpi': //AMS and LaTeX
-    return new Variable('\\varpi ','&#982;');
-  case 'rhov': //Elsevier and 9573-13
-  case 'varrho': //AMS and LaTeX
-    return new Variable('\\varrho ','&#1009;');
-  case 'thetav': //Elsevier and 9573-13
-  case 'vartheta': //AMS and LaTeX
-    return new Variable('\\vartheta ','&#977;');
-
-  //greek constants, look best in un-italicised Times New Roman
-  case 'pi':
-  case 'lambda':
-    return new NonSymbolaSymbol('\\'+latex+' ','&'+latex+';');
-
-  //uppercase greek letters
-  case 'Gamma':
-  case 'Delta':
-  case 'Theta':
-  case 'Lambda':
-  case 'Xi':
-  case 'Pi':
-  case 'Sigma':
-  case 'Upsilon':
-  case 'Phi':
-  case 'Psi':
-  case 'Omega':
-
-  //other symbols with the same LaTeX command and HTML character entity reference
-  case 'perp':
-  case 'nabla':
-  case 'forall':
-    return new VanillaSymbol('\\'+latex+' ','&'+latex+';');
-  case 'perpendicular':
-    return new VanillaSymbol('\\perp ','&perp;');
-  case 'del':
-    return new VanillaSymbol('\\nabla ','&nabla;');
-
-  //sum, product, coproduct, integral
-  case 'sum':
-  case 'summation':
-    return new BigSymbol('\\sum ','&sum;');
-  case 'prod':
-  case 'product':
-    return new BigSymbol('\\prod ','&prod;');
-  case 'coprod':
-  case 'coproduct':
-    return new BigSymbol('\\coprod ','&#8720;');
-  case 'int':
-  case 'integral':
-    return new BigSymbol('\\int ','&int;');
-
-  //the canonical sets of numbers
-  case 'N':
-  case 'naturals':
-  case 'Naturals':
-    return new VanillaSymbol('\\mathbb{N}','&#8469;');
-  case 'P':
-  case 'primes':
-  case 'Primes':
-  case 'projective':
-  case 'Projective':
-  case 'probability':
-  case 'Probability':
-    return new VanillaSymbol('\\mathbb{P}','&#8473;');
-  case 'Z':
-  case 'integers':
-  case 'Integers':
-    return new VanillaSymbol('\\mathbb{Z}','&#8484;');
-  case 'Q':
-  case 'rationals':
-  case 'Rationals':
-    return new VanillaSymbol('\\mathbb{Q}','&#8474;');
-  case 'R':
-  case 'reals':
-  case 'Reals':
-    return new VanillaSymbol('\\mathbb{R}','&#8477;');
-  case 'C':
-  case 'complex':
-  case 'Complex':
-  case 'complexes':
-  case 'Complexes':
-  case 'complexplane':
-  case 'Complexplane':
-  case 'ComplexPlane':
-    return new VanillaSymbol('\\mathbb{C}','&#8450;');
-  case 'H':
-  case 'Hamiltonian':
-  case 'quaternions':
-  case 'Quaternions':
-    return new VanillaSymbol('\\mathbb{H}','&#8461;');
-
-  //spacing
-  case 'quad':
-  case 'emsp':
-    return new VanillaSymbol('\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
-  case 'qquad':
-    return new VanillaSymbol('\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
-  /* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
-  case ',':
-    return new VanillaSymbol('\\, ','&nbsp;');
-  case':':
-    return new VanillaSymbol('\\: ','&nbsp;&nbsp;');
-  case ';':
-    return new VanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
-  case '!':
-    return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
-  */
-
-  //various symbols
-  case 'caret':
-    return new VanillaSymbol('\\caret ','^');
-  case 'underscore':
-    return new VanillaSymbol('\\underscore ','_');
-  case 'backslash':
-    return new VanillaSymbol('\\backslash ','\\');
-  case 'AA':
-  case 'Angstrom':
-  case 'angstrom':
-    return new VanillaSymbol('\\text\\AA ','&#8491;');
-  case 'ring':
-  case 'circ':
-  case 'circle':
-    return new VanillaSymbol('\\circ ','&#8728;');
-  case 'bull':
-  case 'bullet':
-    return new VanillaSymbol('\\bullet ','&bull;');
-  case 'setminus':
-  case 'smallsetminus':
-    return new VanillaSymbol('\\setminus ','&#8726;');
-  case 'not':
-    //return new Symbol('\\not ','<span class="not">/</span>');
-  case 'neg':
-    return new VanillaSymbol('\\neg ','&not;');
-  case 'dots':
-  case 'ellip':
-  case 'hellip':
-  case 'ellipsis':
-  case 'hellipsis':
-    return new VanillaSymbol('\\dots ','&hellip;');
-  case 'converges':
-  case 'darr':
-  case 'dnarr':
-  case 'dnarrow':
-  case 'downarrow':
-    return new VanillaSymbol('\\downarrow ','&darr;');
-  case 'dArr':
-  case 'dnArr':
-  case 'dnArrow':
-  case 'Downarrow':
-    return new VanillaSymbol('\\Downarrow ','&dArr;');
-  case 'diverges':
-  case 'uarr':
-  case 'uparrow':
-    return new VanillaSymbol('\\uparrow ','&uarr;');
-  case 'uArr':
-  case 'Uparrow':
-    return new VanillaSymbol('\\Uparrow ','&uArr;');
-  case 'to':
-    return new BinaryOperator('\\to ','&rarr;');
-  case 'rarr':
-  case 'rightarrow':
-    return new VanillaSymbol('\\rightarrow ','&rarr;');
-  case 'implies':
-    return new BinaryOperator('\\Rightarrow ','&rArr;');
-  case 'rArr':
-  case 'Rightarrow':
-    return new VanillaSymbol('\\Rightarrow ','&rArr;');
-  case 'gets':
-    return new BinaryOperator('\\gets ','&larr;');
-  case 'larr':
-  case 'leftarrow':
-    return new VanillaSymbol('\\leftarrow ','&larr;');
-  case 'impliedby':
-    return new BinaryOperator('\\Leftarrow ','&lArr;');
-  case 'lArr':
-  case 'Leftarrow':
-    return new VanillaSymbol('\\Leftarrow ','&lArr;');
-  case 'harr':
-  case 'lrarr':
-  case 'leftrightarrow':
-    return new VanillaSymbol('\\leftrightarrow ','&harr;');
-  case 'iff':
-    return new BinaryOperator('\\Leftrightarrow ','&hArr;');
-  case 'hArr':
-  case 'lrArr':
-  case '\Leftrightarrow':
-    return new VanillaSymbol('\\Leftrightarrow ','&hArr;');
-  case 'Re':
-  case 'Real':
-  case 'real':
-    return new VanillaSymbol('\\Re ','&real;');
-  case 'Im':
-  case 'imag':
-  case 'image':
-  case 'imagin':
-  case 'imaginary':
-  case 'Imaginary':
-    return new VanillaSymbol('\\Im ','&image;');
-  case 'part':
-  case 'partial':
-    return new VanillaSymbol('\\partial ','&part;');
-  case 'inf':
-  case 'infin':
-  case 'infty':
-  case 'infinity':
-    return new VanillaSymbol('\\infty ','&infin;');
-  case 'alef':
-  case 'alefsym':
-  case 'aleph':
-  case 'alephsym':
-    return new VanillaSymbol('\\aleph ','&alefsym;');
-  case 'xist': //LOL
-  case 'xists':
-  case 'exist':
-  case 'exists':
-    return new VanillaSymbol('\\exists ','&exist;');
-  case 'and':
-  case 'land':
-  case 'wedge':
-    return new VanillaSymbol('\\wedge ','&and;');
-  case 'or':
-  case 'lor':
-  case 'vee':
-    return new VanillaSymbol('\\vee ','&or;');
-  case 'o':
-  case 'O':
-  case 'empty':
-  case 'emptyset':
-  case 'oslash':
-  case 'Oslash':
-  case 'nothing':
-  case 'varnothing':
-    return new BinaryOperator('\\varnothing ','&empty;');
-  case 'cup':
-  case 'union':
-    return new VanillaSymbol('\\cup ','&cup;');
-  case 'cap':
-  case 'intersect':
-  case 'intersection':
-    return new VanillaSymbol('\\cap ','&cap;');
-  case 'deg':
-  case 'degree':
-    return new VanillaSymbol('^\\circ ','&deg;');
-  case 'ang':
-  case 'angle':
-    return new VanillaSymbol('\\angle ','&ang;');
-  case 'prime':
-    return new VanillaSymbol('\'','&prime;');
-  case 'sdot':
-  case 'cdot':
-    return new VanillaSymbol('\\cdot ', '&sdot;');
-
-  //Binary Operators
-  case 'notin':
-  case 'sim':
-  case 'equiv':
-  case 'times':
-  case 'oplus':
-  case 'otimes':
-    return new BinaryOperator('\\'+latex+' ','&'+latex+';');
-  case 'pm':
-  case 'plusmn':
-  case 'plusminus':
-    return new PlusMinus('\\pm ','&plusmn;');
-  case 'mp':
-  case 'mnplus':
-  case 'minusplus':
-    return new PlusMinus('\\mp ','&#8723;');
-  case 'div':
-  case 'divide':
-  case 'divides':
-    return new BinaryOperator('\\div ','&divide;');
-  case 'ne':
-  case 'neq':
-    return new BinaryOperator('\\'+latex+' ','&ne;');
-  case 'ast':
-  case 'star':
-  case 'loast':
-  case 'lowast':
-    return new BinaryOperator('\\ast ','&lowast;');
-  //case 'there4': // a special exception for this one, perhaps?
-  case 'therefor':
-  case 'therefore':
-    return new BinaryOperator('\\therefore ','&there4;');
-  case 'cuz': // l33t
-  case 'because':
-    return new BinaryOperator('\\because ','&#8757;');
-  case 'prop':
-  case 'propto':
-    return new BinaryOperator('\\propto ','&prop;');
-  case 'asymp':
-  case 'approx':
-    return new BinaryOperator('\\approx ','&asymp;');
-  case 'lt':
-    return new BinaryOperator('<','&lt;');
-  case 'gt':
-    return new BinaryOperator('<','&gt;');
-  case 'le':
-  case 'leq':
-    return new BinaryOperator('\\'+latex+' ','&le;');
-  case 'ge':
-  case 'geq':
-    return new BinaryOperator('\\'+latex+' ','&ge;');
-  case 'in':
-  case 'isin':
-    return new BinaryOperator('\\in ','&isin;');
-  case 'ni':
-  case 'contains':
-    return new BinaryOperator('\\ni ','&ni;');
-  case 'notni':
-  case 'niton':
-  case 'notcontains':
-  case 'doesnotcontain':
-    return new BinaryOperator('\\not\\ni ','&#8716;');
-  case 'sub':
-  case 'subset':
-    return new BinaryOperator('\\subset ','&sub;');
-  case 'sup':
-  case 'supset':
-  case 'superset':
-    return new BinaryOperator('\\supset ','&sup;');
-  case 'nsub':
-  case 'notsub':
-  case 'nsubset':
-  case 'notsubset':
-    return new BinaryOperator('\\not\\subset ','&#8836;');
-  case 'nsup':
-  case 'notsup':
-  case 'nsupset':
-  case 'notsupset':
-  case 'nsuperset':
-  case 'notsuperset':
-    return new BinaryOperator('\\not\\supset ','&#8837;');
-  case 'sube':
-  case 'subeq':
-  case 'subsete':
-  case 'subseteq':
-    return new BinaryOperator('\\subseteq ','&sube;');
-  case 'supe':
-  case 'supeq':
-  case 'supsete':
-  case 'supseteq':
-  case 'supersete':
-  case 'superseteq':
-    return new BinaryOperator('\\supseteq ','&supe;');
-  case 'nsube':
-  case 'nsubeq':
-  case 'notsube':
-  case 'notsubeq':
-  case 'nsubsete':
-  case 'nsubseteq':
-  case 'notsubsete':
-  case 'notsubseteq':
-    return new BinaryOperator('\\not\\subseteq ','&#8840;');
-  case 'nsupe':
-  case 'nsupeq':
-  case 'notsupe':
-  case 'notsupeq':
-  case 'nsupsete':
-  case 'nsupseteq':
-  case 'notsupsete':
-  case 'notsupseteq':
-  case 'nsupersete':
-  case 'nsuperseteq':
-  case 'notsupersete':
-  case 'notsuperseteq':
-    return new BinaryOperator('\\not\\supseteq ','&#8841;');
-  default:
-    return new TextBlock(latex);
-  }
+  var cmd = LatexCmds[latex];
+  if(cmd)
+    return new cmd(replacedBlock, latex);
+  return new TextBlock(latex);
 }
-
