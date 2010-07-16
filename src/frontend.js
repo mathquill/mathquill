@@ -380,8 +380,7 @@ Selection.prototype = $.extend(new MathFragment, {
   },
   levelUp: function()
   {
-    this.jQ.children().unwrap();
-    this.jQinit(this.parent.parent.jQ);
+    this.clear().jQinit(this.parent.parent.jQ);
 
     this.prev = this.parent.parent.prev;
     this.next = this.parent.parent.next;
@@ -396,9 +395,7 @@ Selection.prototype = $.extend(new MathFragment, {
   },
   blockify: function()
   {
-    var selectedJQ = this.jQ.children();
-    this.jQ.replaceWith(selectedJQ);
-    this.jQ = selectedJQ;
+    this.jQ.replaceWith(this.jQ = this.jQ.children());
     return MathFragment.prototype.blockify.call(this);
   }
 });
