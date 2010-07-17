@@ -450,10 +450,14 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.insertBefore(this.next);
     else
       this.cursor.appendTo(this.parent);
-    var latex = this.firstChild.latex();
-    this.cursor.insertNew(latex ?
-      createLatexCommand(latex, this.replacedFragment) :
-      new VanillaSymbol('\\backslash ','\\'));
+    var latex = this.firstChild.latex(), cmd;
+    if(latex)
+      if(cmd = LatexCmds[latex])
+        this.cursor.insertNew(new cmd(this.replacedFragment, latex));
+      else
+        this.cursor.insertNew(cmd = new TextBlock(latex)).insertAfter(cmd);
+    else
+      this.cursor.insertNew(new VanillaSymbol('\\backslash ','\\'));
   }
 });
 
@@ -1027,11 +1031,3 @@ LatexCmds.lim = NonItalicizedFunction;
     LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
       NonItalicizedFunction;
 }());
-
-function createLatexCommand(latex, replacedFragment)
-{
-  var cmd = LatexCmds[latex];
-  if(cmd)
-    return new cmd(replacedFragment, latex);
-  return new TextBlock(latex);
-}
