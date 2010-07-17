@@ -75,7 +75,7 @@ MathCommand.prototype = $.extend(new MathElement, {
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
     newBlock.parent = this;
     newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]',
-      {block: newBlock}).appendTo(this.jQ).append(newBlock.jQ);
+      {block: newBlock}).append(newBlock.jQ).appendTo(this.jQ);
     newBlock.setEmpty();
     for(var i = 2; i < num_blocks; i += 1)
     {
