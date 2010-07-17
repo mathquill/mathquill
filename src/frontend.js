@@ -220,16 +220,16 @@ Cursor.prototype = {
     else
       greatgramp.lastChild = prev;
 
-    if(!this.prev)
-      if(this.next)
-        this.prev = this.next.prev;
+    if(!this.next)
+      if(this.prev)
+        this.next = this.prev.next;
       else
-        while(!this.prev)
-          if(this.parent = this.parent.prev)
-            this.prev = this.parent.lastChild;
+        while(!this.next)
+          if(this.parent = this.parent.next)
+            this.next = this.parent.lastChild;
           else
           {
-            this.prev = gramp.prev;
+            this.next = gramp.next;
             this.parent = greatgramp;
             break;
           }
