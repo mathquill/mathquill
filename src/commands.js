@@ -10,9 +10,9 @@ function proto(parent, child) //shorthand for prototyping
   return child;
 }
 
-function SupSub(cmd, html, replacedBlock)
+function SupSub(cmd, html, replacedFragment)
 {
-  MathCommand.call(this, cmd, [ html ], replacedBlock);
+  MathCommand.call(this, cmd, [ html ], replacedFragment);
   var me = this;
   this.jQ.change(function()
   {
@@ -80,19 +80,19 @@ SupSub.prototype.respace = function()
   return this;
 };
 
-LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedBlock)
+LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment)
 {
-  SupSub.call(this, '_', '<sub></sub>', replacedBlock);
+  SupSub.call(this, '_', '<sub></sub>', replacedFragment);
 });
 LatexCmds.superscript = LatexCmds.supscript = LatexCmds['^'] =
-  proto(SupSub, function(replacedBlock)
+  proto(SupSub, function(replacedFragment)
 {
-  SupSub.call(this, '^', '<sup></sup>', replacedBlock);
+  SupSub.call(this, '^', '<sup></sup>', replacedFragment);
 });
 
-function Fraction(replacedBlock)
+function Fraction(replacedFragment)
 {
-  MathCommand.call(this, '\\frac', undefined, replacedBlock);
+  MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
   if($.browser.mozilla && +$.browser.version.slice(0,3) < 1.9) //Firefox 2 and below
     this.jQ.css('display','-moz-groupbox');
@@ -136,9 +136,9 @@ LiveFraction.prototype.placeCursor = function(cursor)
 
 CharCmds['/'] = LiveFraction;
 
-function SquareRoot(replacedBlock)
+function SquareRoot(replacedFragment)
 {
-  MathCommand.call(this, '\\sqrt', undefined, replacedBlock);
+  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
   this.firstChild.jQ.change(function()
   {
     var block = $(this), height = block.height();
@@ -155,11 +155,11 @@ SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</
 LatexCmds.sqrt = SquareRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-function Bracket(open, close, cmd, end, replacedBlock)
+function Bracket(open, close, cmd, end, replacedFragment)
 {
   MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
-    replacedBlock);
+    replacedFragment);
   this.end = '\\right'+end;
   this.firstChild.jQ.change(function()
   {
@@ -168,9 +168,10 @@ function Bracket(open, close, cmd, end, replacedBlock)
   });
 }
 Bracket.prototype = new MathCommand;
-Bracket.prototype.initBlocks = function(replacedBlock)
+Bracket.prototype.initBlocks = function(replacedFragment)
 {
-  this.firstChild = this.lastChild = replacedBlock || new MathBlock;
+  this.firstChild = this.lastChild =
+    (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
   this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children(':eq(1)').append(this.firstChild.jQ) : this.jQ.children(':eq(1)');
 };
@@ -179,17 +180,17 @@ Bracket.prototype.latex = function()
   return this.cmd + this.firstChild.latex() + this.end;
 };
 
-LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedBlock)
+LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment)
 {
-  Bracket.call(this, '{', '}', '\\{', '\\}', replacedBlock);
+  Bracket.call(this, '{', '}', '\\{', '\\}', replacedFragment);
 });
-LatexCmds.langle = LatexCmds.lang = proto(Bracket, function(replacedBlock)
+LatexCmds.langle = LatexCmds.lang = proto(Bracket, function(replacedFragment)
 {
-  Bracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedBlock);
+  Bracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedFragment);
 });
 
 // Closing bracket matching opening bracket above
-function CloseBracket(open, close, cmd, end, replacedBlock)
+function CloseBracket(open, close, cmd, end, replacedFragment)
 {
   Bracket.apply(this, arguments);
 }
@@ -204,48 +205,48 @@ CloseBracket.prototype.placeCursor = function(cursor)
     this.firstChild.setEmpty().jQ.change();
 };
 
-LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedBlock)
+LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedFragment)
 {
-  CloseBracket.call(this, '{','}','\\{','\\}',replacedBlock);
+  CloseBracket.call(this, '{','}','\\{','\\}',replacedFragment);
 });
-LatexCmds.rangle = LatexCmds.rang = proto(CloseBracket, function(replacedBlock)
+LatexCmds.rangle = LatexCmds.rang = proto(CloseBracket, function(replacedFragment)
 {
-  CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedBlock);
+  CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedFragment);
 });
 
-function Paren(open, close, replacedBlock)
+function Paren(open, close, replacedFragment)
 {
-  Bracket.call(this, open, close, open, close, replacedBlock);
+  Bracket.call(this, open, close, open, close, replacedFragment);
 }
 Paren.prototype = Bracket.prototype;
 
-LatexCmds.lparen = CharCmds['('] = proto(Paren, function(replacedBlock)
+LatexCmds.lparen = CharCmds['('] = proto(Paren, function(replacedFragment)
 {
-  Paren.call(this, '(', ')', replacedBlock);
+  Paren.call(this, '(', ')', replacedFragment);
 });
-LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Paren, function(replacedBlock)
+LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Paren, function(replacedFragment)
 {
-  Paren.call(this, '[', ']', replacedBlock);
+  Paren.call(this, '[', ']', replacedFragment);
 });
 
-function CloseParen(open, close, replacedBlock)
+function CloseParen(open, close, replacedFragment)
 {
-  CloseBracket.call(this, open, close, open, close, replacedBlock);
+  CloseBracket.call(this, open, close, open, close, replacedFragment);
 }
 CloseParen.prototype = CloseBracket.prototype;
 
-LatexCmds.rparen = CharCmds[')'] = proto(CloseParen, function(replacedBlock)
+LatexCmds.rparen = CharCmds[')'] = proto(CloseParen, function(replacedFragment)
 {
-  CloseParen.call(this, '(', ')', replacedBlock);
+  CloseParen.call(this, '(', ')', replacedFragment);
 });
-LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, function(replacedBlock)
+LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, function(replacedFragment)
 {
-  CloseParen.call(this, '[', ']', replacedBlock);
+  CloseParen.call(this, '[', ']', replacedFragment);
 });
 
-function Pipes(replacedBlock)
+function Pipes(replacedFragment)
 {
-  Paren.call(this, '|', '|', replacedBlock);
+  Paren.call(this, '|', '|', replacedFragment);
 }
 Pipes.prototype = new Paren;
 Pipes.prototype.placeCursor = function(cursor)
@@ -260,10 +261,10 @@ LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
 function TextBlock(replacedText)
 {
-  if(replacedText instanceof MathBlock)
+  if(replacedText instanceof MathFragment)
     this.replacedText = replacedText.remove().jQ.text();
-  else
-    this.replacedText = replacedText.toString();
+  else if(typeof replacedText === 'string')
+    this.replacedText = replacedText;
   MathCommand.call(this, '\\text');
 }
 TextBlock.prototype = $.extend(new MathCommand, {
@@ -315,7 +316,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
         this.cursor.insertBefore(this);
       else //split apart
       {
-        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev).blockify());
+        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
         next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
         {
           this.prev = null;
@@ -389,15 +390,13 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
 LatexCmds.text = CharCmds.$ = TextBlock;
 
 // input box to type a variety of LaTeX commands beginning with a backslash
-function LatexCommandInput(replacedBlock, replacedFragment)
+function LatexCommandInput(replacedFragment)
 {
   MathCommand.call(this, '\\');
   this.firstChild.setEmpty = this.setEmpty;
-  if(replacedBlock)
+  if(replacedFragment)
   {
-    replacedBlock.jQ.detach();
-    this.replacedBlock = replacedBlock;
-    this.replacedFragment = replacedFragment;
+    this.replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
   }
 }
@@ -453,16 +452,16 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       this.cursor.appendTo(this.parent);
     var latex = this.firstChild.latex();
     this.cursor.insertNew(latex ?
-      createLatexCommand(latex, this.replacedBlock) :
+      createLatexCommand(latex, this.replacedFragment) :
       new VanillaSymbol('\\backslash ','\\'));
   }
 });
 
 CharCmds['\\'] = LatexCommandInput;
   
-function Binomial(replacedBlock)
+function Binomial(replacedFragment)
 {
-  MathCommand.call(this, '\\binom', undefined, replacedBlock);
+  MathCommand.call(this, '\\binom', undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
   this.firstChild.jQ.parent().change(function()
   {
@@ -484,9 +483,9 @@ Choose.prototype.placeCursor = LiveFraction.prototype.placeCursor;
 
 LatexCmds.choose = Choose;
 
-function Vector(replacedBlock)
+function Vector(replacedFragment)
 {
-  MathCommand.call(this, '\\vector', undefined, replacedBlock);
+  MathCommand.call(this, '\\vector', undefined, replacedFragment);
 }
 Vector.prototype = new MathCommand;
 Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
@@ -639,7 +638,7 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = proto(Symbol, function(replacedBlock, latex)
+LatexCmds.omega = proto(Symbol, function(replacedFragment, latex)
 {
   Variable.call(this,'\\'+latex+' ','&'+latex+';');
 });
@@ -712,7 +711,7 @@ LatexCmds.Psi =
 LatexCmds.Omega =
 
 //other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.forall = proto(Symbol, function(replacedBlock, latex)
+LatexCmds.forall = proto(Symbol, function(replacedFragment, latex)
 {
   VanillaSymbol('\\'+latex+' ','&'+latex+';');
 });
@@ -759,7 +758,7 @@ LatexCmds.sim =
 LatexCmds.equiv =
 LatexCmds.times =
 LatexCmds.oplus =
-LatexCmds.otimes = proto(BinaryOperator, function(replacedBlock, latex)
+LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex)
 {
   BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
 });
@@ -992,7 +991,7 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-function NonItalicizedFunction(replacedBlock, fn)
+function NonItalicizedFunction(replacedFragment, fn)
 {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
@@ -1029,10 +1028,10 @@ LatexCmds.lim = NonItalicizedFunction;
       NonItalicizedFunction;
 }());
 
-function createLatexCommand(latex, replacedBlock)
+function createLatexCommand(latex, replacedFragment)
 {
   var cmd = LatexCmds[latex];
   if(cmd)
-    return new cmd(replacedBlock, latex);
+    return new cmd(replacedFragment, latex);
   return new TextBlock(latex);
 }

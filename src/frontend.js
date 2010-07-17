@@ -148,10 +148,7 @@ Cursor.prototype = {
     if(ch.match(/[a-eg-zA-Z]/)) //exclude f because want florin
       cmd = new Variable(ch);
     else if(cmd = CharCmds[ch] || LatexCmds[ch])
-      if(this.selection)
-        cmd = new cmd(this.selection.blockify(), this.selection);
-      else
-        cmd = new cmd;
+      cmd = new cmd(this.selection);
     else
       cmd = new VanillaSymbol(ch);
 
@@ -401,6 +398,16 @@ Selection.prototype = $.extend(new MathFragment, {
   {
     this.jQ.replaceWith(this.jQ = this.jQ.children());
     return MathFragment.prototype.blockify.call(this);
+  },
+  detach: function()
+  {
+    var block = MathFragment.prototype.blockify.call(this);
+    this.blockify = function()
+    {
+      this.jQ.replaceWith(block.jQ = this.jQ = this.jQ.children());
+      return block;
+    };
+    return this;
   }
 });
 

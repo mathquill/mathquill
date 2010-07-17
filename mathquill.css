@@ -74,6 +74,12 @@
 .mathquill-editable .selection.blur, .mathquill-editable .selection.blur .mathquill-rendered-math, .mathquill-editable .selection.blur sup, .mathquill-editable .selection.blur sub {
   background-color: #CCC;
 }
+.mathquill-editable .selection .selection.blur, .mathquill-editable .selection .selection.blur sup, .mathquill-editable .selection .selection.blur sub {
+  background-color: #ABF;
+}
+.mathquill-editable .selection.blur .selection.blur, .mathquill-editable .selection.blur .selection.blur sup, .mathquill-editable .selection.blur .selection.blur sub {
+  background-color: #DDD;
+}
 
 .mathquill-rendered-math {
   font-family: Symbola, "Times New Roman", serif;

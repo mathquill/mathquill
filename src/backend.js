@@ -44,7 +44,7 @@ MathElement.prototype = {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template, replacedBlock)
+function MathCommand(cmd, html_template, replacedFragment)
 {
   if(!arguments.length)
     return;
@@ -54,24 +54,25 @@ function MathCommand(cmd, html_template, replacedBlock)
     this.html_template = html_template;
 
   this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
-  this.initBlocks(replacedBlock);
+  this.initBlocks(replacedFragment);
 }
 MathCommand.prototype = $.extend(new MathElement, {
-  initBlocks: function(replacedBlock)
+  initBlocks: function(replacedFragment)
   {
     //single-block commands
     if(this.html_template.length === 1)
     {
       this.firstChild = this.lastChild =
         this.jQ.data('[[mathquill internal data]]').block =
-          replacedBlock || new MathBlock;
+          (replacedFragment && replacedFragment.blockify()) || new MathBlock;
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev, num_blocks = this.html_template.length;
-    this.firstChild = newBlock = prev = replacedBlock || new MathBlock;
+    this.firstChild = newBlock = prev =
+      (replacedFragment && replacedFragment.blockify()) || new MathBlock;
     newBlock.parent = this;
     newBlock.jQ = $(this.html_template[1]).data('[[mathquill internal data]]',
       {block: newBlock}).appendTo(this.jQ).append(newBlock.jQ);
