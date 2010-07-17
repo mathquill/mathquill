@@ -713,7 +713,7 @@ LatexCmds.Omega =
 //other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.forall = proto(Symbol, function(replacedFragment, latex)
 {
-  VanillaSymbol('\\'+latex+' ','&'+latex+';');
+  VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
 function BinaryOperator(cmd, html)
