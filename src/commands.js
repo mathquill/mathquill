@@ -440,7 +440,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     this.renderCommand();
     if(char === ' ' || (char === '\\' && this.firstChild.isEmpty()))
       return false;
-    return this.parent.keypress(e);
+    return this.cursor.parent.keypress(e);
   },
   renderCommand: function()
   {
