@@ -36,7 +36,7 @@ function Cursor(root)
     return this;
   };
 
-  this.jQ = this._jQ = $('<span class="cursor"></span>');
+  this.jQ = this._jQ = $('<span class="cursor"></span>').appendTo(root.jQ);
   this.parent = root;
 }
 Cursor.prototype = {
@@ -140,7 +140,6 @@ Cursor.prototype = {
   {
     if(this.selection)
     {
-      //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
       this.prev = this.selection.prev;
       this.next = this.selection.next;
     }
@@ -358,7 +357,7 @@ Cursor.prototype = {
   {
     if(this.show().selection)
     {
-      //this.jQ.insertBefore(this.selection.jQ);
+      this.jQ.insertBefore(this.selection.jQ);
       this.prev = this.selection.prev;
       this.next = this.selection.next;
       this.selection.remove();

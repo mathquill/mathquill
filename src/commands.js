@@ -278,10 +278,17 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   placeCursor: function(cursor)
   {
-    this.cursor = cursor.appendTo(this.firstChild);
-    if(this.replacedText)
-      for(var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
+    if(this.prev instanceof TextBlock)
+      cursor.appendTo(this.remove().prev.firstChild);
+    else if(this.next instanceof TextBlock)
+      cursor.prependTo(this.remove().next.firstChild);
+    else
+    {
+      this.cursor = cursor.appendTo(this.firstChild);
+      if(this.replacedText)
+        for(var i = 0; i < this.replacedText.length; i += 1)
+          this.write(this.replacedText.charAt(i));
+    }
   },
   write: function(ch)
   {
@@ -335,15 +342,15 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     if(this.isEmpty())
     {
       var textblock = this.parent;
-      //setTimeout(function() //defer execution until after completion of this thread
+      setTimeout(function() //defer execution until after completion of this thread
                             //not the wrong way to do things, merely poorly named
-      //{
+      {
         if(textblock.cursor.prev === textblock)
           textblock.cursor.backspace();
         else if(textblock.cursor.next === textblock)
           textblock.cursor.deleteForward();
         //else must be blur, don't remove textblock
-      //},0);
+      },0);
     };
     return this;
   },
@@ -353,8 +360,8 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     if(this.parent.prev instanceof TextBlock)
     {
       var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
-      //setTimeout(function() //defer
-      //{
+      setTimeout(function() //defer
+      {
         prev.eachChild(function(){
           this.parent = me;
           this.jQ.insertBefore(me.firstChild.jQ);
@@ -368,7 +375,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
         else
           textblock.cursor.appendTo(me);
         me.jQ.change();
-      //},0);
+      },0);
     }
     else if(this.parent.next instanceof TextBlock)
       if(this.parent.cursor.next)
@@ -376,7 +383,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
       else
         this.parent.cursor.prependTo(this.parent.next.firstChild);
 
-    return true;
+    return this;
   }
 });
 
