@@ -453,11 +453,20 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
     var latex = this.firstChild.latex(), cmd;
     if(latex)
       if(cmd = LatexCmds[latex])
-        this.cursor.insertNew(new cmd(this.replacedFragment, latex));
+        cmd = new cmd(this.replacedFragment, latex);
       else
-        this.cursor.insertNew(cmd = new TextBlock(latex)).insertAfter(cmd);
+      {
+        cmd = new TextBlock(latex);
+        this.cursor.insertNew(cmd).insertAfter(cmd);
+        if(this.replacedFragment)
+          this.replacedFragment.remove();
+        return;
+      }
     else
-      this.cursor.insertNew(new VanillaSymbol('\\backslash ','\\'));
+      cmd = new VanillaSymbol('\\backslash ','\\');
+    this.cursor.insertNew(cmd);
+    if(cmd instanceof Symbol && this.replacedFragment)
+      this.replacedFragment.remove();
   }
 });
 
