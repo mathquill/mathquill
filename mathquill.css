@@ -81,18 +81,18 @@
   background-color: #DDD;
 }
 
-.mathquill-rendered-math {
+.mathquill-textbox, .mathquill-rendered-math {
+  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
+  font-size: 100%;
+}
+.mathquill-rendered-math {
   font-variant: normal;
   font-weight: normal;
   font-style: normal;
-  font-size: 120%;
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
-}
-.mathquill-textbox, .mathquill-rendered-math {
-  white-space: pre-wrap;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
@@ -116,7 +116,6 @@
 
 .mathquill-rendered-math .text {
   display: inline;
-  font-family: serif;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
