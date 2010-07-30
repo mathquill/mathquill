@@ -464,12 +464,14 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           }
           else if(/^\\[a-z]+$/i.test(token))
           {
-            var cmd = LatexCmds[latex];
+            token = token.slice(1);
+            var cmd = LatexCmds[token];
             if(cmd)
-              cursor.insertNew(new cmd(replacedFragment, latex));
+              cursor.insertNew(cmd = new cmd(undefined, token));
             else
             {
-              cursor.insertNew(cmd = new TextBlock(latex)).insertAfter(cmd);
+              cmd = new TextBlock(token);
+              cursor.insertNew(cmd).insertAfter(cmd);
               continue;
             }
           }
