@@ -278,9 +278,9 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   placeCursor: function(cursor)
   {
-    if(this.prev instanceof TextBlock)
+    if(this.prev instanceof TextBlock && !this.replacedText)
       cursor.appendTo(this.remove().prev.firstChild);
-    else if(this.next instanceof TextBlock)
+    else if(this.next instanceof TextBlock && !this.replacedText)
       cursor.prependTo(this.remove().next.firstChild);
     else
     {
@@ -383,7 +383,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
       else
         this.parent.cursor.prependTo(this.parent.next.firstChild);
 
-    return this;
+    return true;
   }
 });
 
