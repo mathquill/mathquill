@@ -86,6 +86,9 @@
   font-family: Symbola, "Times New Roman", serif;
   font-size: 120%;
 }
+.mathquill-textbox .mathquill-rendered-math {
+  font-size: 100%;
+}
 .mathquill-rendered-math {
   font-variant: normal;
   font-weight: normal;
