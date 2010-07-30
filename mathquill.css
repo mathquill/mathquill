@@ -85,11 +85,14 @@
   white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
 }
+.mathquill-textbox .mathquill-rendered-math {
+  font-size: 100%;
+}
 .mathquill-rendered-math {
   font-variant: normal;
   font-weight: normal;
   font-style: normal;
-  font-size: 125%;
+  font-size: 111%;
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
@@ -116,7 +119,7 @@
 
 .mathquill-rendered-math .text {
   display: inline;
-  font-size: 125%;
+  font-size: 90%;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
