@@ -140,6 +140,7 @@ Cursor.prototype = {
   {
     if(this.selection)
     {
+      //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
       this.prev = this.selection.prev;
       this.next = this.selection.next;
     }
