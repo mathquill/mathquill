@@ -1995,7 +1995,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
 function RootMathCommand(cursor)
 {
-  MathCommand.call(this, '$', undefined, new RootMathBlock);
+  MathCommand.call(this, '$');
   this.firstChild.cursor = cursor;
   this.firstChild.keypress = function(e)
   {
@@ -2018,8 +2018,16 @@ function RootMathCommand(cursor)
     return false;
   };
 }
-RootMathCommand.prototype = new MathCommand;
-RootMathCommand.prototype.html_template = ['<span class="mathquill-rendered-math"></span>'];
+RootMathCommand.prototype = $.extend(new MathCommand, {
+  html_template: ['<span class="mathquill-rendered-math"></span>'],
+  initBlocks: function()
+  {
+    this.firstChild = this.lastChild =
+      this.jQ.data('[[mathquill internal data]]').block = new RootMathBlock;
+    this.firstChild.parent = this;
+    this.firstChild.jQ = this.jQ;
+  }
+});
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
