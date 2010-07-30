@@ -36,7 +36,7 @@ function Cursor(root)
     return this;
   };
 
-  this.jQ = this._jQ = $('<span class="cursor"></span>').appendTo(root.jQ);
+  this.jQ = this._jQ = $('<span class="cursor"></span>');
   this.parent = root;
 }
 Cursor.prototype = {
@@ -357,7 +357,6 @@ Cursor.prototype = {
   {
     if(this.show().selection)
     {
-      this.jQ.insertBefore(this.selection.jQ);
       this.prev = this.selection.prev;
       this.next = this.selection.next;
       this.selection.remove();
