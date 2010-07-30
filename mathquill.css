@@ -114,7 +114,7 @@
   color: #AAA;
 }
 
-.mathquill-rendered-math .text, .mathquill-rendered-math .text * {
+.mathquill-rendered-math .text {
   display: inline;
   font-family: serif;
 }
