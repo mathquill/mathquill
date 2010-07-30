@@ -84,7 +84,7 @@
 .mathquill-textbox, .mathquill-rendered-math {
   white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
-  font-size: 100%;
+  font-size: 120%;
 }
 .mathquill-rendered-math {
   font-variant: normal;
