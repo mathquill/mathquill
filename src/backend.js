@@ -172,17 +172,16 @@ MathBlock.prototype = $.extend(new MathElement, {
     }
     return this;
   },
-  removeEmpty:function(cursorJQ)
+  removeEmpty:function()
   {
     this.jQ.addClass('hasCursor');
     if(this.isEmpty())
     {
       if(this.parent)
         this.jQ.empty().change();
-      this.jQ.removeClass('empty').append(cursorJQ);
-      return false;
+      this.jQ.removeClass('empty');
     }
-    return true;
+    return this;
   }
 });
 

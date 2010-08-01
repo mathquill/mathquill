@@ -69,11 +69,11 @@ Cursor.prototype = {
     this.next = el.firstChild;
     this.prev = null;
     this.parent = el;
-    if(el.removeEmpty(this.jQ))
-      if(el.parent)
-        this.jQ.prependTo(el.jQ);
-      else
-        this.jQ.insertAfter(el.jQ[0].firstChild);
+    el.removeEmpty();
+    if(el.parent)
+      this.jQ.prependTo(el.jQ);
+    else
+      this.jQ.insertAfter(el.jQ[0].firstChild);
     return this;
   },
   appendTo: function(el)
@@ -82,8 +82,8 @@ Cursor.prototype = {
     this.prev = el.lastChild;
     this.next = null;
     this.parent = el;
-    if(el.removeEmpty(this.jQ))
-      this.jQ.appendTo(el.jQ);
+    el.removeEmpty();
+    this.jQ.appendTo(el.jQ);
     return this;
   },
   moveLeft: function()
