@@ -383,7 +383,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
       else
         this.parent.cursor.prependTo(this.parent.next.firstChild);
 
-    return this;
+    return true;
   }
 });
 
