@@ -45,10 +45,11 @@ Cursor.prototype = {
   parent: null,
   insertAt: function(parent, next, prev)
   {
-    this.parent.setEmpty();
+    var p = this.parent;
     this.parent = parent;
     this.next = next;
     this.prev = prev;
+    p.setEmpty(); //p.setEmpty may want to know where the cursor is going
   },
   insertBefore: function(el)
   {

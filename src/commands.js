@@ -297,10 +297,14 @@ TextBlock.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if(!this.isEmpty() &&
-        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
-          (e.which === 46 && !this.cursor.next)))
+    if(!this.cursor.selection &&
+      ((e.which === 8 && !this.cursor.prev) ||
+      (e.which === 46 && !this.cursor.next)))
+    {
+      if(this.isEmpty())
+        this.cursor.insertAfter(this);
       return false;
+    }
     return this.parent.keydown(e);
   },
   keypress: function(e)
@@ -336,27 +340,32 @@ TextBlock.prototype = $.extend(new MathCommand, {
 });
 function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
-  setEmpty: function()
+  setEmpty: function(cursor)
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
-      var textblock = this.parent;
-      setTimeout(function() //defer execution until after completion of this thread
-                            //not the wrong way to do things, merely poorly named
+      var textblock = this.parent, cursor = textblock.cursor;
+      if(cursor.parent === this)
+        this.jQ.addClass('empty');
+      else
       {
-        if(textblock.cursor.prev === textblock)
-          textblock.cursor.backspace();
-        else if(textblock.cursor.next === textblock)
-          textblock.cursor.deleteForward();
-        //else must be blur, don't remove textblock
-      },0);
-    };
+        cursor.hide();
+        textblock.remove();
+        if(cursor.next === textblock)
+          cursor.next = textblock.next;
+        else if(cursor.prev === textblock)
+          cursor.prev = textblock.prev;
+        cursor.show().jQ.change();
+      }
+    }
     return this;
   },
   removeEmpty: function()
   {
     this.jQ.addClass('hasCursor');
+    if(this.isEmpty())
+      this.jQ.removeClass('empty');
     if(this.parent.prev instanceof TextBlock)
     {
       var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
