@@ -405,7 +405,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
-      this.jQ.html('&nbsp;');
+      this.jQ.html(' ');
     return this;
   },
   html_template: ['<span class="latex-command-input"></span>'],
@@ -889,15 +889,15 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
   bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
 
 //spacing
-LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
-LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
+LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
 /* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
 case ',':
-  return new VanillaSymbol('\\, ','&nbsp;');
+  return new VanillaSymbol('\\, ',' ');
 case ':':
-  return new VanillaSymbol('\\: ','&nbsp;&nbsp;');
+  return new VanillaSymbol('\\: ','  ');
 case ';':
-  return new VanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
+  return new VanillaSymbol('\\; ','   ');
 case '!':
   return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
