@@ -12,7 +12,7 @@ function Cursor(root)
     this.jQ = this._jQ.removeClass('blink');
     if(intervalId)
       clearInterval(intervalId);
-    else
+    else if(this.parent.removeEmpty(this.jQ))
       if(this.next)
         if(this.selection && this.selection.prev === this.prev)
           this.jQ.insertBefore(this.selection.jQ);
