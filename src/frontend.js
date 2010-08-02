@@ -43,45 +43,40 @@ Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
-  insertBefore: function(el)
+  insertAt: function(parent, next, prev)
   {
     this.parent.setEmpty();
-    this.next = el;
-    this.prev = el.prev;
-    this.parent = el.parent;
+    this.parent = parent;
+    this.next = next;
+    this.prev = prev;
+  },
+  insertBefore: function(el)
+  {
+    this.insertAt(el.parent, el, el.prev)
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
   },
   insertAfter: function(el)
   {
-    this.parent.setEmpty();
-    this.prev = el;
-    this.next = el.next
-    this.parent = el.parent;
+    this.insertAt(el.parent, el.next, el);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   },
   prependTo: function(el)
   {
-    this.parent.setEmpty();
-    this.next = el.firstChild;
-    this.prev = null;
-    this.parent = el;
+    this.insertAt(el, el.firstChild, null);
     if(el.removeEmpty(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
       else
-        this.jQ.insertAfter(el.jQ[0].firstChild);
+        this.jQ.insertAfter(el.jQ[0].firstChild); //after textarea
     return this;
   },
   appendTo: function(el)
   {
-    this.parent.setEmpty();
-    this.prev = el.lastChild;
-    this.next = null;
-    this.parent = el;
+    this.insertAt(el, null, el.lastChild);
     if(el.removeEmpty(this.jQ))
       this.jQ.appendTo(el.jQ);
     return this;
