@@ -215,8 +215,8 @@ MathBlock.prototype = $.extend(new MathElement, {
     if(this.isEmpty())
     {
       if(this.parent)
-        this.jQ.empty().change();
-      this.jQ.removeClass('empty').append(cursorJQ);
+        this.jQ.empty();
+      this.jQ.removeClass('empty').append(cursorJQ).change();
       return false;
     }
     return true;
@@ -596,10 +596,14 @@ TextBlock.prototype = $.extend(new MathCommand, {
   keydown: function(e)
   {
     //backspace and delete and ends of block don't unwrap
-    if(!this.isEmpty() &&
-        ((e.which === 8 && !this.cursor.prev && !this.cursor.selection) ||
-          (e.which === 46 && !this.cursor.next)))
+    if(!this.cursor.selection &&
+      ((e.which === 8 && !this.cursor.prev) ||
+      (e.which === 46 && !this.cursor.next)))
+    {
+      if(this.isEmpty())
+        this.cursor.insertAfter(this);
       return false;
+    }
     return this.parent.keydown(e);
   },
   keypress: function(e)
@@ -635,27 +639,32 @@ TextBlock.prototype = $.extend(new MathCommand, {
 });
 function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
-  setEmpty: function()
+  setEmpty: function(cursor)
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
     {
-      var textblock = this.parent;
-      setTimeout(function() //defer execution until after completion of this thread
-                            //not the wrong way to do things, merely poorly named
+      var textblock = this.parent, cursor = textblock.cursor;
+      if(cursor.parent === this)
+        this.jQ.addClass('empty');
+      else
       {
-        if(textblock.cursor.prev === textblock)
-          textblock.cursor.backspace();
-        else if(textblock.cursor.next === textblock)
-          textblock.cursor.deleteForward();
-        //else must be blur, don't remove textblock
-      },0);
-    };
+        cursor.hide();
+        textblock.remove();
+        if(cursor.next === textblock)
+          cursor.next = textblock.next;
+        else if(cursor.prev === textblock)
+          cursor.prev = textblock.prev;
+        cursor.show().jQ.change();
+      }
+    }
     return this;
   },
   removeEmpty: function()
   {
     this.jQ.addClass('hasCursor');
+    if(this.isEmpty())
+      this.jQ.removeClass('empty');
     if(this.parent.prev instanceof TextBlock)
     {
       var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
@@ -704,7 +713,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
-      this.jQ.html('&nbsp;');
+      this.jQ.html(' ');
     return this;
   },
   html_template: ['<span class="latex-command-input"></span>'],
@@ -1188,15 +1197,15 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
   bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
 
 //spacing
-LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','&nbsp;&nbsp;&nbsp;&nbsp;');
-LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;');
+LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
+LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
 /* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
 case ',':
-  return new VanillaSymbol('\\, ','&nbsp;');
+  return new VanillaSymbol('\\, ',' ');
 case ':':
-  return new VanillaSymbol('\\: ','&nbsp;&nbsp;');
+  return new VanillaSymbol('\\: ','  ');
 case ';':
-  return new VanillaSymbol('\\; ','&nbsp;&nbsp;&nbsp;');
+  return new VanillaSymbol('\\; ','   ');
 case '!':
   return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
@@ -1353,7 +1362,7 @@ function Cursor(root)
     this.jQ = this._jQ.removeClass('blink');
     if(intervalId)
       clearInterval(intervalId);
-    else
+    else if(this.parent.removeEmpty(this.jQ))
       if(this.next)
         if(this.selection && this.selection.prev === this.prev)
           this.jQ.insertBefore(this.selection.jQ);
@@ -1384,45 +1393,41 @@ Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
+  insertAt: function(parent, next, prev)
+  {
+    var p = this.parent;
+    this.parent = parent;
+    this.next = next;
+    this.prev = prev;
+    p.setEmpty(); //p.setEmpty may want to know where the cursor is going
+  },
   insertBefore: function(el)
   {
-    this.parent.setEmpty();
-    this.next = el;
-    this.prev = el.prev;
-    this.parent = el.parent;
+    this.insertAt(el.parent, el, el.prev)
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
   },
   insertAfter: function(el)
   {
-    this.parent.setEmpty();
-    this.prev = el;
-    this.next = el.next
-    this.parent = el.parent;
+    this.insertAt(el.parent, el.next, el);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   },
   prependTo: function(el)
   {
-    this.parent.setEmpty();
-    this.next = el.firstChild;
-    this.prev = null;
-    this.parent = el;
+    this.insertAt(el, el.firstChild, null);
     if(el.removeEmpty(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
       else
-        this.jQ.insertAfter(el.jQ[0].firstChild);
+        this.jQ.insertAfter(el.jQ[0].firstChild); //after textarea
     return this;
   },
   appendTo: function(el)
   {
-    this.parent.setEmpty();
-    this.prev = el.lastChild;
-    this.next = null;
-    this.parent = el;
+    this.insertAt(el, null, el.lastChild);
     if(el.removeEmpty(this.jQ))
       this.jQ.appendTo(el.jQ);
     return this;
