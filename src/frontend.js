@@ -71,8 +71,8 @@ Cursor.prototype = {
     if(el.removeEmpty(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
-      else
-        this.jQ.insertAfter(el.jQ[0].firstChild); //after textarea
+      else //only root has no parent
+        this.jQ.insertAfter(el.textarea);
     return this;
   },
   appendTo: function(el)
@@ -761,8 +761,9 @@ function mathquill()
     if(!editable)
       return;
 
-    var textarea = $('<span class="textarea"><textarea></textarea></span>')
-      .prependTo(jQ.addClass('mathquill-editable')).children();
+    var textarea = root.textarea =
+      $('<span class="textarea"><textarea></textarea></span>')
+        .prependTo(jQ.addClass('mathquill-editable')).children();
     if(textbox)
       jQ.addClass('mathquill-textbox');
 
