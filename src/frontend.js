@@ -707,7 +707,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
 function mathquill()
 {
   if(arguments[0] === 'html')
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig,'');
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
 
   if(arguments[0] === 'latex')
   {
