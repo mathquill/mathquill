@@ -1356,8 +1356,21 @@ LatexCmds.lim = NonItalicizedFunction;
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root)
 {
+  this.parent = root;
+  this.jQ = this._jQ = $('<span class="cursor"></span>');
+
   //API for the blinking cursor
-  var intervalId;
+  var intervalId, cursorJQ = this.jQ, blink = (document.hasFocus ?
+    function(){
+      if(document.hasFocus())
+        if(document.activeElement !== root.textarea[0])
+          root.textarea.blur();
+        else
+          cursorJQ.toggleClass('blink');
+    } :
+    function(){
+      cursorJQ.toggleClass('blink');
+    });
   this.show = function()
   {
     this.jQ = this._jQ.removeClass('blink');
@@ -1371,10 +1384,7 @@ function Cursor(root)
           this.jQ.insertBefore(this.next.jQ);
       else
         this.jQ.appendTo(this.parent.jQ);
-    var cursor = this;
-    intervalId = setInterval(function(){
-      cursor.jQ.toggleClass('blink');
-    }, 500);
+    intervalId = setInterval(blink, 500);
     return this;
   };
   this.hide = function()
@@ -1386,9 +1396,6 @@ function Cursor(root)
     this.jQ = $();
     return this;
   };
-
-  this.jQ = this._jQ = $('<span class="cursor"></span>');
-  this.parent = root;
 }
 Cursor.prototype = {
   prev: null,
@@ -1422,8 +1429,8 @@ Cursor.prototype = {
     if(el.removeEmpty(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
-      else
-        this.jQ.insertAfter(el.jQ[0].firstChild); //after textarea
+      else //only root has no parent
+        this.jQ.insertAfter(el.textarea);
     return this;
   },
   appendTo: function(el)
@@ -2058,7 +2065,7 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
 function mathquill()
 {
   if(arguments[0] === 'html')
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig,'');
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
 
   if(arguments[0] === 'latex')
   {
@@ -2112,8 +2119,9 @@ function mathquill()
     if(!editable)
       return;
 
-    var textarea = $('<span class="textarea"><textarea></textarea></span>')
-      .prependTo(jQ.addClass('mathquill-editable')).children();
+    var textarea = root.textarea =
+      $('<span class="textarea"><textarea></textarea></span>')
+        .prependTo(jQ.addClass('mathquill-editable')).children();
     if(textbox)
       jQ.addClass('mathquill-textbox');
 
