@@ -9,7 +9,22 @@ function Cursor(root)
   this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //API for the blinking cursor
-  var intervalId;
+  var intervalId, cursorJQ = this.jQ, blink = (document.activeElement ?
+      (function(textarea){
+        return function()
+        {
+          if(document.activeElement !== textarea)
+            textarea.blur();
+          else
+            cursorJQ.toggleClass('blink');
+        };
+      }(root.textarea[0]))
+    :
+      function()
+      {
+        cursorJQ.toggleClass('blink');
+      }
+    );
   this.show = function()
   {
     this.jQ = this._jQ.removeClass('blink');
@@ -23,10 +38,7 @@ function Cursor(root)
           this.jQ.insertBefore(this.next.jQ);
       else
         this.jQ.appendTo(this.parent.jQ);
-    var cursor = this;
-    intervalId = setInterval(function(){
-      cursor.jQ.toggleClass('blink');
-    }, 500);
+    intervalId = setInterval(blink, 500);
     return this;
   };
   this.hide = function()
