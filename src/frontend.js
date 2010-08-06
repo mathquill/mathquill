@@ -5,6 +5,9 @@
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root)
 {
+  this.parent = root;
+  this.jQ = this._jQ = $('<span class="cursor"></span>');
+
   //API for the blinking cursor
   var intervalId;
   this.show = function()
@@ -35,9 +38,6 @@ function Cursor(root)
     this.jQ = $();
     return this;
   };
-
-  this.jQ = this._jQ = $('<span class="cursor"></span>');
-  this.parent = root;
 }
 Cursor.prototype = {
   prev: null,
