@@ -577,17 +577,10 @@ TextBlock.prototype = $.extend(new MathCommand, {
   },
   placeCursor: function(cursor)
   {
-    if(this.prev instanceof TextBlock && !this.replacedText)
-      cursor.appendTo(this.remove().prev.firstChild);
-    else if(this.next instanceof TextBlock && !this.replacedText)
-      cursor.prependTo(this.remove().next.firstChild);
-    else
-    {
-      this.cursor = cursor.appendTo(this.firstChild);
-      if(this.replacedText)
-        for(var i = 0; i < this.replacedText.length; i += 1)
-          this.write(this.replacedText.charAt(i));
-    }
+    (this.cursor = cursor).appendTo(this.firstChild);
+    if(this.replacedText)
+      for(var i = 0; i < this.replacedText.length; i += 1)
+        this.write(this.replacedText.charAt(i));
   },
   write: function(ch)
   {
@@ -665,31 +658,38 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     this.jQ.addClass('hasCursor');
     if(this.isEmpty())
       this.jQ.removeClass('empty');
-    if(this.parent.prev instanceof TextBlock)
+    var textblock = this.parent;
+    if(textblock.next instanceof TextBlock)
     {
-      var me = this, textblock = this.parent, prev = textblock.prev.firstChild;
-      setTimeout(function() //defer
-      {
-        prev.eachChild(function(){
-          this.parent = me;
-          this.jQ.insertBefore(me.firstChild.jQ);
-        });
-        prev.lastChild.next = me.firstChild;
-        me.firstChild.prev = prev.lastChild;
-        me.firstChild = prev.firstChild;
-        textblock.prev.remove();
-        if(textblock.cursor.next)
-          textblock.cursor.insertBefore(textblock.cursor.next);
-        else
-          textblock.cursor.appendTo(me);
-        me.jQ.change();
-      },0);
-    }
-    else if(this.parent.next instanceof TextBlock)
-      if(this.parent.cursor.next)
-        this.parent.next.firstChild.removeEmpty();
+      var innerblock = this, cursor = textblock.cursor,
+        next = textblock.next.firstChild;
+      next.eachChild(function(){
+        this.parent = innerblock;
+        this.jQ.appendTo(innerblock.jQ);
+      });
+      next.firstChild.prev = this.lastChild;
+      if(this.lastChild)
+        this.lastChild.next = next.firstChild;
       else
-        this.parent.cursor.prependTo(this.parent.next.firstChild);
+        this.firstChild = next.firstChild;
+      this.lastChild = next.lastChild;
+      next.parent.remove();
+      if(cursor.prev)
+        cursor.insertAfter(cursor.prev);
+      else
+        cursor.prependTo(this);
+      this.jQ.change();
+      return false;
+    }
+    else if(textblock.prev instanceof TextBlock)
+    {
+      var cursor = textblock.cursor;
+      if(cursor.prev)
+        textblock.prev.firstChild.removeEmpty();
+      else
+        cursor.appendTo(textblock.prev.firstChild);
+      return false;
+    }
 
     return true;
   }
@@ -765,6 +765,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       else
       {
         cmd = new TextBlock(latex);
+        cmd.firstChild.removeEmpty = function(){ delete this.removeEmpty; return true; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
         if(this.replacedFragment)
           this.replacedFragment.remove();
