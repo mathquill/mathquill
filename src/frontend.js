@@ -9,22 +9,17 @@ function Cursor(root)
   this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //API for the blinking cursor
-  var intervalId, cursorJQ = this.jQ, blink = (document.activeElement ?
-      (function(textarea){
-        return function()
-        {
-          if(document.activeElement !== textarea)
-            textarea.blur();
-          else
-            cursorJQ.toggleClass('blink');
-        };
-      }(root.textarea[0]))
-    :
-      function()
-      {
-        cursorJQ.toggleClass('blink');
-      }
-    );
+  var intervalId, cursorJQ = this.jQ, blink = (document.hasFocus ?
+    function(){
+      if(document.hasFocus())
+        if(document.activeElement !== root.textarea[0])
+          root.textarea.blur();
+        else
+          cursorJQ.toggleClass('blink');
+    } :
+    function(){
+      cursorJQ.toggleClass('blink');
+    });
   this.show = function()
   {
     this.jQ = this._jQ.removeClass('blink');
