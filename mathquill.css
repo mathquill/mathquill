@@ -89,7 +89,7 @@
   font-variant: normal;
   font-weight: normal;
   font-style: normal;
-  font-size: 111%;
+  font-size: 115%;
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
@@ -116,7 +116,7 @@
 
 .mathquill-rendered-math .text {
   display: inline;
-  font-size: 90%;
+  font-size: 87%;
 }
 
 .mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
