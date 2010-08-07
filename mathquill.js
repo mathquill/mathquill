@@ -1357,20 +1357,11 @@ LatexCmds.lim = NonItalicizedFunction;
 function Cursor(root)
 {
   this.parent = root;
-  this.jQ = this._jQ = $('<span class="cursor"></span>');
+  var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //API for the blinking cursor
-  var intervalId, cursorJQ = this.jQ, blink = (document.hasFocus ?
-    function(){
-      if(document.hasFocus())
-        if(document.activeElement !== root.textarea[0])
-          root.textarea.blur();
-        else
-          cursorJQ.toggleClass('blink');
-    } :
-    function(){
-      cursorJQ.toggleClass('blink');
-    });
+  function blink(){ jQ.toggleClass('blink'); }
+  var intervalId;
   this.show = function()
   {
     this.jQ = this._jQ.removeClass('blink');
