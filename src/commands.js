@@ -920,6 +920,7 @@ LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 LatexCmds.vert = bind(VanillaSymbol,'|');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
 LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
+LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
 
 LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
   bind(VanillaSymbol,'\\text\\AA ','&#8491;');
