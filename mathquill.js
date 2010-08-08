@@ -1077,6 +1077,7 @@ LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
 
 LatexCmds.notin =
 LatexCmds.sim =
+LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.times =
 LatexCmds.oplus =
