@@ -94,7 +94,7 @@ MathCommand.prototype = $.extend(new MathElement, {
   latex: function()
   {
     return this.cmd + this.reduceChildren(function(initVal){
-      return initVal + '{' + this.latex() + '}';
+      return initVal + '{' + (this.latex() || ' ') + '}';
     }, '');
   },
   remove: function()

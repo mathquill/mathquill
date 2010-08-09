@@ -29,7 +29,7 @@ SupSub.prototype.latex = function()
   var latex = this.firstChild.latex();
   if(latex.length === 1)
     return this.cmd + latex;
-  return this.cmd + '{' + latex + '}';
+  return this.cmd + '{' + (latex || ' ') + '}';
 };
 SupSub.prototype.respace = function()
 {
