@@ -131,7 +131,7 @@ MathCommand.prototype = $.extend(new MathElement, {
   latex: function()
   {
     return this.cmd + this.reduceChildren(function(initVal){
-      return initVal + '{' + this.latex() + '}';
+      return initVal + '{' + (this.latex() || ' ') + '}';
     }, '');
   },
   remove: function()
@@ -328,7 +328,7 @@ SupSub.prototype.latex = function()
   var latex = this.firstChild.latex();
   if(latex.length === 1)
     return this.cmd + latex;
-  return this.cmd + '{' + latex + '}';
+  return this.cmd + '{' + (latex || ' ') + '}';
 };
 SupSub.prototype.respace = function()
 {
