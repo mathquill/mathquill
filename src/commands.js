@@ -603,9 +603,7 @@ LatexCmds.vector = Vector;
 
 function bind(cons) //shorthand for binding arguments to constructor
 {
-  var args = []; //arguments after cons
-  for(var i = 1; i < arguments.length; ++i)
-    args.push(arguments[i]);
+  var args = Array.prototype.slice.call(arguments, 1);
 
   return proto(cons, function()
   {
