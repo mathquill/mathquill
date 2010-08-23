@@ -2,8 +2,6 @@
  * Back-end code: Core abstract classes and architecture.
  *********************************************************/
 
-var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
-
 /**
  * MathElement is the core Math DOM tree node prototype.
  * Both MathBlock's and MathCommand's descend from it.
