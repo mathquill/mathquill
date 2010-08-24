@@ -1,6 +1,6 @@
-/**********************************************************
- * Back-end code: Core abstract classes and architecture.
- *********************************************************/
+/*************************************************
+ * Abstract base classes of blocks and commands.
+ ************************************************/
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -257,4 +257,3 @@ MathFragment.prototype = {
     return newBlock;
   }
 };
-
