@@ -1,4 +1,5 @@
-Please note that this is an alpha version, so bugs and unimplemented features are all over the place.
+Please note that this is an alpha version, so bugs and unimplemented features
+are all over the place.
 
 (Powered by jQuery, v1.4+ required. Get it from http://jquery.com.)
 
@@ -11,15 +12,23 @@ All you need is a script include in your header:
 
 and wherever you'd like to have an editable math textbox:
 
-`<span class="mathquill-editable"></span>`
+`<span class="mathquill-editable">f(x)=?</span>`
 
 or to convert LaTeX math to HTML:
 
 `<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>`
 
-Note that for dynamically created elements, you will need to call our jQuery plugin after inserting into the visible HTML DOM:
+Note that for dynamically created elements that weren't in the HTML DOM on
+document ready, you will need to call our jQuery plugin after inserting into
+the visible HTML DOM:
 
-`$('<span>\sqrt{e^x}</span>').appendTo('body').mathquill()` or `.mathquill('editable')`
+`$('<span>x^2</span>').appendTo('body').mathquill()` or `.mathquill('editable')`
+
+MathQuill has to perform calculations based on computed CSS values. If you
+mathquill-ify an element before inserting into the visible HTML DOM, then once
+it is visible MathQuill will need to recalculate:
+
+`$('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')`
 
 Any element that has been MathQuill-ified can be reverted:
 
