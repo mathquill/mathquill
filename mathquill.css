@@ -154,9 +154,14 @@
 .mathquill-rendered-math .binary-operator {
   padding: 0 .2em;
 }
-
 .mathquill-rendered-math .unary-operator {
   padding-left: .2em;
+}
+.mathquill-rendered-math sup .binary-operator, .mathquill-rendered-math sub .binary-operator {
+  padding: 0 .1em;
+}
+.mathquill-rendered-math sup .unary-operator, .mathquill-rendered-math sub .unary-operator {
+  padding-left: .1em;
 }
 
 .mathquill-rendered-math .fraction {
