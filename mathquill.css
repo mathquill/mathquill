@@ -16,14 +16,6 @@
     url(font/Symbola.otf) format("opentype"),
     url(font/Symbola.svg#webfont7MzkO3xs) format("svg");
 }
-/*@font-face {
-  font-family: STIX;
-  src: url(font/STIXBeta/STIXGeneral.otf) format("opentype");
-}
-@font-face {
-  font-family: STIXItalic;
-  src: url(font/STIXBeta/STIXGeneralItalic.otf) format("opentype");
-}*/
 
 .mathquill-editable {
   display: -moz-inline-box;
@@ -119,7 +111,7 @@
   font-size: 87%;
 }
 
-.mathquill-rendered-math var { /* variables -- just in case you do something weird to your <var>'s */
+.mathquill-rendered-math var { /* variables, in case the user does something weird to their <var>'s */
   font-style: italic;
   font-weight: normal;
 }
