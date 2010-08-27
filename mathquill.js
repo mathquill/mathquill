@@ -1,45 +1,21 @@
 /**
-* Usage:
-*
-* Wherever you'd like to have an editable math textbox:
+ * Copyright 2010 Jay and Han (laughinghan@gmail.com)
+ * License, Usage and Readme at http://mathquill.com
+ */
+ /****************************
+ * Important opening stuff.
+ ***************************/
 
-    <span class="mathquill-editable"></span>
+(function($){ //takes in the jQuery function as an argument
 
-* or to convert LaTeX math to HTML:
-
-    <span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
-
-* Note that for dynamically created elements, you will need to call our
-* jQuery plugin after inserting into the visible HTML DOM:
-
-    $('<span>\sqrt{e^x}</span>').appendTo('body').mathquill() or .mathquill('editable')
-
-* If it's necessary to call the plugin before inserting into the visible DOM,
-* you can redraw once it is visible:
-
-    $('<span>a_n x^n</span>').mathquill().appendTo('body').mathquill('redraw');
-
-* (Do be warned that will trigger a flurry of change events.)
-*
-* Any element that has been MathQuill-ified can be reverted:
-
-    $('.mathquill-embedded-latex').mathquill('revert');
-
-*
-*/
-
-jQuery.fn.mathquill = (function($){ //takes in the jQuery function as an argument
-
-//Note: if the following is no longer on line 34, please modify publish.sh accordingly
+//Note: if the following is no longer on line 12 of build/mathquill.js, please modify publish.sh accordingly
 $('head').prepend('<link rel="stylesheet" type="text/css" href="http://laughinghan.github.com/mathquill/mathquill.css">');
 
-var todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
+function todo(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
 
-/**********************************************************
- * Back-end code: Core abstract classes and architecture.
- *********************************************************/
-
-var $ = jQuery, todo = function(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
+/*************************************************
+ * Abstract base classes of blocks and commands.
+ ************************************************/
 
 /**
  * MathElement is the core Math DOM tree node prototype.
@@ -296,7 +272,6 @@ MathFragment.prototype = {
     return newBlock;
   }
 };
-
 /********************************************
  * All the symbols, operators and commands.
  *******************************************/
@@ -902,9 +877,7 @@ LatexCmds.vector = Vector;
 
 function bind(cons) //shorthand for binding arguments to constructor
 {
-  var args = []; //arguments after cons
-  for(var i = 1; i < arguments.length; ++i)
-    args.push(arguments[i]);
+  var args = Array.prototype.slice.call(arguments, 1);
 
   return proto(cons, function()
   {
@@ -1351,9 +1324,16 @@ LatexCmds.lim = NonItalicizedFunction;
     LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
       NonItalicizedFunction;
 }());
-/**********************************************************************
- * Front-end code: Event-handling, HTML DOM manipulation (via jQuery)
- *********************************************************************/
+/********************************************
+ * Cursor and Selection "singleton" classes
+ *******************************************/
+
+/* The main thing that manipulates the Math DOM. Makes sure to manipulate the
+HTML DOM to match. */
+
+/* Sort of singletons, since there should only be one per editable math
+textbox, but any one HTML document can contain many such textboxes, so any one
+JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root)
@@ -1757,6 +1737,137 @@ Selection.prototype = $.extend(new MathFragment, {
     return this;
   }
 });
+/*********************************************
+ * Root math elements with event delegation.
+ ********************************************/
+
+function createRoot(type)
+{
+  var textbox = type === 'textbox', editable = textbox || type === 'editable';
+  return this.each(function()
+  {
+    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(),
+      root = new (textbox?RootTextBlock:RootMathBlock);
+    if(!textbox)
+      jQ.addClass('mathquill-rendered-math');
+    root.jQ = jQ.data('[[mathquill internal data]]', {
+      block: root,
+      revert: function()
+      {
+        children.appendTo(jQ.empty().unbind('.mathquill')
+          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox'))
+        .children().unwrap();
+      }
+    });
+
+    var cursor = root.cursor = new Cursor(root);
+
+    root.renderLatex(children.text());
+
+    if(!editable)
+      return;
+
+    var textarea = root.textarea =
+      $('<span class="textarea"><textarea></textarea></span>')
+        .prependTo(jQ.addClass('mathquill-editable')).children();
+    if(textbox)
+      jQ.addClass('mathquill-textbox');
+
+    textarea.focus(function(e)
+    {
+      if(!cursor.parent)
+        cursor.appendTo(root);
+      cursor.parent.jQ.addClass('hasCursor');
+      if(cursor.selection)
+        cursor.selection.jQ.removeClass('blur');
+      else
+        cursor.show();
+      e.stopPropagation();
+    }
+    ).blur(function(e)
+    {
+      cursor.hide().parent.setEmpty();
+      if(cursor.selection)
+        cursor.selection.jQ.addClass('blur');
+      e.stopPropagation();
+    });
+
+    var lastKeydnEvt; //see Wiki page "Keyboard Events"
+    jQ.bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
+    {
+      lastKeydnEvt = e;
+      e.happened = true;
+      return e.returnValue = cursor.parent.keydown(e) ||
+        (e.stopImmediatePropagation(), false);
+    }
+    ).bind('keypress.mathquill',function(e)
+    {
+      //on auto-repeated key events, keypress may get triggered but not keydown
+      //  (see Wiki page "Keyboard Events")
+      if(lastKeydnEvt.happened)
+        lastKeydnEvt.happened = false;
+      else
+        lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
+      //only call keypress if keydown returned true
+      return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 ||
+        cursor.parent.keypress(e) || (e.stopImmediatePropagation(), false));
+    }
+    ).bind('click.mathquill',function(e)
+    {
+      var clicked = $(e.target);
+      if(clicked.hasClass('empty'))
+      {
+        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
+        return false;
+      }
+
+      var cmd = clicked.data('[[mathquill internal data]]');
+      if(cmd)
+      {
+        if(cmd.cmd && !cmd.block)
+        {
+          cursor.clearSelection();
+          if(clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
+            cursor.insertBefore(cmd.cmd);
+          else
+            cursor.insertAfter(cmd.cmd);
+          return false;
+        }
+      }
+      else if(!(cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')))
+          return;
+
+      cursor.clearSelection();
+      if(cmd.cmd)
+        cursor.insertAfter(cmd.cmd);
+      else
+        cursor.appendTo(cmd.block);
+      //move cursor to position closest to click
+      var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
+      do
+      {
+        cursor.moveLeft();
+        prevPrevDist = prevDist;
+        prevDist = dist;
+        dist = Math.abs(cursor.jQ.offset().left - e.pageX);
+      }
+      while(dist <= prevDist && dist != prevPrevDist);
+      if(dist != prevPrevDist)
+        cursor.moveRight();
+
+      return false;
+    }
+    ).bind('click.mathquill',function()
+    {
+      textarea.focus();
+    }
+    ).bind('focus.mathquill blur.mathquill',function(e)
+    {
+      textarea.trigger(e);
+    }
+    ).blur();
+  });
+}
 
 function RootMathBlock(){}
 RootMathBlock.prototype = $.extend(new MathBlock, {
@@ -2052,172 +2163,46 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     return false;
   }
 });
+/*********************************************************
+ * The actual jQuery plugin and document ready handlers.
+ ********************************************************/
 
-//The actual, publicly exposed method of jQuery.prototype, available
-//(and meant to be called) on jQuery-wrapped HTML DOM elements.
-function mathquill()
+//The publicy exposed method of jQuery.prototype, available (and meant to be
+//called) on jQuery-wrapped HTML DOM elements.
+$.fn.mathquill = function(cmd, latex)
 {
-  if(arguments[0] === 'html')
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
-
-  if(arguments[0] === 'latex')
+  switch(cmd)
   {
+  case 'html':
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
+  case 'latex':
     if(arguments.length > 1)
-    {
-      var latex = arguments[1];
       return this.each(function()
       {
         var mathObj = $(this).data('[[mathquill internal data]]');
         if(mathObj && mathObj.block && mathObj.block.renderLatex)
           mathObj.block.renderLatex(latex);
       });
-    }
     var mathObj = this.data('[[mathquill internal data]]');
     if(mathObj && mathObj.block)
       return mathObj.block.latex();
     return;
-  }
-
-  if(arguments[0] === 'revert')
+  case 'revert':
     return this.each(function()
     {
       var mathObj = $(this).data('[[mathquill internal data]]');
       if(mathObj && mathObj.revert)
         mathObj.revert();
     });
-
-  if(arguments[0] === 'redraw')
+  case 'redraw':
     return this.find(':not(:has(:first))').change().end();
-
-  var textbox = arguments[0] === 'textbox', editable = textbox || arguments[0] === 'editable';
-  this.each(function()
-  {
-    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(), root = new (textbox?RootTextBlock:RootMathBlock);
-    if(!textbox)
-      jQ.addClass('mathquill-rendered-math');
-    root.jQ = jQ.data('[[mathquill internal data]]', {
-      block: root,
-      revert: function()
-      {
-        children.appendTo(jQ.empty().unbind('.mathquill')
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox'))
-        .children().unwrap();
-      }
-    });
-
-    var cursor = root.cursor = new Cursor(root);
-
-    root.renderLatex(children.text());
-
-    if(!editable)
-      return;
-
-    var textarea = root.textarea =
-      $('<span class="textarea"><textarea></textarea></span>')
-        .prependTo(jQ.addClass('mathquill-editable')).children();
-    if(textbox)
-      jQ.addClass('mathquill-textbox');
-
-    textarea.focus(function(e)
-    {
-      if(!cursor.parent)
-        cursor.appendTo(root);
-      cursor.parent.jQ.addClass('hasCursor');
-      if(cursor.selection)
-        cursor.selection.jQ.removeClass('blur');
-      else
-        cursor.show();
-      e.stopPropagation();
-    }
-    ).blur(function(e)
-    {
-      cursor.hide().parent.setEmpty();
-      if(cursor.selection)
-        cursor.selection.jQ.addClass('blur');
-      e.stopPropagation();
-    });
-
-    var lastKeydnEvt; //see Wiki page "Keyboard Events"
-    jQ.bind('focus.mathquill blur.mathquill',function(e)
-    {
-      textarea.trigger(e);
-    }
-    ).bind('click.mathquill',function(e)
-    {
-      var clicked = $(e.target);
-      if(clicked.hasClass('empty'))
-      {
-        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
-        return false;
-      }
-
-      var cmd = clicked.data('[[mathquill internal data]]');
-      if(cmd)
-      {
-        if(cmd.cmd && !cmd.block)
-        {
-          cursor.clearSelection();
-          if(clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-            cursor.insertBefore(cmd.cmd);
-          else
-            cursor.insertAfter(cmd.cmd);
-          return false;
-        }
-      }
-      else if(!(cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]')))
-          return;
-
-      cursor.clearSelection();
-      if(cmd.cmd)
-        cursor.insertAfter(cmd.cmd);
-      else
-        cursor.appendTo(cmd.block);
-      //move cursor to position closest to click
-      var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-      do
-      {
-        cursor.moveLeft();
-        prevPrevDist = prevDist;
-        prevDist = dist;
-        dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-      }
-      while(dist <= prevDist && dist != prevPrevDist);
-      if(dist != prevPrevDist)
-        cursor.moveRight();
-
-      return false;
-    }
-    ).bind('click.mathquill',function()
-    {
-      textarea.focus();
-    }
-    ).bind('keydown.mathquill',function(e) //see Wiki page "Keyboard Events"
-    {
-      lastKeydnEvt = e;
-      e.happened = true;
-      return e.returnValue = cursor.parent.keydown(e) ||
-        (e.stopImmediatePropagation(), false);
-    }
-    ).bind('keypress.mathquill',function(e)
-    {
-      //on auto-repeated key events, keypress may get triggered but not keydown
-      //  (see Wiki page "Keyboard Events")
-      if(lastKeydnEvt.happened)
-        lastKeydnEvt.happened = false;
-      else
-        lastKeydnEvt.returnValue = cursor.parent.keydown(lastKeydnEvt);
-      //only call keypress if keydown returned true
-      return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 ||
-        cursor.parent.keypress(e) || (e.stopImmediatePropagation(), false));
-    }
-    ).blur();
-  });
-
-  return this;
+  default:
+    return createRoot.call(this, cmd);
+  }
 };
 
-//on document ready, transmogrify all <tag class="mathquill-editable"></tag> and
-//  <tag class="mathquill-embedded-latex"></tag> elements to mathquill elements.
+//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
+//elements according to their CSS class.
 $(function()
 {
   $('.mathquill-embedded-latex').mathquill();
@@ -2225,5 +2210,4 @@ $(function()
   $('.mathquill-textbox').mathquill('textbox');
 });
 
-return mathquill;
 }(jQuery));
