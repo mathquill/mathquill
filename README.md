@@ -37,9 +37,11 @@ Any element that has been MathQuill-ified can be reverted:
 Understanding The Code
 ----------------------
 
-All the JavaScript that you actually want to read is in src/, build/ just contains a cat'ed (and eventually, minified) version of all that.
+All the CSS is in mathquill.css. Most of it's pretty straightforward, although
+fractions and a few other things are somewhat arcane. In particular, see the
+Wiki pages "Fonts" and "Fractions".
 
-All the CSS is in mathquill.css.
+All the JavaScript that you actually want to read is in src/, build/ just contains a cat'ed (and eventually, minified) version of all that.
 
 1. To get a general idea of our program model, you want to start by skimming backend.js.
     * What you want to pay attention to is the structure of the Math DOM tree,
