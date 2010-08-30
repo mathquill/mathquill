@@ -51,7 +51,7 @@ All the CSS is in mathquill.css.
           what they're supposed to do, such as .moveLeft() when the left key is pressed
         * don't worry about the abstraction layer between our keydown and keypress
           event handling system and jQuery's (which corresponds much more closely to
-          the actual HTML DOM's) until later. (See the Wiki page "Keybard Events".)
+          the actual HTML DOM's) until later. (See the Wiki page "Keyboard Events".)
     2. after that, you can read through Cursor's Math DOM tree traversal and manipulation methods.
         * they pretty much just do what they say on the tin
         * after seeing how they're called (in RootMathBlock.prototype.keydown()) it
