@@ -37,34 +37,33 @@ Any element that has been MathQuill-ified can be reverted:
 Understanding The Code
 ----------------------
 
-All the CSS is in mathquill.css. Most of it's pretty straightforward, although
+All the CSS is in `mathquill.css`. Most of it's pretty straightforward, although
 fractions and a few other things are somewhat arcane. In particular, see the
 Wiki pages "Fonts" and "Fractions".
 
-All the JavaScript that you actually want to read is in src/, build/ just contains a cat'ed (and eventually, minified) version of all that.
+All the JavaScript that you actually want to read is in `src/`, `build/` just
+contains a cat'ed (and eventually, minified) version of all that.
 
-1. To get a general idea of our program model, you want to start by skimming backend.js.
-    * What you want to pay attention to is the structure of the Math DOM tree,
-      and the choice of utility methods of the nodes in the tree.
+1. To start with, skim `baseclasses.js` to get an idea of the Math DOM.
+    * Look over the structure of the Math DOM tree and the utility methods on
+      the nodes in the tree.
     * Some of the initialization code is a bit obscure, don't worry about it.
-2. With that in mind, you can now understand Cursor's tree traversal and manipulation methods in frontend.js.
-    1. Before you dig in to Cursor.prototype, take peek at RootMathBlock.prototype.keydown()
-        * ignore the arcane logic and find calls to Cursor's methods where it's blatantly obvious
-          what they're supposed to do, such as .moveLeft() when the left key is pressed
-        * don't worry about the abstraction layer between our keydown and keypress
-          event handling system and jQuery's (which corresponds much more closely to
-          the actual HTML DOM's) until later. (See the Wiki page "Keyboard Events".)
-    2. after that, you can read through Cursor's Math DOM tree traversal and manipulation methods.
-        * they pretty much just do what they say on the tin
-        * after seeing how they're called (in RootMathBlock.prototype.keydown()) it
-          should be pretty obvious what each of them are supposed to do
-    3. Now check out how RootMathBlock.prototype.keypress() calls Cursor.prototype.write()
-        * and how that calls Cursor.prototype.insertNew()
-        * and what Cursor.prototype.insertNew() does to commands and the tree.
-3. Once you've seen what the Math DOM tree is supposed to be like, how we traverse and
-    manipulate it, and how commands are created and inserted, you can read through commands.js
-    * perhaps comparing notes with what Cursor.prototype.insertNew() does
-    * as well as what the MathCommand's constructor does in backend.js
+2. Next are `Cursor.prototype`'s methods that deal with the DOM in `cursor.js`.
+    1. First read through the tree traversal and manipulation methods
+       * they pretty much just do what they say on the tin
+       * you may want to take a peek at how they're called by
+         `RootMathBlock.prototype.keydown()` in `rootelements.js`
+         - just pay attention to calls where it's obvious what it's supposed to do,
+           like `cursor.moveLeft()` when the left key is pressed
+    2. Now check out how `RootMathBlock.prototype.keypress()` calls
+       `Cursor.prototype.write()`
+        * and how that calls `Cursor.prototype.insertNew()`
+        * and what `Cursor.prototype.insertNew()` does to commands and the tree.
+3. Once you've seen what the Math DOM tree is like, how to traverse and
+    manipulate it, and how commands are created and inserted, you can read
+    through `commands.js`
+    * perhaps comparing with what `Cursor.prototype.insertNew()` does
+    * as well as what the `MathCommand`'s constructor does in `baseclasses.js`
 
 And you should be set to figure out everything else from here!
 
