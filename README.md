@@ -1,10 +1,10 @@
 Please note that this is an alpha version, so bugs and unimplemented features
 are all over the place.
 
-(Powered by jQuery, v1.4+ required. Get it from http://jquery.com.)
-
 Usage
 -----
+
+(Note: Requires [jQuery 1.4](http://jquery.com).)
 
 All you need is a script include in your header:
 
