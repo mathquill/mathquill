@@ -69,6 +69,7 @@ contains a cat'ed (and eventually, minified) version of all that.
 And you should be set to figure out almost everything else!
 
 Some comments that are too high-level to put in the code:
+
 * Event delegation is used twice:
   - in the HTML DOM, the root `span` element of each MathQuill thing is
     delegated all the events in it's own MathQuill thing
