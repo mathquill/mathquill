@@ -60,13 +60,13 @@ contains a cat'ed (and eventually, minified) version of all that.
        `Cursor.prototype.write()`
         * and how that calls `Cursor.prototype.insertNew()`
         * and what `Cursor.prototype.insertNew()` does to commands and the tree.
-3. Once you've seen what the Math DOM tree is like, how to traverse and
-    manipulate it, and how commands are created and inserted, you can read
-    through `commands.js`
-    * perhaps comparing with what `Cursor.prototype.insertNew()` does
-    * as well as what the `MathCommand`'s constructor does in `baseclasses.js`
 
 And you should be set to figure out everything else from here!
+3. Once you've seen what the virtual DOM tree is like, how it is traversed and
+   manipulated it, and how commands are created and inserted, you can look
+   over `commands.js`
+   * perhaps comparing with what `Cursor.prototype.insertNew()` does
+   * as well as what the `MathCommand`'s constructor does in `baseclasses.js`
 
 Open-Source License
 -------------------
