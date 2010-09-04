@@ -68,6 +68,20 @@ contains a cat'ed (and eventually, minified) version of all that.
 
 And you should be set to figure out almost everything else!
 
+Some comments that are too high-level to put in the code:
+* Event delegation is used twice:
+  - in the HTML DOM, the root `span` element of each MathQuill thing is
+    delegated all the events in it's own MathQuill thing
+    + keyboard events usually end up triggering their analogue in the virtual
+      DOM on the virtual cursor, which then bubble upwards
+  - in the virtual math DOM, the root MathElement is delegated most of these
+    virtual keyboard events
+    + for example, `RootMathBlock.prototype.keydown()`
+    + some special commands do intercept these events, though
+* Keyboard events are very inconsistent between browsers, so `rootelements.js`
+  has some complicated but very successful logic, as documented in the Wiki page
+  "Keyboard Events".
+
 Open-Source License
 -------------------
 
