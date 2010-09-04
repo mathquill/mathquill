@@ -44,12 +44,12 @@ Wiki pages "Fonts" and "Fractions".
 All the JavaScript that you actually want to read is in `src/`, `build/` just
 contains a cat'ed (and eventually, minified) version of all that.
 
-1. To start with, skim `baseclasses.js` to get an idea of the Math DOM.
-    * Look over the structure of the Math DOM tree and the utility methods on
+1. First, skim `baseclasses.js` to get an idea of the virtual "math DOM".
+    * Look over the structure of the virtual DOM tree and the utility methods on
       the nodes in the tree.
     * Some of the initialization code is a bit obscure, don't worry about it.
-2. Next are `Cursor.prototype`'s methods that deal with the DOM in `cursor.js`.
-    1. First read through the tree traversal and manipulation methods
+2. Next is how the virtual cursor deals with the DOM in `cursor.js`.
+    1. Start by reading through the tree traversal and manipulation methods
        * they pretty much just do what they say on the tin
        * you may want to take a peek at how they're called by
          `RootMathBlock.prototype.keydown()` in `rootelements.js`
