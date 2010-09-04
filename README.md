@@ -53,8 +53,9 @@ contains a cat'ed (and eventually, minified) version of all that.
        * they pretty much just do what they say on the tin
        * you may want to take a peek at how they're called by
          `RootMathBlock.prototype.keydown()` in `rootelements.js`
-         - just pay attention to calls where it's obvious what it's supposed to do,
-           like `cursor.moveLeft()` when the left key is pressed
+         - just the calls where it's obvious what it's supposed to do, like
+           `cursor.moveLeft()` when the left key is pressed
+         - you don't have to worry about the complicated event logic yet
     2. Now check out how `RootMathBlock.prototype.keypress()` calls
        `Cursor.prototype.write()`
         * and how that calls `Cursor.prototype.insertNew()`
