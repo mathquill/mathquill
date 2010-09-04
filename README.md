@@ -68,7 +68,7 @@ contains a cat'ed (and eventually, minified) version of all that.
 
 And you should be set to figure out everything else from here!
 
-License
--------
+Open-Source License
+-------------------
 
 [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
