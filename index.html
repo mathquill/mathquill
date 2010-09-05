@@ -56,23 +56,31 @@ a:focus {
 
 <p>All you need is a script include in your header:</p>
 
-<code>&lt;script src=&quot;http://laughinghan.github.com/mathquill/mathquill.js&quot;&gt;&lt;/script&gt;</code>
+<p><code>&lt;script src="http://laughinghan.github.com/mathquill/mathquill.js"&gt;</code></p>
 
-<p>and wherever you&rsquo;d like to have an editable math textbox:</p>
+<p>and wherever you'd like to have an editable math textbox:</p>
 
-<code>&lt;span class="mathquill-editable"&gt;&lt;/span&gt;</code>
+<p><code>&lt;span class="mathquill-editable"&gt;f(x)=?&lt;/span&gt;</code></p>
 
 <p>or to convert LaTeX math to HTML:</p>
 
-<code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}\sqrt{x}&lt;/span&gt;</code>
+<p><code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}\sqrt{x}&lt;/span&gt;</code></p>
 
-<p>Note that for dynamically created elements, you will need to call our jQuery plugin after inserting into the visible HTML DOM:</p>
+<p>Note that for dynamically created elements that weren't in the HTML DOM on
+document ready, you will need to call our jQuery plugin after inserting into
+the visible HTML DOM:</p>
 
-<code>$('&lt;span&gt;\sqrt{e^x}&lt;/span&gt;').appendTo('body').mathquill()</code> or <code>.mathquill('editable')</code>
+<p><code>$('&lt;span&gt;x^2&lt;/span&gt;').appendTo('body').mathquill()</code> or <code>.mathquill('editable')</code></p>
+
+<p>MathQuill has to perform calculations based on computed CSS values. If you
+mathquill-ify an element before inserting into the visible HTML DOM, then once
+it is visible MathQuill will need to recalculate:</p>
+
+<p><code>$('&lt;span&gt;\sqrt{2}&lt;/span&gt;').mathquill().appendTo('body').mathquill('redraw')</code></p>
 
 <p>Any element that has been MathQuill-ified can be reverted:</p>
 
-<code>$('.mathquill-embedded-latex').mathquill('revert');</code>
+<p><code>$('.mathquill-embedded-latex').mathquill('revert');</code></p>
 
 <h2>Requirements</h2>
 
