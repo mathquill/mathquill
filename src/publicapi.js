@@ -19,9 +19,7 @@ $.fn.mathquill = function(cmd, latex)
           mathObj.block.renderLatex(latex);
       });
     var mathObj = this.data('[[mathquill internal data]]');
-    if(mathObj && mathObj.block)
-      return mathObj.block.latex();
-    return;
+    return mathObj && mathObj.block && mathObj.block.latex();
   case 'revert':
     return this.each(function()
     {
@@ -30,7 +28,8 @@ $.fn.mathquill = function(cmd, latex)
         mathObj.revert();
     });
   case 'redraw':
-    return this.find(':not(:has(:first))').change().end();
+    this.find(':not(:has(:first))').change();
+    return this;
   default:
     return createRoot.call(this, cmd);
   }
