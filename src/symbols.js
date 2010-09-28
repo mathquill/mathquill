@@ -422,7 +422,9 @@ function NonItalicizedFunction(replacedFragment, fn)
 NonItalicizedFunction.prototype = new Symbol;
 NonItalicizedFunction.prototype.respace = function()
 {
-  this.jQ[0].className = (this.next instanceof SupSub) ? '' : 'non-italicized-function';
+  this.jQ[0].className =
+    (this.next instanceof SupSub || this.next instanceof Bracket) ?
+    '' : 'non-italicized-function';
 };
 
 LatexCmds.ln =
