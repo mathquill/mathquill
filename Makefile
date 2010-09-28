@@ -21,9 +21,6 @@ all:
 	@@cat ${FILES} > ${BUILD_FILE}
 	@@echo 'Done.'
 
-gitsync:
-	@@echo ${shell ./gitsync.sh}
-
 publish:
 	@@echo "${shell ./publish.sh}"
 
