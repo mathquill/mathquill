@@ -55,7 +55,7 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after, .mathquill-rendered-math .text.empty:after {
+.mathquill-textbox:after, .mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after, .mathquill-rendered-math .empty:after {
   visibility: hidden;
   content: 'c';
 }
@@ -103,7 +103,7 @@
 }
 
 .mathquill-rendered-math .empty {
-  color: #AAA;
+  background-color: lightgray;
 }
 
 .mathquill-rendered-math .text {
@@ -203,6 +203,9 @@
 }
 .mathquill-rendered-math .latex-command-input:before {
   content: '\\';
+}
+.mathquill-rendered-math .latex-command-input.empty {
+  background-color: transparent;
 }
 
 .mathquill-rendered-math .sqrt-prefix {

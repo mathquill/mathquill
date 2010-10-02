@@ -216,11 +216,22 @@ Cursor.prototype = {
 
       prev = this.lastChild;
     });
-    prev.next = gramp.next;
-    if(prev.next)
-      prev.next.prev = prev;
+    if(prev)
+    {
+      prev.next = gramp.next;
+      if(prev.next)
+        prev.next.prev = prev;
+      else
+        greatgramp.lastChild = prev;
+    }
     else
-      greatgramp.lastChild = prev;
+    {
+      greatgramp.firstChild = gramp.next;
+      if(gramp.next)
+        gramp.next.prev = prev;
+      else
+        greatgramp.lastChild = prev;
+    }
 
     if(!this.next)
       if(this.prev)

@@ -400,7 +400,6 @@ LatexCmds.text = CharCmds.$ = TextBlock;
 function LatexCommandInput(replacedFragment)
 {
   MathCommand.call(this, '\\');
-  this.firstChild.setEmpty = this.setEmpty;
   if(replacedFragment)
   {
     this.replacedFragment = replacedFragment.detach();
@@ -408,13 +407,6 @@ function LatexCommandInput(replacedFragment)
   }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
-  setEmpty: function()
-  {
-    this.jQ.removeClass('hasCursor');
-    if(this.isEmpty())
-      this.jQ.html(' ');
-    return this;
-  },
   html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {

@@ -163,11 +163,7 @@ MathBlock.prototype = $.extend(new MathElement, {
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
-    {
-      if(this.parent)
-        this.jQ.html('&empty;').change();
       this.jQ.addClass('empty');
-    }
     return this;
   },
   removeEmpty:function(cursorJQ)
@@ -175,9 +171,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     this.jQ.addClass('hasCursor');
     if(this.isEmpty())
     {
-      if(this.parent)
-        this.jQ.empty();
-      this.jQ.removeClass('empty').append(cursorJQ).change();
+      this.jQ.removeClass('empty').append(cursorJQ);
       return false;
     }
     return true;
