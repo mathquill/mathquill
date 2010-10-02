@@ -162,6 +162,12 @@
   vertical-align: -.5em;
   padding: 0 .1em;
 }
+.mathquill-rendered-math .fraction, x:-moz-any-link { /* Firefox 2 (and older?) only */
+  display: -moz-groupbox; /* because display:inline-block is FUBAR in Gecko < 1.9.0 */
+}
+.mathquill-rendered-math .fraction, x:-moz-any-link, x:default { /* Firefox 3+ (Gecko 1.9.0+) */
+  display: inline-block;
+}
 .mathquill-rendered-math .numerator, .mathquill-rendered-math .denominator {
   display: block;
 }

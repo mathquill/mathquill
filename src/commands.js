@@ -94,8 +94,6 @@ function Fraction(replacedFragment)
 {
   MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
-  if($.browser.mozilla && +$.browser.version.slice(0,3) < 1.9) //Firefox 2 and below
-    this.jQ.css('display','-moz-groupbox');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span>'];
