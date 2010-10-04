@@ -178,11 +178,7 @@ MathBlock.prototype = $.extend(new MathElement, {
   {
     this.jQ.removeClass('hasCursor');
     if(this.isEmpty())
-    {
-      if(this.parent)
-        this.jQ.html('&empty;').change();
       this.jQ.addClass('empty');
-    }
     return this;
   },
   removeEmpty:function(cursorJQ)
@@ -190,9 +186,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     this.jQ.addClass('hasCursor');
     if(this.isEmpty())
     {
-      if(this.parent)
-        this.jQ.empty();
-      this.jQ.removeClass('empty').append(cursorJQ).change();
+      this.jQ.removeClass('empty').append(cursorJQ);
       return false;
     }
     return true;
@@ -368,8 +362,6 @@ function Fraction(replacedFragment)
 {
   MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
-  if($.browser.mozilla && +$.browser.version.slice(0,3) < 1.9) //Firefox 2 and below
-    this.jQ.css('display','-moz-groupbox');
 }
 Fraction.prototype = new MathCommand;
 Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span>'];
@@ -676,7 +668,6 @@ LatexCmds.text = CharCmds.$ = TextBlock;
 function LatexCommandInput(replacedFragment)
 {
   MathCommand.call(this, '\\');
-  this.firstChild.setEmpty = this.setEmpty;
   if(replacedFragment)
   {
     this.replacedFragment = replacedFragment.detach();
@@ -684,13 +675,6 @@ function LatexCommandInput(replacedFragment)
   }
 }
 LatexCommandInput.prototype = $.extend(new MathCommand, {
-  setEmpty: function()
-  {
-    this.jQ.removeClass('hasCursor');
-    if(this.isEmpty())
-      this.jQ.html(' ');
-    return this;
-  },
   html_template: ['<span class="latex-command-input"></span>'],
   placeCursor: function(cursor)
   {
@@ -1545,11 +1529,22 @@ Cursor.prototype = {
 
       prev = this.lastChild;
     });
-    prev.next = gramp.next;
-    if(prev.next)
-      prev.next.prev = prev;
+    if(prev)
+    {
+      prev.next = gramp.next;
+      if(prev.next)
+        prev.next.prev = prev;
+      else
+        greatgramp.lastChild = prev;
+    }
     else
-      greatgramp.lastChild = prev;
+    {
+      greatgramp.firstChild = gramp.next;
+      if(gramp.next)
+        gramp.next.prev = prev;
+      else
+        greatgramp.lastChild = prev;
+    }
 
     if(!this.next)
       if(this.prev)
@@ -1749,23 +1744,23 @@ function createRoot(type)
   var textbox = type === 'textbox', editable = textbox || type === 'editable';
   return this.each(function()
   {
-    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(),
-      root = new (textbox?RootTextBlock:RootMathBlock);
+    var jQ = $(this), contents = jQ.contents().detach(),
+      root = new (textbox ? RootTextBlock : RootMathBlock);
     if(!textbox)
       jQ.addClass('mathquill-rendered-math');
     root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
       revert: function()
       {
-        children.appendTo(jQ.empty().unbind('.mathquill')
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox'))
-        .children().unwrap();
+        jQ.empty().unbind('.mathquill')
+          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+          .append(contents);
       }
     });
 
     var cursor = root.cursor = new Cursor(root);
 
-    root.renderLatex(children.text());
+    root.renderLatex(contents.text());
 
     if(!editable)
       return;
