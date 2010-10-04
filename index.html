@@ -34,6 +34,9 @@ a {
 a:focus {
   color: purple;
 }
+ul {
+  padding-left: 1em;
+}
 </style>
 
 </head>
@@ -81,6 +84,16 @@ it is visible MathQuill will need to recalculate:</p>
 <p>Any element that has been MathQuill-ified can be reverted:</p>
 
 <p><code>$('.mathquill-embedded-latex').mathquill('revert');</code></p>
+
+<p>Manipulating the HTML DOM inside editable math textboxes can break MathQuill.
+Currently, MathQuill only supports a limited scripting API:</p>
+
+<ul>
+<li>To access the LaTeX contents of a mathquill-ified element:
+<p><code>$('&lt;span&gt;a_n x^n&lt;/span&gt;').mathquill().mathquill('latex') === 'a_n x^n'</code>
+<li>To render some LaTeX in a mathquill-ified element:
+<p><code>$('&lt;span&gt;&lt;/span&gt;').mathquill().appendTo('body').mathquill('latex','x^{-1}')</code>
+</ul>
 
 <h2>Requirements</h2>
 
