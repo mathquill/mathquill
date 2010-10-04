@@ -34,6 +34,17 @@ Any element that has been MathQuill-ified can be reverted:
 
 `$('.mathquill-embedded-latex').mathquill('revert');`
 
+Manipulating the HTML DOM inside editable math textboxes can break MathQuill.
+Currently, MathQuill only supports a limited scripting API:
+
+* To access the LaTeX contents of a mathquill-ified element:
+
+    `$('<span>a_n x^n</span>').mathquill().mathquill('latex') === 'a_n x^n'`
+
+* To render some LaTeX in a mathquill-ified element:
+
+    `$('<span></span>').mathquill().appendTo('body').mathquill('latex','x^{-1}')`
+
 Understanding The Code
 ----------------------
 
