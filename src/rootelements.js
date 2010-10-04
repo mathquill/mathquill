@@ -7,23 +7,23 @@ function createRoot(type)
   var textbox = type === 'textbox', editable = textbox || type === 'editable';
   return this.each(function()
   {
-    var jQ = $(this), children = jQ.wrapInner('<span>').children().detach(),
-      root = new (textbox?RootTextBlock:RootMathBlock);
+    var jQ = $(this), contents = jQ.contents().detach(),
+      root = new (textbox ? RootTextBlock : RootMathBlock);
     if(!textbox)
       jQ.addClass('mathquill-rendered-math');
     root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
       revert: function()
       {
-        children.appendTo(jQ.empty().unbind('.mathquill')
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox'))
-        .children().unwrap();
+        jQ.empty().unbind('.mathquill')
+          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+          .append(contents);
       }
     });
 
     var cursor = root.cursor = new Cursor(root);
 
-    root.renderLatex(children.text());
+    root.renderLatex(contents.text());
 
     if(!editable)
       return;
