@@ -147,7 +147,7 @@ Cursor.prototype = {
     }
 
     var cmd;
-    if(ch.match(/[a-eg-zA-Z]/)) //exclude f because want florin
+    if(ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
       cmd = new Variable(ch);
     else if(cmd = CharCmds[ch] || LatexCmds[ch])
       cmd = new cmd(this.selection);
