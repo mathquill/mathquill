@@ -96,7 +96,11 @@ function Fraction(replacedFragment)
   this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
 Fraction.prototype = new MathCommand;
-Fraction.prototype.html_template = ['<span class="fraction"></span>', '<span class="numerator"></span>', '<span class="denominator"></span>'];
+Fraction.prototype.html_template = [
+  '<span class="fraction"></span>',
+  '<span class="numerator"></span>',
+  '<span class="denominator"></span>'
+];
 
 LatexCmds.frac = LatexCmds.fraction = Fraction;
 
@@ -148,7 +152,10 @@ function SquareRoot(replacedFragment)
   });
 }
 SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = ['<span><span class="sqrt-prefix">&radic;</span></span>','<span class="sqrt-stem"></span>'];
+SquareRoot.prototype.html_template = [
+  '<span><span class="sqrt-prefix">&radic;</span></span>',
+  '<span class="sqrt-stem"></span>'
+];
 
 LatexCmds.sqrt = SquareRoot;
 
@@ -485,7 +492,8 @@ function Binomial(replacedFragment)
   });
 }
 Binomial.prototype = new MathCommand;
-Binomial.prototype.html_template = ['<span></span>', '<span></span>', '<span></span>'];
+Binomial.prototype.html_template =
+  ['<span></span>', '<span></span>', '<span></span>'];
 
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
@@ -503,7 +511,8 @@ function Vector(replacedFragment)
   MathCommand.call(this, '\\vector', undefined, replacedFragment);
 }
 Vector.prototype = new MathCommand;
-Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
+Vector.prototype.html_template =
+  ['<span class="array"></span>', '<span></span>'];
 Vector.prototype.latex = function()
 {
   return '\\begin{matrix}' + this.reduceChildren(function(initValue){
