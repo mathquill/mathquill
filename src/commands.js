@@ -171,7 +171,9 @@ Bracket.prototype.initBlocks = function(replacedFragment)
   this.firstChild = this.lastChild =
     (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
-  this.firstChild.jQ = this.firstChild.jQ ? this.jQ.children(':eq(1)').append(this.firstChild.jQ) : this.jQ.children(':eq(1)');
+  this.firstChild.jQ = this.jQ.children(':eq(1)')
+    .data('[[mathquill internal data]]', {block: this.firstChild})
+    .append(this.firstChild.jQ);
 };
 Bracket.prototype.latex = function()
 {
