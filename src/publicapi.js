@@ -8,8 +8,16 @@ $.fn.mathquill = function(cmd, latex)
 {
   switch(cmd)
   {
-  case 'html':
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
+  case 'redraw':
+    this.find(':not(:has(:first))').change();
+    return this;
+  case 'revert':
+    return this.each(function()
+    {
+      var mathObj = $(this).data('[[mathquill internal data]]');
+      if(mathObj && mathObj.revert)
+        mathObj.revert();
+    });
   case 'latex':
     if(arguments.length > 1)
       return this.each(function()
@@ -20,16 +28,8 @@ $.fn.mathquill = function(cmd, latex)
       });
     var mathObj = this.data('[[mathquill internal data]]');
     return mathObj && mathObj.block && mathObj.block.latex();
-  case 'revert':
-    return this.each(function()
-    {
-      var mathObj = $(this).data('[[mathquill internal data]]');
-      if(mathObj && mathObj.revert)
-        mathObj.revert();
-    });
-  case 'redraw':
-    this.find(':not(:has(:first))').change();
-    return this;
+  case 'html':
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
   default:
     return createRoot.call(this, cmd);
   }
