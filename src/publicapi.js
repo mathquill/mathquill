@@ -30,6 +30,19 @@ $.fn.mathquill = function(cmd, latex)
     return mathObj && mathObj.block && mathObj.block.latex();
   case 'html':
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
+  case 'write':
+    latex = latex.charAt(0) === '\\' ? latex.slice(1) : latex;
+    if(arguments.length > 1)
+      return this.each(function()
+      {
+        var mathObj = $(this).data('[[mathquill internal data]]'),
+          block = mathObj && mathObj.block, cursor = block && block.cursor;
+        if(cursor)
+        {
+          cursor.show().write(latex);
+          block.textarea.triggerHandler('blur');
+        }
+      });
   default:
     return createRoot.call(this, cmd);
   }
