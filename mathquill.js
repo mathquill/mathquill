@@ -130,7 +130,7 @@ MathCommand.prototype = $.extend(new MathElement, {
   respace: $.noop,
   placeCursor: function(cursor)
   {
-    cursor.appendTo(this.firstChild);
+    cursor.appendTo(this.lastChild);
   },
   isEmpty: function()
   {
