@@ -150,7 +150,7 @@ Cursor.prototype = {
     if(ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
       cmd = new Variable(ch);
     else if(cmd = CharCmds[ch] || LatexCmds[ch])
-      cmd = new cmd(this.selection);
+      cmd = new cmd(this.selection, ch);
     else
       cmd = new VanillaSymbol(ch);
 
