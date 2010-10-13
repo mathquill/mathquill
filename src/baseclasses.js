@@ -115,7 +115,9 @@ MathCommand.prototype = $.extend(new MathElement, {
   respace: $.noop,
   placeCursor: function(cursor)
   {
-    cursor.appendTo(this.lastChild);
+    cursor.appendTo(this.reduceChildren(function(prev){
+      return prev.isEmpty() ? prev : this;
+    }, this.firstChild));
   },
   isEmpty: function()
   {
