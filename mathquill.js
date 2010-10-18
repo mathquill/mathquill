@@ -708,15 +708,15 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
   },
   keypress: function(e)
   {
-    var char = String.fromCharCode(e.which);
-    if(char.match(/[a-z]/i))
+    var ch = String.fromCharCode(e.which);
+    if(ch.match(/[a-z]/i))
     {
       this.cursor.deleteSelection();
-      this.cursor.insertNew(new VanillaSymbol(char));
+      this.cursor.insertNew(new VanillaSymbol(ch));
       return false;
     }
     this.renderCommand();
-    if(char === ' ' || (char === '\\' && this.firstChild.isEmpty()))
+    if(ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
       return false;
     return this.cursor.parent.keypress(e);
   },
