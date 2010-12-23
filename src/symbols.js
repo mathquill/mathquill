@@ -2,26 +2,22 @@
  * Symbols and Special Characters
  *********************************/
 
-function bind(cons) //shorthand for binding arguments to constructor
-{
+function bind(cons) { //shorthand for binding arguments to constructor
   var args = Array.prototype.slice.call(arguments, 1);
 
-  return proto(cons, function()
-  {
+  return proto(cons, function() {
     cons.apply(this, args);
   });
 }
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 
-function Variable(ch, html)
-{
+function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
 Variable.prototype = Symbol.prototype;
 
-function VanillaSymbol(ch, html)
-{
+function VanillaSymbol(ch, html) {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
 }
 VanillaSymbol.prototype = Symbol.prototype;
@@ -30,8 +26,7 @@ CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
-function NonSymbolaSymbol(ch, html) //does not use Symbola font
-{
+function NonSymbolaSymbol(ch, html) { //does not use Symbola font
   Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
 }
 NonSymbolaSymbol.prototype = Symbol.prototype;
@@ -60,8 +55,7 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = proto(Symbol, function(replacedFragment, latex)
-{
+LatexCmds.omega = proto(Symbol, function(replacedFragment, latex) {
   Variable.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
@@ -133,30 +127,32 @@ LatexCmds.Psi =
 LatexCmds.Omega =
 
 //other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.forall = proto(Symbol, function(replacedFragment, latex)
-{
+LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-function BinaryOperator(cmd, html)
-{
+function BinaryOperator(cmd, html) {
   Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
 }
 BinaryOperator.prototype = new Symbol; //so instanceof will work
 
-function PlusMinus(cmd, html)
-{
+function PlusMinus(cmd, html) {
   VanillaSymbol.apply(this, arguments);
 }
 PlusMinus.prototype = new BinaryOperator; //so instanceof will work
-PlusMinus.prototype.respace = function()
-{
-  if(!this.prev)
+PlusMinus.prototype.respace = function() {
+  if (!this.prev) {
     this.jQ[0].className = '';
-  else if(this.prev instanceof BinaryOperator && this.next && !(this.next instanceof BinaryOperator))
+  }
+  else if (
+    this.prev instanceof BinaryOperator &&
+    this.next && !(this.next instanceof BinaryOperator)
+  ) {
     this.jQ[0].className = 'unary-operator';
-  else
+  }
+  else {
     this.jQ[0].className = 'binary-operator';
+  }
   return this;
 };
 
@@ -181,8 +177,7 @@ LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.times =
 LatexCmds.oplus =
-LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex)
-{
+LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex) {
   BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
@@ -257,8 +252,7 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 
 //sum, product, coproduct, integral
-function BigSymbol(ch, html)
-{
+function BigSymbol(ch, html) {
   Symbol.call(this, ch, '<big>'+html+'</big>');
 }
 BigSymbol.prototype = new Symbol; //so instanceof will work
@@ -415,8 +409,7 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-function NonItalicizedFunction(replacedFragment, fn)
-{
+function NonItalicizedFunction(replacedFragment, fn) {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
 NonItalicizedFunction.prototype = new Symbol;
@@ -443,13 +436,13 @@ LatexCmds.gcf =
 LatexCmds.hcf =
 LatexCmds.lim = NonItalicizedFunction;
 
-(function()
-{
+(function() {
   var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
-  for(var i in trig)
+  for (var i in trig) {
     LatexCmds[trig[i]] =
     LatexCmds[trig[i]+'h'] =
     LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
     LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
       NonItalicizedFunction;
+  }
 }());

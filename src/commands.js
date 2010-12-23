@@ -458,13 +458,13 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       if (cmd = LatexCmds[latex]) {
         cmd = new cmd(this.replacedFragment, latex);
       }
-      else
-      {
+      else {
         cmd = new TextBlock(latex);
         cmd.firstChild.removeEmpty = function(){ delete this.removeEmpty; return true; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this.replacedFragment)
+        if (this.replacedFragment) {
           this.replacedFragment.remove();
+        }
         return;
       }
     }
