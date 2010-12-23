@@ -540,16 +540,18 @@ Vector.prototype.keydown = function(e) {
       return false;
     }
     else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
-      if (currentBlock.isEmpty() && currentBlock.prev) {
-        this.cursor.insertAfter(this);
-        delete currentBlock.prev.next;
-        this.lastChild = currentBlock.prev;
-        currentBlock.jQ.remove();
-        this.jQ.change();
-        return false;
-      }
-      else {
-        return this.parent.keydown(e);
+      if (currentBlock.isEmpty()) {
+        if (currentBlock.prev) {
+          this.cursor.insertAfter(this);
+          delete currentBlock.prev.next;
+          this.lastChild = currentBlock.prev;
+          currentBlock.jQ.remove();
+          this.jQ.change();
+          return false;
+        }
+        else {
+          return this.parent.keydown(e);
+        }
       }
 
       var newBlock = new MathBlock;
