@@ -33,36 +33,36 @@
     <script type="text/javascript">
       var LatexImages = false;
       $(function(){
+        function printTree(html)
+        {
+          html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
+          if(!html) return;
+          var indent = '\n', tree = '';
+          while(html.length)
+          {
+            var token = html.shift();
+            if(token.charAt(0) === '<')
+            {
+              if(token.charAt(1) === '/')
+              {
+                indent = indent.slice(0,-2);
+                if(html[0] && html[0].slice(0,2) === '</')
+                  token += indent.slice(0,-2);
+              }
+              else
+              {
+                tree += indent;
+                indent += '  ';
+               }
+              token = token.toLowerCase();
+            }
+
+            tree += token;
+          }
+          return tree.slice(1);
+        }
         var editingSource = false, latexSource = $('#latex-source'), latexMath = $('#editable-math').change(function()
         {
-          function printTree(html)
-          {
-            html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
-            if(!html) return;
-            var indent = '\n', tree = '';
-            while(html.length)
-            {
-              var token = html.shift();
-              if(token.charAt(0) === '<')
-              {
-                if(token.charAt(1) === '/')
-                {
-                  indent = indent.slice(0,-2);
-                  if(html[0] && html[0].slice(0,2) === '</')
-                    token += indent.slice(0,-2);
-                }
-                else
-                {
-                  tree += indent;
-                  indent += '  ';
-                 }
-                token = token.toLowerCase();
-              }
-
-              tree += token;
-            }
-            return tree.slice(1);
-          }
           $('#html-source').text(printTree($(this).mathquill('html')));
           var latex = $(this).mathquill('latex');
           //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
