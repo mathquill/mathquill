@@ -56,15 +56,8 @@ function createRoot(type) {
     jQ.bind('keydown.mathquill',function(e) { //see Wiki page "Keyboard Events"
       lastKeydnEvt = e;
       e.happened = true;
-
-      e.returnValue = cursor.parent.keydown(e)
-      if (e.returnValue) {
-        return e.returnValue;
-      }
-      else {
-        e.stopImmediatePropagation();
-        return false;
-      }
+      return e.returnValue = cursor.parent.keydown(e) ||
+        (e.stopImmediatePropagation() && false);
     }).bind('keypress.mathquill',function(e) {
       //on auto-repeated key events, keypress may get triggered but not keydown
       //  (see Wiki page "Keyboard Events")
@@ -77,7 +70,7 @@ function createRoot(type) {
 
       //only call keypress if keydown returned true
       return lastKeydnEvt.returnValue && (e.ctrlKey || e.metaKey || e.which < 32 ||
-        cursor.parent.keypress(e) || (e.stopImmediatePropagation(), false));
+        cursor.parent.keypress(e) || (e.stopImmediatePropagation() && false));
     }).bind('click.mathquill',function(e) {
       var clicked = $(e.target);
       if (clicked.hasClass('empty')) {
