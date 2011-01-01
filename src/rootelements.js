@@ -18,8 +18,8 @@ function createRoot(type) {
       root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
       revert: function() {
-        jQ.empty().unbind('.mathquill').
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox').
+        jQ.empty().unbind('.mathquill')
+          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
           .append(contents);
       }
     });
@@ -290,7 +290,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           this.cursor.selectRight();
         }
       }
-      else { [//move to the end of the root block or the current block.
+      else { //move to the end of the root block or the current block.
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
       }
 
