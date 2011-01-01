@@ -39,9 +39,7 @@ MathElement.prototype = {
  * May be passed a MathFragment that's being replaced.
  */
 function MathCommand(cmd, html_template, replacedFragment) {
-  if (!arguments.length) {
-    return;
-  }
+  if (!arguments.length) return;
 
   this.cmd = cmd;
   if (html_template) {
@@ -162,17 +160,19 @@ MathBlock.prototype = $.extend(new MathElement, {
   },
   setEmpty: function() {
     this.jQ.removeClass('hasCursor');
-    if (this.isEmpty())
+    if (this.isEmpty()) {
       this.jQ.addClass('empty');
+    }
+
     return this;
   },
   removeEmpty:function(cursorJQ) {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-    {
+    if (this.isEmpty()) {
       this.jQ.removeClass('empty').append(cursorJQ);
       return false;
     }
+
     return true;
   }
 });
@@ -183,8 +183,7 @@ MathBlock.prototype = $.extend(new MathElement, {
  * that delimit a list of symbols and operators.
  */
 function MathFragment(parent, prev, next) {
-  if (!arguments.length)
-    return;
+  if (!arguments.length) return;
 
   this.parent = parent;
   this.prev = prev || null; //so you can do 'new MathFragment(block)' without
