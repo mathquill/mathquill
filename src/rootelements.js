@@ -56,10 +56,15 @@ function createRoot(type) {
     jQ.bind('keydown.mathquill',function(e) { //see Wiki page "Keyboard Events"
       lastKeydnEvt = e;
       e.happened = true;
-      return 
-        e.returnValue = cursor.parent.keydown(e) ||
-        (e.stopImmediatePropagation(), false)
-      ;
+
+      e.returnValue = cursor.parent.keydown(e)
+      if (e.returnValue) {
+        return e.returnValue;
+      }
+      else {
+        e.stopImmediatePropagation();
+        return false;
+      }
     }).bind('keypress.mathquill',function(e) {
       //on auto-repeated key events, keypress may get triggered but not keydown
       //  (see Wiki page "Keyboard Events")
