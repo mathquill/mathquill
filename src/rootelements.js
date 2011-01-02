@@ -56,23 +56,38 @@ function createRoot(type) {
     jQ.bind('keydown.mathquill',function(e) { //see Wiki page "Keyboard Events"
       lastKeydn.evt = e;
       lastKeydn.happened = true;
-      return lastKeydn.returnValue = cursor.parent.keydown(e) ||
-        (e.stopImmediatePropagation() && false);
+      lastKeydn.returnValue = cursor.parent.keydown(e);
+      if (lastKeydn.returnValue)
+        return true;
+      else {
+        e.stopImmediatePropagation();
+        return false;
+      }
     }).bind('keypress.mathquill',function(e) {
       //on auto-repeated key events, keypress may get triggered but not keydown
       //  (see Wiki page "Keyboard Events")
-      if (lastKeydn.happened) {
+      if (lastKeydn.happened)
         lastKeydn.happened = false;
-      }
-      else {
+      else
         lastKeydn.returnValue = cursor.parent.keydown(lastKeydn.evt);
-      }
 
-      return lastKeydn.returnValue && ( //only call keypress if keydown returned true
-        e.ctrlKey || e.metaKey ||
-        e.which < 32 || //in ASCII, below 32 there are only control chars
-        cursor.parent.keypress(e) || (e.stopImmediatePropagation() && false)
-      );
+      //prevent default and cancel keypress if keydown returned false,
+      //even in browsers where that doesn't automatically happen
+      //  (see Wiki page "Keyboard Events")
+      if (!lastKeydn.returnValue)
+        return false;
+
+      //ignore commands, shortcuts and control characters
+      //in ASCII, below 32 there are only control chars
+      if (e.ctrlKey || e.metaKey || e.which < 32)
+        return true;
+
+      if (cursor.parent.keypress(e))
+        return true;
+      else {
+        e.stopImmediatePropagation();
+        return false;
+      };
     }).bind('click.mathquill',function(e) {
       var clicked = $(e.target);
       if (clicked.hasClass('empty')) {
