@@ -27,9 +27,9 @@ function createRoot(type) {
 
     if (!editable) return;
 
-    var textarea = root.textarea =
-      $('<span class="textarea"><textarea></textarea></span>')
-        .prependTo(jQ.addClass('mathquill-editable')).children();
+    root.textarea = $('<span class="textarea"><textarea></textarea></span>')
+      .prependTo(jQ.addClass('mathquill-editable'));
+    var textarea = root.textarea.children();
     if (textbox)
       jQ.addClass('mathquill-textbox');
 

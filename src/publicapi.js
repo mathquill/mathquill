@@ -27,7 +27,8 @@ $.fn.mathquill = function(cmd, latex) {
     var mathObj = this.data('[[mathquill internal data]]');
     return mathObj && mathObj.block && mathObj.block.latex();
   case 'html':
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>|<span class="?textarea"?><textarea><\/textarea><\/span>/ig, '');
+    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
+      .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
   case 'write':
     latex = latex.charAt(0) === '\\' ? latex.slice(1) : latex;
     if (arguments.length > 1)
@@ -39,7 +40,7 @@ $.fn.mathquill = function(cmd, latex) {
 
         if (cursor) {
           cursor.show().write(latex);
-          block.textarea.triggerHandler('blur');
+          block.blur();
         }
       });
   default:
