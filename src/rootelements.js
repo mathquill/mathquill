@@ -93,14 +93,16 @@ function createRoot(type) {
         return false;
       }
 
-      var cmd = clicked.data('[[mathquill internal data]]');
-      if (cmd) {
-        if (cmd.cmd && !cmd.block) {
+      var data = clicked.data('[[mathquill internal data]]');
+      if (data) {
+        //if clicked a symbol, insert of whichever side is closer
+        if (data.cmd && !data.block) {
           cursor.clearSelection();
           if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-            cursor.insertBefore(cmd.cmd);
+            cursor.insertBefore(data.cmd);
           else
-            cursor.insertAfter(cmd.cmd);
+            cursor.insertAfter(data.cmd);
+
           return false;
         }
       }
@@ -108,16 +110,16 @@ function createRoot(type) {
       //the user probably didn't click on the math after all
       else {
         clicked = clicked.parent();
-        cmd = clicked.data('[[mathquill internal data]]');
-        if (!cmd)
+        data = clicked.data('[[mathquill internal data]]');
+        if (!data)
           return;
       }
 
       cursor.clearSelection();
-      if (cmd.cmd)
-        cursor.insertAfter(cmd.cmd);
+      if (data.cmd)
+        cursor.insertAfter(data.cmd);
       else
-        cursor.appendTo(cmd.block);
+        cursor.appendTo(data.block);
 
       //move cursor to position closest to click
       var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;

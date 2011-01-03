@@ -11,21 +11,21 @@ $.fn.mathquill = function(cmd, latex) {
     return this;
   case 'revert':
     return this.each(function() {
-      var mathObj = $(this).data('[[mathquill internal data]]');
-      if (mathObj && mathObj.revert)
-        mathObj.revert();
+      var data = $(this).data('[[mathquill internal data]]');
+      if (data && data.revert)
+        data.revert();
     });
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
-        var mathObj = $(this).data('[[mathquill internal data]]');
-        if (mathObj && mathObj.block && mathObj.block.renderLatex)
-          mathObj.block.renderLatex(latex);
+        var data = $(this).data('[[mathquill internal data]]');
+        if (data && data.block && data.block.renderLatex)
+          data.block.renderLatex(latex);
       });
     }
 
-    var mathObj = this.data('[[mathquill internal data]]');
-    return mathObj && mathObj.block && mathObj.block.latex();
+    var data = this.data('[[mathquill internal data]]');
+    return data && data.block && data.block.latex();
   case 'html':
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
@@ -34,8 +34,8 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.each(function() {
         var
-          mathObj = $(this).data('[[mathquill internal data]]'),
-          block = mathObj && mathObj.block, cursor = block && block.cursor
+          data = $(this).data('[[mathquill internal data]]'),
+          block = data && data.block, cursor = block && block.cursor
         ;
 
         if (cursor) {
