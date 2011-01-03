@@ -104,8 +104,13 @@ function createRoot(type) {
           return false;
         }
       }
-      else if (!(cmd = (clicked = clicked.parent()).data('[[mathquill internal data]]'))) {
-        return;
+      //if no MathQuill data, try parent, if still no,
+      //the user probably didn't click on the math after all
+      else {
+        clicked = clicked.parent();
+        cmd = clicked.data('[[mathquill internal data]]');
+        if (!cmd)
+          return;
       }
 
       cursor.clearSelection();
