@@ -12,7 +12,7 @@ function createRoot(type) {
     if (!textbox)
       jQ.addClass('mathquill-rendered-math');
 
-      root.jQ = jQ.data('[[mathquill internal data]]', {
+    root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
       revert: function() {
         jQ.empty().unbind('.mathquill')
