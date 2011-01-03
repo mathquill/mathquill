@@ -25,7 +25,8 @@ function createRoot(type) {
 
     root.renderLatex(contents.text());
 
-    if (!editable) return;
+    if (!editable) //if static, quit once we render the LaTeX
+      return;
 
     root.textarea = $('<span class="textarea"><textarea></textarea></span>')
       .prependTo(jQ.addClass('mathquill-editable'));
