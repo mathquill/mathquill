@@ -172,7 +172,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             }
             cmd = new TextBlock(text);
             cursor.insertNew(cmd).insertAfter(cmd);
-            continue;
+            continue; //skip recursing through children
           }
           else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
             token = latex.shift();
@@ -182,10 +182,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             cursor.write(token);
             cmd = cursor.prev || cursor.parent.parent;
 
-            if (cursor.prev)
+            if (cursor.prev) //was a close-paren, so break recursion
               return;
-            else
-              latex.unshift('{');
+            else //was an open-paren, hack to put the following latex
+              latex.unshift('{'); //in the ParenBlock in the math DOM
           }
           else if (/^\\[a-z]+$/i.test(token)) {
             token = token.slice(1);
@@ -195,7 +195,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             else {
               cmd = new TextBlock(token);
               cursor.insertNew(cmd).insertAfter(cmd);
-              continue;
+              continue; //skip recursing through children
             }
           }
           else {
@@ -211,7 +211,6 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           cmd.eachChild(function() {
             cursor.appendTo(this);
             var token = latex.shift();
-
             if (!token) return false;
 
             if (token === '{')
