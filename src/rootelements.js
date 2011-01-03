@@ -300,8 +300,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 'Left':
       if (e.ctrlKey) return true;
 
-      if (e.shiftKey) this.cursor.selectLeft();
-      else this.cursor.moveLeft();
+      if (e.shiftKey)
+        this.cursor.selectLeft();
+      else
+        this.cursor.moveLeft();
 
       return false;
     case 38: //up
@@ -326,8 +328,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 'Right':
       if (e.ctrlKey) return true;
 
-      if (e.shiftKey) this.cursor.selectRight();
-      else this.cursor.moveRight();
+      if (e.shiftKey)
+        this.cursor.selectRight();
+      else
+        this.cursor.moveRight();
 
       return false;
 
