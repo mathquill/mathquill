@@ -252,10 +252,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 'U+0009':
       if (e.ctrlKey) return true;
 
-      var
-        parent = this.cursor.parent,
-        gramp = parent.parent
-      ;
+      var parent = this.cursor.parent,
+        gramp = parent.parent;
 
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
         if (!gramp) //cursor is in the root, continue default
