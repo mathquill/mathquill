@@ -182,8 +182,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             cursor.write(token);
             cmd = cursor.prev || cursor.parent.parent;
 
-            if (cursor.prev) return;
-            else latex.unshift('{');
+            if (cursor.prev)
+              return;
+            else
+              latex.unshift('{');
           }
           else if (/^\\[a-z]+$/i.test(token)) {
             token = token.slice(1);
