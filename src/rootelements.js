@@ -236,14 +236,11 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 8: //backspace
     case 'Backspace':
     case 'U+0008':
-      if (e.ctrlKey) {
-        while (this.cursor.prev) {
+      if (e.ctrlKey)
+        while (this.cursor.prev)
           this.cursor.backspace();
-        }
-      }
-      else {
+      else
         this.cursor.backspace();
-      }
 
       return false;
     case 27: //esc does something weird in keypress, may as well be the same as tab
@@ -261,26 +258,20 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       ;
 
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-        if (!gramp) { //cursor is in the root, continue default
+        if (!gramp) //cursor is in the root, continue default
           return this.skipKeypress = true;
-        }
-        else if (parent.prev) { //go one block left
+        else if (parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
-        }
-        else { //get out of the block
+        else //get out of the block
           this.cursor.insertBefore(gramp);
-        }
       }
       else { //plain Tab = go one block right if it exists, else escape right.
-        if (!gramp) { //cursor is in the root, continue default
+        if (!gramp) //cursor is in the root, continue default
           return this.skipKeypress = true;
-        }
-        else if (parent.next) { //go one block right
+        else if (parent.next) //go one block right
           this.cursor.prependTo(parent.next);
-        }
-        else { //get out of the block
+        else //get out of the block
           this.cursor.insertAfter(gramp);
-        }
       }
 
       this.cursor.clearSelection();
@@ -291,26 +282,20 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       return this.skipKeypress = true;
     case 35: //end
     case 'End':
-      if (e.shiftKey) {
-        while (this.cursor.next || (e.ctrlKey && this.cursor.parent.parent)) {
+      if (e.shiftKey)
+        while (this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
           this.cursor.selectRight();
-        }
-      }
-      else { //move to the end of the root block or the current block.
+      else //move to the end of the root block or the current block.
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-      }
 
       return false;
     case 36: //home
     case 'Home':
-      if (e.shiftKey) {
-        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent)) {
+      if (e.shiftKey)
+        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent))
           this.cursor.selectLeft();
-        }
-      }
-      else { //move to the start of the root block or the current block.
+      else //move to the start of the root block or the current block.
         this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-      }
 
       return false;
     case 37: //left
@@ -326,24 +311,18 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if (e.ctrlKey) return true;
 
       if (e.shiftKey) {
-        if (this.cursor.prev) {
-          while (this.cursor.prev) {
+        if (this.cursor.prev)
+          while (this.cursor.prev)
             this.cursor.selectLeft();
-          }
-        }
-        else {
+        else
           this.cursor.selectLeft();
-        }
       }
-      else if (this.cursor.parent.prev) {
+      else if (this.cursor.parent.prev)
         this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      }
-      else if (this.cursor.prev) {
+      else if (this.cursor.prev)
         this.cursor.clearSelection().prependTo(this.cursor.parent);
-      }
-      else if (this.cursor.parent.parent) {
+      else if (this.cursor.parent.parent)
         this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-      }
       return false;
     case 39: //right
     case 'Right':
@@ -359,36 +338,27 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       if (e.ctrlKey) return true;
 
       if (e.shiftKey) {
-        if (this.cursor.next) {
-          while (this.cursor.next) {
+        if (this.cursor.next)
+          while (this.cursor.next)
             this.cursor.selectRight();
-          }
-        }
-        else {
+        else
           this.cursor.selectRight();
-        }
       }
-      else if (this.cursor.parent.next) {
+      else if (this.cursor.parent.next)
         this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      }
-      else if (this.cursor.next) {
+      else if (this.cursor.next)
         this.cursor.clearSelection().appendTo(this.cursor.parent);
-      }
-      else if (this.cursor.parent.parent) {
+      else if (this.cursor.parent.parent)
         this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-      }
       return false;
     case 46: //delete
     case 'Del':
     case 'U+007F':
-      if (e.ctrlKey) {
-        while (this.cursor.next) {
+      if (e.ctrlKey)
+        while (this.cursor.next)
           this.cursor.deleteForward();
-        }
-      }
-      else {
+      else
         this.cursor.deleteForward();
-      }
       return false;
     case 65: //'a' character, as in Select All
     case 'A':
@@ -397,14 +367,12 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         return true;
       }
 
-      if (this.parent) { //so not stopPropagation'd at RootMathCommand
+      if (this.parent) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
-      }
 
       this.cursor.clearSelection().appendTo(this);
-      while (this.cursor.prev) {
+      while (this.cursor.prev)
         this.cursor.selectLeft();
-      }
 
       return false;
     default:
@@ -431,15 +399,12 @@ function RootMathCommand(cursor) {
       if (this.isEmpty()) {
         cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
       }
-      else if (!cursor.next) {
+      else if (!cursor.next)
         cursor.insertAfter(this.parent);
-      }
-      else if (!cursor.prev) {
+      else if (!cursor.prev)
         cursor.insertBefore(this.parent);
-      }
-      else {
+      else
         cursor.show().write(ch);
-      }
 
       return false;
     }
