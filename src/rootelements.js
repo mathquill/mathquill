@@ -397,9 +397,9 @@ function RootMathCommand(cursor) {
 
     var ch = String.fromCharCode(e.which);
     if (ch === '$' && cursor.parent == this) {
-
       if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace().insertNew(new VanillaSymbol('\\$','$')).show();
+        cursor.insertAfter(this.parent).backspace()
+          .insertNew(new VanillaSymbol('\\$','$')).show();
       }
       else if (!cursor.next)
         cursor.insertAfter(this.parent);
