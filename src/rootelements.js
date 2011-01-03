@@ -114,12 +114,10 @@ function createRoot(type) {
       }
 
       cursor.clearSelection();
-      if (cmd.cmd) {
+      if (cmd.cmd)
         cursor.insertAfter(cmd.cmd);
-      }
-      else {
+      else
         cursor.appendTo(cmd.block);
-      }
 
       //move cursor to position closest to click
       var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
@@ -131,9 +129,8 @@ function createRoot(type) {
       }
       while (dist <= prevDist && dist != prevPrevDist);
 
-      if (dist != prevPrevDist) {
+      if (dist != prevPrevDist)
         cursor.moveRight();
-      }
 
       return false;
     }).bind('click.mathquill',function() {
@@ -158,18 +155,17 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       (function recurse(cursor) {
         while (latex.length) {
           var token = latex.shift(); //pop first item
-          if (!token || token === '}') {
-            return;
-          }
+          if (!token || token === '}') return;
+
           var cmd;
           if (token === '\\text') {
             var text = latex.shift();
             if (text === '{') {
               text = token = latex.shift();
               while (token !== '}') {
-                if (token === '\\') { //skip tokens immediately following backslash
+                if (token === '\\') //skip tokens immediately following backslash
                   text += token = latex.shift();
-                }
+
                 text += token = latex.shift();
               }
               text = text.slice(0,-1); //cut trailing '}'
@@ -180,9 +176,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           }
           else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
             token = latex.shift();
-            if (token === '\\') {
+            if (token === '\\')
               token = latex.shift();
-            }
 
             cursor.write(token);
             cmd = cursor.prev || cursor.parent.parent;
@@ -193,9 +188,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           else if (/^\\[a-z]+$/i.test(token)) {
             token = token.slice(1);
             var cmd = LatexCmds[token];
-            if (cmd) {
+            if (cmd)
               cursor.insertNew(cmd = new cmd(undefined, token));
-            }
             else {
               cmd = new TextBlock(token);
               cursor.insertNew(cmd).insertAfter(cmd);
@@ -203,15 +197,13 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
             }
           }
           else {
-            if (token.match(/[a-eg-zA-Z]/)) { //exclude f because want florin
+            if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
               cmd = new Variable(token);
-            }
-            else if (cmd = LatexCmds[token]) {
+            else if (cmd = LatexCmds[token])
               cmd = new cmd;
-            }
-            else {
+            else
               cmd = new VanillaSymbol(token);
-            }
+
             cursor.insertNew(cmd);
           }
           cmd.eachChild(function() {
@@ -220,12 +212,10 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
             if (!token) return false;
 
-            if (token === '{') {
+            if (token === '{')
               recurse(cursor);
-            }
-            else {
+            else
               cursor.write(token);
-            }
           });
           cursor.insertAfter(cmd);
         }
