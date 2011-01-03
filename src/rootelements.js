@@ -230,7 +230,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   },
   keydown: function(e)
   {
-    this.skipKeypress = false;
+    this.skipKeypress = true;
     e.ctrlKey = e.ctrlKey || e.metaKey;
     switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
     case 8: //backspace
@@ -241,8 +241,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           this.cursor.backspace();
       else
         this.cursor.backspace();
-
-      return false;
+      break;
     case 27: //esc does something weird in keypress, may as well be the same as tab
              //  until we figure out what to do with it
     case 'Esc':
@@ -250,14 +249,14 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 9: //tab
     case 'Tab':
     case 'U+0009':
-      if (e.ctrlKey) return true;
+      if (e.ctrlKey) break;
 
       var parent = this.cursor.parent,
         gramp = parent.parent;
 
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
         if (!gramp) //cursor is in the root, continue default
-          return this.skipKeypress = true;
+          break;
         else if (parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
@@ -277,7 +276,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 13: //enter
     case 'Enter':
       e.preventDefault();
-      return this.skipKeypress = true;
+      break;
     case 35: //end
     case 'End':
       if (e.shiftKey)
@@ -285,8 +284,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           this.cursor.selectRight();
       else //move to the end of the root block or the current block.
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-
-      return false;
+      break;
     case 36: //home
     case 'Home':
       if (e.shiftKey)
@@ -294,21 +292,19 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           this.cursor.selectLeft();
       else //move to the start of the root block or the current block.
         this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-
-      return false;
+      break;
     case 37: //left
     case 'Left':
-      if (e.ctrlKey) return true;
+      if (e.ctrlKey) break;
 
       if (e.shiftKey)
         this.cursor.selectLeft();
       else
         this.cursor.moveLeft();
-
-      return false;
+      break;
     case 38: //up
     case 'Up':
-      if (e.ctrlKey) return true;
+      if (e.ctrlKey) break;
 
       if (e.shiftKey) {
         if (this.cursor.prev)
@@ -323,21 +319,19 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().prependTo(this.cursor.parent);
       else if (this.cursor.parent.parent)
         this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-      return false;
+      break;
     case 39: //right
     case 'Right':
-      if (e.ctrlKey) return true;
+      if (e.ctrlKey) break;
 
       if (e.shiftKey)
         this.cursor.selectRight();
       else
         this.cursor.moveRight();
-
-      return false;
-
+      break;
     case 40: //down
     case 'Down':
-      if (e.ctrlKey) return true;
+      if (e.ctrlKey) break;
 
       if (e.shiftKey) {
         if (this.cursor.next)
@@ -352,7 +346,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().appendTo(this.cursor.parent);
       else if (this.cursor.parent.parent)
         this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-      return false;
+      break;
     case 46: //delete
     case 'Del':
     case 'U+007F':
@@ -361,12 +355,13 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
           this.cursor.deleteForward();
       else
         this.cursor.deleteForward();
-      return false;
+      break;
     case 65: //'a' character, as in Select All
     case 'A':
     case 'U+0041':
       if (!e.ctrlKey || e.shiftKey || e.altKey) {
-        return true;
+        this.skipKeypress = false;
+        break;
       }
 
       if (this.parent) //so not stopPropagation'd at RootMathCommand
@@ -375,17 +370,18 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       this.cursor.clearSelection().appendTo(this);
       while (this.cursor.prev)
         this.cursor.selectLeft();
-
-      return false;
+      break;
     default:
-      return true;
+      this.skipKeypress = false;
     }
+    return true;
   },
   keypress: function(e) {
     if (this.skipKeypress) return true;
 
     this.cursor.show().write(String.fromCharCode(e.which));
-    return false;
+    e.preventDefault();
+    return true;
   }
 });
 
@@ -410,7 +406,9 @@ function RootMathCommand(cursor) {
     }
     else
       cursor.show().write(ch);
-    return false;
+
+    e.preventDefault();
+    return true;
   };
 }
 RootMathCommand.prototype = $.extend(new MathCommand, {
@@ -439,6 +437,8 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
       this.cursor.insertNew(new RootMathCommand(this.cursor));
     else
       this.cursor.insertNew(new VanillaSymbol(ch));
-    return false;
+
+    e.preventDefault();
+    return true;
   }
 });
