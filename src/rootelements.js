@@ -407,10 +407,9 @@ function RootMathCommand(cursor) {
         cursor.insertBefore(this.parent);
       else
         cursor.show().write(ch);
-
-      return false;
     }
-    cursor.show().write(ch);
+    else
+      cursor.show().write(ch);
     return false;
   };
 }
