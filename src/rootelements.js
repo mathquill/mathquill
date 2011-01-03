@@ -436,12 +436,10 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
 
     this.cursor.deleteSelection();
     var ch = String.fromCharCode(e.which);
-    if (ch === '$') {
+    if (ch === '$')
       this.cursor.insertNew(new RootMathCommand(this.cursor));
-    }
-    else {
+    else
       this.cursor.insertNew(new VanillaSymbol(ch));
-    }
     return false;
   }
 });
