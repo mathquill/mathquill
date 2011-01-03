@@ -5,15 +5,12 @@
 function createRoot(type) {
   var textbox = type === 'textbox', editable = textbox || type === 'editable';
   return this.each(function() {
-    var
-      jQ = $(this),
+    var jQ = $(this),
       contents = jQ.contents().detach(),
-      root = new (textbox ? RootTextBlock : RootMathBlock)
-    ;
+      root = new (textbox ? RootTextBlock : RootMathBlock);
 
-    if (!textbox) {
+    if (!textbox)
       jQ.addClass('mathquill-rendered-math');
-    }
 
       root.jQ = jQ.data('[[mathquill internal data]]', {
       block: root,
