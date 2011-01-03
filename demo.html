@@ -36,7 +36,7 @@
         function printTree(html)
         {
           html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
-          if(!html) return;
+          if(!html) return '';
           var indent = '\n', tree = '';
           while(html.length)
           {
