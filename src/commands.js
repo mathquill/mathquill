@@ -11,21 +11,19 @@ function proto(parent, child) { //shorthand for prototyping
 
 function SupSub(cmd, html, replacedFragment) {
   MathCommand.call(this, cmd, [ html ], replacedFragment);
-  var me = this;
-  this.jQ.change(function()
-  {
-    me.respace();
-    if (me.next)
-      me.next.respace();
-    if (me.prev)
-      me.prev.respace();
-  });
 }
 SupSub.prototype = new MathCommand;
 SupSub.prototype.latex = function() {
   var latex = this.firstChild.latex();
   if (latex.length === 1) return this.cmd + latex;
   return this.cmd + '{' + (latex || ' ') + '}';
+};
+SupSub.prototype.redraw = function() {
+  this.respace();
+  if (this.next)
+    this.next.respace();
+  if (this.prev)
+    this.prev.respace();
 };
 SupSub.prototype.respace = function() {
   if (
@@ -145,14 +143,6 @@ CharCmds['/'] = LiveFraction;
 
 function SquareRoot(replacedFragment) {
   MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
-  this.firstChild.jQ.change(function() {
-    var block = $(this), height = block.height();
-    block.css({
-      borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
-    }).prev().css({
-      fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
-    });
-  });
 }
 
 SquareRoot.prototype = new MathCommand;
@@ -160,6 +150,14 @@ SquareRoot.prototype.html_template = [
   '<span><span class="sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
+SquareRoot.prototype.redraw = function() {
+  var block = this.firstChild.jQ, height = block.height();
+  block.css({
+    borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
+  }).prev().css({
+    fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
+  });
+};
 
 LatexCmds.sqrt = SquareRoot;
 
@@ -169,10 +167,6 @@ function Bracket(open, close, cmd, end, replacedFragment) {
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     replacedFragment);
   this.end = '\\right'+end;
-  this.firstChild.jQ.change(function() {
-    var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
-  });
 }
 Bracket.prototype = new MathCommand;
 Bracket.prototype.initBlocks = function(replacedFragment) {
@@ -185,6 +179,10 @@ Bracket.prototype.initBlocks = function(replacedFragment) {
 };
 Bracket.prototype.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
+};
+Bracket.prototype.redraw = function() {
+  var block = this.firstChild.jQ;
+  block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -205,7 +203,7 @@ CloseBracket.prototype.placeCursor = function(cursor) {
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-    this.firstChild.setEmpty().jQ.change();
+    this.firstChild.setEmpty();
 };
 
 LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedFragment) {
@@ -346,7 +344,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
         else if (cursor.prev === textblock) {
           cursor.prev = textblock.prev;
         }
-        cursor.show().jQ.change();
+        cursor.show().redraw();
       }
     }
     return this;
@@ -386,7 +384,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
       else {
         cursor.prependTo(this);
       }
-      this.jQ.change();
+      cursor.redraw();
       return false;
     }
     else if (textblock.prev instanceof TextBlock) {
@@ -483,14 +481,16 @@ CharCmds['\\'] = LatexCommandInput;
 function Binomial(replacedFragment) {
   MathCommand.call(this, '\\binom', undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
-  this.firstChild.jQ.parent().change(function() {
-    var block = $(this);
-    block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*.9+2)+'em');
-  });
 }
 Binomial.prototype = new MathCommand;
 Binomial.prototype.html_template =
   ['<span></span>', '<span></span>', '<span></span>'];
+Binomial.prototype.redraw = function() {
+  this.jQ.children(':first').add(this.jQ.children(':last'))
+    .css('fontSize',
+      this.jQ.height()/(+this.jQ.css('fontSize').slice(0,-2)*.9+2)+'em'
+    );
+};
 
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
@@ -535,8 +535,7 @@ Vector.prototype.keydown = function(e) {
       newBlock.next = currentBlock.next;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock);
-      this.jQ.change();
+      this.cursor.appendTo(newBlock).redraw();
       return false;
     }
     else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
@@ -546,7 +545,7 @@ Vector.prototype.keydown = function(e) {
           delete currentBlock.prev.next;
           this.lastChild = currentBlock.prev;
           currentBlock.jQ.remove();
-          this.jQ.change();
+          this.cursor.redraw();
           return false;
         }
         else {
@@ -560,8 +559,7 @@ Vector.prototype.keydown = function(e) {
       this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock);
-      this.jQ.change();
+      this.cursor.appendTo(newBlock).redraw();
       return false;
     }
     else if (e.which === 8) { //backspace
@@ -587,7 +585,7 @@ Vector.prototype.keydown = function(e) {
           this.cursor.deleteForward();
         }
         else {
-          this.jQ.change();
+          this.cursor.redraw();
         }
 
         return false;

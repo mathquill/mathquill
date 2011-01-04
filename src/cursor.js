@@ -44,6 +44,12 @@ Cursor.prototype = {
   prev: null,
   next: null,
   parent: null,
+  redraw: function() {
+    var ancestor = this;
+    while (ancestor = ancestor.parent)
+      if (ancestor.redraw)
+        ancestor.redraw();
+  },
   insertAt: function(parent, next, prev)
   {
     var p = this.parent;
@@ -185,7 +191,7 @@ Cursor.prototype = {
 
     cmd.placeCursor(this);
 
-    this.jQ.change();
+    this.redraw();
 
     return this;
   },
@@ -273,7 +279,7 @@ Cursor.prototype = {
       this.prev.respace();
     if(this.next)
       this.next.respace();
-    this.jQ.change();
+    this.redraw();
 
     return this;
   },
@@ -295,7 +301,7 @@ Cursor.prototype = {
       this.prev.respace();
     if(this.next)
       this.next.respace();
-    this.jQ.change();
+    this.redraw();
 
     return this;
   },

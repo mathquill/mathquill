@@ -7,7 +7,8 @@
 $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
-    this.find(':not(:has(:first))').change();
+    this.find(':not(:has(:first))')
+      .mathquill('[[mathquill internal data]]').cmd.redraw();
     return this;
   case 'revert':
     return this.each(function() {
