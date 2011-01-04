@@ -15,8 +15,10 @@ function SupSub(cmd, html, replacedFragment) {
 SupSub.prototype = new MathCommand;
 SupSub.prototype.latex = function() {
   var latex = this.firstChild.latex();
-  if (latex.length === 1) return this.cmd + latex;
-  return this.cmd + '{' + (latex || ' ') + '}';
+  if (latex.length === 1)
+    return this.cmd + latex;
+  else
+    return this.cmd + '{' + (latex || ' ') + '}';
 };
 SupSub.prototype.redraw = function() {
   this.respace();
@@ -81,7 +83,7 @@ SupSub.prototype.respace = function() {
   return this;
 };
 
-LatexCmds.subscript = LatexCmds['_'] = proto(SupSub, function(replacedFragment) {
+LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
   SupSub.call(this, '_', '<sub></sub>', replacedFragment);
 });
 
@@ -117,15 +119,13 @@ LiveFraction.prototype.placeCursor = function(cursor) {
         prev instanceof TextBlock ||
         prev instanceof BigSymbol
       ) //lookbehind for operator
-    ) {
+    )
       prev = prev.prev;
-    }
 
     if (prev instanceof BigSymbol && prev.next instanceof SupSub) {
       prev = prev.next;
-      if (prev.next instanceof SupSub && prev.next.cmd != prev.cmd) {
+      if (prev.next instanceof SupSub && prev.next.cmd != prev.cmd)
         prev = prev.next;
-      }
     }
 
     if (prev !== this.prev) {
@@ -144,7 +144,6 @@ CharCmds['/'] = LiveFraction;
 function SquareRoot(replacedFragment) {
   MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
 }
-
 SquareRoot.prototype = new MathCommand;
 SquareRoot.prototype.html_template = [
   '<span><span class="sqrt-prefix">&radic;</span></span>',
@@ -255,6 +254,7 @@ function TextBlock(replacedText) {
     this.replacedText = replacedText.remove().jQ.text();
   else if (typeof replacedText === 'string')
     this.replacedText = replacedText;
+
   MathCommand.call(this, '\\text');
 }
 TextBlock.prototype = $.extend(new MathCommand, {
@@ -270,11 +270,9 @@ TextBlock.prototype = $.extend(new MathCommand, {
   placeCursor: function(cursor) {
     (this.cursor = cursor).appendTo(this.firstChild);
 
-    if (this.replacedText) {
-      for (var i = 0; i < this.replacedText.length; i += 1) {
+    if (this.replacedText)
+      for (var i = 0; i < this.replacedText.length; i += 1)
         this.write(this.replacedText.charAt(i));
-      }
-    }
   },
   write: function(ch) {
     this.cursor.insertNew(new VanillaSymbol(ch));
@@ -287,7 +285,8 @@ TextBlock.prototype = $.extend(new MathCommand, {
         (e.which === 46 && !this.cursor.next)
       )
     ) {
-      if (this.isEmpty()) this.cursor.insertAfter(this);
+      if (this.isEmpty())
+        this.cursor.insertAfter(this);
       return false;
     }
     return this.parent.keydown(e);
@@ -295,33 +294,27 @@ TextBlock.prototype = $.extend(new MathCommand, {
   keypress: function(e) {
     this.cursor.deleteSelection();
     var ch = String.fromCharCode(e.which);
-    if (ch === '$') {
-      if (this.isEmpty()) {
-        this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
-      }
-      else if (!this.cursor.next) {
-        this.cursor.insertAfter(this);
-      }
-      else if (!this.cursor.prev) {
-        this.cursor.insertBefore(this);
-      }
-      else { //split apart
-        var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-        next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
-        {
-          this.prev = null;
-          delete this.placeCursor;
-          this.placeCursor(cursor);
-        };
-        next.firstChild.removeEmpty = function(){ return this; };
-        this.cursor.insertAfter(this).insertNew(next);
-        next.prev = this;
-        this.cursor.insertBefore(next);
-        delete next.firstChild.removeEmpty;
-      }
-    }
-    else {
+    if (ch !== '$')
       this.write(ch);
+    else if (this.isEmpty())
+      this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
+    else if (!this.cursor.next)
+      this.cursor.insertAfter(this);
+    else if (!this.cursor.prev)
+      this.cursor.insertBefore(this);
+    else { //split apart
+      var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
+      next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
+      {
+        this.prev = null;
+        delete this.placeCursor;
+        this.placeCursor(cursor);
+      };
+      next.firstChild.removeEmpty = function(){ return this; };
+      this.cursor.insertAfter(this).insertNew(next);
+      next.prev = this;
+      this.cursor.insertBefore(next);
+      delete next.firstChild.removeEmpty;
     }
     return false;
   }
@@ -332,18 +325,16 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
-      if (cursor.parent === this) {
+      if (cursor.parent === this)
         this.jQ.addClass('empty');
-      }
       else {
         cursor.hide();
         textblock.remove();
-        if (cursor.next === textblock) {
+        if (cursor.next === textblock)
           cursor.next = textblock.next;
-        }
-        else if (cursor.prev === textblock) {
+        else if (cursor.prev === textblock)
           cursor.prev = textblock.prev;
-        }
+
         cursor.show().redraw();
       }
     }
@@ -351,16 +342,14 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
   },
   removeEmpty: function() {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty()) {
+    if (this.isEmpty())
       this.jQ.removeClass('empty');
-    }
+
     var textblock = this.parent;
     if (textblock.next instanceof TextBlock) {
-      var
-        innerblock = this,
+      var innerblock = this,
         cursor = textblock.cursor,
-        next = textblock.next.firstChild
-      ;
+        next = textblock.next.firstChild;
 
       next.eachChild(function(){
         this.parent = innerblock;
@@ -369,32 +358,28 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
 
       next.firstChild.prev = this.lastChild;
 
-      if (this.lastChild) {
+      if (this.lastChild)
         this.lastChild.next = next.firstChild;
-      }
-      else {
+      else
         this.firstChild = next.firstChild;
-      }
 
       this.lastChild = next.lastChild;
       next.parent.remove();
-      if (cursor.prev) {
+      if (cursor.prev)
         cursor.insertAfter(cursor.prev);
-      }
-      else {
+      else
         cursor.prependTo(this);
-      }
+
       cursor.redraw();
       return false;
     }
     else if (textblock.prev instanceof TextBlock) {
       var cursor = textblock.cursor;
-      if (cursor.prev) {
+      if (cursor.prev)
         textblock.prev.firstChild.removeEmpty();
-      }
-      else {
+      else
         cursor.appendTo(textblock.prev.firstChild);
-      }
+
       return false;
     }
 
@@ -437,42 +422,39 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
       return false;
     }
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty())) {
+    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
       return false;
-    }
+
     return this.cursor.parent.keypress(e);
   },
   renderCommand: function() {
     this.jQ = this.jQ.last();
     this.remove();
-    if (this.next) {
+    if (this.next)
       this.cursor.insertBefore(this.next);
-    }
-    else {
+    else
       this.cursor.appendTo(this.parent);
-    }
+
     var latex = this.firstChild.latex(), cmd;
     if (latex) {
-      if (cmd = LatexCmds[latex]) {
+      if (cmd = LatexCmds[latex])
         cmd = new cmd(this.replacedFragment, latex);
-      }
       else {
         cmd = new TextBlock(latex);
         cmd.firstChild.removeEmpty = function(){ delete this.removeEmpty; return true; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this.replacedFragment) {
+        if (this.replacedFragment)
           this.replacedFragment.remove();
-        }
+
         return;
       }
     }
-    else {
+    else
       cmd = new VanillaSymbol('\\backslash ','\\');
-    }
+
     this.cursor.insertNew(cmd);
-    if (cmd instanceof Symbol && this.replacedFragment) {
+    if (cmd instanceof Symbol && this.replacedFragment)
       this.replacedFragment.remove();
-    }
   }
 });
 
@@ -525,13 +507,14 @@ Vector.prototype.keydown = function(e) {
     if (e.which === 13) { //enter
       var newBlock = new MathBlock;
       newBlock.parent = this;
-      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).insertAfter(currentBlock.jQ);
-      if (currentBlock.next) {
+      newBlock.jQ = $('<span></span>')
+        .data('[[mathquill internal data]]', {block: newBlock})
+        .insertAfter(currentBlock.jQ);
+      if (currentBlock.next)
         currentBlock.next.prev = newBlock;
-      }
-      else {
+      else
         this.lastChild = newBlock;
-      }
+
       newBlock.next = currentBlock.next;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
@@ -548,9 +531,8 @@ Vector.prototype.keydown = function(e) {
           this.cursor.redraw();
           return false;
         }
-        else {
+        else
           return this.parent.keydown(e);
-        }
       }
 
       var newBlock = new MathBlock;
@@ -573,26 +555,21 @@ Vector.prototype.keydown = function(e) {
           this.firstChild = currentBlock.next;
         }
 
-        if (currentBlock.next) {
+        if (currentBlock.next)
           currentBlock.next.prev = currentBlock.prev;
-        }
-        else {
+        else
           this.lastChild = currentBlock.prev;
-        }
 
         currentBlock.jQ.remove();
-        if (this.isEmpty()) {
+        if (this.isEmpty())
           this.cursor.deleteForward();
-        }
-        else {
+        else
           this.cursor.redraw();
-        }
 
         return false;
       }
-      else if (!this.cursor.prev) {
+      else if (!this.cursor.prev)
         return false;
-      }
     }
   }
   return this.parent.keydown(e);
