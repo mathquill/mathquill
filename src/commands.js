@@ -490,10 +490,10 @@ function Vector(replacedFragment) {
 Vector.prototype = new MathCommand;
 Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
 Vector.prototype.latex = function() {
-  return '\\begin{matrix}' + this.reduceChildren(function (initValue){
-    initValue.push(this.latex());
-    return initValue;
-  }, []).join('\\\\') + '\\end{matrix}';
+  return '\\begin{matrix}' + this.foldChildren([], function (latex){
+    latex.push(this.latex());
+    return latex;
+  }).join('\\\\') + '\\end{matrix}';
 };
 
 Vector.prototype.placeCursor = function(cursor) {

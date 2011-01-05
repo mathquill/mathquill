@@ -19,11 +19,11 @@ MathElement.prototype = {
 
     return this;
   },
-  reduceChildren: function(fn, initVal) {
+  foldChildren: function(fold, fn) {
     this.eachChild(function() {
-      initVal = fn.call(this, initVal);
+      fold = fn.call(this, fold);
     });
-    return initVal;
+    return fold;
   },
   keydown: function(e) {
     return this.parent.keydown(e);
@@ -91,9 +91,9 @@ MathCommand.prototype = $.extend(new MathElement, {
     this.lastChild = newBlock;
   },
   latex: function() {
-    return this.cmd + this.reduceChildren(function(initVal){
-      return initVal + '{' + (this.latex() || ' ') + '}';
-    }, '');
+    return this.foldChildren(this.cmd, function(latex){
+      return latex + '{' + (this.latex() || ' ') + '}';
+    });
   },
   remove: function() {
     if (this.prev) {
@@ -117,14 +117,15 @@ MathCommand.prototype = $.extend(new MathElement, {
   //placeholder for context-sensitive spacing.
   respace: $.noop,
   placeCursor: function(cursor) {
-    cursor.appendTo(this.reduceChildren(function(prev){
+    //append the cursor to the first empty child, or if none empty, the last one
+    cursor.appendTo(this.foldChildren(this.firstChild, function(prev){
       return prev.isEmpty() ? prev : this;
-    }, this.firstChild));
+    }));
   },
   isEmpty: function() {
-    return this.reduceChildren(function(initVal){
-      return initVal && this.isEmpty();
-    }, true);
+    return this.foldChildren(true, function(isEmpty){
+      return isEmpty && this.isEmpty();
+    });
   }
 });
 
@@ -151,9 +152,9 @@ Symbol.prototype = $.extend(new MathCommand, {
 function MathBlock(){}
 MathBlock.prototype = $.extend(new MathElement, {
   latex: function() {
-    return this.reduceChildren(function(initVal){
-      return initVal + this.latex();
-    }, '');
+    return this.foldChildren('', function(latex){
+      return latex + this.latex();
+    });
   },
   isEmpty: function() {
     return this.firstChild === null && this.lastChild === null;
@@ -187,7 +188,7 @@ function MathFragment(parent, prev, next) {
   this.prev = prev || null; //so you can do 'new MathFragment(block)' without
   this.next = next || null; //ending up with this.prev or this.next === undefined
 
-  this.jQinit(this.reduce(function(initVal){ return this.jQ.add(initVal); }, $()));
+  this.jQinit(this.fold($(), function(jQ){ return this.jQ.add(jQ); }));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
@@ -200,11 +201,11 @@ MathFragment.prototype = {
 
     return this;
   },
-  reduce: function(fn, initVal) {
+  fold: function(fold, fn) {
     this.each(function() {
-      initVal = fn.call(this, initVal);
+      fold = fn.call(this, fold);
     });
-    return initVal;
+    return fold;
   },
   blockify: function() {
     var newBlock = new MathBlock;
