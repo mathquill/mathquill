@@ -75,7 +75,7 @@ MathCommand.prototype = $.extend(new MathElement, {
       appendTo(this.jQ)
     ;
 
-    newBlock.setEmpty();
+    newBlock.blur();
 
     for (var i = 2; i < num_blocks; i += 1) {
       newBlock = new MathBlock;
@@ -86,7 +86,7 @@ MathCommand.prototype = $.extend(new MathElement, {
 
       newBlock.jQ = $(this.html_template[i]).data('[[mathquill internal data]]',
         {block: newBlock}).appendTo(this.jQ);
-      newBlock.setEmpty();
+      newBlock.blur();
     }
     this.lastChild = newBlock;
   },
@@ -158,7 +158,7 @@ MathBlock.prototype = $.extend(new MathElement, {
   isEmpty: function() {
     return this.firstChild === null && this.lastChild === null;
   },
-  setEmpty: function() {
+  blur: function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
       this.jQ.addClass('empty');
@@ -166,7 +166,7 @@ MathBlock.prototype = $.extend(new MathElement, {
 
     return this;
   },
-  removeEmpty:function(cursorJQ) {
+  focus:function(cursorJQ) {
     this.jQ.addClass('hasCursor');
     if (this.isEmpty()) {
       this.jQ.removeClass('empty').append(cursorJQ);

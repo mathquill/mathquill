@@ -202,7 +202,7 @@ CloseBracket.prototype.placeCursor = function(cursor) {
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
-    this.firstChild.setEmpty();
+    this.firstChild.blur();
 };
 
 LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedFragment) {
@@ -310,18 +310,18 @@ TextBlock.prototype = $.extend(new MathCommand, {
         delete this.placeCursor;
         this.placeCursor(cursor);
       };
-      next.firstChild.removeEmpty = function(){ return this; };
+      next.firstChild.focus = function(){ return this; };
       this.cursor.insertAfter(this).insertNew(next);
       next.prev = this;
       this.cursor.insertBefore(next);
-      delete next.firstChild.removeEmpty;
+      delete next.firstChild.focus;
     }
     return false;
   }
 });
 function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
-  setEmpty: function(cursor) {
+  blur: function(cursor) {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
@@ -340,7 +340,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     }
     return this;
   },
-  removeEmpty: function() {
+  focus: function() {
     this.jQ.addClass('hasCursor');
     if (this.isEmpty())
       this.jQ.removeClass('empty');
@@ -376,7 +376,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     else if (textblock.prev instanceof TextBlock) {
       var cursor = textblock.cursor;
       if (cursor.prev)
-        textblock.prev.firstChild.removeEmpty();
+        textblock.prev.firstChild.focus();
       else
         cursor.appendTo(textblock.prev.firstChild);
 
@@ -441,7 +441,7 @@ LatexCommandInput.prototype = $.extend(new MathCommand, {
         cmd = new cmd(this.replacedFragment, latex);
       else {
         cmd = new TextBlock(latex);
-        cmd.firstChild.removeEmpty = function(){ delete this.removeEmpty; return true; };
+        cmd.firstChild.focus = function(){ delete this.focus; return true; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
         if (this.replacedFragment)
           this.replacedFragment.remove();

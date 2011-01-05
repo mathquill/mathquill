@@ -21,7 +21,7 @@ function Cursor(root) {
     this.jQ = this._jQ.removeClass('blink');
     if(intervalId)
       clearInterval(intervalId);
-    else if(this.parent.removeEmpty(this.jQ))
+    else if(this.parent.focus(this.jQ))
       if(this.next)
         if(this.selection && this.selection.prev === this.prev)
           this.jQ.insertBefore(this.selection.jQ);
@@ -56,7 +56,7 @@ Cursor.prototype = {
     this.parent = parent;
     this.next = next;
     this.prev = prev;
-    p.setEmpty(); //p.setEmpty may want to know where the cursor is going
+    p.blur();
   },
   insertBefore: function(el)
   {
@@ -75,7 +75,7 @@ Cursor.prototype = {
   prependTo: function(el)
   {
     this.insertAt(el, el.firstChild, null);
-    if(el.removeEmpty(this.jQ))
+    if(el.focus(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
       else //only root has no parent
@@ -85,7 +85,7 @@ Cursor.prototype = {
   appendTo: function(el)
   {
     this.insertAt(el, null, el.lastChild);
-    if(el.removeEmpty(this.jQ))
+    if(el.focus(this.jQ))
       this.jQ.appendTo(el.jQ);
     return this;
   },

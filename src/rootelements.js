@@ -44,7 +44,7 @@ function createRoot(type) {
         cursor.show();
       e.stopPropagation();
     }).blur(function(e) {
-      cursor.hide().parent.setEmpty();
+      cursor.hide().parent.blur();
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');
       e.stopPropagation();
@@ -226,7 +226,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     }
 
     this.cursor.hide();
-    this.setEmpty();
+    this.blur();
   },
   keydown: function(e)
   {
