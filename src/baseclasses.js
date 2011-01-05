@@ -15,8 +15,8 @@ MathElement.prototype = {
   lastChild: null,
   eachChild: function(fn) {
     for (var child = this.firstChild; child !== null; child = child.next)
-      if (fn.call(child) === false)
-        break;
+      if (fn.call(child) === false) break;
+
     return this;
   },
   reduceChildren: function(fn, initVal) {
@@ -158,20 +158,18 @@ MathBlock.prototype = $.extend(new MathElement, {
   isEmpty: function() {
     return this.firstChild === null && this.lastChild === null;
   },
-  focus:function(cursorJQ) {
+  focus: function(cursorJQ) {
     this.jQ.addClass('hasCursor');
     if (this.isEmpty()) {
       this.jQ.removeClass('empty').append(cursorJQ);
       return false;
     }
-
     return true;
   },
   blur: function() {
     this.jQ.removeClass('hasCursor');
-    if (this.isEmpty()) {
+    if (this.isEmpty())
       this.jQ.addClass('empty');
-    }
 
     return this;
   }
@@ -197,9 +195,9 @@ MathFragment.prototype = {
     return this.jQ = children;
   },
   each: function(fn) {
-    for (var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next) {
+    for (var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
       if (fn.call(el) === false) break;
-    }
+
     return this;
   },
   reduce: function(fn, initVal) {
