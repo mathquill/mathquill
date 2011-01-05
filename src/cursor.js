@@ -41,9 +41,9 @@ function Cursor(root) {
   };
 }
 Cursor.prototype = {
-  prev: null,
-  next: null,
-  parent: null,
+  prev: 0,
+  next: 0,
+  parent: 0,
   redraw: function() {
     var ancestor = this;
     while (ancestor = ancestor.parent)
@@ -74,7 +74,7 @@ Cursor.prototype = {
   },
   prependTo: function(el)
   {
-    this.insertAt(el, el.firstChild, null);
+    this.insertAt(el, el.firstChild, 0);
     if(el.focus(this.jQ))
       if(el.parent)
         this.jQ.prependTo(el.jQ);
@@ -84,7 +84,7 @@ Cursor.prototype = {
   },
   appendTo: function(el)
   {
-    this.insertAt(el, null, el.lastChild);
+    this.insertAt(el, 0, el.lastChild);
     if(el.focus(this.jQ))
       this.jQ.appendTo(el.jQ);
     return this;

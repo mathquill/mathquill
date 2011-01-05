@@ -306,7 +306,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
       var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
       next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
       {
-        this.prev = null;
+        this.prev = 0;
         delete this.placeCursor;
         this.placeCursor(cursor);
       };

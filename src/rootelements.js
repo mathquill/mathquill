@@ -151,7 +151,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
   renderLatex: function(latex) {
     latex = latex.match(/\\[a-z]*|[^\s]/ig);
     this.jQ.children(':not(.textarea)').remove();
-    this.firstChild = this.lastChild = null;
+    this.firstChild = this.lastChild = 0;
     this.cursor.show().appendTo(this);
     if (latex) {
       (function recurse(cursor) {

@@ -8,13 +8,13 @@
  */
 function MathElement(){}
 MathElement.prototype = {
-  prev: null,
-  next: null,
-  parent: null,
-  firstChild: null,
-  lastChild: null,
+  prev: 0,
+  next: 0,
+  parent: 0,
+  firstChild: 0,
+  lastChild: 0,
   eachChild: function(fn) {
-    for (var child = this.firstChild; child !== null; child = child.next)
+    for (var child = this.firstChild; child !== 0; child = child.next)
       if (fn.call(child) === false) break;
 
     return this;
@@ -157,7 +157,7 @@ MathBlock.prototype = $.extend(new MathElement, {
     });
   },
   isEmpty: function() {
-    return this.firstChild === null && this.lastChild === null;
+    return this.firstChild === 0 && this.lastChild === 0;
   },
   focus: function(cursorJQ) {
     this.jQ.addClass('hasCursor');
@@ -185,8 +185,8 @@ function MathFragment(parent, prev, next) {
   if (!arguments.length) return;
 
   this.parent = parent;
-  this.prev = prev || null; //so you can do 'new MathFragment(block)' without
-  this.next = next || null; //ending up with this.prev or this.next === undefined
+  this.prev = prev || 0; //so you can do 'new MathFragment(block)' without
+  this.next = next || 0; //ending up with this.prev or this.next === undefined
 
   this.jQinit(this.fold($(), function(jQ){ return this.jQ.add(jQ); }));
 }
@@ -227,8 +227,8 @@ MathFragment.prototype = {
       this.parent.lastChild = this.prev;
     }
 
-    newBlock.firstChild.prev = this.prev = null;
-    newBlock.lastChild.next = this.next = null;
+    newBlock.firstChild.prev = this.prev = 0;
+    newBlock.lastChild.next = this.next = 0;
 
     this.parent = newBlock;
     this.each(function(){ this.parent = newBlock; });
