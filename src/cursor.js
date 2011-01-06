@@ -89,6 +89,18 @@ Cursor.prototype = {
       this.jQ.appendTo(el.jQ);
     return this;
   },
+  hopLeft: function() {
+    this.jQ.insertBefore(this.prev.jQ.first());
+    this.next = this.prev;
+    this.prev = this.prev.prev;
+    return this;
+  },
+  hopRight: function() {
+    this.jQ.insertAfter(this.next.jQ.last());
+    this.prev = this.next;
+    this.next = this.next.next;
+    return this;
+  },
   moveLeft: function() {
     if (this.selection)
       this.insertBefore(this.selection.prev ? this.selection.prev.next : this.parent.firstChild).clearSelection();
@@ -128,18 +140,6 @@ Cursor.prototype = {
       }
     }
     return this.show();
-  },
-  hopLeft: function() {
-    this.jQ.insertBefore(this.prev.jQ.first());
-    this.next = this.prev;
-    this.prev = this.prev.prev;
-    return this;
-  },
-  hopRight: function() {
-    this.jQ.insertAfter(this.next.jQ.last());
-    this.prev = this.next;
-    this.next = this.next.next;
-    return this;
   },
   write: function(ch) {
     if (this.selection) {
