@@ -186,7 +186,7 @@ function MathFragment(parent, prev, next) {
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
   jQinit: function(children) {
-    return this.jQ = children;
+    this.jQ = children;
   },
   each: function(fn) {
     for (var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)

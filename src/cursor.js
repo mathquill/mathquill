@@ -390,8 +390,8 @@ function Selection(parent, prev, next)
 Selection.prototype = $.extend(new MathFragment, {
   jQinit: function(children)
   {
-    return this.jQ = children.wrapAll('<span class="selection"></span>').parent();
-      //wrapAll clones, so can't do .wrapAll(this.jQ = $(...));
+    this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+      //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   },
   levelUp: function()
   {
