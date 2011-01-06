@@ -319,7 +319,7 @@ Cursor.prototype = {
           this.insertBefore(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at right edge of selection, retract left
-        this.prev.jQ.insertAfter(this.jQ);
+        this.prev.jQ.insertAfter(this.selection.jQ);
         this.hopLeft().selection.next = this.next;
         if (this.selection.prev === this.prev)
           this.deleteSelection();
@@ -344,7 +344,7 @@ Cursor.prototype = {
           this.insertAfter(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at left edge of selection, retract right
-        this.next.jQ.insertBefore(this.jQ);
+        this.next.jQ.insertBefore(this.selection.jQ);
         this.hopRight().selection.prev = this.prev;
         if (this.selection.next === this.next)
           this.deleteSelection();
