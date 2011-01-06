@@ -213,26 +213,15 @@ Cursor.prototype = {
       if (prev)
         prev.next = this.firstChild;
       else
-        this.firstChild.parent.firstChild = this.firstChild;
+        greatgramp.firstChild = this.firstChild;
 
       prev = this.lastChild;
     });
-    if(prev)
-    {
-      prev.next = gramp.next;
-      if(prev.next)
-        prev.next.prev = prev;
-      else
-        greatgramp.lastChild = prev;
-    }
+    prev.next = gramp.next;
+    if (gramp.next)
+      gramp.next.prev = prev;
     else
-    {
-      greatgramp.firstChild = gramp.next;
-      if(gramp.next)
-        gramp.next.prev = prev;
-      else
-        greatgramp.lastChild = prev;
-    }
+      greatgramp.lastChild = prev;
 
     if (!this.next) { //then find something to be next to insertBefore
       if (this.prev)
