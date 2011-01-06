@@ -327,10 +327,12 @@ Cursor.prototype = {
     }
     else {
       if (this.prev)
-        this.hide().hopLeft().selection = new Selection(this.parent, this.prev, this.next.next);
+        this.hopLeft();
       else //end of a block
         if (this.parent.parent)
-          this.hide().insertBefore(this.parent.parent).selection = new Selection(this.parent, this.prev, this.next.next);
+          this.insertBefore(this.parent.parent);
+
+      this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
     }
   },
   selectRight: function() {
@@ -352,10 +354,12 @@ Cursor.prototype = {
     }
     else {
       if (this.next)
-        this.hide().hopRight().selection = new Selection(this.parent, this.prev.prev, this.next);
+        this.hopRight();
       else //end of a block
         if (this.parent.parent)
-          this.hide().insertAfter(this.parent.parent).selection = new Selection(this.parent, this.prev.prev, this.next);
+          this.insertAfter(this.parent.parent);
+
+      this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
     }
   },
   clearSelection: function() {
