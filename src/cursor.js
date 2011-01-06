@@ -196,7 +196,7 @@ Cursor.prototype = {
 
     return this;
   },
-  unwrapParent: function() {
+  unwrapGramp: function() {
     var gramp = this.parent.parent,
       greatgramp = gramp.parent,
       prev = gramp.prev,
@@ -274,7 +274,7 @@ Cursor.prototype = {
       if (this.parent.parent.isEmpty())
         return this.insertAfter(this.parent.parent).backspace();
       else
-        this.unwrapParent();
+        this.unwrapGramp();
     }
 
     if (this.prev)
@@ -297,7 +297,7 @@ Cursor.prototype = {
       if (this.parent.parent.isEmpty())
         return this.insertBefore(this.parent.parent).deleteForward();
       else
-        this.unwrapParent();
+        this.unwrapGramp();
     }
 
     if (this.prev)
