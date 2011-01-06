@@ -42,9 +42,7 @@ function MathCommand(cmd, html_template, replacedFragment) {
   if (!arguments.length) return;
 
   this.cmd = cmd;
-  if (html_template) {
-    this.html_template = html_template;
-  }
+  if (html_template) this.html_template = html_template;
 
   this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
   this.initBlocks(replacedFragment);
@@ -61,6 +59,7 @@ MathCommand.prototype = $.extend(new MathElement, {
 
       this.firstChild.parent = this;
       this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
@@ -69,11 +68,10 @@ MathCommand.prototype = $.extend(new MathElement, {
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
     newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1]).
-      data('[[mathquill internal data]]', {block: newBlock}).
-      append(newBlock.jQ).
-      appendTo(this.jQ)
-    ;
+    newBlock.jQ = $(this.html_template[1])
+      .data('[[mathquill internal data]]', {block: newBlock})
+      .append(newBlock.jQ)
+      .appendTo(this.jQ);
 
     newBlock.blur();
 
@@ -84,8 +82,10 @@ MathCommand.prototype = $.extend(new MathElement, {
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(this.html_template[i]).data('[[mathquill internal data]]',
-        {block: newBlock}).appendTo(this.jQ);
+      newBlock.jQ = $(this.html_template[i])
+        .data('[[mathquill internal data]]', {block: newBlock})
+        .appendTo(this.jQ);
+
       newBlock.blur();
     }
     this.lastChild = newBlock;
@@ -96,26 +96,21 @@ MathCommand.prototype = $.extend(new MathElement, {
     });
   },
   remove: function() {
-    if (this.prev) {
+    if (this.prev)
       this.prev.next = this.next;
-    }
-    else {
+    else
       this.parent.firstChild = this.next;
-    }
 
-    if (this.next) {
+    if (this.next)
       this.next.prev = this.prev;
-    }
-    else {
+    else
       this.parent.lastChild = this.prev;
-    }
 
     this.jQ.remove();
 
     return this;
   },
-  //placeholder for context-sensitive spacing.
-  respace: $.noop,
+  respace: $.noop, //placeholder for context-sensitive spacing
   placeCursor: function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
     cursor.appendTo(this.foldChildren(this.firstChild, function(prev){
@@ -137,9 +132,7 @@ function Symbol(cmd, html) {
 }
 Symbol.prototype = $.extend(new MathCommand, {
   initBlocks: $.noop,
-  latex: function() {
-    return this.cmd;
-  },
+  latex: function(){ return this.cmd; },
   placeCursor: $.noop,
   isEmpty: function(){ return true; }
 });
