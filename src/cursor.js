@@ -48,8 +48,7 @@ Cursor.prototype = {
   next: 0,
   parent: 0,
   redraw: function() {
-    var ancestor = this;
-    while (ancestor = ancestor.parent)
+    for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
       if (ancestor.redraw)
         ancestor.redraw();
   },
@@ -103,7 +102,7 @@ Cursor.prototype = {
   },
   moveLeft: function() {
     if (this.selection)
-      this.insertBefore(this.selection.prev ? this.selection.prev.next : this.parent.firstChild).clearSelection();
+      this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
     else {
       if (this.prev) {
         if (this.prev.lastChild)
@@ -123,7 +122,7 @@ Cursor.prototype = {
   },
   moveRight: function() {
     if (this.selection)
-      this.insertAfter(this.selection.next ? this.selection.next.prev : this.parent.lastChild).clearSelection();
+      this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
     else {
       if (this.next) {
         if (this.next.firstChild)

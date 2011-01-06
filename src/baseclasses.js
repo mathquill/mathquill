@@ -14,7 +14,7 @@ MathElement.prototype = {
   firstChild: 0,
   lastChild: 0,
   eachChild: function(fn) {
-    for (var child = this.firstChild; child !== 0; child = child.next)
+    for (var child = this.firstChild; child; child = child.next)
       if (fn.call(child) === false) break;
 
     return this;
@@ -189,7 +189,7 @@ MathFragment.prototype = {
     this.jQ = children;
   },
   each: function(fn) {
-    for (var el = (this.prev ? this.prev.next : this.parent.firstChild); el !== this.next; el = el.next)
+    for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
       if (fn.call(el) === false) break;
 
     return this;
@@ -202,23 +202,18 @@ MathFragment.prototype = {
   },
   blockify: function() {
     var newBlock = new MathBlock;
-    if (this.prev) {
-      newBlock.firstChild = this.prev.next;
-      this.prev.next = this.next;
-    }
-    else {
-      newBlock.firstChild = this.parent.firstChild;
-      this.parent.firstChild = this.next;
-    }
+    newBlock.firstChild = this.prev.next || this.parent.firstChild;
+    newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
-    if (this.next) {
-      newBlock.lastChild = this.next.prev;
+    if (this.prev)
+      this.prev.next = this.next;
+    else
+      this.parent.firstChild = this.next;
+
+    if (this.next)
       this.next.prev = this.prev;
-    }
-    else {
-      newBlock.lastChild = this.parent.lastChild;
+    else
       this.parent.lastChild = this.prev;
-    }
 
     newBlock.firstChild.prev = this.prev = 0;
     newBlock.lastChild.next = this.next = 0;
