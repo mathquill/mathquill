@@ -51,7 +51,7 @@ function createRoot(type) {
     });
 
     var lastKeydn = {}; //see Wiki page "Keyboard Events"
-    jQ.bind('keydown.mathquill',function(e) { //see Wiki page "Keyboard Events"
+    jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
       lastKeydn.evt = e;
       lastKeydn.happened = true;
       lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -61,7 +61,7 @@ function createRoot(type) {
         e.stopImmediatePropagation();
         return false;
       }
-    }).bind('keypress.mathquill',function(e) {
+    }).bind('keypress.mathquill', function(e) {
       //on auto-repeated key events, keypress may get triggered but not keydown
       //  (see Wiki page "Keyboard Events")
       if (lastKeydn.happened)
@@ -86,7 +86,7 @@ function createRoot(type) {
         e.stopImmediatePropagation();
         return false;
       };
-    }).bind('click.mathquill',function(e) {
+    }).bind('click.mathquill', function(e) {
       var clicked = $(e.target);
       if (clicked.hasClass('empty')) {
         cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
@@ -135,9 +135,9 @@ function createRoot(type) {
         cursor.moveRight();
 
       return false;
-    }).bind('click.mathquill',function() {
+    }).bind('click.mathquill', function() {
       textarea.focus();
-    }).bind('focus.mathquill blur.mathquill',function(e) {
+    }).bind('focus.mathquill blur.mathquill', function(e) {
       textarea.trigger(e);
     }).blur();
   });
