@@ -321,7 +321,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
 });
 function InnerTextBlock(){}
 InnerTextBlock.prototype = $.extend(new MathBlock, {
-  blur: function(cursor) {
+  blur: function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
       var textblock = this.parent, cursor = textblock.cursor;
