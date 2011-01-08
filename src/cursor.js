@@ -19,9 +19,9 @@ function Cursor(root) {
   var intervalId;
   this.show = function() {
     this.jQ = this._jQ.removeClass('blink');
-    if (intervalId)
+    if (intervalId) //already was shown, just restart interval
       clearInterval(intervalId);
-    else {
+    else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this.next) {
         if (this.selection && this.selection.prev === this.prev)
           this.jQ.insertBefore(this.selection.jQ);
