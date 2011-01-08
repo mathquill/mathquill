@@ -341,9 +341,7 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
     return this;
   },
   focus: function() {
-    this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+    MathBlock.prototype.focus.call(this);
 
     var textblock = this.parent;
     if (textblock.next instanceof TextBlock) {
@@ -356,15 +354,16 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
         this.jQ.appendTo(innerblock.jQ);
       });
 
-      next.firstChild.prev = this.lastChild;
-
       if (this.lastChild)
         this.lastChild.next = next.firstChild;
       else
         this.firstChild = next.firstChild;
 
+      next.firstChild.prev = this.lastChild;
       this.lastChild = next.lastChild;
+
       next.parent.remove();
+
       if (cursor.prev)
         cursor.insertAfter(cursor.prev);
       else
