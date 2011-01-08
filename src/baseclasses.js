@@ -152,13 +152,12 @@ MathBlock.prototype = $.extend(new MathElement, {
   isEmpty: function() {
     return this.firstChild === 0 && this.lastChild === 0;
   },
-  focus: function(cursorJQ) {
+  focus: function() {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty()) {
-      this.jQ.removeClass('empty').append(cursorJQ);
-      return false;
-    }
-    return true;
+    if (this.isEmpty())
+      this.jQ.removeClass('empty');
+
+    return this;
   },
   blur: function() {
     this.jQ.removeClass('hasCursor');

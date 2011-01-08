@@ -371,7 +371,6 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
         cursor.prependTo(this);
 
       cursor.redraw();
-      return false;
     }
     else if (textblock.prev instanceof TextBlock) {
       var cursor = textblock.cursor;
@@ -379,11 +378,8 @@ InnerTextBlock.prototype = $.extend(new MathBlock, {
         textblock.prev.firstChild.focus();
       else
         cursor.appendTo(textblock.prev.firstChild);
-
-      return false;
     }
-
-    return true;
+    return this;
   }
 });
 

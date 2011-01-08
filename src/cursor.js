@@ -21,7 +21,7 @@ function Cursor(root) {
     this.jQ = this._jQ.removeClass('blink');
     if (intervalId)
       clearInterval(intervalId);
-    else if (this.parent.focus(this.jQ)) {
+    else {
       if (this.next) {
         if (this.selection && this.selection.prev === this.prev)
           this.jQ.insertBefore(this.selection.jQ);
@@ -30,6 +30,7 @@ function Cursor(root) {
       }
       else
         this.jQ.appendTo(this.parent.jQ);
+      this.parent.focus();
     }
     intervalId = setInterval(blink, 500);
     return this;
@@ -75,17 +76,17 @@ Cursor.prototype = {
   },
   prependTo: function(el) {
     this.insertAt(el, el.firstChild, 0);
-    if (el.focus(this.jQ))
-      if (el.parent)
-        this.jQ.prependTo(el.jQ);
-      else //only root has no parent
-        this.jQ.insertAfter(el.textarea);
+    if (el.parent)
+      this.jQ.prependTo(el.jQ);
+    else //only root has no parent
+      this.jQ.insertAfter(el.textarea);
+    el.focus();
     return this;
   },
   appendTo: function(el) {
     this.insertAt(el, 0, el.lastChild);
-    if (el.focus(this.jQ))
-      this.jQ.appendTo(el.jQ);
+    this.jQ.appendTo(el.jQ);
+    el.focus();
     return this;
   },
   hopLeft: function() {
