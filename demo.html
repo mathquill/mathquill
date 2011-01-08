@@ -79,22 +79,19 @@
           latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1)));
           latexMath.cursor.appendTo(latexMath);
         }
-        $('#latex-source').focus(function(){
+        var textarea = $('#latex-source').focus(function(){
           editingSource = true;
         }).blur(function(){
           editingSource = false;
-        }).keydown(function()
+        }).bind('keydown keypress', function()
         {
-          var textarea = $(this), oldtext = textarea.val();
+          var oldtext = textarea.val();
           setTimeout(function()
           {
             var newtext = textarea.val();
-            if(newtext != oldtext)
+            if(newtext !== oldtext)
               latexMath.mathquill('latex', newtext);
-          },0);
-        }).keypress(function()
-        {
-          $(this).triggerHandler('keydown');
+          });
         });
       });
     </script>
