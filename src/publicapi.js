@@ -55,7 +55,7 @@ $.fn.mathquill = function(cmd, latex) {
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 $(function() {
-  $('.mathquill-embedded-latex').mathquill();
   $('.mathquill-editable').mathquill('editable');
   $('.mathquill-textbox').mathquill('textbox');
+  $('.mathquill-embedded-latex').mathquill();
 });

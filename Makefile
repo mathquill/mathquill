@@ -4,10 +4,10 @@ FILES = \
 ${SOURCE_DIR}/HEADER \
 ${SOURCE_DIR}/intro.js \
 ${SOURCE_DIR}/baseclasses.js \
+${SOURCE_DIR}/rootelements.js \
 ${SOURCE_DIR}/commands.js \
 ${SOURCE_DIR}/symbols.js \
 ${SOURCE_DIR}/cursor.js \
-${SOURCE_DIR}/rootelements.js \
 ${SOURCE_DIR}/publicapi.js \
 ${SOURCE_DIR}/outro.js
 
