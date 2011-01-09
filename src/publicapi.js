@@ -45,7 +45,10 @@ $.fn.mathquill = function(cmd, latex) {
         }
       });
   default:
-    return createRoot.call(this, cmd);
+    var textbox = cmd === 'textbox', editable = textbox || cmd === 'editable';
+    return this.each(function() {
+      createRoot($(this), textbox, editable);
+    });
   }
 };
 

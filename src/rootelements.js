@@ -2,145 +2,141 @@
  * Root math elements with event delegation.
  ********************************************/
 
-function createRoot(type) {
-  var textbox = type === 'textbox', editable = textbox || type === 'editable';
-  return this.each(function() {
-    var jQ = $(this),
-      contents = jQ.contents().detach(),
-      root = new (textbox ? RootTextBlock : RootMathBlock);
+function createRoot(jQ, textbox, editable) {
+  var contents = jQ.contents().detach(),
+    root = new (textbox ? RootTextBlock : RootMathBlock);
 
-    if (!textbox)
-      jQ.addClass('mathquill-rendered-math');
+  if (!textbox)
+    jQ.addClass('mathquill-rendered-math');
 
-    root.jQ = jQ.data('[[mathquill internal data]]', {
-      block: root,
-      revert: function() {
-        jQ.empty().unbind('.mathquill')
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
-          .append(contents);
-      }
-    });
-
-    var cursor = root.cursor = new Cursor(root);
-
-    root.renderLatex(contents.text());
-
-    if (!editable) //if static, quit once we render the LaTeX
-      return;
-
-    root.textarea = $('<span class="textarea"><textarea></textarea></span>')
-      .prependTo(jQ.addClass('mathquill-editable'));
-    var textarea = root.textarea.children();
-    if (textbox)
-      jQ.addClass('mathquill-textbox');
-
-    textarea.focus(function(e) {
-      if (!cursor.parent)
-        cursor.appendTo(root);
-      cursor.parent.jQ.addClass('hasCursor');
-      if (cursor.selection)
-        cursor.selection.jQ.removeClass('blur');
-      else
-        cursor.show();
-      e.stopPropagation();
-    }).blur(function(e) {
-      cursor.hide().parent.blur();
-      if (cursor.selection)
-        cursor.selection.jQ.addClass('blur');
-      e.stopPropagation();
-    });
-
-    var lastKeydn = {}; //see Wiki page "Keyboard Events"
-    jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
-      lastKeydn.evt = e;
-      lastKeydn.happened = true;
-      lastKeydn.returnValue = cursor.parent.keydown(e);
-      if (lastKeydn.returnValue)
-        return true;
-      else {
-        e.stopImmediatePropagation();
-        return false;
-      }
-    }).bind('keypress.mathquill', function(e) {
-      //on auto-repeated key events, keypress may get triggered but not keydown
-      //  (see Wiki page "Keyboard Events")
-      if (lastKeydn.happened)
-        lastKeydn.happened = false;
-      else
-        lastKeydn.returnValue = cursor.parent.keydown(lastKeydn.evt);
-
-      //prevent default and cancel keypress if keydown returned false,
-      //even in browsers where that doesn't automatically happen
-      //  (see Wiki page "Keyboard Events")
-      if (!lastKeydn.returnValue)
-        return false;
-
-      //ignore commands, shortcuts and control characters
-      //in ASCII, below 32 there are only control chars
-      if (e.ctrlKey || e.metaKey || e.which < 32)
-        return true;
-
-      if (cursor.parent.keypress(e))
-        return true;
-      else {
-        e.stopImmediatePropagation();
-        return false;
-      };
-    }).bind('click.mathquill', function(e) {
-      var clicked = $(e.target);
-      if (clicked.hasClass('empty')) {
-        cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
-        return false;
-      }
-
-      var data = clicked.data('[[mathquill internal data]]');
-      if (data) {
-        //if clicked a symbol, insert of whichever side is closer
-        if (data.cmd && !data.block) {
-          cursor.clearSelection();
-          if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-            cursor.insertBefore(data.cmd);
-          else
-            cursor.insertAfter(data.cmd);
-
-          return false;
-        }
-      }
-      //if no MathQuill data, try parent, if still no,
-      //the user probably didn't click on the math after all
-      else {
-        clicked = clicked.parent();
-        data = clicked.data('[[mathquill internal data]]');
-        if (!data)
-          return;
-      }
-
-      cursor.clearSelection();
-      if (data.cmd)
-        cursor.insertAfter(data.cmd);
-      else
-        cursor.appendTo(data.block);
-
-      //move cursor to position closest to click
-      var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-      do {
-        cursor.moveLeft();
-        prevPrevDist = prevDist;
-        prevDist = dist;
-        dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-      }
-      while (dist <= prevDist && dist != prevPrevDist);
-
-      if (dist != prevPrevDist)
-        cursor.moveRight();
-
-      return false;
-    }).bind('click.mathquill', function() {
-      textarea.focus();
-    }).bind('focus.mathquill blur.mathquill', function(e) {
-      textarea.trigger(e);
-    }).blur();
+  root.jQ = jQ.data('[[mathquill internal data]]', {
+    block: root,
+    revert: function() {
+      jQ.empty().unbind('.mathquill')
+        .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+        .append(contents);
+    }
   });
+
+  var cursor = root.cursor = new Cursor(root);
+
+  root.renderLatex(contents.text());
+
+  if (!editable) //if static, quit once we render the LaTeX
+    return;
+
+  root.textarea = $('<span class="textarea"><textarea></textarea></span>')
+    .prependTo(jQ.addClass('mathquill-editable'));
+  var textarea = root.textarea.children();
+  if (textbox)
+    jQ.addClass('mathquill-textbox');
+
+  textarea.focus(function(e) {
+    if (!cursor.parent)
+      cursor.appendTo(root);
+    cursor.parent.jQ.addClass('hasCursor');
+    if (cursor.selection)
+      cursor.selection.jQ.removeClass('blur');
+    else
+      cursor.show();
+    e.stopPropagation();
+  }).blur(function(e) {
+    cursor.hide().parent.blur();
+    if (cursor.selection)
+      cursor.selection.jQ.addClass('blur');
+    e.stopPropagation();
+  });
+
+  var lastKeydn = {}; //see Wiki page "Keyboard Events"
+  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+    lastKeydn.evt = e;
+    lastKeydn.happened = true;
+    lastKeydn.returnValue = cursor.parent.keydown(e);
+    if (lastKeydn.returnValue)
+      return true;
+    else {
+      e.stopImmediatePropagation();
+      return false;
+    }
+  }).bind('keypress.mathquill', function(e) {
+    //on auto-repeated key events, keypress may get triggered but not keydown
+    //  (see Wiki page "Keyboard Events")
+    if (lastKeydn.happened)
+      lastKeydn.happened = false;
+    else
+      lastKeydn.returnValue = cursor.parent.keydown(lastKeydn.evt);
+
+    //prevent default and cancel keypress if keydown returned false,
+    //even in browsers where that doesn't automatically happen
+    //  (see Wiki page "Keyboard Events")
+    if (!lastKeydn.returnValue)
+      return false;
+
+    //ignore commands, shortcuts and control characters
+    //in ASCII, below 32 there are only control chars
+    if (e.ctrlKey || e.metaKey || e.which < 32)
+      return true;
+
+    if (cursor.parent.keypress(e))
+      return true;
+    else {
+      e.stopImmediatePropagation();
+      return false;
+    };
+  }).bind('click.mathquill', function(e) {
+    var clicked = $(e.target);
+    if (clicked.hasClass('empty')) {
+      cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
+      return false;
+    }
+
+    var data = clicked.data('[[mathquill internal data]]');
+    if (data) {
+      //if clicked a symbol, insert of whichever side is closer
+      if (data.cmd && !data.block) {
+        cursor.clearSelection();
+        if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
+          cursor.insertBefore(data.cmd);
+        else
+          cursor.insertAfter(data.cmd);
+
+        return false;
+      }
+    }
+    //if no MathQuill data, try parent, if still no,
+    //the user probably didn't click on the math after all
+    else {
+      clicked = clicked.parent();
+      data = clicked.data('[[mathquill internal data]]');
+      if (!data)
+        return;
+    }
+
+    cursor.clearSelection();
+    if (data.cmd)
+      cursor.insertAfter(data.cmd);
+    else
+      cursor.appendTo(data.block);
+
+    //move cursor to position closest to click
+    var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
+    do {
+      cursor.moveLeft();
+      prevPrevDist = prevDist;
+      prevDist = dist;
+      dist = Math.abs(cursor.jQ.offset().left - e.pageX);
+    }
+    while (dist <= prevDist && dist != prevPrevDist);
+
+    if (dist != prevPrevDist)
+      cursor.moveRight();
+
+    return false;
+  }).bind('click.mathquill', function() {
+    textarea.focus();
+  }).bind('focus.mathquill blur.mathquill', function(e) {
+    textarea.trigger(e);
+  }).blur();
 }
 
 function RootMathBlock(){}
