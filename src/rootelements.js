@@ -2,9 +2,8 @@
  * Root math elements with event delegation.
  ********************************************/
 
-function createRoot(jQ, textbox, editable) {
-  var contents = jQ.contents().detach(),
-    root = new (textbox ? RootTextBlock : RootMathBlock);
+function createRoot(jQ, root, textbox, editable) {
+  var contents = jQ.contents().detach();
 
   if (!textbox)
     jQ.addClass('mathquill-rendered-math');

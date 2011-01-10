@@ -575,5 +575,5 @@ LatexCmds.vector = Vector;
 LatexCmds.editable = proto(RootMathCommand, function(cursor) {
   MathCommand.call(this, '\\editable');
   this.firstChild.cursor = cursor;
-  createRoot(this.jQ, false, true);
+  createRoot(this.jQ, this.firstChild, false, true);
 });

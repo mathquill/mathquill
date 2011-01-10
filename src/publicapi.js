@@ -45,9 +45,11 @@ $.fn.mathquill = function(cmd, latex) {
         }
       });
   default:
-    var textbox = cmd === 'textbox', editable = textbox || cmd === 'editable';
+    var textbox = cmd === 'textbox',
+      editable = textbox || cmd === 'editable',
+      RootBlock = textbox ? RootTextBlock : RootMathBlock;
     return this.each(function() {
-      createRoot($(this), textbox, editable);
+      createRoot($(this), new RootBlock, textbox, editable);
     });
   }
 };
