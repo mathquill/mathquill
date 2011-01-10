@@ -55,11 +55,10 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after, .mathquill-rendered-math .empty:after {
-  visibility: hidden;
-  content: 'c';
-}
-.mathquill-editable .cursor:only-child:after, .mathquill-editable .textarea:only-child:after, .mathquill-editable .textarea+.cursor:last-child:after {
+.mathquill-textbox:after,
+.mathquill-editable .cursor:only-child:after,
+.mathquill-editable .textarea:only-child:after,
+.mathquill-editable .textarea+.cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
@@ -116,6 +115,9 @@
 
 .mathquill-rendered-math .empty {
   background-color: lightgray;
+}
+.mathquill-rendered-math.empty {
+  background-color: inherit;
 }
 
 .mathquill-rendered-math .text {
