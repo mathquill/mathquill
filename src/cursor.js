@@ -76,10 +76,10 @@ Cursor.prototype = {
   },
   prependTo: function(el) {
     this.insertAt(el, el.firstChild, 0);
-    if (el.parent)
-      this.jQ.prependTo(el.jQ);
-    else //only root has no parent
+    if (el.textarea) //never insert before textarea
       this.jQ.insertAfter(el.textarea);
+    else
+      this.jQ.prependTo(el.jQ);
     el.focus();
     return this;
   },
