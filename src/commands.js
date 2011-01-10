@@ -572,8 +572,7 @@ Vector.prototype.keydown = function(e) {
 
 LatexCmds.vector = Vector;
 
-LatexCmds.editable = proto(RootMathCommand, function(cursor) {
+LatexCmds.editable = proto(RootMathCommand, function() {
   MathCommand.call(this, '\\editable');
-  this.firstChild.cursor = cursor;
   createRoot(this.jQ, this.firstChild, false, true);
 });
