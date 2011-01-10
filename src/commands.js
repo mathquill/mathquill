@@ -150,11 +150,11 @@ SquareRoot.prototype.html_template = [
   '<span class="sqrt-stem"></span>'
 ];
 SquareRoot.prototype.redraw = function() {
-  var block = this.firstChild.jQ, height = block.height();
+  var block = this.firstChild.jQ, height = block.outerHeight(true);
   block.css({
-    borderTopWidth: height/30+1 // NOTE: Formula will need to change if our font isn't Symbola
+    borderTopWidth: height/28+1 // NOTE: Formula will need to change if our font isn't Symbola
   }).prev().css({
-    fontSize: height/+block.css('fontSize').slice(0,-2)+'em'
+    fontSize: .9*height/+block.css('fontSize').slice(0,-2)+'em'
   });
 };
 
@@ -181,7 +181,7 @@ Bracket.prototype.latex = function() {
 };
 Bracket.prototype.redraw = function() {
   var block = this.firstChild.jQ;
-  block.prev().add(block.next()).css('fontSize', block.height()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
+  block.prev().add(block.next()).css('fontSize', block.outerHeight()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -465,7 +465,7 @@ Binomial.prototype.html_template =
 Binomial.prototype.redraw = function() {
   this.jQ.children(':first').add(this.jQ.children(':last'))
     .css('fontSize',
-      this.jQ.height()/(+this.jQ.css('fontSize').slice(0,-2)*.9+2)+'em'
+      this.jQ.outerHeight()/(+this.jQ.css('fontSize').slice(0,-2)*.9+2)+'em'
     );
 };
 

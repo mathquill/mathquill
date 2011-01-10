@@ -17,11 +17,12 @@
     url(font/Symbola.svg#webfont7MzkO3xs) format("svg");
 }
 
-.mathquill-editable {
+.mathquill-editable, .mathquill-embedded-latex .mathquill-editable {
   display: -moz-inline-box;
   display: inline-block;
   border: 1px solid gray;
   padding: 2px;
+  margin: 1px;
 }
 .mathquill-textbox {
   overflow-x: auto;
