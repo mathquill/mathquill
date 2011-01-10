@@ -56,12 +56,19 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-textbox:after,
 .mathquill-editable .cursor:only-child:after,
 .mathquill-editable .textarea:only-child:after,
 .mathquill-editable .textarea+.cursor:last-child:after {
   visibility: hidden;
   content: 'c';
+}
+/*separated from above because unrecognized pseudoclasses invalidate the entire selector*/
+.mathquill-textbox:after, .mathquill-rendered-math .empty:after {
+  visibility: hidden;
+  content: 'c';
+}
+.mathquill-embedded-latex .mathquill-editable.empty:after {
+  content: '';
 }
 
 .mathquill-editable .selection,
