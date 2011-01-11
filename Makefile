@@ -22,7 +22,7 @@ all:
 	@@echo 'Done.'
 
 publish:
-	@@echo "${shell ./publish.sh}"
+	@@./publish.sh
 
 lol:
 	@@echo "LOL!"
