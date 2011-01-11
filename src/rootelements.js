@@ -421,7 +421,7 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: $.noop,
+  renderLatex: $.noop, //MathQuill textboxes do not render initial LaTeX. A user actually wants this (Issue#10) FIXME
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e) {
     if (this.skipKeypress) return true;
