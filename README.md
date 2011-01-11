@@ -4,19 +4,26 @@ are all over the place.
 Usage
 -----
 
-(Note: Requires [jQuery 1.4](http://jquery.com).)
+(Note: Requires [jQuery 1.4+](http://jquery.com).)
 
-All you need is a script include in your header:
+You just need to download the
+[stylesheet](http://laughinghan.github.com/mathquill/mathquill.css) and the
+[script](http://laughinghan.github.com/mathquill/mathquill.js), include the
+stylesheet in the head:
 
-`<script src="http://laughinghan.github.com/mathquill/mathquill.js">`
+    <link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">
 
-and wherever you'd like to have an editable math textbox:
+and include the script somewhere after including [jQuery](http://jquery.com):
 
-`<span class="mathquill-editable">f(x)=?</span>`
+    <script src="/path/to/mathquill.js"></script>
 
-or to convert LaTeX math to HTML:
+Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
-`<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>`
+    <span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+
+or have an editable math textbox:
+
+    <span class="mathquill-editable" style="width:1cm">f(x)=?</span>
 
 Note that for dynamically created elements that weren't in the HTML DOM on
 document ready, you will need to call our jQuery plugin after inserting into
@@ -28,29 +35,29 @@ MathQuill has to perform calculations based on computed CSS values. If you
 mathquill-ify an element before inserting into the visible HTML DOM, then once
 it is visible MathQuill will need to recalculate:
 
-`$('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')`
+    $('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')
 
 Any element that has been MathQuill-ified can be reverted:
 
-`$('.mathquill-embedded-latex').mathquill('revert');`
+    $('.mathquill-embedded-latex').mathquill('revert');
 
 Manipulating the HTML DOM inside editable math textboxes can break MathQuill.
 Currently, MathQuill only supports a limited scripting API:
 
 * To access the LaTeX contents of a mathquill-ified element:
 
-    `$('<span>a_n x^n</span>').mathquill().mathquill('latex') === 'a_n x^n'`
+    $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
 
 * To render some LaTeX in a mathquill-ified element:
 
-    `$('<span></span>').mathquill().appendTo('body').mathquill('latex','x^{-1}')`
+    $('<span></span>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
 
-Understanding The Code
-----------------------
+Understanding The Source Code
+-----------------------------
 
 All the CSS is in `mathquill.css`. Most of it's pretty straightforward, although
 fractions and a few other things are somewhat arcane. In particular, see the
-Wiki pages "Fonts" and "Fractions".
+Wiki pages "Fonts", "Fractions", and "Keyboard Events".
 
 All the JavaScript that you actually want to read is in `src/`, `build/` just
 contains a cat'ed (and eventually, minified) version of all that.
@@ -81,7 +88,7 @@ And you should be set to figure out almost everything else!
 
 Some comments that are too high-level to put in the code:
 
-* Event delegation is used twice:
+* Event delegation is used in 2 ways:
   - in the HTML DOM, the root `span` element of each MathQuill thing is
     delegated all the events in it's own MathQuill thing
     + keyboard events usually end up triggering their analogue in the virtual
@@ -91,7 +98,7 @@ Some comments that are too high-level to put in the code:
     + for example, `RootMathBlock.prototype.keydown()`
     + some special commands do intercept these events, though
 * Keyboard events are very inconsistent between browsers, so `rootelements.js`
-  has some complicated but very successful logic, as documented in the Wiki page
+  has some complicated but very effective logic documented in the Wiki page
   "Keyboard Events".
 
 Open-Source License
