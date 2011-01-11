@@ -11,7 +11,7 @@ JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root) {
-  this.parent = root;
+  this.parent = this.root = root;
   var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //API for the blinking cursor
@@ -114,7 +114,7 @@ Cursor.prototype = {
       else { //we're at the beginning of a block
         if (this.parent.prev)
           this.appendTo(this.parent.prev);
-        else if (this.parent.parent)
+        else if (this.parent !== this.root)
           this.insertBefore(this.parent.parent);
         //else we're at the beginning of the root, so do nothing.
       }
@@ -134,7 +134,7 @@ Cursor.prototype = {
       else { //we're at the end of a block
         if (this.parent.next)
           this.prependTo(this.parent.next);
-        else if (this.parent.parent)
+        else if (this.parent !== this.root)
           this.insertAfter(this.parent.parent);
         //else we're at the end of the root, so do nothing.
       }
@@ -258,7 +258,7 @@ Cursor.prototype = {
       else
         this.selectLeft();
     }
-    else if (this.parent.parent) {
+    else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
         return this.insertAfter(this.parent.parent).backspace();
       else
@@ -281,7 +281,7 @@ Cursor.prototype = {
       else
         this.selectRight();
     }
-    else if (this.parent.parent) {
+    else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
         return this.insertBefore(this.parent.parent).deleteForward();
       else
@@ -303,7 +303,7 @@ Cursor.prototype = {
           this.hopLeft().next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
         }
-        else if (this.parent.parent) //else level up if possible
+        else if (this.parent !== this.root) //else level up if possible
           this.insertBefore(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at right edge of selection, retract left
@@ -317,7 +317,7 @@ Cursor.prototype = {
       if (this.prev)
         this.hopLeft();
       else //end of a block
-        if (this.parent.parent)
+        if (this.parent !== this.root)
           this.insertBefore(this.parent.parent);
 
       this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
@@ -330,7 +330,7 @@ Cursor.prototype = {
           this.hopRight().prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
         }
-        else if (this.parent.parent) //else level up if possible
+        else if (this.parent !== this.root) //else level up if possible
           this.insertAfter(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at left edge of selection, retract right
@@ -344,7 +344,7 @@ Cursor.prototype = {
       if (this.next)
         this.hopRight();
       else //end of a block
-        if (this.parent.parent)
+        if (this.parent !== this.root)
           this.insertAfter(this.parent.parent);
 
       this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);

@@ -246,24 +246,22 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 'U+0009':
       if (e.ctrlKey) break;
 
-      var parent = this.cursor.parent,
-        gramp = parent.parent;
-
+      var parent = this.cursor.parent;
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-        if (!gramp) //cursor is in the root, continue default
+        if (parent === this) //cursor is in root editable, continue default
           break;
         else if (parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
-          this.cursor.insertBefore(gramp);
+          this.cursor.insertBefore(parent.parent);
       }
       else { //plain Tab = go one block right if it exists, else escape right.
-        if (!gramp) //cursor is in the root, continue default
+        if (parent === this) //cursor is in root editable, continue default
           return this.skipKeypress = true;
         else if (parent.next) //go one block right
           this.cursor.prependTo(parent.next);
         else //get out of the block
-          this.cursor.insertAfter(gramp);
+          this.cursor.insertAfter(parent.parent);
       }
 
       this.cursor.clearSelection();
@@ -275,7 +273,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 35: //end
     case 'End':
       if (e.shiftKey)
-        while (this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
+        while (this.cursor.next || (e.ctrlKey && this.cursor.parent !== this))
           this.cursor.selectRight();
       else //move to the end of the root block or the current block.
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
@@ -283,7 +281,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 36: //home
     case 'Home':
       if (e.shiftKey)
-        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent))
+        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent !== this))
           this.cursor.selectLeft();
       else //move to the start of the root block or the current block.
         this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
@@ -312,7 +310,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
       else if (this.cursor.prev)
         this.cursor.clearSelection().prependTo(this.cursor.parent);
-      else if (this.cursor.parent.parent)
+      else if (this.cursor.parent !== this)
         this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
       break;
     case 39: //right
@@ -339,7 +337,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().prependTo(this.cursor.parent.next);
       else if (this.cursor.next)
         this.cursor.clearSelection().appendTo(this.cursor.parent);
-      else if (this.cursor.parent.parent)
+      else if (this.cursor.parent !== this)
         this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
       break;
     case 46: //delete
