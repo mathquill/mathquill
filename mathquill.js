@@ -8,11 +8,6 @@
 
 (function($){ //takes in the jQuery function as an argument
 
-//Note: if the following is no longer on line 12 of build/mathquill.js, please modify publish.sh accordingly
-$('head').prepend('<link rel="stylesheet" type="text/css" href="http://laughinghan.github.com/mathquill/mathquill.css">');
-
-function todo(){ alert('BLAM!\n\nAHHHHHH!\n\n"Oh god, oh god, I\'ve never seen so much blood!"\n\nYeah, that doesn\'t fully work yet.'); };
-
 /*************************************************
  * Abstract base classes of blocks and commands.
  ************************************************/
@@ -488,24 +483,22 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 'U+0009':
       if (e.ctrlKey) break;
 
-      var parent = this.cursor.parent,
-        gramp = parent.parent;
-
+      var parent = this.cursor.parent;
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-        if (!gramp) //cursor is in the root, continue default
+        if (parent === this) //cursor is in root editable, continue default
           break;
         else if (parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
-          this.cursor.insertBefore(gramp);
+          this.cursor.insertBefore(parent.parent);
       }
       else { //plain Tab = go one block right if it exists, else escape right.
-        if (!gramp) //cursor is in the root, continue default
+        if (parent === this) //cursor is in root editable, continue default
           return this.skipKeypress = true;
         else if (parent.next) //go one block right
           this.cursor.prependTo(parent.next);
         else //get out of the block
-          this.cursor.insertAfter(gramp);
+          this.cursor.insertAfter(parent.parent);
       }
 
       this.cursor.clearSelection();
@@ -517,7 +510,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 35: //end
     case 'End':
       if (e.shiftKey)
-        while (this.cursor.next || (e.ctrlKey && this.cursor.parent.parent))
+        while (this.cursor.next || (e.ctrlKey && this.cursor.parent !== this))
           this.cursor.selectRight();
       else //move to the end of the root block or the current block.
         this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
@@ -525,7 +518,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
     case 36: //home
     case 'Home':
       if (e.shiftKey)
-        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent.parent))
+        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent !== this))
           this.cursor.selectLeft();
       else //move to the start of the root block or the current block.
         this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
@@ -554,7 +547,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
       else if (this.cursor.prev)
         this.cursor.clearSelection().prependTo(this.cursor.parent);
-      else if (this.cursor.parent.parent)
+      else if (this.cursor.parent !== this)
         this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
       break;
     case 39: //right
@@ -581,7 +574,7 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
         this.cursor.clearSelection().prependTo(this.cursor.parent.next);
       else if (this.cursor.next)
         this.cursor.clearSelection().appendTo(this.cursor.parent);
-      else if (this.cursor.parent.parent)
+      else if (this.cursor.parent !== this)
         this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
       break;
     case 46: //delete
@@ -663,7 +656,7 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: $.noop,
+  renderLatex: $.noop, //MathQuill textboxes do not render initial LaTeX. A user actually wants this (Issue#10) FIXME
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e) {
     if (this.skipKeypress) return true;
@@ -1256,6 +1249,14 @@ LatexCmds.vector = Vector;
 LatexCmds.editable = proto(RootMathCommand, function() {
   MathCommand.call(this, '\\editable');
   createRoot(this.jQ, this.firstChild, false, true);
+  var cursor;
+  this.placeCursor = function(c) { cursor = c.appendTo(this.firstChild); };
+  this.firstChild.blur = function() {
+    if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
+    delete this.blur;
+    this.cursor.appendTo(this);
+    MathBlock.prototype.blur.call(this);
+  };
 });
 /**********************************
  * Symbols and Special Characters
@@ -1718,7 +1719,7 @@ JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root) {
-  this.parent = root;
+  this.parent = this.root = root;
   var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //API for the blinking cursor
@@ -1821,7 +1822,7 @@ Cursor.prototype = {
       else { //we're at the beginning of a block
         if (this.parent.prev)
           this.appendTo(this.parent.prev);
-        else if (this.parent.parent)
+        else if (this.parent !== this.root)
           this.insertBefore(this.parent.parent);
         //else we're at the beginning of the root, so do nothing.
       }
@@ -1841,7 +1842,7 @@ Cursor.prototype = {
       else { //we're at the end of a block
         if (this.parent.next)
           this.prependTo(this.parent.next);
-        else if (this.parent.parent)
+        else if (this.parent !== this.root)
           this.insertAfter(this.parent.parent);
         //else we're at the end of the root, so do nothing.
       }
@@ -1965,7 +1966,7 @@ Cursor.prototype = {
       else
         this.selectLeft();
     }
-    else if (this.parent.parent) {
+    else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
         return this.insertAfter(this.parent.parent).backspace();
       else
@@ -1988,7 +1989,7 @@ Cursor.prototype = {
       else
         this.selectRight();
     }
-    else if (this.parent.parent) {
+    else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
         return this.insertBefore(this.parent.parent).deleteForward();
       else
@@ -2010,7 +2011,7 @@ Cursor.prototype = {
           this.hopLeft().next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
         }
-        else if (this.parent.parent) //else level up if possible
+        else if (this.parent !== this.root) //else level up if possible
           this.insertBefore(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at right edge of selection, retract left
@@ -2024,7 +2025,7 @@ Cursor.prototype = {
       if (this.prev)
         this.hopLeft();
       else //end of a block
-        if (this.parent.parent)
+        if (this.parent !== this.root)
           this.insertBefore(this.parent.parent);
 
       this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
@@ -2037,7 +2038,7 @@ Cursor.prototype = {
           this.hopRight().prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
         }
-        else if (this.parent.parent) //else level up if possible
+        else if (this.parent !== this.root) //else level up if possible
           this.insertAfter(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at left edge of selection, retract right
@@ -2051,7 +2052,7 @@ Cursor.prototype = {
       if (this.next)
         this.hopRight();
       else //end of a block
-        if (this.parent.parent)
+        if (this.parent !== this.root)
           this.insertAfter(this.parent.parent);
 
       this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
