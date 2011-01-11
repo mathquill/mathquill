@@ -575,4 +575,12 @@ LatexCmds.vector = Vector;
 LatexCmds.editable = proto(RootMathCommand, function() {
   MathCommand.call(this, '\\editable');
   createRoot(this.jQ, this.firstChild, false, true);
+  var cursor;
+  this.placeCursor = function(c) { cursor = c.appendTo(this.firstChild); };
+  this.firstChild.blur = function() {
+    if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
+    delete this.blur;
+    this.cursor.appendTo(this);
+    MathBlock.prototype.blur.call(this);
+  };
 });
