@@ -57,17 +57,21 @@ ul {
 
 <small>(Please note that this is an alpha version, so bugs and unimplemented features are all over the place.)</small>
 
-<p>All you need is a script include in your header:</p>
+<p>You just need to download the <a href="http://laughinghan.github.com/mathquill/mathquill.css">stylesheet</a> and the <a href="http://laughinghan.github.com/mathquill/mathquill.js">script</a>, include the stylesheet in the head:</p>
 
-<p><code>&lt;script src="http://laughinghan.github.com/mathquill/mathquill.js"&gt;</code></p>
+<pre><code>&lt;link rel="stylesheet" type="text/css" href="/path/to/mathquill.css"&gt;</code></pre>
 
-<p>and wherever you'd like to have an editable math textbox:</p>
+<p>and include the script somewhere after including <a href="#dependencies">jQuery</a>:</p>
 
-<p><code>&lt;span class="mathquill-editable"&gt;f(x)=?&lt;/span&gt;</code></p>
+<p><code>&lt;script src="/path/to/mathquill.js"&gt;&lt;/script&gt;</code></p>
 
-<p>or to convert LaTeX math to HTML:</p>
+<p>Then wherever you'd like to embed LaTeX math to be rendered in HTML:</p>
 
 <p><code>&lt;span class="mathquill-embedded-latex"&gt;\frac{d}{dx}\sqrt{x}&lt;/span&gt;</code></p>
+
+<p>or to insert an editable math textbox:</p>
+
+<p><code>&lt;span class="mathquill-editable" style="width:1cm"&gt;f(x)=?&lt;/span&gt;</code></p>
 
 <p>Note that for dynamically created elements that weren't in the HTML DOM on
 document ready, you will need to call our jQuery plugin after inserting into
@@ -90,14 +94,14 @@ Currently, MathQuill only supports a limited scripting API:</p>
 
 <ul>
 <li>To access the LaTeX contents of a mathquill-ified element:
-<p><code>$('&lt;span&gt;a_n x^n&lt;/span&gt;').mathquill().mathquill('latex') === 'a_n x^n'</code>
+<p><code>$('&lt;span&gt;x^{-1}&lt;/span&gt;').mathquill().mathquill('latex') === 'x^{-1}'</code>
 <li>To render some LaTeX in a mathquill-ified element:
-<p><code>$('&lt;span&gt;&lt;/span&gt;').mathquill().appendTo('body').mathquill('latex','x^{-1}')</code>
+<p><code>$('&lt;span&gt;&lt;/span&gt;').mathquill().appendTo('body').mathquill('latex','a_n x^n')</code>
 </ul>
 
-<h2>Requirements</h2>
+<h2 id="dependencies">Dependencies</h2>
 
-<p>Requires <a href="http://jquery.com">jQuery 1.4</a>. You can just hotlink <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">Google's CDN-hosted copy</a> (<a href="http://softwareas.com/google-jquery-cdn">more info</a>).</p>
+<p>Requires <a href="http://jquery.com">jQuery 1.4+</a>. You can just hotlink <a href="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js">Google's CDN-hosted copy</a> (<a href="http://softwareas.com/google-jquery-cdn">more info</a>).</p>
 
 <h2>Understanding The Code</h2>
 
