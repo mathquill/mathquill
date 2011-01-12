@@ -45,7 +45,7 @@
     <p><button onclick="LatexImages = true; $('#editable-math').triggerHandler('keydown'); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
     <p><a href="javascript:void(0)" onclick="$(this).html('Hide HTML Source (Note how semantically meaningful it is)').parent().next().show(); var show = arguments.callee; this.onclick=function(){ $(this).html('Show HTML Source (Note how semantically meaningful it is)').parent().next().hide(); this.onclick = show; };">Show HTML Source (Note how semantically meaningful it is)</a></p>
     <pre id="html-source"></pre>
-    <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox">lolwut</span></p>
+    <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce.</span></p>
     <p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.4/jquery.js"></script>
     <script type="text/javascript" src="build/mathquill.js"></script>
