@@ -424,9 +424,10 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
     this.firstChild = this.lastChild = 0;
     this.cursor.show().appendTo(this);
 
+    var math, text, nextDollar;
     while (latex) {
-      var nextDollar = latex.indexOf('$');
-      var text;
+      math = text = '';
+      nextDollar = latex.indexOf('$');
       if (nextDollar >= 0) {
         text = latex.slice(0, nextDollar);
         latex = latex.slice(nextDollar+1);
@@ -441,8 +442,14 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
       }
 
       nextDollar = latex.indexOf('$');
-      var math = nextDollar >= 0 ? latex.slice(0, nextDollar) : latex;
-      latex = latex.slice(nextDollar+1);
+      if (nextDollar >= 0) {
+        math = latex.slice(0, nextDollar);
+        latex = latex.slice(nextDollar+1);
+      }
+      else {
+        math=latex;
+        latex='';
+      }
 
       if (math) {
         var root = new RootMathCommand(this.cursor);
