@@ -23,7 +23,7 @@ Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
 or have an editable math textbox:
 
-    <span class="mathquill-editable" style="width:1cm">f(x)=?</span>
+    <span class="mathquill-editable">f(x)=?</span>
 
 Note that for dynamically created elements that weren't in the HTML DOM on
 document ready, you will need to call our jQuery plugin after inserting into
