@@ -419,7 +419,46 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: $.noop, //MathQuill textboxes do not render initial LaTeX. A user actually wants this (Issue#10) FIXME
+  renderLatex: function(latex) {
+    this.jQ.children().slice(1).remove();
+    this.firstChild = this.lastChild = 0;
+    this.cursor.show().appendTo(this);
+
+    var math, text, nextDollar;
+    while (latex) {
+      math = text = '';
+      nextDollar = latex.indexOf('$');
+      if (nextDollar >= 0) {
+        text = latex.slice(0, nextDollar);
+        latex = latex.slice(nextDollar+1);
+      }
+      else {
+        text = latex;
+        latex = '';
+      }
+
+      for (var i=0; i < text.length; i+=1) {
+        this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
+      }
+
+      nextDollar = latex.indexOf('$');
+      if (nextDollar >= 0) {
+        math = latex.slice(0, nextDollar);
+        latex = latex.slice(nextDollar+1);
+      }
+      else {
+        math=latex;
+        latex='';
+      }
+
+      if (math) {
+        var root = new RootMathCommand(this.cursor);
+        this.cursor.insertNew(root);
+        root.firstChild.renderLatex(math);
+        this.cursor.show().insertAfter(root);
+      }
+    }
+  },
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e) {
     if (this.skipKeypress) return true;
