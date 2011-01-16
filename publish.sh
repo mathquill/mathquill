@@ -9,6 +9,7 @@ git stash
 cp mathquill.css build/mathquill.css
 branch=`git branch | grep '\*' | sed 's/\* *//'`
 git checkout gh-pages
+git pull
 cp build/* .
 rm build/mathquill.css
 git commit -a -m "publish new mathquill.js"
