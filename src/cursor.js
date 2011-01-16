@@ -10,12 +10,10 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-
 function Cursor(root) {
   this.parent = this.root = root;
   var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
-  //API for the blinking cursor
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }
 }
@@ -25,7 +23,7 @@ Cursor.prototype = {
   parent: 0,
   show: function() {
     this.jQ = this._jQ.removeClass('blink');
-    if (this.intervalId) //already was shown, just restart interval
+    if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this.next) {
@@ -42,9 +40,9 @@ Cursor.prototype = {
     return this;
   },
   hide: function() {
-    if (this.intervalId)
+    if ('intervalId' in this)
       clearInterval(this.intervalId);
-    this.intervalId = undefined;
+    delete this.intervalId;
     this.jQ.detach();
     this.jQ = $();
     return this;
