@@ -656,7 +656,46 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
 
 function RootTextBlock(){}
 RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: $.noop, //MathQuill textboxes do not render initial LaTeX. A user actually wants this (Issue#10) FIXME
+  renderLatex: function(latex) {
+    this.jQ.children().slice(1).remove();
+    this.firstChild = this.lastChild = 0;
+    this.cursor.show().appendTo(this);
+
+    var math, text, nextDollar;
+    while (latex) {
+      math = text = '';
+      nextDollar = latex.indexOf('$');
+      if (nextDollar >= 0) {
+        text = latex.slice(0, nextDollar);
+        latex = latex.slice(nextDollar+1);
+      }
+      else {
+        text = latex;
+        latex = '';
+      }
+
+      for (var i=0; i < text.length; i+=1) {
+        this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
+      }
+
+      nextDollar = latex.indexOf('$');
+      if (nextDollar >= 0) {
+        math = latex.slice(0, nextDollar);
+        latex = latex.slice(nextDollar+1);
+      }
+      else {
+        math=latex;
+        latex='';
+      }
+
+      if (math) {
+        var root = new RootMathCommand(this.cursor);
+        this.cursor.insertNew(root);
+        root.firstChild.renderLatex(math);
+        this.cursor.show().insertAfter(root);
+      }
+    }
+  },
   keydown: RootMathBlock.prototype.keydown,
   keypress: function(e) {
     if (this.skipKeypress) return true;
@@ -1722,13 +1761,17 @@ function Cursor(root) {
   this.parent = this.root = root;
   var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
-  //API for the blinking cursor
-  function blink(){ jQ.toggleClass('blink'); }
-  var intervalId;
-  this.show = function() {
+  //closured for setInterval
+  this.blink = function(){ jQ.toggleClass('blink'); }
+}
+Cursor.prototype = {
+  prev: 0,
+  next: 0,
+  parent: 0,
+  show: function() {
     this.jQ = this._jQ.removeClass('blink');
-    if (intervalId) //already was shown, just restart interval
-      clearInterval(intervalId);
+    if ('intervalId' in this) //already was shown, just restart interval
+      clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this.next) {
         if (this.selection && this.selection.prev === this.prev)
@@ -1740,22 +1783,17 @@ function Cursor(root) {
         this.jQ.appendTo(this.parent.jQ);
       this.parent.focus();
     }
-    intervalId = setInterval(blink, 500);
+    this.intervalId = setInterval(this.blink, 500);
     return this;
-  };
-  this.hide = function() {
-    if (intervalId)
-      clearInterval(intervalId);
-    intervalId = undefined;
+  },
+  hide: function() {
+    if ('intervalId' in this)
+      clearInterval(this.intervalId);
+    delete this.intervalId;
     this.jQ.detach();
     this.jQ = $();
     return this;
-  };
-}
-Cursor.prototype = {
-  prev: 0,
-  next: 0,
-  parent: 0,
+  },
   redraw: function() {
     for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
       if (ancestor.redraw)
