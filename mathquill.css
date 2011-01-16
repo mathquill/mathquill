@@ -125,7 +125,7 @@
   background-color: #ccc;
 }
 .mathquill-rendered-math.empty {
-  background-color: inherit;
+  background-color: transparent;
 }
 
 .mathquill-rendered-math .text {
