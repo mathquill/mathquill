@@ -14,7 +14,9 @@ ${SOURCE_DIR}/outro.js
 BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/mathquill.js
 
-all:
+all: cat minify
+
+cat:
 	[ -d "${BUILD_DIR}" ] || mkdir "${BUILD_DIR}"
 	cat ${FILES} > ${BUILD_FILE}
 
