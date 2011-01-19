@@ -130,7 +130,7 @@ LiveFraction.prototype.placeCursor = function(cursor) {
 
     if (prev !== this.prev) {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
+      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
@@ -173,7 +173,7 @@ Bracket.prototype.initBlocks = function(replacedFragment) {
     (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.children(':eq(1)')
-    .data('[[mathquill internal data]]', {block: this.firstChild})
+    .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
 };
 Bracket.prototype.latex = function() {
@@ -262,7 +262,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
   initBlocks: function() {
     this.firstChild =
     this.lastChild =
-    this.jQ.data('[[mathquill internal data]]').block = new InnerTextBlock;
+    this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
@@ -503,7 +503,7 @@ Vector.prototype.keydown = function(e) {
       var newBlock = new MathBlock;
       newBlock.parent = this;
       newBlock.jQ = $('<span></span>')
-        .data('[[mathquill internal data]]', {block: newBlock})
+        .data(jQueryDataKey, {block: newBlock})
         .insertAfter(currentBlock.jQ);
       if (currentBlock.next)
         currentBlock.next.prev = newBlock;
@@ -532,7 +532,7 @@ Vector.prototype.keydown = function(e) {
 
       var newBlock = new MathBlock;
       newBlock.parent = this;
-      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
+      newBlock.jQ = $('<span></span>').data(jQueryDataKey, {block: newBlock}).appendTo(this.jQ);
       this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;

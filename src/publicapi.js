@@ -8,24 +8,24 @@ $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     this.find(':not(:has(:first))')
-      .mathquill('[[mathquill internal data]]').cmd.redraw();
+      .mathquill(jQueryDataKey).cmd.redraw();
     return this;
   case 'revert':
     return this.each(function() {
-      var data = $(this).data('[[mathquill internal data]]');
+      var data = $(this).data(jQueryDataKey);
       if (data && data.revert)
         data.revert();
     });
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
-        var data = $(this).data('[[mathquill internal data]]');
+        var data = $(this).data(jQueryDataKey);
         if (data && data.block && data.block.renderLatex)
           data.block.renderLatex(latex);
       });
     }
 
-    var data = this.data('[[mathquill internal data]]');
+    var data = this.data(jQueryDataKey);
     return data && data.block && data.block.latex();
   case 'html':
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
@@ -35,7 +35,7 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.each(function() {
         var
-          data = $(this).data('[[mathquill internal data]]'),
+          data = $(this).data(jQueryDataKey),
           block = data && data.block, cursor = block && block.cursor
         ;
 

@@ -8,7 +8,7 @@ function createRoot(jQ, root, textbox, editable) {
   if (!textbox)
     jQ.addClass('mathquill-rendered-math');
 
-  root.jQ = jQ.data('[[mathquill internal data]]', {
+  root.jQ = jQ.data(jQueryDataKey, {
     block: root,
     revert: function() {
       jQ.empty().unbind('.mathquill')
@@ -85,11 +85,11 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('click.mathquill', function(e) {
     var clicked = $(e.target);
     if (clicked.hasClass('empty')) {
-      cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
+      cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
       return false;
     }
 
-    var data = clicked.data('[[mathquill internal data]]');
+    var data = clicked.data(jQueryDataKey);
     if (data) {
       //if clicked a symbol, insert of whichever side is closer
       if (data.cmd && !data.block) {
@@ -106,7 +106,7 @@ function createRoot(jQ, root, textbox, editable) {
     //the user probably didn't click on the math after all
     else {
       clicked = clicked.parent();
-      data = clicked.data('[[mathquill internal data]]');
+      data = clicked.data(jQueryDataKey);
       if (!data)
         return;
     }
@@ -409,7 +409,7 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
   initBlocks: function() {
     this.firstChild =
     this.lastChild =
-    this.jQ.data('[[mathquill internal data]]').block =
+    this.jQ.data(jQueryDataKey).block =
       new RootMathBlock;
 
     this.firstChild.parent = this;

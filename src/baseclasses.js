@@ -44,7 +44,7 @@ function MathCommand(cmd, html_template, replacedFragment) {
   this.cmd = cmd;
   if (html_template) this.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
+  this.jQ = $(this.html_template[0]).data(jQueryDataKey, {cmd: this});
   this.initBlocks(replacedFragment);
 }
 
@@ -54,7 +54,7 @@ MathCommand.prototype = $.extend(new MathElement, {
     if (this.html_template.length === 1) {
       this.firstChild =
       this.lastChild =
-      this.jQ.data('[[mathquill internal data]]').block =
+      this.jQ.data(jQueryDataKey).block =
         (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
       this.firstChild.parent = this;
@@ -69,7 +69,7 @@ MathCommand.prototype = $.extend(new MathElement, {
 
     newBlock.parent = this;
     newBlock.jQ = $(this.html_template[1])
-      .data('[[mathquill internal data]]', {block: newBlock})
+      .data(jQueryDataKey, {block: newBlock})
       .append(newBlock.jQ)
       .appendTo(this.jQ);
 
@@ -83,7 +83,7 @@ MathCommand.prototype = $.extend(new MathElement, {
       prev = newBlock;
 
       newBlock.jQ = $(this.html_template[i])
-        .data('[[mathquill internal data]]', {block: newBlock})
+        .data(jQueryDataKey, {block: newBlock})
         .appendTo(this.jQ);
 
       newBlock.blur();
