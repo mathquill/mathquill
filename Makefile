@@ -15,11 +15,8 @@ BUILD_DIR = ./build
 BUILD_FILE = ${BUILD_DIR}/mathquill.js
 
 all:
-	@@if test ! -d ${BUILD_DIR}; then mkdir ${BUILD_DIR}; fi
-	@@echo 'Building...'
-	@@echo ${FILES} | tr ' ' '\n'
-	@@cat ${FILES} > ${BUILD_FILE}
-	@@echo 'Done.'
+	[ -d "${BUILD_DIR}" ] || mkdir "${BUILD_DIR}"
+	cat ${FILES} > ${BUILD_FILE}
 
 publish:
 	@@./publish.sh
