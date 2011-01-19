@@ -40,55 +40,57 @@ MathElement.prototype = {
  */
 function MathCommand(cmd, html_template, replacedFragment) {
   if (!arguments.length) return;
+  var self = this; // minifier optimization
 
-  this.cmd = cmd;
-  if (html_template) this.html_template = html_template;
+  self.cmd = cmd;
+  if (html_template) self.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]).data(jQueryDataKey, {cmd: this});
-  this.initBlocks(replacedFragment);
+  self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
+  self.initBlocks(replacedFragment);
 }
 
 MathCommand.prototype = $.extend(new MathElement, {
   initBlocks: function(replacedFragment) {
+    var self = this;
     //single-block commands
-    if (this.html_template.length === 1) {
-      this.firstChild =
-      this.lastChild =
-      this.jQ.data(jQueryDataKey).block =
+    if (self.html_template.length === 1) {
+      self.firstChild =
+      self.lastChild =
+      self.jQ.data(jQueryDataKey).block =
         (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
-      this.firstChild.parent = this;
-      this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+      self.firstChild.parent = self;
+      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
 
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev, num_blocks = this.html_template.length;
+    var newBlock, prev, num_blocks = self.html_template.length;
     this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
-    newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1])
+    newBlock.parent = self;
+    newBlock.jQ = $(self.html_template[1])
       .data(jQueryDataKey, {block: newBlock})
       .append(newBlock.jQ)
-      .appendTo(this.jQ);
+      .appendTo(self.jQ);
 
     newBlock.blur();
 
     for (var i = 2; i < num_blocks; i += 1) {
       newBlock = new MathBlock;
-      newBlock.parent = this;
+      newBlock.parent = self;
       newBlock.prev = prev;
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(this.html_template[i])
+      newBlock.jQ = $(self.html_template[i])
         .data(jQueryDataKey, {block: newBlock})
-        .appendTo(this.jQ);
+        .appendTo(self.jQ);
 
       newBlock.blur();
     }
-    this.lastChild = newBlock;
+    self.lastChild = newBlock;
   },
   latex: function() {
     return this.foldChildren(this.cmd, function(latex){
@@ -96,19 +98,24 @@ MathCommand.prototype = $.extend(new MathElement, {
     });
   },
   remove: function() {
-    if (this.prev)
-      this.prev.next = this.next;
+    var self = this,
+        prev = self.prev,
+        next = self.next,
+        parent = self.parent;
+
+    if (prev)
+      prev.next = next;
     else
-      this.parent.firstChild = this.next;
+      parent.firstChild = next;
 
-    if (this.next)
-      this.next.prev = this.prev;
+    if (next)
+      next.prev = prev;
     else
-      this.parent.lastChild = this.prev;
+      parent.lastChild = prev;
 
-    this.jQ.remove();
+    self.jQ.remove();
 
-    return this;
+    return self;
   },
   respace: $.noop, //placeholder for context-sensitive spacing
   placeCursor: function(cursor) {
@@ -176,11 +183,13 @@ MathBlock.prototype = $.extend(new MathElement, {
 function MathFragment(parent, prev, next) {
   if (!arguments.length) return;
 
-  this.parent = parent;
-  this.prev = prev || 0; //so you can do 'new MathFragment(block)' without
-  this.next = next || 0; //ending up with this.prev or this.next === undefined
+  var self = this;
 
-  this.jQinit(this.fold($(), function(jQ){ return this.jQ.add(jQ); }));
+  self.parent = parent;
+  self.prev = prev || 0; //so you can do 'new MathFragment(block)' without
+  self.next = next || 0; //ending up with this.prev or this.next === undefined
+
+  self.jQinit(self.fold($(), function(jQ){ return self.jQ.add(jQ); }));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
@@ -200,27 +209,31 @@ MathFragment.prototype = {
     return fold;
   },
   blockify: function() {
-    var newBlock = new MathBlock;
-    newBlock.firstChild = this.prev.next || this.parent.firstChild;
-    newBlock.lastChild = this.next.prev || this.parent.lastChild;
+    var self = this,
+        prev = self.prev,
+        next = self.next,
+        parent = self.parent,
+        newBlock = new MathBlock,
+        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
+        newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
-    if (this.prev)
-      this.prev.next = this.next;
+    if (prev)
+      prev.next = next;
     else
-      this.parent.firstChild = this.next;
+      parent.firstChild = next;
 
-    if (this.next)
-      this.next.prev = this.prev;
+    if (next)
+      next.prev = prev;
     else
-      this.parent.lastChild = this.prev;
+      parent.lastChild = prev;
 
-    newBlock.firstChild.prev = this.prev = 0;
-    newBlock.lastChild.next = this.next = 0;
+    newFirstChild.prev = self.prev = 0;
+    newLastChild.next = self.next = 0;
 
-    this.parent = newBlock;
-    this.each(function(){ this.parent = newBlock; });
+    self.parent = newBlock;
+    self.each(function(){ this.parent = newBlock; });
 
-    newBlock.jQ = this.jQ;
+    newBlock.jQ = self.jQ;
 
     return newBlock;
   }
