@@ -25,8 +25,17 @@ minify: cat
 	which uglifyjs >/dev/null && \
     uglifyjs "${BUILD_FILE}" > "${MINIFIED_BUILD_FILE}"
 
-publish:
-	@@./publish.sh
+publish: cat minify
+	git stash
+	cp mathquill.css build/mathquill.css
+	git checkout gh-pages
+	git pull
+	cp build/* .
+	rm build/mathquill.css
+	git commit -a -m "publish new mathquill.js"
+	git push
+	git checkout -
+	git stash pop
 
 lol:
 	@@echo "LOL!"
