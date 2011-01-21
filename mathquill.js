@@ -8,6 +8,8 @@
 
 (function($){ //takes in the jQuery function as an argument
 
+var undefined,
+    jQueryDataKey = '[[mathquill internal data]]';
 /*************************************************
  * Abstract base classes of blocks and commands.
  ************************************************/
@@ -50,55 +52,57 @@ MathElement.prototype = {
  */
 function MathCommand(cmd, html_template, replacedFragment) {
   if (!arguments.length) return;
+  var self = this; // minifier optimization
 
-  this.cmd = cmd;
-  if (html_template) this.html_template = html_template;
+  self.cmd = cmd;
+  if (html_template) self.html_template = html_template;
 
-  this.jQ = $(this.html_template[0]).data('[[mathquill internal data]]', {cmd: this});
-  this.initBlocks(replacedFragment);
+  self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
+  self.initBlocks(replacedFragment);
 }
 
 MathCommand.prototype = $.extend(new MathElement, {
   initBlocks: function(replacedFragment) {
+    var self = this;
     //single-block commands
-    if (this.html_template.length === 1) {
-      this.firstChild =
-      this.lastChild =
-      this.jQ.data('[[mathquill internal data]]').block =
+    if (self.html_template.length === 1) {
+      self.firstChild =
+      self.lastChild =
+      self.jQ.data(jQueryDataKey).block =
         (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
-      this.firstChild.parent = this;
-      this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+      self.firstChild.parent = self;
+      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
 
       return;
     }
     //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev, num_blocks = this.html_template.length;
+    var newBlock, prev, num_blocks = self.html_template.length;
     this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
-    newBlock.parent = this;
-    newBlock.jQ = $(this.html_template[1])
-      .data('[[mathquill internal data]]', {block: newBlock})
+    newBlock.parent = self;
+    newBlock.jQ = $(self.html_template[1])
+      .data(jQueryDataKey, {block: newBlock})
       .append(newBlock.jQ)
-      .appendTo(this.jQ);
+      .appendTo(self.jQ);
 
     newBlock.blur();
 
     for (var i = 2; i < num_blocks; i += 1) {
       newBlock = new MathBlock;
-      newBlock.parent = this;
+      newBlock.parent = self;
       newBlock.prev = prev;
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(this.html_template[i])
-        .data('[[mathquill internal data]]', {block: newBlock})
-        .appendTo(this.jQ);
+      newBlock.jQ = $(self.html_template[i])
+        .data(jQueryDataKey, {block: newBlock})
+        .appendTo(self.jQ);
 
       newBlock.blur();
     }
-    this.lastChild = newBlock;
+    self.lastChild = newBlock;
   },
   latex: function() {
     return this.foldChildren(this.cmd, function(latex){
@@ -106,19 +110,24 @@ MathCommand.prototype = $.extend(new MathElement, {
     });
   },
   remove: function() {
-    if (this.prev)
-      this.prev.next = this.next;
+    var self = this,
+        prev = self.prev,
+        next = self.next,
+        parent = self.parent;
+
+    if (prev)
+      prev.next = next;
     else
-      this.parent.firstChild = this.next;
+      parent.firstChild = next;
 
-    if (this.next)
-      this.next.prev = this.prev;
+    if (next)
+      next.prev = prev;
     else
-      this.parent.lastChild = this.prev;
+      parent.lastChild = prev;
 
-    this.jQ.remove();
+    self.jQ.remove();
 
-    return this;
+    return self;
   },
   respace: $.noop, //placeholder for context-sensitive spacing
   placeCursor: function(cursor) {
@@ -186,11 +195,13 @@ MathBlock.prototype = $.extend(new MathElement, {
 function MathFragment(parent, prev, next) {
   if (!arguments.length) return;
 
-  this.parent = parent;
-  this.prev = prev || 0; //so you can do 'new MathFragment(block)' without
-  this.next = next || 0; //ending up with this.prev or this.next === undefined
+  var self = this;
 
-  this.jQinit(this.fold($(), function(jQ){ return this.jQ.add(jQ); }));
+  self.parent = parent;
+  self.prev = prev || 0; //so you can do 'new MathFragment(block)' without
+  self.next = next || 0; //ending up with this.prev or this.next === undefined
+
+  self.jQinit(self.fold($(), function(jQ){ return self.jQ.add(jQ); }));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
@@ -210,27 +221,31 @@ MathFragment.prototype = {
     return fold;
   },
   blockify: function() {
-    var newBlock = new MathBlock;
-    newBlock.firstChild = this.prev.next || this.parent.firstChild;
-    newBlock.lastChild = this.next.prev || this.parent.lastChild;
+    var self = this,
+        prev = self.prev,
+        next = self.next,
+        parent = self.parent,
+        newBlock = new MathBlock,
+        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
+        newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
-    if (this.prev)
-      this.prev.next = this.next;
+    if (prev)
+      prev.next = next;
     else
-      this.parent.firstChild = this.next;
+      parent.firstChild = next;
 
-    if (this.next)
-      this.next.prev = this.prev;
+    if (next)
+      next.prev = prev;
     else
-      this.parent.lastChild = this.prev;
+      parent.lastChild = prev;
 
-    newBlock.firstChild.prev = this.prev = 0;
-    newBlock.lastChild.next = this.next = 0;
+    newFirstChild.prev = self.prev = 0;
+    newLastChild.next = self.next = 0;
 
-    this.parent = newBlock;
-    this.each(function(){ this.parent = newBlock; });
+    self.parent = newBlock;
+    self.each(function(){ this.parent = newBlock; });
 
-    newBlock.jQ = this.jQ;
+    newBlock.jQ = self.jQ;
 
     return newBlock;
   }
@@ -245,7 +260,7 @@ function createRoot(jQ, root, textbox, editable) {
   if (!textbox)
     jQ.addClass('mathquill-rendered-math');
 
-  root.jQ = jQ.data('[[mathquill internal data]]', {
+  root.jQ = jQ.data(jQueryDataKey, {
     block: root,
     revert: function() {
       jQ.empty().unbind('.mathquill')
@@ -322,11 +337,11 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('click.mathquill', function(e) {
     var clicked = $(e.target);
     if (clicked.hasClass('empty')) {
-      cursor.clearSelection().prependTo(clicked.data('[[mathquill internal data]]').block);
+      cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
       return false;
     }
 
-    var data = clicked.data('[[mathquill internal data]]');
+    var data = clicked.data(jQueryDataKey);
     if (data) {
       //if clicked a symbol, insert of whichever side is closer
       if (data.cmd && !data.block) {
@@ -343,7 +358,7 @@ function createRoot(jQ, root, textbox, editable) {
     //the user probably didn't click on the math after all
     else {
       clicked = clicked.parent();
-      data = clicked.data('[[mathquill internal data]]');
+      data = clicked.data(jQueryDataKey);
       if (!data)
         return;
     }
@@ -646,7 +661,7 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
   initBlocks: function() {
     this.firstChild =
     this.lastChild =
-    this.jQ.data('[[mathquill internal data]]').block =
+    this.jQ.data(jQueryDataKey).block =
       new RootMathBlock;
 
     this.firstChild.parent = this;
@@ -843,7 +858,7 @@ LiveFraction.prototype.placeCursor = function(cursor) {
 
     if (prev !== this.prev) {
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data('[[mathquill internal data]]', { block: newBlock });
+      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
       this.firstChild = this.lastChild.prev = newBlock;
@@ -886,7 +901,7 @@ Bracket.prototype.initBlocks = function(replacedFragment) {
     (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.children(':eq(1)')
-    .data('[[mathquill internal data]]', {block: this.firstChild})
+    .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
 };
 Bracket.prototype.latex = function() {
@@ -975,7 +990,7 @@ TextBlock.prototype = $.extend(new MathCommand, {
   initBlocks: function() {
     this.firstChild =
     this.lastChild =
-    this.jQ.data('[[mathquill internal data]]').block = new InnerTextBlock;
+    this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
@@ -1216,7 +1231,7 @@ Vector.prototype.keydown = function(e) {
       var newBlock = new MathBlock;
       newBlock.parent = this;
       newBlock.jQ = $('<span></span>')
-        .data('[[mathquill internal data]]', {block: newBlock})
+        .data(jQueryDataKey, {block: newBlock})
         .insertAfter(currentBlock.jQ);
       if (currentBlock.next)
         currentBlock.next.prev = newBlock;
@@ -1245,7 +1260,7 @@ Vector.prototype.keydown = function(e) {
 
       var newBlock = new MathBlock;
       newBlock.parent = this;
-      newBlock.jQ = $('<span></span>').data('[[mathquill internal data]]', {block: newBlock}).appendTo(this.jQ);
+      newBlock.jQ = $('<span></span>').data(jQueryDataKey, {block: newBlock}).appendTo(this.jQ);
       this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
@@ -1604,6 +1619,107 @@ case ';':
 case '!':
   return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
+
+//binary operators
+LatexCmds.diamond = bind(VanillaSymbol, '\\diamond', '&#9671;');
+LatexCmds.bigtriangleup = bind(VanillaSymbol, '\\bigtriangleup', '&#9651;');
+LatexCmds.ominus = bind(VanillaSymbol, '\\ominus', '&#8854;');
+LatexCmds.uplus = bind(VanillaSymbol, '\\uplus', '&#8846;');
+LatexCmds.bigtriangledown = bind(VanillaSymbol, '\\bigtriangledown', '&#9661;');
+LatexCmds.sqcap = bind(VanillaSymbol, '\\sqcap', '&#8851;');
+LatexCmds.triangleleft = bind(VanillaSymbol, '\\triangleleft', '&#8882;');
+LatexCmds.sqcup = bind(VanillaSymbol, '\\sqcup', '&#8852;');
+LatexCmds.triangleright = bind(VanillaSymbol, '\\triangleright', '&#8883;');
+LatexCmds.odot = bind(VanillaSymbol, '\\odot', '&#8857;');
+LatexCmds.bigcirc = bind(VanillaSymbol, '\\bigcirc', '&#9711;');
+LatexCmds.dagger = bind(VanillaSymbol, '\\dagger', '&#0134;');
+LatexCmds.ddagger = bind(VanillaSymbol, '\\ddagger', '&#135;');
+LatexCmds.wr = bind(VanillaSymbol, '\\wr', '&#8768;');
+LatexCmds.amalg = bind(VanillaSymbol, '\\amalg', '&#8720;');
+
+//relationship symbols
+LatexCmds.models = bind(VanillaSymbol, '\\models', '&#8872;');
+LatexCmds.prec = bind(VanillaSymbol, '\\prec', '&#8826;');
+LatexCmds.succ = bind(VanillaSymbol, '\\succ', '&#8827;');
+LatexCmds.preceq = bind(VanillaSymbol, '\\preceq', '&#8828;');
+LatexCmds.succeq = bind(VanillaSymbol, '\\succeq', '&#8829;');
+LatexCmds.simeq = bind(VanillaSymbol, '\\simeq', '&#8771;');
+LatexCmds.mid = bind(VanillaSymbol, '\\mid', '&#8739;');
+LatexCmds.ll = bind(VanillaSymbol, '\\ll', '&#8810;');
+LatexCmds.gg = bind(VanillaSymbol, '\\gg', '&#8811;');
+LatexCmds.parallel = bind(VanillaSymbol, '\\parallel', '&#8741;');
+LatexCmds.bowtie = bind(VanillaSymbol, '\\bowtie', '&#8904;');
+LatexCmds.sqsubset = bind(VanillaSymbol, '\\sqsubset', '&#8847;');
+LatexCmds.sqsupset = bind(VanillaSymbol, '\\sqsupset', '&#8848;');
+LatexCmds.smile = bind(VanillaSymbol, '\\smile', '&#8995;');
+LatexCmds.sqsubseteq = bind(VanillaSymbol, '\\sqsubseteq', '&#8849;');
+LatexCmds.sqsupseteq = bind(VanillaSymbol, '\\sqsupseteq', '&#8850;');
+LatexCmds.doteq = bind(VanillaSymbol, '\\doteq', '&#8784;');
+LatexCmds.frown = bind(VanillaSymbol, '\\frown', '&#8994;');
+LatexCmds.vdash = bind(VanillaSymbol, '\\vdash', '&#8870;');
+LatexCmds.dashv = bind(VanillaSymbol, '\\dashv', '&#8867;');
+
+//arrows
+LatexCmds.longleftarrow = bind(VanillaSymbol, '\\longleftarrow', '&#8592;');
+LatexCmds.longrightarrow = bind(VanillaSymbol, '\\longrightarrow', '&#8594;');
+LatexCmds.Longleftarrow = bind(VanillaSymbol, '\\Longleftarrow', '&#8656;');
+LatexCmds.Longrightarrow = bind(VanillaSymbol, '\\Longrightarrow', '&#8658;');
+LatexCmds.longleftrightarrow = bind(VanillaSymbol, '\\longleftrightarrow', '&#8596;');
+LatexCmds.updownarrow = bind(VanillaSymbol, '\\updownarrow', '&#8597;');
+LatexCmds.Longleftrightarrow = bind(VanillaSymbol, '\\Longleftrightarrow', '&#8660;');
+LatexCmds.Updownarrow = bind(VanillaSymbol, '\\Updownarrow', '&#8661;');
+LatexCmds.mapsto = bind(VanillaSymbol, '\\mapsto', '&#8614;');
+LatexCmds.nearrow = bind(VanillaSymbol, '\\nearrow', '&#8599;');
+LatexCmds.hookleftarrow = bind(VanillaSymbol, '\\hookleftarrow', '&#8617;');
+LatexCmds.hookrightarrow = bind(VanillaSymbol, '\\hookrightarrow', '&#8618;');
+LatexCmds.searrow = bind(VanillaSymbol, '\\searrow', '&#8600;');
+LatexCmds.leftharpoonup = bind(VanillaSymbol, '\\leftharpoonup', '&#8636;');
+LatexCmds.rightharpoonup = bind(VanillaSymbol, '\\rightharpoonup', '&#8640;');
+LatexCmds.swarrow = bind(VanillaSymbol, '\\swarrow', '&#8601;');
+LatexCmds.leftharpoondown = bind(VanillaSymbol, '\\leftharpoondown', '&#8637;');
+LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown', '&#8641;');
+LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow', '&#8598;');
+
+//Misc
+LatexCmds.ldots = bind(VanillaSymbol, '\\ldots', '&#8230;');
+LatexCmds.cdots = bind(VanillaSymbol, '\\cdots', '&#8943;');
+LatexCmds.vdots = bind(VanillaSymbol, '\\vdots', '&#8942;');
+LatexCmds.ddots = bind(VanillaSymbol, '\\ddots', '&#8944;');
+LatexCmds.surd = bind(VanillaSymbol, '\\surd', '&#8730;');
+LatexCmds.triangle = bind(VanillaSymbol, '\\triangle', '&#9653;');
+LatexCmds.ell = bind(VanillaSymbol, '\\ell', '&#8467;');
+LatexCmds.top = bind(VanillaSymbol, '\\top', '&#8868;');
+LatexCmds.flat = bind(VanillaSymbol, '\\flat', '&#9837;');
+LatexCmds.natural = bind(VanillaSymbol, '\\natural', '&#9838;');
+LatexCmds.sharp = bind(VanillaSymbol, '\\sharp', '&#9839;');
+LatexCmds.wp = bind(VanillaSymbol, '\\wp', '&#8472;');
+LatexCmds.bot = bind(VanillaSymbol, '\\bot', '&#8869;');
+LatexCmds.clubsuit = bind(VanillaSymbol, '\\clubsuit', '&#9827;');
+LatexCmds.diamondsuit = bind(VanillaSymbol, '\\diamondsuit', '&#9826;');
+LatexCmds.heartsuit = bind(VanillaSymbol, '\\heartsuit', '&#9825;');
+LatexCmds.spadesuit = bind(VanillaSymbol, '\\spadesuit', '&#9824;');
+
+//variable-sized
+LatexCmds.oint = bind(VanillaSymbol, '\\oint', '&#8750;');
+LatexCmds.bigcap = bind(VanillaSymbol, '\\bigcap', '&#8745;');
+LatexCmds.bigcup = bind(VanillaSymbol, '\\bigcup', '&#8746;');
+LatexCmds.bigsqcup = bind(VanillaSymbol, '\\bigsqcup', '&#8852;');
+LatexCmds.bigvee = bind(VanillaSymbol, '\\bigvee', '&#8744;');
+LatexCmds.bigwedge = bind(VanillaSymbol, '\\bigwedge', '&#8743;');
+LatexCmds.bigodot = bind(VanillaSymbol, '\\bigodot', '&#8857;');
+LatexCmds.bigotimes = bind(VanillaSymbol, '\\bigotimes', '&#8855;');
+LatexCmds.bigoplus = bind(VanillaSymbol, '\\bigoplus', '&#8853;');
+LatexCmds.biguplus = bind(VanillaSymbol, '\\biguplus', '&#8846;');
+
+//delimiters
+LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor}', '&#8970;');
+LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor}', '&#8971;');
+LatexCmds.lceil = bind(VanillaSymbol, '\\lceil}', '&#8968;');
+LatexCmds.rceil = bind(VanillaSymbol, '\\rceil}', '&#8969;');
+LatexCmds.langle = bind(VanillaSymbol, '\\langle}', '&#9001;');
+LatexCmds.rangle = bind(VanillaSymbol, '\\rangle}', '&#9002;');
+LatexCmds.slash = bind(VanillaSymbol, '\\slash}', '&#47;');
+LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace}', '&#123;');
 
 //various symbols
 
@@ -2158,24 +2274,24 @@ $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     this.find(':not(:has(:first))')
-      .mathquill('[[mathquill internal data]]').cmd.redraw();
+      .mathquill(jQueryDataKey).cmd.redraw();
     return this;
   case 'revert':
     return this.each(function() {
-      var data = $(this).data('[[mathquill internal data]]');
+      var data = $(this).data(jQueryDataKey);
       if (data && data.revert)
         data.revert();
     });
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
-        var data = $(this).data('[[mathquill internal data]]');
+        var data = $(this).data(jQueryDataKey);
         if (data && data.block && data.block.renderLatex)
           data.block.renderLatex(latex);
       });
     }
 
-    var data = this.data('[[mathquill internal data]]');
+    var data = this.data(jQueryDataKey);
     return data && data.block && data.block.latex();
   case 'html':
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
@@ -2185,7 +2301,7 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.each(function() {
         var
-          data = $(this).data('[[mathquill internal data]]'),
+          data = $(this).data(jQueryDataKey),
           block = data && data.block, cursor = block && block.cursor
         ;
 
