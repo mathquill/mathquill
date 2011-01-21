@@ -406,6 +406,7 @@ LatexCmds.langle = bind(VanillaSymbol, '\\langle', '&#9001;');
 LatexCmds.rangle = bind(VanillaSymbol, '\\rangle', '&#9002;');
 LatexCmds.slash = bind(VanillaSymbol, '\\slash', '&#47;');
 LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace', '&#123;');
+LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\closecurlybrace', '&#125;');
 
 //various symbols
 
