@@ -398,14 +398,14 @@ LatexCmds.bigoplus = bind(VanillaSymbol, '\\bigoplus', '&#8853;');
 LatexCmds.biguplus = bind(VanillaSymbol, '\\biguplus', '&#8846;');
 
 //delimiters
-LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor}', '&#8970;');
-LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor}', '&#8971;');
-LatexCmds.lceil = bind(VanillaSymbol, '\\lceil}', '&#8968;');
-LatexCmds.rceil = bind(VanillaSymbol, '\\rceil}', '&#8969;');
-LatexCmds.langle = bind(VanillaSymbol, '\\langle}', '&#9001;');
-LatexCmds.rangle = bind(VanillaSymbol, '\\rangle}', '&#9002;');
-LatexCmds.slash = bind(VanillaSymbol, '\\slash}', '&#47;');
-LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace}', '&#123;');
+LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor', '&#8970;');
+LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor', '&#8971;');
+LatexCmds.lceil = bind(VanillaSymbol, '\\lceil', '&#8968;');
+LatexCmds.rceil = bind(VanillaSymbol, '\\rceil', '&#8969;');
+LatexCmds.langle = bind(VanillaSymbol, '\\langle', '&#9001;');
+LatexCmds.rangle = bind(VanillaSymbol, '\\rangle', '&#9002;');
+LatexCmds.slash = bind(VanillaSymbol, '\\slash', '&#47;');
+LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace', '&#123;');
 
 //various symbols
 
