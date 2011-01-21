@@ -3,3 +3,4 @@
 .*.swn
 build/*
 .DS_Store
+tmp/*
