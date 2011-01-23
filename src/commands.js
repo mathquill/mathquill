@@ -348,9 +348,9 @@ _.focus = function() {
         cursor = textblock.cursor,
         next = textblock.next.firstChild;
 
-      next.eachChild(function(){
-        this.parent = innerblock;
-        this.jQ.appendTo(innerblock.jQ);
+      next.eachChild(function(child){
+        child.parent = innerblock;
+        child.jQ.appendTo(innerblock.jQ);
       });
 
       if (this.lastChild)
@@ -482,8 +482,8 @@ function Vector(replacedFragment) {
 _ = Vector.prototype = new MathCommand;
 _.html_template = ['<span class="array"></span>', '<span></span>'];
 _.latex = function() {
-  return '\\begin{matrix}' + this.foldChildren([], function (latex){
-    latex.push(this.latex());
+  return '\\begin{matrix}' + this.foldChildren([], function (latex, child){
+    latex.push(child.latex());
     return latex;
   }).join('\\\\') + '\\end{matrix}';
 };
