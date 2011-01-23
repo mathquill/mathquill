@@ -200,20 +200,20 @@ Cursor.prototype = {
       prev = gramp.prev,
       cursor = this;
 
-    gramp.eachChild(function() {
-      if (this.isEmpty()) return;
+    gramp.eachChild(function(uncle) {
+      if (uncle.isEmpty()) return;
 
-      this.eachChild(function() {
-        this.parent = greatgramp;
-        this.jQ.insertBefore(gramp.jQ);
+      uncle.eachChild(function(cousin) {
+        cousin.parent = greatgramp;
+        cousin.jQ.insertBefore(gramp.jQ);
       });
-      this.firstChild.prev = prev;
+      uncle.firstChild.prev = prev;
       if (prev)
-        prev.next = this.firstChild;
+        prev.next = uncle.firstChild;
       else
-        greatgramp.firstChild = this.firstChild;
+        greatgramp.firstChild = uncle.firstChild;
 
-      prev = this.lastChild;
+      prev = uncle.lastChild;
     });
     prev.next = gramp.next;
     if (gramp.next)

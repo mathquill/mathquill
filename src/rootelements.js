@@ -205,8 +205,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
             cursor.insertNew(cmd);
           }
-          cmd.eachChild(function() {
-            cursor.appendTo(this);
+          cmd.eachChild(function(child) {
+            cursor.appendTo(child);
             var token = latex.shift();
             if (!token) return false;
 

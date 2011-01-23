@@ -15,13 +15,13 @@ MathElement.prototype = {
   lastChild: 0,
   eachChild: function(fn) {
     for (var child = this.firstChild; child; child = child.next)
-      if (fn.call(child) === false) break;
+      if (fn.call(this, child) === false) break;
 
     return this;
   },
   foldChildren: function(fold, fn) {
-    this.eachChild(function() {
-      fold = fn.call(this, fold);
+    this.eachChild(function(child) {
+      fold = fn.call(this, fold, child);
     });
     return fold;
   },
@@ -93,8 +93,8 @@ MathCommand.prototype = $.extend(new MathElement, {
     self.lastChild = newBlock;
   },
   latex: function() {
-    return this.foldChildren(this.cmd, function(latex){
-      return latex + '{' + (this.latex() || ' ') + '}';
+    return this.foldChildren(this.cmd, function(latex, child){
+      return latex + '{' + (child.latex() || ' ') + '}';
     });
   },
   remove: function() {
@@ -120,13 +120,13 @@ MathCommand.prototype = $.extend(new MathElement, {
   respace: $.noop, //placeholder for context-sensitive spacing
   placeCursor: function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev){
-      return prev.isEmpty() ? prev : this;
+    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+      return prev.isEmpty() ? prev : child;
     }));
   },
   isEmpty: function() {
-    return this.foldChildren(true, function(isEmpty){
-      return isEmpty && this.isEmpty();
+    return this.foldChildren(true, function(isEmpty, child){
+      return isEmpty && child.isEmpty();
     });
   }
 });
@@ -152,8 +152,8 @@ Symbol.prototype = $.extend(new MathCommand, {
 function MathBlock(){}
 MathBlock.prototype = $.extend(new MathElement, {
   latex: function() {
-    return this.foldChildren('', function(latex){
-      return latex + this.latex();
+    return this.foldChildren('', function(latex, child){
+      return latex + child.latex();
     });
   },
   isEmpty: function() {
@@ -189,7 +189,7 @@ function MathFragment(parent, prev, next) {
   self.prev = prev || 0; //so you can do 'new MathFragment(block)' without
   self.next = next || 0; //ending up with this.prev or this.next === undefined
 
-  self.jQinit(self.fold($(), function(jQ){ return this.jQ.add(jQ); }));
+  self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 }
 MathFragment.prototype = {
   remove: MathCommand.prototype.remove,
@@ -198,13 +198,13 @@ MathFragment.prototype = {
   },
   each: function(fn) {
     for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
-      if (fn.call(el) === false) break;
+      if (fn.call(this, el) === false) break;
 
     return this;
   },
   fold: function(fold, fn) {
-    this.each(function() {
-      fold = fn.call(this, fold);
+    this.each(function(el) {
+      fold = fn.call(this, fold, el);
     });
     return fold;
   },
@@ -231,7 +231,7 @@ MathFragment.prototype = {
     newLastChild.next = self.next = 0;
 
     self.parent = newBlock;
-    self.each(function(){ this.parent = newBlock; });
+    self.each(function(el){ el.parent = newBlock; });
 
     newBlock.jQ = self.jQ;
 
