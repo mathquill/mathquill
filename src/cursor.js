@@ -195,9 +195,9 @@ _.insertNew = function(cmd) {
   return this;
 };
 _.unwrapGramp = function() {
-  var gramp = this.parent.parent;
-    greatgramp = gramp.parent;
-    prev = gramp.prev;
+  var gramp = this.parent.parent,
+    greatgramp = gramp.parent,
+    prev = gramp.prev,
     cursor = this;
 
   gramp.eachChild(function(uncle) {

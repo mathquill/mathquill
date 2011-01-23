@@ -97,9 +97,9 @@ _.latex = function() {
   });
 };
 _.remove = function() {
-  var self = this;
-      prev = self.prev;
-      next = self.next;
+  var self = this,
+      prev = self.prev,
+      next = self.next,
       parent = self.parent;
 
   if (prev)
@@ -205,12 +205,12 @@ _.fold = function(fold, fn) {
   return fold;
 };
 _.blockify = function() {
-  var self = this;
-      prev = self.prev;
-      next = self.next;
-      parent = self.parent;
-      newBlock = new MathBlock;
-      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild;
+  var self = this,
+      prev = self.prev,
+      next = self.next,
+      parent = self.parent,
+      newBlock = new MathBlock,
+      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
       newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
   if (prev)
