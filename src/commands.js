@@ -260,125 +260,125 @@ function TextBlock(replacedText) {
 _ = TextBlock.prototype = new MathCommand;
 _.html_template = ['<span class="text"></span>'];
 _.initBlocks = function() {
-    this.firstChild =
-    this.lastChild =
-    this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
+  this.firstChild =
+  this.lastChild =
+  this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
 
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
-  };
+  this.firstChild.parent = this;
+  this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+};
 _.placeCursor = function(cursor) {
-    (this.cursor = cursor).appendTo(this.firstChild);
+  (this.cursor = cursor).appendTo(this.firstChild);
 
-    if (this.replacedText)
-      for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  };
+  if (this.replacedText)
+    for (var i = 0; i < this.replacedText.length; i += 1)
+      this.write(this.replacedText.charAt(i));
+};
 _.write = function(ch) {
-    this.cursor.insertNew(new VanillaSymbol(ch));
-  };
+  this.cursor.insertNew(new VanillaSymbol(ch));
+};
 _.keydown = function(e) {
-    //backspace and delete and ends of block don't unwrap
-    if (!this.cursor.selection &&
-      (
-        (e.which === 8 && !this.cursor.prev) ||
-        (e.which === 46 && !this.cursor.next)
-      )
-    ) {
-      if (this.isEmpty())
-        this.cursor.insertAfter(this);
-      return false;
-    }
-    return this.parent.keydown(e);
-  };
-_.keypress = function(e) {
-    this.cursor.deleteSelection();
-    var ch = String.fromCharCode(e.which);
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
-    else if (!this.cursor.next)
+  //backspace and delete and ends of block don't unwrap
+  if (!this.cursor.selection &&
+    (
+      (e.which === 8 && !this.cursor.prev) ||
+      (e.which === 46 && !this.cursor.next)
+    )
+  ) {
+    if (this.isEmpty())
       this.cursor.insertAfter(this);
-    else if (!this.cursor.prev)
-      this.cursor.insertBefore(this);
-    else { //split apart
-      var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-      next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
-      {
-        this.prev = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.firstChild.focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(next);
-      next.prev = this;
-      this.cursor.insertBefore(next);
-      delete next.firstChild.focus;
-    }
     return false;
-  };
+  }
+  return this.parent.keydown(e);
+};
+_.keypress = function(e) {
+  this.cursor.deleteSelection();
+  var ch = String.fromCharCode(e.which);
+  if (ch !== '$')
+    this.write(ch);
+  else if (this.isEmpty())
+    this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
+  else if (!this.cursor.next)
+    this.cursor.insertAfter(this);
+  else if (!this.cursor.prev)
+    this.cursor.insertBefore(this);
+  else { //split apart
+    var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
+    next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
+    {
+      this.prev = 0;
+      delete this.placeCursor;
+      this.placeCursor(cursor);
+    };
+    next.firstChild.focus = function(){ return this; };
+    this.cursor.insertAfter(this).insertNew(next);
+    next.prev = this;
+    this.cursor.insertBefore(next);
+    delete next.firstChild.focus;
+  }
+  return false;
+};
 function InnerTextBlock(){}
 _ = InnerTextBlock.prototype = new MathBlock;
 _.blur = function() {
-    this.jQ.removeClass('hasCursor');
-    if (this.isEmpty()) {
-      var textblock = this.parent, cursor = textblock.cursor;
-      if (cursor.parent === this)
-        this.jQ.addClass('empty');
-      else {
-        cursor.hide();
-        textblock.remove();
-        if (cursor.next === textblock)
-          cursor.next = textblock.next;
-        else if (cursor.prev === textblock)
-          cursor.prev = textblock.prev;
+  this.jQ.removeClass('hasCursor');
+  if (this.isEmpty()) {
+    var textblock = this.parent, cursor = textblock.cursor;
+    if (cursor.parent === this)
+      this.jQ.addClass('empty');
+    else {
+      cursor.hide();
+      textblock.remove();
+      if (cursor.next === textblock)
+        cursor.next = textblock.next;
+      else if (cursor.prev === textblock)
+        cursor.prev = textblock.prev;
 
-        cursor.show().redraw();
-      }
+      cursor.show().redraw();
     }
-    return this;
-  };
+  }
+  return this;
+};
 _.focus = function() {
-    MathBlock.prototype.focus.call(this);
+  MathBlock.prototype.focus.call(this);
 
-    var textblock = this.parent;
-    if (textblock.next instanceof TextBlock) {
-      var innerblock = this,
-        cursor = textblock.cursor,
-        next = textblock.next.firstChild;
+  var textblock = this.parent;
+  if (textblock.next instanceof TextBlock) {
+    var innerblock = this,
+      cursor = textblock.cursor,
+      next = textblock.next.firstChild;
 
-      next.eachChild(function(child){
-        child.parent = innerblock;
-        child.jQ.appendTo(innerblock.jQ);
-      });
+    next.eachChild(function(child){
+      child.parent = innerblock;
+      child.jQ.appendTo(innerblock.jQ);
+    });
 
-      if (this.lastChild)
-        this.lastChild.next = next.firstChild;
-      else
-        this.firstChild = next.firstChild;
+    if (this.lastChild)
+      this.lastChild.next = next.firstChild;
+    else
+      this.firstChild = next.firstChild;
 
-      next.firstChild.prev = this.lastChild;
-      this.lastChild = next.lastChild;
+    next.firstChild.prev = this.lastChild;
+    this.lastChild = next.lastChild;
 
-      next.parent.remove();
+    next.parent.remove();
 
-      if (cursor.prev)
-        cursor.insertAfter(cursor.prev);
-      else
-        cursor.prependTo(this);
+    if (cursor.prev)
+      cursor.insertAfter(cursor.prev);
+    else
+      cursor.prependTo(this);
 
-      cursor.redraw();
-    }
-    else if (textblock.prev instanceof TextBlock) {
-      var cursor = textblock.cursor;
-      if (cursor.prev)
-        textblock.prev.firstChild.focus();
-      else
-        cursor.appendTo(textblock.prev.firstChild);
-    }
-    return this;
-  };
+    cursor.redraw();
+  }
+  else if (textblock.prev instanceof TextBlock) {
+    var cursor = textblock.cursor;
+    if (cursor.prev)
+      textblock.prev.firstChild.focus();
+    else
+      cursor.appendTo(textblock.prev.firstChild);
+  }
+  return this;
+};
 
 LatexCmds.text = CharCmds.$ = TextBlock;
 
@@ -393,62 +393,62 @@ function LatexCommandInput(replacedFragment) {
 _ = LatexCommandInput.prototype = new MathCommand;
 _.html_template = ['<span class="latex-command-input"></span>'];
 _.placeCursor = function(cursor) {
-    this.cursor = cursor.appendTo(this.firstChild);
-    if (this.replacedFragment)
-      this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
-  };
+  this.cursor = cursor.appendTo(this.firstChild);
+  if (this.replacedFragment)
+    this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
+};
 _.latex = function() {
-    return '\\' + this.firstChild.latex() + ' ';
-  };
+  return '\\' + this.firstChild.latex() + ' ';
+};
 _.keydown = function(e) {
-    if (e.which === 9 || e.which === 13) { //tab or enter
-      this.renderCommand();
-      return false;
-    }
-    return this.parent.keydown(e);
-  };
-_.keypress = function(e) {
-    var ch = String.fromCharCode(e.which);
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.deleteSelection();
-      this.cursor.insertNew(new VanillaSymbol(ch));
-      return false;
-    }
+  if (e.which === 9 || e.which === 13) { //tab or enter
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
-      return false;
+    return false;
+  }
+  return this.parent.keydown(e);
+};
+_.keypress = function(e) {
+  var ch = String.fromCharCode(e.which);
+  if (ch.match(/[a-z]/i)) {
+    this.cursor.deleteSelection();
+    this.cursor.insertNew(new VanillaSymbol(ch));
+    return false;
+  }
+  this.renderCommand();
+  if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
+    return false;
 
-    return this.cursor.parent.keypress(e);
-  };
+  return this.cursor.parent.keypress(e);
+};
 _.renderCommand = function() {
-    this.jQ = this.jQ.last();
-    this.remove();
-    if (this.next)
-      this.cursor.insertBefore(this.next);
-    else
-      this.cursor.appendTo(this.parent);
+  this.jQ = this.jQ.last();
+  this.remove();
+  if (this.next)
+    this.cursor.insertBefore(this.next);
+  else
+    this.cursor.appendTo(this.parent);
 
-    var latex = this.firstChild.latex(), cmd;
-    if (latex) {
-      if (cmd = LatexCmds[latex])
-        cmd = new cmd(this.replacedFragment, latex);
-      else {
-        cmd = new TextBlock(latex);
-        cmd.firstChild.focus = function(){ delete this.focus; return true; };
-        this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this.replacedFragment)
-          this.replacedFragment.remove();
+  var latex = this.firstChild.latex(), cmd;
+  if (latex) {
+    if (cmd = LatexCmds[latex])
+      cmd = new cmd(this.replacedFragment, latex);
+    else {
+      cmd = new TextBlock(latex);
+      cmd.firstChild.focus = function(){ delete this.focus; return true; };
+      this.cursor.insertNew(cmd).insertAfter(cmd);
+      if (this.replacedFragment)
+        this.replacedFragment.remove();
 
-        return;
-      }
+      return;
     }
-    else
-      cmd = new VanillaSymbol('\\backslash ','\\');
+  }
+  else
+    cmd = new VanillaSymbol('\\backslash ','\\');
 
-    this.cursor.insertNew(cmd);
-    if (cmd instanceof Symbol && this.replacedFragment)
-      this.replacedFragment.remove();
-  };
+  this.cursor.insertNew(cmd);
+  if (cmd instanceof Symbol && this.replacedFragment)
+    this.replacedFragment.remove();
+};
 
 CharCmds['\\'] = LatexCommandInput;
   

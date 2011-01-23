@@ -14,23 +14,23 @@ _.parent = 0;
 _.firstChild = 0;
 _.lastChild = 0;
 _.eachChild = function(fn) {
-    for (var child = this.firstChild; child; child = child.next)
-      if (fn.call(this, child) === false) break;
+  for (var child = this.firstChild; child; child = child.next)
+    if (fn.call(this, child) === false) break;
 
-    return this;
-  };
+  return this;
+};
 _.foldChildren = function(fold, fn) {
-    this.eachChild(function(child) {
-      fold = fn.call(this, fold, child);
-    });
-    return fold;
-  };
+  this.eachChild(function(child) {
+    fold = fn.call(this, fold, child);
+  });
+  return fold;
+};
 _.keydown = function(e) {
-    return this.parent.keydown(e);
-  };
+  return this.parent.keydown(e);
+};
 _.keypress = function(e) {
-    return this.parent.keypress(e);
-  };
+  return this.parent.keypress(e);
+};
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -50,84 +50,84 @@ function MathCommand(cmd, html_template, replacedFragment) {
 
 _ = MathCommand.prototype = new MathElement;
 _.initBlocks = function(replacedFragment) {
-    var self = this;
-    //single-block commands
-    if (self.html_template.length === 1) {
-      self.firstChild =
-      self.lastChild =
-      self.jQ.data(jQueryDataKey).block =
-        (replacedFragment && replacedFragment.blockify()) || new MathBlock;
-
-      self.firstChild.parent = self;
-      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
-
-      return;
-    }
-    //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev, num_blocks = self.html_template.length;
-    this.firstChild = newBlock = prev =
+  var self = this;
+  //single-block commands
+  if (self.html_template.length === 1) {
+    self.firstChild =
+    self.lastChild =
+    self.jQ.data(jQueryDataKey).block =
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
+    self.firstChild.parent = self;
+    self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
+
+    return;
+  }
+  //otherwise, the succeeding elements of html_template should be child blocks
+  var newBlock, prev, num_blocks = self.html_template.length;
+  this.firstChild = newBlock = prev =
+    (replacedFragment && replacedFragment.blockify()) || new MathBlock;
+
+  newBlock.parent = self;
+  newBlock.jQ = $(self.html_template[1])
+    .data(jQueryDataKey, {block: newBlock})
+    .append(newBlock.jQ)
+    .appendTo(self.jQ);
+
+  newBlock.blur();
+
+  for (var i = 2; i < num_blocks; i += 1) {
+    newBlock = new MathBlock;
     newBlock.parent = self;
-    newBlock.jQ = $(self.html_template[1])
+    newBlock.prev = prev;
+    prev.next = newBlock;
+    prev = newBlock;
+
+    newBlock.jQ = $(self.html_template[i])
       .data(jQueryDataKey, {block: newBlock})
-      .append(newBlock.jQ)
       .appendTo(self.jQ);
 
     newBlock.blur();
-
-    for (var i = 2; i < num_blocks; i += 1) {
-      newBlock = new MathBlock;
-      newBlock.parent = self;
-      newBlock.prev = prev;
-      prev.next = newBlock;
-      prev = newBlock;
-
-      newBlock.jQ = $(self.html_template[i])
-        .data(jQueryDataKey, {block: newBlock})
-        .appendTo(self.jQ);
-
-      newBlock.blur();
-    }
-    self.lastChild = newBlock;
-  };
+  }
+  self.lastChild = newBlock;
+};
 _.latex = function() {
-    return this.foldChildren(this.cmd, function(latex, child){
-      return latex + '{' + (child.latex() || ' ') + '}';
-    });
-  };
+  return this.foldChildren(this.cmd, function(latex, child){
+    return latex + '{' + (child.latex() || ' ') + '}';
+  });
+};
 _.remove = function() {
-    var self = this;
-        prev = self.prev;
-        next = self.next;
-        parent = self.parent;
+  var self = this;
+      prev = self.prev;
+      next = self.next;
+      parent = self.parent;
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
+  if (prev)
+    prev.next = next;
+  else
+    parent.firstChild = next;
 
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
+  if (next)
+    next.prev = prev;
+  else
+    parent.lastChild = prev;
 
-    self.jQ.remove();
+  self.jQ.remove();
 
-    return self;
-  };
+  return self;
+};
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
-    //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
-      return prev.isEmpty() ? prev : child;
-    }));
-  };
+  //append the cursor to the first empty child, or if none empty, the last one
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+    return prev.isEmpty() ? prev : child;
+  }));
+};
 _.isEmpty = function() {
-    return this.foldChildren(true, function(isEmpty, child){
-      return isEmpty && child.isEmpty();
-    });
-  };
+  return this.foldChildren(true, function(isEmpty, child){
+    return isEmpty && child.isEmpty();
+  });
+};
 
 /**
  * Lightweight command without blocks or children.
@@ -149,27 +149,27 @@ _.isEmpty = function(){ return true; };
 function MathBlock(){}
 _ = MathBlock.prototype = new MathElement;
 _.latex = function() {
-    return this.foldChildren('', function(latex, child){
-      return latex + child.latex();
-    });
-  };
+  return this.foldChildren('', function(latex, child){
+    return latex + child.latex();
+  });
+};
 _.isEmpty = function() {
-    return this.firstChild === 0 && this.lastChild === 0;
-  };
+  return this.firstChild === 0 && this.lastChild === 0;
+};
 _.focus = function() {
-    this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+  this.jQ.addClass('hasCursor');
+  if (this.isEmpty())
+    this.jQ.removeClass('empty');
 
-    return this;
-  };
+  return this;
+};
 _.blur = function() {
-    this.jQ.removeClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.addClass('empty');
+  this.jQ.removeClass('hasCursor');
+  if (this.isEmpty())
+    this.jQ.addClass('empty');
 
-    return this;
-  };
+  return this;
+};
 
 /**
  * An entity outside the Math DOM tree with one-way pointers (so it's only
@@ -188,48 +188,48 @@ function MathFragment(parent, prev, next) {
   self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 }
 _ = MathFragment.prototype;
-_.remove = MathCommand.prototype.remove;
+_.remove= MathCommand.prototype.remove;
 _.jQinit = function(children) {
-    this.jQ = children;
-  };
+  this.jQ = children;
+};
 _.each = function(fn) {
-    for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
-      if (fn.call(this, el) === false) break;
+  for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
+    if (fn.call(this, el) === false) break;
 
-    return this;
-  };
+  return this;
+};
 _.fold = function(fold, fn) {
-    this.each(function(el) {
-      fold = fn.call(this, fold, el);
-    });
-    return fold;
-  };
+  this.each(function(el) {
+    fold = fn.call(this, fold, el);
+  });
+  return fold;
+};
 _.blockify = function() {
-    var self = this;
-        prev = self.prev;
-        next = self.next;
-        parent = self.parent;
-        newBlock = new MathBlock;
-        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild;
-        newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
+  var self = this;
+      prev = self.prev;
+      next = self.next;
+      parent = self.parent;
+      newBlock = new MathBlock;
+      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild;
+      newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
+  if (prev)
+    prev.next = next;
+  else
+    parent.firstChild = next;
 
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
+  if (next)
+    next.prev = prev;
+  else
+    parent.lastChild = prev;
 
-    newFirstChild.prev = self.prev = 0;
-    newLastChild.next = self.next = 0;
+  newFirstChild.prev = self.prev = 0;
+  newLastChild.next = self.next = 0;
 
-    self.parent = newBlock;
-    self.each(function(el){ el.parent = newBlock; });
+  self.parent = newBlock;
+  self.each(function(el){ el.parent = newBlock; });
 
-    newBlock.jQ = self.jQ;
+  newBlock.jQ = self.jQ;
 
-    return newBlock;
-  };
+  return newBlock;
+};
