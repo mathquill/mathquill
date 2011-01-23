@@ -139,11 +139,11 @@ function createRoot(jQ, root, textbox, editable) {
 }
 
 function RootMathBlock(){}
-RootMathBlock.prototype = $.extend(new MathBlock, {
-  latex: function() {
+_ = RootMathBlock.prototype = new MathBlock;
+_.latex = function() {
     return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-  },
-  renderLatex: function(latex) {
+  };
+_.renderLatex = function(latex) {
     latex = latex.match(/\\[a-z]*|[^\s]/ig);
     this.jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
@@ -222,8 +222,8 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
 
     this.cursor.hide();
     this.blur();
-  },
-  keydown: function(e)
+  };
+_.keydown = function(e)
   {
     this.skipKeypress = true;
     e.ctrlKey = e.ctrlKey || e.metaKey;
@@ -368,15 +368,14 @@ RootMathBlock.prototype = $.extend(new MathBlock, {
       this.skipKeypress = false;
     }
     return true;
-  },
-  keypress: function(e) {
+  };
+_.keypress = function(e) {
     if (this.skipKeypress) return true;
 
     this.cursor.show().write(String.fromCharCode(e.which));
     e.preventDefault();
     return true;
-  }
-});
+  };
 
 function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
@@ -404,9 +403,9 @@ function RootMathCommand(cursor) {
     return true;
   };
 }
-RootMathCommand.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="mathquill-rendered-math"></span>'],
-  initBlocks: function() {
+_ = RootMathCommand.prototype = new MathCommand;
+_.html_template = ['<span class="mathquill-rendered-math"></span>'];
+_.initBlocks = function() {
     this.firstChild =
     this.lastChild =
     this.jQ.data(jQueryDataKey).block =
@@ -414,12 +413,11 @@ RootMathCommand.prototype = $.extend(new MathCommand, {
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ;
-  }
-});
+  };
 
 function RootTextBlock(){}
-RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: function(latex) {
+_ = RootTextBlock.prototype = new MathBlock;
+_.renderLatex = function(latex) {
     this.jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
     this.cursor.show().appendTo(this);
@@ -458,9 +456,9 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
         this.cursor.show().insertAfter(root);
       }
     }
-  },
-  keydown: RootMathBlock.prototype.keydown,
-  keypress: function(e) {
+  };
+_.keydown = RootMathBlock.prototype.keydown;
+_.keypress = function(e) {
     if (this.skipKeypress) return true;
 
     this.cursor.deleteSelection();
@@ -472,5 +470,4 @@ RootTextBlock.prototype = $.extend(new MathBlock, {
 
     e.preventDefault();
     return true;
-  }
-});
+  };
