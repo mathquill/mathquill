@@ -139,8 +139,8 @@ BinaryOperator.prototype = new Symbol; //so instanceof will work
 function PlusMinus(cmd, html) {
   VanillaSymbol.apply(this, arguments);
 }
-PlusMinus.prototype = new BinaryOperator; //so instanceof will work
-PlusMinus.prototype.respace = function() {
+_ = PlusMinus.prototype = new BinaryOperator; //so instanceof will work
+_.respace = function() {
   if (!this.prev) {
     this.jQ[0].className = '';
   }
@@ -514,8 +514,8 @@ LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 function NonItalicizedFunction(replacedFragment, fn) {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
-NonItalicizedFunction.prototype = new Symbol;
-NonItalicizedFunction.prototype.respace = function()
+_ = NonItalicizedFunction.prototype = new Symbol;
+_.respace = function()
 {
   this.jQ[0].className =
     (this.next instanceof SupSub || this.next instanceof Bracket) ?

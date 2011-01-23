@@ -17,11 +17,11 @@ function Cursor(root) {
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }
 }
-Cursor.prototype = {
-  prev: 0,
-  next: 0,
-  parent: 0,
-  show: function() {
+_ = Cursor.prototype;
+_.prev = 0;
+_.next = 0;
+_.parent = 0;
+_.show = function() {
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -38,21 +38,21 @@ Cursor.prototype = {
     }
     this.intervalId = setInterval(this.blink, 500);
     return this;
-  },
-  hide: function() {
+  };
+_.hide = function() {
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
     this.jQ.detach();
     this.jQ = $();
     return this;
-  },
-  redraw: function() {
+  };
+_.redraw = function() {
     for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
       if (ancestor.redraw)
         ancestor.redraw();
-  },
-  insertAt: function(parent, next, prev) {
+  };
+_.insertAt = function(parent, next, prev) {
     var old_parent = this.parent;
 
     this.parent = parent;
@@ -60,20 +60,20 @@ Cursor.prototype = {
     this.prev = prev;
 
     old_parent.blur(); //blur may need to know cursor's destination
-  },
-  insertBefore: function(el) {
+  };
+_.insertBefore = function(el) {
     this.insertAt(el.parent, el, el.prev)
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
-  },
-  insertAfter: function(el) {
+  };
+_.insertAfter = function(el) {
     this.insertAt(el.parent, el.next, el);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
-  },
-  prependTo: function(el) {
+  };
+_.prependTo = function(el) {
     this.insertAt(el, el.firstChild, 0);
     if (el.textarea) //never insert before textarea
       this.jQ.insertAfter(el.textarea);
@@ -81,26 +81,26 @@ Cursor.prototype = {
       this.jQ.prependTo(el.jQ);
     el.focus();
     return this;
-  },
-  appendTo: function(el) {
+  };
+_.appendTo = function(el) {
     this.insertAt(el, 0, el.lastChild);
     this.jQ.appendTo(el.jQ);
     el.focus();
     return this;
-  },
-  hopLeft: function() {
+  };
+_.hopLeft = function() {
     this.jQ.insertBefore(this.prev.jQ.first());
     this.next = this.prev;
     this.prev = this.prev.prev;
     return this;
-  },
-  hopRight: function() {
+  };
+_.hopRight = function() {
     this.jQ.insertAfter(this.next.jQ.last());
     this.prev = this.next;
     this.next = this.next.next;
     return this;
-  },
-  moveLeft: function() {
+  };
+_.moveLeft = function() {
     if (this.selection)
       this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
     else {
@@ -119,8 +119,8 @@ Cursor.prototype = {
       }
     }
     return this.show();
-  },
-  moveRight: function() {
+  };
+_.moveRight = function() {
     if (this.selection)
       this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
     else {
@@ -139,8 +139,8 @@ Cursor.prototype = {
       }
     }
     return this.show();
-  },
-  write: function(ch) {
+  };
+_.write = function(ch) {
     if (this.selection) {
       //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
       this.prev = this.selection.prev;
@@ -162,8 +162,8 @@ Cursor.prototype = {
     }
 
     return this.insertNew(cmd);
-  },
-  insertNew: function(cmd) {
+  };
+_.insertNew = function(cmd) {
     cmd.parent = this.parent;
     cmd.next = this.next;
     cmd.prev = this.prev;
@@ -193,11 +193,11 @@ Cursor.prototype = {
     this.redraw();
 
     return this;
-  },
-  unwrapGramp: function() {
-    var gramp = this.parent.parent,
-      greatgramp = gramp.parent,
-      prev = gramp.prev,
+  };
+_.unwrapGramp = function() {
+    var gramp = this.parent.parent;
+      greatgramp = gramp.parent;
+      prev = gramp.prev;
       cursor = this;
 
     gramp.eachChild(function(uncle) {
@@ -248,8 +248,8 @@ Cursor.prototype = {
       gramp.prev.respace();
     if (gramp.next)
       gramp.next.respace();
-  },
-  backspace: function() {
+  };
+_.backspace = function() {
     if (this.deleteSelection());
     else if (this.prev) {
       if (this.prev.isEmpty())
@@ -271,8 +271,8 @@ Cursor.prototype = {
     this.redraw();
 
     return this;
-  },
-  deleteForward: function() {
+  };
+_.deleteForward = function() {
     if (this.deleteSelection());
     else if (this.next) {
       if (this.next.isEmpty())
@@ -294,10 +294,10 @@ Cursor.prototype = {
     this.redraw();
 
     return this;
-  },
-  selectLeft: function() {
+  };
+_.selectLeft = function() {
     if (this.selection) {
-      if (this.selection.prev === this.prev) { //if cursor is at left edge of selection,
+      if (this.selection.prev === this.prev) { //if cursor is at left edge of selection;
         if (this.prev) { //then extend left if possible
           this.hopLeft().next.jQ.prependTo(this.selection.jQ);
           this.selection.prev = this.prev;
@@ -321,10 +321,10 @@ Cursor.prototype = {
 
       this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
     }
-  },
-  selectRight: function() {
+  };
+_.selectRight = function() {
     if (this.selection) {
-      if (this.selection.next === this.next) { //if cursor is at right edge of selection,
+      if (this.selection.next === this.next) { //if cursor is at right edge of selection;
         if (this.next) { //then extend right if possible
           this.hopRight().prev.jQ.appendTo(this.selection.jQ);
           this.selection.next = this.next;
@@ -348,15 +348,15 @@ Cursor.prototype = {
 
       this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
     }
-  },
-  clearSelection: function() {
+  };
+_.clearSelection = function() {
     if (this.show().selection) {
       this.selection.clear();
       delete this.selection;
     }
     return this;
-  },
-  deleteSelection: function() {
+  };
+_.deleteSelection = function() {
     if (!this.show().selection) return false;
 
     this.prev = this.selection.prev;
@@ -364,18 +364,17 @@ Cursor.prototype = {
     this.selection.remove();
     delete this.selection;
     return true;
-  }
-}
+  };
 
 function Selection(parent, prev, next) {
   MathFragment.apply(this, arguments);
 }
-Selection.prototype = $.extend(new MathFragment, {
-  jQinit: function(children) {
+_ = Selection.prototype = new MathFragment;
+_.jQinit = function(children) {
     this.jQ = children.wrapAll('<span class="selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
-  },
-  levelUp: function() {
+  };
+_.levelUp = function() {
     this.clear().jQinit(this.parent.parent.jQ);
 
     this.prev = this.parent.parent.prev;
@@ -383,21 +382,20 @@ Selection.prototype = $.extend(new MathFragment, {
     this.parent = this.parent.parent.parent;
 
     return this;
-  },
-  clear: function() {
+  };
+_.clear = function() {
     this.jQ.replaceWith(this.jQ.children());
     return this;
-  },
-  blockify: function() {
+  };
+_.blockify = function() {
     this.jQ.replaceWith(this.jQ = this.jQ.children());
     return MathFragment.prototype.blockify.call(this);
-  },
-  detach: function() {
+  };
+_.detach = function() {
     var block = MathFragment.prototype.blockify.call(this);
     this.blockify = function() {
       this.jQ.replaceWith(block.jQ = this.jQ = this.jQ.children());
       return block;
     };
     return this;
-  }
-});
+  };

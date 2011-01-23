@@ -7,31 +7,30 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 function MathElement(){}
-MathElement.prototype = {
-  prev: 0,
-  next: 0,
-  parent: 0,
-  firstChild: 0,
-  lastChild: 0,
-  eachChild: function(fn) {
+_ = MathElement.prototype;
+_.prev = 0;
+_.next = 0;
+_.parent = 0;
+_.firstChild = 0;
+_.lastChild = 0;
+_.eachChild = function(fn) {
     for (var child = this.firstChild; child; child = child.next)
       if (fn.call(this, child) === false) break;
 
     return this;
-  },
-  foldChildren: function(fold, fn) {
+  };
+_.foldChildren = function(fold, fn) {
     this.eachChild(function(child) {
       fold = fn.call(this, fold, child);
     });
     return fold;
-  },
-  keydown: function(e) {
+  };
+_.keydown = function(e) {
     return this.parent.keydown(e);
-  },
-  keypress: function(e) {
+  };
+_.keypress = function(e) {
     return this.parent.keypress(e);
-  }
-};
+  };
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -49,8 +48,8 @@ function MathCommand(cmd, html_template, replacedFragment) {
   self.initBlocks(replacedFragment);
 }
 
-MathCommand.prototype = $.extend(new MathElement, {
-  initBlocks: function(replacedFragment) {
+_ = MathCommand.prototype = new MathElement;
+_.initBlocks = function(replacedFragment) {
     var self = this;
     //single-block commands
     if (self.html_template.length === 1) {
@@ -91,16 +90,16 @@ MathCommand.prototype = $.extend(new MathElement, {
       newBlock.blur();
     }
     self.lastChild = newBlock;
-  },
-  latex: function() {
+  };
+_.latex = function() {
     return this.foldChildren(this.cmd, function(latex, child){
       return latex + '{' + (child.latex() || ' ') + '}';
     });
-  },
-  remove: function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
+  };
+_.remove = function() {
+    var self = this;
+        prev = self.prev;
+        next = self.next;
         parent = self.parent;
 
     if (prev)
@@ -116,20 +115,19 @@ MathCommand.prototype = $.extend(new MathElement, {
     self.jQ.remove();
 
     return self;
-  },
-  respace: $.noop, //placeholder for context-sensitive spacing
-  placeCursor: function(cursor) {
+  };
+_.respace = $.noop; //placeholder for context-sensitive spacing
+_.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
     cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
       return prev.isEmpty() ? prev : child;
     }));
-  },
-  isEmpty: function() {
+  };
+_.isEmpty = function() {
     return this.foldChildren(true, function(isEmpty, child){
       return isEmpty && child.isEmpty();
     });
-  }
-});
+  };
 
 /**
  * Lightweight command without blocks or children.
@@ -137,12 +135,11 @@ MathCommand.prototype = $.extend(new MathElement, {
 function Symbol(cmd, html) {
   MathCommand.call(this, cmd, [ html ]);
 }
-Symbol.prototype = $.extend(new MathCommand, {
-  initBlocks: $.noop,
-  latex: function(){ return this.cmd; },
-  placeCursor: $.noop,
-  isEmpty: function(){ return true; }
-});
+_ = Symbol.prototype = new MathCommand;
+_.initBlocks = $.noop;
+_.latex = function(){ return this.cmd; };
+_.placeCursor = $.noop;
+_.isEmpty = function(){ return true; };
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the
@@ -150,30 +147,29 @@ Symbol.prototype = $.extend(new MathCommand, {
  * ancestor operators.
  */
 function MathBlock(){}
-MathBlock.prototype = $.extend(new MathElement, {
-  latex: function() {
+_ = MathBlock.prototype = new MathElement;
+_.latex = function() {
     return this.foldChildren('', function(latex, child){
       return latex + child.latex();
     });
-  },
-  isEmpty: function() {
+  };
+_.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
-  },
-  focus: function() {
+  };
+_.focus = function() {
     this.jQ.addClass('hasCursor');
     if (this.isEmpty())
       this.jQ.removeClass('empty');
 
     return this;
-  },
-  blur: function() {
+  };
+_.blur = function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty())
       this.jQ.addClass('empty');
 
     return this;
-  }
-});
+  };
 
 /**
  * An entity outside the Math DOM tree with one-way pointers (so it's only
@@ -191,30 +187,30 @@ function MathFragment(parent, prev, next) {
 
   self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 }
-MathFragment.prototype = {
-  remove: MathCommand.prototype.remove,
-  jQinit: function(children) {
+_ = MathFragment.prototype;
+_.remove = MathCommand.prototype.remove;
+_.jQinit = function(children) {
     this.jQ = children;
-  },
-  each: function(fn) {
+  };
+_.each = function(fn) {
     for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
       if (fn.call(this, el) === false) break;
 
     return this;
-  },
-  fold: function(fold, fn) {
+  };
+_.fold = function(fold, fn) {
     this.each(function(el) {
       fold = fn.call(this, fold, el);
     });
     return fold;
-  },
-  blockify: function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
-        parent = self.parent,
-        newBlock = new MathBlock,
-        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
+  };
+_.blockify = function() {
+    var self = this;
+        prev = self.prev;
+        next = self.next;
+        parent = self.parent;
+        newBlock = new MathBlock;
+        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild;
         newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
     if (prev)
@@ -236,5 +232,4 @@ MathFragment.prototype = {
     newBlock.jQ = self.jQ;
 
     return newBlock;
-  }
-};
+  };
