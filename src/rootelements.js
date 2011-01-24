@@ -138,20 +138,21 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('mousemove', function(e) {
     if (!originalMouseDown) return;
 
-    var cmd = $(e.target).data(jQueryDataKey).cmd;
+    var cmd = ($(e.target).data(jQueryDataKey) || 0).cmd;
+    if (!cmd) return;
 
     var commonParent;
 
     anc = commonAncestor(cmd, originalMouseDown);
     cursor.clearSelection().selection = new Selection(
       anc.left.parent,
-      anc.left,
-      anc.right
+      anc.left.prev,
+      anc.right.next
     );
     cursor.insertAfter(cmd);
   }).bind('mousedown', function(e) {
     e.preventDefault();
-    originalMouseDown = $(e.target).data(jQueryDataKey).cmd;
+    originalMouseDown = ($(e.target).data(jQueryDataKey) || 0).cmd;
   }).blur();
 
   $(document).bind('mouseup', function(e) {
@@ -185,8 +186,11 @@ function commonAncestor(cmd, orig) {
         return leftRight(cmdA, origA);
   }
 }
-function leftRight(left, right) {
-  return {left: left, right: right};
+function leftRight(cmd, orig) {
+  for (var next = cmd; next; next = next.next)
+    if (next === orig)
+      return {left: cmd, right: orig};
+  return {left: orig, right: cmd};
 }
 window.test = function() {
   var cmd=$('.sqrt-stem').parent().data('[[mathquill internal data]]').cmd;
