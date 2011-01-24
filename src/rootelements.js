@@ -136,7 +136,6 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).bind('mousemove', function(e) {
-    console.log('orig', originalMouseDown);
     if (!originalMouseDown) return;
 
     var cmd = closestCmd(e.target);
@@ -170,8 +169,6 @@ function closestCmd(el) {
   ) {
     data = $el.data(jQueryDataKey);
   }
-
-  data || console.log(el);
   return data && data.cmd;
 }
 
@@ -205,11 +202,6 @@ function leftRight(cmd, orig) {
     if (next === orig)
       return {left: cmd, right: orig};
   return {left: orig, right: cmd};
-}
-window.test = function() {
-  var cmd=$('.sqrt-stem').parent().data('[[mathquill internal data]]').cmd;
-  var orig=$('.sqrt-stem').eq(1).parent().data('[[mathquill internal data]]').cmd;
-  return commonAncestor(cmd, orig);
 }
 
 function RootMathBlock(){}
