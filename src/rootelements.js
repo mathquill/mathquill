@@ -160,11 +160,39 @@ function createRoot(jQ, root, textbox, editable) {
 
   var originalMouseDown;
 }
+function commonAncestor(cmd, orig) {
+  for (var cmdA = cmd, origA = orig;
+       cmdA && origA;
+       cmdA = cmdA.parent.parent, origA = origA.parent.parent
+  ) {
+    if (!cmdA.parent.parent) {
+      while (origA.parent.parent)
+        origA = origA.parent.parent;
+      return leftRight(cmdA, origA);
+    }
+    if (!origA.parent.parent) {
+      while (cmdA.parent.parent)
+        cmdA = cmdA.parent.parent;
+      return leftRight(cmdA, origA);
+    }
 
-// FIXME this is a stub
-var commonAncestor = function(cmd, orig) {
-  return {left: cmd, right: orig}
-};
+    for (var cmdI = cmd; cmdI.parent.parent; cmdI = cmdI.parent.parent)
+      if (cmdI.parent === origA.parent)
+        return leftRight(cmdA, origA);
+
+    for (var origI = orig; origI.parent.parent; origI = origI.parent.parent)
+      if (cmdA.parent === origI.parent)
+        return leftRight(cmdA, origA);
+  }
+}
+function leftRight(left, right) {
+  return {left: left, right: right};
+}
+window.test = function() {
+  var cmd=$('.sqrt-stem').parent().data('[[mathquill internal data]]').cmd;
+  var orig=$('.sqrt-stem').eq(1).parent().data('[[mathquill internal data]]').cmd;
+  return commonAncestor(cmd, orig);
+}
 
 function RootMathBlock(){}
 _ = RootMathBlock.prototype = new MathBlock;
