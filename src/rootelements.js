@@ -135,8 +135,34 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.focus();
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
+  }).bind('mousemove', function(e) {
+    if (!originalMouseDown) return;
+
+    var cmd = $(e.target).data(jQueryDataKey).cmd;
+
+    var commonParent;
+
+    anc = commonAncestor(cmd, originalMouseDown);
+    cursor.clearSelection().selection = new Selection(
+      anc.left.parent,
+      anc.left,
+      anc.right
+    );
+    cursor.insertAfter(cmd);
+  }).bind('mousedown', function(e) {
+    e.preventDefault();
+    originalMouseDown = $(e.target).data(jQueryDataKey).cmd;
+  }).bind('mouseup', function(e) {
+    originalMouseDown = undefined;
   }).blur();
+
+  var originalMouseDown;
 }
+
+// FIXME this is a stub
+var commonAncestor = function(cmd, orig) {
+  return {left: cmd, right: orig}
+};
 
 function RootMathBlock(){}
 _ = RootMathBlock.prototype = new MathBlock;
