@@ -142,12 +142,11 @@ function createRoot(jQ, root, textbox, editable) {
     if (!cmd) return;
 
     anc = commonAncestor(cmd, originalMouseDown);
-    cursor.clearSelection().selection = new Selection(
+    cursor.clearSelection().appendTo(anc.left.parent).hide().selection = new Selection(
       anc.left.parent,
       anc.left.prev,
       anc.right.next
     );
-    cursor.insertAfter(cmd);
   }).bind('mousedown', function(e) {
     e.preventDefault();
     originalMouseDown = closestCmd(e.target);
