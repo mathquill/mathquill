@@ -152,9 +152,11 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('mousedown', function(e) {
     e.preventDefault();
     originalMouseDown = $(e.target).data(jQueryDataKey).cmd;
-  }).bind('mouseup', function(e) {
-    originalMouseDown = undefined;
   }).blur();
+
+  $(document).bind('mouseup', function(e) {
+    originalMouseDown = undefined;
+  })
 
   var originalMouseDown;
 }
