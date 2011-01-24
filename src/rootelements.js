@@ -136,23 +136,11 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).bind('mousemove', function(e) {
+    console.log('orig', originalMouseDown);
     if (!originalMouseDown) return;
 
-    // bubble up until we find something with data
-    for (
-      var $el = $(e.target), data;
-      !(data && data.cmd) && !$el.hasClass('mathquill-editable');
-      $el = $el.parent()
-    ) {
-      data = $el.data(jQueryDataKey);
-    }
-
-    if (!(data && data.cmd)) {
-      console.log(e.target);
-      return;
-    }
-
-    var cmd = data.cmd;
+    var cmd = closestCmd(e.target);
+    if (!cmd) return;
 
     anc = commonAncestor(cmd, originalMouseDown);
     cursor.clearSelection().selection = new Selection(
@@ -163,7 +151,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.insertAfter(cmd);
   }).bind('mousedown', function(e) {
     e.preventDefault();
-    originalMouseDown = ($(e.target).data(jQueryDataKey) || 0).cmd;
+    originalMouseDown = closestCmd(e.target);
   }).blur();
 
   $(document).bind('mouseup', function(e) {
@@ -172,6 +160,21 @@ function createRoot(jQ, root, textbox, editable) {
 
   var originalMouseDown;
 }
+
+function closestCmd(el) {
+  // bubble up until we find something with data
+  for (
+    var $el = $(el), data;
+    !(data && data.cmd) && !$el.hasClass('mathquill-editable');
+    $el = $el.parent()
+  ) {
+    data = $el.data(jQueryDataKey);
+  }
+
+  data || console.log(el);
+  return data && data.cmd;
+}
+
 function commonAncestor(cmd, orig) {
   for (var cmdA = cmd, origA = orig;
        cmdA && origA;
