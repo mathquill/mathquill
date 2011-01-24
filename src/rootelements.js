@@ -197,9 +197,10 @@ function commonAncestor(cmd, orig) {
   }
 }
 function leftRight(cmd, orig) {
-  for (var next = cmd; next; next = next.next)
+  for (var next = cmd; next; next = next.next) {
     if (next === orig)
       return {left: cmd, right: orig};
+  }
   return {left: orig, right: cmd};
 }
 
