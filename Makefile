@@ -26,6 +26,9 @@ minify: cat
     uglifyjs "${BUILD_FILE}" > "${MINIFIED_BUILD_FILE}"
 
 publish: cat minify
+	[ "`git symbolic-ref -q HEAD)" = "refs/heads/master" ] || ( \
+	  echo "err: Please check out master first." >&2; exit 1 \
+	)
 	git stash
 	cp mathquill.css build/mathquill.css
 	git checkout gh-pages
