@@ -179,7 +179,6 @@ _.insertNew = function(cmd) {
     this.parent.lastChild = cmd;
 
   cmd.jQ.insertBefore(this.jQ);
-  this.prev = cmd;
 
   //adjust context-sensitive spacing
   cmd.respace();
@@ -187,6 +186,8 @@ _.insertNew = function(cmd) {
     this.next.respace();
   if (this.prev)
     this.prev.respace();
+
+  this.prev = cmd;
 
   cmd.placeCursor(this);
 
