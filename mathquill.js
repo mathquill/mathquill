@@ -8,8 +8,9 @@
 
 (function($){ //takes in the jQuery function as an argument
 
-var undefined,
-    jQueryDataKey = '[[mathquill internal data]]';
+var _, //temp variable of prototypes
+  undefined,
+  jQueryDataKey = '[[mathquill internal data]]';
 /*************************************************
  * Abstract base classes of blocks and commands.
  ************************************************/
@@ -19,30 +20,29 @@ var undefined,
  * Both MathBlock's and MathCommand's descend from it.
  */
 function MathElement(){}
-MathElement.prototype = {
-  prev: 0,
-  next: 0,
-  parent: 0,
-  firstChild: 0,
-  lastChild: 0,
-  eachChild: function(fn) {
-    for (var child = this.firstChild; child; child = child.next)
-      if (fn.call(child) === false) break;
+_ = MathElement.prototype;
+_.prev = 0;
+_.next = 0;
+_.parent = 0;
+_.firstChild = 0;
+_.lastChild = 0;
+_.eachChild = function(fn) {
+  for (var child = this.firstChild; child; child = child.next)
+    if (fn.call(this, child) === false) break;
 
-    return this;
-  },
-  foldChildren: function(fold, fn) {
-    this.eachChild(function() {
-      fold = fn.call(this, fold);
-    });
-    return fold;
-  },
-  keydown: function(e) {
-    return this.parent.keydown(e);
-  },
-  keypress: function(e) {
-    return this.parent.keypress(e);
-  }
+  return this;
+};
+_.foldChildren = function(fold, fn) {
+  this.eachChild(function(child) {
+    fold = fn.call(this, fold, child);
+  });
+  return fold;
+};
+_.keydown = function(e) {
+  return this.parent.keydown(e);
+};
+_.keypress = function(e) {
+  return this.parent.keypress(e);
 };
 
 /**
@@ -61,87 +61,86 @@ function MathCommand(cmd, html_template, replacedFragment) {
   self.initBlocks(replacedFragment);
 }
 
-MathCommand.prototype = $.extend(new MathElement, {
-  initBlocks: function(replacedFragment) {
-    var self = this;
-    //single-block commands
-    if (self.html_template.length === 1) {
-      self.firstChild =
-      self.lastChild =
-      self.jQ.data(jQueryDataKey).block =
-        (replacedFragment && replacedFragment.blockify()) || new MathBlock;
-
-      self.firstChild.parent = self;
-      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
-
-      return;
-    }
-    //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev, num_blocks = self.html_template.length;
-    this.firstChild = newBlock = prev =
+_ = MathCommand.prototype = new MathElement;
+_.initBlocks = function(replacedFragment) {
+  var self = this;
+  //single-block commands
+  if (self.html_template.length === 1) {
+    self.firstChild =
+    self.lastChild =
+    self.jQ.data(jQueryDataKey).block =
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
+    self.firstChild.parent = self;
+    self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
+
+    return;
+  }
+  //otherwise, the succeeding elements of html_template should be child blocks
+  var newBlock, prev, num_blocks = self.html_template.length;
+  this.firstChild = newBlock = prev =
+    (replacedFragment && replacedFragment.blockify()) || new MathBlock;
+
+  newBlock.parent = self;
+  newBlock.jQ = $(self.html_template[1])
+    .data(jQueryDataKey, {block: newBlock})
+    .append(newBlock.jQ)
+    .appendTo(self.jQ);
+
+  newBlock.blur();
+
+  for (var i = 2; i < num_blocks; i += 1) {
+    newBlock = new MathBlock;
     newBlock.parent = self;
-    newBlock.jQ = $(self.html_template[1])
+    newBlock.prev = prev;
+    prev.next = newBlock;
+    prev = newBlock;
+
+    newBlock.jQ = $(self.html_template[i])
       .data(jQueryDataKey, {block: newBlock})
-      .append(newBlock.jQ)
       .appendTo(self.jQ);
 
     newBlock.blur();
-
-    for (var i = 2; i < num_blocks; i += 1) {
-      newBlock = new MathBlock;
-      newBlock.parent = self;
-      newBlock.prev = prev;
-      prev.next = newBlock;
-      prev = newBlock;
-
-      newBlock.jQ = $(self.html_template[i])
-        .data(jQueryDataKey, {block: newBlock})
-        .appendTo(self.jQ);
-
-      newBlock.blur();
-    }
-    self.lastChild = newBlock;
-  },
-  latex: function() {
-    return this.foldChildren(this.cmd, function(latex){
-      return latex + '{' + (this.latex() || ' ') + '}';
-    });
-  },
-  remove: function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
-        parent = self.parent;
-
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
-
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
-
-    self.jQ.remove();
-
-    return self;
-  },
-  respace: $.noop, //placeholder for context-sensitive spacing
-  placeCursor: function(cursor) {
-    //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev){
-      return prev.isEmpty() ? prev : this;
-    }));
-  },
-  isEmpty: function() {
-    return this.foldChildren(true, function(isEmpty){
-      return isEmpty && this.isEmpty();
-    });
   }
-});
+  self.lastChild = newBlock;
+};
+_.latex = function() {
+  return this.foldChildren(this.cmd, function(latex, child){
+    return latex + '{' + (child.latex() || ' ') + '}';
+  });
+};
+_.remove = function() {
+  var self = this,
+      prev = self.prev,
+      next = self.next,
+      parent = self.parent;
+
+  if (prev)
+    prev.next = next;
+  else
+    parent.firstChild = next;
+
+  if (next)
+    next.prev = prev;
+  else
+    parent.lastChild = prev;
+
+  self.jQ.remove();
+
+  return self;
+};
+_.respace = $.noop; //placeholder for context-sensitive spacing
+_.placeCursor = function(cursor) {
+  //append the cursor to the first empty child, or if none empty, the last one
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+    return prev.isEmpty() ? prev : child;
+  }));
+};
+_.isEmpty = function() {
+  return this.foldChildren(true, function(isEmpty, child){
+    return isEmpty && child.isEmpty();
+  });
+};
 
 /**
  * Lightweight command without blocks or children.
@@ -149,12 +148,11 @@ MathCommand.prototype = $.extend(new MathElement, {
 function Symbol(cmd, html) {
   MathCommand.call(this, cmd, [ html ]);
 }
-Symbol.prototype = $.extend(new MathCommand, {
-  initBlocks: $.noop,
-  latex: function(){ return this.cmd; },
-  placeCursor: $.noop,
-  isEmpty: function(){ return true; }
-});
+_ = Symbol.prototype = new MathCommand;
+_.initBlocks = $.noop;
+_.latex = function(){ return this.cmd; };
+_.placeCursor = $.noop;
+_.isEmpty = function(){ return true; };
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the
@@ -162,30 +160,29 @@ Symbol.prototype = $.extend(new MathCommand, {
  * ancestor operators.
  */
 function MathBlock(){}
-MathBlock.prototype = $.extend(new MathElement, {
-  latex: function() {
-    return this.foldChildren('', function(latex){
-      return latex + this.latex();
-    });
-  },
-  isEmpty: function() {
-    return this.firstChild === 0 && this.lastChild === 0;
-  },
-  focus: function() {
-    this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+_ = MathBlock.prototype = new MathElement;
+_.latex = function() {
+  return this.foldChildren('', function(latex, child){
+    return latex + child.latex();
+  });
+};
+_.isEmpty = function() {
+  return this.firstChild === 0 && this.lastChild === 0;
+};
+_.focus = function() {
+  this.jQ.addClass('hasCursor');
+  if (this.isEmpty())
+    this.jQ.removeClass('empty');
 
-    return this;
-  },
-  blur: function() {
-    this.jQ.removeClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.addClass('empty');
+  return this;
+};
+_.blur = function() {
+  this.jQ.removeClass('hasCursor');
+  if (this.isEmpty())
+    this.jQ.addClass('empty');
 
-    return this;
-  }
-});
+  return this;
+};
 
 /**
  * An entity outside the Math DOM tree with one-way pointers (so it's only
@@ -201,54 +198,53 @@ function MathFragment(parent, prev, next) {
   self.prev = prev || 0; //so you can do 'new MathFragment(block)' without
   self.next = next || 0; //ending up with this.prev or this.next === undefined
 
-  self.jQinit(self.fold($(), function(jQ){ return this.jQ.add(jQ); }));
+  self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 }
-MathFragment.prototype = {
-  remove: MathCommand.prototype.remove,
-  jQinit: function(children) {
-    this.jQ = children;
-  },
-  each: function(fn) {
-    for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
-      if (fn.call(el) === false) break;
+_ = MathFragment.prototype;
+_.remove= MathCommand.prototype.remove;
+_.jQinit = function(children) {
+  this.jQ = children;
+};
+_.each = function(fn) {
+  for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
+    if (fn.call(this, el) === false) break;
 
-    return this;
-  },
-  fold: function(fold, fn) {
-    this.each(function() {
-      fold = fn.call(this, fold);
-    });
-    return fold;
-  },
-  blockify: function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
-        parent = self.parent,
-        newBlock = new MathBlock,
-        newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
-        newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
+  return this;
+};
+_.fold = function(fold, fn) {
+  this.each(function(el) {
+    fold = fn.call(this, fold, el);
+  });
+  return fold;
+};
+_.blockify = function() {
+  var self = this,
+      prev = self.prev,
+      next = self.next,
+      parent = self.parent,
+      newBlock = new MathBlock,
+      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
+      newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
+  if (prev)
+    prev.next = next;
+  else
+    parent.firstChild = next;
 
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
+  if (next)
+    next.prev = prev;
+  else
+    parent.lastChild = prev;
 
-    newFirstChild.prev = self.prev = 0;
-    newLastChild.next = self.next = 0;
+  newFirstChild.prev = self.prev = 0;
+  newLastChild.next = self.next = 0;
 
-    self.parent = newBlock;
-    self.each(function(){ this.parent = newBlock; });
+  self.parent = newBlock;
+  self.each(function(el){ el.parent = newBlock; });
 
-    newBlock.jQ = self.jQ;
+  newBlock.jQ = self.jQ;
 
-    return newBlock;
-  }
+  return newBlock;
 };
 /*********************************************
  * Root math elements with event delegation.
@@ -391,244 +387,243 @@ function createRoot(jQ, root, textbox, editable) {
 }
 
 function RootMathBlock(){}
-RootMathBlock.prototype = $.extend(new MathBlock, {
-  latex: function() {
-    return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-  },
-  renderLatex: function(latex) {
-    latex = latex.match(/\\[a-z]*|[^\s]/ig);
-    this.jQ.children().slice(1).remove();
-    this.firstChild = this.lastChild = 0;
-    this.cursor.show().appendTo(this);
-    if (latex) {
-      (function recurse(cursor) {
-        while (latex.length) {
-          var token = latex.shift(); //pop first item
-          if (!token || token === '}') return;
+_ = RootMathBlock.prototype = new MathBlock;
+_.latex =function() {
+  return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+};
+_.renderLatex = function(latex) {
+  latex = latex.match(/\\[a-z]*|[^\s]/ig);
+  this.jQ.children().slice(1).remove();
+  this.firstChild = this.lastChild = 0;
+  this.cursor.show().appendTo(this);
+  if (latex) {
+    (function recurse(cursor) {
+      while (latex.length) {
+        var token = latex.shift(); //pop first item
+        if (!token || token === '}') return;
 
-          var cmd;
-          if (token === '\\text') {
-            var text = latex.shift();
-            if (text === '{') {
-              text = token = latex.shift();
-              while (token !== '}') {
-                if (token === '\\') //skip tokens immediately following backslash
-                  text += token = latex.shift();
-
+        var cmd;
+        if (token === '\\text') {
+          var text = latex.shift();
+          if (text === '{') {
+            text = token = latex.shift();
+            while (token !== '}') {
+              if (token === '\\') //skip tokens immediately following backslash
                 text += token = latex.shift();
-              }
-              text = text.slice(0,-1); //cut trailing '}'
+
+              text += token = latex.shift();
             }
-            cmd = new TextBlock(text);
+            text = text.slice(0,-1); //cut trailing '}'
+          }
+          cmd = new TextBlock(text);
+          cursor.insertNew(cmd).insertAfter(cmd);
+          continue; //skip recursing through children
+        }
+        else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
+          token = latex.shift();
+          if (token === '\\')
+            token = latex.shift();
+
+          cursor.write(token);
+          cmd = cursor.prev || cursor.parent.parent;
+
+          if (cursor.prev) //was a close-paren, so break recursion
+            return;
+          else //was an open-paren, hack to put the following latex
+            latex.unshift('{'); //in the ParenBlock in the math DOM
+        }
+        else if (/^\\[a-z]+$/i.test(token)) {
+          token = token.slice(1);
+          var cmd = LatexCmds[token];
+          if (cmd)
+            cursor.insertNew(cmd = new cmd(undefined, token));
+          else {
+            cmd = new TextBlock(token);
             cursor.insertNew(cmd).insertAfter(cmd);
             continue; //skip recursing through children
           }
-          else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
-            token = latex.shift();
-            if (token === '\\')
-              token = latex.shift();
-
-            cursor.write(token);
-            cmd = cursor.prev || cursor.parent.parent;
-
-            if (cursor.prev) //was a close-paren, so break recursion
-              return;
-            else //was an open-paren, hack to put the following latex
-              latex.unshift('{'); //in the ParenBlock in the math DOM
-          }
-          else if (/^\\[a-z]+$/i.test(token)) {
-            token = token.slice(1);
-            var cmd = LatexCmds[token];
-            if (cmd)
-              cursor.insertNew(cmd = new cmd(undefined, token));
-            else {
-              cmd = new TextBlock(token);
-              cursor.insertNew(cmd).insertAfter(cmd);
-              continue; //skip recursing through children
-            }
-          }
-          else {
-            if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
-              cmd = new Variable(token);
-            else if (cmd = LatexCmds[token])
-              cmd = new cmd;
-            else
-              cmd = new VanillaSymbol(token);
-
-            cursor.insertNew(cmd);
-          }
-          cmd.eachChild(function() {
-            cursor.appendTo(this);
-            var token = latex.shift();
-            if (!token) return false;
-
-            if (token === '{')
-              recurse(cursor);
-            else
-              cursor.write(token);
-          });
-          cursor.insertAfter(cmd);
         }
-      })(this.cursor);
-    }
+        else {
+          if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
+            cmd = new Variable(token);
+          else if (cmd = LatexCmds[token])
+            cmd = new cmd;
+          else
+            cmd = new VanillaSymbol(token);
 
-    this.cursor.hide();
-    this.blur();
-  },
-  keydown: function(e)
-  {
-    this.skipKeypress = true;
-    e.ctrlKey = e.ctrlKey || e.metaKey;
-    switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
-    case 8: //backspace
-    case 'Backspace':
-    case 'U+0008':
-      if (e.ctrlKey)
-        while (this.cursor.prev)
-          this.cursor.backspace();
-      else
-        this.cursor.backspace();
-      break;
-    case 27: //esc does something weird in keypress, may as well be the same as tab
-             //  until we figure out what to do with it
-    case 'Esc':
-    case 'U+001B':
-    case 9: //tab
-    case 'Tab':
-    case 'U+0009':
-      if (e.ctrlKey) break;
+          cursor.insertNew(cmd);
+        }
+        cmd.eachChild(function(child) {
+          cursor.appendTo(child);
+          var token = latex.shift();
+          if (!token) return false;
 
-      var parent = this.cursor.parent;
-      if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-        if (parent === this) //cursor is in root editable, continue default
-          break;
-        else if (parent.prev) //go one block left
-          this.cursor.appendTo(parent.prev);
-        else //get out of the block
-          this.cursor.insertBefore(parent.parent);
+          if (token === '{')
+            recurse(cursor);
+          else
+            cursor.write(token);
+        });
+        cursor.insertAfter(cmd);
       }
-      else { //plain Tab = go one block right if it exists, else escape right.
-        if (parent === this) //cursor is in root editable, continue default
-          return this.skipKeypress = true;
-        else if (parent.next) //go one block right
-          this.cursor.prependTo(parent.next);
-        else //get out of the block
-          this.cursor.insertAfter(parent.parent);
-      }
-
-      this.cursor.clearSelection();
-      return false;
-    case 13: //enter
-    case 'Enter':
-      e.preventDefault();
-      break;
-    case 35: //end
-    case 'End':
-      if (e.shiftKey)
-        while (this.cursor.next || (e.ctrlKey && this.cursor.parent !== this))
-          this.cursor.selectRight();
-      else //move to the end of the root block or the current block.
-        this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-      break;
-    case 36: //home
-    case 'Home':
-      if (e.shiftKey)
-        while (this.cursor.prev || (e.ctrlKey && this.cursor.parent !== this))
-          this.cursor.selectLeft();
-      else //move to the start of the root block or the current block.
-        this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-      break;
-    case 37: //left
-    case 'Left':
-      if (e.ctrlKey) break;
-
-      if (e.shiftKey)
-        this.cursor.selectLeft();
-      else
-        this.cursor.moveLeft();
-      break;
-    case 38: //up
-    case 'Up':
-      if (e.ctrlKey) break;
-
-      if (e.shiftKey) {
-        if (this.cursor.prev)
-          while (this.cursor.prev)
-            this.cursor.selectLeft();
-        else
-          this.cursor.selectLeft();
-      }
-      else if (this.cursor.parent.prev)
-        this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      else if (this.cursor.prev)
-        this.cursor.clearSelection().prependTo(this.cursor.parent);
-      else if (this.cursor.parent !== this)
-        this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-      break;
-    case 39: //right
-    case 'Right':
-      if (e.ctrlKey) break;
-
-      if (e.shiftKey)
-        this.cursor.selectRight();
-      else
-        this.cursor.moveRight();
-      break;
-    case 40: //down
-    case 'Down':
-      if (e.ctrlKey) break;
-
-      if (e.shiftKey) {
-        if (this.cursor.next)
-          while (this.cursor.next)
-            this.cursor.selectRight();
-        else
-          this.cursor.selectRight();
-      }
-      else if (this.cursor.parent.next)
-        this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      else if (this.cursor.next)
-        this.cursor.clearSelection().appendTo(this.cursor.parent);
-      else if (this.cursor.parent !== this)
-        this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-      break;
-    case 46: //delete
-    case 'Del':
-    case 'U+007F':
-      if (e.ctrlKey)
-        while (this.cursor.next)
-          this.cursor.deleteForward();
-      else
-        this.cursor.deleteForward();
-      break;
-    case 65: //'a' character, as in Select All
-    case 'A':
-    case 'U+0041':
-      if (!e.ctrlKey || e.shiftKey || e.altKey) {
-        this.skipKeypress = false;
-        break;
-      }
-
-      if (this.parent) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      this.cursor.clearSelection().appendTo(this);
-      while (this.cursor.prev)
-        this.cursor.selectLeft();
-      break;
-    default:
-      this.skipKeypress = false;
-    }
-    return true;
-  },
-  keypress: function(e) {
-    if (this.skipKeypress) return true;
-
-    this.cursor.show().write(String.fromCharCode(e.which));
-    e.preventDefault();
-    return true;
+    })(this.cursor);
   }
-});
+
+  this.cursor.hide();
+  this.blur();
+};
+_.keydown = function(e)
+{
+  this.skipKeypress = true;
+  e.ctrlKey = e.ctrlKey || e.metaKey;
+  switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
+  case 8: //backspace
+  case 'Backspace':
+  case 'U+0008':
+    if (e.ctrlKey)
+      while (this.cursor.prev)
+        this.cursor.backspace();
+    else
+      this.cursor.backspace();
+    break;
+  case 27: //esc does something weird in keypress, may as well be the same as tab
+           //  until we figure out what to do with it
+  case 'Esc':
+  case 'U+001B':
+  case 9: //tab
+  case 'Tab':
+  case 'U+0009':
+    if (e.ctrlKey) break;
+
+    var parent = this.cursor.parent;
+    if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
+      if (parent === this) //cursor is in root editable, continue default
+        break;
+      else if (parent.prev) //go one block left
+        this.cursor.appendTo(parent.prev);
+      else //get out of the block
+        this.cursor.insertBefore(parent.parent);
+    }
+    else { //plain Tab = go one block right if it exists, else escape right.
+      if (parent === this) //cursor is in root editable, continue default
+        return this.skipKeypress = true;
+      else if (parent.next) //go one block right
+        this.cursor.prependTo(parent.next);
+      else //get out of the block
+        this.cursor.insertAfter(parent.parent);
+    }
+
+    this.cursor.clearSelection();
+    return false;
+  case 13: //enter
+  case 'Enter':
+    e.preventDefault();
+    break;
+  case 35: //end
+  case 'End':
+    if (e.shiftKey)
+      while (this.cursor.next || (e.ctrlKey && this.cursor.parent !== this))
+        this.cursor.selectRight();
+    else //move to the end of the root block or the current block.
+      this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
+    break;
+  case 36: //home
+  case 'Home':
+    if (e.shiftKey)
+      while (this.cursor.prev || (e.ctrlKey && this.cursor.parent !== this))
+        this.cursor.selectLeft();
+    else //move to the start of the root block or the current block.
+      this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
+    break;
+  case 37: //left
+  case 'Left':
+    if (e.ctrlKey) break;
+
+    if (e.shiftKey)
+      this.cursor.selectLeft();
+    else
+      this.cursor.moveLeft();
+    break;
+  case 38: //up
+  case 'Up':
+    if (e.ctrlKey) break;
+
+    if (e.shiftKey) {
+      if (this.cursor.prev)
+        while (this.cursor.prev)
+          this.cursor.selectLeft();
+      else
+        this.cursor.selectLeft();
+    }
+    else if (this.cursor.parent.prev)
+      this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
+    else if (this.cursor.prev)
+      this.cursor.clearSelection().prependTo(this.cursor.parent);
+    else if (this.cursor.parent !== this)
+      this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
+    break;
+  case 39: //right
+  case 'Right':
+    if (e.ctrlKey) break;
+
+    if (e.shiftKey)
+      this.cursor.selectRight();
+    else
+      this.cursor.moveRight();
+    break;
+  case 40: //down
+  case 'Down':
+    if (e.ctrlKey) break;
+
+    if (e.shiftKey) {
+      if (this.cursor.next)
+        while (this.cursor.next)
+          this.cursor.selectRight();
+      else
+        this.cursor.selectRight();
+    }
+    else if (this.cursor.parent.next)
+      this.cursor.clearSelection().prependTo(this.cursor.parent.next);
+    else if (this.cursor.next)
+      this.cursor.clearSelection().appendTo(this.cursor.parent);
+    else if (this.cursor.parent !== this)
+      this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
+    break;
+  case 46: //delete
+  case 'Del':
+  case 'U+007F':
+    if (e.ctrlKey)
+      while (this.cursor.next)
+        this.cursor.deleteForward();
+    else
+      this.cursor.deleteForward();
+    break;
+  case 65: //'a' character, as in Select All
+  case 'A':
+  case 'U+0041':
+    if (!e.ctrlKey || e.shiftKey || e.altKey) {
+      this.skipKeypress = false;
+      break;
+    }
+
+    if (this.parent) //so not stopPropagation'd at RootMathCommand
+      return this.parent.keydown(e);
+
+    this.cursor.clearSelection().appendTo(this);
+    while (this.cursor.prev)
+      this.cursor.selectLeft();
+    break;
+  default:
+    this.skipKeypress = false;
+  }
+  return true;
+};
+_.keypress = function(e) {
+  if (this.skipKeypress) return true;
+
+  this.cursor.show().write(String.fromCharCode(e.which));
+  e.preventDefault();
+  return true;
+};
 
 function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
@@ -656,76 +651,74 @@ function RootMathCommand(cursor) {
     return true;
   };
 }
-RootMathCommand.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="mathquill-rendered-math"></span>'],
-  initBlocks: function() {
-    this.firstChild =
-    this.lastChild =
-    this.jQ.data(jQueryDataKey).block =
-      new RootMathBlock;
+_ = RootMathCommand.prototype = new MathCommand;
+_.html_template = ['<span class="mathquill-rendered-math"></span>'];
+_.initBlocks = function() {
+  this.firstChild =
+  this.lastChild =
+  this.jQ.data(jQueryDataKey).block =
+    new RootMathBlock;
 
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ;
-  }
-});
+  this.firstChild.parent = this;
+  this.firstChild.jQ = this.jQ;
+};
 
 function RootTextBlock(){}
-RootTextBlock.prototype = $.extend(new MathBlock, {
-  renderLatex: function(latex) {
-    this.jQ.children().slice(1).remove();
-    this.firstChild = this.lastChild = 0;
-    this.cursor.show().appendTo(this);
+_ = RootTextBlock.prototype = new MathBlock;
+_.renderLatex = function(latex) {
+  this.jQ.children().slice(1).remove();
+  this.firstChild = this.lastChild = 0;
+  this.cursor.show().appendTo(this);
 
-    var math, text, nextDollar;
-    while (latex) {
-      math = text = '';
-      nextDollar = latex.indexOf('$');
-      if (nextDollar >= 0) {
-        text = latex.slice(0, nextDollar);
-        latex = latex.slice(nextDollar+1);
-      }
-      else {
-        text = latex;
-        latex = '';
-      }
-
-      for (var i=0; i < text.length; i+=1) {
-        this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
-      }
-
-      nextDollar = latex.indexOf('$');
-      if (nextDollar >= 0) {
-        math = latex.slice(0, nextDollar);
-        latex = latex.slice(nextDollar+1);
-      }
-      else {
-        math=latex;
-        latex='';
-      }
-
-      if (math) {
-        var root = new RootMathCommand(this.cursor);
-        this.cursor.insertNew(root);
-        root.firstChild.renderLatex(math);
-        this.cursor.show().insertAfter(root);
-      }
+  var math, text, nextDollar;
+  while (latex) {
+    math = text = '';
+    nextDollar = latex.indexOf('$');
+    if (nextDollar >= 0) {
+      text = latex.slice(0, nextDollar);
+      latex = latex.slice(nextDollar+1);
     }
-  },
-  keydown: RootMathBlock.prototype.keydown,
-  keypress: function(e) {
-    if (this.skipKeypress) return true;
+    else {
+      text = latex;
+      latex = '';
+    }
 
-    this.cursor.deleteSelection();
-    var ch = String.fromCharCode(e.which);
-    if (ch === '$')
-      this.cursor.insertNew(new RootMathCommand(this.cursor));
-    else
-      this.cursor.insertNew(new VanillaSymbol(ch));
+    for (var i=0; i < text.length; i+=1) {
+      this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
+    }
 
-    e.preventDefault();
-    return true;
+    nextDollar = latex.indexOf('$');
+    if (nextDollar >= 0) {
+      math = latex.slice(0, nextDollar);
+      latex = latex.slice(nextDollar+1);
+    }
+    else {
+      math=latex;
+      latex='';
+    }
+
+    if (math) {
+      var root = new RootMathCommand(this.cursor);
+      this.cursor.insertNew(root);
+      root.firstChild.renderLatex(math);
+      this.cursor.show().insertAfter(root);
+    }
   }
-});
+};
+_.keydown = RootMathBlock.prototype.keydown;
+_.keypress = function(e) {
+  if (this.skipKeypress) return true;
+
+  this.cursor.deleteSelection();
+  var ch = String.fromCharCode(e.which);
+  if (ch === '$')
+    this.cursor.insertNew(new RootMathCommand(this.cursor));
+  else
+    this.cursor.insertNew(new VanillaSymbol(ch));
+
+  e.preventDefault();
+  return true;
+};
 /***************************
  * Commands and Operators.
  **************************/
@@ -740,22 +733,22 @@ function proto(parent, child) { //shorthand for prototyping
 function SupSub(cmd, html, replacedFragment) {
   MathCommand.call(this, cmd, [ html ], replacedFragment);
 }
-SupSub.prototype = new MathCommand;
-SupSub.prototype.latex = function() {
+_ = SupSub.prototype = new MathCommand;
+_.latex = function() {
   var latex = this.firstChild.latex();
   if (latex.length === 1)
     return this.cmd + latex;
   else
     return this.cmd + '{' + (latex || ' ') + '}';
 };
-SupSub.prototype.redraw = function() {
+_.redraw = function() {
   this.respace();
   if (this.next)
     this.next.respace();
   if (this.prev)
     this.prev.respace();
 };
-SupSub.prototype.respace = function() {
+_.respace = function() {
   if (
     this.prev && (
       this.prev.cmd === '\\int ' || (
@@ -825,8 +818,8 @@ function Fraction(replacedFragment) {
   MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
-Fraction.prototype = new MathCommand;
-Fraction.prototype.html_template = [
+_ = Fraction.prototype = new MathCommand;
+_.html_template = [
   '<span class="fraction"></span>',
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
@@ -837,8 +830,8 @@ LatexCmds.frac = LatexCmds.fraction = Fraction;
 function LiveFraction() {
   Fraction.apply(this, arguments);
 }
-LiveFraction.prototype = new Fraction;
-LiveFraction.prototype.placeCursor = function(cursor) {
+_ = LiveFraction.prototype = new Fraction;
+_.placeCursor = function(cursor) {
   if (this.firstChild.isEmpty()) {
     var prev = this.prev;
     while (prev &&
@@ -872,12 +865,12 @@ CharCmds['/'] = LiveFraction;
 function SquareRoot(replacedFragment) {
   MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
 }
-SquareRoot.prototype = new MathCommand;
-SquareRoot.prototype.html_template = [
+_ = SquareRoot.prototype = new MathCommand;
+_.html_template = [
   '<span><span class="sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
-SquareRoot.prototype.redraw = function() {
+_.redraw = function() {
   var block = this.firstChild.jQ, height = block.outerHeight(true);
   block.css({
     borderTopWidth: height/28+1 // NOTE: Formula will need to change if our font isn't Symbola
@@ -895,8 +888,8 @@ function Bracket(open, close, cmd, end, replacedFragment) {
     replacedFragment);
   this.end = '\\right'+end;
 }
-Bracket.prototype = new MathCommand;
-Bracket.prototype.initBlocks = function(replacedFragment) {
+_ = Bracket.prototype = new MathCommand;
+_.initBlocks = function(replacedFragment) {
   this.firstChild = this.lastChild =
     (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
@@ -904,10 +897,10 @@ Bracket.prototype.initBlocks = function(replacedFragment) {
     .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
 };
-Bracket.prototype.latex = function() {
+_.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
 };
-Bracket.prototype.redraw = function() {
+_.redraw = function() {
   var block = this.firstChild.jQ;
   block.prev().add(block.next()).css('fontSize', block.outerHeight()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
 };
@@ -923,8 +916,8 @@ LatexCmds.langle = LatexCmds.lang = proto(Bracket, function(replacedFragment) {
 function CloseBracket(open, close, cmd, end, replacedFragment) {
   Bracket.apply(this, arguments);
 }
-CloseBracket.prototype = new Bracket;
-CloseBracket.prototype.placeCursor = function(cursor) {
+_ = CloseBracket.prototype = new Bracket;
+_.placeCursor = function(cursor) {
   //if I'm at the end of my parent who is a matching open-paren, and I was not passed
   //  a selection fragment, get rid of me and put cursor after my parent
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
@@ -967,8 +960,8 @@ LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, functi
 function Pipes(replacedFragment) {
   Paren.call(this, '|', '|', replacedFragment);
 }
-Pipes.prototype = new Paren;
-Pipes.prototype.placeCursor = function(cursor) {
+_ = Pipes.prototype = new Paren;
+_.placeCursor = function(cursor) {
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
@@ -985,130 +978,128 @@ function TextBlock(replacedText) {
 
   MathCommand.call(this, '\\text');
 }
-TextBlock.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="text"></span>'],
-  initBlocks: function() {
-    this.firstChild =
-    this.lastChild =
-    this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
+_ = TextBlock.prototype = new MathCommand;
+_.html_template = ['<span class="text"></span>'];
+_.initBlocks = function() {
+  this.firstChild =
+  this.lastChild =
+  this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
 
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
-  },
-  placeCursor: function(cursor) {
-    (this.cursor = cursor).appendTo(this.firstChild);
+  this.firstChild.parent = this;
+  this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
+};
+_.placeCursor = function(cursor) {
+  (this.cursor = cursor).appendTo(this.firstChild);
 
-    if (this.replacedText)
-      for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  },
-  write: function(ch) {
-    this.cursor.insertNew(new VanillaSymbol(ch));
-  },
-  keydown: function(e) {
-    //backspace and delete and ends of block don't unwrap
-    if (!this.cursor.selection &&
-      (
-        (e.which === 8 && !this.cursor.prev) ||
-        (e.which === 46 && !this.cursor.next)
-      )
-    ) {
-      if (this.isEmpty())
-        this.cursor.insertAfter(this);
-      return false;
-    }
-    return this.parent.keydown(e);
-  },
-  keypress: function(e) {
-    this.cursor.deleteSelection();
-    var ch = String.fromCharCode(e.which);
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
-    else if (!this.cursor.next)
+  if (this.replacedText)
+    for (var i = 0; i < this.replacedText.length; i += 1)
+      this.write(this.replacedText.charAt(i));
+};
+_.write = function(ch) {
+  this.cursor.insertNew(new VanillaSymbol(ch));
+};
+_.keydown = function(e) {
+  //backspace and delete and ends of block don't unwrap
+  if (!this.cursor.selection &&
+    (
+      (e.which === 8 && !this.cursor.prev) ||
+      (e.which === 46 && !this.cursor.next)
+    )
+  ) {
+    if (this.isEmpty())
       this.cursor.insertAfter(this);
-    else if (!this.cursor.prev)
-      this.cursor.insertBefore(this);
-    else { //split apart
-      var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-      next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
-      {
-        this.prev = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.firstChild.focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(next);
-      next.prev = this;
-      this.cursor.insertBefore(next);
-      delete next.firstChild.focus;
-    }
     return false;
   }
-});
-function InnerTextBlock(){}
-InnerTextBlock.prototype = $.extend(new MathBlock, {
-  blur: function() {
-    this.jQ.removeClass('hasCursor');
-    if (this.isEmpty()) {
-      var textblock = this.parent, cursor = textblock.cursor;
-      if (cursor.parent === this)
-        this.jQ.addClass('empty');
-      else {
-        cursor.hide();
-        textblock.remove();
-        if (cursor.next === textblock)
-          cursor.next = textblock.next;
-        else if (cursor.prev === textblock)
-          cursor.prev = textblock.prev;
-
-        cursor.show().redraw();
-      }
-    }
-    return this;
-  },
-  focus: function() {
-    MathBlock.prototype.focus.call(this);
-
-    var textblock = this.parent;
-    if (textblock.next instanceof TextBlock) {
-      var innerblock = this,
-        cursor = textblock.cursor,
-        next = textblock.next.firstChild;
-
-      next.eachChild(function(){
-        this.parent = innerblock;
-        this.jQ.appendTo(innerblock.jQ);
-      });
-
-      if (this.lastChild)
-        this.lastChild.next = next.firstChild;
-      else
-        this.firstChild = next.firstChild;
-
-      next.firstChild.prev = this.lastChild;
-      this.lastChild = next.lastChild;
-
-      next.parent.remove();
-
-      if (cursor.prev)
-        cursor.insertAfter(cursor.prev);
-      else
-        cursor.prependTo(this);
-
-      cursor.redraw();
-    }
-    else if (textblock.prev instanceof TextBlock) {
-      var cursor = textblock.cursor;
-      if (cursor.prev)
-        textblock.prev.firstChild.focus();
-      else
-        cursor.appendTo(textblock.prev.firstChild);
-    }
-    return this;
+  return this.parent.keydown(e);
+};
+_.keypress = function(e) {
+  this.cursor.deleteSelection();
+  var ch = String.fromCharCode(e.which);
+  if (ch !== '$')
+    this.write(ch);
+  else if (this.isEmpty())
+    this.cursor.insertAfter(this).backspace().insertNew(new VanillaSymbol('\\$','$'));
+  else if (!this.cursor.next)
+    this.cursor.insertAfter(this);
+  else if (!this.cursor.prev)
+    this.cursor.insertBefore(this);
+  else { //split apart
+    var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
+    next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
+    {
+      this.prev = 0;
+      delete this.placeCursor;
+      this.placeCursor(cursor);
+    };
+    next.firstChild.focus = function(){ return this; };
+    this.cursor.insertAfter(this).insertNew(next);
+    next.prev = this;
+    this.cursor.insertBefore(next);
+    delete next.firstChild.focus;
   }
-});
+  return false;
+};
+function InnerTextBlock(){}
+_ = InnerTextBlock.prototype = new MathBlock;
+_.blur = function() {
+  this.jQ.removeClass('hasCursor');
+  if (this.isEmpty()) {
+    var textblock = this.parent, cursor = textblock.cursor;
+    if (cursor.parent === this)
+      this.jQ.addClass('empty');
+    else {
+      cursor.hide();
+      textblock.remove();
+      if (cursor.next === textblock)
+        cursor.next = textblock.next;
+      else if (cursor.prev === textblock)
+        cursor.prev = textblock.prev;
+
+      cursor.show().redraw();
+    }
+  }
+  return this;
+};
+_.focus = function() {
+  MathBlock.prototype.focus.call(this);
+
+  var textblock = this.parent;
+  if (textblock.next instanceof TextBlock) {
+    var innerblock = this,
+      cursor = textblock.cursor,
+      next = textblock.next.firstChild;
+
+    next.eachChild(function(child){
+      child.parent = innerblock;
+      child.jQ.appendTo(innerblock.jQ);
+    });
+
+    if (this.lastChild)
+      this.lastChild.next = next.firstChild;
+    else
+      this.firstChild = next.firstChild;
+
+    next.firstChild.prev = this.lastChild;
+    this.lastChild = next.lastChild;
+
+    next.parent.remove();
+
+    if (cursor.prev)
+      cursor.insertAfter(cursor.prev);
+    else
+      cursor.prependTo(this);
+
+    cursor.redraw();
+  }
+  else if (textblock.prev instanceof TextBlock) {
+    var cursor = textblock.cursor;
+    if (cursor.prev)
+      textblock.prev.firstChild.focus();
+    else
+      cursor.appendTo(textblock.prev.firstChild);
+  }
+  return this;
+};
 
 LatexCmds.text = CharCmds.$ = TextBlock;
 
@@ -1120,66 +1111,65 @@ function LatexCommandInput(replacedFragment) {
     this.isEmpty = function(){ return false; };
   }
 }
-LatexCommandInput.prototype = $.extend(new MathCommand, {
-  html_template: ['<span class="latex-command-input"></span>'],
-  placeCursor: function(cursor) {
-    this.cursor = cursor.appendTo(this.firstChild);
-    if (this.replacedFragment)
-      this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
-  },
-  latex: function() {
-    return '\\' + this.firstChild.latex() + ' ';
-  },
-  keydown: function(e) {
-    if (e.which === 9 || e.which === 13) { //tab or enter
-      this.renderCommand();
-      return false;
-    }
-    return this.parent.keydown(e);
-  },
-  keypress: function(e) {
-    var ch = String.fromCharCode(e.which);
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.deleteSelection();
-      this.cursor.insertNew(new VanillaSymbol(ch));
-      return false;
-    }
+_ = LatexCommandInput.prototype = new MathCommand;
+_.html_template = ['<span class="latex-command-input"></span>'];
+_.placeCursor = function(cursor) {
+  this.cursor = cursor.appendTo(this.firstChild);
+  if (this.replacedFragment)
+    this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
+};
+_.latex = function() {
+  return '\\' + this.firstChild.latex() + ' ';
+};
+_.keydown = function(e) {
+  if (e.which === 9 || e.which === 13) { //tab or enter
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
-      return false;
-
-    return this.cursor.parent.keypress(e);
-  },
-  renderCommand: function() {
-    this.jQ = this.jQ.last();
-    this.remove();
-    if (this.next)
-      this.cursor.insertBefore(this.next);
-    else
-      this.cursor.appendTo(this.parent);
-
-    var latex = this.firstChild.latex(), cmd;
-    if (latex) {
-      if (cmd = LatexCmds[latex])
-        cmd = new cmd(this.replacedFragment, latex);
-      else {
-        cmd = new TextBlock(latex);
-        cmd.firstChild.focus = function(){ delete this.focus; return true; };
-        this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this.replacedFragment)
-          this.replacedFragment.remove();
-
-        return;
-      }
-    }
-    else
-      cmd = new VanillaSymbol('\\backslash ','\\');
-
-    this.cursor.insertNew(cmd);
-    if (cmd instanceof Symbol && this.replacedFragment)
-      this.replacedFragment.remove();
+    return false;
   }
-});
+  return this.parent.keydown(e);
+};
+_.keypress = function(e) {
+  var ch = String.fromCharCode(e.which);
+  if (ch.match(/[a-z]/i)) {
+    this.cursor.deleteSelection();
+    this.cursor.insertNew(new VanillaSymbol(ch));
+    return false;
+  }
+  this.renderCommand();
+  if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
+    return false;
+
+  return this.cursor.parent.keypress(e);
+};
+_.renderCommand = function() {
+  this.jQ = this.jQ.last();
+  this.remove();
+  if (this.next)
+    this.cursor.insertBefore(this.next);
+  else
+    this.cursor.appendTo(this.parent);
+
+  var latex = this.firstChild.latex(), cmd;
+  if (latex) {
+    if (cmd = LatexCmds[latex])
+      cmd = new cmd(this.replacedFragment, latex);
+    else {
+      cmd = new TextBlock(latex);
+      cmd.firstChild.focus = function(){ delete this.focus; return true; };
+      this.cursor.insertNew(cmd).insertAfter(cmd);
+      if (this.replacedFragment)
+        this.replacedFragment.remove();
+
+      return;
+    }
+  }
+  else
+    cmd = new VanillaSymbol('\\backslash ','\\');
+
+  this.cursor.insertNew(cmd);
+  if (cmd instanceof Symbol && this.replacedFragment)
+    this.replacedFragment.remove();
+};
 
 CharCmds['\\'] = LatexCommandInput;
   
@@ -1187,10 +1177,10 @@ function Binomial(replacedFragment) {
   MathCommand.call(this, '\\binom', undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
 }
-Binomial.prototype = new MathCommand;
-Binomial.prototype.html_template =
+_ = Binomial.prototype = new MathCommand;
+_.html_template =
   ['<span></span>', '<span></span>', '<span></span>'];
-Binomial.prototype.redraw = function() {
+_.redraw = function() {
   this.jQ.children(':first').add(this.jQ.children(':last'))
     .css('fontSize',
       this.jQ.outerHeight()/(+this.jQ.css('fontSize').slice(0,-2)*.9+2)+'em'
@@ -1202,28 +1192,26 @@ LatexCmds.binom = LatexCmds.binomial = Binomial;
 function Choose() {
   Binomial.apply(this, arguments);
 }
-Choose.prototype = new Binomial;
-Choose.prototype.placeCursor = LiveFraction.prototype.placeCursor;
+_ = Choose.prototype = new Binomial;
+_.placeCursor = LiveFraction.prototype.placeCursor;
 
 LatexCmds.choose = Choose;
 
 function Vector(replacedFragment) {
   MathCommand.call(this, '\\vector', undefined, replacedFragment);
 }
-Vector.prototype = new MathCommand;
-Vector.prototype.html_template = ['<span class="array"></span>', '<span></span>'];
-Vector.prototype.latex = function() {
-  return '\\begin{matrix}' + this.foldChildren([], function (latex){
-    latex.push(this.latex());
+_ = Vector.prototype = new MathCommand;
+_.html_template = ['<span class="array"></span>', '<span></span>'];
+_.latex = function() {
+  return '\\begin{matrix}' + this.foldChildren([], function (latex, child){
+    latex.push(child.latex());
     return latex;
   }).join('\\\\') + '\\end{matrix}';
 };
-
-Vector.prototype.placeCursor = function(cursor) {
+_.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
 };
-
-Vector.prototype.keydown = function(e) {
+_.keydown = function(e) {
   var currentBlock = this.cursor.parent;
 
   if (currentBlock.parent === this) {
@@ -1453,8 +1441,8 @@ BinaryOperator.prototype = new Symbol; //so instanceof will work
 function PlusMinus(cmd, html) {
   VanillaSymbol.apply(this, arguments);
 }
-PlusMinus.prototype = new BinaryOperator; //so instanceof will work
-PlusMinus.prototype.respace = function() {
+_ = PlusMinus.prototype = new BinaryOperator; //so instanceof will work
+_.respace = function() {
   if (!this.prev) {
     this.jQ[0].className = '';
   }
@@ -1828,8 +1816,8 @@ LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 function NonItalicizedFunction(replacedFragment, fn) {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
-NonItalicizedFunction.prototype = new Symbol;
-NonItalicizedFunction.prototype.respace = function()
+_ = NonItalicizedFunction.prototype = new Symbol;
+_.respace = function()
 {
   this.jQ[0].className =
     (this.next instanceof SupSub || this.next instanceof Bracket) ?
@@ -1881,390 +1869,389 @@ function Cursor(root) {
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }
 }
-Cursor.prototype = {
-  prev: 0,
-  next: 0,
-  parent: 0,
-  show: function() {
-    this.jQ = this._jQ.removeClass('blink');
-    if ('intervalId' in this) //already was shown, just restart interval
-      clearInterval(this.intervalId);
-    else { //was hidden and detached, insert this.jQ back into HTML DOM
-      if (this.next) {
-        if (this.selection && this.selection.prev === this.prev)
-          this.jQ.insertBefore(this.selection.jQ);
-        else
-          this.jQ.insertBefore(this.next.jQ);
-      }
+_ = Cursor.prototype;
+_.prev = 0;
+_.next = 0;
+_.parent = 0;
+_.show = function() {
+  this.jQ = this._jQ.removeClass('blink');
+  if ('intervalId' in this) //already was shown, just restart interval
+    clearInterval(this.intervalId);
+  else { //was hidden and detached, insert this.jQ back into HTML DOM
+    if (this.next) {
+      if (this.selection && this.selection.prev === this.prev)
+        this.jQ.insertBefore(this.selection.jQ);
       else
-        this.jQ.appendTo(this.parent.jQ);
-      this.parent.focus();
+        this.jQ.insertBefore(this.next.jQ);
     }
-    this.intervalId = setInterval(this.blink, 500);
-    return this;
-  },
-  hide: function() {
-    if ('intervalId' in this)
-      clearInterval(this.intervalId);
-    delete this.intervalId;
-    this.jQ.detach();
-    this.jQ = $();
-    return this;
-  },
-  redraw: function() {
-    for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
-      if (ancestor.redraw)
-        ancestor.redraw();
-  },
-  insertAt: function(parent, next, prev) {
-    var old_parent = this.parent;
-
-    this.parent = parent;
-    this.next = next;
-    this.prev = prev;
-
-    old_parent.blur(); //blur may need to know cursor's destination
-  },
-  insertBefore: function(el) {
-    this.insertAt(el.parent, el, el.prev)
-    this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ.first());
-    return this;
-  },
-  insertAfter: function(el) {
-    this.insertAt(el.parent, el.next, el);
-    this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertAfter(el.jQ.last());
-    return this;
-  },
-  prependTo: function(el) {
-    this.insertAt(el, el.firstChild, 0);
-    if (el.textarea) //never insert before textarea
-      this.jQ.insertAfter(el.textarea);
     else
-      this.jQ.prependTo(el.jQ);
-    el.focus();
-    return this;
-  },
-  appendTo: function(el) {
-    this.insertAt(el, 0, el.lastChild);
-    this.jQ.appendTo(el.jQ);
-    el.focus();
-    return this;
-  },
-  hopLeft: function() {
-    this.jQ.insertBefore(this.prev.jQ.first());
-    this.next = this.prev;
-    this.prev = this.prev.prev;
-    return this;
-  },
-  hopRight: function() {
-    this.jQ.insertAfter(this.next.jQ.last());
-    this.prev = this.next;
-    this.next = this.next.next;
-    return this;
-  },
-  moveLeft: function() {
-    if (this.selection)
-      this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
-    else {
-      if (this.prev) {
-        if (this.prev.lastChild)
-          this.appendTo(this.prev.lastChild)
-        else
-          this.hopLeft();
-      }
-      else { //we're at the beginning of a block
-        if (this.parent.prev)
-          this.appendTo(this.parent.prev);
-        else if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        //else we're at the beginning of the root, so do nothing.
-      }
-    }
-    return this.show();
-  },
-  moveRight: function() {
-    if (this.selection)
-      this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
-    else {
-      if (this.next) {
-        if (this.next.firstChild)
-          this.prependTo(this.next.firstChild)
-        else
-          this.hopRight();
-      }
-      else { //we're at the end of a block
-        if (this.parent.next)
-          this.prependTo(this.parent.next);
-        else if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        //else we're at the end of the root, so do nothing.
-      }
-    }
-    return this.show();
-  },
-  write: function(ch) {
-    if (this.selection) {
-      //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
-      this.prev = this.selection.prev;
-      this.next = this.selection.next;
-    }
+      this.jQ.appendTo(this.parent.jQ);
+    this.parent.focus();
+  }
+  this.intervalId = setInterval(this.blink, 500);
+  return this;
+};
+_.hide = function() {
+  if ('intervalId' in this)
+    clearInterval(this.intervalId);
+  delete this.intervalId;
+  this.jQ.detach();
+  this.jQ = $();
+  return this;
+};
+_.redraw = function() {
+  for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
+    if (ancestor.redraw)
+      ancestor.redraw();
+};
+_.insertAt = function(parent, next, prev) {
+  var old_parent = this.parent;
 
-    var cmd;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = new Variable(ch);
-    else if (cmd = CharCmds[ch] || LatexCmds[ch])
-      cmd = new cmd(this.selection, ch);
-    else
-      cmd = new VanillaSymbol(ch);
+  this.parent = parent;
+  this.next = next;
+  this.prev = prev;
 
-    if (this.selection) {
-      if (cmd instanceof Symbol)
-        this.selection.remove();
-      delete this.selection;
-    }
-
-    return this.insertNew(cmd);
-  },
-  insertNew: function(cmd) {
-    cmd.parent = this.parent;
-    cmd.next = this.next;
-    cmd.prev = this.prev;
-
-    if (this.prev)
-      this.prev.next = cmd;
-    else
-      this.parent.firstChild = cmd;
-
-    if (this.next)
-      this.next.prev = cmd;
-    else
-      this.parent.lastChild = cmd;
-
-    cmd.jQ.insertBefore(this.jQ);
-    this.prev = cmd;
-
-    //adjust context-sensitive spacing
-    cmd.respace();
-    if (this.next)
-      this.next.respace();
-    if (this.prev)
-      this.prev.respace();
-
-    cmd.placeCursor(this);
-
-    this.redraw();
-
-    return this;
-  },
-  unwrapGramp: function() {
-    var gramp = this.parent.parent,
-      greatgramp = gramp.parent,
-      prev = gramp.prev,
-      cursor = this;
-
-    gramp.eachChild(function() {
-      if (this.isEmpty()) return;
-
-      this.eachChild(function() {
-        this.parent = greatgramp;
-        this.jQ.insertBefore(gramp.jQ);
-      });
-      this.firstChild.prev = prev;
-      if (prev)
-        prev.next = this.firstChild;
+  old_parent.blur(); //blur may need to know cursor's destination
+};
+_.insertBefore = function(el) {
+  this.insertAt(el.parent, el, el.prev)
+  this.parent.jQ.addClass('hasCursor');
+  this.jQ.insertBefore(el.jQ.first());
+  return this;
+};
+_.insertAfter = function(el) {
+  this.insertAt(el.parent, el.next, el);
+  this.parent.jQ.addClass('hasCursor');
+  this.jQ.insertAfter(el.jQ.last());
+  return this;
+};
+_.prependTo = function(el) {
+  this.insertAt(el, el.firstChild, 0);
+  if (el.textarea) //never insert before textarea
+    this.jQ.insertAfter(el.textarea);
+  else
+    this.jQ.prependTo(el.jQ);
+  el.focus();
+  return this;
+};
+_.appendTo = function(el) {
+  this.insertAt(el, 0, el.lastChild);
+  this.jQ.appendTo(el.jQ);
+  el.focus();
+  return this;
+};
+_.hopLeft = function() {
+  this.jQ.insertBefore(this.prev.jQ.first());
+  this.next = this.prev;
+  this.prev = this.prev.prev;
+  return this;
+};
+_.hopRight = function() {
+  this.jQ.insertAfter(this.next.jQ.last());
+  this.prev = this.next;
+  this.next = this.next.next;
+  return this;
+};
+_.moveLeft = function() {
+  if (this.selection)
+    this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
+  else {
+    if (this.prev) {
+      if (this.prev.lastChild)
+        this.appendTo(this.prev.lastChild)
       else
-        greatgramp.firstChild = this.firstChild;
-
-      prev = this.lastChild;
-    });
-    prev.next = gramp.next;
-    if (gramp.next)
-      gramp.next.prev = prev;
-    else
-      greatgramp.lastChild = prev;
-
-    if (!this.next) { //then find something to be next to insertBefore
-      if (this.prev)
-        this.next = this.prev.next;
-      else {
-        while (!this.next) {
-          this.parent = this.parent.next;
-          if (this.parent)
-            this.next = this.parent.firstChild;
-          else {
-            this.next = gramp.next;
-            this.parent = greatgramp;
-            break;
-          }
-        }
-      }
-    }
-    if (this.next)
-      this.insertBefore(this.next);
-    else
-      this.appendTo(greatgramp);
-
-    gramp.jQ.remove();
-
-    if (gramp.prev)
-      gramp.prev.respace();
-    if (gramp.next)
-      gramp.next.respace();
-  },
-  backspace: function() {
-    if (this.deleteSelection());
-    else if (this.prev) {
-      if (this.prev.isEmpty())
-        this.prev = this.prev.remove().prev;
-      else
-        this.selectLeft();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertAfter(this.parent.parent).backspace();
-      else
-        this.unwrapGramp();
-    }
-
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
-    this.redraw();
-
-    return this;
-  },
-  deleteForward: function() {
-    if (this.deleteSelection());
-    else if (this.next) {
-      if (this.next.isEmpty())
-        this.next = this.next.remove().next;
-      else
-        this.selectRight();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertBefore(this.parent.parent).deleteForward();
-      else
-        this.unwrapGramp();
-    }
-
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
-    this.redraw();
-
-    return this;
-  },
-  selectLeft: function() {
-    if (this.selection) {
-      if (this.selection.prev === this.prev) { //if cursor is at left edge of selection,
-        if (this.prev) { //then extend left if possible
-          this.hopLeft().next.jQ.prependTo(this.selection.jQ);
-          this.selection.prev = this.prev;
-        }
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at right edge of selection, retract left
-        this.prev.jQ.insertAfter(this.selection.jQ);
-        this.hopLeft().selection.next = this.next;
-        if (this.selection.prev === this.prev)
-          this.deleteSelection();
-      }
-    }
-    else {
-      if (this.prev)
         this.hopLeft();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-
-      this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
     }
-  },
-  selectRight: function() {
-    if (this.selection) {
-      if (this.selection.next === this.next) { //if cursor is at right edge of selection,
-        if (this.next) { //then extend right if possible
-          this.hopRight().prev.jQ.appendTo(this.selection.jQ);
-          this.selection.next = this.next;
-        }
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at left edge of selection, retract right
-        this.next.jQ.insertBefore(this.selection.jQ);
-        this.hopRight().selection.prev = this.prev;
-        if (this.selection.next === this.next)
-          this.deleteSelection();
-      }
+    else { //we're at the beginning of a block
+      if (this.parent.prev)
+        this.appendTo(this.parent.prev);
+      else if (this.parent !== this.root)
+        this.insertBefore(this.parent.parent);
+      //else we're at the beginning of the root, so do nothing.
     }
-    else {
-      if (this.next)
+  }
+  return this.show();
+};
+_.moveRight = function() {
+  if (this.selection)
+    this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
+  else {
+    if (this.next) {
+      if (this.next.firstChild)
+        this.prependTo(this.next.firstChild)
+      else
         this.hopRight();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-
-      this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
     }
-  },
-  clearSelection: function() {
-    if (this.show().selection) {
-      this.selection.clear();
-      delete this.selection;
+    else { //we're at the end of a block
+      if (this.parent.next)
+        this.prependTo(this.parent.next);
+      else if (this.parent !== this.root)
+        this.insertAfter(this.parent.parent);
+      //else we're at the end of the root, so do nothing.
     }
-    return this;
-  },
-  deleteSelection: function() {
-    if (!this.show().selection) return false;
-
+  }
+  return this.show();
+};
+_.write = function(ch) {
+  if (this.selection) {
+    //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
     this.prev = this.selection.prev;
     this.next = this.selection.next;
-    this.selection.remove();
-    delete this.selection;
-    return true;
   }
-}
+
+  var cmd;
+  if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+    cmd = new Variable(ch);
+  else if (cmd = CharCmds[ch] || LatexCmds[ch])
+    cmd = new cmd(this.selection, ch);
+  else
+    cmd = new VanillaSymbol(ch);
+
+  if (this.selection) {
+    if (cmd instanceof Symbol)
+      this.selection.remove();
+    delete this.selection;
+  }
+
+  return this.insertNew(cmd);
+};
+_.insertNew = function(cmd) {
+  cmd.parent = this.parent;
+  cmd.next = this.next;
+  cmd.prev = this.prev;
+
+  if (this.prev)
+    this.prev.next = cmd;
+  else
+    this.parent.firstChild = cmd;
+
+  if (this.next)
+    this.next.prev = cmd;
+  else
+    this.parent.lastChild = cmd;
+
+  cmd.jQ.insertBefore(this.jQ);
+
+  //adjust context-sensitive spacing
+  cmd.respace();
+  if (this.next)
+    this.next.respace();
+  if (this.prev)
+    this.prev.respace();
+
+  this.prev = cmd;
+
+  cmd.placeCursor(this);
+
+  this.redraw();
+
+  return this;
+};
+_.unwrapGramp = function() {
+  var gramp = this.parent.parent,
+    greatgramp = gramp.parent,
+    prev = gramp.prev,
+    cursor = this;
+
+  gramp.eachChild(function(uncle) {
+    if (uncle.isEmpty()) return;
+
+    uncle.eachChild(function(cousin) {
+      cousin.parent = greatgramp;
+      cousin.jQ.insertBefore(gramp.jQ);
+    });
+    uncle.firstChild.prev = prev;
+    if (prev)
+      prev.next = uncle.firstChild;
+    else
+      greatgramp.firstChild = uncle.firstChild;
+
+    prev = uncle.lastChild;
+  });
+  prev.next = gramp.next;
+  if (gramp.next)
+    gramp.next.prev = prev;
+  else
+    greatgramp.lastChild = prev;
+
+  if (!this.next) { //then find something to be next to insertBefore
+    if (this.prev)
+      this.next = this.prev.next;
+    else {
+      while (!this.next) {
+        this.parent = this.parent.next;
+        if (this.parent)
+          this.next = this.parent.firstChild;
+        else {
+          this.next = gramp.next;
+          this.parent = greatgramp;
+          break;
+        }
+      }
+    }
+  }
+  if (this.next)
+    this.insertBefore(this.next);
+  else
+    this.appendTo(greatgramp);
+
+  gramp.jQ.remove();
+
+  if (gramp.prev)
+    gramp.prev.respace();
+  if (gramp.next)
+    gramp.next.respace();
+};
+_.backspace = function() {
+  if (this.deleteSelection());
+  else if (this.prev) {
+    if (this.prev.isEmpty())
+      this.prev = this.prev.remove().prev;
+    else
+      this.selectLeft();
+  }
+  else if (this.parent !== this.root) {
+    if (this.parent.parent.isEmpty())
+      return this.insertAfter(this.parent.parent).backspace();
+    else
+      this.unwrapGramp();
+  }
+
+  if (this.prev)
+    this.prev.respace();
+  if (this.next)
+    this.next.respace();
+  this.redraw();
+
+  return this;
+};
+_.deleteForward = function() {
+  if (this.deleteSelection());
+  else if (this.next) {
+    if (this.next.isEmpty())
+      this.next = this.next.remove().next;
+    else
+      this.selectRight();
+  }
+  else if (this.parent !== this.root) {
+    if (this.parent.parent.isEmpty())
+      return this.insertBefore(this.parent.parent).deleteForward();
+    else
+      this.unwrapGramp();
+  }
+
+  if (this.prev)
+    this.prev.respace();
+  if (this.next)
+    this.next.respace();
+  this.redraw();
+
+  return this;
+};
+_.selectLeft = function() {
+  if (this.selection) {
+    if (this.selection.prev === this.prev) { //if cursor is at left edge of selection;
+      if (this.prev) { //then extend left if possible
+        this.hopLeft().next.jQ.prependTo(this.selection.jQ);
+        this.selection.prev = this.prev;
+      }
+      else if (this.parent !== this.root) //else level up if possible
+        this.insertBefore(this.parent.parent).selection.levelUp();
+    }
+    else { //else cursor is at right edge of selection, retract left
+      this.prev.jQ.insertAfter(this.selection.jQ);
+      this.hopLeft().selection.next = this.next;
+      if (this.selection.prev === this.prev)
+        this.deleteSelection();
+    }
+  }
+  else {
+    if (this.prev)
+      this.hopLeft();
+    else //end of a block
+      if (this.parent !== this.root)
+        this.insertBefore(this.parent.parent);
+
+    this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
+  }
+};
+_.selectRight = function() {
+  if (this.selection) {
+    if (this.selection.next === this.next) { //if cursor is at right edge of selection;
+      if (this.next) { //then extend right if possible
+        this.hopRight().prev.jQ.appendTo(this.selection.jQ);
+        this.selection.next = this.next;
+      }
+      else if (this.parent !== this.root) //else level up if possible
+        this.insertAfter(this.parent.parent).selection.levelUp();
+    }
+    else { //else cursor is at left edge of selection, retract right
+      this.next.jQ.insertBefore(this.selection.jQ);
+      this.hopRight().selection.prev = this.prev;
+      if (this.selection.next === this.next)
+        this.deleteSelection();
+    }
+  }
+  else {
+    if (this.next)
+      this.hopRight();
+    else //end of a block
+      if (this.parent !== this.root)
+        this.insertAfter(this.parent.parent);
+
+    this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+  }
+};
+_.clearSelection = function() {
+  if (this.show().selection) {
+    this.selection.clear();
+    delete this.selection;
+  }
+  return this;
+};
+_.deleteSelection = function() {
+  if (!this.show().selection) return false;
+
+  this.prev = this.selection.prev;
+  this.next = this.selection.next;
+  this.selection.remove();
+  delete this.selection;
+  return true;
+};
 
 function Selection(parent, prev, next) {
   MathFragment.apply(this, arguments);
 }
-Selection.prototype = $.extend(new MathFragment, {
-  jQinit: function(children) {
-    this.jQ = children.wrapAll('<span class="selection"></span>').parent();
-      //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
-  },
-  levelUp: function() {
-    this.clear().jQinit(this.parent.parent.jQ);
+_ = Selection.prototype = new MathFragment;
+_.jQinit= function(children) {
+  this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+    //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
+};
+_.levelUp = function() {
+  this.clear().jQinit(this.parent.parent.jQ);
 
-    this.prev = this.parent.parent.prev;
-    this.next = this.parent.parent.next;
-    this.parent = this.parent.parent.parent;
+  this.prev = this.parent.parent.prev;
+  this.next = this.parent.parent.next;
+  this.parent = this.parent.parent.parent;
 
-    return this;
-  },
-  clear: function() {
-    this.jQ.replaceWith(this.jQ.children());
-    return this;
-  },
-  blockify: function() {
-    this.jQ.replaceWith(this.jQ = this.jQ.children());
-    return MathFragment.prototype.blockify.call(this);
-  },
-  detach: function() {
-    var block = MathFragment.prototype.blockify.call(this);
-    this.blockify = function() {
-      this.jQ.replaceWith(block.jQ = this.jQ = this.jQ.children());
-      return block;
-    };
-    return this;
-  }
-});
+  return this;
+};
+_.clear = function() {
+  this.jQ.replaceWith(this.jQ.children());
+  return this;
+};
+_.blockify = function() {
+  this.jQ.replaceWith(this.jQ = this.jQ.children());
+  return MathFragment.prototype.blockify.call(this);
+};
+_.detach = function() {
+  var block = MathFragment.prototype.blockify.call(this);
+  this.blockify = function() {
+    this.jQ.replaceWith(block.jQ = this.jQ = this.jQ.children());
+    return block;
+  };
+  return this;
+};
 /*********************************************************
  * The actual jQuery plugin and document ready handlers.
  ********************************************************/
