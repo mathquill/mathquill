@@ -190,11 +190,11 @@ function commonAncestor(cmd, orig) {
 
     for (var cmdI = cmd; cmdI.parent.parent; cmdI = cmdI.parent.parent)
       if (cmdI.parent === origA.parent)
-        return leftRight(cmdA, origA);
+        return leftRight(cmdI, origA);
 
     for (var origI = orig; origI.parent.parent; origI = origI.parent.parent)
       if (cmdA.parent === origI.parent)
-        return leftRight(cmdA, origA);
+        return leftRight(cmdA, origI);
   }
 }
 function leftRight(cmd, orig) {
