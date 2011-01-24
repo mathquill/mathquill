@@ -138,10 +138,21 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('mousemove', function(e) {
     if (!originalMouseDown) return;
 
-    var cmd = ($(e.target).data(jQueryDataKey) || 0).cmd;
-    if (!cmd) return;
+    // bubble up until we find something with data
+    for (
+      var $el = $(e.target), data;
+      !(data && data.cmd) && !$el.hasClass('mathquill-editable');
+      $el = $el.parent()
+    ) {
+      data = $el.data(jQueryDataKey);
+    }
 
-    var commonParent;
+    if (!(data && data.cmd)) {
+      console.log(e.target);
+      return;
+    }
+
+    var cmd = data.cmd;
 
     anc = commonAncestor(cmd, originalMouseDown);
     cursor.clearSelection().selection = new Selection(
