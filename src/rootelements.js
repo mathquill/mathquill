@@ -135,7 +135,7 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.focus();
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
-  }).bind('mousemove', function(e) {
+  }).bind('mouseover', function(e) {
     if (!originalMouseDown) return;
 
     var cmd = closestCmd(e.target);
