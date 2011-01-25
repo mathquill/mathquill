@@ -82,95 +82,96 @@ function createRoot(jQ, root, textbox, editable) {
       e.stopImmediatePropagation();
       return false;
     };
-  }).bind('click.mathquill', function(e) {
-    var clicked = $(e.target);
-    if (clicked.hasClass('empty')) {
-      cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
-      return false;
-    }
+  }).bind('mousedown.mathquill', function(e) {
+    var ret = moveCursorClosest(cursor, e);
 
-    var data = clicked.data(jQueryDataKey);
-    if (data) {
-      //if clicked a symbol, insert of whichever side is closer
-      if (data.cmd && !data.block) {
-        cursor.clearSelection();
-        if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-          cursor.insertBefore(data.cmd);
-        else
-          cursor.insertAfter(data.cmd);
-
-        return false;
-      }
-    }
-    //if no MathQuill data, try parent, if still no,
-    //the user probably didn't click on the math after all
-    else {
-      clicked = clicked.parent();
-      data = clicked.data(jQueryDataKey);
-      if (!data)
-        return;
-    }
-
-    cursor.clearSelection();
-    if (data.cmd)
-      cursor.insertAfter(data.cmd);
+    anticursor = new Cursor(root);
+    anticursor.jQ = anticursor._jQ = $();
+    if (cursor.next)
+      anticursor.insertBefore(cursor.next);
     else
-      cursor.appendTo(data.block);
+      anticursor.appendTo(cursor.parent);
 
-    //move cursor to position closest to click
-    var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-    do {
-      cursor.moveLeft();
-      prevPrevDist = prevDist;
-      prevDist = dist;
-      dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-    }
-    while (dist <= prevDist && dist != prevPrevDist);
-
-    if (dist != prevPrevDist)
-      cursor.moveRight();
-
-    return false;
-  }).bind('click.mathquill', function() {
     textarea.focus();
+
+    return ret;
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
-  }).bind('mouseover', function(e) {
-    if (!originalMouseDown) return;
+  }).bind('mousemove.mathquill', function(e) {
+    if (!anticursor) return;
 
-    var cmd = closestCmd(e.target);
-    if (!cmd) return;
+    moveCursorClosest(cursor, e);
 
-    anc = commonAncestor(cmd, originalMouseDown);
-    cursor.clearSelection().insertAfter(anc.right).hide().selection = new Selection(
-      anc.left.parent,
-      anc.left.prev,
-      anc.right.next
-    );
-  }).bind('mousedown', function(e) {
-    e.preventDefault();
-    originalMouseDown = closestCmd(e.target);
+    if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
+      cursor.clearSelection();
+    else {
+      var anc = commonAncestor(cursor, anticursor);
+      cursor.hide().selection = new Selection(
+        anc.left.parent,
+        anc.left.prev,
+        anc.right.next
+      );
+      cursor.insertAfter(anc.right);
+    }
   }).blur();
 
   $(document).bind('mouseup', function(e) {
-    originalMouseDown = undefined;
+    anticursor = undefined;
   })
 
-  var originalMouseDown;
+  var anticursor;
 }
 
-function closestCmd(el) {
-  // bubble up until we find something with data
-  for (
-    var $el = $(el), data;
-    !(data && data.cmd) && !$el.hasClass('mathquill-editable');
-    $el = $el.parent()
-  ) {
-    data = $el.data(jQueryDataKey);
+function moveCursorClosest(cursor, evt) {
+  var clicked = $(evt.target);
+  if (clicked.hasClass('empty')) {
+    cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
+    return false;
   }
-  return data && data.cmd;
-}
 
+  var data = clicked.data(jQueryDataKey);
+  if (data) {
+    //if clicked a symbol, insert of whichever side is closer
+    if (data.cmd && !data.block) {
+      cursor.clearSelection();
+      if (clicked.outerWidth() > 2*(evt.pageX - clicked.offset().left))
+        cursor.insertBefore(data.cmd);
+      else
+        cursor.insertAfter(data.cmd);
+
+      return false;
+    }
+  }
+  //if no MathQuill data, try parent, if still no,
+  //the user probably didn't click on the math after all
+  else {
+    clicked = clicked.parent();
+    data = clicked.data(jQueryDataKey);
+    if (!data)
+      return;
+  }
+
+  cursor.clearSelection();
+  if (data.cmd)
+    cursor.insertAfter(data.cmd);
+  else
+    cursor.appendTo(data.block);
+
+  //move cursor to position closest to click
+  var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - evt.pageX;
+  do {
+    cursor.moveLeft();
+    prevPrevDist = prevDist;
+    prevDist = dist;
+    dist = Math.abs(cursor.jQ.offset().left - evt.pageX);
+  }
+  while (dist <= prevDist && dist != prevPrevDist);
+
+  if (dist != prevPrevDist)
+    cursor.moveRight();
+
+  return false;
+}
 function commonAncestor(cmd, orig) {
   for (var cmdA = cmd, origA = orig;
        cmdA && origA;
@@ -198,7 +199,7 @@ function commonAncestor(cmd, orig) {
 }
 function leftRight(cmd, orig) {
   for (var next = cmd; next; next = next.next) {
-    if (next === orig)
+    if (next.next === orig.next)
       return {left: cmd, right: orig};
   }
   return {left: orig, right: cmd};
