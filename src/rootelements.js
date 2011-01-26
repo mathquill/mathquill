@@ -111,7 +111,7 @@ function createRoot(jQ, root, textbox, editable) {
         anc.left.prev,
         anc.right.next
       );
-      cursor.insertAfter(anc.right);
+      cursor.insertAfter(anc.right.next.prev || anc.right.parent.lastChild);
     }
   }).blur();
 
@@ -173,33 +173,27 @@ function moveCursorClosest(cursor, evt) {
   return false;
 }
 function commonAncestor(cmd, orig) {
-  for (var cmdA = cmd, origA = orig;
-       cmdA && origA;
-       cmdA = cmdA.parent.parent, origA = origA.parent.parent
-  ) {
-    if (!cmdA.parent.parent) {
-      while (origA.parent.parent)
-        origA = origA.parent.parent;
-      return leftRight(cmdA, origA);
-    }
-    if (!origA.parent.parent) {
-      while (cmdA.parent.parent)
-        cmdA = cmdA.parent.parent;
-      return leftRight(cmdA, origA);
-    }
-
-    for (var cmdI = cmd; cmdI.parent.parent; cmdI = cmdI.parent.parent)
+  var cmdA = cmd, origA = orig;
+  while (true) {
+    for (var cmdI = cmd; cmdI !== cmdA.parent.parent; cmdI = cmdI.parent.parent)
       if (cmdI.parent === origA.parent)
         return leftRight(cmdI, origA);
 
-    for (var origI = orig; origI.parent.parent; origI = origI.parent.parent)
+    for (var origI = orig; origI !== origA.parent.parent; origI = origI.parent.parent)
       if (cmdA.parent === origI.parent)
         return leftRight(cmdA, origI);
+
+    if (cmdA.parent.parent)
+      cmdA = cmdA.parent.parent;
+    if (origA.parent.parent)
+      origA = origA.parent.parent;
   }
 }
 function leftRight(cmd, orig) {
+  if (cmd.next === orig)
+    return {left: cmd, right: orig};
   for (var next = cmd; next; next = next.next) {
-    if (next.next === orig.next)
+    if (next === orig.prev)
       return {left: cmd, right: orig};
   }
   return {left: orig, right: cmd};
