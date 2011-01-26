@@ -92,6 +92,8 @@ function createRoot(jQ, root, textbox, editable) {
     else
       anticursor.appendTo(cursor.parent);
 
+    $(document).mouseup(mouseup);
+
     textarea.focus();
 
     return ret;
@@ -115,9 +117,10 @@ function createRoot(jQ, root, textbox, editable) {
     }
   }).blur();
 
-  $(document).bind('mouseup', function(e) {
+  function mouseup(e) {
     anticursor = undefined;
-  })
+    $(document).unbind('mouseup', mouseup);
+  }
 
   var anticursor;
 }
