@@ -83,8 +83,7 @@ function createRoot(jQ, root, textbox, editable) {
       return false;
     };
   }).bind('mousedown.mathquill', function(e) {
-    var ret = moveCursorClosest(cursor, e);
-    cursor.blink = $.noop;
+    cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
     anticursor = new Cursor(root);
     anticursor.jQ = anticursor._jQ = $();
@@ -97,13 +96,13 @@ function createRoot(jQ, root, textbox, editable) {
 
     textarea.focus();
 
-    return ret;
+    return false;
   }).bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).bind('mousemove.mathquill', function(e) {
     if (!anticursor) return;
 
-    moveCursorClosest(cursor, e);
+    cursor.seek($(e.target), e.pageX, e.pageY);
 
     if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
       cursor.clearSelection();
@@ -126,57 +125,6 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   var anticursor, blink = cursor.blink;
-}
-
-function moveCursorClosest(cursor, evt) {
-  var clicked = $(evt.target);
-  if (clicked.hasClass('empty')) {
-    cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
-    return false;
-  }
-
-  var data = clicked.data(jQueryDataKey);
-  if (data) {
-    //if clicked a symbol, insert of whichever side is closer
-    if (data.cmd && !data.block) {
-      cursor.clearSelection();
-      if (clicked.outerWidth() > 2*(evt.pageX - clicked.offset().left))
-        cursor.insertBefore(data.cmd);
-      else
-        cursor.insertAfter(data.cmd);
-
-      return false;
-    }
-  }
-  //if no MathQuill data, try parent, if still no,
-  //the user probably didn't click on the math after all
-  else {
-    clicked = clicked.parent();
-    data = clicked.data(jQueryDataKey);
-    if (!data)
-      return;
-  }
-
-  cursor.clearSelection();
-  if (data.cmd)
-    cursor.insertAfter(data.cmd);
-  else
-    cursor.appendTo(data.block);
-
-  //move cursor to position closest to click
-  var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - evt.pageX;
-  do {
-    cursor.moveLeft();
-    prevPrevDist = prevDist;
-    prevDist = dist;
-    dist = Math.abs(cursor.jQ.offset().left - evt.pageX);
-  }
-  while (dist <= prevDist && dist != prevPrevDist);
-
-  if (dist != prevPrevDist)
-    cursor.moveRight();
-
-  return false;
 }
 function commonAncestor(cmd, orig) {
   var cmdA = cmd, origA = orig;

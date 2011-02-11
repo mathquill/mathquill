@@ -140,6 +140,55 @@ _.moveRight = function() {
   }
   return this.show();
 };
+_.seek = function(target, pageX, pageY) {
+  var cursor = this;
+  if (target.hasClass('empty')) {
+    cursor.clearSelection().prependTo(target.data(jQueryDataKey).block);
+    return cursor;
+  }
+
+  var data = target.data(jQueryDataKey);
+  if (data) {
+    //if clicked a symbol, insert of whichever side is closer
+    if (data.cmd && !data.block) {
+      cursor.clearSelection();
+      if (target.outerWidth() > 2*(pageX - target.offset().left))
+        cursor.insertBefore(data.cmd);
+      else
+        cursor.insertAfter(data.cmd);
+
+      return cursor;
+    }
+  }
+  //if no MathQuill data, try parent, if still no, forget it
+  else {
+    target = target.parent();
+    data = target.data(jQueryDataKey);
+    if (!data)
+      return cursor;
+  }
+
+  cursor.clearSelection();
+  if (data.cmd)
+    cursor.insertAfter(data.cmd);
+  else
+    cursor.appendTo(data.block);
+
+  //move cursor to position closest to click
+  var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - pageX;
+  do {
+    cursor.moveLeft();
+    prevPrevDist = prevDist;
+    prevDist = dist;
+    dist = Math.abs(cursor.jQ.offset().left - pageX);
+  }
+  while (dist <= prevDist && dist != prevPrevDist);
+
+  if (dist != prevPrevDist)
+    cursor.moveRight();
+
+  return cursor;
+};
 _.write = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
