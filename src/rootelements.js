@@ -47,7 +47,9 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
-  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  jQ.bind('focus.mathquill blur.mathquill', function(e) {
+    textarea.trigger(e);
+  }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
     lastKeydn.evt = e;
     lastKeydn.happened = true;
     lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -97,8 +99,6 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.focus();
 
     return false;
-  }).bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
   }).bind('mousemove.mathquill', function(e) {
     if (!anticursor) return;
 
