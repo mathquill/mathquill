@@ -149,7 +149,7 @@ _.seek = function(target, pageX, pageY) {
 
   var data = target.data(jQueryDataKey);
   if (data) {
-    //if clicked a symbol, insert of whichever side is closer
+    //if clicked a symbol, insert at whichever side is closer
     if (data.cmd && !data.block) {
       cursor.clearSelection();
       if (target.outerWidth() > 2*(pageX - target.offset().left))
@@ -175,16 +175,15 @@ _.seek = function(target, pageX, pageY) {
     cursor.appendTo(data.block);
 
   //move cursor to position closest to click
-  var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - pageX;
+  var dist = cursor.jQ.offset().left - pageX, prevDist;
   do {
     cursor.moveLeft();
-    prevPrevDist = prevDist;
     prevDist = dist;
-    dist = Math.abs(cursor.jQ.offset().left - pageX);
+    dist = cursor.jQ.offset().left - pageX;
   }
-  while (dist <= prevDist && dist != prevPrevDist);
+  while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
 
-  if (dist != prevPrevDist)
+  if (-dist > prevDist)
     cursor.moveRight();
 
   return cursor;
