@@ -94,27 +94,32 @@ function createRoot(jQ, root, textbox, editable) {
     else
       anticursor.appendTo(cursor.parent);
 
-    $(document).mouseup(mouseup);
+    jQ.mousemove(mousemove);
+    $(document).mousemove(docmousemove).mouseup(mouseup);
 
     textarea.focus();
 
     return false;
-  }).bind('mousemove.mathquill', function(e) {
-    if (!anticursor) return;
+  }).blur();
 
+  function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
       cursor.clearSelection();
     else
       cursor.selectFrom(anticursor);
-  }).blur();
-
+  }
+  function docmousemove(e) {
+    delete e.target;
+    mousemove(e);
+  }
   function mouseup(e) {
     anticursor = undefined;
     cursor.blink = blink;
     if (!cursor.selection) cursor.show();
-    $(document).unbind('mouseup', mouseup);
+    jQ.unbind('mousemove', mousemove);
+    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
   }
 
   var anticursor, blink = cursor.blink;

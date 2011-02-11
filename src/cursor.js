@@ -165,7 +165,7 @@ _.seek = function(target, pageX, pageY) {
     target = target.parent();
     data = target.data(jQueryDataKey);
     if (!data)
-      return cursor;
+      data = {block: cursor.root};
   }
 
   cursor.clearSelection();
