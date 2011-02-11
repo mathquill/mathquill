@@ -106,15 +106,8 @@ function createRoot(jQ, root, textbox, editable) {
 
     if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
       cursor.clearSelection();
-    else {
-      var anc = commonAncestor(cursor, anticursor);
-      cursor.hide().selection = new Selection(
-        anc.left.parent,
-        anc.left.prev,
-        anc.right.next
-      );
-      cursor.insertAfter(anc.right.next.prev || anc.right.parent.lastChild);
-    }
+    else
+      cursor.selectFrom(anticursor);
   }).blur();
 
   function mouseup(e) {
@@ -125,32 +118,6 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   var anticursor, blink = cursor.blink;
-}
-function commonAncestor(cmd, orig) {
-  var cmdA = cmd, origA = orig;
-  while (true) {
-    for (var cmdI = cmd; cmdI !== cmdA.parent.parent; cmdI = cmdI.parent.parent)
-      if (cmdI.parent === origA.parent)
-        return leftRight(cmdI, origA);
-
-    for (var origI = orig; origI !== origA.parent.parent; origI = origI.parent.parent)
-      if (cmdA.parent === origI.parent)
-        return leftRight(cmdA, origI);
-
-    if (cmdA.parent.parent)
-      cmdA = cmdA.parent.parent;
-    if (origA.parent.parent)
-      origA = origA.parent.parent;
-  }
-}
-function leftRight(cmd, orig) {
-  if (cmd.next === orig)
-    return {left: cmd, right: orig};
-  for (var next = cmd; next; next = next.next) {
-    if (next === orig.prev)
-      return {left: cmd, right: orig};
-  }
-  return {left: orig, right: cmd};
 }
 
 function RootMathBlock(){}
