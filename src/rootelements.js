@@ -107,10 +107,12 @@ function createRoot(jQ, root, textbox, editable) {
       cursor.clearSelection();
     else
       cursor.selectFrom(anticursor);
+
+    return false;
   }
   function docmousemove(e) {
     delete e.target;
-    mousemove(e);
+    return mousemove(e);
   }
   function mouseup(e) {
     anticursor = undefined;
