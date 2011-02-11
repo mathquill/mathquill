@@ -39,7 +39,7 @@ function createRoot(jQ, root, textbox, editable) {
     else
       cursor.show();
     e.stopPropagation();
-  }).blur(function(e) {
+  }).blur(function(e) {console.log('proper ', e.type, e)
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
@@ -97,10 +97,8 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
-    textarea.focus();
-
-    return false;
-  }).blur();
+    setTimeout(function(){textarea.focus();});
+  }).bind('selectstart.mathquill', false).blur();
 
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
