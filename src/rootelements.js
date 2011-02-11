@@ -84,6 +84,7 @@ function createRoot(jQ, root, textbox, editable) {
     };
   }).bind('mousedown.mathquill', function(e) {
     var ret = moveCursorClosest(cursor, e);
+    cursor.blink = $.noop;
 
     anticursor = new Cursor(root);
     anticursor.jQ = anticursor._jQ = $();
@@ -119,10 +120,12 @@ function createRoot(jQ, root, textbox, editable) {
 
   function mouseup(e) {
     anticursor = undefined;
+    cursor.blink = blink;
+    if (!cursor.selection) cursor.show();
     $(document).unbind('mouseup', mouseup);
   }
 
-  var anticursor;
+  var anticursor, blink = cursor.blink;
 }
 
 function moveCursorClosest(cursor, evt) {
