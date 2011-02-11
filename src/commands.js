@@ -434,7 +434,7 @@ _.renderCommand = function() {
       cmd = new cmd(this.replacedFragment, latex);
     else {
       cmd = new TextBlock(latex);
-      cmd.firstChild.focus = function(){ delete this.focus; return true; };
+      cmd.firstChild.focus = function(){ delete this.focus; return this; };
       this.cursor.insertNew(cmd).insertAfter(cmd);
       if (this.replacedFragment)
         this.replacedFragment.remove();
