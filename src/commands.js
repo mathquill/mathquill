@@ -70,7 +70,7 @@ _.respace = function() {
   else if (this.cmd === '^' && this.next && this.next.cmd === '\\sqrt') {
     this.jQ.css({
       left: '',
-      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+      marginRight: '-.7em'
     }).addClass('limit');
   }
   else {
