@@ -791,7 +791,7 @@ _.respace = function() {
   else if (this.cmd === '^' && this.next && this.next.cmd === '\\sqrt') {
     this.jQ.css({
       left: '',
-      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+      marginRight: '-.7em'
     }).addClass('limit');
   }
   else {
@@ -1155,7 +1155,7 @@ _.renderCommand = function() {
       cmd = new cmd(this.replacedFragment, latex);
     else {
       cmd = new TextBlock(latex);
-      cmd.firstChild.focus = function(){ delete this.focus; return true; };
+      cmd.firstChild.focus = function(){ delete this.focus; return this; };
       this.cursor.insertNew(cmd).insertAfter(cmd);
       if (this.replacedFragment)
         this.replacedFragment.remove();
