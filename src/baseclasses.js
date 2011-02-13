@@ -92,7 +92,7 @@ _.initBlocks = function(replacedFragment) {
   self.lastChild = newBlock;
 };
 _.latex = function() {
-  return this.foldChildren(this.cmd, function(latex, child){
+  return this.foldChildren(this.cmd, function(latex, child) {
     return latex + '{' + (child.latex() || ' ') + '}';
   });
 };
@@ -119,12 +119,12 @@ _.remove = function() {
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
   //append the cursor to the first empty child, or if none empty, the last one
-  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
     return prev.isEmpty() ? prev : child;
   }));
 };
 _.isEmpty = function() {
-  return this.foldChildren(true, function(isEmpty, child){
+  return this.foldChildren(true, function(isEmpty, child) {
     return isEmpty && child.isEmpty();
   });
 };
@@ -149,7 +149,7 @@ _.isEmpty = function(){ return true; };
 function MathBlock(){}
 _ = MathBlock.prototype = new MathElement;
 _.latex = function() {
-  return this.foldChildren('', function(latex, child){
+  return this.foldChildren('', function(latex, child) {
     return latex + child.latex();
   });
 };
