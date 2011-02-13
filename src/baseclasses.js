@@ -210,8 +210,8 @@ _.blockify = function() {
       next = self.next,
       parent = self.parent,
       newBlock = new MathBlock,
-      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
-      newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
+      newFirstChild = newBlock.firstChild = prev.next || parent.firstChild,
+      newLastChild = newBlock.lastChild = next.prev || parent.lastChild;
 
   if (prev)
     prev.next = next;
