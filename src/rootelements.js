@@ -352,17 +352,16 @@ _.keydown = function(e)
   case 65: //'a' character, as in Select All
   case 'A':
   case 'U+0041':
-    if (!e.ctrlKey || e.shiftKey || e.altKey) {
-      this.skipKeypress = false;
-      break;
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this.parent) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      this.cursor.clearSelection().appendTo(this);
+      while (this.cursor.prev)
+        this.cursor.selectLeft();
     }
-
-    if (this.parent) //so not stopPropagation'd at RootMathCommand
-      return this.parent.keydown(e);
-
-    this.cursor.clearSelection().appendTo(this);
-    while (this.cursor.prev)
-      this.cursor.selectLeft();
+    else
+      this.skipKeypress = false;
     break;
   default:
     this.skipKeypress = false;
