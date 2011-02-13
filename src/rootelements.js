@@ -144,83 +144,9 @@ _.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
 };
 _.renderLatex = function(latex) {
-  latex = latex.match(/\\[a-z]*|[^\s]/ig);
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this);
-  if (latex) {
-    (function recurse(cursor) {
-      while (latex.length) {
-        var token = latex.shift(); //pop first item
-        if (!token || token === '}') return;
-
-        var cmd;
-        if (token === '\\text') {
-          var text = latex.shift();
-          if (text === '{') {
-            text = token = latex.shift();
-            while (token !== '}') {
-              if (token === '\\') //skip tokens immediately following backslash
-                text += token = latex.shift();
-
-              text += token = latex.shift();
-            }
-            text = text.slice(0,-1); //cut trailing '}'
-          }
-          cmd = new TextBlock(text);
-          cursor.insertNew(cmd).insertAfter(cmd);
-          continue; //skip recursing through children
-        }
-        else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
-          token = latex.shift();
-          if (token === '\\')
-            token = latex.shift();
-
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-
-          if (cursor.prev) //was a close-paren, so break recursion
-            return;
-          else //was an open-paren, hack to put the following latex
-            latex.unshift('{'); //in the ParenBlock in the math DOM
-        }
-        else if (/^\\[a-z]+$/i.test(token)) {
-          token = token.slice(1);
-          var cmd = LatexCmds[token];
-          if (cmd)
-            cursor.insertNew(cmd = new cmd(undefined, token));
-          else {
-            cmd = new TextBlock(token);
-            cursor.insertNew(cmd).insertAfter(cmd);
-            continue; //skip recursing through children
-          }
-        }
-        else {
-          if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
-            cmd = new Variable(token);
-          else if (cmd = LatexCmds[token])
-            cmd = new cmd;
-          else
-            cmd = new VanillaSymbol(token);
-
-          cursor.insertNew(cmd);
-        }
-        cmd.eachChild(function(child) {
-          cursor.appendTo(child);
-          var token = latex.shift();
-          if (!token) return false;
-
-          if (token === '{')
-            recurse(cursor);
-          else
-            cursor.write(token);
-        });
-        cursor.insertAfter(cmd);
-      }
-    })(this.cursor);
-  }
-
-  this.cursor.hide();
+  this.cursor.show().appendTo(this).writeLatex(latex);
   this.blur();
 };
 _.keydown = function(e)

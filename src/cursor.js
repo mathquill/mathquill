@@ -140,6 +140,80 @@ _.moveRight = function() {
   }
   return this.show();
 };
+_.writeLatex = function(latex) {
+  this.deleteSelection();
+  var latex = latex.match(/\\[a-z]*|[^\s]/ig) || 0;
+  (function writeLatexBlock(cursor) {
+    while (latex.length) {
+      var token = latex.shift(); //pop first item
+      if (!token || token === '}') return;
+
+      var cmd;
+      if (token === '\\text') {
+        var text = latex.shift();
+        if (text === '{') {
+          text = token = latex.shift();
+          while (token !== '}') {
+            if (token === '\\') //skip tokens immediately following backslash
+              text += token = latex.shift();
+
+            text += token = latex.shift();
+          }
+          text = text.slice(0,-1); //cut trailing '}'
+        }
+        cmd = new TextBlock(text);
+        cursor.insertNew(cmd).insertAfter(cmd);
+        continue; //skip recursing through children
+      }
+      else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
+        token = latex.shift();
+        if (token === '\\')
+          token = latex.shift();
+
+        cursor.write(token);
+        cmd = cursor.prev || cursor.parent.parent;
+
+        if (cursor.prev) //was a close-paren, so break recursion
+          return;
+        else //was an open-paren, hack to put the following latex
+          latex.unshift('{'); //in the ParenBlock in the math DOM
+      }
+      else if (/^\\[a-z]+$/i.test(token)) {
+        token = token.slice(1);
+        var cmd = LatexCmds[token];
+        if (cmd)
+          cursor.insertNew(cmd = new cmd(undefined, token));
+        else {
+          cmd = new TextBlock(token);
+          cursor.insertNew(cmd).insertAfter(cmd);
+          continue; //skip recursing through children
+        }
+      }
+      else {
+        if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
+          cmd = new Variable(token);
+        else if (cmd = LatexCmds[token])
+          cmd = new cmd;
+        else
+          cmd = new VanillaSymbol(token);
+
+        cursor.insertNew(cmd);
+      }
+      cmd.eachChild(function(child) {
+        cursor.appendTo(child);
+        var token = latex.shift();
+        if (!token) return false;
+
+        if (token === '{')
+          writeLatexBlock(cursor);
+        else
+          cursor.write(token);
+      });
+      cursor.insertAfter(cmd);
+    }
+  }(this));
+  return this.hide();
+};
 _.write = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
