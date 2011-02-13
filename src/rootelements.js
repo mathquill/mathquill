@@ -289,6 +289,47 @@ _.keydown = function(e)
     else
       this.skipKeypress = false;
     break;
+  case 67: //the 'C' key, as in Ctrl+C Copy
+  case 'C':
+  case 'U+0043':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      if (!this.cursor.selection) return true;
+
+      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
+    }
+    else
+      this.skipKeypress = false;
+    break;
+  case 86: //the 'V' key, as in Ctrl+V Paste
+  case 'V':
+  case 'U+0056':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
+    }
+    else
+      this.skipKeypress = false;
+    break;
+  case 88: //the 'X' key, as in Ctrl+X Cut
+  case 'X':
+  case 'U+0058':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      if (!this.cursor.selection) return true;
+
+      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
+      this.cursor.deleteSelection();
+    }
+    else
+      this.skipKeypress = false;
+    break;
   default:
     this.skipKeypress = false;
   }
