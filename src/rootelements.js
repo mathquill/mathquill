@@ -140,7 +140,7 @@ function createRoot(jQ, root, textbox, editable) {
 
 function RootMathBlock(){}
 _ = RootMathBlock.prototype = new MathBlock;
-_.latex =function() {
+_.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
 };
 _.renderLatex = function(latex) {
@@ -434,9 +434,8 @@ _.renderLatex = function(latex) {
       latex = '';
     }
 
-    for (var i=0; i < text.length; i+=1) {
+    for (var i = 0; i < text.length; i += 1)
       this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
-    }
 
     nextDollar = latex.indexOf('$');
     if (nextDollar >= 0) {
@@ -444,8 +443,8 @@ _.renderLatex = function(latex) {
       latex = latex.slice(nextDollar+1);
     }
     else {
-      math=latex;
-      latex='';
+      math = latex;
+      latex = '';
     }
 
     if (math) {
