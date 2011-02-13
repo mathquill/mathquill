@@ -353,7 +353,7 @@ _.keydown = function(e)
   case 'A':
   case 'U+0041':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this.parent) //so not stopPropagation'd at RootMathCommand
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
       this.cursor.clearSelection().appendTo(this);
