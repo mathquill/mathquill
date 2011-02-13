@@ -204,6 +204,9 @@ _.fold = function(fold, fn) {
   });
   return fold;
 };
+_.latex = function() {
+  return this.fold('', function(latex, el){ return latex + el.latex(); });
+};
 _.blockify = function() {
   var self = this,
       prev = self.prev,
