@@ -275,7 +275,7 @@ _.keydown = function(e)
     else
       this.cursor.deleteForward();
     break;
-  case 65: //'a' character, as in Select All
+  case 65: //the 'A' key, as in Ctrl+A Select All
   case 'A':
   case 'U+0041':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
