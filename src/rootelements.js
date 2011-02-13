@@ -232,7 +232,7 @@ _.keydown = function(e)
   case 'Backspace':
   case 'U+0008':
     if (e.ctrlKey)
-      while (this.cursor.prev)
+      while (this.cursor.prev || this.cursor.selection)
         this.cursor.backspace();
     else
       this.cursor.backspace();
@@ -344,7 +344,7 @@ _.keydown = function(e)
   case 'Del':
   case 'U+007F':
     if (e.ctrlKey)
-      while (this.cursor.next)
+      while (this.cursor.next || this.cursor.selection)
         this.cursor.deleteForward();
     else
       this.cursor.deleteForward();
