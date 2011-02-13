@@ -417,41 +417,28 @@ _.initBlocks = function() {
 function RootTextBlock(){}
 _ = RootTextBlock.prototype = new MathBlock;
 _.renderLatex = function(latex) {
-  this.jQ.children().slice(1).remove();
-  this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this);
+  var self = this, cursor = self.cursor;
+  self.jQ.children().slice(1).remove();
+  self.firstChild = self.lastChild = 0;
+  cursor.show().appendTo(self);
 
-  var math, text, nextDollar;
-  while (latex) {
-    math = text = '';
-    nextDollar = latex.indexOf('$');
-    if (nextDollar >= 0) {
-      text = latex.slice(0, nextDollar);
-      latex = latex.slice(nextDollar+1);
+  latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g);
+  for (var i = 0; i < latex.length; i += 1) {
+    var chunk = latex[i];
+    if (chunk[0] === '$') {
+      if (chunk[-1+chunk.length] === '$' && chunk[-2+chunk.length] !== '\\')
+        chunk = chunk.slice(1, -1);
+      else
+        chunk = chunk.slice(1);
+
+      var root = new RootMathCommand(cursor);
+      cursor.insertNew(root);
+      root.firstChild.renderLatex(chunk);
+      cursor.show().insertAfter(root);
     }
     else {
-      text = latex;
-      latex = '';
-    }
-
-    for (var i = 0; i < text.length; i += 1)
-      this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
-
-    nextDollar = latex.indexOf('$');
-    if (nextDollar >= 0) {
-      math = latex.slice(0, nextDollar);
-      latex = latex.slice(nextDollar+1);
-    }
-    else {
-      math = latex;
-      latex = '';
-    }
-
-    if (math) {
-      var root = new RootMathCommand(this.cursor);
-      this.cursor.insertNew(root);
-      root.firstChild.renderLatex(math);
-      this.cursor.show().insertAfter(root);
+      for (var j = 0; j < chunk.length; j += 1)
+        this.cursor.insertNew(new VanillaSymbol(chunk[j]));
     }
   }
 };
