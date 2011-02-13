@@ -34,10 +34,9 @@ $.fn.mathquill = function(cmd, latex) {
     latex = latex.charAt(0) === '\\' ? latex.slice(1) : latex;
     if (arguments.length > 1)
       return this.each(function() {
-        var
-          data = $(this).data(jQueryDataKey),
-          block = data && data.block, cursor = block && block.cursor
-        ;
+        var data = $(this).data(jQueryDataKey),
+          block = data && data.block,
+          cursor = block && block.cursor;
 
         if (cursor) {
           cursor.show().write(latex);
