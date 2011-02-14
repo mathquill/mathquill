@@ -40,5 +40,17 @@ publish: cat minify
 	git checkout -
 	git stash pop
 
+publish-dev: cat minify
+	git stash
+	cp mathquill.css build/mathquill.css
+	git checkout gh-pages
+	git pull origin gh-pages
+	cp build/* dev
+	rm build/mathquill.css
+	git commit -a -m "publish new mathquill-dev.{js, css}"
+	git push
+	git checkout -
+	git stash pop
+
 lol:
 	@@echo "LOL!"
