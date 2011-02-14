@@ -35,7 +35,7 @@ publish: cat minify
 	git pull origin gh-pages
 	cp build/* .
 	rm build/mathquill.css
-	git commit -a -m "publish new mathquill.js"
+	git commit -a -m "publish new mathquill.{js, css}"
 	git push
 	git checkout -
 	git stash pop
