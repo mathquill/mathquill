@@ -31,16 +31,14 @@ $.fn.mathquill = function(cmd, latex) {
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
   case 'write':
-    latex = latex.charAt(0) === '\\' ? latex.slice(1) : latex;
     if (arguments.length > 1)
       return this.each(function() {
-        var
-          data = $(this).data(jQueryDataKey),
-          block = data && data.block, cursor = block && block.cursor
-        ;
+        var data = $(this).data(jQueryDataKey),
+          block = data && data.block,
+          cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show().write(latex);
+          cursor.show().writeLatex(latex);
           block.blur();
         }
       });

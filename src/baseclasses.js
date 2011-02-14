@@ -92,7 +92,7 @@ _.initBlocks = function(replacedFragment) {
   self.lastChild = newBlock;
 };
 _.latex = function() {
-  return this.foldChildren(this.cmd, function(latex, child){
+  return this.foldChildren(this.cmd, function(latex, child) {
     return latex + '{' + (child.latex() || ' ') + '}';
   });
 };
@@ -119,12 +119,12 @@ _.remove = function() {
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
   //append the cursor to the first empty child, or if none empty, the last one
-  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
     return prev.isEmpty() ? prev : child;
   }));
 };
 _.isEmpty = function() {
-  return this.foldChildren(true, function(isEmpty, child){
+  return this.foldChildren(true, function(isEmpty, child) {
     return isEmpty && child.isEmpty();
   });
 };
@@ -149,7 +149,7 @@ _.isEmpty = function(){ return true; };
 function MathBlock(){}
 _ = MathBlock.prototype = new MathElement;
 _.latex = function() {
-  return this.foldChildren('', function(latex, child){
+  return this.foldChildren('', function(latex, child) {
     return latex + child.latex();
   });
 };
@@ -204,14 +204,17 @@ _.fold = function(fold, fn) {
   });
   return fold;
 };
+_.latex = function() {
+  return this.fold('', function(latex, el){ return latex + el.latex(); });
+};
 _.blockify = function() {
   var self = this,
       prev = self.prev,
       next = self.next,
       parent = self.parent,
       newBlock = new MathBlock,
-      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
-      newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
+      newFirstChild = newBlock.firstChild = prev.next || parent.firstChild,
+      newLastChild = newBlock.lastChild = next.prev || parent.lastChild;
 
   if (prev)
     prev.next = next;
