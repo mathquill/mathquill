@@ -287,7 +287,7 @@ function createRoot(jQ, root, textbox, editable) {
     else
       cursor.show();
     e.stopPropagation();
-  }).blur(function(e) {
+  }).blur(function(e) {console.log('proper ', e.type, e)
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
@@ -295,7 +295,9 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
-  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  jQ.bind('focus.mathquill blur.mathquill', function(e) {
+    textarea.trigger(e);
+  }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
     lastKeydn.evt = e;
     lastKeydn.happened = true;
     lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -330,60 +332,45 @@ function createRoot(jQ, root, textbox, editable) {
       e.stopImmediatePropagation();
       return false;
     };
-  }).bind('click.mathquill', function(e) {
-    var clicked = $(e.target);
-    if (clicked.hasClass('empty')) {
-      cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
-      return false;
-    }
+  }).bind('mousedown.mathquill', function(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
-    var data = clicked.data(jQueryDataKey);
-    if (data) {
-      //if clicked a symbol, insert of whichever side is closer
-      if (data.cmd && !data.block) {
-        cursor.clearSelection();
-        if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-          cursor.insertBefore(data.cmd);
-        else
-          cursor.insertAfter(data.cmd);
-
-        return false;
-      }
-    }
-    //if no MathQuill data, try parent, if still no,
-    //the user probably didn't click on the math after all
-    else {
-      clicked = clicked.parent();
-      data = clicked.data(jQueryDataKey);
-      if (!data)
-        return;
-    }
-
-    cursor.clearSelection();
-    if (data.cmd)
-      cursor.insertAfter(data.cmd);
+    anticursor = new Cursor(root);
+    anticursor.jQ = anticursor._jQ = $();
+    if (cursor.next)
+      anticursor.insertBefore(cursor.next);
     else
-      cursor.appendTo(data.block);
+      anticursor.appendTo(cursor.parent);
 
-    //move cursor to position closest to click
-    var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-    do {
-      cursor.moveLeft();
-      prevPrevDist = prevDist;
-      prevDist = dist;
-      dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-    }
-    while (dist <= prevDist && dist != prevPrevDist);
+    jQ.mousemove(mousemove);
+    $(document).mousemove(docmousemove).mouseup(mouseup);
 
-    if (dist != prevPrevDist)
-      cursor.moveRight();
+    setTimeout(function(){textarea.focus();});
+  }).bind('selectstart.mathquill', false).blur();
+
+  function mousemove(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY);
+
+    if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
+      cursor.clearSelection();
+    else
+      cursor.selectFrom(anticursor);
 
     return false;
-  }).bind('click.mathquill', function() {
-    textarea.focus();
-  }).bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
-  }).blur();
+  }
+  function docmousemove(e) {
+    delete e.target;
+    return mousemove(e);
+  }
+  function mouseup(e) {
+    anticursor = undefined;
+    cursor.blink = blink;
+    if (!cursor.selection) cursor.show();
+    jQ.unbind('mousemove', mousemove);
+    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+  }
+
+  var anticursor, blink = cursor.blink;
 }
 
 function RootMathBlock(){}
@@ -791,7 +778,7 @@ _.respace = function() {
   else if (this.cmd === '^' && this.next && this.next.cmd === '\\sqrt') {
     this.jQ.css({
       left: '',
-      marginRight: '-.7em'
+      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
     }).addClass('limit');
   }
   else {
@@ -1992,6 +1979,54 @@ _.moveRight = function() {
   }
   return this.show();
 };
+_.seek = function(target, pageX, pageY) {
+  var cursor = this;
+  if (target.hasClass('empty')) {
+    cursor.clearSelection().prependTo(target.data(jQueryDataKey).block);
+    return cursor;
+  }
+
+  var data = target.data(jQueryDataKey);
+  if (data) {
+    //if clicked a symbol, insert at whichever side is closer
+    if (data.cmd && !data.block) {
+      cursor.clearSelection();
+      if (target.outerWidth() > 2*(pageX - target.offset().left))
+        cursor.insertBefore(data.cmd);
+      else
+        cursor.insertAfter(data.cmd);
+
+      return cursor;
+    }
+  }
+  //if no MathQuill data, try parent, if still no, forget it
+  else {
+    target = target.parent();
+    data = target.data(jQueryDataKey);
+    if (!data)
+      data = {block: cursor.root};
+  }
+
+  cursor.clearSelection();
+  if (data.cmd)
+    cursor.insertAfter(data.cmd);
+  else
+    cursor.appendTo(data.block);
+
+  //move cursor to position closest to click
+  var dist = cursor.jQ.offset().left - pageX, prevDist;
+  do {
+    cursor.moveLeft();
+    prevDist = dist;
+    dist = cursor.jQ.offset().left - pageX;
+  }
+  while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
+
+  if (-dist > prevDist)
+    cursor.moveRight();
+
+  return cursor;
+};
 _.write = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
@@ -2147,6 +2182,51 @@ _.deleteForward = function() {
   this.redraw();
 
   return this;
+};
+_.selectFrom = function(anticursor) {
+  //find ancestors of each with common parent
+  var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
+  loopThroughAncestors: while (true) {
+    for (var oneI = this; oneI !== oneA.parent.parent; oneI = oneI.parent.parent) //one intermediate, the other intermediate
+      if (oneI.parent === otherA.parent) {
+        left = oneI;
+        right = otherA;
+        break loopThroughAncestors;
+      }
+
+    for (var otherI = anticursor; otherI !== otherA.parent.parent; otherI = otherI.parent.parent)
+      if (oneA.parent === otherI.parent) {
+        left = oneA;
+        right = otherI;
+        break loopThroughAncestors;
+      }
+
+    if (oneA.parent.parent)
+      oneA = oneA.parent.parent;
+    if (otherA.parent.parent)
+      otherA = otherA.parent.parent;
+  }
+  //figure out which is left/prev and which is right/next
+  var left, right, leftRight;
+  if (left.next !== right) {
+    for (var next = left; next; next = next.next) {
+      if (next === right.prev) {
+        leftRight = true;
+        break;
+      }
+    }
+    if (!leftRight) {
+      leftRight = right;
+      right = left;
+      left = leftRight;
+    }
+  }
+  this.hide().selection = new Selection(
+    left.parent,
+    left.prev,
+    right.next
+  );
+  this.insertAfter(right.next.prev || right.parent.lastChild);
 };
 _.selectLeft = function() {
   if (this.selection) {
