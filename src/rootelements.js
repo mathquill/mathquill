@@ -285,6 +285,7 @@ _.keydown = function(e)
       this.cursor.clearSelection().appendTo(this);
       while (this.cursor.prev)
         this.cursor.selectLeft();
+      e.preventDefault();
     }
     else
       this.skipKeypress = false;
@@ -299,6 +300,7 @@ _.keydown = function(e)
       if (!this.cursor.selection) return true;
 
       window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
+      e.preventDefault();
     }
     else
       this.skipKeypress = false;
@@ -311,6 +313,7 @@ _.keydown = function(e)
         return this.parent.keydown(e);
 
       this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
+      e.preventDefault();
     }
     else
       this.skipKeypress = false;
@@ -326,6 +329,7 @@ _.keydown = function(e)
 
       window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
       this.cursor.deleteSelection();
+      e.preventDefault();
     }
     else
       this.skipKeypress = false;
