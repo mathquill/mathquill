@@ -140,6 +140,54 @@ _.moveRight = function() {
   }
   return this.show();
 };
+_.seek = function(target, pageX, pageY) {
+  var cursor = this;
+  if (target.hasClass('empty')) {
+    cursor.clearSelection().prependTo(target.data(jQueryDataKey).block);
+    return cursor;
+  }
+
+  var data = target.data(jQueryDataKey);
+  if (data) {
+    //if clicked a symbol, insert at whichever side is closer
+    if (data.cmd && !data.block) {
+      cursor.clearSelection();
+      if (target.outerWidth() > 2*(pageX - target.offset().left))
+        cursor.insertBefore(data.cmd);
+      else
+        cursor.insertAfter(data.cmd);
+
+      return cursor;
+    }
+  }
+  //if no MathQuill data, try parent, if still no, forget it
+  else {
+    target = target.parent();
+    data = target.data(jQueryDataKey);
+    if (!data)
+      data = {block: cursor.root};
+  }
+
+  cursor.clearSelection();
+  if (data.cmd)
+    cursor.insertAfter(data.cmd);
+  else
+    cursor.appendTo(data.block);
+
+  //move cursor to position closest to click
+  var dist = cursor.jQ.offset().left - pageX, prevDist;
+  do {
+    cursor.moveLeft();
+    prevDist = dist;
+    dist = cursor.jQ.offset().left - pageX;
+  }
+  while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
+
+  if (-dist > prevDist)
+    cursor.moveRight();
+
+  return cursor;
+};
 _.writeLatex = function(latex) {
   this.deleteSelection();
   var latex = latex.match(/\\[a-z]*|[^\s]/ig) || 0;
@@ -369,6 +417,51 @@ _.deleteForward = function() {
   this.redraw();
 
   return this;
+};
+_.selectFrom = function(anticursor) {
+  //find ancestors of each with common parent
+  var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
+  loopThroughAncestors: while (true) {
+    for (var oneI = this; oneI !== oneA.parent.parent; oneI = oneI.parent.parent) //one intermediate, the other intermediate
+      if (oneI.parent === otherA.parent) {
+        left = oneI;
+        right = otherA;
+        break loopThroughAncestors;
+      }
+
+    for (var otherI = anticursor; otherI !== otherA.parent.parent; otherI = otherI.parent.parent)
+      if (oneA.parent === otherI.parent) {
+        left = oneA;
+        right = otherI;
+        break loopThroughAncestors;
+      }
+
+    if (oneA.parent.parent)
+      oneA = oneA.parent.parent;
+    if (otherA.parent.parent)
+      otherA = otherA.parent.parent;
+  }
+  //figure out which is left/prev and which is right/next
+  var left, right, leftRight;
+  if (left.next !== right) {
+    for (var next = left; next; next = next.next) {
+      if (next === right.prev) {
+        leftRight = true;
+        break;
+      }
+    }
+    if (!leftRight) {
+      leftRight = right;
+      right = left;
+      left = leftRight;
+    }
+  }
+  this.hide().selection = new Selection(
+    left.parent,
+    left.prev,
+    right.next
+  );
+  this.insertAfter(right.next.prev || right.parent.lastChild);
 };
 _.selectLeft = function() {
   if (this.selection) {

@@ -39,7 +39,7 @@ function createRoot(jQ, root, textbox, editable) {
     else
       cursor.show();
     e.stopPropagation();
-  }).blur(function(e) {
+  }).blur(function(e) {console.log('proper ', e.type, e)
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
@@ -47,7 +47,9 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
-  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  jQ.bind('focus.mathquill blur.mathquill', function(e) {
+    textarea.trigger(e);
+  }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
     lastKeydn.evt = e;
     lastKeydn.happened = true;
     lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -82,60 +84,45 @@ function createRoot(jQ, root, textbox, editable) {
       e.stopImmediatePropagation();
       return false;
     };
-  }).bind('click.mathquill', function(e) {
-    var clicked = $(e.target);
-    if (clicked.hasClass('empty')) {
-      cursor.clearSelection().prependTo(clicked.data(jQueryDataKey).block);
-      return false;
-    }
+  }).bind('mousedown.mathquill', function(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
-    var data = clicked.data(jQueryDataKey);
-    if (data) {
-      //if clicked a symbol, insert of whichever side is closer
-      if (data.cmd && !data.block) {
-        cursor.clearSelection();
-        if (clicked.outerWidth() > 2*(e.pageX - clicked.offset().left))
-          cursor.insertBefore(data.cmd);
-        else
-          cursor.insertAfter(data.cmd);
-
-        return false;
-      }
-    }
-    //if no MathQuill data, try parent, if still no,
-    //the user probably didn't click on the math after all
-    else {
-      clicked = clicked.parent();
-      data = clicked.data(jQueryDataKey);
-      if (!data)
-        return;
-    }
-
-    cursor.clearSelection();
-    if (data.cmd)
-      cursor.insertAfter(data.cmd);
+    anticursor = new Cursor(root);
+    anticursor.jQ = anticursor._jQ = $();
+    if (cursor.next)
+      anticursor.insertBefore(cursor.next);
     else
-      cursor.appendTo(data.block);
+      anticursor.appendTo(cursor.parent);
 
-    //move cursor to position closest to click
-    var prevPrevDist, prevDist, dist = cursor.jQ.offset().left - e.pageX;
-    do {
-      cursor.moveLeft();
-      prevPrevDist = prevDist;
-      prevDist = dist;
-      dist = Math.abs(cursor.jQ.offset().left - e.pageX);
-    }
-    while (dist <= prevDist && dist != prevPrevDist);
+    jQ.mousemove(mousemove);
+    $(document).mousemove(docmousemove).mouseup(mouseup);
 
-    if (dist != prevPrevDist)
-      cursor.moveRight();
+    setTimeout(function(){textarea.focus();});
+  }).bind('selectstart.mathquill', false).blur();
+
+  function mousemove(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY);
+
+    if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
+      cursor.clearSelection();
+    else
+      cursor.selectFrom(anticursor);
 
     return false;
-  }).bind('click.mathquill', function() {
-    textarea.focus();
-  }).bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
-  }).blur();
+  }
+  function docmousemove(e) {
+    delete e.target;
+    return mousemove(e);
+  }
+  function mouseup(e) {
+    anticursor = undefined;
+    cursor.blink = blink;
+    if (!cursor.selection) cursor.show();
+    jQ.unbind('mousemove', mousemove);
+    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+  }
+
+  var anticursor, blink = cursor.blink;
 }
 
 function RootMathBlock(){}
