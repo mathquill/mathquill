@@ -105,7 +105,7 @@ _.initBlocks = function(replacedFragment) {
   self.lastChild = newBlock;
 };
 _.latex = function() {
-  return this.foldChildren(this.cmd, function(latex, child){
+  return this.foldChildren(this.cmd, function(latex, child) {
     return latex + '{' + (child.latex() || ' ') + '}';
   });
 };
@@ -132,12 +132,12 @@ _.remove = function() {
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
   //append the cursor to the first empty child, or if none empty, the last one
-  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child){
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
     return prev.isEmpty() ? prev : child;
   }));
 };
 _.isEmpty = function() {
-  return this.foldChildren(true, function(isEmpty, child){
+  return this.foldChildren(true, function(isEmpty, child) {
     return isEmpty && child.isEmpty();
   });
 };
@@ -162,7 +162,7 @@ _.isEmpty = function(){ return true; };
 function MathBlock(){}
 _ = MathBlock.prototype = new MathElement;
 _.latex = function() {
-  return this.foldChildren('', function(latex, child){
+  return this.foldChildren('', function(latex, child) {
     return latex + child.latex();
   });
 };
@@ -217,14 +217,17 @@ _.fold = function(fold, fn) {
   });
   return fold;
 };
+_.latex = function() {
+  return this.fold('', function(latex, el){ return latex + el.latex(); });
+};
 _.blockify = function() {
   var self = this,
       prev = self.prev,
       next = self.next,
       parent = self.parent,
       newBlock = new MathBlock,
-      newFirstChild = newBlock.firstChild = this.prev.next || this.parent.firstChild,
-      newLastChild = newBlock.lastChild = this.next.prev || this.parent.lastChild;
+      newFirstChild = newBlock.firstChild = prev.next || parent.firstChild,
+      newLastChild = newBlock.lastChild = next.prev || parent.lastChild;
 
   if (prev)
     prev.next = next;
@@ -375,87 +378,13 @@ function createRoot(jQ, root, textbox, editable) {
 
 function RootMathBlock(){}
 _ = RootMathBlock.prototype = new MathBlock;
-_.latex =function() {
+_.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
 };
 _.renderLatex = function(latex) {
-  latex = latex.match(/\\[a-z]*|[^\s]/ig);
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this);
-  if (latex) {
-    (function recurse(cursor) {
-      while (latex.length) {
-        var token = latex.shift(); //pop first item
-        if (!token || token === '}') return;
-
-        var cmd;
-        if (token === '\\text') {
-          var text = latex.shift();
-          if (text === '{') {
-            text = token = latex.shift();
-            while (token !== '}') {
-              if (token === '\\') //skip tokens immediately following backslash
-                text += token = latex.shift();
-
-              text += token = latex.shift();
-            }
-            text = text.slice(0,-1); //cut trailing '}'
-          }
-          cmd = new TextBlock(text);
-          cursor.insertNew(cmd).insertAfter(cmd);
-          continue; //skip recursing through children
-        }
-        else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
-          token = latex.shift();
-          if (token === '\\')
-            token = latex.shift();
-
-          cursor.write(token);
-          cmd = cursor.prev || cursor.parent.parent;
-
-          if (cursor.prev) //was a close-paren, so break recursion
-            return;
-          else //was an open-paren, hack to put the following latex
-            latex.unshift('{'); //in the ParenBlock in the math DOM
-        }
-        else if (/^\\[a-z]+$/i.test(token)) {
-          token = token.slice(1);
-          var cmd = LatexCmds[token];
-          if (cmd)
-            cursor.insertNew(cmd = new cmd(undefined, token));
-          else {
-            cmd = new TextBlock(token);
-            cursor.insertNew(cmd).insertAfter(cmd);
-            continue; //skip recursing through children
-          }
-        }
-        else {
-          if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
-            cmd = new Variable(token);
-          else if (cmd = LatexCmds[token])
-            cmd = new cmd;
-          else
-            cmd = new VanillaSymbol(token);
-
-          cursor.insertNew(cmd);
-        }
-        cmd.eachChild(function(child) {
-          cursor.appendTo(child);
-          var token = latex.shift();
-          if (!token) return false;
-
-          if (token === '{')
-            recurse(cursor);
-          else
-            cursor.write(token);
-        });
-        cursor.insertAfter(cmd);
-      }
-    })(this.cursor);
-  }
-
-  this.cursor.hide();
+  this.cursor.show().appendTo(this).writeLatex(latex);
   this.blur();
 };
 _.keydown = function(e)
@@ -467,7 +396,7 @@ _.keydown = function(e)
   case 'Backspace':
   case 'U+0008':
     if (e.ctrlKey)
-      while (this.cursor.prev)
+      while (this.cursor.prev || this.cursor.selection)
         this.cursor.backspace();
     else
       this.cursor.backspace();
@@ -579,25 +508,69 @@ _.keydown = function(e)
   case 'Del':
   case 'U+007F':
     if (e.ctrlKey)
-      while (this.cursor.next)
+      while (this.cursor.next || this.cursor.selection)
         this.cursor.deleteForward();
     else
       this.cursor.deleteForward();
     break;
-  case 65: //'a' character, as in Select All
+  case 65: //the 'A' key, as in Ctrl+A Select All
   case 'A':
   case 'U+0041':
-    if (!e.ctrlKey || e.shiftKey || e.altKey) {
-      this.skipKeypress = false;
-      break;
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      this.cursor.clearSelection().appendTo(this);
+      while (this.cursor.prev)
+        this.cursor.selectLeft();
+      e.preventDefault();
     }
+    else
+      this.skipKeypress = false;
+    break;
+  case 67: //the 'C' key, as in Ctrl+C Copy
+  case 'C':
+  case 'U+0043':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
 
-    if (this.parent) //so not stopPropagation'd at RootMathCommand
-      return this.parent.keydown(e);
+      if (!this.cursor.selection) return true;
 
-    this.cursor.clearSelection().appendTo(this);
-    while (this.cursor.prev)
-      this.cursor.selectLeft();
+      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
+      e.preventDefault();
+    }
+    else
+      this.skipKeypress = false;
+    break;
+  case 86: //the 'V' key, as in Ctrl+V Paste
+  case 'V':
+  case 'U+0056':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
+      e.preventDefault();
+    }
+    else
+      this.skipKeypress = false;
+    break;
+  case 88: //the 'X' key, as in Ctrl+X Cut
+  case 'X':
+  case 'U+0058':
+    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
+      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        return this.parent.keydown(e);
+
+      if (!this.cursor.selection) return true;
+
+      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
+      this.cursor.deleteSelection();
+      e.preventDefault();
+    }
+    else
+      this.skipKeypress = false;
     break;
   default:
     this.skipKeypress = false;
@@ -653,42 +626,28 @@ _.initBlocks = function() {
 function RootTextBlock(){}
 _ = RootTextBlock.prototype = new MathBlock;
 _.renderLatex = function(latex) {
-  this.jQ.children().slice(1).remove();
-  this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this);
+  var self = this, cursor = self.cursor;
+  self.jQ.children().slice(1).remove();
+  self.firstChild = self.lastChild = 0;
+  cursor.show().appendTo(self);
 
-  var math, text, nextDollar;
-  while (latex) {
-    math = text = '';
-    nextDollar = latex.indexOf('$');
-    if (nextDollar >= 0) {
-      text = latex.slice(0, nextDollar);
-      latex = latex.slice(nextDollar+1);
+  latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g);
+  for (var i = 0; i < latex.length; i += 1) {
+    var chunk = latex[i];
+    if (chunk[0] === '$') {
+      if (chunk[-1+chunk.length] === '$' && chunk[-2+chunk.length] !== '\\')
+        chunk = chunk.slice(1, -1);
+      else
+        chunk = chunk.slice(1);
+
+      var root = new RootMathCommand(cursor);
+      cursor.insertNew(root);
+      root.firstChild.renderLatex(chunk);
+      cursor.show().insertAfter(root);
     }
     else {
-      text = latex;
-      latex = '';
-    }
-
-    for (var i=0; i < text.length; i+=1) {
-      this.cursor.insertNew(new VanillaSymbol(text.charAt(i)));
-    }
-
-    nextDollar = latex.indexOf('$');
-    if (nextDollar >= 0) {
-      math = latex.slice(0, nextDollar);
-      latex = latex.slice(nextDollar+1);
-    }
-    else {
-      math=latex;
-      latex='';
-    }
-
-    if (math) {
-      var root = new RootMathCommand(this.cursor);
-      this.cursor.insertNew(root);
-      root.firstChild.renderLatex(math);
-      this.cursor.show().insertAfter(root);
+      for (var j = 0; j < chunk.length; j += 1)
+        this.cursor.insertNew(new VanillaSymbol(chunk[j]));
     }
   }
 };
@@ -778,7 +737,7 @@ _.respace = function() {
   else if (this.cmd === '^' && this.next && this.next.cmd === '\\sqrt') {
     this.jQ.css({
       left: '',
-      marginRight: Math.max(-.3, .1-this.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2))+'em'
+      marginRight: '-.7em'
     }).addClass('limit');
   }
   else {
@@ -2027,6 +1986,80 @@ _.seek = function(target, pageX, pageY) {
 
   return cursor;
 };
+_.writeLatex = function(latex) {
+  this.deleteSelection();
+  var latex = latex.match(/\\[a-z]*|[^\s]/ig) || 0;
+  (function writeLatexBlock(cursor) {
+    while (latex.length) {
+      var token = latex.shift(); //pop first item
+      if (!token || token === '}') return;
+
+      var cmd;
+      if (token === '\\text') {
+        var text = latex.shift();
+        if (text === '{') {
+          text = token = latex.shift();
+          while (token !== '}') {
+            if (token === '\\') //skip tokens immediately following backslash
+              text += token = latex.shift();
+
+            text += token = latex.shift();
+          }
+          text = text.slice(0,-1); //cut trailing '}'
+        }
+        cmd = new TextBlock(text);
+        cursor.insertNew(cmd).insertAfter(cmd);
+        continue; //skip recursing through children
+      }
+      else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
+        token = latex.shift();
+        if (token === '\\')
+          token = latex.shift();
+
+        cursor.write(token);
+        cmd = cursor.prev || cursor.parent.parent;
+
+        if (cursor.prev) //was a close-paren, so break recursion
+          return;
+        else //was an open-paren, hack to put the following latex
+          latex.unshift('{'); //in the ParenBlock in the math DOM
+      }
+      else if (/^\\[a-z]+$/i.test(token)) {
+        token = token.slice(1);
+        var cmd = LatexCmds[token];
+        if (cmd)
+          cursor.insertNew(cmd = new cmd(undefined, token));
+        else {
+          cmd = new TextBlock(token);
+          cursor.insertNew(cmd).insertAfter(cmd);
+          continue; //skip recursing through children
+        }
+      }
+      else {
+        if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
+          cmd = new Variable(token);
+        else if (cmd = LatexCmds[token])
+          cmd = new cmd;
+        else
+          cmd = new VanillaSymbol(token);
+
+        cursor.insertNew(cmd);
+      }
+      cmd.eachChild(function(child) {
+        cursor.appendTo(child);
+        var token = latex.shift();
+        if (!token) return false;
+
+        if (token === '{')
+          writeLatexBlock(cursor);
+        else
+          cursor.write(token);
+      });
+      cursor.insertAfter(cmd);
+    }
+  }(this));
+  return this.hide();
+};
 _.write = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
@@ -2365,16 +2398,14 @@ $.fn.mathquill = function(cmd, latex) {
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
   case 'write':
-    latex = latex.charAt(0) === '\\' ? latex.slice(1) : latex;
     if (arguments.length > 1)
       return this.each(function() {
-        var
-          data = $(this).data(jQueryDataKey),
-          block = data && data.block, cursor = block && block.cursor
-        ;
+        var data = $(this).data(jQueryDataKey),
+          block = data && data.block,
+          cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show().write(latex);
+          cursor.show().writeLatex(latex);
           block.blur();
         }
       });
