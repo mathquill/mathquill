@@ -50,6 +50,9 @@
   border: none;
   outline: none;
 }
+*:first-child+html .mathquill-editable .textarea textarea { /* IE7 only */
+  display: none; /* Prevents text cursor from showing in mathquill box in IE7 */ 
+}
 
 .mathquill-editable .cursor {
   border-left: 1px solid black;
