@@ -96,6 +96,24 @@ LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
 function Fraction(replacedFragment) {
   MathCommand.call(this, '\\frac', undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
+  
+  // Fixes display in IE7 - where each numerator/denominator pair aren't set to equal widths
+  if (isIE7) {
+    this.jQ.change(function(){
+        var $self = $(this),
+			$num = $self.children('.numerator'),
+			$denom = $self.children('.denominator'),
+			maxWidth;
+        // Remove any forced width styles, so we can measure natural width of elements
+        $num.css('width', null);
+        $denom.css('width', null);
+        // Find width that can fit both elements
+        maxWidth = Math.max($num.width(), $denom.width())
+        // Apply this width to both elements
+        $num.css('width', maxWidth+'px');
+        $denom.css('width', maxWidth+'px');
+    });
+  }
 }
 _ = Fraction.prototype = new MathCommand;
 _.html_template = [
