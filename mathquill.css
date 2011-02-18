@@ -163,6 +163,9 @@
 .mathquill-rendered-math sup {
   vertical-align: .5em;
 }
+*:first-child+html .mathquill-rendered-math sup { /* IE7 only */
+  line-height: .8em; /* Fix exponent display in IE7 */
+}
 .mathquill-rendered-math sub {
   vertical-align: -.4em;
 }
