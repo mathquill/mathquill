@@ -33,6 +33,9 @@
 .mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
 }
+*:first-child+html .mathquill-editable.empty { /* IE7 only */
+  width: 0.5em; /* Sets a min-width for IE7 when empty */
+}
 
 .mathquill-editable .textarea {
   position: relative;
