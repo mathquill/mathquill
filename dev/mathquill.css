@@ -114,6 +114,7 @@
   display: inline-block;
   margin: 0;
   padding: 0;
+  border-color: black;
 }
 .mathquill-editable.hasCursor {
   border-color: #79B;
@@ -200,11 +201,11 @@
   display: block;
 }
 .mathquill-rendered-math .numerator {
-  border-bottom: 1px solid #222; /* black is too black, contrasts with antialised text */
+  border-bottom: 1px solid; /* black is too black, contrasts with antialised text */
   padding: 0 .1em;
 }
 .mathquill-rendered-math .denominator {
-  border-top: 1px solid #222;
+  border-top: 1px solid;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
 }
@@ -225,6 +226,7 @@
   color: inherit;
   font-family: "Courier New", monospace;
   border: 1px solid gray;
+  border-color: ActiveBorder;
   padding-right: 1px;
   margin-right: 1px;
   margin-left: 2px;
@@ -242,7 +244,7 @@
   top: 2px;
 }
 .mathquill-rendered-math .sqrt-stem {
-  border-top: 1px solid black;
+  border-top: 1px solid;
   margin-top: 1px;
   padding-left: 2px;
   padding-right: .2em;
