@@ -73,6 +73,7 @@
   background: #B4D5FE;
   background: Highlight;
   color: HighlightText;
+  border-color: HighlightText;
 }
 .mathquill-editable .selection.blur,
 .mathquill-editable .selection.blur .mathquill-rendered-math,
