@@ -79,6 +79,8 @@
 .mathquill-editable .selection.blur .mathquill-rendered-math,
 .mathquill-editable .selection.blur sup,.mathquill-editable .selection.blur sub {
   background: #D4D4D4;
+  color: black;
+  border-color: black;
 }
 .mathquill-editable .selection .selection.blur,
 .mathquill-editable .selection .selection.blur sup,
