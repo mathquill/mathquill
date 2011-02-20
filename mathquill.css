@@ -56,40 +56,41 @@
 .mathquill-editable .cursor.blink {
   visibility: hidden;
 }
-.mathquill-editable .cursor:only-child:after,
-.mathquill-editable .textarea:only-child:after,
-.mathquill-editable .textarea+.cursor:last-child:after {
+.mathquill-editable.empty:after, .mathquill-textbox:after, .mathquill-rendered-math .empty:after {
   visibility: hidden;
   content: 'c';
 }
 /*separated from above because unrecognized pseudoclasses invalidate the entire selector*/
-.mathquill-textbox:after, .mathquill-rendered-math .empty:after {
+.mathquill-editable .cursor:only-child:after,
+.mathquill-editable .textarea+.cursor:last-child:after {
   visibility: hidden;
   content: 'c';
-}
-.mathquill-embedded-latex .mathquill-editable.empty:after {
-  content: '';
 }
 
 .mathquill-editable .selection,
 .mathquill-editable .selection .mathquill-rendered-math,
 .mathquill-editable .selection sup, .mathquill-editable .selection sub {
-  background-color: #B4D5FE;
+  background: #B4D5FE;
+  background: Highlight;
+  color: HighlightText;
+  border-color: HighlightText;
 }
 .mathquill-editable .selection.blur,
 .mathquill-editable .selection.blur .mathquill-rendered-math,
 .mathquill-editable .selection.blur sup,.mathquill-editable .selection.blur sub {
-  background-color: #D4D4D4;
+  background: #D4D4D4;
+  color: black;
+  border-color: black;
 }
 .mathquill-editable .selection .selection.blur,
 .mathquill-editable .selection .selection.blur sup,
 .mathquill-editable .selection .selection.blur sub {
-  background-color: #ABF;
+  background: #ABF;
 }
 .mathquill-editable .selection.blur .selection.blur,
 .mathquill-editable .selection.blur .selection.blur sup,
 .mathquill-editable .selection.blur .selection.blur sub {
-  background-color: #CCC;
+  background: #CCC;
 }
 
 .mathquill-textbox, .mathquill-rendered-math {
@@ -115,6 +116,7 @@
   display: inline-block;
   margin: 0;
   padding: 0;
+  border-color: black;
 }
 .mathquill-editable.hasCursor {
   border-color: #79B;
@@ -127,10 +129,10 @@
 }
 
 .mathquill-rendered-math .empty {
-  background-color: #ccc;
+  background: #ccc;
 }
 .mathquill-rendered-math.empty {
-  background-color: transparent;
+  background: transparent;
 }
 
 .mathquill-rendered-math .text {
@@ -201,11 +203,11 @@
   display: block;
 }
 .mathquill-rendered-math .numerator {
-  border-bottom: 1px solid #222; /* black is too black, contrasts with antialised text */
+  border-bottom: 1px solid; /* black is too black, contrasts with antialised text */
   padding: 0 .1em;
 }
 .mathquill-rendered-math .denominator {
-  border-top: 1px solid #222;
+  border-top: 1px solid;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
 }
@@ -226,6 +228,7 @@
   color: inherit;
   font-family: "Courier New", monospace;
   border: 1px solid gray;
+  border-color: ActiveBorder;
   padding-right: 1px;
   margin-right: 1px;
   margin-left: 2px;
@@ -234,7 +237,7 @@
   content: '\\';
 }
 .mathquill-rendered-math .latex-command-input.empty {
-  background-color: transparent;
+  background: transparent;
 }
 
 .mathquill-rendered-math .sqrt-prefix {
@@ -243,7 +246,7 @@
   top: 2px;
 }
 .mathquill-rendered-math .sqrt-stem {
-  border-top: 1px solid black;
+  border-top: 1px solid;
   margin-top: 1px;
   padding-left: 2px;
   padding-right: .2em;
