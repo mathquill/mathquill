@@ -70,22 +70,24 @@
 .mathquill-editable .selection,
 .mathquill-editable .selection .mathquill-rendered-math,
 .mathquill-editable .selection sup, .mathquill-editable .selection sub {
-  background-color: #B4D5FE;
+  background: #B4D5FE;
+  background: Highlight;
+  color: HighlightText;
 }
 .mathquill-editable .selection.blur,
 .mathquill-editable .selection.blur .mathquill-rendered-math,
 .mathquill-editable .selection.blur sup,.mathquill-editable .selection.blur sub {
-  background-color: #D4D4D4;
+  background: #D4D4D4;
 }
 .mathquill-editable .selection .selection.blur,
 .mathquill-editable .selection .selection.blur sup,
 .mathquill-editable .selection .selection.blur sub {
-  background-color: #ABF;
+  background: #ABF;
 }
 .mathquill-editable .selection.blur .selection.blur,
 .mathquill-editable .selection.blur .selection.blur sup,
 .mathquill-editable .selection.blur .selection.blur sub {
-  background-color: #CCC;
+  background: #CCC;
 }
 
 .mathquill-textbox, .mathquill-rendered-math {
@@ -123,10 +125,10 @@
 }
 
 .mathquill-rendered-math .empty {
-  background-color: #ccc;
+  background: #ccc;
 }
 .mathquill-rendered-math.empty {
-  background-color: transparent;
+  background: transparent;
 }
 
 .mathquill-rendered-math .text {
@@ -230,7 +232,7 @@
   content: '\\';
 }
 .mathquill-rendered-math .latex-command-input.empty {
-  background-color: transparent;
+  background: transparent;
 }
 
 .mathquill-rendered-math .sqrt-prefix {
