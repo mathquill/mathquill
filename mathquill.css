@@ -116,6 +116,9 @@
   display: -moz-inline-box;
   display: inline-block;
 }
+.mathquill-rendered-math { 
+  width: 1.9em\0/ /* Fixes display of square root in IE8 */
+}
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
