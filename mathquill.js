@@ -1062,7 +1062,14 @@ _.html_template = ['<span class="latex-command-input"></span>'];
 _.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
   if (this.replacedFragment)
-    this.jQ = this.jQ.add(this.replacedFragment.jQ.addClass('blur').insertBefore(this.jQ));
+    this.jQ =
+      this.jQ.add(this.replacedFragment.jQ.addClass('blur').bind(
+        'mousedown mousemove',
+        function(e) {
+          $(e.target = this.nextSibling).trigger(e);
+          return false;
+        }
+      ).insertBefore(this.jQ));
 };
 _.latex = function() {
   return '\\' + this.firstChild.latex() + ' ';
