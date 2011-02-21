@@ -125,6 +125,7 @@
   -webkit-box-shadow: #68B4DF 0 0 3px 2px;
   -moz-box-shadow: #68B4DF 0 0 3px 2px;
   box-shadow: #68B4DF 0 0 3px 2px;
+  filter:"progid:DXImageTransform.Microsoft.Glow(Color=blue,Strength=5)";
   border-radius: 2px;
 }
 
