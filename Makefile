@@ -35,9 +35,11 @@ publish:
 	git checkout gh-pages
 	git pull origin gh-pages
 	cp build/* .
+	cp build/*.js dev
+	sed 's:url(:url(../:g' build/mathquill.css > dev/mathquill.css
 	rm build/mathquill.css
 	git commit -a -m "publish new mathquill.{js, css}"
-	git push  origin gh-pages
+	git push origin gh-pages
 	git checkout -
 	git stash pop
 
