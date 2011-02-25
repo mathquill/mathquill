@@ -22,6 +22,8 @@
   display: inline-block;
   border: 1px solid gray;
   padding: 2px;
+}
+.mathquill-embedded-latex .mathquill-editable {
   margin: 1px;
 }
 .mathquill-textbox {
