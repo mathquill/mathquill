@@ -380,7 +380,7 @@ _.renderLatex = function(latex) {
   self.firstChild = self.lastChild = 0;
   cursor.show().appendTo(self);
 
-  latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g);
+  latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g) || '';
   for (var i = 0; i < latex.length; i += 1) {
     var chunk = latex[i];
     if (chunk[0] === '$') {
