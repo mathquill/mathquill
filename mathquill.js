@@ -2382,7 +2382,7 @@ $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     this.find(':not(:has(:first))')
-      .mathquill(jQueryDataKey).cmd.redraw();
+      .data(jQueryDataKey).cmd.redraw();
     return this;
   case 'revert':
     return this.each(function() {
