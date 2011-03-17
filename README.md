@@ -1,8 +1,7 @@
 Please note that this is an alpha version, so bugs and unimplemented features
 are all over the place.
 
-Usage
------
+## Usage
 
 (Note: Requires [jQuery 1.4+](http://jquery.com).)
 
@@ -52,8 +51,7 @@ Currently, MathQuill only supports a limited scripting API:
 
     $('<span></span>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
 
-Understanding The Source Code
------------------------------
+## Understanding The Source Code
 
 All the CSS is in `mathquill.css`. Most of it's pretty straightforward, although
 fractions and a few other things are somewhat arcane. In particular, see the
@@ -101,7 +99,6 @@ Some comments that are too high-level to put in the code:
   has some complicated but very effective logic documented in the Wiki page
   "Keyboard Events".
 
-Open-Source License
--------------------
+## Open-Source License
 
 [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
