@@ -109,6 +109,7 @@
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
+  -moz-user-select: none;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
