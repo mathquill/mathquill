@@ -2,15 +2,12 @@
  * Copyright 2010 Jay and Han (laughinghan@gmail.com)
  * License, Usage and Readme at http://mathquill.com
  */
- /****************************
- * Important opening stuff.
- ***************************/
-
-(function($){ //takes in the jQuery function as an argument
+ (function($){ //takes in the jQuery function as an argument
 
 var _, //temp variable of prototypes
   undefined,
   jQueryDataKey = '[[mathquill internal data]]';
+
 /*************************************************
  * Abstract base classes of blocks and commands.
  ************************************************/
@@ -249,6 +246,7 @@ _.blockify = function() {
 
   return newBlock;
 };
+
 /*********************************************
  * Root math elements with event delegation.
  ********************************************/
@@ -665,6 +663,7 @@ _.keypress = function(e) {
   e.preventDefault();
   return true;
 };
+
 /***************************
  * Commands and Operators.
  **************************/
@@ -1253,6 +1252,7 @@ LatexCmds.editable = proto(RootMathCommand, function() {
     MathBlock.prototype.blur.call(this);
   };
 });
+
 /**********************************
  * Symbols and Special Characters
  *********************************/
@@ -1803,6 +1803,7 @@ LatexCmds.lim = NonItalicizedFunction;
       NonItalicizedFunction;
   }
 }());
+
 /********************************************
  * Cursor and Selection "singleton" classes
  *******************************************/
@@ -2005,14 +2006,12 @@ _.writeLatex = function(latex) {
       if (token === '\\text') {
         var text = latex.shift();
         if (text === '{') {
-          text = token = latex.shift();
-          while (token !== '}') {
-            if (token === '\\') //skip tokens immediately following backslash
+          text = '';
+          while ( (token = latex.shift()) && token !== '}') {
+            text += token;
+            if (token === '\\') //backslash escapes following character
               text += token = latex.shift();
-
-            text += token = latex.shift();
           }
-          text = text.slice(0,-1); //cut trailing '}'
         }
         cmd = new TextBlock(text);
         cursor.insertNew(cmd).insertAfter(cmd);
@@ -2372,6 +2371,7 @@ _.detach = function() {
   };
   return this;
 };
+
 /*********************************************************
  * The actual jQuery plugin and document ready handlers.
  ********************************************************/
@@ -2433,5 +2433,6 @@ $(function() {
   $('.mathquill-textbox').mathquill('textbox');
   $('.mathquill-embedded-latex').mathquill();
 });
+
 
 }(jQuery));
