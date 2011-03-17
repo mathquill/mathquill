@@ -200,14 +200,12 @@ _.writeLatex = function(latex) {
       if (token === '\\text') {
         var text = latex.shift();
         if (text === '{') {
-          text = token = latex.shift();
-          while (token !== '}') {
-            if (token === '\\') //skip tokens immediately following backslash
+          text = '';
+          while ( (token = latex.shift()) && token !== '}') {
+            text += token;
+            if (token === '\\') //backslash escapes following character
               text += token = latex.shift();
-
-            text += token = latex.shift();
           }
-          text = text.slice(0,-1); //cut trailing '}'
         }
         cmd = new TextBlock(text);
         cursor.insertNew(cmd).insertAfter(cmd);
