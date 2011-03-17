@@ -7,3 +7,4 @@
 var _, //temp variable of prototypes
   undefined,
   jQueryDataKey = '[[mathquill internal data]]';
+

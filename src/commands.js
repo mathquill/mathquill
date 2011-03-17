@@ -586,3 +586,4 @@ LatexCmds.editable = proto(RootMathCommand, function() {
     MathBlock.prototype.blur.call(this);
   };
 });
+

@@ -59,3 +59,4 @@ $(function() {
   $('.mathquill-textbox').mathquill('textbox');
   $('.mathquill-embedded-latex').mathquill();
 });
+
