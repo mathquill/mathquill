@@ -130,6 +130,11 @@ _ = RootMathBlock.prototype = new MathBlock;
 _.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
 };
+_.text = function() {
+  return this.foldChildren('', function(text, child) {
+    return text + child.text();
+  });
+};
 _.renderLatex = function(latex) {
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;

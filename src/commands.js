@@ -9,8 +9,8 @@ function proto(parent, child) { //shorthand for prototyping
   return child;
 }
 
-function SupSub(cmd, html, replacedFragment) {
-  MathCommand.call(this, cmd, [ html ], replacedFragment);
+function SupSub(cmd, html, text, replacedFragment) {
+  MathCommand.call(this, cmd, [ html ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
@@ -84,17 +84,17 @@ _.respace = function() {
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '_', '<sub></sub>', replacedFragment);
+  SupSub.call(this, '_', '<sub></sub>', '_', replacedFragment);
 });
 
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '^', '<sup></sup>', replacedFragment);
+  SupSub.call(this, '^', '<sup></sup>', '**', replacedFragment);
 });
 
 function Fraction(replacedFragment) {
-  MathCommand.call(this, '\\frac', undefined, replacedFragment);
+  MathCommand.call(this, '\\frac', undefined, undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
 _ = Fraction.prototype = new MathCommand;
@@ -103,6 +103,7 @@ _.html_template = [
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
 ];
+_.text_template = ['', '/'];
 
 LatexCmds.frac = LatexCmds.fraction = Fraction;
 
@@ -142,13 +143,14 @@ _.placeCursor = function(cursor) {
 CharCmds['/'] = LiveFraction;
 
 function SquareRoot(replacedFragment) {
-  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
+  MathCommand.call(this, '\\sqrt', undefined, undefined, replacedFragment);
 }
 _ = SquareRoot.prototype = new MathCommand;
 _.html_template = [
   '<span><span class="sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
+_.text_template = ['sqrt(', ')'];
 _.redraw = function() {
   var block = this.firstChild.jQ, height = block.outerHeight(true);
   block.css({
@@ -164,6 +166,7 @@ LatexCmds.sqrt = SquareRoot;
 function Bracket(open, close, cmd, end, replacedFragment) {
   MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
+    [open, close],
     replacedFragment);
   this.end = '\\right'+end;
 }
@@ -259,6 +262,7 @@ function TextBlock(replacedText) {
 }
 _ = TextBlock.prototype = new MathCommand;
 _.html_template = ['<span class="text"></span>'];
+_.text_template = ['"', '"'];
 _.initBlocks = function() {
   this.firstChild =
   this.lastChild =
@@ -392,6 +396,7 @@ function LatexCommandInput(replacedFragment) {
 }
 _ = LatexCommandInput.prototype = new MathCommand;
 _.html_template = ['<span class="latex-command-input"></span>'];
+_.text_template = ['\\'];
 _.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
   if (this.replacedFragment)
@@ -460,12 +465,13 @@ _.renderCommand = function() {
 CharCmds['\\'] = LatexCommandInput;
   
 function Binomial(replacedFragment) {
-  MathCommand.call(this, '\\binom', undefined, replacedFragment);
+  MathCommand.call(this, '\\binom', undefined, undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
 }
 _ = Binomial.prototype = new MathCommand;
 _.html_template =
   ['<span></span>', '<span></span>', '<span></span>'];
+_.text_template = ['choose(',',',')'];
 _.redraw = function() {
   this.jQ.children(':first').add(this.jQ.children(':last'))
     .css('fontSize',
@@ -484,16 +490,22 @@ _.placeCursor = LiveFraction.prototype.placeCursor;
 LatexCmds.choose = Choose;
 
 function Vector(replacedFragment) {
-  MathCommand.call(this, '\\vector', undefined, replacedFragment);
+  MathCommand.call(this, '\\vector', undefined, undefined, replacedFragment);
 }
 _ = Vector.prototype = new MathCommand;
 _.html_template = ['<span class="array"></span>', '<span></span>'];
 _.latex = function() {
-  return '\\begin{matrix}' + this.foldChildren([], function (latex, child){
+  return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
     latex.push(child.latex());
     return latex;
   }).join('\\\\') + '\\end{matrix}';
 };
+_.text = function() {
+  return '[' + this.foldChildren([], function(latex, child) {
+    text.push(child.text());
+    return text;
+  }).join() + ']';
+}
 _.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
 };
@@ -585,5 +597,6 @@ LatexCmds.editable = proto(RootMathCommand, function() {
     this.cursor.appendTo(this);
     MathBlock.prototype.blur.call(this);
   };
+  this.text = function(){ return this.firstChild.text(); };
 });
 
