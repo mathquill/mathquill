@@ -190,7 +190,7 @@ _.seek = function(target, pageX, pageY) {
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
-  var latex = latex.match(/\\[a-z]*|[^\s]/ig) || 0;
+  latex = ( latex && latex.match(/\\[a-z]*|[^\s]/ig) ) || 0;
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
