@@ -154,13 +154,14 @@ _.isEmpty = function() {
 /**
  * Lightweight command without blocks or children.
  */
-function Symbol(cmd, html) {
-  MathCommand.call(this, cmd, [ html ]);
+function Symbol(cmd, html, text) {
+  MathCommand.call(this, cmd, [ html ],
+    [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
 _.initBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
-_.text = function(){ return this.cmd.length > 1 ? this.cmd.slice(1) : this.cmd; };
+_.text = function(){ return this.text_template; };
 _.placeCursor = $.noop;
 _.isEmpty = function(){ return true; };
 
@@ -1313,10 +1314,10 @@ _.text = function() {
   var text = this.cmd;
   if (this.prev && !(this.prev instanceof Variable)
       && !(this.prev instanceof BinaryOperator))
-    text = ' ' + text;
+    text = '*' + text;
   if (this.next && !(this.next instanceof BinaryOperator)
       && !(this.next.cmd === '^'))
-    text += ' ';
+    text += '*';
   return text;
 };
 
@@ -1434,8 +1435,8 @@ LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-function BinaryOperator(cmd, html) {
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
+function BinaryOperator(cmd, html, text) {
+  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
 }
 BinaryOperator.prototype = new Symbol; //so instanceof will work
 
@@ -1478,14 +1479,17 @@ LatexCmds.notin =
 LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
-LatexCmds.times =
 LatexCmds.oplus =
 LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex) {
-  BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
+  BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
+});
+
+LatexCmds.times = proto(BinaryOperator, function(replacedFragment, latex) {
+  BinaryOperator.call(this, '\\times ', '&times;', '[x]')
 });
 
 LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;');
+  bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
 
