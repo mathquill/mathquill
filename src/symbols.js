@@ -20,10 +20,10 @@ _.text = function() {
   var text = this.cmd;
   if (this.prev && !(this.prev instanceof Variable)
       && !(this.prev instanceof BinaryOperator))
-    text = ' ' + text;
+    text = '*' + text;
   if (this.next && !(this.next instanceof BinaryOperator)
       && !(this.next.cmd === '^'))
-    text += ' ';
+    text += '*';
   return text;
 };
 
@@ -141,8 +141,8 @@ LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-function BinaryOperator(cmd, html) {
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
+function BinaryOperator(cmd, html, text) {
+  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
 }
 BinaryOperator.prototype = new Symbol; //so instanceof will work
 
@@ -185,14 +185,17 @@ LatexCmds.notin =
 LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
-LatexCmds.times =
 LatexCmds.oplus =
 LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex) {
-  BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
+  BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
+});
+
+LatexCmds.times = proto(BinaryOperator, function(replacedFragment, latex) {
+  BinaryOperator.call(this, '\\times ', '&times;', '[x]')
 });
 
 LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;');
+  bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
 

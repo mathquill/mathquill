@@ -144,13 +144,14 @@ _.isEmpty = function() {
 /**
  * Lightweight command without blocks or children.
  */
-function Symbol(cmd, html) {
-  MathCommand.call(this, cmd, [ html ]);
+function Symbol(cmd, html, text) {
+  MathCommand.call(this, cmd, [ html ],
+    [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
 _.initBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
-_.text = function(){ return this.cmd.length > 1 ? this.cmd.slice(1) : this.cmd; };
+_.text = function(){ return this.text_template; };
 _.placeCursor = $.noop;
 _.isEmpty = function(){ return true; };
 
