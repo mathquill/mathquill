@@ -112,7 +112,7 @@ _.text = function() {
   return this.foldChildren(this.text_template[i], function(text, child) {
     i += 1;
     var child_text = child.text();
-    if (text && this.text_template[i]
+    if (text && this.text_template[i] === '('
         && child_text[0] === '(' && child_text.slice(-1) === ')')
       return text + child_text.slice(1, -1) + this.text_template[i];
     return text + child.text() + (this.text_template[i] || '');
@@ -794,7 +794,7 @@ _.html_template = [
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
 ];
-_.text_template = ['', '/'];
+_.text_template = ['(', '/', ')'];
 
 LatexCmds.frac = LatexCmds.fraction = Fraction;
 
@@ -1308,7 +1308,17 @@ LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
-Variable.prototype = Symbol.prototype;
+_ = Variable.prototype = new Symbol;
+_.text = function() {
+  var text = this.cmd;
+  if (this.prev && !(this.prev instanceof Variable)
+      && !(this.prev instanceof BinaryOperator))
+    text = ' ' + text;
+  if (this.next && !(this.next instanceof BinaryOperator)
+      && !(this.next.cmd === '^'))
+    text += ' ';
+  return text;
+};
 
 function VanillaSymbol(ch, html) {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
