@@ -103,7 +103,7 @@ _.html_template = [
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
 ];
-_.text_template = ['', '/'];
+_.text_template = ['(', '/', ')'];
 
 LatexCmds.frac = LatexCmds.fraction = Fraction;
 

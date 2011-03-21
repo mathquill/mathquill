@@ -102,7 +102,7 @@ _.text = function() {
   return this.foldChildren(this.text_template[i], function(text, child) {
     i += 1;
     var child_text = child.text();
-    if (text && this.text_template[i]
+    if (text && this.text_template[i] === '('
         && child_text[0] === '(' && child_text.slice(-1) === ')')
       return text + child_text.slice(1, -1) + this.text_template[i];
     return text + child.text() + (this.text_template[i] || '');
