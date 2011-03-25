@@ -345,7 +345,7 @@ function createRoot(jQ, root, textbox, editable) {
 
     //ignore commands, shortcuts and control characters
     //in ASCII, below 32 there are only control chars
-    if (e.ctrlKey || e.metaKey || e.which < 32)
+    if (e.which < 32)
       return true;
 
     if (cursor.parent.keypress(e))
