@@ -47,12 +47,13 @@ _.keypress = function(e) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template, replacedFragment) {
+function MathCommand(cmd, html_template, text_template, replacedFragment) {
   if (!arguments.length) return;
   var self = this; // minifier optimization
 
   self.cmd = cmd;
   if (html_template) self.html_template = html_template;
+  if (text_template) self.text_template = text_template;
 
   self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
   self.initBlocks(replacedFragment);
@@ -106,6 +107,17 @@ _.latex = function() {
     return latex + '{' + (child.latex() || ' ') + '}';
   });
 };
+_.text = function() {
+  var i = 0;
+  return this.foldChildren(this.text_template[i], function(text, child) {
+    i += 1;
+    var child_text = child.text();
+    if (text && this.text_template[i] === '('
+        && child_text[0] === '(' && child_text.slice(-1) === ')')
+      return text + child_text.slice(1, -1) + this.text_template[i];
+    return text + child.text() + (this.text_template[i] || '');
+  });
+};
 _.remove = function() {
   var self = this,
       prev = self.prev,
@@ -142,12 +154,14 @@ _.isEmpty = function() {
 /**
  * Lightweight command without blocks or children.
  */
-function Symbol(cmd, html) {
-  MathCommand.call(this, cmd, [ html ]);
+function Symbol(cmd, html, text) {
+  MathCommand.call(this, cmd, [ html ],
+    [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
 _.initBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
+_.text = function(){ return this.text_template; };
 _.placeCursor = $.noop;
 _.isEmpty = function(){ return true; };
 
@@ -162,6 +176,13 @@ _.latex = function() {
   return this.foldChildren('', function(latex, child) {
     return latex + child.latex();
   });
+};
+_.text = function() {
+  return this.firstChild === this.lastChild ?
+    this.firstChild.text() :
+    this.foldChildren('(', function(text, child) {
+      return text + child.text();
+    }) + ')';
 };
 _.isEmpty = function() {
   return this.firstChild === 0 && this.lastChild === 0;
@@ -378,6 +399,11 @@ function RootMathBlock(){}
 _ = RootMathBlock.prototype = new MathBlock;
 _.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+};
+_.text = function() {
+  return this.foldChildren('', function(text, child) {
+    return text + child.text();
+  });
 };
 _.renderLatex = function(latex) {
   this.jQ.children().slice(1).remove();
@@ -675,8 +701,8 @@ function proto(parent, child) { //shorthand for prototyping
   return child;
 }
 
-function SupSub(cmd, html, replacedFragment) {
-  MathCommand.call(this, cmd, [ html ], replacedFragment);
+function SupSub(cmd, html, text, replacedFragment) {
+  MathCommand.call(this, cmd, [ html ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
@@ -750,17 +776,17 @@ _.respace = function() {
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '_', '<sub></sub>', replacedFragment);
+  SupSub.call(this, '_', '<sub></sub>', '_', replacedFragment);
 });
 
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '^', '<sup></sup>', replacedFragment);
+  SupSub.call(this, '^', '<sup></sup>', '**', replacedFragment);
 });
 
 function Fraction(replacedFragment) {
-  MathCommand.call(this, '\\frac', undefined, replacedFragment);
+  MathCommand.call(this, '\\frac', undefined, undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
 _ = Fraction.prototype = new MathCommand;
@@ -769,6 +795,7 @@ _.html_template = [
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
 ];
+_.text_template = ['(', '/', ')'];
 
 LatexCmds.frac = LatexCmds.fraction = Fraction;
 
@@ -808,13 +835,14 @@ _.placeCursor = function(cursor) {
 CharCmds['/'] = LiveFraction;
 
 function SquareRoot(replacedFragment) {
-  MathCommand.call(this, '\\sqrt', undefined, replacedFragment);
+  MathCommand.call(this, '\\sqrt', undefined, undefined, replacedFragment);
 }
 _ = SquareRoot.prototype = new MathCommand;
 _.html_template = [
   '<span><span class="sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
+_.text_template = ['sqrt(', ')'];
 _.redraw = function() {
   var block = this.firstChild.jQ, height = block.outerHeight(true);
   block.css({
@@ -830,6 +858,7 @@ LatexCmds.sqrt = SquareRoot;
 function Bracket(open, close, cmd, end, replacedFragment) {
   MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
+    [open, close],
     replacedFragment);
   this.end = '\\right'+end;
 }
@@ -925,6 +954,7 @@ function TextBlock(replacedText) {
 }
 _ = TextBlock.prototype = new MathCommand;
 _.html_template = ['<span class="text"></span>'];
+_.text_template = ['"', '"'];
 _.initBlocks = function() {
   this.firstChild =
   this.lastChild =
@@ -1058,6 +1088,7 @@ function LatexCommandInput(replacedFragment) {
 }
 _ = LatexCommandInput.prototype = new MathCommand;
 _.html_template = ['<span class="latex-command-input"></span>'];
+_.text_template = ['\\'];
 _.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
   if (this.replacedFragment)
@@ -1126,12 +1157,13 @@ _.renderCommand = function() {
 CharCmds['\\'] = LatexCommandInput;
   
 function Binomial(replacedFragment) {
-  MathCommand.call(this, '\\binom', undefined, replacedFragment);
+  MathCommand.call(this, '\\binom', undefined, undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
 }
 _ = Binomial.prototype = new MathCommand;
 _.html_template =
   ['<span></span>', '<span></span>', '<span></span>'];
+_.text_template = ['choose(',',',')'];
 _.redraw = function() {
   this.jQ.children(':first').add(this.jQ.children(':last'))
     .css('fontSize',
@@ -1150,16 +1182,22 @@ _.placeCursor = LiveFraction.prototype.placeCursor;
 LatexCmds.choose = Choose;
 
 function Vector(replacedFragment) {
-  MathCommand.call(this, '\\vector', undefined, replacedFragment);
+  MathCommand.call(this, '\\vector', undefined, undefined, replacedFragment);
 }
 _ = Vector.prototype = new MathCommand;
 _.html_template = ['<span class="array"></span>', '<span></span>'];
 _.latex = function() {
-  return '\\begin{matrix}' + this.foldChildren([], function (latex, child){
+  return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
     latex.push(child.latex());
     return latex;
   }).join('\\\\') + '\\end{matrix}';
 };
+_.text = function() {
+  return '[' + this.foldChildren([], function(latex, child) {
+    text.push(child.text());
+    return text;
+  }).join() + ']';
+}
 _.placeCursor = function(cursor) {
   this.cursor = cursor.appendTo(this.firstChild);
 };
@@ -1251,6 +1289,7 @@ LatexCmds.editable = proto(RootMathCommand, function() {
     this.cursor.appendTo(this);
     MathBlock.prototype.blur.call(this);
   };
+  this.text = function(){ return this.firstChild.text(); };
 });
 
 /**********************************
@@ -1270,7 +1309,17 @@ LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
 }
-Variable.prototype = Symbol.prototype;
+_ = Variable.prototype = new Symbol;
+_.text = function() {
+  var text = this.cmd;
+  if (this.prev && !(this.prev instanceof Variable)
+      && !(this.prev instanceof BinaryOperator))
+    text = '*' + text;
+  if (this.next && !(this.next instanceof BinaryOperator)
+      && !(this.next.cmd === '^'))
+    text += '*';
+  return text;
+};
 
 function VanillaSymbol(ch, html) {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
@@ -1386,8 +1435,8 @@ LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-function BinaryOperator(cmd, html) {
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>');
+function BinaryOperator(cmd, html, text) {
+  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
 }
 BinaryOperator.prototype = new Symbol; //so instanceof will work
 
@@ -1430,14 +1479,17 @@ LatexCmds.notin =
 LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
-LatexCmds.times =
 LatexCmds.oplus =
 LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex) {
-  BinaryOperator.call(this,'\\'+latex+' ','&'+latex+';');
+  BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
+});
+
+LatexCmds.times = proto(BinaryOperator, function(replacedFragment, latex) {
+  BinaryOperator.call(this, '\\times ', '&times;', '[x]')
 });
 
 LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;');
+  bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
 
@@ -1657,8 +1709,6 @@ LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor', '&#8970;');
 LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor', '&#8971;');
 LatexCmds.lceil = bind(VanillaSymbol, '\\lceil', '&#8968;');
 LatexCmds.rceil = bind(VanillaSymbol, '\\rceil', '&#8969;');
-LatexCmds.langle = bind(VanillaSymbol, '\\langle', '&#9001;');
-LatexCmds.rangle = bind(VanillaSymbol, '\\rangle', '&#9002;');
 LatexCmds.slash = bind(VanillaSymbol, '\\slash', '&#47;');
 LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace', '&#123;');
 LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\closecurlybrace', '&#125;');
@@ -1996,7 +2046,7 @@ _.seek = function(target, pageX, pageY) {
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
-  var latex = latex.match(/\\[a-z]*|[^\s]/ig) || 0;
+  latex = ( latex && latex.match(/\\[a-z]*|[^\s]/ig) ) || 0;
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
@@ -2401,6 +2451,9 @@ $.fn.mathquill = function(cmd, latex) {
 
     var data = this.data(jQueryDataKey);
     return data && data.block && data.block.latex();
+  case 'text':
+    var data = this.data(jQueryDataKey);
+    return data && data.block && data.block.text();
   case 'html':
     return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
