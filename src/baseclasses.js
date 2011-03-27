@@ -28,8 +28,8 @@ _.foldChildren = function(fold, fn) {
 _.keydown = function(e) {
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
-  return this.parent.keypress(e);
+_.textInput = function(e) {
+  return this.parent.textInput(e);
 };
 
 /**

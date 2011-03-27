@@ -73,17 +73,16 @@ function createRoot(jQ, root, textbox, editable) {
     if (!lastKeydn.returnValue)
       return false;
 
-    //ignore commands, shortcuts and control characters
-    //in ASCII, below 32 there are only control chars
-    if (e.ctrlKey || e.metaKey || e.which < 32)
-      return true;
-
-    if (cursor.parent.keypress(e))
-      return true;
-    else {
-      e.stopImmediatePropagation();
-      return false;
-    };
+    //after keypress event, trigger virtual textInput event if text was
+    //input to textarea
+    //  (see Wiki page "Keyboard Events")
+    setTimeout(function() {
+      var text = textarea.val();
+      if (!text) return;
+      textarea.val('');
+      e.data = text;
+      cursor.parent.textInput(e);
+    });
   }).bind('mousedown.mathquill', function(e) {
     cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
@@ -155,8 +154,7 @@ _.keydown = function(e)
     else
       this.cursor.backspace();
     break;
-  case 27: //esc does something weird in keypress, may as well be the same as tab
-           //  until we figure out what to do with it
+  case 27: //may as well be the same as tab until we figure out what to do with it
   case 'Esc':
   case 'U+001B':
   case 9: //tab
@@ -331,21 +329,18 @@ _.keydown = function(e)
   }
   return true;
 };
-_.keypress = function(e) {
-  if (this.skipKeypress) return true;
-
-  this.cursor.show().write(String.fromCharCode(e.which));
-  e.preventDefault();
-  return true;
+_.textInput = function(e) {
+  if (!this.skipKeypress)
+    this.cursor.show().write(e.data);
 };
 
 function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
   this.firstChild.cursor = cursor;
-  this.firstChild.keypress = function(e) {
-    if (this.skipKeypress) return true;
+  this.firstChild.textInput = function(e) {
+    if (this.skipKeypress) return;
 
-    var ch = String.fromCharCode(e.which);
+    var ch = e.data;
     if (ch !== '$' || cursor.parent !== this)
       cursor.show().write(ch);
     else if (this.isEmpty()) {
@@ -358,9 +353,6 @@ function RootMathCommand(cursor) {
       cursor.insertBefore(this.parent);
     else
       cursor.show().write(ch);
-
-    e.preventDefault();
-    return true;
   };
 }
 _ = RootMathCommand.prototype = new MathCommand;
@@ -404,17 +396,14 @@ _.renderLatex = function(latex) {
   }
 };
 _.keydown = RootMathBlock.prototype.keydown;
-_.keypress = function(e) {
-  if (this.skipKeypress) return true;
+_.textInput = function(e) {
+  if (this.skipKeypress) return;
 
   this.cursor.deleteSelection();
-  var ch = String.fromCharCode(e.which);
+  var ch = e.data;
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
     this.cursor.insertNew(new VanillaSymbol(ch));
-
-  e.preventDefault();
-  return true;
 };
 

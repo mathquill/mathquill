@@ -308,7 +308,7 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
-/* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
+/* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.textInput somehow
 case ',':
   return new VanillaSymbol('\\, ',' ');
 case ':':

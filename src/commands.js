@@ -295,9 +295,9 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
+_.textInput = function(e) {
   this.cursor.deleteSelection();
-  var ch = String.fromCharCode(e.which);
+  var ch = e.data;
   if (ch !== '$')
     this.write(ch);
   else if (this.isEmpty())
@@ -320,7 +320,6 @@ _.keypress = function(e) {
     this.cursor.insertBefore(next);
     delete next.firstChild.focus;
   }
-  return false;
 };
 function InnerTextBlock(){}
 _ = InnerTextBlock.prototype = new MathBlock;
@@ -419,18 +418,18 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
-  var ch = String.fromCharCode(e.which);
+_.textInput = function(e) {
+  var ch = e.data;
   if (ch.match(/[a-z]/i)) {
     this.cursor.deleteSelection();
     this.cursor.insertNew(new VanillaSymbol(ch));
-    return false;
+    return;
   }
   this.renderCommand();
   if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
-    return false;
+    return;
 
-  return this.cursor.parent.keypress(e);
+  this.cursor.parent.textInput(e);
 };
 _.renderCommand = function() {
   this.jQ = this.jQ.last();
