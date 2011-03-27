@@ -137,7 +137,7 @@ _.text = function() {
 _.renderLatex = function(latex) {
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this).writeLatex(latex);
+  this.cursor.appendTo(this).writeLatex(latex);
   this.blur();
 };
 _.keydown = function(e)
@@ -331,7 +331,7 @@ _.keydown = function(e)
 };
 _.textInput = function(e) {
   if (!this.skipTextInput)
-    this.cursor.show().write(e.data);
+    this.cursor.write(e.data);
 };
 
 function RootMathCommand(cursor) {
@@ -342,7 +342,7 @@ function RootMathCommand(cursor) {
 
     var ch = e.data;
     if (ch !== '$' || cursor.parent !== this)
-      cursor.show().write(ch);
+      cursor.write(ch);
     else if (this.isEmpty()) {
       cursor.insertAfter(this.parent).backspace()
         .insertNew(new VanillaSymbol('\\$','$')).show();
@@ -352,7 +352,7 @@ function RootMathCommand(cursor) {
     else if (!cursor.prev)
       cursor.insertBefore(this.parent);
     else
-      cursor.show().write(ch);
+      cursor.write(ch);
   };
 }
 _ = RootMathCommand.prototype = new MathCommand;

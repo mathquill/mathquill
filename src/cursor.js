@@ -216,7 +216,7 @@ _.writeLatex = function(latex) {
         if (token === '\\')
           token = latex.shift();
 
-        cursor.write(token);
+        cursor.insertCh(token);
         cmd = cursor.prev || cursor.parent.parent;
 
         if (cursor.prev) //was a close-paren, so break recursion
@@ -253,7 +253,7 @@ _.writeLatex = function(latex) {
         if (token === '{')
           writeLatexBlock(cursor);
         else
-          cursor.write(token);
+          cursor.insertCh(token);
       });
       cursor.insertAfter(cmd);
     }
@@ -261,6 +261,9 @@ _.writeLatex = function(latex) {
   return this.hide();
 };
 _.write = function(ch) {
+  return this.show().insertCh(ch);
+};
+_.insertCh = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
     this.prev = this.selection.prev;
