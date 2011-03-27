@@ -38,8 +38,8 @@ _.foldChildren = function(fold, fn) {
 _.keydown = function(e) {
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
-  return this.parent.keypress(e);
+_.textInput = function(ch) {
+  return this.parent.textInput(ch);
 };
 
 /**
@@ -316,6 +316,14 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  //trigger virtual textInput event (see Wiki page "Keyboard Events")
+  function textInput() {
+    var text = textarea.val();
+    if (!text) return;
+    textarea.val('');
+    cursor.parent.textInput(text);
+  }
+
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
@@ -343,17 +351,10 @@ function createRoot(jQ, root, textbox, editable) {
     if (!lastKeydn.returnValue)
       return false;
 
-    //ignore commands, shortcuts and control characters
-    //in ASCII, below 32 there are only control chars
-    if (e.ctrlKey || e.metaKey || e.which < 32)
-      return true;
-
-    if (cursor.parent.keypress(e))
-      return true;
-    else {
-      e.stopImmediatePropagation();
-      return false;
-    };
+    //after keypress event, trigger virtual textInput event if text was
+    //input to textarea
+    //  (see Wiki page "Keyboard Events")
+    setTimeout(textInput);
   }).bind('mousedown.mathquill', function(e) {
     cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
@@ -408,12 +409,12 @@ _.text = function() {
 _.renderLatex = function(latex) {
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
-  this.cursor.show().appendTo(this).writeLatex(latex);
+  this.cursor.appendTo(this).writeLatex(latex);
   this.blur();
 };
 _.keydown = function(e)
 {
-  this.skipKeypress = true;
+  this.skipTextInput = true;
   e.ctrlKey = e.ctrlKey || e.metaKey;
   switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
   case 8: //backspace
@@ -425,8 +426,7 @@ _.keydown = function(e)
     else
       this.cursor.backspace();
     break;
-  case 27: //esc does something weird in keypress, may as well be the same as tab
-           //  until we figure out what to do with it
+  case 27: //may as well be the same as tab until we figure out what to do with it
   case 'Esc':
   case 'U+001B':
   case 9: //tab
@@ -445,7 +445,7 @@ _.keydown = function(e)
     }
     else { //plain Tab = go one block right if it exists, else escape right.
       if (parent === this) //cursor is in root editable, continue default
-        return this.skipKeypress = true;
+        return this.skipTextInput = true;
       else if (parent.next) //go one block right
         this.cursor.prependTo(parent.next);
       else //get out of the block
@@ -550,7 +550,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 67: //the 'C' key, as in Ctrl+C Copy
   case 'C':
@@ -565,7 +565,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 86: //the 'V' key, as in Ctrl+V Paste
   case 'V':
@@ -578,7 +578,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 88: //the 'X' key, as in Ctrl+X Cut
   case 'X':
@@ -594,45 +594,36 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   default:
-    this.skipKeypress = false;
+    this.skipTextInput = false;
   }
   return true;
 };
-_.keypress = function(e) {
-  if (this.skipKeypress) return true;
-
-  this.cursor.show().write(String.fromCharCode(e.which));
-  e.preventDefault();
-  return true;
+_.textInput = function(ch) {
+  if (!this.skipTextInput)
+    this.cursor.write(ch);
 };
 
 function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
   this.firstChild.cursor = cursor;
-  this.firstChild.keypress = function(e) {
-    if (this.skipKeypress) return true;
+  this.firstChild.textInput = function(ch) {
+    if (this.skipTextInput) return;
 
-    var ch = String.fromCharCode(e.which);
-    if (ch === '$' && cursor.parent == this) {
-      if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
-          .insertNew(new VanillaSymbol('\\$','$')).show();
-      }
-      else if (!cursor.next)
-        cursor.insertAfter(this.parent);
-      else if (!cursor.prev)
-        cursor.insertBefore(this.parent);
-      else
-        cursor.show().write(ch);
+    if (ch !== '$' || cursor.parent !== this)
+      cursor.write(ch);
+    else if (this.isEmpty()) {
+      cursor.insertAfter(this.parent).backspace()
+        .insertNew(new VanillaSymbol('\\$','$')).show();
     }
+    else if (!cursor.next)
+      cursor.insertAfter(this.parent);
+    else if (!cursor.prev)
+      cursor.insertBefore(this.parent);
     else
-      cursor.show().write(ch);
-
-    e.preventDefault();
-    return true;
+      cursor.write(ch);
   };
 }
 _ = RootMathCommand.prototype = new MathCommand;
@@ -676,18 +667,14 @@ _.renderLatex = function(latex) {
   }
 };
 _.keydown = RootMathBlock.prototype.keydown;
-_.keypress = function(e) {
-  if (this.skipKeypress) return true;
+_.textInput = function(ch) {
+  if (this.skipTextInput) return;
 
   this.cursor.deleteSelection();
-  var ch = String.fromCharCode(e.which);
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
     this.cursor.insertNew(new VanillaSymbol(ch));
-
-  e.preventDefault();
-  return true;
 };
 
 /***************************
@@ -987,9 +974,8 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
+_.textInput = function(ch) {
   this.cursor.deleteSelection();
-  var ch = String.fromCharCode(e.which);
   if (ch !== '$')
     this.write(ch);
   else if (this.isEmpty())
@@ -1012,7 +998,6 @@ _.keypress = function(e) {
     this.cursor.insertBefore(next);
     delete next.firstChild.focus;
   }
-  return false;
 };
 function InnerTextBlock(){}
 _ = InnerTextBlock.prototype = new MathBlock;
@@ -1111,18 +1096,17 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.keypress = function(e) {
-  var ch = String.fromCharCode(e.which);
+_.textInput = function(ch) {
   if (ch.match(/[a-z]/i)) {
     this.cursor.deleteSelection();
     this.cursor.insertNew(new VanillaSymbol(ch));
-    return false;
+    return;
   }
   this.renderCommand();
   if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
-    return false;
+    return;
 
-  return this.cursor.parent.keypress(e);
+  this.cursor.parent.textInput(ch);
 };
 _.renderCommand = function() {
   this.jQ = this.jQ.last();
@@ -1602,7 +1586,7 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
-/* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.keypress somehow
+/* spacing special characters, gonna have to implement this in LatexCommandInput.prototype.textInput somehow
 case ',':
   return new VanillaSymbol('\\, ',' ');
 case ':':
@@ -2072,7 +2056,7 @@ _.writeLatex = function(latex) {
         if (token === '\\')
           token = latex.shift();
 
-        cursor.write(token);
+        cursor.insertCh(token);
         cmd = cursor.prev || cursor.parent.parent;
 
         if (cursor.prev) //was a close-paren, so break recursion
@@ -2109,7 +2093,7 @@ _.writeLatex = function(latex) {
         if (token === '{')
           writeLatexBlock(cursor);
         else
-          cursor.write(token);
+          cursor.insertCh(token);
       });
       cursor.insertAfter(cmd);
     }
@@ -2117,6 +2101,9 @@ _.writeLatex = function(latex) {
   return this.hide();
 };
 _.write = function(ch) {
+  return this.show().insertCh(ch);
+};
+_.insertCh = function(ch) {
   if (this.selection) {
     //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
     this.prev = this.selection.prev;
@@ -2465,7 +2452,7 @@ $.fn.mathquill = function(cmd, latex) {
           cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show().writeLatex(latex);
+          cursor.writeLatex(latex);
           block.blur();
         }
       });
