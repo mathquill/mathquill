@@ -81,25 +81,23 @@
           }
           return tree.slice(1);
         }
-        var editingSource = false, latexSource = $('#latex-source'), latexMath = $('#editable-math').bind('keydown keypress', function()
+        var editingSource = false, latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogs = $('#codecogs'), latexMath = $('#editable-math').bind('keydown keypress', function()
         {
           setTimeout(function() {
-            $('#html-source').text(printTree(latexMath.mathquill('html')));
+            htmlSource.text(printTree(latexMath.mathquill('html')));
             var latex = latexMath.mathquill('latex');
-            //location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
             if(!editingSource)
               latexSource.val(latex);
             if(!LatexImages)
               return;
             latex = encodeURIComponent(latexSource.val());
-            $('#codecogs').attr('src','http://latex.codecogs.com/gif.latex?'+latex).parent().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
+//            location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
+            codecogs.attr('src','http://latex.codecogs.com/gif.latex?'+latex).parent().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
           });
-        }).focus();
-        if(location.hash && location.hash.length > 1){
-          latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1)));
-          latexMath.cursor.appendTo(latexMath);
-        }
-        var textarea = $('#latex-source').focus(function(){
+        }).keydown().focus();
+        if(location.hash && location.hash.length > 1)
+          latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).focus();
+        var textarea = latexSource.focus(function(){
           editingSource = true;
         }).blur(function(){
           editingSource = false;
