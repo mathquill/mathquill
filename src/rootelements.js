@@ -142,7 +142,7 @@ _.renderLatex = function(latex) {
 };
 _.keydown = function(e)
 {
-  this.skipKeypress = true;
+  this.skipTextInput = true;
   e.ctrlKey = e.ctrlKey || e.metaKey;
   switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
   case 8: //backspace
@@ -173,7 +173,7 @@ _.keydown = function(e)
     }
     else { //plain Tab = go one block right if it exists, else escape right.
       if (parent === this) //cursor is in root editable, continue default
-        return this.skipKeypress = true;
+        return this.skipTextInput = true;
       else if (parent.next) //go one block right
         this.cursor.prependTo(parent.next);
       else //get out of the block
@@ -278,7 +278,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 67: //the 'C' key, as in Ctrl+C Copy
   case 'C':
@@ -293,7 +293,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 86: //the 'V' key, as in Ctrl+V Paste
   case 'V':
@@ -306,7 +306,7 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   case 88: //the 'X' key, as in Ctrl+X Cut
   case 'X':
@@ -322,15 +322,15 @@ _.keydown = function(e)
       e.preventDefault();
     }
     else
-      this.skipKeypress = false;
+      this.skipTextInput = false;
     break;
   default:
-    this.skipKeypress = false;
+    this.skipTextInput = false;
   }
   return true;
 };
 _.textInput = function(e) {
-  if (!this.skipKeypress)
+  if (!this.skipTextInput)
     this.cursor.show().write(e.data);
 };
 
@@ -338,7 +338,7 @@ function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
   this.firstChild.cursor = cursor;
   this.firstChild.textInput = function(e) {
-    if (this.skipKeypress) return;
+    if (this.skipTextInput) return;
 
     var ch = e.data;
     if (ch !== '$' || cursor.parent !== this)
@@ -397,7 +397,7 @@ _.renderLatex = function(latex) {
 };
 _.keydown = RootMathBlock.prototype.keydown;
 _.textInput = function(e) {
-  if (this.skipKeypress) return;
+  if (this.skipTextInput) return;
 
   this.cursor.deleteSelection();
   var ch = e.data;
