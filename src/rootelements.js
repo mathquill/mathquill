@@ -346,18 +346,16 @@ function RootMathCommand(cursor) {
     if (this.skipKeypress) return true;
 
     var ch = String.fromCharCode(e.which);
-    if (ch === '$' && cursor.parent == this) {
-      if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
-          .insertNew(new VanillaSymbol('\\$','$')).show();
-      }
-      else if (!cursor.next)
-        cursor.insertAfter(this.parent);
-      else if (!cursor.prev)
-        cursor.insertBefore(this.parent);
-      else
-        cursor.show().write(ch);
+    if (ch !== '$' || cursor.parent !== this)
+      cursor.show().write(ch);
+    else if (this.isEmpty()) {
+      cursor.insertAfter(this.parent).backspace()
+        .insertNew(new VanillaSymbol('\\$','$')).show();
     }
+    else if (!cursor.next)
+      cursor.insertAfter(this.parent);
+    else if (!cursor.prev)
+      cursor.insertBefore(this.parent);
     else
       cursor.show().write(ch);
 
