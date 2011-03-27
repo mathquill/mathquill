@@ -295,9 +295,8 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.textInput = function(e) {
+_.textInput = function(ch) {
   this.cursor.deleteSelection();
-  var ch = e.data;
   if (ch !== '$')
     this.write(ch);
   else if (this.isEmpty())
@@ -418,8 +417,7 @@ _.keydown = function(e) {
   }
   return this.parent.keydown(e);
 };
-_.textInput = function(e) {
-  var ch = e.data;
+_.textInput = function(ch) {
   if (ch.match(/[a-z]/i)) {
     this.cursor.deleteSelection();
     this.cursor.insertNew(new VanillaSymbol(ch));
@@ -429,7 +427,7 @@ _.textInput = function(e) {
   if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
     return;
 
-  this.cursor.parent.textInput(e);
+  this.cursor.parent.textInput(ch);
 };
 _.renderCommand = function() {
   this.jQ = this.jQ.last();

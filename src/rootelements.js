@@ -46,6 +46,14 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  //trigger virtual textInput event (see Wiki page "Keyboard Events")
+  function textInput() {
+    var text = textarea.val();
+    if (!text) return;
+    textarea.val('');
+    cursor.parent.textInput(text);
+  }
+
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
@@ -76,13 +84,7 @@ function createRoot(jQ, root, textbox, editable) {
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
     //  (see Wiki page "Keyboard Events")
-    setTimeout(function() {
-      var text = textarea.val();
-      if (!text) return;
-      textarea.val('');
-      e.data = text;
-      cursor.parent.textInput(e);
-    });
+    setTimeout(textInput);
   }).bind('mousedown.mathquill', function(e) {
     cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
 
@@ -329,18 +331,17 @@ _.keydown = function(e)
   }
   return true;
 };
-_.textInput = function(e) {
+_.textInput = function(ch) {
   if (!this.skipTextInput)
-    this.cursor.write(e.data);
+    this.cursor.write(ch);
 };
 
 function RootMathCommand(cursor) {
   MathCommand.call(this, '$');
   this.firstChild.cursor = cursor;
-  this.firstChild.textInput = function(e) {
+  this.firstChild.textInput = function(ch) {
     if (this.skipTextInput) return;
 
-    var ch = e.data;
     if (ch !== '$' || cursor.parent !== this)
       cursor.write(ch);
     else if (this.isEmpty()) {
@@ -396,11 +397,10 @@ _.renderLatex = function(latex) {
   }
 };
 _.keydown = RootMathBlock.prototype.keydown;
-_.textInput = function(e) {
+_.textInput = function(ch) {
   if (this.skipTextInput) return;
 
   this.cursor.deleteSelection();
-  var ch = e.data;
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
