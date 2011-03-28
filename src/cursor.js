@@ -190,24 +190,15 @@ _.seek = function(target, pageX, pageY) {
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
-  latex = ( latex && latex.match(/\\[a-z]*|[^\s]/ig) ) || 0;
+  latex = ( latex && latex.match(/\\text\{([^{]|\\\{)*\}|\\[a-z]*|[^\s]/ig) ) || 0;
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
       if (!token || token === '}') return;
 
       var cmd;
-      if (token === '\\text') {
-        var text = latex.shift();
-        if (text === '{') {
-          text = '';
-          while ( (token = latex.shift()) && token !== '}') {
-            text += token;
-            if (token === '\\') //backslash escapes following character
-              text += token = latex.shift();
-          }
-        }
-        cmd = new TextBlock(text);
+      if (token.slice(0, 6) === '\\text{') {
+        cmd = new TextBlock(token.slice(6, -1));
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
