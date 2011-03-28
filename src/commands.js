@@ -29,11 +29,9 @@ _.redraw = function() {
 };
 _.respace = function() {
   if (
-    this.prev && (
-      this.prev.cmd === '\\int ' || (
-        this.prev instanceof SupSub && this.prev.cmd != this.cmd &&
-        this.prev.prev && this.prev.prev.cmd === '\\int '
-      )
+    this.prev.cmd === '\\int ' || (
+      this.prev instanceof SupSub && this.prev.cmd != this.cmd &&
+      this.prev.prev && this.prev.prev.cmd === '\\int '
     )
   ) {
     if (!this.limit) {
@@ -47,6 +45,7 @@ _.respace = function() {
       this.jQ.removeClass('limit');
     }
   }
+
   if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
     if (this.limit && this.cmd === '_') {
       this.jQ.css({
@@ -66,12 +65,6 @@ _.respace = function() {
       left: '-.25em',
       marginRight: ''
     });
-  }
-  else if (this.cmd === '^' && this.next && this.next.cmd === '\\sqrt') {
-    this.jQ.css({
-      left: '',
-      marginRight: '-.7em'
-    }).addClass('limit');
   }
   else {
     this.jQ.css({
@@ -152,7 +145,7 @@ _.html_template = [
 ];
 _.text_template = ['sqrt(', ')'];
 _.redraw = function() {
-  var block = this.firstChild.jQ, height = block.outerHeight(true);
+  var block = this.lastChild.jQ, height = block.outerHeight(true);
   block.css({
     borderTopWidth: height/28+1 // NOTE: Formula will need to change if our font isn't Symbola
   }).prev().css({
@@ -161,6 +154,23 @@ _.redraw = function() {
 };
 
 LatexCmds.sqrt = SquareRoot;
+
+function NthRoot(replacedFragment) {
+  SquareRoot.call(this, replacedFragment);
+  this.jQ = this.firstChild.jQ.detach().add(this.jQ);
+}
+_ = NthRoot.prototype = new SquareRoot;
+_.html_template = [
+  '<span><span class="sqrt-prefix">&radic;</span></span>',
+  '<sup class="nthroot"></sup>',
+  '<span class="sqrt-stem"></span>'
+];
+_.text_template = ['sqrt[', '](', ')'];
+_.latex = function() {
+  return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
+};
+
+LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
