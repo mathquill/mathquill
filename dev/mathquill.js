@@ -2048,7 +2048,7 @@ _.writeLatex = function(latex) {
 
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
-        cmd = new TextBlock(token.slice(7, -1));
+        cmd = new TextBlock(token.slice(6, -1));
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
