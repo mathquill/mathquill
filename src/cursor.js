@@ -30,7 +30,7 @@ _.show = function() {
       if (this.selection && this.selection.prev === this.prev)
         this.jQ.insertBefore(this.selection.jQ);
       else
-        this.jQ.insertBefore(this.next.jQ);
+        this.jQ.insertBefore(this.next.jQ.first());
     }
     else
       this.jQ.appendTo(this.parent.jQ);
