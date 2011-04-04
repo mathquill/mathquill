@@ -168,7 +168,9 @@
   vertical-align: -.4em;
 }
 .mathquill-rendered-math sup.nthroot {
-  margin-right: -.7em;
+  margin-right: -.6em;
+  margin-left: .2em;
+  min-width: .4em;
 }
 .mathquill-rendered-math sup.limit, .mathquill-rendered-math sub.limit,
 .mathquill-rendered-math sup.nthroot {
