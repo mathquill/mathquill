@@ -214,7 +214,7 @@ LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
 
 LatexCmds.lt = bind(BinaryOperator,'<','&lt;');
 
-LatexCmds.gt = bind(BinaryOperator,'<','&gt;');
+LatexCmds.gt = bind(BinaryOperator,'>','&gt;');
 
 LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','&le;');
 
