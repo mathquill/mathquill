@@ -44,6 +44,8 @@ function createRoot(jQ, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
     e.stopPropagation();
+  }).bind('selectstart', function(e) {
+    e.stopPropagation();
   });
 
   //trigger virtual textInput event (see Wiki page "Keyboard Events")
@@ -195,7 +197,8 @@ _.keydown = function(e)
         this.cursor.selectRight();
     else //move to the end of the root block or the current block.
       this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-    break;
+    e.preventDefault();
+    return false;
   case 36: //home
   case 'Home':
     if (e.shiftKey)
@@ -203,7 +206,8 @@ _.keydown = function(e)
         this.cursor.selectLeft();
     else //move to the start of the root block or the current block.
       this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-    break;
+    e.preventDefault();
+    return false;
   case 37: //left
   case 'Left':
     if (e.ctrlKey) break;
@@ -212,7 +216,8 @@ _.keydown = function(e)
       this.cursor.selectLeft();
     else
       this.cursor.moveLeft();
-    break;
+    e.preventDefault();
+    return false;
   case 38: //up
   case 'Up':
     if (e.ctrlKey) break;
@@ -230,7 +235,8 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.parent);
     else if (this.cursor.parent !== this)
       this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-    break;
+    e.preventDefault();
+    return false;
   case 39: //right
   case 'Right':
     if (e.ctrlKey) break;
@@ -239,7 +245,8 @@ _.keydown = function(e)
       this.cursor.selectRight();
     else
       this.cursor.moveRight();
-    break;
+    e.preventDefault();
+    return false;
   case 40: //down
   case 'Down':
     if (e.ctrlKey) break;
@@ -257,7 +264,8 @@ _.keydown = function(e)
       this.cursor.clearSelection().appendTo(this.cursor.parent);
     else if (this.cursor.parent !== this)
       this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-    break;
+    e.preventDefault();
+    return false;
   case 46: //delete
   case 'Del':
   case 'U+007F':
@@ -278,6 +286,7 @@ _.keydown = function(e)
       while (this.cursor.prev)
         this.cursor.selectLeft();
       e.preventDefault();
+      return false;
     }
     else
       this.skipTextInput = false;
@@ -290,9 +299,6 @@ _.keydown = function(e)
         return this.parent.keydown(e);
 
       if (!this.cursor.selection) return true;
-
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
-      e.preventDefault();
     }
     else
       this.skipTextInput = false;
@@ -304,8 +310,11 @@ _.keydown = function(e)
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
-      this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
-      e.preventDefault();
+      var self = this;
+      setTimeout(function(){
+        self.cursor.writeLatex(self.cursor.root.textarea.children().val());
+        self.cursor.clearSelection();
+      });
     }
     else
       this.skipTextInput = false;
@@ -319,9 +328,7 @@ _.keydown = function(e)
 
       if (!this.cursor.selection) return true;
 
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
       this.cursor.deleteSelection();
-      e.preventDefault();
     }
     else
       this.skipTextInput = false;
