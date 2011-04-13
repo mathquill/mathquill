@@ -152,6 +152,7 @@ _.redraw = function() {
     fontSize: .9*height/+block.css('fontSize').slice(0,-2)+'em'
   });
 };
+_.optional_arg_command = 'nthroot';
 
 LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
 
