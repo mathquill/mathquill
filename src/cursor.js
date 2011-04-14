@@ -190,7 +190,7 @@ _.seek = function(target, pageX, pageY) {
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
-  latex = ( latex && latex.match(/\\text\{([^{]|\\\{)*\}|\\[a-z]*|[^\s]/ig) ) || 0;
+  latex = ( latex && latex.match(/\\text\{([^{}]|\\\[{}])*\}|\\[\{\}\[\]]|[\(\)]|\\[a-z]*|[^\s]/ig) ) || 0;
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
@@ -202,10 +202,24 @@ _.writeLatex = function(latex) {
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
-      else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
-        token = latex.shift();
-        if (token === '\\')
-          token = latex.shift();
+      else if (token === '|') { //treat pipe as VanillaSymbol, unless it's a right pipe, i.e it has
+                                //a previous pipe sibling w/ at least one other intermediate element
+        var prevPipe = cursor.prev && cursor.prev.prev;
+        while (prevPipe && (prevPipe.cmd != '|' || !prevPipe.isEmpty()))
+          prevPipe = prevPipe.prev;
+        if (prevPipe) {
+          prevPipe.remove();
+          cursor.selectFrom(prevPipe.next);
+          cursor.show().insertCh(token).insertAfter(cursor.parent.parent);
+          continue;
+        }
+        else {
+          cmd = new VanillaSymbol(token);
+          cursor.insertNew(cmd);
+        }
+      }
+      else if ($.inArray(token, ['\\lbrace', '\\{', '\\rbrace', '\\}', '\\langle', '\\lang', '\\rangle', '\\rang', '\\lparen', '(', '\\rparen', ')', '\\lbrack', '\\lbracket', '\\[', '\\rbrack', '\\rbracket', '\\]', '\\lpipe', '\\rpipe']) >= 0) {
+        token = token.replace(/^\\/, '');
 
         cursor.insertCh(token);
         cmd = cursor.prev || cursor.parent.parent;
