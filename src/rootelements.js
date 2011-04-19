@@ -189,7 +189,7 @@ _.keydown = function(e)
   case 13: //enter
   case 'Enter':
     e.preventDefault();
-    break;
+    return true;
   case 35: //end
   case 'End':
     if (e.shiftKey)
@@ -197,8 +197,7 @@ _.keydown = function(e)
         this.cursor.selectRight();
     else //move to the end of the root block or the current block.
       this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-    e.preventDefault();
-    return false;
+    break;
   case 36: //home
   case 'Home':
     if (e.shiftKey)
@@ -206,8 +205,7 @@ _.keydown = function(e)
         this.cursor.selectLeft();
     else //move to the start of the root block or the current block.
       this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-    e.preventDefault();
-    return false;
+    break;
   case 37: //left
   case 'Left':
     if (e.ctrlKey) break;
@@ -216,8 +214,7 @@ _.keydown = function(e)
       this.cursor.selectLeft();
     else
       this.cursor.moveLeft();
-    e.preventDefault();
-    return false;
+    break;
   case 38: //up
   case 'Up':
     if (e.ctrlKey) break;
@@ -235,8 +232,7 @@ _.keydown = function(e)
       this.cursor.clearSelection().prependTo(this.cursor.parent);
     else if (this.cursor.parent !== this)
       this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-    e.preventDefault();
-    return false;
+    break;
   case 39: //right
   case 'Right':
     if (e.ctrlKey) break;
@@ -245,8 +241,7 @@ _.keydown = function(e)
       this.cursor.selectRight();
     else
       this.cursor.moveRight();
-    e.preventDefault();
-    return false;
+    break;
   case 40: //down
   case 'Down':
     if (e.ctrlKey) break;
@@ -264,8 +259,7 @@ _.keydown = function(e)
       this.cursor.clearSelection().appendTo(this.cursor.parent);
     else if (this.cursor.parent !== this)
       this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-    e.preventDefault();
-    return false;
+    break;
   case 46: //delete
   case 'Del':
   case 'U+007F':
@@ -290,19 +284,17 @@ _.keydown = function(e)
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 67: //the 'C' key, as in Ctrl+C Copy
   case 'C':
   case 'U+0043':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
-
-      if (!this.cursor.selection) return true;
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 86: //the 'V' key, as in Ctrl+V Paste
   case 'V':
   case 'U+0056':
@@ -318,7 +310,7 @@ _.keydown = function(e)
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 88: //the 'X' key, as in Ctrl+X Cut
   case 'X':
   case 'U+0058':
@@ -326,17 +318,18 @@ _.keydown = function(e)
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
-      if (!this.cursor.selection) return true;
-
-      this.cursor.deleteSelection();
+      if (this.cursor.selection)
+        this.cursor.deleteSelection();
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   default:
     this.skipTextInput = false;
+    return true;
   }
-  return true;
+  e.preventDefault();
+  return false;
 };
 _.textInput = function(ch) {
   if (!this.skipTextInput)
