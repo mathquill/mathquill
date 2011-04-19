@@ -2170,7 +2170,7 @@ _.unwrapGramp = function() {
 
     uncle.eachChild(function(cousin) {
       cousin.parent = greatgramp;
-      cousin.jQ.insertBefore(gramp.jQ);
+      cousin.jQ.insertBefore(gramp.jQ.first());
     });
     uncle.firstChild.prev = prev;
     if (prev)
