@@ -302,10 +302,9 @@ _.keydown = function(e)
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
-      var self = this;
+      var cursor = this.cursor, textarea = cursor.root.textarea.children();
       setTimeout(function(){
-        self.cursor.writeLatex(self.cursor.root.textarea.children().val());
-        self.cursor.clearSelection();
+        cursor.writeLatex(textarea.val()).clearSelection();
       });
     }
     else
