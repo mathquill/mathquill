@@ -44,8 +44,6 @@ function createRoot(jQ, root, textbox, editable) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
     e.stopPropagation();
-  }).bind('selectstart', function(e) {
-    e.stopPropagation();
   });
 
   //trigger virtual textInput event (see Wiki page "Keyboard Events")
@@ -101,7 +99,11 @@ function createRoot(jQ, root, textbox, editable) {
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
     setTimeout(function(){textarea.focus();});
-  }).bind('selectstart.mathquill', false).blur();
+  }).bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  }).blur();
 
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
