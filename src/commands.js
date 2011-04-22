@@ -175,11 +175,11 @@ LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
-  MathCommand.call(this, cmd,
+  MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     [open, close],
     replacedFragment);
-  this.end = end;
+  this.end = '\\right'+end;
 }
 _ = Bracket.prototype = new MathCommand;
 _.initBlocks = function(replacedFragment) {
@@ -202,10 +202,7 @@ LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
   Bracket.call(this, '{', '}', '\\{', '\\}', replacedFragment);
 });
 LatexCmds.langle = LatexCmds.lang = proto(Bracket, function(replacedFragment) {
-  Bracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ', replacedFragment);
-});
-LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Bracket, function(replacedFragment) {
-  Bracket.call(this, '[', ']', '\\[', '\\]', replacedFragment);
+  Bracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedFragment);
 });
 
 // Closing bracket matching opening bracket above
@@ -226,10 +223,7 @@ LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function(replacedFragment
   CloseBracket.call(this, '{','}','\\{','\\}',replacedFragment);
 });
 LatexCmds.rangle = LatexCmds.rang = proto(CloseBracket, function(replacedFragment) {
-  CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ', replacedFragment);
-});
-LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseBracket, function(replacedFragment) {
-  CloseBracket.call(this, '[', ']', '\\[', '\\]', replacedFragment);
+  CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ',replacedFragment);
 });
 
 function Paren(open, close, replacedFragment) {
@@ -240,6 +234,9 @@ Paren.prototype = Bracket.prototype;
 LatexCmds.lparen = CharCmds['('] = proto(Paren, function(replacedFragment) {
   Paren.call(this, '(', ')', replacedFragment);
 });
+LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Paren, function(replacedFragment) {
+  Paren.call(this, '[', ']', replacedFragment);
+});
 
 function CloseParen(open, close, replacedFragment) {
   CloseBracket.call(this, open, close, open, close, replacedFragment);
@@ -248,6 +245,9 @@ CloseParen.prototype = CloseBracket.prototype;
 
 LatexCmds.rparen = CharCmds[')'] = proto(CloseParen, function(replacedFragment) {
   CloseParen.call(this, '(', ')', replacedFragment);
+});
+LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, function(replacedFragment) {
+  CloseParen.call(this, '[', ']', replacedFragment);
 });
 
 function Pipes(replacedFragment) {
