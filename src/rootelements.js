@@ -99,6 +99,13 @@ function createRoot(jQ, root, textbox, editable) {
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
     setTimeout(function(){textarea.focus();});
+  }).bind('cut', function() {
+    if (cursor.selection)
+      cursor.deleteSelection();
+  }).bind('paste', function() {
+    setTimeout(function() {
+      cursor.writeLatex(textarea.val()).clearSelection();
+    });
   }).bind('selectstart.mathquill', function(e) {
     if (e.target != textarea[0])
       e.preventDefault();
@@ -283,44 +290,6 @@ _.keydown = function(e)
         this.cursor.selectLeft();
       e.preventDefault();
       return false;
-    }
-    else
-      this.skipTextInput = false;
-    return true;
-  case 67: //the 'C' key, as in Ctrl+C Copy
-  case 'C':
-  case 'U+0043':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-    }
-    else
-      this.skipTextInput = false;
-    return true;
-  case 86: //the 'V' key, as in Ctrl+V Paste
-  case 'V':
-  case 'U+0056':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      var cursor = this.cursor, textarea = cursor.root.textarea.children();
-      setTimeout(function(){
-        cursor.writeLatex(textarea.val()).clearSelection();
-      });
-    }
-    else
-      this.skipTextInput = false;
-    return true;
-  case 88: //the 'X' key, as in Ctrl+X Cut
-  case 'X':
-  case 'U+0058':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      if (this.cursor.selection)
-        this.cursor.deleteSelection();
     }
     else
       this.skipTextInput = false;
