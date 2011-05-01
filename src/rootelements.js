@@ -99,7 +99,11 @@ function createRoot(jQ, root, textbox, editable) {
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
     setTimeout(function(){textarea.focus();});
-  }).bind('selectstart.mathquill', false).blur();
+  }).bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  }).blur();
 
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
@@ -187,7 +191,7 @@ _.keydown = function(e)
   case 13: //enter
   case 'Enter':
     e.preventDefault();
-    break;
+    return true;
   case 35: //end
   case 'End':
     if (e.shiftKey)
@@ -278,25 +282,21 @@ _.keydown = function(e)
       while (this.cursor.prev)
         this.cursor.selectLeft();
       e.preventDefault();
+      return false;
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 67: //the 'C' key, as in Ctrl+C Copy
   case 'C':
   case 'U+0043':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
-
-      if (!this.cursor.selection) return true;
-
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
-      e.preventDefault();
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 86: //the 'V' key, as in Ctrl+V Paste
   case 'V':
   case 'U+0056':
@@ -304,12 +304,14 @@ _.keydown = function(e)
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
-      this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
-      e.preventDefault();
+      var cursor = this.cursor, textarea = cursor.root.textarea.children();
+      setTimeout(function(){
+        cursor.writeLatex(textarea.val()).clearSelection();
+      });
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   case 88: //the 'X' key, as in Ctrl+X Cut
   case 'X':
   case 'U+0058':
@@ -317,19 +319,18 @@ _.keydown = function(e)
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
         return this.parent.keydown(e);
 
-      if (!this.cursor.selection) return true;
-
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
-      this.cursor.deleteSelection();
-      e.preventDefault();
+      if (this.cursor.selection)
+        this.cursor.deleteSelection();
     }
     else
       this.skipTextInput = false;
-    break;
+    return true;
   default:
     this.skipTextInput = false;
+    return true;
   }
-  return true;
+  e.preventDefault();
+  return false;
 };
 _.textInput = function(ch) {
   if (!this.skipTextInput)

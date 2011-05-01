@@ -194,7 +194,7 @@ _.writeLatex = function(latex) {
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
-      if (!token || token === '}') return;
+      if (!token || token === '}' || token === ']') return;
 
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
@@ -218,8 +218,15 @@ _.writeLatex = function(latex) {
       else if (/^\\[a-z]+$/i.test(token)) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
-        if (cmd)
-          cursor.insertNew(cmd = new cmd(undefined, token));
+        if (cmd) {
+          cmd = new cmd(undefined, token);
+          if (latex[0] === '[' && cmd.optional_arg_command) {
+            //e.g. \sqrt{m} -> SquareRoot, \sqrt[n]{m} -> NthRoot
+            token = cmd.optional_arg_command;
+            cmd = new LatexCmds[token](undefined, token);
+          }
+          cursor.insertNew(cmd);
+        }
         else {
           cmd = new TextBlock(token);
           cursor.insertNew(cmd).insertAfter(cmd);
@@ -241,7 +248,7 @@ _.writeLatex = function(latex) {
         var token = latex.shift();
         if (!token) return false;
 
-        if (token === '{')
+        if (token === '{' || token === '[')
           writeLatexBlock(cursor);
         else
           cursor.insertCh(token);
@@ -454,6 +461,7 @@ _.selectFrom = function(anticursor) {
     right.next
   );
   this.insertAfter(right.next.prev || right.parent.lastChild);
+  this.selectLatex();
 };
 _.selectLeft = function() {
   if (this.selection) {
@@ -481,6 +489,7 @@ _.selectLeft = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
   }
+  this.selectLatex();
 };
 _.selectRight = function() {
   if (this.selection) {
@@ -508,8 +517,26 @@ _.selectRight = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   }
+  this.selectLatex();
+};
+_.selectLatex = function() {
+  var textarea = this.root.textarea.children();
+  var latex = this.selection ? this.selection.latex() : '';
+  textarea.val(latex);
+  if (typeof textarea[0].selectionStart == 'number') {
+    textarea[0].selectionStart = 0;
+    textarea[0].selectionEnd = latex.length;
+  }
+  else if (document.selection) {
+    var range = textarea[0].createTextRange();
+    range.collapse(true);
+    range.moveStart("character", 0);
+    range.moveEnd("character", latex.length);
+    range.select();
+  }
 };
 _.clearSelection = function() {
+  this.root.textarea.children().val('');
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
