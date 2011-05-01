@@ -194,7 +194,7 @@ _.writeLatex = function(latex) {
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
-      if (!token || token === '}' || token === ']') return;
+      if (!token || token === '}') return;
 
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
@@ -218,15 +218,8 @@ _.writeLatex = function(latex) {
       else if (/^\\[a-z]+$/i.test(token)) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
-        if (cmd) {
-          cmd = new cmd(undefined, token);
-          if (latex[0] === '[' && cmd.optional_arg_command) {
-            //e.g. \sqrt{m} -> SquareRoot, \sqrt[n]{m} -> NthRoot
-            token = cmd.optional_arg_command;
-            cmd = new LatexCmds[token](undefined, token);
-          }
-          cursor.insertNew(cmd);
-        }
+        if (cmd)
+          cursor.insertNew(cmd = new cmd(undefined, token));
         else {
           cmd = new TextBlock(token);
           cursor.insertNew(cmd).insertAfter(cmd);
@@ -248,7 +241,7 @@ _.writeLatex = function(latex) {
         var token = latex.shift();
         if (!token) return false;
 
-        if (token === '{' || token === '[')
+        if (token === '{')
           writeLatexBlock(cursor);
         else
           cursor.insertCh(token);
