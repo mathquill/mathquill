@@ -195,7 +195,7 @@ _.keydown = function(e)
     }
 
     this.cursor.clearSelection();
-    return false;
+    break;
   case 13: //enter
   case 'Enter':
     e.preventDefault();
@@ -299,7 +299,6 @@ _.keydown = function(e)
     this.skipTextInput = false;
     return true;
   }
-  e.preventDefault();
   return false;
 };
 _.textInput = function(ch) {
