@@ -34,9 +34,10 @@ function createRoot(jQ, root, textbox, editable) {
     if (!cursor.parent)
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('hasCursor');
-    if (cursor.selection)
+    if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-    else
+      setTimeout(function(){ cursor.selectLatex(); });
+    } else
       cursor.show();
     e.stopPropagation();
   }).blur(function(e) {
