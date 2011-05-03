@@ -194,7 +194,7 @@ _.writeLatex = function(latex) {
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
-      if (!token || token === '}' || token === ']') return;
+      if (!token || token === '}' || cursor.parent.parent.optional_arg_command && token === ']') return;
 
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
@@ -222,6 +222,7 @@ _.writeLatex = function(latex) {
           cmd = new cmd(undefined, token);
           if (latex[0] === '[' && cmd.optional_arg_command) {
             //e.g. \sqrt{m} -> SquareRoot, \sqrt[n]{m} -> NthRoot
+            latex[0] = '{';
             token = cmd.optional_arg_command;
             cmd = new LatexCmds[token](undefined, token);
           }
@@ -248,7 +249,7 @@ _.writeLatex = function(latex) {
         var token = latex.shift();
         if (!token) return false;
 
-        if (token === '{' || token === '[')
+        if (token === '{')
           writeLatexBlock(cursor);
         else
           cursor.insertCh(token);
