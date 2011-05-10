@@ -508,7 +508,7 @@ _.latex = function() {
   }).join('\\\\') + '\\end{matrix}';
 };
 _.text = function() {
-  return '[' + this.foldChildren([], function(latex, child) {
+  return '[' + this.foldChildren([], function(text, child) {
     text.push(child.text());
     return text;
   }).join() + ']';
