@@ -322,7 +322,12 @@ function createRoot(jQ, root, textbox, editable) {
     var text = textarea.val();
     if (!text) return;
     textarea.val('');
-    cursor.parent.textInput(text);
+    // textarea can contain more than one character
+    // when typing quickly on slower platforms;
+    // so process each character separately
+    for (var i=0; i<text.length; i++) {
+        cursor.parent.textInput(text[i]);
+    }
   }
 
   var lastKeydn = {}; //see Wiki page "Keyboard Events"
@@ -1160,7 +1165,7 @@ _.latex = function() {
   }).join('\\\\') + '\\end{matrix}';
 };
 _.text = function() {
-  return '[' + this.foldChildren([], function(latex, child) {
+  return '[' + this.foldChildren([], function(text, child) {
     text.push(child.text());
     return text;
   }).join() + ']';
