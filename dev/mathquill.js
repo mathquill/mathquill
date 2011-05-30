@@ -304,9 +304,10 @@ function createRoot(jQ, root, textbox, editable) {
     if (!cursor.parent)
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('hasCursor');
-    if (cursor.selection)
+    if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-    else
+      setTimeout(function(){ cursor.selectLatex(); });
+    } else
       cursor.show();
     e.stopPropagation();
   }).blur(function(e) {
@@ -318,13 +319,19 @@ function createRoot(jQ, root, textbox, editable) {
 
   //trigger virtual textInput event (see Wiki page "Keyboard Events")
   function textInput() {
+    if (skipTextInput) return;
     var text = textarea.val();
     if (!text) return;
     textarea.val('');
-    cursor.parent.textInput(text);
+    // textarea can contain more than one character
+    // when typing quickly on slower platforms;
+    // so process each character separately
+    for (var i=0; i<text.length; i++) {
+        cursor.parent.textInput(text[i]);
+    }
   }
 
-  var lastKeydn = {}; //see Wiki page "Keyboard Events"
+  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
@@ -369,7 +376,20 @@ function createRoot(jQ, root, textbox, editable) {
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
     setTimeout(function(){textarea.focus();});
-  }).bind('selectstart.mathquill', false).blur();
+  }).bind('cut', function() {
+    if (cursor.selection)
+      cursor.deleteSelection();
+  }).bind('copy', function() {
+    skipTextInput = true;
+  }).bind('paste', function() {
+    setTimeout(function() {
+      cursor.writeLatex(textarea.val()).clearSelection();
+    });
+  }).bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  }).blur();
 
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
@@ -453,11 +473,11 @@ _.keydown = function(e)
     }
 
     this.cursor.clearSelection();
-    return false;
+    break;
   case 13: //enter
   case 'Enter':
     e.preventDefault();
-    break;
+    return true;
   case 35: //end
   case 'End':
     if (e.shiftKey)
@@ -548,58 +568,16 @@ _.keydown = function(e)
       while (this.cursor.prev)
         this.cursor.selectLeft();
       e.preventDefault();
+      return false;
     }
     else
       this.skipTextInput = false;
-    break;
-  case 67: //the 'C' key, as in Ctrl+C Copy
-  case 'C':
-  case 'U+0043':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      if (!this.cursor.selection) return true;
-
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
-      e.preventDefault();
-    }
-    else
-      this.skipTextInput = false;
-    break;
-  case 86: //the 'V' key, as in Ctrl+V Paste
-  case 'V':
-  case 'U+0056':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      this.cursor.writeLatex(window['MathQuill LaTeX Clipboard']).show();
-      e.preventDefault();
-    }
-    else
-      this.skipTextInput = false;
-    break;
-  case 88: //the 'X' key, as in Ctrl+X Cut
-  case 'X':
-  case 'U+0058':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      if (!this.cursor.selection) return true;
-
-      window['MathQuill LaTeX Clipboard'] = this.cursor.selection.latex();
-      this.cursor.deleteSelection();
-      e.preventDefault();
-    }
-    else
-      this.skipTextInput = false;
-    break;
+    return true;
   default:
     this.skipTextInput = false;
+    return true;
   }
-  return true;
+  return false;
 };
 _.textInput = function(ch) {
   if (!this.skipTextInput)
@@ -636,6 +614,9 @@ _.initBlocks = function() {
 
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ;
+};
+_.latex = function() {
+  return '$' + this.firstChild.latex() + '$';
 };
 
 function RootTextBlock(){}
@@ -1187,7 +1168,7 @@ _.latex = function() {
   }).join('\\\\') + '\\end{matrix}';
 };
 _.text = function() {
-  return '[' + this.foldChildren([], function(latex, child) {
+  return '[' + this.foldChildren([], function(text, child) {
     text.push(child.text());
     return text;
   }).join() + ']';
@@ -2170,7 +2151,7 @@ _.unwrapGramp = function() {
 
     uncle.eachChild(function(cousin) {
       cousin.parent = greatgramp;
-      cousin.jQ.insertBefore(gramp.jQ);
+      cousin.jQ.insertBefore(gramp.jQ.first());
     });
     uncle.firstChild.prev = prev;
     if (prev)
@@ -2304,6 +2285,7 @@ _.selectFrom = function(anticursor) {
     right.next
   );
   this.insertAfter(right.next.prev || right.parent.lastChild);
+  this.selectLatex();
 };
 _.selectLeft = function() {
   if (this.selection) {
@@ -2331,6 +2313,7 @@ _.selectLeft = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
   }
+  this.selectLatex();
 };
 _.selectRight = function() {
   if (this.selection) {
@@ -2358,8 +2341,26 @@ _.selectRight = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   }
+  this.selectLatex();
+};
+_.selectLatex = function() {
+  var textarea = this.root.textarea.children();
+  var latex = this.selection ? this.selection.latex() : '';
+  textarea.val(latex);
+  if (typeof textarea[0].selectionStart == 'number') {
+    textarea[0].selectionStart = 0;
+    textarea[0].selectionEnd = latex.length;
+  }
+  else if (document.selection) {
+    var range = textarea[0].createTextRange();
+    range.collapse(true);
+    range.moveStart("character", 0);
+    range.moveEnd("character", latex.length);
+    range.select();
+  }
 };
 _.clearSelection = function() {
+  this.root.textarea.children().val('');
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
