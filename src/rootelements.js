@@ -49,6 +49,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //trigger virtual textInput event (see Wiki page "Keyboard Events")
   function textInput() {
+    if (skipTextInput) return;
     var text = textarea.val();
     if (!text) return;
     textarea.val('');
@@ -60,7 +61,7 @@ function createRoot(jQ, root, textbox, editable) {
     }
   }
 
-  var lastKeydn = {}; //see Wiki page "Keyboard Events"
+  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
@@ -108,6 +109,8 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('cut', function() {
     if (cursor.selection)
       cursor.deleteSelection();
+  }).bind('copy', function() {
+    skipTextInput = true;
   }).bind('paste', function() {
     setTimeout(function() {
       cursor.writeLatex(textarea.val()).clearSelection();
