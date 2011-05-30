@@ -91,6 +91,7 @@ function createRoot(jQ, root, textbox, editable) {
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
     //  (see Wiki page "Keyboard Events")
+    skipTextInput = false;
     setTimeout(textInput);
   }).bind('mousedown.mathquill', function(e) {
     cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
@@ -112,6 +113,7 @@ function createRoot(jQ, root, textbox, editable) {
   }).bind('copy', function() {
     skipTextInput = true;
   }).bind('paste', function() {
+    skipTextInput = true;
     setTimeout(function() {
       cursor.writeLatex(textarea.val()).clearSelection();
     });
