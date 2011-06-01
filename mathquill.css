@@ -33,6 +33,9 @@
 .mathquill-editable.empty, .mathquill-editable * {
   cursor: text;
 }
+*:first-child+html .mathquill-editable.empty { /* IE7 only */
+  width: 0.5em; /* Sets a min-width for IE7 when empty */
+}
 
 .mathquill-editable .textarea {
   position: relative;
@@ -46,6 +49,9 @@
   opacity: 0;
   border: none;
   outline: none;
+}
+*:first-child+html .mathquill-editable .textarea textarea { /* IE7 only */
+  display: none; /* Prevents text cursor from showing in mathquill box in IE7 */ 
 }
 
 .mathquill-editable .cursor {
@@ -111,6 +117,9 @@
   display: inline-block;
   -moz-user-select: none;
 }
+.mathquill-rendered-math { 
+  min-width: 1.0em\0/ /* Fixes display of square root in IE8 */
+}
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
@@ -163,6 +172,9 @@
 }
 .mathquill-rendered-math sup {
   vertical-align: .5em;
+}
+*:first-child+html .mathquill-rendered-math sup { /* IE7 only */
+  line-height: .8em; /* Fix exponent display in IE7 */
 }
 .mathquill-rendered-math sub {
   vertical-align: -.4em;
@@ -221,6 +233,14 @@
   border-top: 1px solid;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
+}
+*:first-child+html .mathquill-rendered-math .numerator { /* IE7 only */
+  float: left;
+}
+*:first-child+html .mathquill-rendered-math .denominator { /* IE7 only */
+  clear: both;
+  width: auto;
+  float: left;
 }
 
 .mathquill-rendered-math sup .fraction, .mathquill-rendered-math sub .fraction {
