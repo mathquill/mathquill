@@ -454,7 +454,7 @@ _.selectFrom = function(anticursor) {
     right.next
   );
   this.insertAfter(right.next.prev || right.parent.lastChild);
-  this.selectLatex();
+  this.root.selectionChanged();
 };
 _.selectLeft = function() {
   if (this.selection) {
@@ -482,7 +482,7 @@ _.selectLeft = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
   }
-  this.selectLatex();
+  this.root.selectionChanged();
 };
 _.selectRight = function() {
   if (this.selection) {
@@ -510,23 +510,7 @@ _.selectRight = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   }
-  this.selectLatex();
-};
-_.selectLatex = function() {
-  var textarea = this.root.textarea.children();
-  var latex = this.selection ? this.selection.latex() : '';
-  textarea.val(latex);
-  if (typeof textarea[0].selectionStart == 'number') {
-    textarea[0].selectionStart = 0;
-    textarea[0].selectionEnd = latex.length;
-  }
-  else if (document.selection) {
-    var range = textarea[0].createTextRange();
-    range.collapse(true);
-    range.moveStart("character", 0);
-    range.moveEnd("character", latex.length);
-    range.select();
-  }
+  this.root.selectionChanged();
 };
 _.clearSelection = function() {
   this.root.textarea.children().val('');

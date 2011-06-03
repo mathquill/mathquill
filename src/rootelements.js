@@ -36,7 +36,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(function(){ cursor.selectLatex(); });
+      setTimeout(root.selectionChanged);
     } else
       cursor.show();
     e.stopPropagation();
@@ -122,6 +122,22 @@ function createRoot(jQ, root, textbox, editable) {
       e.preventDefault();
     e.stopPropagation();
   }).blur();
+
+  root.selectionChanged = function() {
+    var latex = cursor.selection ? cursor.selection.latex() : '';
+    textarea.val(latex);
+    if (typeof textarea[0].selectionStart == 'number') {
+      textarea[0].selectionStart = 0;
+      textarea[0].selectionEnd = latex.length;
+    }
+    else if (document.selection) {
+      var range = textarea[0].createTextRange();
+      range.collapse(true);
+      range.moveStart("character", 0);
+      range.moveEnd("character", latex.length);
+      range.select();
+    }
+  };
 
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
