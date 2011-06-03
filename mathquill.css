@@ -46,6 +46,7 @@
   opacity: 0;
   border: none;
   outline: none;
+  -moz-user-select: text;
 }
 
 .mathquill-editable .cursor {
@@ -109,7 +110,7 @@
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
-  -moz-user-select: none;
+  -moz-user-select: -moz-none;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;

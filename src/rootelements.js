@@ -126,15 +126,11 @@ function createRoot(jQ, root, textbox, editable) {
   root.selectionChanged = function() {
     var latex = cursor.selection ? cursor.selection.latex() : '';
     textarea.val(latex);
-    if (typeof textarea[0].selectionStart == 'number') {
-      textarea[0].selectionStart = 0;
-      textarea[0].selectionEnd = latex.length;
-    }
+    if (textarea[0].select)
+      textarea[0].select();
     else if (document.selection) {
       var range = textarea[0].createTextRange();
-      range.collapse(true);
-      range.moveStart("character", 0);
-      range.moveEnd("character", latex.length);
+      range.expand('textedit');
       range.select();
     }
   };
