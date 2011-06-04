@@ -133,8 +133,9 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(root.selectionChanged);
-    } else
+      setTimeout(updateTextarea); //select textarea after focus
+    }
+    else
       cursor.show();
     e.stopPropagation();
   }).blur(function(e) {
