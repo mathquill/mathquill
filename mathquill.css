@@ -34,11 +34,11 @@
   cursor: text;
 }
 
-.mathquill-editable .textarea {
+.mathquill-editable .textarea, .mathquill-rendered-math .textarea {
   position: relative;
   display: inline; /*so Firefox 3.6 (Gecko 1.9.2) won't wrap the box to 2 lines*/
 }
-.mathquill-editable .textarea textarea {
+.mathquill-editable .textarea textarea, .mathquill-rendered-math .textarea textarea {
   position: absolute;
   z-index: -1;
   height: 1px;
