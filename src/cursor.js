@@ -469,8 +469,10 @@ _.selectLeft = function() {
     else { //else cursor is at right edge of selection, retract left
       this.prev.jQ.insertAfter(this.selection.jQ);
       this.hopLeft().selection.next = this.next;
-      if (this.selection.prev === this.prev)
+      if (this.selection.prev === this.prev) {
         this.deleteSelection();
+        return;
+      }
     }
   }
   else {
@@ -497,8 +499,10 @@ _.selectRight = function() {
     else { //else cursor is at left edge of selection, retract right
       this.next.jQ.insertBefore(this.selection.jQ);
       this.hopRight().selection.prev = this.prev;
-      if (this.selection.next === this.next)
+      if (this.selection.next === this.next) {
         this.deleteSelection();
+        return;
+      }
     }
   }
   else {
@@ -513,11 +517,14 @@ _.selectRight = function() {
   this.root.selectionChanged();
 };
 _.clearSelection = function() {
-  this.root.textarea.children().val('');
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
   }
+  //Cursor::clearSelection() may be called during focus or blur
+  //of the textarea, and root.selectionChanged() may try to detach
+  //the textarea, which explodes if done during focus or blur
+  setTimeout(this.root.selectionChanged);
   return this;
 };
 _.deleteSelection = function() {
@@ -527,6 +534,7 @@ _.deleteSelection = function() {
   this.next = this.selection.next;
   this.selection.remove();
   delete this.selection;
+  this.root.selectionChanged();
   return true;
 };
 
