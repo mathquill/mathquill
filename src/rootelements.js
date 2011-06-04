@@ -21,15 +21,112 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
-  if (!editable) //if static, quit once we render the LaTeX
-    return;
+  //drag-to-select event handling
+  var anticursor, blink = cursor.blink;
+  jQ.bind('mousedown.mathquill', function(e) {
+    cursor.blink = $.noop;
+    cursor.seek($(e.target), e.pageX, e.pageY);
 
-  root.textarea = $('<span class="textarea"><textarea></textarea></span>')
-    .prependTo(jQ.addClass('mathquill-editable'));
+    anticursor = new Cursor(root);
+    anticursor.jQ = anticursor._jQ = $();
+    if (cursor.next)
+      anticursor.insertBefore(cursor.next);
+    else
+      anticursor.appendTo(cursor.parent);
+
+    jQ.mousemove(mousemove);
+    $(document).mousemove(docmousemove).mouseup(mouseup);
+  });
+  function mousemove(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY);
+
+    if (cursor.prev === anticursor.prev
+        && cursor.parent === anticursor.parent)
+      cursor.clearSelection();
+    else
+      cursor.selectFrom(anticursor);
+
+    return false;
+  }
+  function docmousemove(e) {
+    delete e.target;
+    return mousemove(e);
+  }
+  function mouseup(e) {
+    anticursor = undefined;
+    cursor.blink = blink;
+    if (editable && !cursor.selection) cursor.show();
+    jQ.unbind('mousemove', mousemove);
+    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+  }
+
+  //prevent native selection except textarea
+  jQ.bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  });
+
+  //clipboard event handling
+  jQ.bind('cut', function() {
+    if (cursor.selection)
+      cursor.deleteSelection();
+  }).bind('copy', function() {
+    skipTextInput = true;
+  }).bind('paste', function() {
+    skipTextInput = true;
+    setTimeout(paste);
+  });
+  function paste() {
+    cursor.writeLatex(textarea.val()).clearSelection();
+  }
+
+  //textarea stuff
+  root.textarea = $('<span class="textarea"><textarea></textarea></span>');
   var textarea = root.textarea.children();
+
+  function updateTextarea() {
+    var latex = cursor.selection ? cursor.selection.latex() : '';
+    textarea.val(latex);
+    if (textarea[0].select)
+      textarea[0].select();
+    else if (document.selection) {
+      var range = textarea[0].createTextRange();
+      range.expand('textedit');
+      range.select();
+    }
+  };
+
+  if (!editable) { //if static, only prepend textarea when there's selected text
+    var textareaSpan = root.textarea, textareaDetached = true;
+    root.selectionChanged = function() {
+      if (cursor.selection) {
+        if (textareaDetached) {
+          textareaSpan.prependTo(jQ);
+          textareaDetached = false;
+        }
+        updateTextarea();
+      }
+      else if (!textareaDetached) {
+        textareaSpan.detach();
+        textareaDetached = true;
+      }
+    };
+    textarea.blur(function() {
+      cursor.clearSelection();
+    });
+    return; //and don't bother with key events
+  }
+
+  root.selectionChanged = updateTextarea;
+  root.textarea.prependTo(jQ);
+
+  //root CSS classes
+  jQ.addClass('mathquill-editable');
   if (textbox)
     jQ.addClass('mathquill-textbox');
 
+  //focus and blur handling
   textarea.focus(function(e) {
     if (!cursor.parent)
       cursor.appendTo(root);
@@ -47,24 +144,13 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
-  //trigger virtual textInput event (see Wiki page "Keyboard Events")
-  function textInput() {
-    if (skipTextInput) return;
-    var text = textarea.val();
-    if (!text) return;
-    textarea.val('');
-    // textarea can contain more than one character
-    // when typing quickly on slower platforms;
-    // so process each character separately
-    for (var i=0; i<text.length; i++) {
-        cursor.parent.textInput(text[i]);
-    }
-  }
-
-  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
-  }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  }).blur();
+
+  //keyboard events and text input
+  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
+  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
     lastKeydn.evt = e;
     lastKeydn.happened = true;
     lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -93,71 +179,20 @@ function createRoot(jQ, root, textbox, editable) {
     //  (see Wiki page "Keyboard Events")
     skipTextInput = false;
     setTimeout(textInput);
-  }).bind('mousedown.mathquill', function(e) {
-    cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
+  });
 
-    anticursor = new Cursor(root);
-    anticursor.jQ = anticursor._jQ = $();
-    if (cursor.next)
-      anticursor.insertBefore(cursor.next);
-    else
-      anticursor.appendTo(cursor.parent);
-
-    jQ.mousemove(mousemove);
-    $(document).mousemove(docmousemove).mouseup(mouseup);
-
-    setTimeout(function(){textarea.focus();});
-  }).bind('cut', function() {
-    if (cursor.selection)
-      cursor.deleteSelection();
-  }).bind('copy', function() {
-    skipTextInput = true;
-  }).bind('paste', function() {
-    skipTextInput = true;
-    setTimeout(function() {
-      cursor.writeLatex(textarea.val()).clearSelection();
-    });
-  }).bind('selectstart.mathquill', function(e) {
-    if (e.target != textarea[0])
-      e.preventDefault();
-    e.stopPropagation();
-  }).blur();
-
-  root.selectionChanged = function() {
-    var latex = cursor.selection ? cursor.selection.latex() : '';
-    textarea.val(latex);
-    if (textarea[0].select)
-      textarea[0].select();
-    else if (document.selection) {
-      var range = textarea[0].createTextRange();
-      range.expand('textedit');
-      range.select();
+  function textInput() {
+    if (skipTextInput) return;
+    var text = textarea.val();
+    if (!text) return;
+    textarea.val('');
+    // textarea can contain more than one character
+    // when typing quickly on slower platforms;
+    // so process each character separately
+    for (var i=0; i<text.length; i++) {
+        cursor.parent.textInput(text[i]);
     }
-  };
-
-  function mousemove(e) {
-    cursor.seek($(e.target), e.pageX, e.pageY);
-
-    if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
-      cursor.clearSelection();
-    else
-      cursor.selectFrom(anticursor);
-
-    return false;
   }
-  function docmousemove(e) {
-    delete e.target;
-    return mousemove(e);
-  }
-  function mouseup(e) {
-    anticursor = undefined;
-    cursor.blink = blink;
-    if (!cursor.selection) cursor.show();
-    jQ.unbind('mousemove', mousemove);
-    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
-  }
-
-  var anticursor, blink = cursor.blink;
 }
 
 function RootMathBlock(){}
