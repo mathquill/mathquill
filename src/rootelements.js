@@ -67,20 +67,6 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
-  //clipboard event handling
-  jQ.bind('cut', function() {
-    if (cursor.selection)
-      cursor.deleteSelection();
-  }).bind('copy', function() {
-    skipTextInput = true;
-  }).bind('paste', function() {
-    skipTextInput = true;
-    setTimeout(paste);
-  });
-  function paste() {
-    cursor.writeLatex(textarea.val()).clearSelection();
-  }
-
   //textarea stuff
   root.textarea = $('<span class="textarea"><textarea></textarea></span>');
   var textarea = root.textarea.children();
@@ -148,6 +134,20 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).blur();
+
+  //clipboard event handling
+  jQ.bind('cut', function() {
+    if (cursor.selection)
+      cursor.deleteSelection();
+  }).bind('copy', function() {
+    skipTextInput = true;
+  }).bind('paste', function() {
+    skipTextInput = true;
+    setTimeout(paste);
+  });
+  function paste() {
+    cursor.writeLatex(textarea.val()).clearSelection();
+  }
 
   //keyboard events and text input
   var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
