@@ -291,23 +291,107 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
-  if (!editable) //if static, quit once we render the LaTeX
-    return;
+  //drag-to-select event handling
+  var anticursor, blink = cursor.blink;
+  jQ.bind('mousedown.mathquill', function(e) {
+    cursor.blink = $.noop;
+    cursor.seek($(e.target), e.pageX, e.pageY);
 
-  root.textarea = $('<span class="textarea"><textarea></textarea></span>')
-    .prependTo(jQ.addClass('mathquill-editable'));
+    anticursor = new Cursor(root);
+    anticursor.jQ = anticursor._jQ = $();
+    if (cursor.next)
+      anticursor.insertBefore(cursor.next);
+    else
+      anticursor.appendTo(cursor.parent);
+
+    jQ.mousemove(mousemove);
+    $(document).mousemove(docmousemove).mouseup(mouseup);
+  });
+  function mousemove(e) {
+    cursor.seek($(e.target), e.pageX, e.pageY);
+
+    if (cursor.prev === anticursor.prev
+        && cursor.parent === anticursor.parent)
+      cursor.clearSelection();
+    else
+      cursor.selectFrom(anticursor);
+
+    return false;
+  }
+  function docmousemove(e) {
+    delete e.target;
+    return mousemove(e);
+  }
+  function mouseup(e) {
+    anticursor = undefined;
+    cursor.blink = blink;
+    if (editable && !cursor.selection) cursor.show();
+    jQ.unbind('mousemove', mousemove);
+    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+  }
+
+  //prevent native selection except textarea
+  jQ.bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  });
+
+  //textarea stuff
+  root.textarea = $('<span class="textarea"><textarea></textarea></span>');
   var textarea = root.textarea.children();
+
+  function updateTextarea() {
+    var latex = cursor.selection ? cursor.selection.latex() : '';
+    textarea.val(latex);
+    if (textarea[0].select)
+      textarea[0].select();
+    else if (document.selection) {
+      var range = textarea[0].createTextRange();
+      range.expand('textedit');
+      range.select();
+    }
+  };
+
+  if (!editable) { //if static, only prepend textarea when there's selected text
+    var textareaSpan = root.textarea, textareaDetached = true;
+    root.selectionChanged = function() {
+      if (cursor.selection) {
+        if (textareaDetached) {
+          textareaSpan.prependTo(jQ);
+          textareaDetached = false;
+        }
+        updateTextarea();
+      }
+      else if (!textareaDetached) {
+        textareaSpan.detach();
+        textareaDetached = true;
+      }
+    };
+    textarea.blur(function() {
+      cursor.clearSelection();
+    });
+    return; //and don't bother with key events
+  }
+
+  root.selectionChanged = updateTextarea;
+  root.textarea.prependTo(jQ);
+
+  //root CSS classes
+  jQ.addClass('mathquill-editable');
   if (textbox)
     jQ.addClass('mathquill-textbox');
 
+  //focus and blur handling
   textarea.focus(function(e) {
     if (!cursor.parent)
       cursor.appendTo(root);
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(function(){ cursor.selectLatex(); });
-    } else
+      setTimeout(updateTextarea); //select textarea after focus
+    }
+    else
       cursor.show();
     e.stopPropagation();
   }).blur(function(e) {
@@ -317,24 +401,27 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
-  //trigger virtual textInput event (see Wiki page "Keyboard Events")
-  function textInput() {
-    if (skipTextInput) return;
-    var text = textarea.val();
-    if (!text) return;
-    textarea.val('');
-    // textarea can contain more than one character
-    // when typing quickly on slower platforms;
-    // so process each character separately
-    for (var i=0; i<text.length; i++) {
-        cursor.parent.textInput(text[i]);
-    }
-  }
-
-  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
-  }).bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  }).blur();
+
+  //clipboard event handling
+  jQ.bind('cut', function() {
+    if (cursor.selection)
+      cursor.deleteSelection();
+  }).bind('copy', function() {
+    skipTextInput = true;
+  }).bind('paste', function() {
+    skipTextInput = true;
+    setTimeout(paste);
+  });
+  function paste() {
+    cursor.writeLatex(textarea.val()).clearSelection();
+  }
+
+  //keyboard events and text input
+  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
+  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
     lastKeydn.evt = e;
     lastKeydn.happened = true;
     lastKeydn.returnValue = cursor.parent.keydown(e);
@@ -363,59 +450,20 @@ function createRoot(jQ, root, textbox, editable) {
     //  (see Wiki page "Keyboard Events")
     skipTextInput = false;
     setTimeout(textInput);
-  }).bind('mousedown.mathquill', function(e) {
-    cursor.seek($(e.target), e.pageX, e.pageY).blink = $.noop;
+  });
 
-    anticursor = new Cursor(root);
-    anticursor.jQ = anticursor._jQ = $();
-    if (cursor.next)
-      anticursor.insertBefore(cursor.next);
-    else
-      anticursor.appendTo(cursor.parent);
-
-    jQ.mousemove(mousemove);
-    $(document).mousemove(docmousemove).mouseup(mouseup);
-
-    setTimeout(function(){textarea.focus();});
-  }).bind('cut', function() {
-    if (cursor.selection)
-      cursor.deleteSelection();
-  }).bind('copy', function() {
-    skipTextInput = true;
-  }).bind('paste', function() {
-    skipTextInput = true;
-    setTimeout(function() {
-      cursor.writeLatex(textarea.val()).clearSelection();
-    });
-  }).bind('selectstart.mathquill', function(e) {
-    if (e.target != textarea[0])
-      e.preventDefault();
-    e.stopPropagation();
-  }).blur();
-
-  function mousemove(e) {
-    cursor.seek($(e.target), e.pageX, e.pageY);
-
-    if (cursor.prev === anticursor.prev && cursor.parent === anticursor.parent)
-      cursor.clearSelection();
-    else
-      cursor.selectFrom(anticursor);
-
-    return false;
+  function textInput() {
+    if (skipTextInput) return;
+    var text = textarea.val();
+    if (!text) return;
+    textarea.val('');
+    // textarea can contain more than one character
+    // when typing quickly on slower platforms;
+    // so process each character separately
+    for (var i=0; i<text.length; i++) {
+        cursor.parent.textInput(text[i]);
+    }
   }
-  function docmousemove(e) {
-    delete e.target;
-    return mousemove(e);
-  }
-  function mouseup(e) {
-    anticursor = undefined;
-    cursor.blink = blink;
-    if (!cursor.selection) cursor.show();
-    jQ.unbind('mousemove', mousemove);
-    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
-  }
-
-  var anticursor, blink = cursor.blink;
 }
 
 function RootMathBlock(){}
@@ -2287,7 +2335,7 @@ _.selectFrom = function(anticursor) {
     right.next
   );
   this.insertAfter(right.next.prev || right.parent.lastChild);
-  this.selectLatex();
+  this.root.selectionChanged();
 };
 _.selectLeft = function() {
   if (this.selection) {
@@ -2302,8 +2350,10 @@ _.selectLeft = function() {
     else { //else cursor is at right edge of selection, retract left
       this.prev.jQ.insertAfter(this.selection.jQ);
       this.hopLeft().selection.next = this.next;
-      if (this.selection.prev === this.prev)
+      if (this.selection.prev === this.prev) {
         this.deleteSelection();
+        return;
+      }
     }
   }
   else {
@@ -2315,7 +2365,7 @@ _.selectLeft = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
   }
-  this.selectLatex();
+  this.root.selectionChanged();
 };
 _.selectRight = function() {
   if (this.selection) {
@@ -2330,8 +2380,10 @@ _.selectRight = function() {
     else { //else cursor is at left edge of selection, retract right
       this.next.jQ.insertBefore(this.selection.jQ);
       this.hopRight().selection.prev = this.prev;
-      if (this.selection.next === this.next)
+      if (this.selection.next === this.next) {
         this.deleteSelection();
+        return;
+      }
     }
   }
   else {
@@ -2343,30 +2395,17 @@ _.selectRight = function() {
 
     this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   }
-  this.selectLatex();
-};
-_.selectLatex = function() {
-  var textarea = this.root.textarea.children();
-  var latex = this.selection ? this.selection.latex() : '';
-  textarea.val(latex);
-  if (typeof textarea[0].selectionStart == 'number') {
-    textarea[0].selectionStart = 0;
-    textarea[0].selectionEnd = latex.length;
-  }
-  else if (document.selection) {
-    var range = textarea[0].createTextRange();
-    range.collapse(true);
-    range.moveStart("character", 0);
-    range.moveEnd("character", latex.length);
-    range.select();
-  }
+  this.root.selectionChanged();
 };
 _.clearSelection = function() {
-  this.root.textarea.children().val('');
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
   }
+  //Cursor::clearSelection() may be called during focus or blur
+  //of the textarea, and root.selectionChanged() may try to detach
+  //the textarea, which explodes if done during focus or blur
+  setTimeout(this.root.selectionChanged);
   return this;
 };
 _.deleteSelection = function() {
@@ -2376,6 +2415,7 @@ _.deleteSelection = function() {
   this.next = this.selection.next;
   this.selection.remove();
   delete this.selection;
+  this.root.selectionChanged();
   return true;
 };
 
@@ -2475,8 +2515,8 @@ $.fn.mathquill = function(cmd, latex) {
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 $(function() {
-  $('.mathquill-editable').mathquill('editable');
-  $('.mathquill-textbox').mathquill('textbox');
+  $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
+  $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
   $('.mathquill-embedded-latex').mathquill();
 });
 
