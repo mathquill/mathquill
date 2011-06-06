@@ -299,10 +299,7 @@ function createRoot(jQ, root, textbox, editable) {
 
     anticursor = new Cursor(root);
     anticursor.jQ = anticursor._jQ = $();
-    if (cursor.next)
-      anticursor.insertBefore(cursor.next);
-    else
-      anticursor.appendTo(cursor.parent);
+    anticursor.insertAt(cursor.parent, cursor.next, cursor.prev);
 
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
@@ -310,10 +307,8 @@ function createRoot(jQ, root, textbox, editable) {
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    if (cursor.prev === anticursor.prev
-        && cursor.parent === anticursor.parent)
-      cursor.clearSelection();
-    else
+    if (cursor.prev !== anticursor.prev
+        || cursor.parent !== anticursor.parent)
       cursor.selectFrom(anticursor);
 
     return false;
@@ -342,14 +337,16 @@ function createRoot(jQ, root, textbox, editable) {
   var textarea = root.textarea.children();
 
   function updateTextarea() {
-    var latex = cursor.selection ? cursor.selection.latex() : '';
+    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
-    if (textarea[0].select)
-      textarea[0].select();
-    else if (document.selection) {
-      var range = textarea[0].createTextRange();
-      range.expand('textedit');
-      range.select();
+    if (latex) {
+      if (textarea[0].select)
+        textarea[0].select();
+      else if (document.selection) {
+        var range = textarea[0].createTextRange();
+        range.expand('textedit');
+        range.select();
+      }
     }
   };
 
@@ -371,6 +368,8 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.blur(function() {
       cursor.clearSelection();
     });
+    $('<span class="selectable"></span>').text('$'+root.latex()+'$')
+      .prependTo(jQ.bind('cut paste', false));
     return; //and don't bother with key events
   }
 
@@ -403,12 +402,17 @@ function createRoot(jQ, root, textbox, editable) {
 
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
+  }).bind('mousedown.mathquill', function() {
+    setTimeout(focus);
   }).blur();
+  function focus() {
+    textarea.focus();
+  }
 
   //clipboard event handling
   jQ.bind('cut', function() {
     if (cursor.selection)
-      cursor.deleteSelection();
+      setTimeout(function(){ cursor.deleteSelection(); });
   }).bind('copy', function() {
     skipTextInput = true;
   }).bind('paste', function() {
@@ -416,7 +420,14 @@ function createRoot(jQ, root, textbox, editable) {
     setTimeout(paste);
   });
   function paste() {
-    cursor.writeLatex(textarea.val()).clearSelection();
+    //FIXME HACK the parser in RootTextBlock needs to be moved to
+    //Cursor::writeLatex or something so this'll work with MathQuill textboxes
+    var latex = textarea.val();
+    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$')
+      latex = latex.slice(1, -1);
+    else
+      latex = '\\text{' + latex + '}';
+    cursor.writeLatex(latex).clearSelection();
   }
 
   //keyboard events and text input
@@ -2022,9 +2033,9 @@ _.moveRight = function() {
   return this.show();
 };
 _.seek = function(target, pageX, pageY) {
-  var cursor = this;
+  var cursor = this.clearSelection();
   if (target.hasClass('empty')) {
-    cursor.clearSelection().prependTo(target.data(jQueryDataKey).block);
+    cursor.prependTo(target.data(jQueryDataKey).block);
     return cursor;
   }
 
@@ -2032,7 +2043,6 @@ _.seek = function(target, pageX, pageY) {
   if (data) {
     //if clicked a symbol, insert at whichever side is closer
     if (data.cmd && !data.block) {
-      cursor.clearSelection();
       if (target.outerWidth() > 2*(pageX - target.offset().left))
         cursor.insertBefore(data.cmd);
       else
@@ -2049,7 +2059,6 @@ _.seek = function(target, pageX, pageY) {
       data = {block: cursor.root};
   }
 
-  cursor.clearSelection();
   if (data.cmd)
     cursor.insertAfter(data.cmd);
   else
@@ -2401,11 +2410,8 @@ _.clearSelection = function() {
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
+    this.root.selectionChanged();
   }
-  //Cursor::clearSelection() may be called during focus or blur
-  //of the textarea, and root.selectionChanged() may try to detach
-  //the textarea, which explodes if done during focus or blur
-  setTimeout(this.root.selectionChanged);
   return this;
 };
 _.deleteSelection = function() {
