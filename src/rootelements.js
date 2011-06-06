@@ -139,7 +139,7 @@ function createRoot(jQ, root, textbox, editable) {
   //clipboard event handling
   jQ.bind('cut', function() {
     if (cursor.selection)
-      cursor.deleteSelection();
+      setTimeout(function(){ cursor.deleteSelection(); });
   }).bind('copy', function() {
     skipTextInput = true;
   }).bind('paste', function() {
