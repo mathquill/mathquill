@@ -30,9 +30,6 @@
   overflow-x: auto;
   overflow-y: hidden; /*so IE8 won't show a vertical scrollbar*/
 }
-.mathquill-editable.empty, .mathquill-editable * {
-  cursor: text;
-}
 
 .mathquill-editable .textarea, .mathquill-rendered-math .textarea {
   position: relative;
@@ -104,7 +101,8 @@
   background: rgba(0, 0, 0, .2);
 }
 
-.mathquill-textbox, .mathquill-rendered-math {
+.mathquill-editable, .mathquill-rendered-math {
+  cursor: text;
   white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
 }
