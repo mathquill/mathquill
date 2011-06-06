@@ -67,14 +67,16 @@ function createRoot(jQ, root, textbox, editable) {
   var textarea = root.textarea.children();
 
   function updateTextarea() {
-    var latex = cursor.selection ? cursor.selection.latex() : '';
+    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
-    if (textarea[0].select)
-      textarea[0].select();
-    else if (document.selection) {
-      var range = textarea[0].createTextRange();
-      range.expand('textedit');
-      range.select();
+    if (latex) {
+      if (textarea[0].select)
+        textarea[0].select();
+      else if (document.selection) {
+        var range = textarea[0].createTextRange();
+        range.expand('textedit');
+        range.select();
+      }
     }
   };
 
@@ -148,7 +150,14 @@ function createRoot(jQ, root, textbox, editable) {
     setTimeout(paste);
   });
   function paste() {
-    cursor.writeLatex(textarea.val()).clearSelection();
+    //FIXME HACK the parser in RootTextBlock needs to be moved to
+    //Cursor::writeLatex or something so this'll work with MathQuill textboxes
+    var latex = textarea.val();
+    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$')
+      latex = latex.slice(1, -1);
+    else
+      latex = '\\text{' + latex + '}';
+    cursor.writeLatex(latex).clearSelection();
   }
 
   //keyboard events and text input
