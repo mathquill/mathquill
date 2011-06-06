@@ -73,29 +73,41 @@
   content: 'c';
 }
 
+.mathquill-editable .selection,
 .mathquill-rendered-math .selection,
+.mathquill-editable .selection .mathquill-rendered-math,
 .mathquill-rendered-math .selection .mathquill-rendered-math,
+.mathquill-editable .selection sup, .mathquill-editable .selection sub,
 .mathquill-rendered-math .selection sup, .mathquill-rendered-math .selection sub {
   background: #B4D5FE;
   background: Highlight;
   color: HighlightText;
   border-color: HighlightText;
 }
+.mathquill-editable .selection.blur,
 .mathquill-rendered-math .selection.blur,
+.mathquill-editable .selection.blur .mathquill-rendered-math,
 .mathquill-rendered-math .selection.blur .mathquill-rendered-math,
+.mathquill-editable .selection.blur sup, .mathquill-editable .selection.blur sub,
 .mathquill-rendered-math .selection.blur sup,.mathquill-rendered-math .selection.blur sub {
   background: #CCC;
   background: rgba(0, 0, 0, .2);
   color: black;
   border-color: black;
 }
+.mathquill-editable .selection .selection.blur,
 .mathquill-rendered-math .selection .selection.blur,
+.mathquill-editable .selection .selection.blur sup,
 .mathquill-rendered-math .selection .selection.blur sup,
+.mathquill-editable .selection .selection.blur sub,
 .mathquill-rendered-math .selection .selection.blur sub {
   background: #ABF;
 }
+.mathquill-editable .selection.blur .selection.blur,
 .mathquill-rendered-math .selection.blur .selection.blur,
+.mathquill-editable .selection.blur .selection.blur sup,
 .mathquill-rendered-math .selection.blur .selection.blur sup,
+.mathquill-editable .selection.blur .selection.blur sub,
 .mathquill-rendered-math .selection.blur .selection.blur sub {
   background: #AAA;
   background: rgba(0, 0, 0, .2);
