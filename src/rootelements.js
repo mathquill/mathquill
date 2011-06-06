@@ -29,10 +29,7 @@ function createRoot(jQ, root, textbox, editable) {
 
     anticursor = new Cursor(root);
     anticursor.jQ = anticursor._jQ = $();
-    if (cursor.next)
-      anticursor.insertBefore(cursor.next);
-    else
-      anticursor.appendTo(cursor.parent);
+    anticursor.insertAt(cursor.parent, cursor.next, cursor.prev);
 
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
