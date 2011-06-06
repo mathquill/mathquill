@@ -40,10 +40,8 @@ function createRoot(jQ, root, textbox, editable) {
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    if (cursor.prev === anticursor.prev
-        && cursor.parent === anticursor.parent)
-      cursor.clearSelection();
-    else
+    if (cursor.prev !== anticursor.prev
+        || cursor.parent !== anticursor.parent)
       cursor.selectFrom(anticursor);
 
     return false;
