@@ -96,7 +96,8 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.blur(function() {
       cursor.clearSelection();
     });
-    $('<span class="selectable"></span>').text('$'+root.latex()+'$').prependTo(jQ);
+    $('<span class="selectable"></span>').text('$'+root.latex()+'$')
+      .prependTo(jQ.bind('cut paste', false));
     return; //and don't bother with key events
   }
 
