@@ -134,7 +134,12 @@ function createRoot(jQ, root, textbox, editable) {
 
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
+  }).bind('mousedown.mathquill', function() {
+    setTimeout(focus);
   }).blur();
+  function focus() {
+    textarea.focus();
+  }
 
   //clipboard event handling
   jQ.bind('cut', function() {

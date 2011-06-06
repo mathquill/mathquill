@@ -518,11 +518,8 @@ _.clearSelection = function() {
   if (this.show().selection) {
     this.selection.clear();
     delete this.selection;
+    this.root.selectionChanged();
   }
-  //Cursor::clearSelection() may be called during focus or blur
-  //of the textarea, and root.selectionChanged() may try to detach
-  //the textarea, which explodes if done during focus or blur
-  setTimeout(this.root.selectionChanged);
   return this;
 };
 _.deleteSelection = function() {
