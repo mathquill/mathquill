@@ -141,9 +141,9 @@ _.moveRight = function() {
   return this.show();
 };
 _.seek = function(target, pageX, pageY) {
-  var cursor = this;
+  var cursor = this.clearSelection();
   if (target.hasClass('empty')) {
-    cursor.clearSelection().prependTo(target.data(jQueryDataKey).block);
+    cursor.prependTo(target.data(jQueryDataKey).block);
     return cursor;
   }
 
@@ -151,7 +151,6 @@ _.seek = function(target, pageX, pageY) {
   if (data) {
     //if clicked a symbol, insert at whichever side is closer
     if (data.cmd && !data.block) {
-      cursor.clearSelection();
       if (target.outerWidth() > 2*(pageX - target.offset().left))
         cursor.insertBefore(data.cmd);
       else
@@ -168,7 +167,6 @@ _.seek = function(target, pageX, pageY) {
       data = {block: cursor.root};
   }
 
-  cursor.clearSelection();
   if (data.cmd)
     cursor.insertAfter(data.cmd);
   else
