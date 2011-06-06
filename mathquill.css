@@ -37,8 +37,11 @@
 .mathquill-editable .textarea, .mathquill-rendered-math .textarea {
   position: relative;
   display: inline; /*so Firefox 3.6 (Gecko 1.9.2) won't wrap the box to 2 lines*/
+  user-select: text;
+  -moz-user-select: text;
+  -webkit-user-select: text;
 }
-.mathquill-editable .textarea textarea, .mathquill-rendered-math .textarea textarea {
+.mathquill-editable .textarea textarea, .mathquill-rendered-math .textarea textarea, .mathquill-rendered-math .selectable {
   position: absolute;
   z-index: -1;
   height: 1px;
@@ -46,7 +49,10 @@
   opacity: 0;
   border: none;
   outline: none;
+  overflow: hidden;
+  user-select: text;
   -moz-user-select: text;
+  -webkit-user-select: text;
 }
 
 .mathquill-editable .cursor {
@@ -110,7 +116,6 @@
   line-height: 1;
   display: -moz-inline-box;
   display: inline-block;
-  -moz-user-select: -moz-none;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
@@ -123,6 +128,9 @@
   margin: 0;
   padding: 0;
   border-color: black;
+  user-select: none;
+  -moz-user-select: none;
+  -webkit-user-select: none;
 }
 .mathquill-editable.hasCursor,
 .mathquill-rendered-math .latex-command-input.hasCursor {
