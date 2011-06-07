@@ -201,7 +201,7 @@ _.keydown = function(e)
     var parent = this.cursor.parent;
     if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
       if (parent === this) //cursor is in root editable, continue default
-        break;
+        return this.skipTextInput = true;
       else if (parent.prev) //go one block left
         this.cursor.appendTo(parent.prev);
       else //get out of the block
