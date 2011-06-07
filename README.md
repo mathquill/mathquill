@@ -58,7 +58,7 @@ fractions and a few other things are somewhat arcane. In particular, see the
 Wiki pages "Fonts", "Fractions", and "Keyboard Events".
 
 All the JavaScript that you actually want to read is in `src/`, `build/` just
-contains a cat'ed (and eventually, minified) version of all that.
+contains a cat'ed and minified version of all that.
 
 1. First, skim `baseclasses.js` to get an idea of the virtual "math DOM".
     * Look over the structure of the virtual DOM tree and the utility methods on
