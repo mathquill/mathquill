@@ -3,7 +3,7 @@ are all over the place.
 
 ## Usage
 
-(Note: Requires [jQuery 1.4+](http://jquery.com).)
+(Note: Requires [jQuery 1.4.3+](http://jquery.com).)
 
 You just need to download the
 [stylesheet](http://laughinghan.github.com/mathquill/mathquill.css) and the
