@@ -157,7 +157,8 @@ function createRoot(jQ, root, textbox, editable) {
       latex = latex.slice(1, -1);
     else
       latex = '\\text{' + latex + '}';
-    cursor.writeLatex(latex).clearSelection();
+    cursor.writeLatex(latex).show();
+    textarea.val('');
   }
 
   //keyboard events and text input
