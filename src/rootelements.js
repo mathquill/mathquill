@@ -134,7 +134,8 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.trigger(e);
   }).bind('mousedown.mathquill', function() {
     setTimeout(focus);
-  }).blur();
+  }).bind('click.mathquill', focus) //stupid Mobile Safari
+  .blur();
   function focus() {
     textarea.focus();
   }
