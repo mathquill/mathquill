@@ -81,8 +81,7 @@
 .mathquill-editable .selection.blur,
 .mathquill-editable .selection.blur .mathquill-rendered-math,
 .mathquill-editable .selection.blur sup,.mathquill-editable .selection.blur sub {
-  background: #CCC;
-  background: rgba(0, 0, 0, .2);
+  background: #D4D4D4;
   color: black;
   border-color: black;
 }
@@ -95,7 +94,7 @@
 .mathquill-editable .selection.blur .selection.blur sup,
 .mathquill-editable .selection.blur .selection.blur sub {
   background: #AAA;
-  background: rgba(0, 0, 0, .2);
+  background: rgba(0, 0, 0, .15);
 }
 
 .mathquill-textbox, .mathquill-rendered-math {
