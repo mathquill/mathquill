@@ -202,7 +202,7 @@ _.writeLatex = function(latex) {
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
-      else if (token === '\\left' || token === '\\right') { //REMOVEME HACK for parens
+      else if (token === '\\left' || token === '\\right') { //FIXME HACK: implement real \left and \right LaTeX commands, rather than special casing them here
         token = latex.shift();
         if (token === '\\')
           token = latex.shift();
