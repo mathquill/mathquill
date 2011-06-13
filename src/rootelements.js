@@ -21,6 +21,31 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
+  //textarea stuff
+  root.textarea = $('<span class="textarea"><textarea></textarea></span>');
+  var textarea = root.textarea.children();
+
+  function updateTextarea() {
+    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+    textarea.val(latex);
+    if (latex) {
+      if (textarea[0].select)
+        textarea[0].select();
+      else if (document.selection) {
+        var range = textarea[0].createTextRange();
+        range.expand('textedit');
+        range.select();
+      }
+    }
+  };
+
+  //prevent native selection except textarea
+  jQ.bind('selectstart.mathquill', function(e) {
+    if (e.target != textarea[0])
+      e.preventDefault();
+    e.stopPropagation();
+  });
+
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   jQ.bind('mousedown.mathquill', function(e) {
@@ -54,31 +79,6 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.unbind('mousemove', mousemove);
     $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
   }
-
-  //prevent native selection except textarea
-  jQ.bind('selectstart.mathquill', function(e) {
-    if (e.target != textarea[0])
-      e.preventDefault();
-    e.stopPropagation();
-  });
-
-  //textarea stuff
-  root.textarea = $('<span class="textarea"><textarea></textarea></span>');
-  var textarea = root.textarea.children();
-
-  function updateTextarea() {
-    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textarea.val(latex);
-    if (latex) {
-      if (textarea[0].select)
-        textarea[0].select();
-      else if (document.selection) {
-        var range = textarea[0].createTextRange();
-        range.expand('textedit');
-        range.select();
-      }
-    }
-  };
 
   if (!editable) { //if static, only prepend textarea when there's selected text
     var textareaSpan = root.textarea, textareaDetached = true;
