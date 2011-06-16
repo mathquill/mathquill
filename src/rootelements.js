@@ -162,35 +162,22 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.val('');
   }
 
-  //keyboard events and text input
-  var lastKeydn = {}, skipTextInput = false; //see Wiki page "Keyboard Events"
-  jQ.bind('keydown.mathquill', function(e) { //see Wiki page "Keyboard Events"
+  //keyboard events and text input, see Wiki page "Keyboard Events"
+  var lastKeydn = {}, skipTextInput = false;
+  jQ.bind('keydown.mathquill', function(e) {
     lastKeydn.evt = e;
     lastKeydn.happened = true;
-    lastKeydn.returnValue = cursor.parent.keydown(e);
-    if (lastKeydn.returnValue)
-      return true;
-    else {
-      e.stopImmediatePropagation();
-      return false;
-    }
+    if (cursor.parent.keydown(e) === false)
+      e.preventDefault();
   }).bind('keypress.mathquill', function(e) {
     //on auto-repeated key events, keypress may get triggered but not keydown
-    //  (see Wiki page "Keyboard Events")
     if (lastKeydn.happened)
       lastKeydn.happened = false;
     else
-      lastKeydn.returnValue = cursor.parent.keydown(lastKeydn.evt);
-
-    //prevent default and cancel keypress if keydown returned false,
-    //even in browsers where that doesn't automatically happen
-    //  (see Wiki page "Keyboard Events")
-    if (!lastKeydn.returnValue)
-      return false;
+      cursor.parent.keydown(lastKeydn.evt);
 
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
-    //  (see Wiki page "Keyboard Events")
     skipTextInput = false;
     setTimeout(textInput);
   });
@@ -227,7 +214,6 @@ _.renderLatex = function(latex) {
 };
 _.keydown = function(e)
 {
-  this.skipTextInput = true;
   e.ctrlKey = e.ctrlKey || e.metaKey;
   switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
   case 8: //backspace
@@ -250,7 +236,7 @@ _.keydown = function(e)
     var parent = this.cursor.parent;
     if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
       if (parent === this) //cursor is in root editable, continue default
-        break;
+        return this.skipTextInput = true;
       else if (parent.prev) //go one block left
         this.cursor.appendTo(parent.prev);
       else //get out of the block
@@ -269,8 +255,7 @@ _.keydown = function(e)
     break;
   case 13: //enter
   case 'Enter':
-    e.preventDefault();
-    return true;
+    break;
   case 35: //end
   case 'End':
     if (e.shiftKey)
@@ -360,16 +345,13 @@ _.keydown = function(e)
       this.cursor.clearSelection().appendTo(this);
       while (this.cursor.prev)
         this.cursor.selectLeft();
-      e.preventDefault();
-      return false;
+      break;
     }
-    else
-      this.skipTextInput = false;
-    return true;
   default:
     this.skipTextInput = false;
     return true;
   }
+  this.skipTextInput = true;
   return false;
 };
 _.textInput = function(ch) {

@@ -104,7 +104,7 @@ function LiveFraction() {
   Fraction.apply(this, arguments);
 }
 _ = LiveFraction.prototype = new Fraction;
-_.placeCursor = function(cursor) {
+_.placeCursor = function(cursor) { //TODO: better architecture so this can be done more cleanly, highjacking MathCommand::placeCursor doesn't seem like the right place to do this
   if (this.firstChild.isEmpty()) {
     var prev = this.prev;
     while (prev &&
@@ -122,7 +122,7 @@ _.placeCursor = function(cursor) {
         prev = prev.next;
     }
 
-    if (prev !== this.prev) {
+    if (prev !== this.prev) { //FIXME: major Law of Demeter violation, shouldn't know here that MathCommand::initBlocks does some initialization that MathFragment::blockify doesn't
       var newBlock = new MathFragment(this.parent, prev, this).blockify();
       newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
       newBlock.next = this.lastChild;
@@ -181,7 +181,7 @@ function Bracket(open, close, cmd, end, replacedFragment) {
   this.end = '\\right'+end;
 }
 _ = Bracket.prototype = new MathCommand;
-_.initBlocks = function(replacedFragment) {
+_.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter violation, hardcore MathCommand::initBlocks knowledge needed here
   this.firstChild = this.lastChild =
     (replacedFragment && replacedFragment.blockify()) || new MathBlock;
   this.firstChild.parent = this;
@@ -273,7 +273,7 @@ function TextBlock(replacedText) {
 _ = TextBlock.prototype = new MathCommand;
 _.html_template = ['<span class="text"></span>'];
 _.text_template = ['"', '"'];
-_.initBlocks = function() {
+_.initBlocks = function() { //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
   this.firstChild =
   this.lastChild =
   this.jQ.data(jQueryDataKey).block = new InnerTextBlock;
@@ -281,7 +281,7 @@ _.initBlocks = function() {
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
 };
-_.placeCursor = function(cursor) {
+_.placeCursor = function(cursor) { //TODO: this should be done in the constructor that's passed replacedFragment, but you need the cursor to create new characters and insert them
   (this.cursor = cursor).appendTo(this.firstChild);
 
   if (this.replacedText)
@@ -317,8 +317,7 @@ _.textInput = function(ch) {
     this.cursor.insertBefore(this);
   else { //split apart
     var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
-    next.placeCursor = function(cursor) // ********** REMOVEME HACK **********
-    {
+    next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
       this.prev = 0;
       delete this.placeCursor;
       this.placeCursor(cursor);
@@ -355,7 +354,7 @@ _.focus = function() {
   MathBlock.prototype.focus.call(this);
 
   var textblock = this.parent;
-  if (textblock.next instanceof TextBlock) {
+  if (textblock.next instanceof TextBlock) { //TODO: seems like there should be a better way to move MathElements around
     var innerblock = this,
       cursor = textblock.cursor,
       next = textblock.next.firstChild;
@@ -405,12 +404,12 @@ function LatexCommandInput(replacedFragment) {
 _ = LatexCommandInput.prototype = new MathCommand;
 _.html_template = ['<span class="latex-command-input"></span>'];
 _.text_template = ['\\'];
-_.placeCursor = function(cursor) {
+_.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
   this.cursor = cursor.appendTo(this.firstChild);
   if (this.replacedFragment)
     this.jQ =
       this.jQ.add(this.replacedFragment.jQ.addClass('blur').bind(
-        'mousedown mousemove',
+        'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
         function(e) {
           $(e.target = this.nextSibling).trigger(e);
           return false;

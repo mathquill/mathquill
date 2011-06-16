@@ -3,7 +3,7 @@ are all over the place.
 
 ## Usage
 
-(Note: Requires [jQuery 1.4+](http://jquery.com).)
+(Note: Requires [jQuery 1.4.3+](http://jquery.com).)
 
 You just need to download the
 [stylesheet](http://laughinghan.github.com/mathquill/mathquill.css) and the
@@ -45,11 +45,11 @@ Currently, MathQuill only supports a limited scripting API:
 
 * To access the LaTeX contents of a mathquill-ified element:
 
-    $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
+        $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
 
 * To render some LaTeX in a mathquill-ified element:
 
-    $('<span></span>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
+        $('<span></span>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
 
 ## Understanding The Source Code
 
@@ -58,7 +58,7 @@ fractions and a few other things are somewhat arcane. In particular, see the
 Wiki pages "Fonts", "Fractions", and "Keyboard Events".
 
 All the JavaScript that you actually want to read is in `src/`, `build/` just
-contains a cat'ed (and eventually, minified) version of all that.
+contains a cat'ed and minified version of all that.
 
 1. First, skim `baseclasses.js` to get an idea of the virtual "math DOM".
     * Look over the structure of the virtual DOM tree and the utility methods on
