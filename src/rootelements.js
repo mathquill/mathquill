@@ -52,9 +52,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.blink = $.noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    anticursor = new Cursor(root);
-    anticursor.jQ = anticursor._jQ = $();
-    anticursor.insertAt(cursor.parent, cursor.next, cursor.prev);
+    anticursor = new MathFragment(cursor.parent, cursor.prev, cursor.next);
 
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
