@@ -603,6 +603,7 @@ LatexCmds.editable = proto(RootMathCommand, function() {
     this.cursor.appendTo(this);
     MathBlock.prototype.blur.call(this);
   };
+  this.latex = function(){ return this.firstChild.latex(); };
   this.text = function(){ return this.firstChild.text(); };
 });
 

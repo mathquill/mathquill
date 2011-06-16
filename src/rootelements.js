@@ -56,6 +56,8 @@ function createRoot(jQ, root, textbox, editable) {
 
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
+
+    e.stopPropagation();
   });
   function mousemove(e) {
     cursor.seek($(e.target), e.pageX, e.pageY);
@@ -139,14 +141,17 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   //clipboard event handling
-  jQ.bind('cut', function() {
+  jQ.bind('cut', function(e) {
     if (cursor.selection)
       setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
-  }).bind('copy', function() {
+    e.stopPropagation();
+  }).bind('copy', function(e) {
     skipTextInput = true;
-  }).bind('paste', function() {
+    e.stopPropagation();
+  }).bind('paste', function(e) {
     skipTextInput = true;
     setTimeout(paste);
+    e.stopPropagation();
   });
   function paste() {
     //FIXME HACK the parser in RootTextBlock needs to be moved to
