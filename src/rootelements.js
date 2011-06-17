@@ -41,7 +41,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //prevent native selection except textarea
   jQ.bind('selectstart.mathquill', function(e) {
-    if (e.target != textarea[0])
+    if (e.target !== textarea[0])
       e.preventDefault();
     e.stopPropagation();
   });
