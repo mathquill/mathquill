@@ -52,29 +52,29 @@ _.redraw = function() {
     if (ancestor.redraw)
       ancestor.redraw();
 };
-_.insertAt = function(parent, next, prev) {
+_.insertAt = function(parent, prev, next) {
   var old_parent = this.parent;
 
   this.parent = parent;
-  this.next = next;
   this.prev = prev;
+  this.next = next;
 
   old_parent.blur(); //blur may need to know cursor's destination
 };
 _.insertBefore = function(el) {
-  this.insertAt(el.parent, el, el.prev)
+  this.insertAt(el.parent, el.prev, el)
   this.parent.jQ.addClass('hasCursor');
   this.jQ.insertBefore(el.jQ.first());
   return this;
 };
 _.insertAfter = function(el) {
-  this.insertAt(el.parent, el.next, el);
+  this.insertAt(el.parent, el, el.next);
   this.parent.jQ.addClass('hasCursor');
   this.jQ.insertAfter(el.jQ.last());
   return this;
 };
 _.prependTo = function(el) {
-  this.insertAt(el, el.firstChild, 0);
+  this.insertAt(el, 0, el.firstChild);
   if (el.textarea) //never insert before textarea
     this.jQ.insertAfter(el.textarea);
   else
@@ -83,7 +83,7 @@ _.prependTo = function(el) {
   return this;
 };
 _.appendTo = function(el) {
-  this.insertAt(el, 0, el.lastChild);
+  this.insertAt(el, el.lastChild, 0);
   this.jQ.appendTo(el.jQ);
   el.focus();
   return this;
