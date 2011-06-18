@@ -107,6 +107,18 @@ _.text = function() {
     return text + child.text() + (this.text_template[i] || '');
   });
 };
+_.respace = $.noop; //placeholder for context-sensitive spacing
+_.placeCursor = function(cursor) {
+  //append the cursor to the first empty child, or if none empty, the last one
+  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
+    return prev.isEmpty() ? prev : child;
+  }));
+};
+_.isEmpty = function() {
+  return this.foldChildren(true, function(isEmpty, child) {
+    return isEmpty && child.isEmpty();
+  });
+};
 _.remove = function() {
   var self = this,
       prev = self.prev,
@@ -126,18 +138,6 @@ _.remove = function() {
   self.jQ.remove();
 
   return self;
-};
-_.respace = $.noop; //placeholder for context-sensitive spacing
-_.placeCursor = function(cursor) {
-  //append the cursor to the first empty child, or if none empty, the last one
-  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
-    return prev.isEmpty() ? prev : child;
-  }));
-};
-_.isEmpty = function() {
-  return this.foldChildren(true, function(isEmpty, child) {
-    return isEmpty && child.isEmpty();
-  });
 };
 
 /**
