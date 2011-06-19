@@ -25,7 +25,14 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
+  var timeoutSet = false;
   root.selectionChanged = function() {
+    if (timeoutSet) return;
+    setTimeout(setTextareaSelection);
+    timeoutSet = true;
+  };
+  function setTextareaSelection() {
+    timeoutSet = false;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
     if (latex) {
