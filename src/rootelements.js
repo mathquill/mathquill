@@ -25,14 +25,13 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
-  var timeoutSet = false;
+  var textareaSelectionTimeout;
   root.selectionChanged = function() {
-    if (timeoutSet) return;
-    setTimeout(setTextareaSelection);
-    timeoutSet = true;
+    if (textareaSelectionTimeout === undefined)
+      textareaSelectionTimeout = setTimeout(setTextareaSelection);
   };
   function setTextareaSelection() {
-    timeoutSet = false;
+    textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
     if (latex) {
@@ -96,7 +95,7 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   if (!editable) {
-    jQ.bind('cut paste', false)
+    jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
@@ -146,10 +145,12 @@ function createRoot(jQ, root, textbox, editable) {
 
   //clipboard event handling
   jQ.bind('cut', function(e) {
+    setTextareaSelection();
     if (cursor.selection)
       setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
     e.stopPropagation();
   }).bind('copy', function(e) {
+    setTextareaSelection();
     skipTextInput = true;
     e.stopPropagation();
   }).bind('paste', function(e) {
@@ -183,6 +184,12 @@ function createRoot(jQ, root, textbox, editable) {
     else
       cursor.parent.keydown(lastKeydn.evt);
 
+    if (textareaSelectionTimeout !== undefined)
+      clearTimeout(textareaSelectionTimeout);
+
+    if (cursor.selection || textareaSelectionTimeout !== undefined)
+      textarea.val('');
+
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
     skipTextInput = false;
@@ -192,13 +199,18 @@ function createRoot(jQ, root, textbox, editable) {
   function textInput() {
     if (skipTextInput) return;
     var text = textarea.val();
-    if (!text) return;
-    textarea.val('');
-    // textarea can contain more than one character
-    // when typing quickly on slower platforms;
-    // so process each character separately
-    for (var i=0; i<text.length; i++) {
-        cursor.parent.textInput(text[i]);
+    if (text) {
+      textarea.val('');
+      // textarea can contain more than one character
+      // when typing quickly on slower platforms;
+      // so process each character separately
+      for (var i=0; i<text.length; i++) {
+          cursor.parent.textInput(text[i]);
+      }
+    }
+    else {
+      if (cursor.selection || textareaSelectionTimeout !== undefined)
+        setTextareaSelection();
     }
   }
 }
