@@ -276,35 +276,7 @@ _.insertCh = function(ch) {
   return this.insertNew(cmd);
 };
 _.insertNew = function(cmd) {
-  cmd.parent = this.parent;
-  cmd.next = this.next;
-  cmd.prev = this.prev;
-
-  if (this.prev)
-    this.prev.next = cmd;
-  else
-    this.parent.firstChild = cmd;
-
-  if (this.next)
-    this.next.prev = cmd;
-  else
-    this.parent.lastChild = cmd;
-
-  cmd.jQ.insertBefore(this.jQ);
-
-  //adjust context-sensitive spacing
-  cmd.respace();
-  if (this.next)
-    this.next.respace();
-  if (this.prev)
-    this.prev.respace();
-
-  this.prev = cmd;
-
-  cmd.placeCursor(this);
-
-  this.redraw();
-
+  cmd.insertAt(this);
   return this;
 };
 _.unwrapGramp = function() {

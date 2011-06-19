@@ -107,6 +107,38 @@ _.text = function() {
     return text + child.text() + (this.text_template[i] || '');
   });
 };
+_.insertAt = function(cursor) {
+  var cmd = this;
+
+  cmd.parent = cursor.parent;
+  cmd.next = cursor.next;
+  cmd.prev = cursor.prev;
+
+  if (cursor.prev)
+    cursor.prev.next = cmd;
+  else
+    cursor.parent.firstChild = cmd;
+
+  if (cursor.next)
+    cursor.next.prev = cmd;
+  else
+    cursor.parent.lastChild = cmd;
+
+  cmd.jQ.insertBefore(cursor.jQ);
+
+  //adjust context-sensitive spacing
+  cmd.respace();
+  if (cursor.next)
+    cursor.next.respace();
+  if (cursor.prev)
+    cursor.prev.respace();
+
+  cursor.prev = cmd;
+
+  cmd.placeCursor(cursor);
+
+  cursor.redraw();
+};
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
   //append the cursor to the first empty child, or if none empty, the last one
