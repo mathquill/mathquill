@@ -22,10 +22,10 @@ function createRoot(jQ, root, textbox, editable) {
   root.renderLatex(contents.text());
 
   //textarea stuff
-  root.textarea = $('<span class="textarea"><textarea></textarea></span>');
-  var textarea = root.textarea.children();
+  var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
+    textarea = textareaSpan.children();
 
-  function updateTextarea() {
+  root.selectionChanged = function() {
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
     if (latex) {
@@ -54,6 +54,9 @@ function createRoot(jQ, root, textbox, editable) {
 
     anticursor = new MathFragment(cursor.parent, cursor.prev, cursor.next);
 
+    if (!editable)
+      jQ.prepend(textareaSpan);
+
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
 
@@ -75,36 +78,30 @@ function createRoot(jQ, root, textbox, editable) {
   function mouseup(e) {
     anticursor = undefined;
     cursor.blink = blink;
-    if (editable && !cursor.selection) cursor.show();
+    if (!cursor.selection) {
+      if (editable)
+        cursor.show();
+      else
+        textareaSpan.detach();
+    }
     jQ.unbind('mousemove', mousemove);
     $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
   }
 
-  if (!editable) { //if static, only prepend textarea when there's selected text
-    var textareaSpan = root.textarea, textareaDetached = true;
-    root.selectionChanged = function() {
-      if (cursor.selection) {
-        if (textareaDetached) {
-          textareaSpan.prependTo(jQ);
-          textareaDetached = false;
-        }
-        updateTextarea();
-      }
-      else if (!textareaDetached) {
-        textareaSpan.detach();
-        textareaDetached = true;
-      }
-    };
+  if (!editable) {
+    jQ.bind('cut paste', false)
+      .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
+      setTimeout(detach); //detaching during blur explodes in WebKit
     });
-    $('<span class="selectable"></span>').text('$'+root.latex()+'$')
-      .prependTo(jQ.bind('cut paste', false));
-    return; //and don't bother with key events
+    function detach() {
+      textareaSpan.detach();
+    }
+    return;
   }
 
-  root.selectionChanged = updateTextarea;
-  root.textarea.prependTo(jQ);
+  jQ.prepend(textareaSpan);
 
   //root CSS classes
   jQ.addClass('mathquill-editable');
@@ -118,7 +115,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(updateTextarea); //select textarea after focus
+      setTimeout(root.selectionChanged); //select textarea after focus
     }
     else
       cursor.show();
