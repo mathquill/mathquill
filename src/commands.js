@@ -98,7 +98,7 @@ _.html_template = [
 ];
 _.text_template = ['(', '/', ')'];
 
-LatexCmds.frac = LatexCmds.fraction = Fraction;
+LatexCmds.frac = LatexCmds.dfrac = LatexCmds.cfrac = LatexCmds.fraction = Fraction;
 
 function LiveFraction() {
   Fraction.apply(this, arguments);
