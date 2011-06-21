@@ -379,7 +379,7 @@ _.textInput = function(ch) {
 };
 
 function RootMathCommand(cursor) {
-  MathCommand.call(this, '$');
+  this.init('$');
   this.firstChild.cursor = cursor;
   this.firstChild.textInput = function(ch) {
     if (this.skipTextInput) return;

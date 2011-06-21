@@ -10,7 +10,7 @@ function proto(parent, child) { //shorthand for prototyping
 }
 
 function SupSub(cmd, html, text, replacedFragment) {
-  MathCommand.call(this, cmd, [ html ], [ text ], replacedFragment);
+  this.init(cmd, [ html ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
@@ -87,7 +87,7 @@ LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
 });
 
 function Fraction(replacedFragment) {
-  MathCommand.call(this, '\\frac', undefined, undefined, replacedFragment);
+  this.init('\\frac', undefined, undefined, replacedFragment);
   this.jQ.append('<span style="width:0">&nbsp;</span>');
 }
 _ = Fraction.prototype = new MathCommand;
@@ -136,7 +136,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
 CharCmds['/'] = LiveFraction;
 
 function SquareRoot(replacedFragment) {
-  MathCommand.call(this, '\\sqrt', undefined, undefined, replacedFragment);
+  this.init('\\sqrt', undefined, undefined, replacedFragment);
 }
 _ = SquareRoot.prototype = new MathCommand;
 _.html_template = [
@@ -174,7 +174,7 @@ LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
-  MathCommand.call(this, '\\left'+cmd,
+  this.init('\\left'+cmd,
     ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
     [open, close],
     replacedFragment);
@@ -268,9 +268,10 @@ function TextBlock(replacedText) {
   else if (typeof replacedText === 'string')
     this.replacedText = replacedText;
 
-  MathCommand.call(this, '\\text');
+  this.init();
 }
 _ = TextBlock.prototype = new MathCommand;
+_.cmd = '\\text';
 _.html_template = ['<span class="text"></span>'];
 _.text_template = ['"', '"'];
 _.initBlocks = function() { //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
@@ -395,7 +396,7 @@ LatexCmds.text = CharCmds.$ = TextBlock;
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment) {
-  MathCommand.call(this, '\\');
+  this.init('\\');
   if (replacedFragment) {
     this.replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
@@ -471,7 +472,7 @@ _.renderCommand = function() {
 CharCmds['\\'] = LatexCommandInput;
   
 function Binomial(replacedFragment) {
-  MathCommand.call(this, '\\binom', undefined, undefined, replacedFragment);
+  this.init('\\binom', undefined, undefined, replacedFragment);
   this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
 }
 _ = Binomial.prototype = new MathCommand;
@@ -496,7 +497,7 @@ _.placeCursor = LiveFraction.prototype.placeCursor;
 LatexCmds.choose = Choose;
 
 function Vector(replacedFragment) {
-  MathCommand.call(this, '\\vector', undefined, undefined, replacedFragment);
+  this.init('\\vector', undefined, undefined, replacedFragment);
 }
 _ = Vector.prototype = new MathCommand;
 _.html_template = ['<span class="array"></span>', '<span></span>'];
@@ -593,7 +594,7 @@ _.keydown = function(e) {
 LatexCmds.vector = Vector;
 
 LatexCmds.editable = proto(RootMathCommand, function() {
-  MathCommand.call(this, '\\editable');
+  this.init('\\editable');
   createRoot(this.jQ, this.firstChild, false, true);
   var cursor;
   this.placeCursor = function(c) { cursor = c.appendTo(this.firstChild); };

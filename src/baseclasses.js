@@ -37,19 +37,18 @@ _.textInput = function(ch) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template, text_template, replacedFragment) {
-  if (!arguments.length) return;
+function MathCommand(){}
+_ = MathCommand.prototype = new MathElement;
+_.init = function(cmd, html_template, text_template, replacedFragment) {
   var self = this; // minifier optimization
 
-  self.cmd = cmd;
+  if (cmd) self.cmd = cmd;
   if (html_template) self.html_template = html_template;
   if (text_template) self.text_template = text_template;
 
   self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
   self.initBlocks(replacedFragment);
-}
-
-_ = MathCommand.prototype = new MathElement;
+};
 _.initBlocks = function(replacedFragment) {
   var self = this;
   //single-block commands
@@ -145,7 +144,7 @@ _.isEmpty = function() {
  * Lightweight command without blocks or children.
  */
 function Symbol(cmd, html, text) {
-  MathCommand.call(this, cmd, [ html ],
+  this.init(cmd, [ html ],
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
