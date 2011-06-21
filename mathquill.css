@@ -126,7 +126,7 @@
   display: -moz-inline-box;
   display: inline-block;
 }
-.mathquill-rendered-math var, .mathquill-rendered-math .nonSymbola {
+.mathquill-rendered-math var, .mathquill-rendered-math .text, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", serif;
 }
 .mathquill-rendered-math * {

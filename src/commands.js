@@ -355,7 +355,7 @@ _.focus = function() {
   MathBlock.prototype.focus.call(this);
 
   var textblock = this.parent;
-  if (textblock.next instanceof TextBlock) { //TODO: seems like there should be a better way to move MathElements around
+  if (textblock.next.cmd === textblock.cmd) { //TODO: seems like there should be a better way to move MathElements around
     var innerblock = this,
       cursor = textblock.cursor,
       next = textblock.next.firstChild;
@@ -382,7 +382,7 @@ _.focus = function() {
 
     cursor.redraw();
   }
-  else if (textblock.prev instanceof TextBlock) {
+  else if (textblock.prev.cmd === textblock.cmd) {
     var cursor = textblock.cursor;
     if (cursor.prev)
       textblock.prev.firstChild.focus();
@@ -392,7 +392,35 @@ _.focus = function() {
   return this;
 };
 
-LatexCmds.text = CharCmds.$ = TextBlock;
+LatexCmds.text =
+LatexCmds.textnormal =
+LatexCmds.textrm =
+LatexCmds.textup =
+CharCmds.$ =
+  TextBlock;
+
+function makeTextBlock(latex, html) {
+  function SomeTextBlock() {
+    TextBlock.apply(this, arguments);
+  }
+  _ = SomeTextBlock.prototype = new TextBlock;
+  _.cmd = latex;
+  _.html_template = [ html ];
+
+  return SomeTextBlock;
+}
+
+LatexCmds.emph =
+LatexCmds.textsl =
+LatexCmds.textit =
+  makeTextBlock('\\textit', '<i class="text"></i>');
+
+LatexCmds.textbf = makeTextBlock('\\textbf', '<b class="text"></b>');
+LatexCmds.textsf = makeTextBlock('\\textsf', '<span style="font-family:sans-serif" class="text"></span>');
+LatexCmds.texttt = makeTextBlock('\\texttt', '<span style="font-family:monospace" class="text"></span>');
+LatexCmds.textsc = makeTextBlock('\\textsc', '<span style="font-variant:small-caps" class="text"></span>');
+LatexCmds.uppercase = makeTextBlock('\\uppercase', '<span style="text-transform:uppercase" class="text"></span>');
+LatexCmds.lowercase = makeTextBlock('\\lowercase', '<span style="text-transform:lowercase" class="text"></span>');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment) {
