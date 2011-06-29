@@ -124,20 +124,20 @@ _.insertAt = function(cursor) {
   else
     cursor.parent.lastChild = cmd;
 
+  cursor.prev = cmd;
+
   cmd.jQ.insertBefore(cursor.jQ);
 
   //adjust context-sensitive spacing
   cmd.respace();
-  if (cursor.next)
-    cursor.next.respace();
-  if (cursor.prev)
-    cursor.prev.respace();
-
-  cursor.prev = cmd;
+  if (cmd.next)
+    cmd.next.respace();
+  if (cmd.prev)
+    cmd.prev.respace();
 
   cmd.placeCursor(cursor);
 
-  cursor.redraw();
+  cursor.redraw(); //this will soon be cmd.trigger('redraw')
 };
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
