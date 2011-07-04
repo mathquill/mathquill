@@ -96,6 +96,7 @@ _.latex = function() {
     return latex + '{' + (child.latex() || ' ') + '}';
   });
 };
+_.text_template = [''];
 _.text = function() {
   var i = 0;
   return this.foldChildren(this.text_template[i], function(text, child) {
