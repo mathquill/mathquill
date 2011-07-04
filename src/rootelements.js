@@ -384,4 +384,3 @@ _.textInput = function(ch) {
   else
     this.cursor.insertNew(new VanillaSymbol(ch));
 };
-

@@ -51,7 +51,7 @@
 
 .mathquill-editable .cursor {
   border-left: 1px solid black;
-  margin-right: -1px;
+  margin-right: 0px; /* So Firefox 5 won't wrap the box to 2 lines */
   display: inline;
   position: relative;
   z-index: 1;
@@ -265,6 +265,12 @@
 
 .mathquill-rendered-math .paren {
   vertical-align: bottom;
+  position: relative;
+}
+
+.mathquill-rendered-math .paren.close { /*The close paren isn't lined up exactly*/
+  vertical-align: bottom;
+  direction:rtl;
   position: relative;
 }
 

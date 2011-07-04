@@ -153,7 +153,7 @@ _.redraw = function() {
   });
 };
 
-LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
+LatexCmds.sqrt = LatexCmds['v'] = SquareRoot;
 
 function NthRoot(replacedFragment) {
   SquareRoot.call(this, replacedFragment);
@@ -172,10 +172,18 @@ _.latex = function() {
 
 LatexCmds.nthroot = NthRoot;
 
+/************************************************************
+ * Bracket code.
+ ************************************************************/
+
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
+  if (open) {
+    this.open=unescapeHTML(open); //We unescape the HTML because of brackets like &lang;
+    this.close=unescapeHTML(close); //The bracket must be one character.
+  }
   MathCommand.call(this, '\\left'+cmd,
-    ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
+    ['<span><span class="paren open"></span><span></span><span class="paren close"></span></span>'],
     [open, close],
     replacedFragment);
   this.end = '\\right'+end;
@@ -188,13 +196,40 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   this.firstChild.jQ = this.jQ.children(':eq(1)')
     .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
+  
+  if(this.open) {
+    var block = this.firstChild.jQ;
+    var start = Raphael(block.prev()[0], 6, 20);
+    var font = start.getFont("Symbola");
+    var start_path=start.print(2, 8, this.open, font, 16).attr({fill: "#000"});
+    var end = Raphael(block.next()[0], 6, 20);
+    var end_path=end.print(2, 8, this.close, font, 16).attr({fill: "#000"});
+    
+    var scale = start_path[0].attr('scale');
+    this.raphael = {};
+    this.raphael.scaleX = scale.x;
+    this.raphael.scaleY = scale.y;
+    this.raphael.start=start;
+    this.raphael.startBracket = start_path;
+    this.raphael.end=end;
+    this.raphael.endBracket = end_path;
+  }
 };
 _.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
 };
 _.redraw = function() {
   var block = this.firstChild.jQ;
-  block.prev().add(block.next()).css('fontSize', block.outerHeight()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
+  
+  this.raphael.start.setSize(7,block.outerHeight()); //Resize the vector spaces
+  this.raphael.end.setSize(7,block.outerHeight());
+  
+  //Resize the brackets in the vector spaces
+  this.raphael.startBracket[0].scale(this.raphael.scaleX,this.raphael.scaleY*block.outerHeight()/16,0,0)
+  this.raphael.endBracket[0].scale(this.raphael.scaleX,this.raphael.scaleY*block.outerHeight()/16,0,0)
+  
+  //Resize the actual html elements
+  block.prev().add(block.next()).height(block.outerHeight());
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -261,6 +296,9 @@ _.placeCursor = function(cursor) {
 };
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
+/************************************************************
+ * End of bracket code.
+ ************************************************************/
 
 function TextBlock(replacedText) {
   if (replacedText instanceof MathFragment)
@@ -605,4 +643,3 @@ LatexCmds.editable = proto(RootMathCommand, function() {
   };
   this.text = function(){ return this.firstChild.text(); };
 });
-
