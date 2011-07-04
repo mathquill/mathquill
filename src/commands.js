@@ -9,6 +9,14 @@ function proto(parent, child) { //shorthand for prototyping
   return child;
 }
 
+function bind(cons) { //shorthand for binding arguments to constructor
+  var args = Array.prototype.slice.call(arguments, 1);
+
+  return proto(cons, function() {
+    cons.apply(this, Array.prototype.concat.apply(args, arguments));
+  });
+}
+
 function SupSub(cmd, html, text, replacedFragment) {
   this.init(cmd, [ html ], [ text ], replacedFragment);
 }

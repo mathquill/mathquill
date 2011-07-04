@@ -2,14 +2,6 @@
  * Symbols and Special Characters
  *********************************/
 
-function bind(cons) { //shorthand for binding arguments to constructor
-  var args = Array.prototype.slice.call(arguments, 1);
-
-  return proto(cons, function() {
-    cons.apply(this, args);
-  });
-}
-
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 
 function Variable(ch, html) {
