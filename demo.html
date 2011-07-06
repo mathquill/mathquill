@@ -81,7 +81,7 @@
           }
           return tree.slice(1);
         }
-        var editingSource = false, latexSource = $('#latex-source').bind('keydown keypress', updateHTMLSource), htmlSource = $('#html-source'), codecogs = $('#codecogs'), latexMath = $('#editable-math').bind('keydown keypress', updateHTMLSource).keydown().focus();
+        var editingSource = false, latexSource = $('#latex-source').bind('keydown keypress paste', updateHTMLSource), htmlSource = $('#html-source'), codecogs = $('#codecogs'), latexMath = $('#editable-math').bind('keydown keypress paste', updateHTMLSource).keydown().focus();
 		function updateHTMLSource() {
 			setTimeout(function() {
 	            htmlSource.text(printTree(latexMath.mathquill('html')));
@@ -101,7 +101,7 @@
           editingSource = true;
         }).blur(function(){
           editingSource = false;
-        }).bind('keydown keypress', function()
+        }).bind('keydown keypress paste', function()
         {
           var oldtext = textarea.val();
           setTimeout(function()
