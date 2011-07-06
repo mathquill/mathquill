@@ -400,11 +400,12 @@ _.focus = function() {
   return this;
 };
 
+CharCmds.$ =
 LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-CharCmds.$ =
+LatexCmds.textmd =
   TextBlock;
 
 function makeTextBlock(latex, html) {
@@ -418,17 +419,21 @@ function makeTextBlock(latex, html) {
   return SomeTextBlock;
 }
 
-LatexCmds.emph =
-LatexCmds.textsl =
-LatexCmds.textit =
+LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
+LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
   makeTextBlock('\\textit', '<i class="text"></i>');
-
-LatexCmds.textbf = makeTextBlock('\\textbf', '<b class="text"></b>');
-LatexCmds.textsf = makeTextBlock('\\textsf', '<span style="font-family:sans-serif" class="text"></span>');
-LatexCmds.texttt = makeTextBlock('\\texttt', '<span style="font-family:monospace" class="text"></span>');
-LatexCmds.textsc = makeTextBlock('\\textsc', '<span style="font-variant:small-caps" class="text"></span>');
-LatexCmds.uppercase = makeTextBlock('\\uppercase', '<span style="text-transform:uppercase" class="text"></span>');
-LatexCmds.lowercase = makeTextBlock('\\lowercase', '<span style="text-transform:lowercase" class="text"></span>');
+LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
+  makeTextBlock('\\textbf', '<b class="text"></b>');
+LatexCmds.sf = LatexCmds.textsf =
+  makeTextBlock('\\textsf', '<span class="sans-serif text"></span>');
+LatexCmds.tt = LatexCmds.texttt =
+  makeTextBlock('\\texttt', '<span class="monospace text"></span>');
+LatexCmds.textsc =
+  makeTextBlock('\\textsc', '<span style="font-variant:small-caps" class="text"></span>');
+LatexCmds.uppercase =
+  makeTextBlock('\\uppercase', '<span style="text-transform:uppercase" class="text"></span>');
+LatexCmds.lowercase =
+  makeTextBlock('\\lowercase', '<span style="text-transform:lowercase" class="text"></span>');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 function LatexCommandInput(replacedFragment) {
