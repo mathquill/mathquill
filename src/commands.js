@@ -226,6 +226,11 @@ _.redraw = function() {
   
   //Resize the actual html elements
   block.prev().add(block.next()).height(block.outerHeight());
+  if(block.outerHeight() > 30) {
+    block.parent().addClass('tall-element');
+  } else {
+    block.parent().removeClass('tall-element');
+  }
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
