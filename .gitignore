@@ -2,5 +2,4 @@
 .*.swo
 .*.swn
 .DS_Store
-build/*
 tmp/*
