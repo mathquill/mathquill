@@ -21,11 +21,13 @@ _.latex = function() {
     return this.cmd + '{' + (latex || ' ') + '}';
 };
 _.redraw = function() {
+  console.log('Redrawing',this.cmd);
   this.respace();
   if (this.next)
     this.next.respace();
-  if (this.prev)
+  if (this.prev) {
     this.prev.respace();
+  }
 };
 _.respace = function() {
   if (
@@ -44,6 +46,17 @@ _.respace = function() {
       this.limit = false;
       this.jQ.removeClass('limit');
     }
+  }
+  var tall_element
+  if( this.prev && (tall_element=this.prev.jQ).hasClass('tall-element') || (this.prev &&
+      ( (this.prev.cmd==='_' || this.prev.cmd==='^') && this.prev.prev.jQ && (tall_element=this.prev.prev.jQ).hasClass('tall-element'))) ){
+    if(this.cmd==='^') {
+      this.jQ.css('vertical-align',tall_element.height()/2-4);
+    } else {
+      this.jQ.css('vertical-align',-tall_element.height()/2+6);
+    }
+  } else {
+    this.jQ.css('vertical-align','');
   }
 
   if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
@@ -179,8 +192,8 @@ LatexCmds.nthroot = NthRoot;
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
   if (open) {
-    this.open=unescapeHTML(open); //We unescape the HTML because of brackets like &lang;
-    this.close=unescapeHTML(close); //The bracket must be one character.
+    this.open=open; 
+    this.close=close;
   }
   MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren open"></span><span></span><span class="paren close"></span></span>'],
@@ -199,9 +212,9 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   
   if(this.open) {
     var block = this.firstChild.jQ;
-    var start = Raphael(block.prev()[0], 12, 20);
+    var start = Raphael(block.prev()[0], 8, 20);
     var start_path=start.bracket(this.open,20);
-    var end = Raphael(block.next()[0], 12, 20);
+    var end = Raphael(block.next()[0], 8, 20);
     var end_path=end.bracket(this.close,20);
    
     this.raphael = {};
@@ -217,8 +230,8 @@ _.latex = function() {
 _.redraw = function() {
   var block = this.firstChild.jQ;
   
-  this.raphael.start.setSize(12,block.height()+2); //Resize the vector spaces
-  this.raphael.end.setSize(12,block.height()+2);
+  this.raphael.start.setSize(8,block.height()+2); //Resize the vector spaces
+  this.raphael.end.setSize(8,block.height()+2);
   
   //Resize the brackets in the vector spaces
   this.raphael.startBracket.bracketResize(this.open,block.height());

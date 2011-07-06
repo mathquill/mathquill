@@ -6,11 +6,7 @@ var _, //temp variable of prototypes
 
 /*************************************************
  * Helper functions
- ************************************************/
-function unescapeHTML(html) {
-  return $("<div />").html(html).text();
-}
-    
+ ************************************************/   
 var glyphs={
   //Each glyph is 2000px tall and centered horizontally at 0.
   "(":{
@@ -81,25 +77,25 @@ var glyphs={
       stroke:'none'
     }
   },
-  "\u27e8":{
+  "&lang;":{
     d:"m 211,43 -422,957 422,957",
     attr:{
       'stroke-width':1,
       'stroke-linecap':'round',
       'stroke-linejoin':'miter',
-      'stroke-miterlimit':4.5,
+      'stroke-miterlimit':4,
       'stroke-opacity':1,
       'stroke-dasharray':''
     },
     width:20
   },
-  "\u27e9":{
+  "&rang;":{
     d:"m -211,43 422,957 -422,957",
     attr:{
       'stroke-width':1,
       'stroke-linecap':'round',
       'stroke-linejoin':'miter',
-      'stroke-miterlimit':4.5,
+      'stroke-miterlimit':4,
       'stroke-opacity':1,
       'stroke-dasharray':''
     },
@@ -108,10 +104,10 @@ var glyphs={
 }
 Raphael.fn.bracket = function(character,height) {
   var g = glyphs[character];
-  return this.path(g.d).attr(g.attr).scale(g.width/2000,height/2000,6,0);
+  return this.path(g.d).attr(g.attr).scale(g.width/2000,height/2000,4,0);
 };
 
 Raphael.el.bracketResize = function(character, height) {
   var g = glyphs[character];
-  return this.scale(g.width/2000,height/2000,6,0);
+  return this.scale(g.width/2000,height/2000,4,0);
 };

@@ -168,25 +168,6 @@
   vertical-align: -.4em;
 }
 
-/* If a superscript is right after a large element, like a big paren, then push it all the way to the top. */
-.mathquill-rendered-math .tall-element+sup,
-.mathquill-rendered-math .tall-element+.cursor+sup,
-.mathquill-rendered-math .tall-element+sub+sup,
-.mathquill-rendered-math .tall-element+.cursor+sub+sup,
-.mathquill-rendered-math .tall-element+sub+.cursor+sup
-{
-  vertical-align: top; 
-}
-
-.mathquill-rendered-math .tall-element+sub,
-.mathquill-rendered-math .tall-element+.cursor+sub,
-.mathquill-rendered-math .tall-element+sup+sub,
-.mathquill-rendered-math .tall-element+.cursor+sup+sub,
-.mathquill-rendered-math .tall-element+sup+.cursor+sub
-{
-  vertical-align: bottom; /* If a subscript is right after a large element, like a big paren, then push it all the way to the bottom. */
-}
-
 .mathquill-rendered-math sup.nthroot {
   margin-right: -.6em;
   margin-left: .2em;

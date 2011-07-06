@@ -785,11 +785,13 @@ _.latex = function() {
     return this.cmd + '{' + (latex || ' ') + '}';
 };
 _.redraw = function() {
+  console.log('Redrawing',this.cmd);
   this.respace();
   if (this.next)
     this.next.respace();
-  if (this.prev)
+  if (this.prev) {
     this.prev.respace();
+  }
 };
 _.respace = function() {
   if (
@@ -808,6 +810,17 @@ _.respace = function() {
       this.limit = false;
       this.jQ.removeClass('limit');
     }
+  }
+  var tall_element
+  if( this.prev && (tall_element=this.prev.jQ).hasClass('tall-element') || (this.prev &&
+      ( (this.prev.cmd==='_' || this.prev.cmd==='^') && this.prev.prev.jQ && (tall_element=this.prev.prev.jQ).hasClass('tall-element'))) ){
+    if(this.cmd==='^') {
+      this.jQ.css('vertical-align',tall_element.height()/2-4);
+    } else {
+      this.jQ.css('vertical-align',-tall_element.height()/2+6);
+    }
+  } else {
+    this.jQ.css('vertical-align','');
   }
 
   if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
