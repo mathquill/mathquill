@@ -199,16 +199,12 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   
   if(this.open) {
     var block = this.firstChild.jQ;
-    var start = Raphael(block.prev()[0], 6, 20);
-    var font = start.getFont("Symbola");
-    var start_path=start.print(2, 8, this.open, font, 16).attr({fill: "#000"});
-    var end = Raphael(block.next()[0], 6, 20);
-    var end_path=end.print(2, 8, this.close, font, 16).attr({fill: "#000"});
-    
-    var scale = start_path[0].attr('scale');
+    var start = Raphael(block.prev()[0], 12, 20);
+    var start_path=start.bracket(this.open,20);
+    var end = Raphael(block.next()[0], 12, 20);
+    var end_path=end.bracket(this.close,20);
+   
     this.raphael = {};
-    this.raphael.scaleX = scale.x;
-    this.raphael.scaleY = scale.y;
     this.raphael.start=start;
     this.raphael.startBracket = start_path;
     this.raphael.end=end;
@@ -221,12 +217,12 @@ _.latex = function() {
 _.redraw = function() {
   var block = this.firstChild.jQ;
   
-  this.raphael.start.setSize(7,block.outerHeight()); //Resize the vector spaces
-  this.raphael.end.setSize(7,block.outerHeight());
+  this.raphael.start.setSize(12,block.height()+2); //Resize the vector spaces
+  this.raphael.end.setSize(12,block.height()+2);
   
   //Resize the brackets in the vector spaces
-  this.raphael.startBracket[0].scale(this.raphael.scaleX,this.raphael.scaleY*block.outerHeight()/16,0,0)
-  this.raphael.endBracket[0].scale(this.raphael.scaleX,this.raphael.scaleY*block.outerHeight()/16,0,0)
+  this.raphael.startBracket.bracketResize(this.open,block.height());
+  this.raphael.endBracket.bracketResize(this.close,block.height());
   
   //Resize the actual html elements
   block.prev().add(block.next()).height(block.outerHeight());

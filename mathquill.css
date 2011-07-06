@@ -7,7 +7,6 @@
  * This file is automatically included by mathquill.js
  * 
  */
-
 @font-face {
   font-family: Symbola;
   src: url(font/Symbola.eot);
@@ -51,7 +50,7 @@
 
 .mathquill-editable .cursor {
   border-left: 1px solid black;
-  margin-right: 0px; /* So Firefox 5 won't wrap the box to 2 lines */
+  margin-right: -1px;
   display: inline;
   position: relative;
   z-index: 1;
