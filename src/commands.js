@@ -17,6 +17,17 @@ function bind(cons) { //shorthand for binding arguments to constructor
   });
 }
 
+function Style(cmd, html_template, replacedFragment) {
+  this.init(cmd, [ html_template ], undefined, replacedFragment);
+}
+proto(MathCommand, Style);
+//fonts
+LatexCmds.mathrm = bind(Style, '\\mathrm', '<span class="roman font"></span>');
+LatexCmds.mathit = bind(Style, '\\mathit', '<i class="font"></i>');
+LatexCmds.mathbf = bind(Style, '\\mathbf', '<b class="font"></b>');
+LatexCmds.mathsf = bind(Style, '\\mathsf', '<span class="sans-serif font"></span>');
+LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>');
+
 function SupSub(cmd, html, text, replacedFragment) {
   this.init(cmd, [ html ], [ text ], replacedFragment);
 }

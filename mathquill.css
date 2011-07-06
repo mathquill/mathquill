@@ -127,7 +127,7 @@
   display: inline-block;
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .text, .mathquill-rendered-math .nonSymbola {
-  font-family: "Times New Roman", serif;
+  font-family: "Times New Roman", Symbola, serif;
 }
 .mathquill-rendered-math * {
   font-size: inherit;
@@ -163,9 +163,22 @@
   font-size: 87%;
 }
 
-.mathquill-rendered-math var { /* variables, in case the user does something weird to their <var>'s */
+.mathquill-rendered-math .font {
+  font: 1em "Times New Roman", Symbola, serif;
+}
+.mathquill-rendered-math .font * {
+  font-family: inherit;
+  font-style: inherit;
+}
+
+.mathquill-rendered-math b,
+.mathquill-rendered-math b.font {
+  font-weight: bolder;
+}
+.mathquill-rendered-math var,
+.mathquill-rendered-math i,
+.mathquill-rendered-math i.font {
   font-style: italic;
-  font-weight: normal;
 }
 .mathquill-rendered-math var.florin { /* florin looks so much better than italic f */
   margin: 0 -.1em;
@@ -173,6 +186,18 @@
 
 .mathquill-rendered-math big {
   font-size: 125%;
+}
+
+.mathquill-rendered-math .roman {
+  font-style: normal;
+}
+
+.mathquill-rendered-math .sans-serif {
+  font-family: sans-serif, Symbola, serif;
+}
+
+.mathquill-rendered-math .monospace {
+  font-family: monospace, Symbola, serif;
 }
 
 .mathquill-rendered-math sup, .mathquill-rendered-math sub {
