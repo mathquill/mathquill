@@ -10,11 +10,7 @@ var _, //temp variable of prototypes
 
 /*************************************************
  * Helper functions
- ************************************************/
-function unescapeHTML(html) {
-  return $("<div />").html(html).text();
-}
-    
+ ************************************************/   
 var glyphs={
   //Each glyph is 2000px tall and centered horizontally at 0.
   "(":{
@@ -85,25 +81,25 @@ var glyphs={
       stroke:'none'
     }
   },
-  "\u27e8":{
+  "&lang;":{
     d:"m 211,43 -422,957 422,957",
     attr:{
       'stroke-width':1,
       'stroke-linecap':'round',
       'stroke-linejoin':'miter',
-      'stroke-miterlimit':4.5,
+      'stroke-miterlimit':4,
       'stroke-opacity':1,
       'stroke-dasharray':''
     },
     width:20
   },
-  "\u27e9":{
+  "&rang;":{
     d:"m -211,43 422,957 -422,957",
     attr:{
       'stroke-width':1,
       'stroke-linecap':'round',
       'stroke-linejoin':'miter',
-      'stroke-miterlimit':4.5,
+      'stroke-miterlimit':4,
       'stroke-opacity':1,
       'stroke-dasharray':''
     },
@@ -112,12 +108,12 @@ var glyphs={
 }
 Raphael.fn.bracket = function(character,height) {
   var g = glyphs[character];
-  return this.path(g.d).attr(g.attr).scale(g.width/2000,height/2000,6,0);
+  return this.path(g.d).attr(g.attr).scale(g.width/2000,height/2000,4,0);
 };
 
 Raphael.el.bracketResize = function(character, height) {
   var g = glyphs[character];
-  return this.scale(g.width/2000,height/2000,6,0);
+  return this.scale(g.width/2000,height/2000,4,0);
 };
 /*************************************************
  * Abstract base classes of blocks and commands.
@@ -947,8 +943,8 @@ LatexCmds.nthroot = NthRoot;
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
   if (open) {
-    this.open=unescapeHTML(open); //We unescape the HTML because of brackets like &lang;
-    this.close=unescapeHTML(close); //The bracket must be one character.
+    this.open=open; 
+    this.close=close;
   }
   MathCommand.call(this, '\\left'+cmd,
     ['<span><span class="paren open"></span><span></span><span class="paren close"></span></span>'],
@@ -967,9 +963,9 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   
   if(this.open) {
     var block = this.firstChild.jQ;
-    var start = Raphael(block.prev()[0], 12, 20);
+    var start = Raphael(block.prev()[0], 8, 20);
     var start_path=start.bracket(this.open,20);
-    var end = Raphael(block.next()[0], 12, 20);
+    var end = Raphael(block.next()[0], 8, 20);
     var end_path=end.bracket(this.close,20);
    
     this.raphael = {};
@@ -985,8 +981,8 @@ _.latex = function() {
 _.redraw = function() {
   var block = this.firstChild.jQ;
   
-  this.raphael.start.setSize(12,block.height()+2); //Resize the vector spaces
-  this.raphael.end.setSize(12,block.height()+2);
+  this.raphael.start.setSize(8,block.height()+2); //Resize the vector spaces
+  this.raphael.end.setSize(8,block.height()+2);
   
   //Resize the brackets in the vector spaces
   this.raphael.startBracket.bracketResize(this.open,block.height());
