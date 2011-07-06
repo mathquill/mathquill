@@ -27,6 +27,9 @@ LatexCmds.mathit = bind(Style, '\\mathit', '<i class="font"></i>');
 LatexCmds.mathbf = bind(Style, '\\mathbf', '<b class="font"></b>');
 LatexCmds.mathsf = bind(Style, '\\mathsf', '<span class="sans-serif font"></span>');
 LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>');
+//text-decoration
+LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span>');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
 
 function SupSub(cmd, html, text, replacedFragment) {
   this.init(cmd, [ html ], [ text ], replacedFragment);

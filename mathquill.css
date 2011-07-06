@@ -163,6 +163,15 @@
   font-size: 87%;
 }
 
+.mathquill-rendered-math .overline {
+  border-top: 1px solid black;
+  margin-top: 1px;
+}
+.mathquill-rendered-math .underline {
+  border-bottom: 1px solid black;
+  margin-bottom: 1px;
+}
+
 .mathquill-rendered-math .font {
   font: 1em "Times New Roman", Symbola, serif;
 }
