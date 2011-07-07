@@ -21,11 +21,13 @@ _.latex = function() {
     return this.cmd + '{' + (latex || ' ') + '}';
 };
 _.redraw = function() {
+  console.log('Redrawing',this.cmd);
   this.respace();
   if (this.next)
     this.next.respace();
-  if (this.prev)
+  if (this.prev) {
     this.prev.respace();
+  }
 };
 _.respace = function() {
   if (
@@ -44,6 +46,17 @@ _.respace = function() {
       this.limit = false;
       this.jQ.removeClass('limit');
     }
+  }
+  var tall_element
+  if( this.prev && (tall_element=this.prev.jQ).hasClass('tall-element') || (this.prev &&
+      ( (this.prev.cmd==='_' || this.prev.cmd==='^') && this.prev.prev.jQ && (tall_element=this.prev.prev.jQ).hasClass('tall-element'))) ){
+    if(this.cmd==='^') {
+      this.jQ.css('vertical-align',tall_element.height()/2-4);
+    } else {
+      this.jQ.css('vertical-align',-tall_element.height()/2+6);
+    }
+  } else {
+    this.jQ.css('vertical-align','');
   }
 
   if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
@@ -153,7 +166,7 @@ _.redraw = function() {
   });
 };
 
-LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
+LatexCmds.sqrt = LatexCmds['v'] = SquareRoot;
 
 function NthRoot(replacedFragment) {
   SquareRoot.call(this, replacedFragment);
@@ -172,10 +185,18 @@ _.latex = function() {
 
 LatexCmds.nthroot = NthRoot;
 
+/************************************************************
+ * Bracket code.
+ ************************************************************/
+
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
+  if (open) {
+    this.open=open; 
+    this.close=close;
+  }
   MathCommand.call(this, '\\left'+cmd,
-    ['<span><span class="paren">'+open+'</span><span></span><span class="paren">'+close+'</span></span>'],
+    ['<span><span class="paren open"></span><span></span><span class="paren close"></span></span>'],
     [open, close],
     replacedFragment);
   this.end = '\\right'+end;
@@ -188,13 +209,41 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   this.firstChild.jQ = this.jQ.children(':eq(1)')
     .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
+  
+  if(this.open) {
+    var block = this.firstChild.jQ;
+    var start = Raphael(block.prev()[0], 8, 20);
+    var start_path=start.bracket(this.open,20);
+    var end = Raphael(block.next()[0], 8, 20);
+    var end_path=end.bracket(this.close,20);
+   
+    this.raphael = {};
+    this.raphael.start=start;
+    this.raphael.startBracket = start_path;
+    this.raphael.end=end;
+    this.raphael.endBracket = end_path;
+  }
 };
 _.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
 };
 _.redraw = function() {
   var block = this.firstChild.jQ;
-  block.prev().add(block.next()).css('fontSize', block.outerHeight()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
+  
+  this.raphael.start.setSize(8,block.height()+2); //Resize the vector spaces
+  this.raphael.end.setSize(8,block.height()+2);
+  
+  //Resize the brackets in the vector spaces
+  this.raphael.startBracket.bracketResize(this.open,block.height());
+  this.raphael.endBracket.bracketResize(this.close,block.height());
+  
+  //Resize the actual html elements
+  block.prev().add(block.next()).height(block.outerHeight());
+  if(block.outerHeight() > 30) {
+    block.parent().addClass('tall-element');
+  } else {
+    block.parent().removeClass('tall-element');
+  }
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -261,6 +310,9 @@ _.placeCursor = function(cursor) {
 };
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
+/************************************************************
+ * End of bracket code.
+ ************************************************************/
 
 function TextBlock(replacedText) {
   if (replacedText instanceof MathFragment)
@@ -605,4 +657,3 @@ LatexCmds.editable = proto(RootMathCommand, function() {
   };
   this.text = function(){ return this.firstChild.text(); };
 });
-

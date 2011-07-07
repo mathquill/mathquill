@@ -7,7 +7,6 @@
  * This file is automatically included by mathquill.js
  * 
  */
-
 @font-face {
   font-family: Symbola;
   src: url(font/Symbola.eot);
@@ -164,9 +163,11 @@
 .mathquill-rendered-math sup {
   vertical-align: .5em;
 }
+
 .mathquill-rendered-math sub {
   vertical-align: -.4em;
 }
+
 .mathquill-rendered-math sup.nthroot {
   margin-right: -.6em;
   margin-left: .2em;
@@ -265,6 +266,12 @@
 
 .mathquill-rendered-math .paren {
   vertical-align: bottom;
+  position: relative;
+}
+
+.mathquill-rendered-math .paren.close { /*The close paren isn't lined up exactly*/
+  vertical-align: bottom;
+  direction:rtl;
   position: relative;
 }
 
