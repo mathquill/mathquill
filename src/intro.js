@@ -1,6 +1,7 @@
-(function($){ //takes in the jQuery function as an argument
+(function() {
 
-var _, //temp variable of prototypes
+var $ = jQuery,
   undefined,
+  _, //temp variable of prototypes
   jQueryDataKey = '[[mathquill internal data]]';
 
