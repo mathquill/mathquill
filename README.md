@@ -1,4 +1,4 @@
-## [MathQuill](http://mathquill.github.com)
+# [MathQuill](http://mathquill.github.com)
 
 by [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
 
@@ -72,7 +72,7 @@ All the JavaScript that you actually want to read is in `src/`, `build/` is
 created when you run `make` just to contain a cat'ed and minified version of
 all that.
 
-Overview of how things fit together:
+### Overview of how things fit together:
 
 (Just skim the logic, but do read the starred comments, definitions and method
 signatures.)
@@ -82,7 +82,7 @@ In comments and internal documentation, `::` means `.prototype.`.
 `baseclasses.js` defines constructors and prototypes for the JS objects that
 make up the virtual math DOM tree:
 
-* (By convention `_` is a variable with the `prototype` of the "current" class.)
+* (By convention `_` is a variable assigned the `prototype` of the "current" class.)
 * The math DOM has two kinds of nodes: commands and blocks
     - blocks, like the root block, can contain any number of commands
     - commands, like `x`, `1`, `+`, `\frac`, `\sqrt` (clearly siblings in the
