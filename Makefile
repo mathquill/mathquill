@@ -1,7 +1,6 @@
 SOURCE_DIR = src
 
 FILES = \
-${SOURCE_DIR}/HEADER \
 ${SOURCE_DIR}/intro.js \
 ${SOURCE_DIR}/baseclasses.js \
 ${SOURCE_DIR}/rootelements.js \
