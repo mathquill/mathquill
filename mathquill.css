@@ -206,8 +206,14 @@
 .mathquill-rendered-math sup {
   vertical-align: .5em;
 }
+.mathquill-rendered-math sup>span {
+  vertical-align: bottom;
+}
 .mathquill-rendered-math sub {
   vertical-align: -.4em;
+}
+.mathquill-rendered-math sub>span {
+  vertical-align: top;
 }
 .mathquill-rendered-math sup.nthroot {
   margin-right: -.6em;

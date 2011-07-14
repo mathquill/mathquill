@@ -32,7 +32,7 @@ LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
 
 function SupSub(cmd, html, text, replacedFragment) {
-  this.init(cmd, [ html ], [ text ], replacedFragment);
+  this.init(cmd, [ html, '<span/>' ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
