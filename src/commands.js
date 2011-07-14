@@ -32,7 +32,7 @@ LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
 
 function SupSub(cmd, html, text, replacedFragment) {
-  this.init(cmd, [ html, '<span/>' ], [ text ], replacedFragment);
+  this.init(cmd, [ '<'+html+'/>', '<span class="'+html+'"/>' ], [ text ], replacedFragment);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
@@ -99,13 +99,13 @@ _.respace = function() {
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '_', '<sub></sub>', '_', replacedFragment);
+  SupSub.call(this, '_', 'sub', '_', replacedFragment);
 });
 
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = proto(SupSub, function(replacedFragment) {
-  SupSub.call(this, '^', '<sup></sup>', '**', replacedFragment);
+  SupSub.call(this, '^', 'sup', '**', replacedFragment);
 });
 
 function Fraction(replacedFragment) {
