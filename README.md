@@ -12,11 +12,11 @@ are all over the place.
 
 To use MathQuill on your website you need to serve
 
-* [the stylesheet](http://laughinghan.github.com/mathquill/mathquill.css)
-* [the fonts](http://laughinghan.github.com/mathquill/fonts.html) in the
+* [the stylesheet](http://mathquill.github.com/mathquill.css)
+* [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
-* [the script](http://laughinghan.github.com/mathquill/mathquill.js)
+* [the script](http://mathquill.github.com/mathquill.js)
 
 then on your webpages include the stylesheet
 
