@@ -33,7 +33,9 @@ $.fn.mathquill = function(cmd, latex) {
     var data = this.data(jQueryDataKey);
     return data && data.block && data.block.text();
   case 'html':
-    return this.html().replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
+    return this.html().replace(/ ?hasCursor|hasCursor /, '')
+      .replace(/ class=(""|(?=\W))/, '')
+      .replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
   case 'write':
     if (arguments.length > 1)
