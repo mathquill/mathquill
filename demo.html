@@ -1,117 +1,131 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>MathQuill 0.2a Demo</title>
-    <link rel="stylesheet" type="text/css" href="mathquill.css">
-    <style type="text/css">
-      body{
-        width:6.5in;
-        margin:0 auto;
-        font-family:"Times New Roman",serif;
-      }
-      code,#html-source{
-        font-family:"Courier New",sans-serif;
-      }
-      a#codecogslink{
-        text-decoration: none;
-      }
-      a#codecogslink:link span,a#codecogslink:visited span{
-        text-decoration: underline;
-      }
-      img#codecogs{
-        vertical-align:middle;
-        border: none;
-      }
-      span.mathquill-textbox{
-        width:100%;
-      }
-      #html-source{
-        display:none;
-      }
-      .mathquill-rendered-math .mathquill-editable {
-        min-width: 1cm;
-      }
-    </style>
-  </head>
-  <body>
-    <h2><a href="http://laughinghan.github.com/mathquill">MathQuill 0.2&alpha;</a></h2>
-    <p>by <a href="http://github.com/jayferd">Jay</a> and <a href="http://github.com/laughinghan">Han</a></p>
-    <p>The HTML source <code>&lt;span class="mathquill-embedded-latex"&gt;e^{i\pi}+1=0&lt;/span&gt;</code> with LaTeX math embedded in it and wrapped in an element with CSS class "mathquill-embedded-latex" get's turned into the inline equation <span class="mathquill-embedded-latex">e^{i\pi}+1=0</span>.
-    <p>MathQuill editable math: <span id="editable-math" class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span></p>
-    <p><small>(You can start by trying <code>x^2</code> or <code>3/4</code> and using the arrow keys to move around. <a href="javascript:void(0)" onclick="var more = arguments.callee; this.onclick = function(){ var less = arguments.callee; this.onclick = more; $(this).html('more &raquo;').prev().remove(); }; $(this).html('&laquo; less').before('<span>You can also try using the tab key instead of arrow keys, which gets you &quot;out&quot; of a command, and <code>a_n</code> for subscripts. Numerous LaTeX-style commands preceded by a backslash, such as <code>\\theta</code>[space or enter], are supported as well. Another example is <code>\\sqrt</code>[space or enter]<code>2</code>.</span> ');">more &raquo;</a>)</small></p>
-    <p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
-    <p><button onclick="LatexImages = true; $('#editable-math').triggerHandler('keydown'); $(this).remove()">Enable</button> Code Cogs: <a id="codecogslink"><img id="codecogs" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
-    <p><a href="javascript:;" onclick="$(this).html('Hide HTML Source (Note how semantically meaningful it is)').parent().next().show(); var show = arguments.callee; this.onclick=function(){ $(this).html('Show HTML Source (Note how semantically meaningful it is)').parent().next().hide(); this.onclick = show; };">Show HTML Source (Note how semantically meaningful it is)</a></p>
-    <pre id="html-source"></pre>
-    <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so we also have a MathQuill Textbox that let's you type math between $'s: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span></p>
-    <p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
-    <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;code&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
-       <code>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</code></p>
+<head>
 
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.js"></script>
-    <script type="text/javascript" src="build/mathquill.js"></script>
-    <script type="text/javascript">
-      var LatexImages = false;
-      $(function(){
-        function printTree(html)
-        {
-          html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
-          if(!html) return '';
-          var indent = '\n', tree = '';
-          while(html.length)
-          {
-            var token = html.shift();
-            if(token.charAt(0) === '<')
-            {
-              if(token.charAt(1) === '/')
-              {
-                indent = indent.slice(0,-2);
-                if(html[0] && html[0].slice(0,2) === '</')
-                  token += indent.slice(0,-2);
-              }
-              else
-              {
-                tree += indent;
-                indent += '  ';
-               }
-              token = token.toLowerCase();
-            }
+<title>MathQuill Demo</title>
 
-            tree += token;
-          }
-          return tree.slice(1);
-        }
-        var editingSource = false, latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogs = $('#codecogs'), latexMath = $('#editable-math').bind('keydown keypress', function()
-        {
-          setTimeout(function() {
-            htmlSource.text(printTree(latexMath.mathquill('html')));
-            var latex = latexMath.mathquill('latex');
-            if(!editingSource)
-              latexSource.val(latex);
-            if(!LatexImages)
-              return;
-            latex = encodeURIComponent(latexSource.val());
-//            location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
-            codecogs.attr('src','http://latex.codecogs.com/gif.latex?'+latex).parent().attr('href','http://latex.codecogs.com/gif.latex?'+latex);
-          });
-        }).keydown().focus();
-        if(location.hash && location.hash.length > 1)
-          latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).focus();
-        var textarea = latexSource.focus(function(){
-          editingSource = true;
-        }).blur(function(){
-          editingSource = false;
-        }).bind('keydown keypress', function()
-        {
-          var oldtext = textarea.val();
-          setTimeout(function()
-          {
-            var newtext = textarea.val();
-            if(newtext !== oldtext)
-              latexMath.mathquill('latex', newtext);
-          });
-        });
-      });
-    </script>
-  </body>
+<link rel="stylesheet" type="text/css" href="home.css">
+<link rel="stylesheet" type="text/css" href="mathquill.css">
+
+<style type="text/css">
+code span {
+  font: 90% Verdana, sans-serif;
+}
+#codecogsimg {
+  vertical-align: middle;
+  border: none;
+}
+.mathquill-textbox {
+  width: 100%;
+}
+#html-source {
+  display: none;
+  font-size: 90%;
+  white-space: pre-wrap;
+}
+.mathquill-rendered-math .mathquill-editable {
+  min-width: 1cm;
+}
+</style>
+
+</head>
+<body>
+<div id="body">
+
+<a href="http://github.com/laughinghan/mathquill"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://gs1.wac.edgecastcdn.net/80460E/assets/img/4c7dc970b89fd04b81c8e221ba88ff99a06c6b61/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub!"></a>
+
+<h1><a href="http://mathquill.github.com">MathQuill</a> Demo</h1>
+
+<p>Math textbox with initial LaTeX: <span id="editable-math" class="mathquill-editable">\frac{d}{dx}\sqrt{x}=</span></p>
+
+<p><small>Try typing <code>1/2\sqrt x</code> and using the arrow keys to move around. Shortcut: use the tab key instead of arrow keys to get &quot;out&quot; of a command, like <code>a_n<span>[tab]</span>x^n</code>. Many LaTeX-style symbols and commands preceded by a backslash are supported, such as <code>\forall</code> or <code>n\choose k</code>.</small></p>
+
+<p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
+
+<p><button id="codecogs">Render LaTeX as an image with Code Cogs</button> <a id="codecogslink"><img id="codecogsimg" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
+
+<p><a href="javascript:;" id="show-html-source">Show Semantically Meaningful HTML Source</a></p>
+<pre id="html-source"></pre>
+
+<p>You could actually just copy-and-paste this HTML into any element with <code>class="mathquill-rendered-math"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully.</p>
+
+<p>Any element with <code>class="mathquill-embedded-latex"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-embedded-latex">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
+
+<p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-textbox">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
+
+<p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
+
+<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
+<span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
+
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+<script type="text/javascript" src="build/mathquill.js"></script>
+<script type="text/javascript">
+$('#show-html-source').toggle(function() {
+  $(this).html('Hide Semantically Meaningful HTML Source').parent().next().show();
+}, function() {
+  $(this).html('Show Semantically Meaningful HTML Source').parent().next().hide();
+});
+
+var latexMath = $('#editable-math'), latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink');
+
+$('#codecogs').click(function() {
+  var latex = latexSource.val();
+  codecogslink.attr('href','http://latex.codecogs.com/gif.latex?'+latex);
+  codecogsimg.attr('src','http://latex.codecogs.com/gif.latex?'+latex);
+});
+
+$(function() {
+  latexMath.bind('keydown keypress', function() {
+    setTimeout(function() {
+      var latex = latexMath.mathquill('latex');
+      latexSource.val(latex);
+//      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
+      htmlSource.text(printTree(latexMath.mathquill('html')));
+    });
+  }).keydown().focus();
+
+  latexSource.bind('keydown keypress', function() {
+    var oldtext = latexSource.val();
+    setTimeout(function() {
+      var newtext = latexSource.val();
+      if(newtext !== oldtext) {
+        latexMath.mathquill('latex', newtext);
+        htmlSource.text(printTree(latexMath.mathquill('html')));
+      }
+    });
+  });
+
+  if(location.hash && location.hash.length > 1)
+    latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).focus();
+});
+
+//print the HTML source as an indented tree. TODO: syntax highlight
+function printTree(html) {
+  html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
+  if (!html) return '';
+  var indent = '\n', tree = [];
+  for (var i = 0; i < html.length; i += 1) {
+    var token = html[i];
+    if (token.charAt(0) === '<') {
+      if (token.charAt(1) === '/') { //dedent on close tag
+        indent = indent.slice(0,-2);
+        if (html[i+1] && html[i+1].slice(0,2) === '</') //but maintain indent for close tags that come after other close tags
+          token += indent.slice(0,-2);
+      }
+      else { //indent on open tag
+        tree.push(indent);
+        indent += '  ';
+      }
+
+      token = token.toLowerCase();
+    }
+
+    tree.push(token);
+  }
+  return tree.join('').slice(1);
+}
+</script>
+</body>
 </html>

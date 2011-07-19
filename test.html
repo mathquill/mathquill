@@ -1,111 +1,129 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>MathQuill Tests</title>
-    <link rel="stylesheet" type="text/css" href="mathquill.css">
-    <style type="text/css">
-      body{
-        width:6.5in;
-        margin:0 auto;
-        font-family:"Times New Roman",serif;
-        font-size:small;
-      }
-      td {
-        width: 33%;
-      }
-      button {
-        float: right;
-      }
-      .show-textareas .mathquill-textbox {
-        overflow: visible;
-      }
-      .shown-textarea {
-        position: relative;
-        display: inline;
-      }
-      .shown-textarea textarea {
-        position: absolute;
-        top: -45px;
-        user-select: text;
-        -moz-user-select: text;
-        -webkit-user-select: text;
-      }
-    </style>
-  </head>
-  <body>
-    <h2><a href="http://laughinghan.github.com/mathquill">MathQuill 0.2&alpha;</a></h2>
-    <p>by Jay and <a href="http://github.com/laughinghan">Han (laughinghan)</a></p>
+<head>
 
-    <button>Show Textareas</button>
+<title>MathQuill Test Page</title>
 
-    <h3>MathQuill Editables</h3>
+<link rel="stylesheet" type="text/css" href="home.css">
+<link rel="stylesheet" type="text/css" href="mathquill.css">
 
-    <table id="editables">
-    <tr><th colspan=3>Initial LaTeX
-    <tr>
-      <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
-      <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
-      <td><span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span>
-    </table>
+<style type="text/css">
+body {
+  font-size: .8em;
+}
+h1 {
+  font-size: 2.5em;
+}
+td {
+  width: 33%;
+}
+button {
+  float: right;
+}
+.show-textareas .mathquill-textbox {
+  overflow: visible;
+}
+.shown-textarea {
+  position: relative;
+  display: inline;
+}
+.shown-textarea textarea {
+  position: absolute;
+  top: -45px;
+  user-select: text;
+  -moz-user-select: text;
+  -webkit-user-select: text;
+}
+</style>
 
-    <p id="selection-performance"><b>Selection Performance</b>: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+</head>
+<body>
+<div id="body">
 
-    <h3>Dynamic mathquill-ification</h3>
-    <table id="dynamic">
-    <tr><th colspan=3>Initial LaTeX
-    <tr>
-      <td><code>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</code>
-      <td><code>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</code>
-      <td><code>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</code>
-    <tr><th colspan=3><code>.mathquill('redraw')</code>
-    <tr>
-      <td><code>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</code>
-      <td><code>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</code>
-      <td><code>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</code>
-    </table>
+<a href="http://github.com/laughinghan/mathquill"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://gs1.wac.edgecastcdn.net/80460E/assets/img/4c7dc970b89fd04b81c8e221ba88ff99a06c6b61/687474703a2f2f73332e616d617a6f6e6177732e636f6d2f6769746875622f726962626f6e732f666f726b6d655f72696768745f77686974655f6666666666662e706e67" alt="Fork me on GitHub!"></a>
 
-    <h3>Static LaTeX rendering (<code>.mathquill-embedded-latex</code>) tests</h3>
-    <table>
-    <tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><code>e^{i\pi}+1=0</code>
-    <tr><td><span class="mathquill-embedded-latex">\nthroot{n}{1}</span><td><code>\nthroot{n}{1}</code>
-    <tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span><td><code>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</code>
+<h1><a href="http://mathquill.github.com">MathQuill</a> Tests</h1>
 
-    <script type="text/javascript" src="../jquery.js"></script>
-    <script type="text/javascript">
-    window.onerror = function() {
-      $('html').css('background', 'red');
-    };
-    </script>
-    <script type="text/javascript" src="build/mathquill.js"></script>
-    <script type="text/javascript">
-    $('button').click(function() {
-      $(document.body).toggleClass('show-textareas');
-      $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
+<button>Show Textareas</button>
+
+<h3>MathQuill Editables</h3>
+
+<table id="editables">
+<tr><th colspan=3>Initial LaTeX
+<tr>
+  <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
+  <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+  <td><span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span>
+</table>
+
+<p id="selection-performance"><b>Selection Performance</b>: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+
+<h3>Dynamic mathquill-ification</h3>
+<table id="dynamic">
+<tr><th colspan=3>Initial LaTeX
+<tr>
+  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
+  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
+  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
+<tr><th colspan=3><code>.mathquill('redraw')</code>
+<tr>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
+</table>
+
+<h3>Static LaTeX rendering (<code>.mathquill-embedded-latex</code>) tests</h3>
+<table>
+<tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
+<tr><td><span class="mathquill-embedded-latex">\nthroot{n}{1}</span><td><span>\nthroot{n}{1}</span>
+<tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span>
+
+</div>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
+<script type="text/javascript">
+window.onerror = function() {
+  $('html').css('background', 'red');
+};
+</script>
+<script type="text/javascript" src="build/mathquill.js"></script>
+<script type="text/javascript">
+$('button').click(function() {
+  $(document.body).toggleClass('show-textareas');
+  $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
+});
+//FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
+var _prepend = $.fn.prepend;
+$.fn.prepend = function(el) {
+  if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
+    $(el).removeClass('textarea').addClass('shown-textarea');
+  else
+    $(el).removeClass('shown-textarea').addClass('textarea');
+  return _prepend.apply(this, arguments);
+};
+document.body.onload = function() {
+  setTimeout(function() {
+    $('#selection-performance .mathquill-textbox').each(function() {
+      var start = +new Date;
+      $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
+      $(this).after(new Date - start);
     });
-    document.body.onload = function() {
-      setTimeout(function() {
-        $('#selection-performance .mathquill-textbox').each(function() {
-          var start = +new Date;
-          $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-          $(this).after(new Date - start);
-        });
-      });
-    };
-    $('#dynamic tr:eq(1)').each(function() {
-      var math = $('code', this);
-      math.eq(0).mathquill();
-      math.eq(1).mathquill('editable');
-      math.eq(2).mathquill('editable').mathquill('revert');
-    });
-    $('#dynamic tr:eq(3)').each(function() {
-      var math = $('code', this), td;
-      td = math.eq(0).parent();
-      math.eq(0).detach().mathquill().appendTo(td).mathquill('redraw');
-      td = math.eq(1).parent();
-      math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
-      td = math.eq(2).parent();
-      math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
-    });
-    </script>
-  </body>
+  });
+};
+$('#dynamic tr:eq(1)').each(function() {
+  var math = $('span', this);
+  math.eq(0).mathquill();
+  math.eq(1).mathquill('editable');
+  math.eq(2).mathquill('editable').mathquill('revert');
+});
+$('#dynamic tr:eq(3)').each(function() {
+  var math = $('span', this), td;
+  td = math.eq(0).parent();
+  math.eq(0).detach().mathquill().appendTo(td).mathquill('redraw');
+  td = math.eq(1).parent();
+  math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
+  td = math.eq(2).parent();
+  math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
+});
+</script>
+</body>
 </html>
