@@ -458,7 +458,7 @@ function LatexCommandInput(replacedFragment) {
   }
 }
 _ = LatexCommandInput.prototype = new MathCommand;
-_.html_template = ['<span class="latex-command-input"></span>'];
+_.html_template = ['<span class="latex-command-input">\\</span>'];
 _.text_template = ['\\'];
 _.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
   this.cursor = cursor.appendTo(this.firstChild);

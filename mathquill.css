@@ -287,9 +287,6 @@
   margin-right: 1px;
   margin-left: 2px;
 }
-.mathquill-rendered-math .latex-command-input:before {
-  content: '\\';
-}
 .mathquill-rendered-math .latex-command-input.empty {
   background: transparent;
 }
