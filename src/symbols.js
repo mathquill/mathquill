@@ -76,10 +76,19 @@ LatexCmds.epsiv = //Elsevier and 9573-13
 LatexCmds.varepsilon = //AMS and LaTeX
   bind(Variable,'\\varepsilon ','&epsilon;');
 
+LatexCmds.piv = //W3C/Unicode and Elsevier and 9573-13
+LatexCmds.varpi = //AMS and LaTeX
+  bind(Variable,'\\varpi ','&piv;');
+
 LatexCmds.sigmaf = //W3C/Unicode
 LatexCmds.sigmav = //Elsevier
 LatexCmds.varsigma = //LaTeX
   bind(Variable,'\\varsigma ','&sigmaf;');
+
+LatexCmds.thetav = //Elsevier and 9573-13
+LatexCmds.vartheta = //AMS and LaTeX
+LatexCmds.thetasym = //W3C/Unicode
+  bind(Variable,'\\vartheta ','&thetasym;');
 
 LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
 LatexCmds.upsi = //Elsevier and 9573-13
@@ -95,17 +104,9 @@ LatexCmds.kappav = //Elsevier
 LatexCmds.varkappa = //AMS and LaTeX
   bind(Variable,'\\varkappa ','&#1008;');
 
-LatexCmds.piv = //Elsevier and 9573-13
-LatexCmds.varpi = //AMS and LaTeX
-  bind(Variable,'\\varpi ','&#982;');
-
 LatexCmds.rhov = //Elsevier and 9573-13
 LatexCmds.varrho = //AMS and LaTeX
   bind(Variable,'\\varrho ','&#1009;');
-
-LatexCmds.thetav = //Elsevier and 9573-13
-LatexCmds.vartheta = //AMS and LaTeX
-  bind(Variable,'\\vartheta ','&#977;');
 
 //Greek constants, look best in un-italicised Times New Roman
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
@@ -113,9 +114,11 @@ LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
 //uppercase greek letters
 
-LatexCmds.Upsilon = //AMS and LaTeX and W3C/Unicode
+LatexCmds.Upsilon = //LaTeX
 LatexCmds.Upsi = //Elsevier and 9573-13
-  bind(Variable,'\\Upsilon ','&Upsilon;');
+LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
+LatexCmds.Upsih = //'cos it makes sense to me
+  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
 LatexCmds.Gamma =
 LatexCmds.Delta =
