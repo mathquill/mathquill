@@ -205,7 +205,7 @@ function createRoot(jQ, root, textbox, editable) {
       // when typing quickly on slower platforms;
       // so process each character separately
       for (var i=0; i<text.length; i++) {
-          cursor.parent.textInput(text[i]);
+          cursor.parent.textInput(text.charAt(i));
       }
     }
     else {
