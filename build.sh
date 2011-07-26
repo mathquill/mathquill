@@ -12,6 +12,7 @@ cat \
   src/rootelements.js \
   src/commands.js \
   src/symbols.js \
+  src/cursor.js \
   src/publicapi.js \
   src/outro.js \
   > build/mathquill.js
