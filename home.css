@@ -9,6 +9,9 @@ body {
   font-family: Georgia, serif;
   color: black;
   background-color: white;
+  box-shadow: 0 0 1em black;
+  -moz-box-shadow: 0 0 1em black;
+  -webkit-box-shadow: 0 0 1em black;
 }
 #body {
   padding: 1em;
