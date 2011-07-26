@@ -9,7 +9,7 @@ $.fn.mathquill = function(cmd, latex) {
   case 'redraw':
     this.find(':not(:has(:first))').each(function() {
       var data = $(this).data(jQueryDataKey);
-      if (data && data.cmd) Cursor.prototype.redraw.call(data.cmd);
+      if (data && (data.cmd || data.block)) Cursor.prototype.redraw.call(data.cmd || data.block);
     });
     return this;
   case 'revert':
