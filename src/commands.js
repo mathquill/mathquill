@@ -69,18 +69,14 @@ _.respace = function() {
   }
 
   if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
-    if (this.limit && this.cmd === '_') {
-      this.jQ.css({
-        left: -.25-this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
-        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
-      });
-    }
-    else {
-      this.jQ.css({
-        left: -this.prev.jQ.outerWidth()/+this.jQ.css('fontSize').slice(0,-2)+'em',
-        marginRight: .1-Math.min(this.jQ.outerWidth(), this.prev.jQ.outerWidth())/+this.jQ.css('fontSize').slice(0,-2)+'em' //1px adjustment very important!
-      });
-    }
+    var fontSize = +this.jQ.css('fontSize').slice(0,-2),
+      prevWidth = this.prev.jQ.outerWidth()
+      thisWidth = this.jQ.outerWidth();
+    this.jQ.css({
+      left: (this.limit && this.cmd === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
+      marginRight: .1 - Math.min(thisWidth, prevWidth)/fontSize + 'em'
+        //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
+    });
   }
   else if (this.limit && this.cmd === '_') {
     this.jQ.css({
