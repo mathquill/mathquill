@@ -4,6 +4,49 @@
 
 var CharCmds = {}, LatexCmds = {}; //single character commands, LaTeX commands
 
+var stretch, // = function(jQ, scaleY) { ... }
+//will use the CSS 2D transform scaleY to stretch the jQuery-wrapped HTML elements,
+//or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
+//increasing the fontSize.
+
+//ideas from http://github.com/louisremi/jquery.transform.js
+//see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
+  div = document.createElement('div'),
+  div_style = div.style,
+  styleTransformPropNames = {
+    WebkitTransform:1,
+    MozTransform:1,
+    msTransform:1,
+    OTransform:1,
+    transform:1
+  },
+  transformPropName;
+
+for (var prop in styleTransformPropNames) {
+  if (prop in div_style) {
+    transformPropName = prop;
+    break;
+  }
+}
+
+if (transformPropName) {
+  stretch = function(jQ, scaleY) {
+    jQ.css(transformPropName, 'scaleY(' + scaleY + ')');
+  };
+}
+else if ('filter' in div_style) {
+  stretch = function(jQ, scaleY) {
+    jQ.css('filter', 'progid:DXImageTransform.Microsoft'
+      + '.Matrix(M22=' + scaleY + ',SizingMethod=\'auto expand\')'
+    );
+  };
+}
+else {
+  stretch = function(jQ, scaleY) {
+    jQ.css('fontSize', scaleY + 'em');
+  };
+}
+
 function proto(parent, child) { //shorthand for prototyping
   child.prototype = parent.prototype;
   return child;
@@ -163,12 +206,8 @@ _.html_template = [
 ];
 _.text_template = ['sqrt(', ')'];
 _.redraw = function() {
-  var block = this.lastChild.jQ, height = block.outerHeight(true);
-  block.css({
-    borderTopWidth: height/28+1 // NOTE: Formula will need to change if our font isn't Symbola
-  }).prev().css({
-    fontSize: .9*height/+block.css('fontSize').slice(0,-2)+'em'
-  });
+  var block = this.lastChild.jQ;
+  stretch(block.prev(), block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
 };
 
 LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
@@ -212,7 +251,10 @@ _.latex = function() {
 };
 _.redraw = function() {
   var block = this.firstChild.jQ;
-  block.prev().add(block.next()).css('fontSize', block.outerHeight()/(+block.css('fontSize').slice(0,-2)*1.02)+'em');
+  //the paren is initially at the initial font size of 1em, so just scale by the height in em.
+  stretch(block.prev().add(block.next()),
+    1.05*block.outerHeight()/+block.css('fontSize').slice(0,-2)
+  );
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -531,10 +573,9 @@ _.html_template =
   ['<span class="block"></span>', '<span></span>', '<span></span>'];
 _.text_template = ['choose(',',',')'];
 _.redraw = function() {
-  this.jQ.children(':first').add(this.jQ.children(':last'))
-    .css('fontSize',
-      this.jQ.outerHeight()/(+this.jQ.css('fontSize').slice(0,-2)*.9+2)+'em'
-    );
+  stretch(this.jQ.children(':first').add(this.jQ.children(':last')),
+    this.jQ.outerHeight()/+this.jQ.css('fontSize').slice(0,-2)
+  );
 };
 
 LatexCmds.binom = LatexCmds.binomial = Binomial;

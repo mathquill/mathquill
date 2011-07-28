@@ -25,7 +25,9 @@
 .mathquill-rendered-math sup,
 .mathquill-rendered-math sub,
 .mathquill-rendered-math .fraction,
+.mathquill-rendered-math .sqrt-prefix,
 .mathquill-rendered-math .sqrt-stem,
+.mathquill-rendered-math .paren,
 .mathquill-rendered-math .array,
 .mathquill-rendered-math .block {
   display: -moz-inline-box;
@@ -292,9 +294,15 @@
 }
 
 .mathquill-rendered-math .sqrt-prefix {
-  vertical-align: top;
+  padding-top: 0;
   position: relative;
-  top: 2px;
+  top: .1em;
+  vertical-align: top;
+  -webkit-transform-origin: top;
+  -moz-transform-origin: top;
+  -ms-transform-origin: top;
+  -o-transform-origin: top;
+  transform-origin: top;
 }
 .mathquill-rendered-math .sqrt-stem {
   border-top: 1px solid;
@@ -305,8 +313,13 @@
 }
 
 .mathquill-rendered-math .paren {
+  padding: 0 .1em;
   vertical-align: bottom;
-  position: relative;
+  -webkit-transform-origin: bottom;
+  -moz-transform-origin: bottom;
+  -ms-transform-origin: bottom;
+  -o-transform-origin: bottom;
+  transform-origin: bottom;
 }
 
 .mathquill-rendered-math .array {
