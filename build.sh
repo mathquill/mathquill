@@ -17,6 +17,10 @@ cat \
   src/outro.js \
   > build/mathquill.js
 
+if [ "$1" == "cat" ]; then
+  exit
+fi
+
 if which uglifyjs >/dev/null; then
   echo "uglifyjs build/mathquill.js > build/mathquill.min.js"
   uglifyjs build/mathquill.js \
