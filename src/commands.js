@@ -158,7 +158,7 @@ function SquareRoot(replacedFragment) {
 }
 _ = SquareRoot.prototype = new MathCommand;
 _.html_template = [
-  '<span class="cmd"><span class="sqrt-prefix">&radic;</span></span>',
+  '<span class="block"><span class="sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
 _.text_template = ['sqrt(', ')'];
@@ -179,7 +179,7 @@ function NthRoot(replacedFragment) {
 }
 _ = NthRoot.prototype = new SquareRoot;
 _.html_template = [
-  '<span class="cmd"><span class="sqrt-prefix">&radic;</span></span>',
+  '<span class="block"><span class="sqrt-prefix">&radic;</span></span>',
   '<sup class="nthroot"></sup>',
   '<span class="sqrt-stem"></span>'
 ];
@@ -193,7 +193,7 @@ LatexCmds.nthroot = NthRoot;
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end, replacedFragment) {
   this.init('\\left'+cmd,
-    ['<span class="cmd"><span class="paren">'+open+'</span><span class="cmd"></span><span class="paren">'+close+'</span></span>'],
+    ['<span class="block"><span class="paren">'+open+'</span><span class="block"></span><span class="paren">'+close+'</span></span>'],
     [open, close],
     replacedFragment);
   this.end = '\\right'+end;
@@ -528,7 +528,7 @@ function Binomial(replacedFragment) {
 }
 _ = Binomial.prototype = new MathCommand;
 _.html_template =
-  ['<span class="cmd"></span>', '<span></span>', '<span></span>'];
+  ['<span class="block"></span>', '<span></span>', '<span></span>'];
 _.text_template = ['choose(',',',')'];
 _.redraw = function() {
   this.jQ.children(':first').add(this.jQ.children(':last'))

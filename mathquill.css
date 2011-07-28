@@ -27,7 +27,7 @@
 .mathquill-rendered-math .fraction,
 .mathquill-rendered-math .sqrt-stem,
 .mathquill-rendered-math .array,
-.mathquill-rendered-math .cmd {
+.mathquill-rendered-math .block {
   display: -moz-inline-box;
   display: inline-block;
   padding-top: .075em;
