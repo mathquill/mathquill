@@ -255,7 +255,7 @@ _.latex = function() {
 };
 _.redraw = function() {
   var height = this.blockjQ.outerHeight()/+this.blockjQ.css('fontSize').slice(0,-2);
-  scale(this.bracketjQs, 1 + .2*(height - 1), 1.05*height);
+  scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
