@@ -118,7 +118,7 @@ _.respace = function() {
       thisWidth = this.jQ.outerWidth();
     this.jQ.css({
       left: (this.limit && this.cmd === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
-      marginRight: .1 - Math.min(thisWidth, prevWidth)/fontSize + 'em'
+      marginRight: .1 - min(thisWidth, prevWidth)/fontSize + 'em'
         //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
     });
   }
