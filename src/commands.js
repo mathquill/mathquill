@@ -4,13 +4,14 @@
 
 var CharCmds = {}, LatexCmds = {}; //single character commands, LaTeX commands
 
-var stretch, // = function(jQ, scaleY) { ... }
-//will use the CSS 2D transform scaleY to stretch the jQuery-wrapped HTML elements,
+var scale, // = function(jQ, x, y) { ... }
+//will use a CSS 2D transform to scale the jQuery-wrapped HTML elements,
 //or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
-//increasing the fontSize.
+//increasing the fontSize to match the vertical Y scaling factor.
 
 //ideas from http://github.com/louisremi/jquery.transform.js
 //see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
+
   div = document.createElement('div'),
   div_style = div.style,
   styleTransformPropNames = {
@@ -30,20 +31,20 @@ for (var prop in styleTransformPropNames) {
 }
 
 if (transformPropName) {
-  stretch = function(jQ, scaleY) {
-    jQ.css(transformPropName, 'scaleY(' + scaleY + ')');
+  scale = function(jQ, x, y) {
+    jQ.css(transformPropName, 'scale('+x+','+y+')');
   };
 }
 else if ('filter' in div_style) {
-  stretch = function(jQ, scaleY) {
+  scale = function(jQ, x, y) {
     jQ.css('filter', 'progid:DXImageTransform.Microsoft'
-      + '.Matrix(M22=' + scaleY + ',SizingMethod=\'auto expand\')'
+      + '.Matrix(M11='+x+',M22='+y+',SizingMethod=\'auto expand\')'
     );
   };
 }
 else {
-  stretch = function(jQ, scaleY) {
-    jQ.css('fontSize', scaleY + 'em');
+  scale = function(jQ, x, y) {
+    jQ.css('fontSize', y + 'em');
   };
 }
 
@@ -207,7 +208,7 @@ _.html_template = [
 _.text_template = ['sqrt(', ')'];
 _.redraw = function() {
   var block = this.lastChild.jQ;
-  stretch(block.prev(), block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
+  scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
 };
 
 LatexCmds.sqrt = LatexCmds['√'] = SquareRoot;
@@ -245,16 +246,16 @@ _.initBlocks = function(replacedFragment) { //FIXME: possible Law of Demeter vio
   this.firstChild.jQ = this.jQ.children(':eq(1)')
     .data(jQueryDataKey, {block: this.firstChild})
     .append(this.firstChild.jQ);
+
+  var block = this.blockjQ = this.firstChild.jQ;
+  this.bracketjQs = block.prev().add(block.next());
 };
 _.latex = function() {
   return this.cmd + this.firstChild.latex() + this.end;
 };
 _.redraw = function() {
-  var block = this.firstChild.jQ;
-  //the paren is initially at the initial font size of 1em, so just scale by the height in em.
-  stretch(block.prev().add(block.next()),
-    1.05*block.outerHeight()/+block.css('fontSize').slice(0,-2)
-  );
+  var height = this.blockjQ.outerHeight()/+this.blockjQ.css('fontSize').slice(0,-2);
+  scale(this.bracketjQs, 1 + .2*(height - 1), 1.05*height);
 };
 
 LatexCmds.lbrace = CharCmds['{'] = proto(Bracket, function(replacedFragment) {
@@ -566,18 +567,17 @@ CharCmds['\\'] = LatexCommandInput;
   
 function Binomial(replacedFragment) {
   this.init('\\binom', undefined, undefined, replacedFragment);
-  this.jQ.wrapInner('<span class="array"></span>').prepend('<span class="paren">(</span>').append('<span class="paren">)</span>');
+  this.jQ.wrapInner('<span class="array"></span>');
+  this.blockjQ = this.jQ.children();
+  this.bracketjQs =
+    $('<span class="paren">(</span>').prependTo(this.jQ)
+    .add( $('<span class="paren">)</span>').appendTo(this.jQ) );
 }
 _ = Binomial.prototype = new MathCommand;
 _.html_template =
   ['<span class="block"></span>', '<span></span>', '<span></span>'];
 _.text_template = ['choose(',',',')'];
-_.redraw = function() {
-  stretch(this.jQ.children(':first').add(this.jQ.children(':last')),
-    this.jQ.outerHeight()/+this.jQ.css('fontSize').slice(0,-2)
-  );
-};
-
+_.redraw = Bracket.prototype.redraw;
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
 function Choose() {
