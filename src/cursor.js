@@ -276,7 +276,7 @@ _.insertCh = function(ch) {
   return this.insertNew(cmd);
 };
 _.insertNew = function(cmd) {
-  cmd.insertAt(this);
+  cmd.createBefore(this);
   return this;
 };
 _.unwrapGramp = function() {

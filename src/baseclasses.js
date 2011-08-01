@@ -108,24 +108,27 @@ _.text = function() {
     return text + child.text() + (this.text_template[i] || '');
   });
 };
-_.insertAt = function(cursor) {
+_.insertAt = function(parent, prev, next) {
   var cmd = this;
 
-  cmd.parent = cursor.parent;
-  cmd.next = cursor.next;
-  cmd.prev = cursor.prev;
+  cmd.parent = parent;
+  cmd.next = next;
+  cmd.prev = prev;
 
-  if (cursor.prev)
-    cursor.prev.next = cmd;
+  if (prev)
+    prev.next = cmd;
   else
-    cursor.parent.firstChild = cmd;
+    parent.firstChild = cmd;
 
-  if (cursor.next)
-    cursor.next.prev = cmd;
+  if (next)
+    next.prev = cmd;
   else
-    cursor.parent.lastChild = cmd;
+    parent.lastChild = cmd;
 
-  cursor.prev = cmd;
+  return cmd;
+};
+_.createBefore = function(cursor) {
+  var cmd = cursor.prev = this.insertAt(cursor.parent, cursor.prev, cursor.next);
 
   cmd.jQ.insertBefore(cursor.jQ);
 
