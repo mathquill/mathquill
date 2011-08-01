@@ -377,7 +377,20 @@ _.textInput = function(ch) {
 
 function RootMathCommand(cursor) {
   this.init('$');
-  this.firstChild.cursor = cursor;
+  this.cursor = cursor;
+}
+_ = RootMathCommand.prototype = new MathCommand;
+_.html_template = ['<span class="mathquill-rendered-math"></span>'];
+_.createBlocks = function() {
+  this.firstChild =
+  this.lastChild =
+  this.jQ.data(jQueryDataKey).block =
+    new RootMathBlock;
+
+  this.firstChild.parent = this;
+  this.firstChild.jQ = this.jQ;
+
+  var cursor = this.firstChild.cursor = this.cursor;
   this.firstChild.textInput = function(ch) {
     if (this.skipTextInput) return;
 
@@ -394,17 +407,6 @@ function RootMathCommand(cursor) {
     else
       cursor.write(ch);
   };
-}
-_ = RootMathCommand.prototype = new MathCommand;
-_.html_template = ['<span class="mathquill-rendered-math"></span>'];
-_.initBlocks = function() {
-  this.firstChild =
-  this.lastChild =
-  this.jQ.data(jQueryDataKey).block =
-    new RootMathBlock;
-
-  this.firstChild.parent = this;
-  this.firstChild.jQ = this.jQ;
 };
 _.latex = function() {
   return '$' + this.firstChild.latex() + '$';

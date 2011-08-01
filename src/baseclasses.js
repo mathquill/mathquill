@@ -46,11 +46,10 @@ _.init = function(cmd, html_template, text_template, replacedFragment) {
   if (html_template) self.html_template = html_template;
   if (text_template) self.text_template = text_template;
 
-  self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
-  self.initBlocks(replacedFragment);
+  this.replacedFragment = replacedFragment;
 };
-_.initBlocks = function(replacedFragment) {
-  var self = this;
+_.createBlocks = function() {
+  var self = this, replacedFragment = self.replacedFragment;
   //single-block commands
   if (self.html_template.length === 1) {
     self.firstChild =
@@ -128,9 +127,13 @@ _.insertAt = function(parent, prev, next) {
   return cmd;
 };
 _.createBefore = function(cursor) {
-  var cmd = cursor.prev = this.insertAt(cursor.parent, cursor.prev, cursor.next);
+  var cmd = this;
 
+  cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
+  cmd.createBlocks();
   cmd.jQ.insertBefore(cursor.jQ);
+
+  cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
 
   //adjust context-sensitive spacing
   cmd.respace();
@@ -184,7 +187,7 @@ function Symbol(cmd, html, text) {
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
-_.initBlocks = $.noop;
+_.createBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
 _.text = function(){ return this.text_template; };
 _.placeCursor = $.noop;
