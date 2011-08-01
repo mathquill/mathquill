@@ -5,6 +5,11 @@ if [ ! -d build ]; then
     && echo "No build/ directory, made one for ya" >/dev/stderr
 fi
 
+if [ "$1" == "HEAD" ]; then
+  STASH="$(git stash)"
+  echo "$STASH"
+fi
+
 echo "cat src/{blah,blah}.js > build/mathquill.js # not literally"
 cat \
   src/intro.js \
@@ -19,6 +24,10 @@ cat \
 
 if [ "$1" == "cat" ]; then
   exit
+elif [ "$1" == "HEAD" ]; then
+  if [ "$STASH" != "No local changes to save" ]; then
+    git stash pop
+  fi
 fi
 
 if which uglifyjs >/dev/null; then
