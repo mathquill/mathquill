@@ -195,7 +195,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
   cursor.appendTo(this.lastChild);
 };
 
-CharCmds['/'] = LiveFraction;
+LatexCmds.over = CharCmds['/'] = LiveFraction;
 
 function SquareRoot(replacedFragment) {
   this.init('\\sqrt', undefined, undefined, replacedFragment);
