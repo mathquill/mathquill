@@ -14,7 +14,7 @@ var scale, // = function(jQ, x, y) { ... }
 
   div = document.createElement('div'),
   div_style = div.style,
-  styleTransformPropNames = {
+  transformPropNames = {
     WebkitTransform:1,
     MozTransform:1,
     msTransform:1,
@@ -23,7 +23,7 @@ var scale, // = function(jQ, x, y) { ... }
   },
   transformPropName;
 
-for (var prop in styleTransformPropNames) {
+for (var prop in transformPropNames) {
   if (prop in div_style) {
     transformPropName = prop;
     break;
