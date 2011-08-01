@@ -15,11 +15,11 @@ var scale, // = function(jQ, x, y) { ... }
   div = document.createElement('div'),
   div_style = div.style,
   transformPropNames = {
+    transform:1,
     WebkitTransform:1,
     MozTransform:1,
-    msTransform:1,
     OTransform:1,
-    transform:1
+    msTransform:1
   },
   transformPropName;
 
