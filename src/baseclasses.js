@@ -131,7 +131,7 @@ _.createBefore = function(cursor) {
 
   cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
   cmd.createBlocks();
-  cmd.jQ.insertBefore(cursor.jQ);
+  cursor.jQ.before(cmd.jQ);
 
   cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
 
