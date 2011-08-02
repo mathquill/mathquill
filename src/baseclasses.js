@@ -39,13 +39,14 @@ _.textInput = function(ch) {
  */
 function MathCommand(){}
 _ = MathCommand.prototype = new MathElement;
-_.init = function(cmd, html_template, text_template, replacedFragment) {
+_.init = function(cmd, html_template, text_template) {
   var self = this; // minifier optimization
 
   if (cmd) self.cmd = cmd;
   if (html_template) self.html_template = html_template;
   if (text_template) self.text_template = text_template;
-
+};
+_.replaces = function(replacedFragment) {
   this.replacedFragment = replacedFragment;
 };
 _.createBlocks = function() {
@@ -187,6 +188,9 @@ function Symbol(cmd, html, text) {
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
+_.replaces = function(replacedFragment) {
+  replacedFragment.remove();
+};
 _.createBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
 _.text = function(){ return this.text_template; };

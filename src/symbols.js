@@ -57,7 +57,7 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = proto(Symbol, function(replacedFragment, latex) {
+LatexCmds.omega = proto(Symbol, function(latex) {
   Variable.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
@@ -132,7 +132,7 @@ LatexCmds.Psi =
 LatexCmds.Omega =
 
 //other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.forall = proto(Symbol, function(replacedFragment, latex) {
+LatexCmds.forall = proto(Symbol, function(latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
@@ -181,11 +181,11 @@ LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = proto(BinaryOperator, function(replacedFragment, latex) {
+LatexCmds.otimes = proto(BinaryOperator, function(latex) {
   BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
 });
 
-LatexCmds.times = proto(BinaryOperator, function(replacedFragment, latex) {
+LatexCmds.times = proto(BinaryOperator, function(latex) {
   BinaryOperator.call(this, '\\times ', '&times;', '[x]')
 });
 
@@ -517,7 +517,7 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-function NonItalicizedFunction(replacedFragment, fn) {
+function NonItalicizedFunction(fn) {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 }
 _ = NonItalicizedFunction.prototype = new Symbol;
