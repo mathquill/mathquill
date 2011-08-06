@@ -30,13 +30,10 @@ elif [ "$1" == "HEAD" ]; then
   fi
 fi
 
-if which uglifyjs >/dev/null; then
-  echo "uglifyjs build/mathquill.js > build/mathquill.min.js"
-  uglifyjs build/mathquill.js \
-    > build/mathquill.min.js
-else
-  # created with cowsay
-  echo "\
+echo "uglifyjs build/mathquill.js > build/mathquill.min.js"
+uglifyjs build/mathquill.js \
+  > build/mathquill.min.js \
+    || echo "\
  ___________________
 / i no has uglifyjs \\
 \\ i no can minify   /
@@ -47,8 +44,8 @@ else
      |      \\
      | O . O |
       \\_____/" \
-    >/dev/stderr
-fi
+      >/dev/stderr
+  # created with cowsay
 
 if [ "$1" == "publish" ]; then
   cp mathquill.css build/mathquill.css
