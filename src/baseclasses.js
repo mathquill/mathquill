@@ -241,7 +241,7 @@ function MathFragment(parent, prev, next) {
   self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 }
 _ = MathFragment.prototype;
-_.remove= MathCommand.prototype.remove;
+_.remove = MathCommand.prototype.remove;
 _.jQinit = function(children) {
   this.jQ = children;
 };

@@ -509,7 +509,7 @@ function Selection(parent, prev, next) {
   MathFragment.apply(this, arguments);
 }
 _ = Selection.prototype = new MathFragment;
-_.jQinit= function(children) {
+_.jQinit = function(children) {
   this.jQ = children.wrapAll('<span class="selection"></span>').parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
 };
