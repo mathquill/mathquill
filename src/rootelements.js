@@ -376,7 +376,7 @@ _.textInput = function(ch) {
 };
 
 function RootMathCommand(cursor) {
-  this.init('$');
+  MathCommand.call(this, '$');
   this.cursor = cursor;
 }
 _ = RootMathCommand.prototype = new MathCommand;

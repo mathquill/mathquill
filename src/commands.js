@@ -62,7 +62,7 @@ function bind(cons) { //shorthand for binding arguments to constructor
 }
 
 function Style(cmd, html_template) {
-  this.init(cmd, [ html_template ]);
+  MathCommand.call(this, cmd, [ html_template ]);
 }
 proto(MathCommand, Style);
 //fonts
@@ -76,7 +76,7 @@ LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
 
 function SupSub(cmd, html, text) {
-  this.init(cmd, [ html ], [ text ]);
+  MathCommand.call(this, cmd, [ html ], [ text ]);
 }
 _ = SupSub.prototype = new MathCommand;
 _.latex = function() {
@@ -236,7 +236,7 @@ LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 function Bracket(open, close, cmd, end) {
-  this.init('\\left'+cmd,
+  MathCommand.call(this, '\\left'+cmd,
     ['<span class="block"><span class="paren">'+open+'</span><span class="block"></span><span class="paren">'+close+'</span></span>'],
     [open, close]);
   this.end = '\\right'+end;
@@ -689,7 +689,7 @@ _.keydown = function(e) {
 LatexCmds.vector = Vector;
 
 LatexCmds.editable = proto(RootMathCommand, function() {
-  this.init('\\editable');
+  MathCommand.call(this, '\\editable');
 this.createBlocks = function() {
   RootMathCommand.prototype.createBlocks.call(this);
   createRoot(this.jQ, this.firstChild, false, true);
