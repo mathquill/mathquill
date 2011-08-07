@@ -363,9 +363,9 @@ _.keydown = function(e) {
   ) {
     if (this.isEmpty())
       this.cursor.insertAfter(this);
+    e.preventDefault();
     return false;
   }
-  return this.parent.keydown(e);
 };
 _.textInput = function(ch) {
   this.cursor.deleteSelection();
@@ -518,9 +518,9 @@ _.latex = function() {
 _.keydown = function(e) {
   if (e.which === 9 || e.which === 13) { //tab or enter
     this.renderCommand();
+    e.preventDefault();
     return false;
   }
-  return this.parent.keydown(e);
 };
 _.textInput = function(ch) {
   if (ch.match(/[a-z]/i)) {
@@ -626,6 +626,8 @@ _.keydown = function(e) {
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock).redraw();
+
+      e.preventDefault();
       return false;
     }
     else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
@@ -636,10 +638,12 @@ _.keydown = function(e) {
           this.lastChild = currentBlock.prev;
           currentBlock.jQ.remove();
           this.cursor.redraw();
+
+          e.preventDefault();
           return false;
         }
         else
-          return this.parent.keydown(e);
+          return;
       }
 
       var newBlock = new MathBlock;
@@ -649,6 +653,8 @@ _.keydown = function(e) {
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
       this.cursor.appendTo(newBlock).redraw();
+
+      e.preventDefault();
       return false;
     }
     else if (e.which === 8) { //backspace
@@ -673,13 +679,15 @@ _.keydown = function(e) {
         else
           this.cursor.redraw();
 
+        e.preventDefault();
         return false;
       }
-      else if (!this.cursor.prev)
+      else if (!this.cursor.prev) {
+        e.preventDefault();
         return false;
+      }
     }
   }
-  return this.parent.keydown(e);
 };
 
 LatexCmds.vector = Vector;

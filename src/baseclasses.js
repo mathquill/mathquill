@@ -31,9 +31,6 @@ _.bubble = function(event, arg) {
 
   return this;
 };
-_.keydown = function(e) {
-  return this.parent.keydown(e);
-};
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.

@@ -175,14 +175,13 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('keydown.mathquill', function(e) {
     lastKeydn.evt = e;
     lastKeydn.happened = true;
-    if (cursor.parent.keydown(e) === false)
-      e.preventDefault();
+    cursor.parent.bubble('keydown', e);
   }).bind('keypress.mathquill', function(e) {
     //on auto-repeated key events, keypress may get triggered but not keydown
     if (lastKeydn.happened)
       lastKeydn.happened = false;
     else
-      cursor.parent.keydown(lastKeydn.evt);
+      cursor.parent.bubble('keydown', lastKeydn.evt);
 
     if (textareaSelectionTimeout !== undefined)
       clearTimeout(textareaSelectionTimeout);
@@ -356,7 +355,7 @@ _.keydown = function(e)
   case 'U+0041':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
+        return;
 
       this.cursor.clearSelection().appendTo(this);
       while (this.cursor.prev)
@@ -365,9 +364,10 @@ _.keydown = function(e)
     }
   default:
     this.skipTextInput = false;
-    return true;
+    return false;
   }
   this.skipTextInput = true;
+  e.preventDefault();
   return false;
 };
 _.textInput = function(ch) {
