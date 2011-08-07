@@ -75,10 +75,9 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>
 LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span>');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
 
-function SupSub(cmd, html, text) {
+var SupSub = _class(new MathCommand, function(cmd, html, text) {
   MathCommand.call(this, cmd, [ html ], [ text ]);
-}
-_ = SupSub.prototype = new MathCommand;
+});
 _.latex = function() {
   var latex = this.firstChild.latex();
   if (latex.length === 1)
@@ -148,8 +147,7 @@ LatexCmds['^'] = proto(SupSub, function() {
   SupSub.call(this, '^', '<sup></sup>', '**');
 });
 
-function Fraction(){}
-_ = Fraction.prototype = new MathCommand;
+var Fraction = _class(new MathCommand);
 _.cmd = '\\frac';
 _.html_template = [
   '<span class="fraction"></span>',
@@ -164,10 +162,7 @@ _.text_template = ['(', '/', ')'];
 
 LatexCmds.frac = LatexCmds.dfrac = LatexCmds.cfrac = LatexCmds.fraction = Fraction;
 
-function LiveFraction() {
-  Fraction.apply(this, arguments);
-}
-_ = LiveFraction.prototype = new Fraction;
+var LiveFraction = _subclass(Fraction);
 _.placeCursor = function(cursor) { //TODO: better architecture so this can be done more cleanly, highjacking MathCommand::placeCursor doesn't seem like the right place to do this
   if (this.firstChild.isEmpty()) {
     var prev = this.prev;
@@ -199,8 +194,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
 
 LatexCmds.over = CharCmds['/'] = LiveFraction;
 
-function SquareRoot(){}
-_ = SquareRoot.prototype = new MathCommand;
+var SquareRoot = _class(new MathCommand);
 _.cmd = '\\sqrt';
 _.html_template = [
   '<span class="block"><span class="sqrt-prefix">&radic;</span></span>',
@@ -235,13 +229,12 @@ _.latex = function() {
 LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-function Bracket(open, close, cmd, end) {
+var Bracket = _class(new MathCommand, function(open, close, cmd, end) {
   MathCommand.call(this, '\\left'+cmd,
     ['<span class="block"><span class="paren">'+open+'</span><span class="block"></span><span class="paren">'+close+'</span></span>'],
     [open, close]);
   this.end = '\\right'+end;
-}
-_ = Bracket.prototype = new MathCommand;
+});
 _.createBlocks = function() { //FIXME: possible Law of Demeter violation, hardcore MathCommand::createBlocks knowledge needed here
   this.firstChild = this.lastChild =
     (this.replacedFragment && this.replacedFragment.blockify()) || new MathBlock;
@@ -269,10 +262,7 @@ LatexCmds.langle = LatexCmds.lang = proto(Bracket, function() {
 });
 
 // Closing bracket matching opening bracket above
-function CloseBracket(open, close, cmd, end) {
-  Bracket.apply(this, arguments);
-}
-_ = CloseBracket.prototype = new Bracket;
+var CloseBracket = _subclass(Bracket);
 _.placeCursor = function(cursor) {
   //if I'm at the end of my parent who is a matching open-paren, and I was not passed
   //  a selection fragment, get rid of me and put cursor after my parent
@@ -289,10 +279,9 @@ LatexCmds.rangle = LatexCmds.rang = proto(CloseBracket, function() {
   CloseBracket.call(this,'&lang;','&rang;','\\langle ','\\rangle ');
 });
 
-function Paren(open, close) {
+var Paren = proto(Bracket, function(open, close) {
   Bracket.call(this, open, close, open, close);
-}
-Paren.prototype = Bracket.prototype;
+});
 
 LatexCmds.lparen = CharCmds['('] = proto(Paren, function() {
   Paren.call(this, '(', ')');
@@ -301,10 +290,9 @@ LatexCmds.lbrack = LatexCmds.lbracket = CharCmds['['] = proto(Paren, function() 
   Paren.call(this, '[', ']');
 });
 
-function CloseParen(open, close) {
-  CloseBracket.call(this, open, close, open, close);
-}
-CloseParen.prototype = CloseBracket.prototype;
+var CloseParen = proto(CloseBracket, function(open, close) {
+  Bracket.call(this, open, close, open, close);
+});
 
 LatexCmds.rparen = CharCmds[')'] = proto(CloseParen, function() {
   CloseParen.call(this, '(', ')');
@@ -313,10 +301,9 @@ LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, functi
   CloseParen.call(this, '[', ']');
 });
 
-function Pipes() {
+var Pipes = _class(new Paren, function() {
   Paren.call(this, '|', '|');
-}
-_ = Pipes.prototype = new Paren;
+});
 _.placeCursor = function(cursor) {
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
@@ -326,8 +313,7 @@ _.placeCursor = function(cursor) {
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
-function TextBlock(){}
-_ = TextBlock.prototype = new MathCommand;
+var TextBlock = _class(new MathCommand);
 _.cmd = '\\text';
 _.html_template = ['<span class="text"></span>'];
 _.replaces = function(replacedText) {
@@ -394,8 +380,7 @@ _.textInput = function(ch) {
   }
   return false;
 };
-function InnerTextBlock(){}
-_ = InnerTextBlock.prototype = new MathBlock;
+var InnerTextBlock = _class(new MathBlock);
 _.blur = function() {
   this.jQ.removeClass('hasCursor');
   if (this.isEmpty()) {
@@ -465,13 +450,9 @@ LatexCmds.textmd =
   TextBlock;
 
 function makeTextBlock(latex, html) {
-  function SomeTextBlock() {
-    TextBlock.apply(this, arguments);
-  }
-  _ = SomeTextBlock.prototype = new TextBlock;
+  var SomeTextBlock = _subclass(TextBlock);
   _.cmd = latex;
   _.html_template = [ html ];
-
   return SomeTextBlock;
 }
 
@@ -492,8 +473,7 @@ LatexCmds.lowercase =
   makeTextBlock('\\lowercase', '<span style="text-transform:lowercase" class="text"></span>');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
-function LatexCommandInput(){}
-_ = LatexCommandInput.prototype = new MathCommand;
+var LatexCommandInput = _class(new MathCommand);
 _.cmd = '\\';
 _.replaces = function(replacedFragment) {
   this._replacedFragment = replacedFragment.detach();
@@ -566,8 +546,7 @@ _.renderCommand = function() {
 
 CharCmds['\\'] = LatexCommandInput;
   
-function Binomial(){}
-_ = Binomial.prototype = new MathCommand;
+var Binomial = _class(new MathCommand);
 _.cmd = '\\binom';
 _.html_template =
   ['<span class="block"></span>', '<span></span>', '<span></span>'];
@@ -583,16 +562,12 @@ _.text_template = ['choose(',',',')'];
 _.redraw = Bracket.prototype.redraw;
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
-function Choose() {
-  Binomial.apply(this, arguments);
-}
-_ = Choose.prototype = new Binomial;
+var Choose = _subclass(Binomial);
 _.placeCursor = LiveFraction.prototype.placeCursor;
 
 LatexCmds.choose = Choose;
 
-function Vector(){}
-_ = Vector.prototype = new MathCommand;
+var Vector = _class(new MathCommand);
 _.cmd = '\\vector';
 _.html_template = ['<span class="array"></span>', '<span></span>'];
 _.latex = function() {

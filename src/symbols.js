@@ -4,10 +4,9 @@
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 
-function Variable(ch, html) {
+var Variable = _class(new Symbol, function(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
-}
-_ = Variable.prototype = new Symbol;
+});
 _.text = function() {
   var text = this.cmd;
   if (this.prev && !(this.prev instanceof Variable)
@@ -19,19 +18,17 @@ _.text = function() {
   return text;
 };
 
-function VanillaSymbol(ch, html) {
+var VanillaSymbol = proto(Symbol, function(ch, html) {
   Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
-}
-VanillaSymbol.prototype = Symbol.prototype;
+});
 
 CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
-function NonSymbolaSymbol(ch, html) { //does not use Symbola font
+var NonSymbolaSymbol = proto(Symbol, function(ch, html) { //does not use Symbola font
   Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
-}
-NonSymbolaSymbol.prototype = Symbol.prototype;
+});
 
 LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&');
@@ -136,15 +133,14 @@ LatexCmds.forall = proto(Symbol, function(latex) {
   VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-function BinaryOperator(cmd, html, text) {
+var BinaryOperator = _class(new Symbol, //so instanceof will work
+function(cmd, html, text) {
   Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
-}
-BinaryOperator.prototype = new Symbol; //so instanceof will work
+});
 
-function PlusMinus(cmd, html) {
+var PlusMinus = _class(new BinaryOperator, function() {
   VanillaSymbol.apply(this, arguments);
-}
-_ = PlusMinus.prototype = new BinaryOperator; //so instanceof will work
+});
 _.respace = function() {
   if (!this.prev) {
     this.jQ[0].className = '';
@@ -260,10 +256,10 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 
 //sum, product, coproduct, integral
-function BigSymbol(ch, html) {
+var BigSymbol = _class(new Symbol, //so instanceof will work
+function(ch, html) {
   Symbol.call(this, ch, '<big>'+html+'</big>');
-}
-BigSymbol.prototype = new Symbol; //so instanceof will work
+});
 
 LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
 LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
@@ -517,10 +513,9 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-function NonItalicizedFunction(fn) {
+var NonItalicizedFunction = _class(new Symbol, function(fn) {
   Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
-}
-_ = NonItalicizedFunction.prototype = new Symbol;
+});
 _.respace = function()
 {
   this.jQ[0].className =

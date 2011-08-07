@@ -211,8 +211,7 @@ function createRoot(jQ, root, textbox, editable) {
   }
 }
 
-function RootMathBlock(){}
-_ = RootMathBlock.prototype = new MathBlock;
+var RootMathBlock = _class(new MathBlock);
 _.latex = function() {
   return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
 };
@@ -376,11 +375,10 @@ _.textInput = function(ch) {
   return false;
 };
 
-function RootMathCommand(cursor) {
+var RootMathCommand = _class(new MathCommand, function(cursor) {
   MathCommand.call(this, '$');
   this.cursor = cursor;
-}
-_ = RootMathCommand.prototype = new MathCommand;
+});
 _.html_template = ['<span class="mathquill-rendered-math"></span>'];
 _.createBlocks = function() {
   this.firstChild =
@@ -415,8 +413,7 @@ _.latex = function() {
   return '$' + this.firstChild.latex() + '$';
 };
 
-function RootTextBlock(){}
-_ = RootTextBlock.prototype = new MathBlock;
+var RootTextBlock = _class(new MathBlock);
 _.renderLatex = function(latex) {
   var self = this, cursor = self.cursor;
   self.jQ.children().slice(1).remove();

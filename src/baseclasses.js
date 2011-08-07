@@ -6,8 +6,7 @@
  * MathElement is the core Math DOM tree node prototype.
  * Both MathBlock's and MathCommand's descend from it.
  */
-function MathElement(){}
-_ = MathElement.prototype;
+var MathElement = _baseclass();
 _.prev = 0;
 _.next = 0;
 _.parent = 0;
@@ -37,14 +36,13 @@ _.bubble = function(event, arg) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(cmd, html_template, text_template) {
+var MathCommand = _class(new MathElement, function(cmd, html_template, text_template) {
   var self = this; // minifier optimization
 
   if (cmd) self.cmd = cmd;
   if (html_template) self.html_template = html_template;
   if (text_template) self.text_template = text_template;
-}
-_ = MathCommand.prototype = new MathElement;
+});
 _.replaces = function(replacedFragment) {
   this.replacedFragment = replacedFragment;
 };
@@ -182,11 +180,10 @@ _.remove = function() {
 /**
  * Lightweight command without blocks or children.
  */
-function Symbol(cmd, html, text) {
+var Symbol = _class(new MathCommand, function(cmd, html, text) {
   MathCommand.call(this, cmd, [ html ],
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
-}
-_ = Symbol.prototype = new MathCommand;
+});
 _.replaces = function(replacedFragment) {
   replacedFragment.remove();
 };
@@ -201,8 +198,7 @@ _.isEmpty = function(){ return true; };
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-function MathBlock(){}
-_ = MathBlock.prototype = new MathElement;
+var MathBlock = _class(new MathElement);
 _.latex = function() {
   return this.foldChildren('', function(latex, child) {
     return latex + child.latex();
@@ -238,7 +234,7 @@ _.blur = function() {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-function MathFragment(parent, prev, next) {
+var MathFragment = _baseclass(function(parent, prev, next) {
   if (!arguments.length) return;
 
   var self = this;
@@ -248,8 +244,7 @@ function MathFragment(parent, prev, next) {
   self.next = next || 0; //ending up with this.prev or this.next === undefined
 
   self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
-}
-_ = MathFragment.prototype;
+});
 _.remove = MathCommand.prototype.remove;
 _.jQinit = function(children) {
   this.jQ = children;
