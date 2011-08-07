@@ -201,11 +201,8 @@ function createRoot(jQ, root, textbox, editable) {
     var text = textarea.val();
     if (text) {
       textarea.val('');
-      // textarea can contain more than one character
-      // when typing quickly on slower platforms;
-      // so process each character separately
-      for (var i=0; i<text.length; i++) {
-          cursor.parent.textInput(text.charAt(i));
+      for (var i = 0; i < text.length; i += 1) {
+        cursor.parent.textInput(text.charAt(i));
       }
     }
     else {
