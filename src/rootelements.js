@@ -202,7 +202,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (text) {
       textarea.val('');
       for (var i = 0; i < text.length; i += 1) {
-        cursor.parent.textInput(text.charAt(i));
+        cursor.parent.bubble('textInput', text.charAt(i));
       }
     }
     else {
@@ -373,13 +373,14 @@ _.keydown = function(e)
 _.textInput = function(ch) {
   if (!this.skipTextInput)
     this.cursor.write(ch);
+  return false;
 };
 
 function RootMathCommand(cursor) {
   this.init('$');
   this.firstChild.cursor = cursor;
   this.firstChild.textInput = function(ch) {
-    if (this.skipTextInput) return;
+    if (this.skipTextInput) return false;
 
     if (ch !== '$' || cursor.parent !== this)
       cursor.write(ch);
@@ -393,6 +394,8 @@ function RootMathCommand(cursor) {
       cursor.insertBefore(this.parent);
     else
       cursor.write(ch);
+
+    return false;
   };
 }
 _ = RootMathCommand.prototype = new MathCommand;
@@ -440,12 +443,14 @@ _.renderLatex = function(latex) {
 };
 _.keydown = RootMathBlock.prototype.keydown;
 _.textInput = function(ch) {
-  if (this.skipTextInput) return;
+  if (this.skipTextInput) return false;
 
   this.cursor.deleteSelection();
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
     this.cursor.insertNew(new VanillaSymbol(ch));
+
+  return false;
 };
 
