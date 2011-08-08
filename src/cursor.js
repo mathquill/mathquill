@@ -493,9 +493,8 @@ _.deleteSelection = function() {
   this.prev = this.selection.prev;
   this.next = this.selection.next;
   this.selection.remove();
-  delete this.selection;
   this.root.selectionChanged();
-  return true;
+  return delete this.selection;
 };
 
 var Selection = _subclass(MathFragment);
