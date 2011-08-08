@@ -502,17 +502,17 @@ _.jQinit = function(children) {
   this.jQ = children.wrapAll('<span class="selection"></span>').parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
 };
-_.levelUp = function() {
-  var self = this, gramp = self.first = self.last = self.last.parent.parent;
-  self.clear().jQinit(gramp.jQ);
-  return self;
+_.blockify = function() {
+  this.jQ.replaceWith(this.jQ = this.jQ.children());
+  return MathFragment.prototype.blockify.call(this);
 };
 _.clear = function() {
   this.jQ.replaceWith(this.jQ.children());
   return this;
 };
-_.blockify = function() {
-  this.jQ.replaceWith(this.jQ = this.jQ.children());
-  return MathFragment.prototype.blockify.call(this);
+_.levelUp = function() {
+  var self = this, gramp = self.first = self.last = self.last.parent.parent;
+  self.clear().jQinit(gramp.jQ);
+  return self;
 };
 
