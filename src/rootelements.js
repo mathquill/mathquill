@@ -254,7 +254,7 @@ _.keydown = function(e)
 
     var parent = this.cursor.parent;
     if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-      if (parent === this) //cursor is in root editable, continue default
+      if (parent === this.cursor.root) //cursor is in root editable, continue default
         return this.skipTextInput = true;
       else if (parent.prev) //go one block left
         this.cursor.appendTo(parent.prev);
@@ -262,7 +262,7 @@ _.keydown = function(e)
         this.cursor.insertBefore(parent.parent);
     }
     else { //plain Tab = go one block right if it exists, else escape right.
-      if (parent === this) //cursor is in root editable, continue default
+      if (parent === this.cursor.root) //cursor is in root editable, continue default
         return this.skipTextInput = true;
       else if (parent.next) //go one block right
         this.cursor.prependTo(parent.next);
