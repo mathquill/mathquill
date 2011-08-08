@@ -451,6 +451,8 @@ _.selectLeft = function() {
     else //end of a block
       if (this.parent !== this.root)
         this.insertBefore(this.parent.parent);
+      else
+        return;
 
     this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
   }
@@ -481,6 +483,8 @@ _.selectRight = function() {
     else //end of a block
       if (this.parent !== this.root)
         this.insertAfter(this.parent.parent);
+      else
+        return;
 
     this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
   }
