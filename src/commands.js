@@ -182,7 +182,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
     }
 
     if (prev !== this.prev) { //FIXME: major Law of Demeter violation, shouldn't know here that MathCommand::createBlocks does some initialization that MathFragment::blockify doesn't
-      var newBlock = new MathFragment(this.parent, prev, this).blockify();
+      var newBlock = new MathFragment(prev.next || this.parent.firstChild, this.prev).blockify();
       newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
@@ -366,7 +366,7 @@ _.textInput = function(ch) {
   else if (!this.cursor.prev)
     this.cursor.insertBefore(this);
   else { //split apart
-    var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
+    var next = new TextBlock(new MathFragment(this.cursor.next, this.firstChild.lastChild));
     next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
       this.prev = 0;
       delete this.placeCursor;
