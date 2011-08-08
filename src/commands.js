@@ -483,15 +483,17 @@ _.html_template = ['<span class="latex-command-input">\\</span>'];
 _.text_template = ['\\'];
 _.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
   this.cursor = cursor.appendTo(this.firstChild);
-  if (this._replacedFragment)
+  if (this._replacedFragment) {
+    var el = this.jQ[0];
     this.jQ =
-      this.jQ.add(this._replacedFragment.jQ.addClass('blur').bind(
+      this._replacedFragment.jQ.addClass('blur').bind(
         'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
         function(e) {
-          $(e.target = this.nextSibling).trigger(e);
+          $(e.target = el).trigger(e);
           return false;
         }
-      ).insertBefore(this.jQ));
+      ).insertBefore(this.jQ).add(this.jQ);
+  }
 };
 _.latex = function() {
   return '\\' + this.firstChild.latex() + ' ';
