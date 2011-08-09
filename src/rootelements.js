@@ -147,7 +147,7 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('cut', function(e) {
     setTextareaSelection();
     if (cursor.selection)
-      setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
+      setTimeout(function(){ cursor.deleteSelection(); cursor.parent.bubble('redraw'); });
     e.stopPropagation();
   }).bind('copy', function(e) {
     setTextareaSelection();

@@ -408,7 +408,7 @@ _.blur = function() {
       else if (cursor.prev === textblock)
         cursor.prev = textblock.prev;
 
-      cursor.show().redraw();
+      cursor.show().parent.bubble('redraw');
     }
   }
   return this;
@@ -442,7 +442,7 @@ _.focus = function() {
     else
       cursor.prependTo(this);
 
-    cursor.redraw();
+    cursor.parent.bubble('redraw');
   }
   else if (textblock.prev.cmd === textblock.cmd) {
     var cursor = textblock.cursor;
@@ -625,7 +625,7 @@ _.keydown = function(e) {
       newBlock.next = currentBlock.next;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock).redraw();
+      this.bubble('redraw').cursor.appendTo(newBlock);
 
       e.preventDefault();
       return false;
@@ -637,7 +637,7 @@ _.keydown = function(e) {
           delete currentBlock.prev.next;
           this.lastChild = currentBlock.prev;
           currentBlock.jQ.remove();
-          this.cursor.redraw();
+          this.bubble('redraw');
 
           e.preventDefault();
           return false;
@@ -652,7 +652,7 @@ _.keydown = function(e) {
       this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock).redraw();
+      this.bubble('redraw').cursor.appendTo(newBlock);
 
       e.preventDefault();
       return false;
@@ -677,7 +677,7 @@ _.keydown = function(e) {
         if (this.isEmpty())
           this.cursor.deleteForward();
         else
-          this.cursor.redraw();
+          this.bubble('redraw');
 
         e.preventDefault();
         return false;

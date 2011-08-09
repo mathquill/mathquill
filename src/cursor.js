@@ -47,11 +47,6 @@ _.hide = function() {
   this.jQ = $();
   return this;
 };
-_.redraw = function() {
-  for (var ancestor = this.parent; ancestor; ancestor = ancestor.parent)
-    if (ancestor.redraw)
-      ancestor.redraw();
-};
 _.insertAt = function(parent, prev, next) {
   var old_parent = this.parent;
 
@@ -353,7 +348,7 @@ _.backspace = function() {
     this.prev.respace();
   if (this.next)
     this.next.respace();
-  this.redraw();
+  this.parent.bubble('redraw');
 
   return this;
 };
@@ -376,7 +371,7 @@ _.deleteForward = function() {
     this.prev.respace();
   if (this.next)
     this.next.respace();
-  this.redraw();
+  this.parent.bubble('redraw');
 
   return this;
 };

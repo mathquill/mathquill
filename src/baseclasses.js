@@ -138,7 +138,7 @@ _.insertAt = function(cursor) {
 
   cmd.placeCursor(cursor);
 
-  cursor.redraw(); //this will soon be cmd.trigger('redraw')
+  cmd.bubble('redraw');
 };
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {
