@@ -8,8 +8,9 @@ $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     this.find(':not(:has(:first))').each(function() {
-      var data = $(this).data(jQueryDataKey);
-      if (data && (data.cmd || data.block)) Cursor.prototype.redraw.call(data.cmd || data.block);
+      var data = $(this).data(jQueryDataKey),
+        mathEl = data && (data.block || data.cmd);
+      if (mathEl) mathEl.bubble('redraw');
     });
     return this;
   case 'revert':

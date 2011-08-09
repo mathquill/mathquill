@@ -25,11 +25,11 @@ _.foldChildren = function(fold, fn) {
   });
   return fold;
 };
-_.keydown = function(e) {
-  return this.parent.keydown(e);
-};
-_.textInput = function(ch) {
-  return this.parent.textInput(ch);
+_.bubble = function(event, arg) {
+  for (var ancestor = this; ancestor; ancestor = ancestor.parent)
+    if (ancestor[event] && ancestor[event](arg) === false) break;
+
+  return this;
 };
 
 /**
@@ -138,7 +138,7 @@ _.insertAt = function(cursor) {
 
   cmd.placeCursor(cursor);
 
-  cursor.redraw(); //this will soon be cmd.trigger('redraw')
+  cmd.bubble('redraw');
 };
 _.respace = $.noop; //placeholder for context-sensitive spacing
 _.placeCursor = function(cursor) {

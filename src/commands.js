@@ -363,9 +363,9 @@ _.keydown = function(e) {
   ) {
     if (this.isEmpty())
       this.cursor.insertAfter(this);
+    e.preventDefault();
     return false;
   }
-  return this.parent.keydown(e);
 };
 _.textInput = function(ch) {
   this.cursor.deleteSelection();
@@ -390,6 +390,7 @@ _.textInput = function(ch) {
     this.cursor.insertBefore(next);
     delete next.firstChild.focus;
   }
+  return false;
 };
 function InnerTextBlock(){}
 _ = InnerTextBlock.prototype = new MathBlock;
@@ -407,7 +408,7 @@ _.blur = function() {
       else if (cursor.prev === textblock)
         cursor.prev = textblock.prev;
 
-      cursor.show().redraw();
+      cursor.show().parent.bubble('redraw');
     }
   }
   return this;
@@ -441,7 +442,7 @@ _.focus = function() {
     else
       cursor.prependTo(this);
 
-    cursor.redraw();
+    cursor.parent.bubble('redraw');
   }
   else if (textblock.prev.cmd === textblock.cmd) {
     var cursor = textblock.cursor;
@@ -517,21 +518,19 @@ _.latex = function() {
 _.keydown = function(e) {
   if (e.which === 9 || e.which === 13) { //tab or enter
     this.renderCommand();
+    e.preventDefault();
     return false;
   }
-  return this.parent.keydown(e);
 };
 _.textInput = function(ch) {
   if (ch.match(/[a-z]/i)) {
     this.cursor.deleteSelection();
     this.cursor.insertNew(new VanillaSymbol(ch));
-    return;
+    return false;
   }
   this.renderCommand();
   if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
-    return;
-
-  this.cursor.parent.textInput(ch);
+    return false;
 };
 _.renderCommand = function() {
   this.jQ = this.jQ.last();
@@ -626,7 +625,9 @@ _.keydown = function(e) {
       newBlock.next = currentBlock.next;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock).redraw();
+      this.bubble('redraw').cursor.appendTo(newBlock);
+
+      e.preventDefault();
       return false;
     }
     else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
@@ -636,11 +637,13 @@ _.keydown = function(e) {
           delete currentBlock.prev.next;
           this.lastChild = currentBlock.prev;
           currentBlock.jQ.remove();
-          this.cursor.redraw();
+          this.bubble('redraw');
+
+          e.preventDefault();
           return false;
         }
         else
-          return this.parent.keydown(e);
+          return;
       }
 
       var newBlock = new MathBlock;
@@ -649,7 +652,9 @@ _.keydown = function(e) {
       this.lastChild = newBlock;
       currentBlock.next = newBlock;
       newBlock.prev = currentBlock;
-      this.cursor.appendTo(newBlock).redraw();
+      this.bubble('redraw').cursor.appendTo(newBlock);
+
+      e.preventDefault();
       return false;
     }
     else if (e.which === 8) { //backspace
@@ -672,15 +677,17 @@ _.keydown = function(e) {
         if (this.isEmpty())
           this.cursor.deleteForward();
         else
-          this.cursor.redraw();
+          this.bubble('redraw');
 
+        e.preventDefault();
         return false;
       }
-      else if (!this.cursor.prev)
+      else if (!this.cursor.prev) {
+        e.preventDefault();
         return false;
+      }
     }
   }
-  return this.parent.keydown(e);
 };
 
 LatexCmds.vector = Vector;

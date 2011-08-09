@@ -147,7 +147,7 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('cut', function(e) {
     setTextareaSelection();
     if (cursor.selection)
-      setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
+      setTimeout(function(){ cursor.deleteSelection(); cursor.parent.bubble('redraw'); });
     e.stopPropagation();
   }).bind('copy', function(e) {
     setTextareaSelection();
@@ -175,14 +175,13 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('keydown.mathquill', function(e) {
     lastKeydn.evt = e;
     lastKeydn.happened = true;
-    if (cursor.parent.keydown(e) === false)
-      e.preventDefault();
+    cursor.parent.bubble('keydown', e);
   }).bind('keypress.mathquill', function(e) {
     //on auto-repeated key events, keypress may get triggered but not keydown
     if (lastKeydn.happened)
       lastKeydn.happened = false;
     else
-      cursor.parent.keydown(lastKeydn.evt);
+      cursor.parent.bubble('keydown', lastKeydn.evt);
 
     if (textareaSelectionTimeout !== undefined)
       clearTimeout(textareaSelectionTimeout);
@@ -202,7 +201,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (text) {
       textarea.val('');
       for (var i = 0; i < text.length; i += 1) {
-        cursor.parent.textInput(text.charAt(i));
+        cursor.parent.bubble('textInput', text.charAt(i));
       }
     }
     else {
@@ -356,7 +355,7 @@ _.keydown = function(e)
   case 'U+0041':
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
       if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
+        return;
 
       this.cursor.clearSelection().appendTo(this);
       while (this.cursor.prev)
@@ -365,21 +364,23 @@ _.keydown = function(e)
     }
   default:
     this.skipTextInput = false;
-    return true;
+    return false;
   }
   this.skipTextInput = true;
+  e.preventDefault();
   return false;
 };
 _.textInput = function(ch) {
   if (!this.skipTextInput)
     this.cursor.write(ch);
+  return false;
 };
 
 function RootMathCommand(cursor) {
   this.init('$');
   this.firstChild.cursor = cursor;
   this.firstChild.textInput = function(ch) {
-    if (this.skipTextInput) return;
+    if (this.skipTextInput) return false;
 
     if (ch !== '$' || cursor.parent !== this)
       cursor.write(ch);
@@ -393,6 +394,8 @@ function RootMathCommand(cursor) {
       cursor.insertBefore(this.parent);
     else
       cursor.write(ch);
+
+    return false;
   };
 }
 _ = RootMathCommand.prototype = new MathCommand;
@@ -440,12 +443,14 @@ _.renderLatex = function(latex) {
 };
 _.keydown = RootMathBlock.prototype.keydown;
 _.textInput = function(ch) {
-  if (this.skipTextInput) return;
+  if (this.skipTextInput) return false;
 
   this.cursor.deleteSelection();
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
     this.cursor.insertNew(new VanillaSymbol(ch));
+
+  return false;
 };
 
