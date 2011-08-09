@@ -212,7 +212,7 @@ _.writeLatex = function(latex) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
         if (cmd)
-          cursor.insertNew(cmd = new cmd(undefined, token));
+          cursor.insertNew(cmd = new cmd(token));
         else {
           cmd = new TextBlock(token);
           cursor.insertNew(cmd).insertAfter(cmd);
@@ -223,7 +223,7 @@ _.writeLatex = function(latex) {
         if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
           cmd = new Variable(token);
         else if (cmd = LatexCmds[token])
-          cmd = new cmd;
+          cmd = new cmd(token);
         else
           cmd = new VanillaSymbol(token);
 
@@ -248,30 +248,25 @@ _.write = function(ch) {
   return this.show().insertCh(ch);
 };
 _.insertCh = function(ch) {
-  if (this.selection) {
-    //gotta do this before this.selection is mutated by 'new cmd(this.selection)'
-    this.prev = this.selection.prev;
-    this.next = this.selection.next;
-  }
-
   var cmd;
   if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
     cmd = new Variable(ch);
   else if (cmd = CharCmds[ch] || LatexCmds[ch])
-    cmd = new cmd(this.selection, ch);
+    cmd = new cmd(ch);
   else
     cmd = new VanillaSymbol(ch);
 
   if (this.selection) {
-    if (cmd instanceof Symbol)
-      this.selection.remove();
+    this.prev = this.selection.prev;
+    this.next = this.selection.next;
+    cmd.replaces(this.selection);
     delete this.selection;
   }
 
   return this.insertNew(cmd);
 };
 _.insertNew = function(cmd) {
-  cmd.insertAt(this);
+  cmd.createBefore(this);
   return this;
 };
 _.unwrapGramp = function() {

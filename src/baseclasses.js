@@ -37,20 +37,19 @@ _.bubble = function(event, arg) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-function MathCommand(){}
-_ = MathCommand.prototype = new MathElement;
-_.init = function(cmd, html_template, text_template, replacedFragment) {
+function MathCommand(cmd, html_template, text_template) {
   var self = this; // minifier optimization
 
   if (cmd) self.cmd = cmd;
   if (html_template) self.html_template = html_template;
   if (text_template) self.text_template = text_template;
-
-  self.jQ = $(self.html_template[0]).data(jQueryDataKey, {cmd: self});
-  self.initBlocks(replacedFragment);
+}
+_ = MathCommand.prototype = new MathElement;
+_.replaces = function(replacedFragment) {
+  this.replacedFragment = replacedFragment;
 };
-_.initBlocks = function(replacedFragment) {
-  var self = this;
+_.createBlocks = function() {
+  var self = this, replacedFragment = self.replacedFragment;
   //single-block commands
   if (self.html_template.length === 1) {
     self.firstChild =
@@ -108,26 +107,33 @@ _.text = function() {
     return text + child.text() + (this.text_template[i] || '');
   });
 };
-_.insertAt = function(cursor) {
+_.insertAt = function(parent, prev, next) {
   var cmd = this;
 
-  cmd.parent = cursor.parent;
-  cmd.next = cursor.next;
-  cmd.prev = cursor.prev;
+  cmd.parent = parent;
+  cmd.next = next;
+  cmd.prev = prev;
 
-  if (cursor.prev)
-    cursor.prev.next = cmd;
+  if (prev)
+    prev.next = cmd;
   else
-    cursor.parent.firstChild = cmd;
+    parent.firstChild = cmd;
 
-  if (cursor.next)
-    cursor.next.prev = cmd;
+  if (next)
+    next.prev = cmd;
   else
-    cursor.parent.lastChild = cmd;
+    parent.lastChild = cmd;
 
-  cursor.prev = cmd;
+  return cmd;
+};
+_.createBefore = function(cursor) {
+  var cmd = this;
 
-  cmd.jQ.insertBefore(cursor.jQ);
+  cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
+  cmd.createBlocks();
+  cursor.jQ.before(cmd.jQ);
+
+  cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
 
   //adjust context-sensitive spacing
   cmd.respace();
@@ -177,11 +183,14 @@ _.remove = function() {
  * Lightweight command without blocks or children.
  */
 function Symbol(cmd, html, text) {
-  this.init(cmd, [ html ],
+  MathCommand.call(this, cmd, [ html ],
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 }
 _ = Symbol.prototype = new MathCommand;
-_.initBlocks = $.noop;
+_.replaces = function(replacedFragment) {
+  replacedFragment.remove();
+};
+_.createBlocks = $.noop;
 _.latex = function(){ return this.cmd; };
 _.text = function(){ return this.text_template; };
 _.placeCursor = $.noop;
