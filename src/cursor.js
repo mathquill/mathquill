@@ -414,22 +414,18 @@ _.selectFrom = function(anticursor) {
 _.selectLeft = function() {
   if (this.selection) {
     if (this.selection.first === this.next) { //if cursor is at left edge of selection;
-      if (this.prev) { //then extend left if possible
-        this.hopLeft().next.jQ.prependTo(this.selection.jQ);
-        this.selection.first = this.next;
-      }
+      if (this.prev) //then extend left if possible
+        this.hopLeft().selection.extendLeft();
       else if (this.parent !== this.root) //else level up if possible
         this.insertBefore(this.parent.parent).selection.levelUp();
     }
     else { //else cursor is at right edge of selection, retract left if possible
+      this.hopLeft();
       if (this.selection.first === this.selection.last) {
-        this.hopLeft().clearSelection(); //clear selection if retracting to nothing
+        this.clearSelection(); //clear selection if retracting to nothing
         return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
       }
-      else {
-        this.prev.jQ.insertAfter(this.selection.jQ);
-        this.hopLeft().selection.last = this.prev;
-      }
+      this.selection.retractLeft();
     }
   }
   else {
@@ -448,22 +444,18 @@ _.selectLeft = function() {
 _.selectRight = function() {
   if (this.selection) {
     if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
-      if (this.next) { //then extend right if possible
-        this.hopRight().prev.jQ.appendTo(this.selection.jQ);
-        this.selection.last = this.prev;
-      }
+      if (this.next) //then extend right if possible
+        this.hopRight().selection.extendRight();
       else if (this.parent !== this.root) //else level up if possible
         this.insertAfter(this.parent.parent).selection.levelUp();
     }
     else { //else cursor is at left edge of selection, retract right if possible
+      this.hopRight();
       if (this.selection.first === this.selection.last) {
-        this.hopRight().clearSelection(); //clear selection if retracting to nothing
+        this.clearSelection(); //clear selection if retracting to nothing
         return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
       }
-      else {
-        this.next.jQ.insertBefore(this.selection.jQ);
-        this.hopRight().selection.first = this.next;
-      }
+      this.selection.retractRight();
     }
   }
   else {
@@ -514,5 +506,21 @@ _.levelUp = function() {
   var self = this, gramp = self.first = self.last = self.last.parent.parent;
   self.clear().jQinit(gramp.jQ);
   return self;
+};
+_.extendLeft = function() {
+  this.first = this.first.prev;
+  this.first.jQ.prependTo(this.jQ);
+};
+_.extendRight = function() {
+  this.last = this.last.next;
+  this.last.jQ.appendTo(this.jQ);
+};
+_.retractRight = function() {
+  this.first.jQ.insertBefore(this.jQ);
+  this.first = this.first.next;
+};
+_.retractLeft = function() {
+  this.last.jQ.insertAfter(this.jQ);
+  this.last = this.last.prev;
 };
 
