@@ -168,9 +168,9 @@ function LiveFraction() {
   Fraction.apply(this, arguments);
 }
 _ = LiveFraction.prototype = new Fraction;
-_.placeCursor = function(cursor) { //TODO: better architecture so this can be done more cleanly, highjacking MathCommand::placeCursor doesn't seem like the right place to do this
-  if (this.firstChild.isEmpty()) {
-    var prev = this.prev;
+_.createBefore = function(cursor) {
+  if (!this.replacedFragment) {
+    var prev = cursor.prev;
     while (prev &&
       !(
         prev instanceof BinaryOperator ||
@@ -186,15 +186,12 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
         prev = prev.next;
     }
 
-    if (prev !== this.prev) { //FIXME: major Law of Demeter violation, shouldn't know here that MathCommand::createBlocks does some initialization that MathFragment::blockify doesn't
-      var newBlock = new MathFragment(this.parent, prev, this).blockify();
-      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
-      newBlock.next = this.lastChild;
-      newBlock.parent = this;
-      this.firstChild = this.lastChild.prev = newBlock;
+    if (prev !== cursor.prev) {
+      this.replaces(new MathFragment(cursor.parent, prev, cursor.next));
+      cursor.prev = prev;
     }
   }
-  cursor.appendTo(this.lastChild);
+  this._createBefore(cursor);
 };
 
 LatexCmds.over = CharCmds['/'] = LiveFraction;
@@ -588,7 +585,7 @@ function Choose() {
   Binomial.apply(this, arguments);
 }
 _ = Choose.prototype = new Binomial;
-_.placeCursor = LiveFraction.prototype.placeCursor;
+_.createBefore = LiveFraction.prototype.createBefore;
 
 LatexCmds.choose = Choose;
 
