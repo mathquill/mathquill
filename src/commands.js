@@ -270,13 +270,17 @@ function CloseBracket(open, close, cmd, end) {
   Bracket.apply(this, arguments);
 }
 _ = CloseBracket.prototype = new Bracket;
-_.placeCursor = function(cursor) {
-  //if I'm at the end of my parent who is a matching open-paren, and I was not passed
-  //  a selection fragment, get rid of me and put cursor after my parent
-  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
-    cursor.backspace().insertAfter(this.parent.parent);
+_.createBefore = function(cursor) {
+  //if I'm at the end of my parent who is a matching open-paren, and I am not
+  //replacing a selection fragment, don't create me, just put cursor after my parent
+  if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
+    cursor.insertAfter(cursor.parent.parent);
   else
-    this.firstChild.blur();
+    this._createBefore(cursor);
+};
+_.placeCursor = function(cursor) {
+  this.firstChild.blur();
+  cursor.insertAfter(this);
 };
 
 LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function() {
@@ -314,12 +318,7 @@ function Pipes() {
   Paren.call(this, '|', '|');
 }
 _ = Pipes.prototype = new Paren;
-_.placeCursor = function(cursor) {
-  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
-    cursor.backspace().insertAfter(this.parent.parent);
-  else
-    cursor.appendTo(this.firstChild);
-};
+_.createBefore = CloseBracket.prototype.createBefore;
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
