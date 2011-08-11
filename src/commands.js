@@ -496,8 +496,8 @@ _.replaces = function(replacedFragment) {
 };
 _.html_template = ['<span class="latex-command-input">\\</span>'];
 _.text_template = ['\\'];
-_.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
-  this.cursor = cursor.appendTo(this.firstChild);
+_.createBefore = function(cursor) {
+  this._createBefore(cursor);
   if (this._replacedFragment)
     this.jQ =
       this.jQ.add(this._replacedFragment.jQ.addClass('blur').bind(
