@@ -26,7 +26,7 @@ _.show = function() {
     clearInterval(this.intervalId);
   else { //was hidden and detached, insert this.jQ back into HTML DOM
     if (this.next) {
-      if (this.selection && this.selection.prev === this.prev)
+      if (this.selection && this.selection.first.prev === this.prev)
         this.jQ.insertBefore(this.selection.jQ);
       else
         this.jQ.insertBefore(this.next.jQ.first());
@@ -96,7 +96,7 @@ _.hopRight = function() {
 };
 _.moveLeft = function() {
   if (this.selection)
-    this.insertBefore(this.selection.prev.next || this.parent.firstChild).clearSelection();
+    this.insertBefore(this.selection.first).clearSelection();
   else {
     if (this.prev) {
       if (this.prev.lastChild)
@@ -116,7 +116,7 @@ _.moveLeft = function() {
 };
 _.moveRight = function() {
   if (this.selection)
-    this.insertAfter(this.selection.next.prev || this.parent.lastChild).clearSelection();
+    this.insertAfter(this.selection.last).clearSelection();
   else {
     if (this.next) {
       if (this.next.firstChild)
@@ -256,8 +256,8 @@ _.insertCh = function(ch) {
     cmd = new VanillaSymbol(ch);
 
   if (this.selection) {
-    this.prev = this.selection.prev;
-    this.next = this.selection.next;
+    this.prev = this.selection.first.prev;
+    this.next = this.selection.last.next;
     cmd.replaces(this.selection);
     delete this.selection;
   }
@@ -407,31 +407,25 @@ _.selectFrom = function(anticursor) {
       left = leftRight;
     }
   }
-  this.hide().selection = new Selection(
-    left.parent,
-    left.prev,
-    right.next
-  );
+  this.hide().selection = new Selection(left.prev.next || left.parent.firstChild, right.next.prev || right.parent.lastChild);
   this.insertAfter(right.next.prev || right.parent.lastChild);
   this.root.selectionChanged();
 };
 _.selectLeft = function() {
   if (this.selection) {
-    if (this.selection.prev === this.prev) { //if cursor is at left edge of selection;
-      if (this.prev) { //then extend left if possible
-        this.hopLeft().next.jQ.prependTo(this.selection.jQ);
-        this.selection.prev = this.prev;
-      }
+    if (this.selection.first === this.next) { //if cursor is at left edge of selection;
+      if (this.prev) //then extend left if possible
+        this.hopLeft().selection.extendLeft();
       else if (this.parent !== this.root) //else level up if possible
         this.insertBefore(this.parent.parent).selection.levelUp();
     }
-    else { //else cursor is at right edge of selection, retract left
-      this.prev.jQ.insertAfter(this.selection.jQ);
-      this.hopLeft().selection.next = this.next;
-      if (this.selection.prev === this.prev) {
-        this.deleteSelection();
-        return;
+    else { //else cursor is at right edge of selection, retract left if possible
+      this.hopLeft();
+      if (this.selection.first === this.selection.last) {
+        this.clearSelection(); //clear selection if retracting to nothing
+        return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
       }
+      this.selection.retractLeft();
     }
   }
   else {
@@ -443,27 +437,25 @@ _.selectLeft = function() {
       else
         return;
 
-    this.hide().selection = new Selection(this.parent, this.prev, this.next.next);
+    this.hide().selection = new Selection(this.next);
   }
   this.root.selectionChanged();
 };
 _.selectRight = function() {
   if (this.selection) {
-    if (this.selection.next === this.next) { //if cursor is at right edge of selection;
-      if (this.next) { //then extend right if possible
-        this.hopRight().prev.jQ.appendTo(this.selection.jQ);
-        this.selection.next = this.next;
-      }
+    if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
+      if (this.next) //then extend right if possible
+        this.hopRight().selection.extendRight();
       else if (this.parent !== this.root) //else level up if possible
         this.insertAfter(this.parent.parent).selection.levelUp();
     }
-    else { //else cursor is at left edge of selection, retract right
-      this.next.jQ.insertBefore(this.selection.jQ);
-      this.hopRight().selection.prev = this.prev;
-      if (this.selection.next === this.next) {
-        this.deleteSelection();
-        return;
+    else { //else cursor is at left edge of selection, retract right if possible
+      this.hopRight();
+      if (this.selection.first === this.selection.last) {
+        this.clearSelection(); //clear selection if retracting to nothing
+        return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
       }
+      this.selection.retractRight();
     }
   }
   else {
@@ -475,7 +467,7 @@ _.selectRight = function() {
       else
         return;
 
-    this.hide().selection = new Selection(this.parent, this.prev.prev, this.next);
+    this.hide().selection = new Selection(this.prev);
   }
   this.root.selectionChanged();
 };
@@ -490,12 +482,11 @@ _.clearSelection = function() {
 _.deleteSelection = function() {
   if (!this.show().selection) return false;
 
-  this.prev = this.selection.prev;
-  this.next = this.selection.next;
+  this.prev = this.selection.first.prev;
+  this.next = this.selection.last.next;
   this.selection.remove();
-  delete this.selection;
   this.root.selectionChanged();
-  return true;
+  return delete this.selection;
 };
 
 var Selection = _subclass(MathFragment);
@@ -503,29 +494,33 @@ _.jQinit = function(children) {
   this.jQ = children.wrapAll('<span class="selection"></span>').parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
 };
-_.levelUp = function() {
-  this.clear().jQinit(this.parent.parent.jQ);
-
-  this.prev = this.parent.parent.prev;
-  this.next = this.parent.parent.next;
-  this.parent = this.parent.parent.parent;
-
-  return this;
+_.blockify = function() {
+  this.jQ.replaceWith(this.jQ = this.jQ.children());
+  return MathFragment.prototype.blockify.call(this);
 };
 _.clear = function() {
   this.jQ.replaceWith(this.jQ.children());
   return this;
 };
-_.blockify = function() {
-  this.jQ.replaceWith(this.jQ = this.jQ.children());
-  return MathFragment.prototype.blockify.call(this);
+_.levelUp = function() {
+  var self = this, gramp = self.first = self.last = self.last.parent.parent;
+  self.clear().jQinit(gramp.jQ);
+  return self;
 };
-_.detach = function() {
-  var block = MathFragment.prototype.blockify.call(this);
-  this.blockify = function() {
-    this.jQ.replaceWith(block.jQ = this.jQ = this.jQ.children());
-    return block;
-  };
-  return this;
+_.extendLeft = function() {
+  this.first = this.first.prev;
+  this.first.jQ.prependTo(this.jQ);
+};
+_.extendRight = function() {
+  this.last = this.last.next;
+  this.last.jQ.appendTo(this.jQ);
+};
+_.retractRight = function() {
+  this.first.jQ.insertBefore(this.jQ);
+  this.first = this.first.next;
+};
+_.retractLeft = function() {
+  this.last.jQ.insertAfter(this.jQ);
+  this.last = this.last.prev;
 };
 

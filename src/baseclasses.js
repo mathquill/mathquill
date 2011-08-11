@@ -234,23 +234,21 @@ _.blur = function() {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-var MathFragment = _baseclass(function(parent, prev, next) {
+var MathFragment = _baseclass(function(first, last) {
   if (!arguments.length) return;
 
   var self = this;
 
-  self.parent = parent;
-  self.prev = prev || 0; //so you can do 'new MathFragment(block)' without
-  self.next = next || 0; //ending up with this.prev or this.next === undefined
+  self.first = first;
+  self.last = last || first; //just select one thing if only one argument
 
   self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
 });
-_.remove = MathCommand.prototype.remove;
 _.jQinit = function(children) {
   this.jQ = children;
 };
 _.each = function(fn) {
-  for (var el = this.prev.next || this.parent.firstChild; el !== this.next; el = el.next)
+  for (var el = this.first; el !== this.last.next; el = el.next)
     if (fn.call(this, el) === false) break;
 
   return this;
@@ -264,14 +262,15 @@ _.fold = function(fold, fn) {
 _.latex = function() {
   return this.fold('', function(latex, el){ return latex + el.latex(); });
 };
-_.blockify = function() {
+_.remove = function() {
+  this.jQ.remove();
+  return this.detach();
+};
+_.detach = function() {
   var self = this,
-      prev = self.prev,
-      next = self.next,
-      parent = self.parent,
-      newBlock = new MathBlock,
-      newFirstChild = newBlock.firstChild = prev.next || parent.firstChild,
-      newLastChild = newBlock.lastChild = next.prev || parent.lastChild;
+    prev = self.first.prev,
+    next = self.last.next,
+    parent = self.last.parent;
 
   if (prev)
     prev.next = next;
@@ -283,10 +282,20 @@ _.blockify = function() {
   else
     parent.lastChild = prev;
 
-  newFirstChild.prev = self.prev = 0;
-  newLastChild.next = self.next = 0;
+  self.detach = chainableNoop;
 
-  self.parent = newBlock;
+  return self;
+};
+function chainableNoop(){ return this; };
+_.blockify = function() {
+  var self = this.detach();
+    newBlock = new MathBlock;
+    first = newBlock.firstChild = self.first,
+    last = newBlock.lastChild = self.last;
+
+  first.prev = 0;
+  last.next = 0;
+
   self.each(function(el){ el.parent = newBlock; });
 
   newBlock.jQ = self.jQ;

@@ -182,7 +182,7 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
     }
 
     if (prev !== this.prev) { //FIXME: major Law of Demeter violation, shouldn't know here that MathCommand::createBlocks does some initialization that MathFragment::blockify doesn't
-      var newBlock = new MathFragment(this.parent, prev, this).blockify();
+      var newBlock = new MathFragment(prev.next || this.parent.firstChild, this.prev).blockify();
       newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
       newBlock.next = this.lastChild;
       newBlock.parent = this;
@@ -366,7 +366,7 @@ _.textInput = function(ch) {
   else if (!this.cursor.prev)
     this.cursor.insertBefore(this);
   else { //split apart
-    var next = new TextBlock(new MathFragment(this.firstChild, this.cursor.prev));
+    var next = new TextBlock(new MathFragment(this.cursor.next, this.firstChild.lastChild));
     next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
       this.prev = 0;
       delete this.placeCursor;
@@ -483,15 +483,17 @@ _.html_template = ['<span class="latex-command-input">\\</span>'];
 _.text_template = ['\\'];
 _.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
   this.cursor = cursor.appendTo(this.firstChild);
-  if (this._replacedFragment)
+  if (this._replacedFragment) {
+    var el = this.jQ[0];
     this.jQ =
-      this.jQ.add(this._replacedFragment.jQ.addClass('blur').bind(
+      this._replacedFragment.jQ.addClass('blur').bind(
         'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
         function(e) {
-          $(e.target = this.nextSibling).trigger(e);
+          $(e.target = el).trigger(e);
           return false;
         }
-      ).insertBefore(this.jQ));
+      ).insertBefore(this.jQ).add(this.jQ);
+  }
 };
 _.latex = function() {
   return '\\' + this.firstChild.latex() + ' ';
