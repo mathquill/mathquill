@@ -341,8 +341,8 @@ _.createBlocks = function() { //FIXME: another possible Law of Demeter violation
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
 };
-_.placeCursor = function(cursor) { //TODO: this should be done in the constructor that's passed replacedFragment, but you need the cursor to create new characters and insert them
-  (this.cursor = cursor).appendTo(this.firstChild);
+_.createBefore = function(cursor) {
+  this._createBefore(this.cursor = cursor);
 
   if (this.replacedText)
     for (var i = 0; i < this.replacedText.length; i += 1)
@@ -604,8 +604,8 @@ _.text = function() {
     return text;
   }).join() + ']';
 }
-_.placeCursor = function(cursor) {
-  this.cursor = cursor.appendTo(this.firstChild);
+_.createBefore = function(cursor) {
+  this._createBefore(this.cursor = cursor);
 };
 _.keydown = function(e) {
   var currentBlock = this.cursor.parent;
@@ -690,7 +690,7 @@ this.createBlocks = function() {
   RootMathCommand.prototype.createBlocks.call(this);
   createRoot(this.jQ, this.firstChild, false, true);
   var cursor;
-  this.placeCursor = function(c) { cursor = c.appendTo(this.firstChild); };
+  this.createBefore = function(c){ this._createBefore(cursor = c); };
   this.firstChild.blur = function() {
     if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
     delete this.blur;
