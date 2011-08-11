@@ -126,7 +126,7 @@ _.insertAt = function(parent, prev, next) {
 
   return cmd;
 };
-_.createBefore = function(cursor) {
+_.createBefore = _._createBefore = function(cursor) {
   var cmd = this;
 
   cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
