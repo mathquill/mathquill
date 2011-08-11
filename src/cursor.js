@@ -10,14 +10,13 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-function Cursor(root) {
+var Cursor = _baseclass(function(root) {
   this.parent = this.root = root;
   var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
 
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }
-}
-_ = Cursor.prototype;
+});
 _.prev = 0;
 _.next = 0;
 _.parent = 0;
@@ -499,10 +498,7 @@ _.deleteSelection = function() {
   return true;
 };
 
-function Selection(parent, prev, next) {
-  MathFragment.apply(this, arguments);
-}
-_ = Selection.prototype = new MathFragment;
+var Selection = _subclass(MathFragment);
 _.jQinit = function(children) {
   this.jQ = children.wrapAll('<span class="selection"></span>').parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it

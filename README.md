@@ -79,10 +79,20 @@ signatures.)
 
 In comments and internal documentation, `::` means `.prototype.`.
 
-`baseclasses.js` defines constructors and prototypes for the JS objects that
-make up the virtual math DOM tree:
+`intro.js` defines some simple sugar for the idiomatic JS classes used
+throughout MathQuill, plus some globals and opening boilerplate.
 
-* (By convention `_` is a variable assigned the `prototype` of the "current" class.)
+* By convention, when assigning or accessing many properties of an object,
+  you can use the `_` variable to save having to type the object's name every
+  time.
+    - DO NOT use `with`, see
+      [`with` considered harmful](http://crockford.com/with.html).
+* The sugar saves typing when creating idiomatic prototypal JS classes,
+  including setting `_` so you can assign methods and fields to the prototype.
+
+`baseclasses.js` defines abstract base classes for the JS objects that make up
+the virtual math DOM tree:
+
 * The math DOM has two kinds of nodes: commands and blocks
     - blocks, like the root block, can contain any number of commands
     - commands, like `x`, `1`, `+`, `\frac`, `\sqrt` (clearly siblings in the
@@ -98,7 +108,7 @@ make up the virtual math DOM tree:
     - `prev` and `next` seemed like a good idea at the time, they match
       `Cursor`, but `first` and `last` instead are under consideration
 
-`cursor.js` defines the constructor and prototypes for the visible blinking
+`cursor.js` defines the "singleton" classes for the visible blinking
 cursor and highlighted selection. They are not part of the tree but have
 access and point to elements in it to keep track of their location:
 
@@ -125,17 +135,16 @@ access and point to elements in it to keep track of their location:
   has some complicated but very effective logic documented in the Wiki page
   "Keyboard Events".
 
-`symbols.js` defines constructors and prototypes for all the symbols like `&`
-and `\partial`, and adds the constructors to `CharCmds` or `LatexCmds` as
-used by `Cursor::write()`.
+`symbols.js` defines classes for all the symbols like `&` and `\partial`, and
+adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
 
-`commands.js` defines the constructors and prototypes for all the  commands
-like `\frac` and `/`, and adds the constructors to `CharCmds` or `LatexCmds`.
+`commands.js` defines classes for all the  commands like `\frac` and `/`, and
+adds the constructors to `CharCmds` or `LatexCmds`.
 
 `publicapi.js` defines the public `jQuery::mathquill()` method and on document
 ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
 
-`intro.js` and `outro.js` are just boilerplate.
+`outro.js` is just closing boilerplate to match that in `intro.js`.
 
 ## Open-Source License
 
