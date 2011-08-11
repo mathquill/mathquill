@@ -157,7 +157,7 @@ _.html_template = [
   '<span class="denominator"></span>'
 ];
 _.createBlocks = function() {
-  MathCommand.prototype.createBlocks.call(this);
+  this._createBlocks();
   this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
 };
 _.text_template = ['(', '/', ')'];
@@ -573,7 +573,7 @@ _.cmd = '\\binom';
 _.html_template =
   ['<span class="block"></span>', '<span></span>', '<span></span>'];
 _.createBlocks = function() {
-  MathCommand.prototype.createBlocks.call(this);
+  this._createBlocks();
   this.jQ.wrapInner('<span class="array"></span>');
   this.blockjQ = this.jQ.children();
   this.bracketjQs =

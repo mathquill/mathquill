@@ -48,7 +48,7 @@ _ = MathCommand.prototype = new MathElement;
 _.replaces = function(replacedFragment) {
   this.replacedFragment = replacedFragment;
 };
-_.createBlocks = function() {
+_.createBlocks = _._createBlocks = function() {
   var self = this, replacedFragment = self.replacedFragment;
   //single-block commands
   if (self.html_template.length === 1) {
