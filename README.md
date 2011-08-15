@@ -137,6 +137,9 @@ ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
 
 `intro.js` and `outro.js` are just boilerplate.
 
+See [the EtherPad for MathQuill on sync.in](http://sync.in/mathquill) for
+the current active development discussion.
+
 ## Open-Source License
 
 [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
