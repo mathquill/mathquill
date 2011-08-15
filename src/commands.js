@@ -155,7 +155,7 @@ _.html_template = [
   '<span class="denominator"></span>'
 ];
 _.createBlocks = function() {
-  MathCommand.prototype.createBlocks.call(this);
+  this._createBlocks();
   this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
 };
 _.text_template = ['(', '/', ')'];
@@ -163,9 +163,9 @@ _.text_template = ['(', '/', ')'];
 LatexCmds.frac = LatexCmds.dfrac = LatexCmds.cfrac = LatexCmds.fraction = Fraction;
 
 var LiveFraction = _subclass(Fraction);
-_.placeCursor = function(cursor) { //TODO: better architecture so this can be done more cleanly, highjacking MathCommand::placeCursor doesn't seem like the right place to do this
-  if (this.firstChild.isEmpty()) {
-    var prev = this.prev;
+_.createBefore = function(cursor) {
+  if (!this.replacedFragment) {
+    var prev = cursor.prev;
     while (prev &&
       !(
         prev instanceof BinaryOperator ||
@@ -181,15 +181,12 @@ _.placeCursor = function(cursor) { //TODO: better architecture so this can be do
         prev = prev.next;
     }
 
-    if (prev !== this.prev) { //FIXME: major Law of Demeter violation, shouldn't know here that MathCommand::createBlocks does some initialization that MathFragment::blockify doesn't
-      var newBlock = new MathFragment(prev.next || this.parent.firstChild, this.prev).blockify();
-      newBlock.jQ = this.firstChild.jQ.empty().removeClass('empty').append(newBlock.jQ).data(jQueryDataKey, { block: newBlock });
-      newBlock.next = this.lastChild;
-      newBlock.parent = this;
-      this.firstChild = this.lastChild.prev = newBlock;
+    if (prev !== cursor.prev) {
+      this.replaces(new MathFragment(prev.next || this.parent.firstChild, this.prev).detach());
+      cursor.prev = prev;
     }
   }
-  cursor.appendTo(this.lastChild);
+  this._createBefore(cursor);
 };
 
 LatexCmds.over = CharCmds['/'] = LiveFraction;
@@ -263,13 +260,17 @@ LatexCmds.langle = LatexCmds.lang = proto(Bracket, function() {
 
 // Closing bracket matching opening bracket above
 var CloseBracket = _subclass(Bracket);
-_.placeCursor = function(cursor) {
-  //if I'm at the end of my parent who is a matching open-paren, and I was not passed
-  //  a selection fragment, get rid of me and put cursor after my parent
-  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
-    cursor.backspace().insertAfter(this.parent.parent);
+_.createBefore = function(cursor) {
+  //if I'm at the end of my parent who is a matching open-paren, and I am not
+  //replacing a selection fragment, don't create me, just put cursor after my parent
+  if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
+    cursor.insertAfter(cursor.parent.parent);
   else
-    this.firstChild.blur();
+    this._createBefore(cursor);
+};
+_.placeCursor = function(cursor) {
+  this.firstChild.blur();
+  cursor.insertAfter(this);
 };
 
 LatexCmds.rbrace = CharCmds['}'] = proto(CloseBracket, function() {
@@ -304,12 +305,7 @@ LatexCmds.rbrack = LatexCmds.rbracket = CharCmds[']'] = proto(CloseParen, functi
 var Pipes = _class(new Paren, function() {
   Paren.call(this, '|', '|');
 });
-_.placeCursor = function(cursor) {
-  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
-    cursor.backspace().insertAfter(this.parent.parent);
-  else
-    cursor.appendTo(this.firstChild);
-};
+_.createBefore = CloseBracket.prototype.createBefore;
 
 LatexCmds.lpipe = LatexCmds.rpipe = CharCmds['|'] = Pipes;
 
@@ -331,8 +327,8 @@ _.createBlocks = function() { //FIXME: another possible Law of Demeter violation
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
 };
-_.placeCursor = function(cursor) { //TODO: this should be done in the constructor that's passed replacedFragment, but you need the cursor to create new characters and insert them
-  (this.cursor = cursor).appendTo(this.firstChild);
+_.createBefore = function(cursor) {
+  this._createBefore(this.cursor = cursor);
 
   if (this.replacedText)
     for (var i = 0; i < this.replacedText.length; i += 1)
@@ -481,7 +477,8 @@ _.replaces = function(replacedFragment) {
 };
 _.html_template = ['<span class="latex-command-input">\\</span>'];
 _.text_template = ['\\'];
-_.placeCursor = function(cursor) { //TODO: better architecture, better place for this to be done, and more cleanly
+_.createBefore = function(cursor) {
+  this._createBefore(cursor);
   this.cursor = cursor.appendTo(this.firstChild);
   if (this._replacedFragment) {
     var el = this.jQ[0];
@@ -553,7 +550,7 @@ _.cmd = '\\binom';
 _.html_template =
   ['<span class="block"></span>', '<span></span>', '<span></span>'];
 _.createBlocks = function() {
-  MathCommand.prototype.createBlocks.call(this);
+  this._createBlocks();
   this.jQ.wrapInner('<span class="array"></span>');
   this.blockjQ = this.jQ.children();
   this.bracketjQs =
@@ -565,7 +562,7 @@ _.redraw = Bracket.prototype.redraw;
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
 var Choose = _subclass(Binomial);
-_.placeCursor = LiveFraction.prototype.placeCursor;
+_.createBefore = LiveFraction.prototype.createBefore;
 
 LatexCmds.choose = Choose;
 
@@ -584,8 +581,8 @@ _.text = function() {
     return text;
   }).join() + ']';
 }
-_.placeCursor = function(cursor) {
-  this.cursor = cursor.appendTo(this.firstChild);
+_.createBefore = function(cursor) {
+  this._createBefore(this.cursor = cursor);
 };
 _.keydown = function(e) {
   var currentBlock = this.cursor.parent;
@@ -678,7 +675,7 @@ this.createBlocks = function() {
   RootMathCommand.prototype.createBlocks.call(this);
   createRoot(this.jQ, this.firstChild, false, true);
   var cursor;
-  this.placeCursor = function(c) { cursor = c.appendTo(this.firstChild); };
+  this.createBefore = function(c){ this._createBefore(cursor = c); };
   this.firstChild.blur = function() {
     if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
     delete this.blur;

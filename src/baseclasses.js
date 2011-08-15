@@ -46,7 +46,7 @@ var MathCommand = _class(new MathElement, function(cmd, html_template, text_temp
 _.replaces = function(replacedFragment) {
   this.replacedFragment = replacedFragment;
 };
-_.createBlocks = function() {
+_.createBlocks = _._createBlocks = function() {
   var self = this, replacedFragment = self.replacedFragment;
   //single-block commands
   if (self.html_template.length === 1) {
@@ -124,7 +124,7 @@ _.insertAt = function(parent, prev, next) {
 
   return cmd;
 };
-_.createBefore = function(cursor) {
+_.createBefore = _._createBefore = function(cursor) {
   var cmd = this;
 
   cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
