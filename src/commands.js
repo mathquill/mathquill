@@ -671,19 +671,19 @@ LatexCmds.vector = Vector;
 
 LatexCmds.editable = proto(RootMathCommand, function() {
   MathCommand.call(this, '\\editable');
-this.createBlocks = function() {
-  RootMathCommand.prototype.createBlocks.call(this);
-  createRoot(this.jQ, this.firstChild, false, true);
   var cursor;
   this.createBefore = function(c){ this._createBefore(cursor = c); };
-  this.firstChild.blur = function() {
-    if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
-    delete this.blur;
-    this.cursor.appendTo(this);
-    MathBlock.prototype.blur.call(this);
+  this.createBlocks = function() {
+    RootMathCommand.prototype.createBlocks.call(this);
+    createRoot(this.jQ, this.firstChild, false, true);
+    this.firstChild.blur = function() {
+      if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
+      delete this.blur;
+      this.cursor.appendTo(this);
+      MathBlock.prototype.blur.call(this);
+    };
+    this.latex = function(){ return this.firstChild.latex(); };
+    this.text = function(){ return this.firstChild.text(); };
   };
-  this.latex = function(){ return this.firstChild.latex(); };
-  this.text = function(){ return this.firstChild.text(); };
-};
 });
 
