@@ -259,7 +259,6 @@
   padding-top: .075em;
 }
 .mathquill-rendered-math .numerator {
-  border-bottom: 1px solid; /* black is too black, contrasts with antialised text */
   padding-left: .1em;
   padding-right: .1em;
 }
@@ -274,7 +273,6 @@
   vertical-align: -.4em;
 }
 .mathquill-rendered-math sup .numerator, .mathquill-rendered-math sub .numerator {
-  border-bottom: none;
   padding-bottom: 0;
 }
 .mathquill-rendered-math sup .denominator, .mathquill-rendered-math sub .denominator {
