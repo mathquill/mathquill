@@ -12,7 +12,7 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root) {
   this.parent = this.root = root;
-  var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
+  var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }

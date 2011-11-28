@@ -19,6 +19,7 @@
 
 .mathquill-editable,
 .mathquill-rendered-math,
+.mathquill-rendered-math .cursor,
 .mathquill-rendered-math .underline,
 .mathquill-rendered-math .overline,
 .mathquill-rendered-math .font,
