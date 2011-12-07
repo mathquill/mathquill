@@ -182,7 +182,7 @@ _.createBefore = function(cursor) {
     }
 
     if (prev !== cursor.prev) {
-      this.replaces(new MathFragment(prev.next || this.parent.firstChild, this.prev).detach());
+      this.replaces(new MathFragment(prev.next || cursor.parent.firstChild, cursor.prev).detach());
       cursor.prev = prev;
     }
   }
