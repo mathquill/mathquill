@@ -286,8 +286,8 @@ _.placeCursor = function(cursor) {
   if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else {
-    this.redraw();
     this.firstChild.blur();
+    this.redraw();
   }
 };
 
