@@ -96,8 +96,8 @@ _.redraw = function() {
 _.respace = function() {
   if (
     this.prev.cmd === '\\int ' || (
-      this.prev instanceof SupSub && this.prev.cmd != this.cmd &&
-      this.prev.prev && this.prev.prev.cmd === '\\int '
+      this.prev instanceof SupSub && this.prev.cmd != this.cmd
+      && this.prev.prev && this.prev.prev.cmd === '\\int '
     )
   ) {
     if (!this.limit) {
@@ -112,7 +112,8 @@ _.respace = function() {
     }
   }
 
-  if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
+  this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced;
+  if (this.respaced) {
     var fontSize = +this.jQ.css('fontSize').slice(0,-2),
       prevWidth = this.prev.jQ.outerWidth()
       thisWidth = this.jQ.outerWidth();
