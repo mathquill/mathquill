@@ -87,11 +87,17 @@ _.latex = function() {
     return this.cmd + '{' + (latex || ' ') + '}';
 };
 _.redraw = function() {
-  this.respace();
-  if (this.next)
-    this.next.respace();
   if (this.prev)
     this.prev.respace();
+  //SupSub::respace recursively calls respace on all the following SupSubs
+  //so if prev is a SupSub, no need to call respace on this or following nodes
+  if (!(this.prev instanceof SupSub)) {
+    this.respace();
+    //and if next is a SupSub, then this.respace() will have already called
+    //this.next.respace()
+    if (this.next && !(this.next instanceof SupSub))
+      this.next.respace();
+  }
 };
 _.respace = function() {
   if (
@@ -135,6 +141,9 @@ _.respace = function() {
       marginRight: ''
     });
   }
+
+  if (this.next instanceof SupSub)
+    this.next.respace();
 
   return this;
 };
