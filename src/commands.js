@@ -555,7 +555,8 @@ _.renderCommand = function() {
 
   var latex = this.firstChild.latex(), cmd;
   if (latex) {
-    if (cmd = LatexCmds[latex])
+    cmd = LatexCmds[latex];
+    if (cmd)
       cmd = new cmd(this.replacedFragment, latex);
     else {
       cmd = new TextBlock(latex);
