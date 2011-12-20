@@ -2,7 +2,7 @@
  * Symbols and Special Characters
  *********************************/
 
-LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
+LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span></span>');
 
 function Variable(ch, html) {
   Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
