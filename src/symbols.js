@@ -161,7 +161,7 @@ _.respace = function() {
   return this;
 };
 
-LatexCmds['+'] = bind(PlusMinus, '+');
+LatexCmds['+'] = bind(PlusMinus, '+', '+');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
 LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;');
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
