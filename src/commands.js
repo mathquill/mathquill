@@ -35,11 +35,13 @@ if (transformPropName) {
     jQ.css(transformPropName, 'scale('+x+','+y+')');
   };
 }
-else if ('filter' in div_style) {
-  scale = function(jQ, x, y) {
-    jQ.css('filter', 'progid:DXImageTransform.Microsoft'
-      + '.Matrix(M11='+x+',M22='+y+',SizingMethod=\'auto expand\')'
-    );
+else if ('filter' in div_style) { //IE 6 & 7 fallback
+  scale = function(jQ, x, y) { //NOTE: assumes y > x
+    jQ.addClass('matrixed').css({
+      fontSize: y + 'em',
+      filter: 'progid:DXImageTransform.Microsoft'
+        + '.Matrix(M11=' + (x/y) + ",SizingMethod='auto expand')"
+    });
   };
 }
 else {
