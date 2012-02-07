@@ -64,8 +64,8 @@ if [ "$1" == "publish" ]; then
   else
     git commit -am "publish detached $COMMIT"
   fi
-  echo "git push"
-  git push
+  echo "git push origin gh-pages"
+  git push origin gh-pages
   git checkout -
   if [ "$STASH" != "No local changes to save" ]; then
     git stash pop
