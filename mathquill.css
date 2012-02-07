@@ -55,13 +55,7 @@
 }
 .mathquill-editable .textarea textarea, .mathquill-rendered-math .textarea textarea, .mathquill-rendered-math .selectable {
   position: absolute;
-  z-index: -1;
-  height: 1px;
-  width: 1px;
-  opacity: 0;
-  border: none;
-  outline: none;
-  overflow: hidden;
+  clip: rect(1em 1em 1em 1em); /* the only way to hide the textarea *and the blinking insertion point* in IE */
   user-select: text;
   -moz-user-select: text;
   -webkit-user-select: text;
