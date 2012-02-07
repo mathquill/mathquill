@@ -35,12 +35,23 @@ if (transformPropName) {
     jQ.css(transformPropName, 'scale('+x+','+y+')');
   };
 }
-else if ('filter' in div_style) { //IE 6 & 7 fallback
+else if ('filter' in div_style) { //IE 6, 7, & 8 fallback
   scale = function(jQ, x, y) { //NOTE: assumes y > x
+    x /= (1+(y-1)/2);
     jQ.addClass('matrixed').css({
       fontSize: y + 'em',
+      marginTop: '-.1em',
       filter: 'progid:DXImageTransform.Microsoft'
-        + '.Matrix(M11=' + (x/y) + ",SizingMethod='auto expand')"
+        + '.Matrix(M11=' + x + ",SizingMethod='auto expand')"
+    });
+    function calculateMarginRight() {
+      jQ.css('marginRight', (1+jQ.width())*(x-1)/x + 'px');
+    }
+    calculateMarginRight();
+    var intervalId = setInterval(calculateMarginRight);
+    $(window).load(function() {
+      clearTimeout(intervalId);
+      calculateMarginRight();
     });
   };
 }
