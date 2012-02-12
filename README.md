@@ -7,8 +7,11 @@ are all over the place.
 
 ## Usage
 
-(Note: Requires [jQuery 1.4.3+](http://jquery.com).
-[Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
+Requirements:
+
+* [jQuery](http://jquery.com) 1.4.3 or later,
+  [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended
+* HTML 4.01 Strict Doctype or later, HTML5 Doctype `<!DOCTYPE html>` recommended
 
 To use MathQuill on your website you need to serve
 
