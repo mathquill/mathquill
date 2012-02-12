@@ -196,9 +196,6 @@ function createRoot(jQ, root, textbox, editable) {
     if (textareaSelectionTimeout !== undefined)
       clearTimeout(textareaSelectionTimeout);
 
-    if (cursor.selection || textareaSelectionTimeout !== undefined)
-      textarea.val('');
-
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
     skipTextInput = false;
