@@ -16,7 +16,7 @@ To use MathQuill on your website you need to serve
 * [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
-* [the script](http://mathquill.github.com/mathquill.js)
+* [the script](http://mathquill.github.com/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill.js))
 
 then on your webpages include the stylesheet
 
@@ -24,7 +24,7 @@ then on your webpages include the stylesheet
 
 and after [jQuery](http://jquery.com), the script
 
-    <script src="/path/to/mathquill.js"></script>
+    <script src="/path/to/mathquill.min.js"></script>
 
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
