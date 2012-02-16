@@ -566,27 +566,15 @@ _.renderCommand = function() {
   else
     this.cursor.appendTo(this.parent);
 
-  var latex = this.firstChild.latex(), cmd;
-  if (latex) {
-    cmd = LatexCmds[latex];
-    if (cmd)
-      cmd = new cmd(this.replacedFragment, latex);
-    else {
-      cmd = new TextBlock(latex);
-      cmd.firstChild.focus = function(){ delete this.focus; return this; };
-      this.cursor.insertNew(cmd).insertAfter(cmd);
-      if (this.replacedFragment)
-        this.replacedFragment.remove();
-
-      return;
-    }
+  var latex = this.firstChild.latex();
+  if (latex)
+    this.cursor.insertCmd(latex, this.replacedFragment);
+  else {
+    var cmd = new VanillaSymbol('\\backslash ','\\');
+    this.cursor.insertNew(cmd);
+    if (this.replacedFragment)
+      this.replacedFragment.remove();
   }
-  else
-    cmd = new VanillaSymbol('\\backslash ','\\');
-
-  this.cursor.insertNew(cmd);
-  if (cmd instanceof Symbol && this.replacedFragment)
-    this.replacedFragment.remove();
 };
 
 CharCmds['\\'] = LatexCommandInput;
