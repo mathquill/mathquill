@@ -61,6 +61,14 @@ Currently, MathQuill only supports a limited scripting API:
 
         $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
 
+* To write some LaTeX at the current cursor position:
+
+        someMathQuillifiedElement.mathquill('write','\\frac{d}{dx}')
+
+* To insert a LaTeX command at the current cursor position or with the current selection:
+
+        someMathQuillifiedElement.mathquill('cmd','\\sqrt')
+
 ## Understanding The Source Code
 
 All the CSS is in `mathquill.css`. Most of it's pretty straightforward, the
