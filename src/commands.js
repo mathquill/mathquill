@@ -74,6 +74,11 @@ function bind(cons) { //shorthand for binding arguments to constructor
   });
 }
 
+//because I miss the <font> tag
+//(that's a joke, I hate this, it's like actively *fighting*
+// separation of presentation and content and everything HTML and CSS
+// are about, but it's an intrinsic problem with WYSIWYG)
+//TODO: WYSIWYM?
 function Style(cmd, html_template, replacedFragment) {
   this.init(cmd, [ html_template ], undefined, replacedFragment);
 }
