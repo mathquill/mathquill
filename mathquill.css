@@ -98,6 +98,7 @@
 .mathquill-rendered-math .selection .sqrt-stem,
 .mathquill-rendered-math .selection .paren,
 .mathquill-rendered-math .selection .array,
+.mathquill-editable .selection .matrixed,
 .mathquill-rendered-math .selection .matrixed,
 .mathquill-rendered-math .selection .block {
   background: #B4D5FE;
@@ -118,6 +119,7 @@
 .mathquill-rendered-math .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection.blur .paren,
 .mathquill-rendered-math .selection.blur .array,
+.mathquill-editable .selection.blur .matrixed,
 .mathquill-rendered-math .selection.blur .matrixed,
 .mathquill-rendered-math .selection.blur .block {
   background: #D4D4D4;
@@ -137,6 +139,7 @@
 .mathquill-rendered-math .selection .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection .selection.blur .paren,
 .mathquill-rendered-math .selection .selection.blur .array,
+.mathquill-editable .selection .selection.blur .matrixed,
 .mathquill-rendered-math .selection .selection.blur .matrixed,
 .mathquill-rendered-math .selection .selection.blur .block {
   background: #ABF;
@@ -154,6 +157,7 @@
 .mathquill-rendered-math .selection.blur .selection.blur .sqrt-stem,
 .mathquill-rendered-math .selection.blur .selection.blur .paren,
 .mathquill-rendered-math .selection.blur .selection.blur .array,
+.mathquill-editable .selection.blur .selection.blur .matrixed,
 .mathquill-rendered-math .selection.blur .selection.blur .matrixed,
 .mathquill-rendered-math .selection.blur .selection.blur .block {
   background: #AAA;
