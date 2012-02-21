@@ -288,7 +288,7 @@ _.insertCmd = function(latexCmd, replacedFragment) {
       replacedFragment.remove();
   }
   else {
-    cmd = new TextBlock(latex);
+    cmd = new TextBlock(latexCmd);
     cmd.firstChild.focus = function(){ delete this.focus; return this; };
     this.insertNew(cmd).insertAfter(cmd);
     if (replacedFragment)
