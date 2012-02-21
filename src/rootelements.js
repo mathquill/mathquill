@@ -29,6 +29,7 @@ function createRoot(jQ, root, textbox, editable) {
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined)
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
+    forceIERedraw(jQ[0]);
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
