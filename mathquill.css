@@ -166,7 +166,6 @@
 
 .mathquill-editable, .mathquill-rendered-math {
   cursor: text;
-  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
 }
 .mathquill-rendered-math {
@@ -188,6 +187,7 @@
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
+  white-space: pre-wrap;
 }
 .mathquill-editable.hasCursor,
 .mathquill-rendered-math .latex-command-input.hasCursor {
