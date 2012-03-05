@@ -554,7 +554,7 @@ _.keydown = function(e) {
   return this.parent.keydown(e);
 };
 _.textInput = function(ch) {
-  if (ch.match(/[a-z]/i)) {
+  if (ch.match(/[a-z:]/i)) {
     this.cursor.deleteSelection();
     this.cursor.insertNew(new VanillaSymbol(ch));
     return;
