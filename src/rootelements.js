@@ -5,8 +5,9 @@
 function createRoot(jQ, root, textbox, editable) {
   var contents = jQ.contents().detach();
 
-  if (!textbox)
+  if (!textbox) {
     jQ.addClass('mathquill-rendered-math');
+  }
 
   root.jQ = jQ.data(jQueryDataKey, {
     block: root,
@@ -34,8 +35,9 @@ function createRoot(jQ, root, textbox, editable) {
         var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
         textarea.val(latex);
         if (latex) {
-          if (textarea[0].select)
+          if (textarea[0].select) {
             textarea[0].select();
+          }
           else if (document.selection) {
             var range = textarea[0].createTextRange();
             range.expand('textedit');
@@ -48,8 +50,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //prevent native selection except textarea
   jQ.bind('selectstart.mathquill', function(e) {
-    if (e.target !== textarea[0])
-      e.preventDefault();
+    if (e.target !== textarea[0]) e.preventDefault();
     e.stopPropagation();
   });
 
@@ -60,14 +61,16 @@ function createRoot(jQ, root, textbox, editable) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
       if (cursor.prev !== anticursor.prev
-          || cursor.parent !== anticursor.parent)
+          || cursor.parent !== anticursor.parent) {
         cursor.selectFrom(anticursor);
+      }
 
       return false;
     }
 
     function docmousemove(e) {
       delete e.target;
+
       return mousemove(e);
     }
 
@@ -75,10 +78,12 @@ function createRoot(jQ, root, textbox, editable) {
       anticursor = undefined;
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (editable)
+        if (editable) {
           cursor.show();
-        else
+        }
+        else {
           textareaSpan.detach();
+        }
       }
 
       // delete the mouse handlers now that we're not dragging anymore
@@ -91,8 +96,7 @@ function createRoot(jQ, root, textbox, editable) {
 
     anticursor = new MathFragment(cursor.parent, cursor.prev, cursor.next);
 
-    if (!editable)
-      jQ.prepend(textareaSpan);
+    if (!editable) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
     $(document).mousemove(docmousemove).mouseup(mouseup);
@@ -152,26 +156,37 @@ function createRoot(jQ, root, textbox, editable) {
   //clipboard event handling
   jQ.bind('cut', function(e) {
     setTextareaSelection();
-    if (cursor.selection)
-      setTimeout(function(){ cursor.deleteSelection(); cursor.redraw(); });
+
+    if (cursor.selection) {
+      setTimeout(function() {
+        cursor.deleteSelection();
+        cursor.redraw();
+      });
+    }
+
     e.stopPropagation();
-  }).bind('copy', function(e) {
+  })
+  .bind('copy', function(e) {
     setTextareaSelection();
     skipTextInput = true;
     e.stopPropagation();
-  }).bind('paste', function(e) {
+  })
+  .bind('paste', function(e) {
     skipTextInput = true;
     setTimeout(paste);
     e.stopPropagation();
   });
+
   function paste() {
     //FIXME HACK the parser in RootTextBlock needs to be moved to
     //Cursor::writeLatex or something so this'll work with MathQuill textboxes
     var latex = textarea.val();
-    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$')
+    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
       latex = latex.slice(1, -1);
-    else
+    }
+    else {
       latex = '\\text{' + latex + '}';
+    }
     cursor.writeLatex(latex).show();
     textarea.val('');
   }
