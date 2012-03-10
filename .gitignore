@@ -1,6 +1,4 @@
-.*.swp
-.*.swo
-.*.swn
-build/*
-.DS_Store
-tmp/*
+/build
+/tmp
+
+/node_modules
