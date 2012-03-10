@@ -44,9 +44,30 @@ $.fn.mathquill = function(cmd, latex) {
           block = data && data.block,
           cursor = block && block.cursor;
 
+        if (cursor)
+          cursor.writeLatex(latex).parent.blur();
+      });
+  case 'cmd':
+    if (arguments.length > 1)
+      return this.each(function() {
+        var data = $(this).data(jQueryDataKey),
+          block = data && data.block,
+          cursor = block && block.cursor;
+
         if (cursor) {
-          cursor.writeLatex(latex);
-          block.blur();
+          cursor.show();
+          if (/^\\[a-z]+$/i.test(latex)) {
+            if (cursor.selection) {
+              //gotta do cursor before cursor.selection is mutated by 'new cmd(cursor.selection)'
+              cursor.prev = cursor.selection.prev;
+              cursor.next = cursor.selection.next;
+            }
+            cursor.insertCmd(latex.slice(1), cursor.selection);
+            delete cursor.selection;
+          }
+          else
+            cursor.insertCh(latex);
+          cursor.hide().parent.blur();
         }
       });
   default:

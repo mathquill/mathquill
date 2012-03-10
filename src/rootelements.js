@@ -49,6 +49,7 @@ function createRoot(jQ, root, textbox, editable) {
         }
       });
     }
+    forceIERedraw(jQ[0]);
   };
 
   //prevent native selection except textarea
@@ -202,24 +203,30 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn = {}, skipTextInput = false;
+  var lastKeydn, lastKeydnHappened, lastKeypressWhich, skipTextInput = false;
   jQ.bind('keydown.mathquill', function(e) {
-    lastKeydn.evt = e;
-    lastKeydn.happened = true;
+    lastKeydn = e;
+    lastKeydnHappened = true;
     if (cursor.parent.keydown(e) === false)
       e.preventDefault();
   }).bind('keypress.mathquill', function(e) {
-    //on auto-repeated key events, keypress may get triggered but not keydown
-    if (lastKeydn.happened)
-      lastKeydn.happened = false;
-    else
-      cursor.parent.keydown(lastKeydn.evt);
+    if (lastKeydnHappened)
+      lastKeydnHappened = false;
+    else {
+      //there's two ways keypress might be triggered without a keydown happening first:
+      if (lastKeypressWhich !== e.which)
+        //all browsers do that if this textarea is given focus during the keydown of
+        //a different focusable element, i.e. by that element's keydown event handler.
+        //No way of knowing original keydown, so ignore this keypress
+        return;
+      else
+        //some browsers do that when auto-repeating key events, replay the keydown
+        cursor.parent.keydown(lastKeydn);
+    }
+    lastKeypressWhich = e.which;
 
     if (textareaSelectionTimeout !== undefined)
       clearTimeout(textareaSelectionTimeout);
-
-    if (cursor.selection || textareaSelectionTimeout !== undefined)
-      textarea.val('');
 
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea

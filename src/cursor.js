@@ -12,7 +12,7 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 function Cursor(root) {
   this.parent = this.root = root;
-  var jQ = this.jQ = this._jQ = $('<span class="cursor"></span>');
+  var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
   //closured for setInterval
   this.blink = function(){ jQ.toggleClass('blink'); }
@@ -277,6 +277,23 @@ _.insertCh = function(ch) {
 };
 _.insertNew = function(cmd) {
   cmd.insertAt(this);
+  return this;
+};
+_.insertCmd = function(latexCmd, replacedFragment) {
+  var cmd = LatexCmds[latexCmd];
+  if (cmd) {
+    cmd = new cmd(replacedFragment, latexCmd);
+    this.insertNew(cmd);
+    if (cmd instanceof Symbol && replacedFragment)
+      replacedFragment.remove();
+  }
+  else {
+    cmd = new TextBlock(latexCmd);
+    cmd.firstChild.focus = function(){ delete this.focus; return this; };
+    this.insertNew(cmd).insertAfter(cmd);
+    if (replacedFragment)
+      replacedFragment.remove();
+  }
   return this;
 };
 _.unwrapGramp = function() {
