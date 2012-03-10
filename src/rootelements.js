@@ -56,6 +56,36 @@ function createRoot(jQ, root, textbox, editable) {
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
   jQ.bind('mousedown.mathquill', function(e) {
+    function mousemove(e) {
+      cursor.seek($(e.target), e.pageX, e.pageY);
+
+      if (cursor.prev !== anticursor.prev
+          || cursor.parent !== anticursor.parent)
+        cursor.selectFrom(anticursor);
+
+      return false;
+    }
+
+    function docmousemove(e) {
+      delete e.target;
+      return mousemove(e);
+    }
+
+    function mouseup(e) {
+      anticursor = undefined;
+      cursor.blink = blink;
+      if (!cursor.selection) {
+        if (editable)
+          cursor.show();
+        else
+          textareaSpan.detach();
+      }
+
+      // delete the mouse handlers now that we're not dragging anymore
+      jQ.unbind('mousemove', mousemove);
+      $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+    }
+
     cursor.blink = $.noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
@@ -69,31 +99,6 @@ function createRoot(jQ, root, textbox, editable) {
 
     e.stopPropagation();
   });
-  function mousemove(e) {
-    cursor.seek($(e.target), e.pageX, e.pageY);
-
-    if (cursor.prev !== anticursor.prev
-        || cursor.parent !== anticursor.parent)
-      cursor.selectFrom(anticursor);
-
-    return false;
-  }
-  function docmousemove(e) {
-    delete e.target;
-    return mousemove(e);
-  }
-  function mouseup(e) {
-    anticursor = undefined;
-    cursor.blink = blink;
-    if (!cursor.selection) {
-      if (editable)
-        cursor.show();
-      else
-        textareaSpan.detach();
-    }
-    jQ.unbind('mousemove', mousemove);
-    $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
-  }
 
   if (!editable) {
     jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
