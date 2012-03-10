@@ -26,6 +26,9 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
+  /******
+   * TODO [Han]: Document this
+   */
   var textareaSelectionTimeout;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
@@ -68,7 +71,14 @@ function createRoot(jQ, root, textbox, editable) {
       return false;
     }
 
+    // docmousemove is attached to the document, so that
+    // selection still works when the mouse leaves the window.
     function docmousemove(e) {
+      // [Han]: i delete the target because of the way seek works.
+      // it will not move the mouse to the target, but will instead
+      // just seek those X and Y coordinates.  If there is a target,
+      // it will try to move the cursor to document, which will not work.
+      // cursor.seek needs to be refactored.
       delete e.target;
 
       return mousemove(e);
