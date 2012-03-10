@@ -27,21 +27,22 @@ function createRoot(jQ, root, textbox, editable) {
 
   var textareaSelectionTimeout;
   root.selectionChanged = function() {
-    if (textareaSelectionTimeout === undefined)
-      textareaSelectionTimeout = setTimeout(setTextareaSelection);
-  };
-  function setTextareaSelection() {
-    textareaSelectionTimeout = undefined;
-    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textarea.val(latex);
-    if (latex) {
-      if (textarea[0].select)
-        textarea[0].select();
-      else if (document.selection) {
-        var range = textarea[0].createTextRange();
-        range.expand('textedit');
-        range.select();
-      }
+    if (textareaSelectionTimeout === undefined) {
+      textareaSelectionTimeout = setTimeout(function() {
+        textareaSelectionTimeout = undefined;
+
+        var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+        textarea.val(latex);
+        if (latex) {
+          if (textarea[0].select)
+            textarea[0].select();
+          else if (document.selection) {
+            var range = textarea[0].createTextRange();
+            range.expand('textedit');
+            range.select();
+          }
+        }
+      });
     }
   };
 
