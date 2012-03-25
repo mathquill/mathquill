@@ -172,7 +172,6 @@ function createRoot(jQ, root, textbox, editable) {
   })
   .bind('copy', function(e) {
     setTextareaSelection();
-    skipTextInput = true;
     e.stopPropagation();
   })
   .bind('paste', function(e) {
@@ -230,7 +229,15 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   function textInput() {
-    if (skipTextInput) return;
+    if (skipTextInput || (
+      'selectionStart' in textarea[0]
+      && textarea[0].selectionStart !== textarea[0].selectionEnd
+    ) || (
+      document.selection
+      && document.selection.type === 'Text'
+      && document.selection.createRange
+      && document.selection.createRange().parentElement() === textarea[0]
+    )) return;
     var text = textarea.val();
     if (text) {
       textarea.val('');
