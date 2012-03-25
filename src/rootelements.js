@@ -232,11 +232,6 @@ function createRoot(jQ, root, textbox, editable) {
     if (skipTextInput || (
       'selectionStart' in textarea[0]
       && textarea[0].selectionStart !== textarea[0].selectionEnd
-    ) || (
-      document.selection
-      && document.selection.type === 'Text'
-      && document.selection.createRange
-      && document.selection.createRange().parentElement() === textarea[0]
     )) return;
     var text = textarea.val();
     if (text) {
