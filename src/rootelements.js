@@ -218,6 +218,8 @@ function createRoot(jQ, root, textbox, editable) {
     }
     lastKeypressWhich = e.which;
 
+    //make sure setTextareaSelection() doesn't happen before textInput(), where we
+    //check if any text was typed
     if (textareaSelectionTimeout !== undefined)
       clearTimeout(textareaSelectionTimeout);
 
