@@ -41,14 +41,7 @@ function createRoot(jQ, root, textbox, editable) {
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
     textarea.val(latex);
     if (latex) {
-      if (textarea[0].select) {
-        textarea[0].select();
-      }
-      else if (document.selection) {
-        var range = textarea[0].createTextRange();
-        range.expand('textedit');
-        range.select();
-      }
+      textarea[0].select();
     }
   }
 
