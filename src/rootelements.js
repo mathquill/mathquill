@@ -175,7 +175,7 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   })
   .bind('paste', function(e) {
-    skipTextInput = true;
+    pasting = true;
     setTimeout(paste);
     e.stopPropagation();
   });
@@ -192,10 +192,11 @@ function createRoot(jQ, root, textbox, editable) {
     }
     cursor.writeLatex(latex).show();
     textarea.val('');
+    pasting = false;
   }
 
   //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn, lastKeydnHappened, lastKeypressWhich, skipTextInput = false;
+  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting = false;
   jQ.bind('keydown.mathquill', function(e) {
     lastKeydn = e;
     lastKeydnHappened = true;
@@ -224,12 +225,11 @@ function createRoot(jQ, root, textbox, editable) {
 
     //after keypress event, trigger virtual textInput event if text was
     //input to textarea
-    skipTextInput = false;
     setTimeout(textInput);
   });
 
   function textInput() {
-    if (skipTextInput || (
+    if (pasting || (
       'selectionStart' in textarea[0]
       && textarea[0].selectionStart !== textarea[0].selectionEnd
     )) return;
