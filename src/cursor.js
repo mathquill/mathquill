@@ -173,11 +173,11 @@ _.seek = function(target, pageX, pageY) {
     cursor.appendTo(data.block);
 
   //move cursor to position closest to click
-  var dist = cursor.jQ.offset().left - pageX, prevDist;
+  var dist = cursor.offset().left - pageX, prevDist;
   do {
     cursor.moveLeft();
     prevDist = dist;
-    dist = cursor.jQ.offset().left - pageX;
+    dist = cursor.offset().left - pageX;
   }
   while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
 
@@ -185,6 +185,19 @@ _.seek = function(target, pageX, pageY) {
     cursor.moveRight();
 
   return cursor;
+};
+_.offset = function() {
+  //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
+  //returns all 0's on inline elements with negative margin-right (like
+  //the cursor) at the end of their parent, so temporarily remove the
+  //negative margin-right when calling jQuery::offset()
+  //Opera bug DSK-360043
+  //http://bugs.jquery.com/ticket/11523
+  //https://github.com/jquery/jquery/pull/717
+  var jQ = this.jQ.removeClass('cursor'),
+    offset = jQ.offset();
+  jQ.addClass('cursor');
+  return offset;
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
