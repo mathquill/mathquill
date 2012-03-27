@@ -189,7 +189,6 @@ _.seek = function(target, pageX, pageY) {
 _.writeLatex = function(latex) {
   this.deleteSelection();
   latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
-
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
@@ -201,16 +200,10 @@ _.writeLatex = function(latex) {
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
-      else if (
-        token === '\\left'
-        || token === '\\right'
-        || token === '('
-        || token === ')'
-        || token === '['
-        || token === ']'
-      ) { //FIXME HACK: implement real \left and \right LaTeX commands, rather than special casing them here
-        if (token.slice(0, 1) === '\\') token = latex.shift();
-        if (token === '\\') token = latex.shift();
+      else if (token === '\\left' || token === '\\right') { //FIXME HACK: implement real \left and \right LaTeX commands, rather than special casing them here
+        token = latex.shift();
+        if (token === '\\')
+          token = latex.shift();
 
         cursor.insertCh(token);
         cmd = cursor.prev || cursor.parent.parent;
