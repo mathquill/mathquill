@@ -260,7 +260,16 @@ _.text = function() {
 _.renderLatex = function(latex) {
   this.jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
+
+  // temporarily take the element out of the displayed DOM
+  // while we add stuff to it.
+  var placeholder = $('<span>');
+  this.jQ.replaceWith(placeholder);
   this.cursor.appendTo(this).writeLatex(latex);
+  placeholder.replaceWith(this.jQ);
+
+  // XXX HACK ALERT
+  this.jQ.mathquill('redraw');
   this.blur();
 };
 _.keydown = function(e)
