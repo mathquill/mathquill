@@ -2,17 +2,19 @@
  * Root math elements with event delegation.
  ********************************************/
 
-function createRoot(jQ, root, textbox, editable) {
-  var contents = jQ.contents().detach();
+function createRoot(container, root, textbox, editable) {
+  var contents = container.contents().detach();
 
   if (!textbox) {
-    jQ.addClass('mathquill-rendered-math');
+    container.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = jQ.data(jQueryDataKey, {
+  var jQ = root.jQ = $('<div>');
+
+  container.data(jQueryDataKey, {
     block: root,
     revert: function() {
-      jQ.empty().unbind('.mathquill')
+      container.empty().unbind('.mathquill')
         .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
         .append(contents);
     }
@@ -21,6 +23,8 @@ function createRoot(jQ, root, textbox, editable) {
   var cursor = root.cursor = new Cursor(root);
 
   root.renderLatex(contents.text());
+  jQ.appendTo(container);
+  container.mathquill('redraw');
 
   //textarea stuff
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
