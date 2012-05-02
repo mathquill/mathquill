@@ -255,15 +255,23 @@ _.text = function() {
   });
 };
 _.renderLatex = function(latex) {
-  this.jQ.children().slice(1).remove();
+  var jQ = this.jQ;
+
+  jQ.children().slice(1).remove();
   this.firstChild = this.lastChild = 0;
 
   // temporarily take the element out of the displayed DOM
-  // while we add stuff to it.
-  var placeholder = $('<span>');
-  this.jQ.replaceWith(placeholder);
+  // while we add stuff to it.  Grab the next element or the parent
+  // so we know where to put it back.
+  var next = jQ.next(),
+      parent = jQ.parent();
+
+  jQ.detach();
   this.cursor.appendTo(this).writeLatex(latex);
-  placeholder.replaceWith(this.jQ);
+
+  // Put. the element. back.
+  // if there's no next element, it's at the end of its parent
+  next.length ? next.before(jQ) : parent.append(jQ);
 
   // XXX HACK ALERT
   this.jQ.mathquill('redraw');
