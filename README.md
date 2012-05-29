@@ -1,6 +1,10 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+by [Han][] and [Jay][].  Current development is proudly supported by [Desmos][], whose awesome graphing calculator makes extensive use of Mathquill.
+
+[Han]: http://github.com/laughinghan
+[Jay]: http://github.com/jayferd
+[Desmos]: http://desmos.com/
 
 Please note that this is a beta version, so bugs and unimplemented features
 are all over the place.
