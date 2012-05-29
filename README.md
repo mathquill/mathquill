@@ -2,7 +2,7 @@
 
 by [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
 
-Please note that this is an alpha version, so bugs and unimplemented features
+Please note that this is a beta version, so bugs and unimplemented features
 are all over the place.
 
 ## Usage
