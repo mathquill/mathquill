@@ -19,6 +19,7 @@
 
 .mathquill-editable,
 .mathquill-rendered-math,
+.mathquill-rendered-math .cursor,
 .mathquill-rendered-math .underline,
 .mathquill-rendered-math .overline,
 .mathquill-rendered-math .font,
@@ -54,13 +55,7 @@
 }
 .mathquill-editable .textarea textarea, .mathquill-rendered-math .textarea textarea, .mathquill-rendered-math .selectable {
   position: absolute;
-  z-index: -1;
-  height: 1px;
-  width: 1px;
-  opacity: 0;
-  border: none;
-  outline: none;
-  overflow: hidden;
+  clip: rect(1em 1em 1em 1em); /* the only way to hide the textarea *and the blinking insertion point* in IE */
   user-select: text;
   -moz-user-select: text;
   -webkit-user-select: text;
@@ -86,32 +81,91 @@
   content: 'c';
 }
 
-.mathquill-editable .selection *,
-.mathquill-rendered-math .selection * {
+.mathquill-rendered-math .matrixed {
+  background: white;
+}
+
+.mathquill-editable .selection,
+.mathquill-rendered-math .selection,
+.mathquill-editable .selection .mathquill-rendered-math,
+.mathquill-rendered-math .selection .underline,
+.mathquill-rendered-math .selection .overline,
+.mathquill-rendered-math .selection .font,
+.mathquill-rendered-math .selection sup,
+.mathquill-rendered-math .selection sub,
+.mathquill-rendered-math .selection .fraction,
+.mathquill-rendered-math .selection .sqrt-prefix,
+.mathquill-rendered-math .selection .sqrt-stem,
+.mathquill-rendered-math .selection .paren,
+.mathquill-rendered-math .selection .array,
+.mathquill-editable .selection .matrixed,
+.mathquill-rendered-math .selection .matrixed,
+.mathquill-rendered-math .selection .block {
   background: #B4D5FE;
   background: Highlight;
   color: HighlightText;
   border-color: HighlightText;
 }
-.mathquill-editable .selection.blur *,
-.mathquill-rendered-math .selection.blur * {
+.mathquill-editable .selection.blur,
+.mathquill-rendered-math .selection.blur,
+.mathquill-editable .selection.blur .mathquill-rendered-math,
+.mathquill-rendered-math .selection.blur .underline,
+.mathquill-rendered-math .selection.blur .overline,
+.mathquill-rendered-math .selection.blur .font,
+.mathquill-rendered-math .selection.blur sup,
+.mathquill-rendered-math .selection.blur sub,
+.mathquill-rendered-math .selection.blur .fraction,
+.mathquill-rendered-math .selection.blur .sqrt-prefix,
+.mathquill-rendered-math .selection.blur .sqrt-stem,
+.mathquill-rendered-math .selection.blur .paren,
+.mathquill-rendered-math .selection.blur .array,
+.mathquill-editable .selection.blur .matrixed,
+.mathquill-rendered-math .selection.blur .matrixed,
+.mathquill-rendered-math .selection.blur .block {
   background: #D4D4D4;
   color: black;
   border-color: black;
 }
-.mathquill-editable .selection .selection.blur *,
-.mathquill-rendered-math .selection .selection.blur * {
+.mathquill-editable .selection .selection.blur,
+.mathquill-rendered-math .selection .selection.blur,
+.mathquill-editable .selection .selection.blur .mathquill-rendered-math,
+.mathquill-rendered-math .selection .selection.blur .underline,
+.mathquill-rendered-math .selection .selection.blur .overline,
+.mathquill-rendered-math .selection .selection.blur .font,
+.mathquill-rendered-math .selection .selection.blur sup,
+.mathquill-rendered-math .selection .selection.blur sub,
+.mathquill-rendered-math .selection .selection.blur .fraction,
+.mathquill-rendered-math .selection .selection.blur .sqrt-prefix,
+.mathquill-rendered-math .selection .selection.blur .sqrt-stem,
+.mathquill-rendered-math .selection .selection.blur .paren,
+.mathquill-rendered-math .selection .selection.blur .array,
+.mathquill-editable .selection .selection.blur .matrixed,
+.mathquill-rendered-math .selection .selection.blur .matrixed,
+.mathquill-rendered-math .selection .selection.blur .block {
   background: #ABF;
 }
-.mathquill-editable .selection.blur .selection.blur *,
-.mathquill-rendered-math .selection.blur .selection.blur * {
+.mathquill-editable .selection.blur .selection.blur,
+.mathquill-rendered-math .selection.blur .selection.blur,
+.mathquill-editable .selection.blur .selection.blur .mathquill-rendered-math,
+.mathquill-rendered-math .selection.blur .selection.blur .underline,
+.mathquill-rendered-math .selection.blur .selection.blur .overline,
+.mathquill-rendered-math .selection.blur .selection.blur .font,
+.mathquill-rendered-math .selection.blur .selection.blur sup,
+.mathquill-rendered-math .selection.blur .selection.blur sub,
+.mathquill-rendered-math .selection.blur .selection.blur .fraction,
+.mathquill-rendered-math .selection.blur .selection.blur .sqrt-prefix,
+.mathquill-rendered-math .selection.blur .selection.blur .sqrt-stem,
+.mathquill-rendered-math .selection.blur .selection.blur .paren,
+.mathquill-rendered-math .selection.blur .selection.blur .array,
+.mathquill-editable .selection.blur .selection.blur .matrixed,
+.mathquill-rendered-math .selection.blur .selection.blur .matrixed,
+.mathquill-rendered-math .selection.blur .selection.blur .block {
   background: #AAA;
   background: rgba(0, 0, 0, .15);
 }
 
 .mathquill-editable, .mathquill-rendered-math {
   cursor: text;
-  white-space: pre-wrap;
   font-family: Symbola, "Times New Roman", serif;
 }
 .mathquill-rendered-math {
@@ -133,6 +187,7 @@
   user-select: none;
   -moz-user-select: none;
   -webkit-user-select: none;
+  white-space: pre-wrap;
 }
 .mathquill-editable.hasCursor,
 .mathquill-rendered-math .latex-command-input.hasCursor {
@@ -153,15 +208,6 @@
 
 .mathquill-rendered-math .text {
   font-size: 87%;
-}
-
-.mathquill-rendered-math .overline {
-  border-top: 1px solid black;
-  margin-top: 1px;
-}
-.mathquill-rendered-math .underline {
-  border-bottom: 1px solid black;
-  margin-bottom: 1px;
 }
 
 .mathquill-rendered-math .font {
@@ -199,6 +245,15 @@
 
 .mathquill-rendered-math .monospace {
   font-family: monospace, Symbola, serif;
+}
+
+.mathquill-rendered-math .overline {
+  border-top: 1px solid black;
+  margin-top: 1px;
+}
+.mathquill-rendered-math .underline {
+  border-bottom: 1px solid black;
+  margin-bottom: 1px;
 }
 
 .mathquill-rendered-math sup, .mathquill-rendered-math sub {
@@ -259,7 +314,6 @@
   padding-top: .075em;
 }
 .mathquill-rendered-math .numerator {
-  border-bottom: 1px solid; /* black is too black, contrasts with antialised text */
   padding-left: .1em;
   padding-right: .1em;
 }
@@ -274,7 +328,6 @@
   vertical-align: -.4em;
 }
 .mathquill-rendered-math sup .numerator, .mathquill-rendered-math sub .numerator {
-  border-bottom: none;
   padding-bottom: 0;
 }
 .mathquill-rendered-math sup .denominator, .mathquill-rendered-math sub .denominator {
@@ -315,11 +368,11 @@
 .mathquill-rendered-math .paren {
   padding: 0 .1em;
   vertical-align: bottom;
-  -webkit-transform-origin: bottom left;
-  -moz-transform-origin: bottom left;
-  -ms-transform-origin: bottom left;
-  -o-transform-origin: bottom left;
-  transform-origin: bottom left;
+  -webkit-transform-origin: bottom center;
+  -moz-transform-origin: bottom center;
+  -ms-transform-origin: bottom center;
+  -o-transform-origin: bottom center;
+  transform-origin: bottom center;
 }
 
 .mathquill-rendered-math .array {

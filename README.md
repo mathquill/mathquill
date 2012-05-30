@@ -1,14 +1,18 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+by [Han][] and [Jay][].  Current development is proudly supported by [Desmos][], whose awesome graphing calculator makes extensive use of Mathquill.
 
-Please note that this is an alpha version, so bugs and unimplemented features
+[Han]: http://github.com/laughinghan
+[Jay]: http://github.com/jayferd
+[Desmos]: http://desmos.com/
+
+Please note that this is a beta version, so bugs and unimplemented features
 are all over the place.
 
 ## Usage
 
 (Note: Requires [jQuery 1.4.3+](http://jquery.com).
-[Google CDN-hosted copy](http://libraries.google.com) recommended.)
+[Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
 
 To use MathQuill on your website you need to serve
 
@@ -16,7 +20,7 @@ To use MathQuill on your website you need to serve
 * [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
-* [the script](http://mathquill.github.com/mathquill.js)
+* [the script](http://mathquill.github.com/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill.js))
 
 then on your webpages include the stylesheet
 
@@ -24,7 +28,7 @@ then on your webpages include the stylesheet
 
 and after [jQuery](http://jquery.com), the script
 
-    <script src="/path/to/mathquill.js"></script>
+    <script src="/path/to/mathquill.min.js"></script>
 
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
@@ -55,11 +59,19 @@ Currently, MathQuill only supports a limited scripting API:
 
 * To access the LaTeX contents of a mathquill-ified element:
 
-    $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
+        $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
 
 * To render some LaTeX in a mathquill-ified element:
 
-    $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
+        $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
+
+* To write some LaTeX at the current cursor position:
+
+        someMathQuillifiedElement.mathquill('write','\\frac{d}{dx}')
+
+* To insert a LaTeX command at the current cursor position or with the current selection:
+
+        someMathQuillifiedElement.mathquill('cmd','\\sqrt')
 
 ## Understanding The Source Code
 
@@ -145,6 +157,9 @@ adds the constructors to `CharCmds` or `LatexCmds`.
 ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
 
 `outro.js` is just closing boilerplate to match that in `intro.js`.
+
+See [the EtherPad for MathQuill on sync.in](http://sync.in/mathquill) for
+the current active development discussion.
 
 ## Open-Source License
 

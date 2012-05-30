@@ -12,6 +12,7 @@ var scale, // = function(jQ, x, y) { ... }
 //ideas from http://github.com/louisremi/jquery.transform.js
 //see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
 
+  forceIERedraw = $.noop,
   div = document.createElement('div'),
   div_style = div.style,
   transformPropNames = {
@@ -35,11 +36,25 @@ if (transformPropName) {
     jQ.css(transformPropName, 'scale('+x+','+y+')');
   };
 }
-else if ('filter' in div_style) {
-  scale = function(jQ, x, y) {
-    jQ.css('filter', 'progid:DXImageTransform.Microsoft'
-      + '.Matrix(M11='+x+',M22='+y+',SizingMethod=\'auto expand\')'
-    );
+else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.com/laughinghan/mathquill/wiki/Transforms
+  forceIERedraw = function(el){ el.className = el.className; };
+  scale = function(jQ, x, y) { //NOTE: assumes y > x
+    x /= (1+(y-1)/2);
+    jQ.addClass('matrixed').css({
+      fontSize: y + 'em',
+      marginTop: '-.1em',
+      filter: 'progid:DXImageTransform.Microsoft'
+        + '.Matrix(M11=' + x + ",SizingMethod='auto expand')"
+    });
+    function calculateMarginRight() {
+      jQ.css('marginRight', (1+jQ.width())*(x-1)/x + 'px');
+    }
+    calculateMarginRight();
+    var intervalId = setInterval(calculateMarginRight);
+    $(window).load(function() {
+      clearTimeout(intervalId);
+      calculateMarginRight();
+    });
   };
 }
 else {
@@ -86,17 +101,23 @@ _.latex = function() {
     return this.cmd + '{' + (latex || ' ') + '}';
 };
 _.redraw = function() {
-  this.respace();
-  if (this.next)
-    this.next.respace();
   if (this.prev)
     this.prev.respace();
+  //SupSub::respace recursively calls respace on all the following SupSubs
+  //so if prev is a SupSub, no need to call respace on this or following nodes
+  if (!(this.prev instanceof SupSub)) {
+    this.respace();
+    //and if next is a SupSub, then this.respace() will have already called
+    //this.next.respace()
+    if (this.next && !(this.next instanceof SupSub))
+      this.next.respace();
+  }
 };
 _.respace = function() {
   if (
     this.prev.cmd === '\\int ' || (
-      this.prev instanceof SupSub && this.prev.cmd != this.cmd &&
-      this.prev.prev && this.prev.prev.cmd === '\\int '
+      this.prev instanceof SupSub && this.prev.cmd != this.cmd
+      && this.prev.prev && this.prev.prev.cmd === '\\int '
     )
   ) {
     if (!this.limit) {
@@ -111,7 +132,8 @@ _.respace = function() {
     }
   }
 
-  if (this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced) {
+  this.respaced = this.prev instanceof SupSub && this.prev.cmd != this.cmd && !this.prev.respaced;
+  if (this.respaced) {
     var fontSize = +this.jQ.css('fontSize').slice(0,-2),
       prevWidth = this.prev.jQ.outerWidth()
       thisWidth = this.jQ.outerWidth();
@@ -133,6 +155,9 @@ _.respace = function() {
       marginRight: ''
     });
   }
+
+  if (this.next instanceof SupSub)
+    this.next.respace();
 
   return this;
 };
