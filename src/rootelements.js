@@ -239,9 +239,10 @@ function createRoot(jQ, root, textbox, editable) {
       for (var i = 0; i < text.length; i += 1) {
         cursor.parent.textInput(text.charAt(i));
       }
+      textareaSelectionTimeout = undefined;
     }
     else {
-      if (cursor.selection || textareaSelectionTimeout !== undefined)
+      if (textareaSelectionTimeout !== undefined)
         setTextareaSelection();
     }
   }
