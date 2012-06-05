@@ -316,12 +316,13 @@
 }
 .mathquill-rendered-math .numerator {
   padding: 0 .1em;
+  margin-bottom: -.1em;
 }
 .mathquill-rendered-math .denominator {
   border-top: 1px solid;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
-  padding: 0 .1em;
+  padding: .1em .1em 0 .1em;
   margin-right: -.1em;
 }
 
