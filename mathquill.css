@@ -315,8 +315,7 @@
   display: block;
 }
 .mathquill-rendered-math .numerator {
-  padding-left: .1em;
-  padding-right: .1em;
+  padding: 0 .1em;
 }
 .mathquill-rendered-math .denominator {
   border-top: 1px solid;
