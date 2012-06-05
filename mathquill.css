@@ -321,6 +321,8 @@
   border-top: 1px solid;
   float: right; /* take out of normal flow to manipulate baseline */
   width: 100%;
+  padding: 0 .1em;
+  margin-right: -.1em;
 }
 
 .mathquill-rendered-math sup .fraction, .mathquill-rendered-math sub .fraction {
