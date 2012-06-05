@@ -33,7 +33,6 @@
 .mathquill-rendered-math .block {
   display: -moz-inline-box;
   display: inline-block;
-  padding-top: .075em;
 }
 .mathquill-editable, .mathquill-embedded-latex .mathquill-editable {
   border: 1px solid gray;
@@ -178,6 +177,7 @@
 }
 .mathquill-rendered-math var, .mathquill-rendered-math .text, .mathquill-rendered-math .nonSymbola {
   font-family: "Times New Roman", Symbola, serif;
+  line-height: .9;
 }
 .mathquill-rendered-math * {
   font-size: inherit;
@@ -213,6 +213,7 @@
 
 .mathquill-rendered-math .font {
   font: 1em "Times New Roman", Symbola, serif;
+  line-height: .9;
 }
 .mathquill-rendered-math .font * {
   font-family: inherit;
@@ -312,7 +313,6 @@
 }
 .mathquill-rendered-math .numerator, .mathquill-rendered-math .denominator {
   display: block;
-  padding-top: .075em;
 }
 .mathquill-rendered-math .numerator {
   padding-left: .1em;
@@ -386,6 +386,9 @@
 }
 
 .mathquill-rendered-math .non-italicized-function {
+  font-family: Symbola, "Times New Roman", serif;
+  line-height: .9;
+  font-style: normal;
   padding-right: .2em;
 }
 
