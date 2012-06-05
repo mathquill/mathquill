@@ -66,6 +66,7 @@
   margin-right: -1px;
   position: relative;
   z-index: 1;
+  padding: 0;
 }
 .mathquill-editable .cursor.blink {
   visibility: hidden;
