@@ -15,9 +15,13 @@ SOURCES = \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/publicapi.js
 
+UNIT_TESTS = ./test/unit/*.test.js
+TEST_INTRO = ./test/unit/intro.js
+
 # outputs
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
+BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
 CLEAN += $(BUILD_DIR)
 
@@ -43,6 +47,16 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) $< > $@
+
+#
+# -*- Test tasks -*-
+#
+.PHONY: test
+test: $(BUILD_TEST)
+	@echo "now open test/test.html in your browser to run the tests." >&2
+
+$(BUILD_TEST): $(INTRO) $(SOURCES) $(TEST_INTRO) $(UNIT_TESTS) $(OUTRO)
+	cat $^ > $@
 
 #
 # -*- Publishing tasks -*-

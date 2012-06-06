@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <!-- allow fancy checkmarks to show up -->
+    <meta charset="UTF-8">
+
+    <!--
+    TODO:
+    it'd be nice to have these local for non-internet-connected testing
+    -->
+
+    <!-- better living through jQuery -->
+    <script type="text/javascript" src="support/jquery-1.7.2.min.js"></script>
+
+    <!-- mocha test framework -->
+    <script type="text/javascript" src="support/mocha/mocha.js"></script>
+    <link rel="stylesheet" type="text/css" href="support/mocha/mocha.css" />
+
+    <!-- chai for assertions -->
+    <script src="support/chai/chai.js" type="text/javascript"></script>
+
+    <!-- include the library with the tests inlined -->
+    <script id="mathquill" type="text/javascript" src="../build/mathquill.test.js"
+      onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')">
+    </script>
+
+  </head>
+
+  <body>
+    <h1>Unit Tests</h1>
+    <div id="mocha">
+    </div>
+
+    <script type="text/javascript"> mocha.run(); </script>
+  </body>
+</html>
