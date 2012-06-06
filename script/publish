@@ -1,0 +1,23 @@
+#!/bin/bash
+
+STASH="$(git stash)"
+echo "$STASH"
+BRANCH="$(git status | head -1)"
+COMMIT="$(git show -s --oneline)"
+git checkout gh-pages
+echo "git pull origin gh-pages"
+git pull origin gh-pages
+cp build/* .
+rm build/mathquill.css
+if [ "$BRANCH" != "# Not currently on any branch" ]; then
+  BRANCH="$(echo "$BRANCH" | cut -d ' ' -f 4)"
+  git commit -am "publish latest $BRANCH $COMMIT"
+else
+  git commit -am "publish detached $COMMIT"
+fi
+echo "git push"
+git push
+git checkout -
+if [ "$STASH" != "No local changes to save" ]; then
+  git stash pop
+fi

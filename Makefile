@@ -7,8 +7,12 @@ HEAD:
 
 cat: build/mathquill.js
 
-publish:
-	./build.sh publish
-
 build/mathquill.js: src/*.js
 	./build.sh cat
+
+#
+# -*- Publishing tasks -*-
+#
+.PHONY: publish
+publish:
+	./script/publish
