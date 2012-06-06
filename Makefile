@@ -53,7 +53,8 @@ $(UGLY_JS): $(BUILD_JS)
 #
 .PHONY: test
 test: $(BUILD_TEST)
-	@echo "now open test/test.html in your browser to run the tests." >&2
+	@echo
+	@echo "** now open test/test.html in your browser to run the tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(TEST_INTRO) $(UNIT_TESTS) $(OUTRO)
 	mkdir -p $(BUILD_DIR)
