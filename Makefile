@@ -15,12 +15,17 @@ SOURCES = \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/publicapi.js
 
+CSS_DIR = $(SRC_DIR)/css
+CSS_MAIN = $(CSS_DIR)/main.less
+CSS_SOURCES = $(CSS_DIR)/*.less
+
 UNIT_TESTS = ./test/unit/*.test.js
 TEST_INTRO = ./test/unit/intro.js
 
 # outputs
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
+BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
 CLEAN += $(BUILD_DIR)
@@ -29,15 +34,18 @@ CLEAN += $(BUILD_DIR)
 UGLIFY ?= uglifyjs
 UGLIFY_OPTS ?= --lift-vars
 
+LESSC ?= lessc
+LESS_OPTS ?=
 
 #
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify clean
-all: uglify
+.PHONY: all cat uglify css clean
+all: css uglify
 cat: $(BUILD_JS)
 uglify: $(UGLY_JS)
+css: $(BUILD_CSS)
 clean:
 	rm -rf $(CLEAN)
 
@@ -47,6 +55,10 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) $< > $@
+
+$(BUILD_CSS): $(CSS_SOURCES)
+	mkdir -p $(BUILD_DIR)
+	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
 #
 # -*- Test tasks -*-
