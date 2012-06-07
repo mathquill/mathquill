@@ -87,8 +87,8 @@ LatexCmds.mathbf = bind(Style, '\\mathbf', '<b class="font"></b>');
 LatexCmds.mathsf = bind(Style, '\\mathsf', '<span class="sans-serif font"></span>');
 LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', '<span class="underline"></span>');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="overline"></span>');
+LatexCmds.underline = bind(Style, '\\underline', '<span class="non-leaf underline"></span>');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="non-leaf overline"></span>');
 
 var SupSub = _class(new MathCommand, function(cmd, html, text) {
   MathCommand.call(this, cmd, [ html ], [ text ]);
@@ -163,19 +163,19 @@ _.respace = function() {
 };
 
 LatexCmds.subscript = LatexCmds._ = proto(SupSub, function() {
-  SupSub.call(this, '_', '<sub></sub>', '_');
+  SupSub.call(this, '_', '<sub class="non-leaf"></sub>', '_');
 });
 
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = proto(SupSub, function() {
-  SupSub.call(this, '^', '<sup></sup>', '**');
+  SupSub.call(this, '^', '<sup class="non-leaf"></sup>', '**');
 });
 
 var Fraction = _class(new MathCommand);
 _.cmd = '\\frac';
 _.html_template = [
-  '<span class="fraction"></span>',
+  '<span class="fraction non-leaf"></span>',
   '<span class="numerator"></span>',
   '<span class="denominator"></span>'
 ];
@@ -219,8 +219,8 @@ LatexCmds.over = CharCmds['/'] = LiveFraction;
 var SquareRoot = _class(new MathCommand);
 _.cmd = '\\sqrt';
 _.html_template = [
-  '<span class="block"><span class="sqrt-prefix">&radic;</span></span>',
-  '<span class="sqrt-stem"></span>'
+  '<span class="non-leaf"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
+  '<span class="non-leaf sqrt-stem"></span>'
 ];
 _.text_template = ['sqrt(', ')'];
 _.redraw = function() {
@@ -239,9 +239,9 @@ _.createBlocks = function() {
   this.jQ = this.firstChild.jQ.detach().add(this.jQ);
 };
 _.html_template = [
-  '<span class="block"><span class="sqrt-prefix">&radic;</span></span>',
-  '<sup class="nthroot"></sup>',
-  '<span class="sqrt-stem"></span>'
+  '<span class="non-leaf"><span class="sqrt-prefix non-leaf">&radic;</span></span>',
+  '<sup class="nthroot non-leaf"></sup>',
+  '<span class="sqrt-stem non-leaf"></span>'
 ];
 _.text_template = ['sqrt[', '](', ')'];
 _.latex = function() {
@@ -253,7 +253,7 @@ LatexCmds.nthroot = NthRoot;
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 var Bracket = _class(new MathCommand, function(open, close, cmd, end) {
   MathCommand.call(this, '\\left'+cmd,
-    ['<span class="block"><span class="paren">'+open+'</span><span class="block"></span><span class="paren">'+close+'</span></span>'],
+    ['<span class="non-leaf"><span class="non-leaf paren">'+open+'</span><span class="non-leaf"></span><span class="non-leaf paren">'+close+'</span></span>'],
     [open, close]);
   this.end = '\\right'+end;
 });
@@ -573,14 +573,14 @@ CharCmds['\\'] = LatexCommandInput;
 var Binomial = _class(new MathCommand);
 _.cmd = '\\binom';
 _.html_template =
-  ['<span class="block"></span>', '<span></span>', '<span></span>'];
+  ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
 _.createBlocks = function() {
   this._createBlocks();
-  this.jQ.wrapInner('<span class="array"></span>');
+  this.jQ.wrapInner('<span class="array non-leaf"></span>');
   this.blockjQ = this.jQ.children();
   this.bracketjQs =
-    $('<span class="paren">(</span>').prependTo(this.jQ)
-    .add( $('<span class="paren">)</span>').appendTo(this.jQ) );
+    $('<span class="paren non-leaf">(</span>').prependTo(this.jQ)
+    .add( $('<span class="paren non-leaf">)</span>').appendTo(this.jQ) );
 };
 _.text_template = ['choose(',',',')'];
 _.redraw = Bracket.prototype.redraw;
