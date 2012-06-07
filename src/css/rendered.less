@@ -1,5 +1,6 @@
 @import "./mixins/fonts";
 @import "./mixins/css3";
+@import "./mixins/display";
 
 .mathquill-rendered-math {
   font-variant: normal;
@@ -7,6 +8,11 @@
   font-style: normal;
   font-size: 115%;
   line-height: 1;
+
+  .inline-block;
+  .non-leaf {
+    .inline-block;
+  }
 
   // TODO: dasherize non-symbola
   var, .text, .nonSymbola {
@@ -241,18 +247,8 @@
     margin-right: .1em;
   }
 
-  ////
-  // command input with \
-  .latex-command-input {
-    color: inherit;
-    font-family: @mono;
-    border: 1px solid gray;
-    padding-right: 1px;
-    margin-right: 1px;
-    margin-left: 2px;
-
-    &.empty {
-      background: transparent;
-    }
+  &, .mathquill-editable {
+    cursor: text;
+    font-family: @symbola;
   }
 }

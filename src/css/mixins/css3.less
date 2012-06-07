@@ -7,7 +7,13 @@
 }
 
 .user-select (...) {
-  user-select: @arguments;
-  -moz-user-select: @arguments;
   -webkit-user-select: @arguments;
+  -moz-user-select: @arguments;
+  user-select: @arguments;
+}
+
+.box-shadow (...) {
+  -webkit-box-shadow: @arguments;
+  -moz-box-shadow: @arguments;
+  box-shadow: @arguments;
 }
