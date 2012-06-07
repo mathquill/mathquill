@@ -17,7 +17,7 @@ SOURCES = \
 
 CSS_DIR = $(SRC_DIR)/css
 CSS_MAIN = $(CSS_DIR)/main.less
-CSS_SOURCES = $(CSS_DIR)/*.less
+CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 
 FONT_SOURCE = $(SRC_DIR)/font
 FONT_TARGET = $(BUILD_DIR)/font
