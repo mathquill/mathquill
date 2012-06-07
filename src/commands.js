@@ -219,8 +219,8 @@ LatexCmds.over = CharCmds['/'] = LiveFraction;
 var SquareRoot = _class(new MathCommand);
 _.cmd = '\\sqrt';
 _.html_template = [
-  '<span class="non-leaf"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
-  '<span class="non-leaf sqrt-stem"></span>'
+  '<span><span class="non-leaf sqrt-prefix">&radic;</span></span>',
+  '<span class="sqrt-stem"></span>'
 ];
 _.text_template = ['sqrt(', ')'];
 _.redraw = function() {
