@@ -19,6 +19,9 @@ CSS_DIR = $(SRC_DIR)/css
 CSS_MAIN = $(CSS_DIR)/main.less
 CSS_SOURCES = $(CSS_DIR)/*.less
 
+FONT_SOURCE = $(SRC_DIR)/font
+FONT_TARGET = $(BUILD_DIR)/font
+
 UNIT_TESTS = ./test/unit/*.test.js
 TEST_INTRO = ./test/unit/intro.js
 
@@ -41,13 +44,15 @@ LESS_OPTS ?=
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify css clean
-all: css uglify
+.PHONY: all cat uglify css font clean
+all: font css uglify
 # dev is like all, but without minification
-dev: css js
+dev: font css js
 js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
+font: $(FONT_TARGET)
+
 clean:
 	rm -rf $(CLEAN)
 
@@ -61,6 +66,11 @@ $(UGLY_JS): $(BUILD_JS)
 $(BUILD_CSS): $(CSS_SOURCES)
 	mkdir -p $(BUILD_DIR)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+
+$(FONT_TARGET): $(FONT_SOURCE)
+	mkdir -p $(BUILD_DIR)
+	rm -rf $@
+	cp -r $< $@
 
 #
 # -*- Test tasks -*-
