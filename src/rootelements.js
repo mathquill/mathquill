@@ -192,15 +192,15 @@ function createRoot(jQ, root, textbox, editable) {
   //keyboard events and text input, see Wiki page "Keyboard Events"
   var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting = false;
   jQ.bind('keydown.mathquill', function(e) {
-    lastKeydn.evt = e;
-    lastKeydn.happened = true;
+    lastKeydn = e;
+    lastKeydnHappened = true;
     cursor.parent.bubble('keydown', e);
   }).bind('keypress.mathquill', function(e) {
     //on auto-repeated key events, keypress may get triggered but not keydown
-    if (lastKeydn.happened)
-      lastKeydn.happened = false;
+    if (lastKeydnHappened)
+      lastKeydnHappened = false;
     else
-      cursor.parent.bubble('keydown', lastKeydn.evt);
+      cursor.parent.bubble('keydown', lastKeydn);
 
     //make sure setTextareaSelection() doesn't happen before textInput(), where we
     //check if any text was typed
