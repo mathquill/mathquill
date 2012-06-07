@@ -43,7 +43,9 @@ LESS_OPTS ?=
 
 .PHONY: all cat uglify css clean
 all: css uglify
-cat: $(BUILD_JS)
+# dev is like all, but without minification
+dev: css js
+js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 clean:
