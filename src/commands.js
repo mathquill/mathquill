@@ -347,7 +347,7 @@ function Pipes(replacedFragment) {
 }
 _ = Pipes.prototype = new Paren;
 _.placeCursor = function(cursor) {
-  if (!this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
+  if (!this.prev && !this.next && this.parent.parent && this.parent.parent.end === this.end && this.firstChild.isEmpty())
     cursor.backspace().insertAfter(this.parent.parent);
   else
     cursor.appendTo(this.firstChild);
