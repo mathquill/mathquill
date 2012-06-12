@@ -26,12 +26,17 @@ UNIT_TESTS = ./test/unit/*.test.js
 TEST_INTRO = ./test/unit/intro.js
 
 # outputs
+VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
+
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
 CLEAN += $(BUILD_DIR)
+
+DISTDIR = ./mathquill-$(VERSION)
+DIST = $(DISTDIR).tgz
 
 # programs and flags
 UGLIFY ?= uglifyjs
@@ -40,11 +45,13 @@ UGLIFY_OPTS ?= --lift-vars
 LESSC ?= lessc
 LESS_OPTS ?=
 
+# environment constants
+
 #
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify css font clean
+.PHONY: all cat uglify css font dist clean
 all: font css uglify
 # dev is like all, but without minification
 dev: font css js
@@ -52,7 +59,7 @@ js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
-
+dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
 
@@ -71,6 +78,9 @@ $(FONT_TARGET): $(FONT_SOURCE)
 	mkdir -p $(BUILD_DIR)
 	rm -rf $@
 	cp -r $< $@
+
+$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
+	tar -czf $(DIST) --xform 's:^\./build:$(DISTDIR):' ./build/
 
 #
 # -*- Test tasks -*-
