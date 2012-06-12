@@ -219,7 +219,7 @@ LatexCmds.over = CharCmds['/'] = LiveFraction;
 var SquareRoot = _class(new MathCommand);
 _.cmd = '\\sqrt';
 _.html_template = [
-  '<span><span class="non-leaf sqrt-prefix">&radic;</span></span>',
+  '<span class="sqrt"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
   '<span class="sqrt-stem"></span>'
 ];
 _.text_template = ['sqrt(', ')'];
