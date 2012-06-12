@@ -83,10 +83,3 @@ test: $(BUILD_TEST)
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(TEST_INTRO) $(UNIT_TESTS) $(OUTRO)
 	mkdir -p $(BUILD_DIR)
 	cat $^ > $@
-
-#
-# -*- Publishing tasks -*-
-#
-.PHONY: publish
-publish:
-	./script/publish
