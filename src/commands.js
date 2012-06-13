@@ -77,7 +77,7 @@ function bind(cons) { //shorthand for binding arguments to constructor
 }
 
 function Style(cmd, html_template) {
-  MathCommand.call(this, cmd, [ html_template ]);
+  MathCommand.prototype.init.call(this, cmd, [ html_template ]);
 }
 proto(MathCommand, Style);
 //fonts
@@ -91,7 +91,7 @@ LatexCmds.underline = bind(Style, '\\underline', '<span class="non-leaf underlin
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="non-leaf overline"></span>');
 
 var SupSub = _class(new MathCommand, function(cmd, html, text) {
-  MathCommand.call(this, cmd, [ html ], [ text ]);
+  MathCommand.prototype.init.call(this, cmd, [ html ], [ text ]);
 });
 _.latex = function() {
   var latex = this.firstChild.latex();
@@ -252,7 +252,7 @@ LatexCmds.nthroot = NthRoot;
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 var Bracket = _class(new MathCommand, function(open, close, cmd, end) {
-  MathCommand.call(this, '\\left'+cmd,
+  MathCommand.prototype.init.call(this, '\\left'+cmd,
     ['<span class="non-leaf"><span class="non-leaf paren">'+open+'</span><span class="non-leaf"></span><span class="non-leaf paren">'+close+'</span></span>'],
     [open, close]);
   this.end = '\\right'+end;
@@ -695,7 +695,7 @@ _.keydown = function(e) {
 LatexCmds.vector = Vector;
 
 LatexCmds.editable = proto(RootMathCommand, function() {
-  MathCommand.call(this, '\\editable');
+  MathCommand.prototype.init.call(this, '\\editable');
   var cursor;
   this.createBefore = function(c){ this._createBefore(cursor = c); };
   this.createBlocks = function() {

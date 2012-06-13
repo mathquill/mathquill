@@ -38,152 +38,156 @@ var MathElement = P(function(_) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-var MathCommand = _class(new MathElement, function(cmd, html_template, text_template) {
-  var self = this; // minifier optimization
+var MathCommand = P(MathElement, function(_) {
+  _.init = function(cmd, html_template, text_template) {
+    var self = this; // minifier optimization
 
-  if (cmd) self.cmd = cmd;
-  if (html_template) self.html_template = html_template;
-  if (text_template) self.text_template = text_template;
-});
-_.replaces = function(replacedFragment) {
-  this.replacedFragment = replacedFragment;
-};
-_.createBlocks = _._createBlocks = function() {
-  var self = this, replacedFragment = self.replacedFragment;
-  //single-block commands
-  if (self.html_template.length === 1) {
-    self.firstChild =
-    self.lastChild =
-    self.jQ.data(jQueryDataKey).block =
+    if (cmd) self.cmd = cmd;
+    if (html_template) self.html_template = html_template;
+    if (text_template) self.text_template = text_template;
+  };
+
+  _.replaces = function(replacedFragment) {
+    this.replacedFragment = replacedFragment;
+  };
+  _.createBlocks = _._createBlocks = function() {
+    var self = this, replacedFragment = self.replacedFragment;
+    //single-block commands
+    if (self.html_template.length === 1) {
+      self.firstChild =
+      self.lastChild =
+      self.jQ.data(jQueryDataKey).block =
+        (replacedFragment && replacedFragment.blockify()) || new MathBlock;
+
+      self.firstChild.parent = self;
+      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
+
+      return;
+    }
+    //otherwise, the succeeding elements of html_template should be child blocks
+    var newBlock, prev, num_blocks = self.html_template.length;
+    this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || new MathBlock;
 
-    self.firstChild.parent = self;
-    self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
-
-    return;
-  }
-  //otherwise, the succeeding elements of html_template should be child blocks
-  var newBlock, prev, num_blocks = self.html_template.length;
-  this.firstChild = newBlock = prev =
-    (replacedFragment && replacedFragment.blockify()) || new MathBlock;
-
-  newBlock.parent = self;
-  newBlock.jQ = $(self.html_template[1])
-    .data(jQueryDataKey, {block: newBlock})
-    .append(newBlock.jQ)
-    .appendTo(self.jQ);
-
-  newBlock.blur();
-
-  for (var i = 2; i < num_blocks; i += 1) {
-    newBlock = new MathBlock;
     newBlock.parent = self;
-    newBlock.prev = prev;
-    prev.next = newBlock;
-    prev = newBlock;
-
-    newBlock.jQ = $(self.html_template[i])
+    newBlock.jQ = $(self.html_template[1])
       .data(jQueryDataKey, {block: newBlock})
+      .append(newBlock.jQ)
       .appendTo(self.jQ);
 
     newBlock.blur();
-  }
-  self.lastChild = newBlock;
-};
-_.latex = function() {
-  return this.foldChildren(this.cmd, function(latex, child) {
-    return latex + '{' + (child.latex() || ' ') + '}';
-  });
-};
-_.text_template = [''];
-_.text = function() {
-  var i = 0;
-  return this.foldChildren(this.text_template[i], function(text, child) {
-    i += 1;
-    var child_text = child.text();
-    if (text && this.text_template[i] === '('
-        && child_text[0] === '(' && child_text.slice(-1) === ')')
-      return text + child_text.slice(1, -1) + this.text_template[i];
-    return text + child.text() + (this.text_template[i] || '');
-  });
-};
-_.insertAt = function(parent, prev, next) {
-  var cmd = this;
 
-  cmd.parent = parent;
-  cmd.next = next;
-  cmd.prev = prev;
+    for (var i = 2; i < num_blocks; i += 1) {
+      newBlock = new MathBlock;
+      newBlock.parent = self;
+      newBlock.prev = prev;
+      prev.next = newBlock;
+      prev = newBlock;
 
-  if (prev)
-    prev.next = cmd;
-  else
-    parent.firstChild = cmd;
+      newBlock.jQ = $(self.html_template[i])
+        .data(jQueryDataKey, {block: newBlock})
+        .appendTo(self.jQ);
 
-  if (next)
-    next.prev = cmd;
-  else
-    parent.lastChild = cmd;
+      newBlock.blur();
+    }
+    self.lastChild = newBlock;
+  };
+  _.latex = function() {
+    return this.foldChildren(this.cmd, function(latex, child) {
+      return latex + '{' + (child.latex() || ' ') + '}';
+    });
+  };
+  _.text_template = [''];
+  _.text = function() {
+    var i = 0;
+    return this.foldChildren(this.text_template[i], function(text, child) {
+      i += 1;
+      var child_text = child.text();
+      if (text && this.text_template[i] === '('
+          && child_text[0] === '(' && child_text.slice(-1) === ')')
+        return text + child_text.slice(1, -1) + this.text_template[i];
+      return text + child.text() + (this.text_template[i] || '');
+    });
+  };
+  _.insertAt = function(parent, prev, next) {
+    var cmd = this;
 
-  return cmd;
-};
-_.createBefore = _._createBefore = function(cursor) {
-  var cmd = this;
+    cmd.parent = parent;
+    cmd.next = next;
+    cmd.prev = prev;
 
-  cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
-  cmd.createBlocks();
-  cursor.jQ.before(cmd.jQ);
+    if (prev)
+      prev.next = cmd;
+    else
+      parent.firstChild = cmd;
 
-  cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
+    if (next)
+      next.prev = cmd;
+    else
+      parent.lastChild = cmd;
 
-  //adjust context-sensitive spacing
-  cmd.respace();
-  if (cmd.next)
-    cmd.next.respace();
-  if (cmd.prev)
-    cmd.prev.respace();
+    return cmd;
+  };
 
-  cmd.placeCursor(cursor);
+  _.createBefore = _._createBefore = function(cursor) {
+    var cmd = this;
 
-  cmd.bubble('redraw');
-};
-_.respace = $.noop; //placeholder for context-sensitive spacing
-_.placeCursor = function(cursor) {
-  //append the cursor to the first empty child, or if none empty, the last one
-  cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
-    return prev.isEmpty() ? prev : child;
-  }));
-};
-_.isEmpty = function() {
-  return this.foldChildren(true, function(isEmpty, child) {
-    return isEmpty && child.isEmpty();
-  });
-};
-_.remove = function() {
-  var self = this,
-      prev = self.prev,
-      next = self.next,
-      parent = self.parent;
+    cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
+    cmd.createBlocks();
+    cursor.jQ.before(cmd.jQ);
 
-  if (prev)
-    prev.next = next;
-  else
-    parent.firstChild = next;
+    cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
 
-  if (next)
-    next.prev = prev;
-  else
-    parent.lastChild = prev;
+    //adjust context-sensitive spacing
+    cmd.respace();
+    if (cmd.next)
+      cmd.next.respace();
+    if (cmd.prev)
+      cmd.prev.respace();
 
-  self.jQ.remove();
+    cmd.placeCursor(cursor);
 
-  return self;
-};
+    cmd.bubble('redraw');
+  };
+  _.respace = $.noop; //placeholder for context-sensitive spacing
+  _.placeCursor = function(cursor) {
+    //append the cursor to the first empty child, or if none empty, the last one
+    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
+      return prev.isEmpty() ? prev : child;
+    }));
+  };
+  _.isEmpty = function() {
+    return this.foldChildren(true, function(isEmpty, child) {
+      return isEmpty && child.isEmpty();
+    });
+  };
+  _.remove = function() {
+    var self = this,
+        prev = self.prev,
+        next = self.next,
+        parent = self.parent;
+
+    if (prev)
+      prev.next = next;
+    else
+      parent.firstChild = next;
+
+    if (next)
+      next.prev = prev;
+    else
+      parent.lastChild = prev;
+
+    self.jQ.remove();
+
+    return self;
+  };
+});
 
 /**
  * Lightweight command without blocks or children.
  */
 var Symbol = _class(new MathCommand, function(cmd, html, text) {
-  MathCommand.call(this, cmd, [ html ],
+  MathCommand.prototype.init.call(this, cmd, [ html ],
     [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
 });
 _.replaces = function(replacedFragment) {
