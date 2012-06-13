@@ -259,7 +259,7 @@ var Bracket = _class(new MathCommand, function(open, close, cmd, end) {
 });
 _.createBlocks = function() { //FIXME: possible Law of Demeter violation, hardcore MathCommand::createBlocks knowledge needed here
   this.firstChild = this.lastChild =
-    (this.replacedFragment && this.replacedFragment.blockify()) || new MathBlock;
+    (this.replacedFragment && this.replacedFragment.blockify()) || MathBlock();
   this.firstChild.parent = this;
   this.firstChild.jQ = this.jQ.children(':eq(1)')
     .data(jQueryDataKey, {block: this.firstChild})
@@ -614,7 +614,7 @@ _.keydown = function(e) {
 
   if (currentBlock.parent === this) {
     if (e.which === 13) { //enter
-      var newBlock = new MathBlock;
+      var newBlock = MathBlock();
       newBlock.parent = this;
       newBlock.jQ = $('<span></span>')
         .data(jQueryDataKey, {block: newBlock})
@@ -648,7 +648,7 @@ _.keydown = function(e) {
           return;
       }
 
-      var newBlock = new MathBlock;
+      var newBlock = MathBlock();
       newBlock.parent = this;
       newBlock.jQ = $('<span></span>').data(jQueryDataKey, {block: newBlock}).appendTo(this.jQ);
       this.lastChild = newBlock;

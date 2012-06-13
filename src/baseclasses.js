@@ -57,7 +57,7 @@ var MathCommand = P(MathElement, function(_) {
       self.firstChild =
       self.lastChild =
       self.jQ.data(jQueryDataKey).block =
-        (replacedFragment && replacedFragment.blockify()) || new MathBlock;
+        (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
       self.firstChild.parent = self;
       self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
@@ -67,7 +67,7 @@ var MathCommand = P(MathElement, function(_) {
     //otherwise, the succeeding elements of html_template should be child blocks
     var newBlock, prev, num_blocks = self.html_template.length;
     this.firstChild = newBlock = prev =
-      (replacedFragment && replacedFragment.blockify()) || new MathBlock;
+      (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
     newBlock.parent = self;
     newBlock.jQ = $(self.html_template[1])
@@ -78,7 +78,7 @@ var MathCommand = P(MathElement, function(_) {
     newBlock.blur();
 
     for (var i = 2; i < num_blocks; i += 1) {
-      newBlock = new MathBlock;
+      newBlock = MathBlock();
       newBlock.parent = self;
       newBlock.prev = prev;
       prev.next = newBlock;
@@ -207,36 +207,37 @@ var Symbol = P(MathCommand, function(_, _super) {
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-var MathBlock = _class(new MathElement);
-_.latex = function() {
-  return this.foldChildren('', function(latex, child) {
-    return latex + child.latex();
-  });
-};
-_.text = function() {
-  return this.firstChild === this.lastChild ?
-    this.firstChild.text() :
-    this.foldChildren('(', function(text, child) {
-      return text + child.text();
-    }) + ')';
-};
-_.isEmpty = function() {
-  return this.firstChild === 0 && this.lastChild === 0;
-};
-_.focus = function() {
-  this.jQ.addClass('hasCursor');
-  if (this.isEmpty())
-    this.jQ.removeClass('empty');
+var MathBlock = P(MathElement, function(_) {
+  _.latex = function() {
+    return this.foldChildren('', function(latex, child) {
+      return latex + child.latex();
+    });
+  };
+  _.text = function() {
+    return this.firstChild === this.lastChild ?
+      this.firstChild.text() :
+      this.foldChildren('(', function(text, child) {
+        return text + child.text();
+      }) + ')';
+  };
+  _.isEmpty = function() {
+    return this.firstChild === 0 && this.lastChild === 0;
+  };
+  _.focus = function() {
+    this.jQ.addClass('hasCursor');
+    if (this.isEmpty())
+      this.jQ.removeClass('empty');
 
-  return this;
-};
-_.blur = function() {
-  this.jQ.removeClass('hasCursor');
-  if (this.isEmpty())
-    this.jQ.addClass('empty');
+    return this;
+  };
+  _.blur = function() {
+    this.jQ.removeClass('hasCursor');
+    if (this.isEmpty())
+      this.jQ.addClass('empty');
 
-  return this;
-};
+    return this;
+  };
+});
 
 /**
  * An entity outside the Math DOM tree with one-way pointers (so it's only
@@ -298,7 +299,7 @@ _.detach = function() {
 function chainableNoop(){ return this; };
 _.blockify = function() {
   var self = this.detach();
-    newBlock = new MathBlock;
+    newBlock = MathBlock();
     first = newBlock.firstChild = self.first,
     last = newBlock.lastChild = self.last;
 
