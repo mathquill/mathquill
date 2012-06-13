@@ -229,9 +229,6 @@ LatexCmds['√'] = P(MathCommand, function(_) {
 
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
-  _.init = function(replacedFragment) {
-    SquareRoot.call(this, replacedFragment);
-  };
   _.createBlocks = function() {
     _super.createBlocks.call(this);
     this.jQ = this.firstChild.jQ.detach().add(this.jQ);
