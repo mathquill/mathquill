@@ -233,7 +233,7 @@ _.writeLatex = function(latex) {
       }
       else {
         if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
-          cmd = new Variable(token);
+          cmd = Variable(token);
         else if (cmd = LatexCmds[token])
           cmd = new cmd(token);
         else

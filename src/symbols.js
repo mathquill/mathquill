@@ -4,19 +4,21 @@
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
-var Variable = _class(new Symbol, function(ch, html) {
-  Symbol.prototype.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+var Variable = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+  }
+  _.text = function() {
+    var text = this.cmd;
+    if (this.prev && !(this.prev instanceof Variable)
+        && !(this.prev instanceof BinaryOperator))
+      text = '*' + text;
+    if (this.next && !(this.next instanceof BinaryOperator)
+        && !(this.next.cmd === '^'))
+      text += '*';
+    return text;
+  };
 });
-_.text = function() {
-  var text = this.cmd;
-  if (this.prev && !(this.prev instanceof Variable)
-      && !(this.prev instanceof BinaryOperator))
-    text = '*' + text;
-  if (this.next && !(this.next instanceof BinaryOperator)
-      && !(this.next.cmd === '^'))
-    text += '*';
-  return text;
-};
 
 var VanillaSymbol = proto(Symbol, function(ch, html) {
   Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>');
