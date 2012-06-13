@@ -18,7 +18,7 @@ function createRoot(jQ, root, textbox, editable) {
     }
   });
 
-  var cursor = root.cursor = new Cursor(root);
+  var cursor = root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
 
