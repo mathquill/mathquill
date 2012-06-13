@@ -6,30 +6,32 @@
  * MathElement is the core Math DOM tree node prototype.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = _baseclass();
-_.prev = 0;
-_.next = 0;
-_.parent = 0;
-_.firstChild = 0;
-_.lastChild = 0;
-_.eachChild = function(fn) {
-  for (var child = this.firstChild; child; child = child.next)
-    if (fn.call(this, child) === false) break;
+var MathElement = P(function(_) {
+  _.prev = 0;
+  _.next = 0;
+  _.parent = 0;
+  _.firstChild = 0;
+  _.lastChild = 0;
 
-  return this;
-};
-_.foldChildren = function(fold, fn) {
-  this.eachChild(function(child) {
-    fold = fn.call(this, fold, child);
-  });
-  return fold;
-};
-_.bubble = function(event, arg) {
-  for (var ancestor = this; ancestor; ancestor = ancestor.parent)
-    if (ancestor[event] && ancestor[event](arg) === false) break;
+  _.eachChild = function(fn) {
+    for (var child = this.firstChild; child; child = child.next)
+      if (fn.call(this, child) === false) break;
 
-  return this;
-};
+    return this;
+  };
+  _.foldChildren = function(fold, fn) {
+    this.eachChild(function(child) {
+      fold = fn.call(this, fold, child);
+    });
+    return fold;
+  };
+  _.bubble = function(event, arg) {
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent)
+      if (ancestor[event] && ancestor[event](arg) === false) break;
+
+    return this;
+  };
+});
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
