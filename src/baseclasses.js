@@ -244,72 +244,73 @@ var MathBlock = P(MathElement, function(_) {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-var MathFragment = _baseclass(function(first, last) {
-  if (!arguments.length) return;
+var MathFragment = P(function(_) {
+  _.init = function(first, last) {
+    if (!arguments.length) return;
 
-  var self = this;
+    var self = this;
 
-  self.first = first;
-  self.last = last || first; //just select one thing if only one argument
+    self.first = first;
+    self.last = last || first; //just select one thing if only one argument
 
-  self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
+    self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
+  }
+  _.jQinit = function(children) {
+    this.jQ = children;
+  };
+  _.each = function(fn) {
+    for (var el = this.first; el !== this.last.next; el = el.next)
+      if (fn.call(this, el) === false) break;
+
+    return this;
+  };
+  _.fold = function(fold, fn) {
+    this.each(function(el) {
+      fold = fn.call(this, fold, el);
+    });
+    return fold;
+  };
+  _.latex = function() {
+    return this.fold('', function(latex, el){ return latex + el.latex(); });
+  };
+  _.remove = function() {
+    this.jQ.remove();
+    return this.detach();
+  };
+  _.detach = function() {
+    var self = this,
+      prev = self.first.prev,
+      next = self.last.next,
+      parent = self.last.parent;
+
+    if (prev)
+      prev.next = next;
+    else
+      parent.firstChild = next;
+
+    if (next)
+      next.prev = prev;
+    else
+      parent.lastChild = prev;
+
+    self.detach = chainableNoop;
+
+    return self;
+  };
+  function chainableNoop(){ return this; };
+  _.blockify = function() {
+    var self = this.detach();
+      newBlock = MathBlock();
+      first = newBlock.firstChild = self.first,
+      last = newBlock.lastChild = self.last;
+
+    first.prev = 0;
+    last.next = 0;
+
+    self.each(function(el){ el.parent = newBlock; });
+
+    newBlock.jQ = self.jQ;
+
+    return newBlock;
+  };
 });
-_.jQinit = function(children) {
-  this.jQ = children;
-};
-_.each = function(fn) {
-  for (var el = this.first; el !== this.last.next; el = el.next)
-    if (fn.call(this, el) === false) break;
-
-  return this;
-};
-_.fold = function(fold, fn) {
-  this.each(function(el) {
-    fold = fn.call(this, fold, el);
-  });
-  return fold;
-};
-_.latex = function() {
-  return this.fold('', function(latex, el){ return latex + el.latex(); });
-};
-_.remove = function() {
-  this.jQ.remove();
-  return this.detach();
-};
-_.detach = function() {
-  var self = this,
-    prev = self.first.prev,
-    next = self.last.next,
-    parent = self.last.parent;
-
-  if (prev)
-    prev.next = next;
-  else
-    parent.firstChild = next;
-
-  if (next)
-    next.prev = prev;
-  else
-    parent.lastChild = prev;
-
-  self.detach = chainableNoop;
-
-  return self;
-};
-function chainableNoop(){ return this; };
-_.blockify = function() {
-  var self = this.detach();
-    newBlock = MathBlock();
-    first = newBlock.firstChild = self.first,
-    last = newBlock.lastChild = self.last;
-
-  first.prev = 0;
-  last.next = 0;
-
-  self.each(function(el){ el.parent = newBlock; });
-
-  newBlock.jQ = self.jQ;
-
-  return newBlock;
-};
-

@@ -207,7 +207,7 @@ _.createBefore = function(cursor) {
     }
 
     if (prev !== cursor.prev) {
-      this.replaces(new MathFragment(prev.next || cursor.parent.firstChild, cursor.prev).detach());
+      this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev).detach());
       cursor.prev = prev;
     }
   }
@@ -387,7 +387,7 @@ _.textInput = function(ch) {
   else if (!this.cursor.prev)
     this.cursor.insertBefore(this);
   else { //split apart
-    var next = new TextBlock(new MathFragment(this.cursor.next, this.firstChild.lastChild));
+    var next = new TextBlock(MathFragment(this.cursor.next, this.firstChild.lastChild));
     next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
       this.prev = 0;
       delete this.placeCursor;
