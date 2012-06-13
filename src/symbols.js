@@ -525,13 +525,13 @@ var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.init = function(fn) {
     _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
   };
+  _.respace = function()
+  {
+    this.jQ[0].className =
+      (this.next instanceof SupSub || this.next instanceof Bracket) ?
+      '' : 'non-italicized-function';
+  };
 });
-_.respace = function()
-{
-  this.jQ[0].className =
-    (this.next instanceof SupSub || this.next instanceof Bracket) ?
-    '' : 'non-italicized-function';
-};
 
 LatexCmds.ln =
 LatexCmds.lg =
