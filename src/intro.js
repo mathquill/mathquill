@@ -47,7 +47,11 @@ function _baseclass(constructor) {
  */
 function _subclass(superclass) {
   return _class(new superclass, function(){
-    superclass.apply(this, arguments);
+    if (superclass.prototype.init) {
+      superclass.prototype.init.apply(this, arguments);
+    } else {
+      superclass.apply(this, arguments);
+    }
   });
 }
 
