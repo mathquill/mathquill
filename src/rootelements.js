@@ -431,7 +431,7 @@ _.createBlocks = function() {
       cursor.write(ch);
     else if (this.isEmpty()) {
       cursor.insertAfter(this.parent).backspace()
-        .insertNew(new VanillaSymbol('\\$','$')).show();
+        .insertNew(VanillaSymbol('\\$','$')).show();
     }
     else if (!cursor.next)
       cursor.insertAfter(this.parent);
@@ -470,7 +470,7 @@ _.renderLatex = function(latex) {
     }
     else {
       for (var j = 0; j < chunk.length; j += 1)
-        this.cursor.insertNew(new VanillaSymbol(chunk[j]));
+        this.cursor.insertNew(VanillaSymbol(chunk[j]));
     }
   }
 };
@@ -482,7 +482,7 @@ _.textInput = function(ch) {
   if (ch === '$')
     this.cursor.insertNew(new RootMathCommand(this.cursor));
   else
-    this.cursor.insertNew(new VanillaSymbol(ch));
+    this.cursor.insertNew(VanillaSymbol(ch));
 
   return false;
 };

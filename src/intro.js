@@ -14,6 +14,8 @@ var $ = jQuery,
   min = Math.min,
   max = Math.max;
 
+var __slice = [].slice;
+
 /**
  * simple sugar for idiomatic JS classes
  * Usage:
@@ -52,6 +54,25 @@ function _subclass(superclass) {
     } else {
       superclass.apply(this, arguments);
     }
+  });
+}
+
+/**
+ * sugar to make defining lots of commands easier.
+ * TODO: rethink this.
+ */
+
+function proto(sup, cons) {
+  return P(sup, { init: cons });
+}
+
+function bind(sup /*, args... */) {
+  var args = __slice.call(arguments, 1);
+
+  return P(sup, function(_, _super) {
+    _.init = function() {
+      _super.init.apply(this, args.concat(arguments));
+    };
   });
 }
 

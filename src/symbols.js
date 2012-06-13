@@ -57,7 +57,7 @@ LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
 LatexCmds.omega = proto(Symbol, function(latex) {
-  Variable.call(this,'\\'+latex+' ','&'+latex+';');
+  Variable.prototoype.init.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
 //why can't anybody FUCKING agree on these
@@ -132,32 +132,36 @@ LatexCmds.Omega =
 
 //other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.forall = proto(Symbol, function(latex) {
-  VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
+  VanillaSymbol.prototype.init.call(this,'\\'+latex+' ','&'+latex+';');
 });
 
-var BinaryOperator = _class(new Symbol, //so instanceof will work
-function(cmd, html, text) {
-  Symbol.prototype.init.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
+var BinaryOperator = P(Symbol, function(_, _super) {
+  _.init = function(cmd, html, text) {
+    _super.init.call(this,
+      cmd, '<span class="binary-operator">'+html+'</span>', text
+    );
+  };
 });
 
-var PlusMinus = _class(new BinaryOperator, function() {
-  VanillaSymbol.apply(this, arguments);
+var PlusMinus = P(BinaryOperator, function(_) {
+  _.init = VanillaSymbol.prototype.init;
+
+  _.respace = function() {
+    if (!this.prev) {
+      this.jQ[0].className = '';
+    }
+    else if (
+      this.prev instanceof BinaryOperator &&
+      this.next && !(this.next instanceof BinaryOperator)
+    ) {
+      this.jQ[0].className = 'unary-operator';
+    }
+    else {
+      this.jQ[0].className = 'binary-operator';
+    }
+    return this;
+  };
 });
-_.respace = function() {
-  if (!this.prev) {
-    this.jQ[0].className = '';
-  }
-  else if (
-    this.prev instanceof BinaryOperator &&
-    this.next && !(this.next instanceof BinaryOperator)
-  ) {
-    this.jQ[0].className = 'unary-operator';
-  }
-  else {
-    this.jQ[0].className = 'binary-operator';
-  }
-  return this;
-};
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
@@ -181,11 +185,11 @@ LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
 LatexCmds.otimes = proto(BinaryOperator, function(latex) {
-  BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
+  BinaryOperator.prototoype.init.call(this, '\\'+latex+' ', '&'+latex+';');
 });
 
 LatexCmds.times = proto(BinaryOperator, function(latex) {
-  BinaryOperator.call(this, '\\times ', '&times;', '[x]')
+  BinaryOperator.prototoype.init.call(this, '\\times ', '&times;', '[x]')
 });
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
@@ -259,9 +263,10 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 
 //sum, product, coproduct, integral
-var BigSymbol = _class(new Symbol, //so instanceof will work
-function(ch, html) {
-  Symbol.prototype.init.call(this, ch, '<big>'+html+'</big>');
+var BigSymbol = P(Symbol, function(_) {
+  _.init = function(ch, html) {
+    Symbol.prototype.init.call(this, ch, '<big>'+html+'</big>');
+  };
 });
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
@@ -304,13 +309,13 @@ LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
 /* spacing special characters, gonna have to implement this in LatexCommandInput::textInput somehow
 case ',':
-  return new VanillaSymbol('\\, ',' ');
+  return VanillaSymbol('\\, ',' ');
 case ':':
-  return new VanillaSymbol('\\: ','  ');
+  return VanillaSymbol('\\: ','  ');
 case ';':
-  return new VanillaSymbol('\\; ','   ');
+  return VanillaSymbol('\\; ','   ');
 case '!':
-  return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
+  return Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
 
 //binary operators
@@ -516,8 +521,10 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-var NonItalicizedFunction = _class(new Symbol, function(fn) {
-  Symbol.prototype.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
+var NonItalicizedFunction = P(Symbol, function(_, _super) {
+  _.init = function(fn) {
+    _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
+  };
 });
 _.respace = function()
 {

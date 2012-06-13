@@ -203,7 +203,7 @@ _.writeLatex = function(latex) {
 
       var cmd;
       if (token.slice(0, 6) === '\\text{') {
-        cmd = new TextBlock(token.slice(6, -1));
+        cmd = TextBlock(token.slice(6, -1));
         cursor.insertNew(cmd).insertAfter(cmd);
         continue; //skip recursing through children
       }
@@ -223,10 +223,16 @@ _.writeLatex = function(latex) {
       else if (/^\\[a-z]+$/i.test(token)) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
-        if (cmd)
-          cursor.insertNew(cmd = new cmd(token));
-        else {
-          cmd = new TextBlock(token);
+        if (cmd) {
+          // TEMP HACK - remove once Pjs is complete
+          if (cmd.prototype.hasOwnProperty('init')) {
+            cmd = cmd(token);
+          } else {
+            cmd = cmd(token);
+          }
+          cursor.insertNew(cmd);
+        } else {
+          cmd = TextBlock(token);
           cursor.insertNew(cmd).insertAfter(cmd);
           continue; //skip recursing through children
         }
@@ -235,9 +241,9 @@ _.writeLatex = function(latex) {
         if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
           cmd = Variable(token);
         else if (cmd = LatexCmds[token])
-          cmd = new cmd(token);
+          cmd = cmd(token);
         else
-          cmd = new VanillaSymbol(token);
+          cmd = VanillaSymbol(token);
 
         cursor.insertNew(cmd);
       }
@@ -262,11 +268,11 @@ _.write = function(ch) {
 _.insertCh = function(ch) {
   var cmd;
   if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-    cmd = new Variable(ch);
+    cmd = Variable(ch);
   else if (cmd = CharCmds[ch] || LatexCmds[ch])
-    cmd = new cmd(ch);
+    cmd = cmd(ch);
   else
-    cmd = new VanillaSymbol(ch);
+    cmd = VanillaSymbol(ch);
 
   if (this.selection) {
     this.prev = this.selection.first.prev;
@@ -284,13 +290,13 @@ _.insertNew = function(cmd) {
 _.insertCmd = function(latexCmd, replacedFragment) {
   var cmd = LatexCmds[latexCmd];
   if (cmd) {
-    cmd = new cmd(replacedFragment, latexCmd);
+    cmd = cmd(replacedFragment, latexCmd);
     this.insertNew(cmd);
     if (cmd instanceof Symbol && replacedFragment)
       replacedFragment.remove();
   }
   else {
-    cmd = new TextBlock(latexCmd);
+    cmd = TextBlock(latexCmd);
     cmd.firstChild.focus = function(){ delete this.focus; return this; };
     this.insertNew(cmd).insertAfter(cmd);
     if (replacedFragment)
