@@ -186,18 +186,21 @@ var MathCommand = P(MathElement, function(_) {
 /**
  * Lightweight command without blocks or children.
  */
-var Symbol = _class(new MathCommand, function(cmd, html, text) {
-  MathCommand.prototype.init.call(this, cmd, [ html ],
-    [ text || (cmd && cmd.length > 1 ? cmd.slice(1) : cmd) ]);
+var Symbol = P(MathCommand, function(_, _super) {
+  _.init = function(cmd, html, text) {
+    if (!text) text = cmd && cmd.length > 1 ? cmd.slice(1) : cmd;
+
+    _super.init.call(this, cmd, [html], [text]);
+  };
+  _.replaces = function(replacedFragment) {
+    replacedFragment.remove();
+  };
+  _.createBlocks = $.noop;
+  _.latex = function(){ return this.cmd; };
+  _.text = function(){ return this.text_template; };
+  _.placeCursor = $.noop;
+  _.isEmpty = function(){ return true; };
 });
-_.replaces = function(replacedFragment) {
-  replacedFragment.remove();
-};
-_.createBlocks = $.noop;
-_.latex = function(){ return this.cmd; };
-_.text = function(){ return this.text_template; };
-_.placeCursor = $.noop;
-_.isEmpty = function(){ return true; };
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the

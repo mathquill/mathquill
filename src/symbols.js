@@ -5,7 +5,7 @@
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
 var Variable = _class(new Symbol, function(ch, html) {
-  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
+  Symbol.prototype.init.call(this, ch, '<var>'+(html || ch)+'</var>');
 });
 _.text = function() {
   var text = this.cmd;
@@ -19,7 +19,7 @@ _.text = function() {
 };
 
 var VanillaSymbol = proto(Symbol, function(ch, html) {
-  Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
+  Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>');
 });
 
 CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
@@ -27,7 +27,7 @@ CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
 var NonSymbolaSymbol = proto(Symbol, function(ch, html) { //does not use Symbola font
-  Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+  Symbol.prototype.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
@@ -135,7 +135,7 @@ LatexCmds.forall = proto(Symbol, function(latex) {
 
 var BinaryOperator = _class(new Symbol, //so instanceof will work
 function(cmd, html, text) {
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
+  Symbol.prototype.init.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
 });
 
 var PlusMinus = _class(new BinaryOperator, function() {
@@ -259,7 +259,7 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 //sum, product, coproduct, integral
 var BigSymbol = _class(new Symbol, //so instanceof will work
 function(ch, html) {
-  Symbol.call(this, ch, '<big>'+html+'</big>');
+  Symbol.prototype.init.call(this, ch, '<big>'+html+'</big>');
 });
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
@@ -515,7 +515,7 @@ LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
 var NonItalicizedFunction = _class(new Symbol, function(fn) {
-  Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
+  Symbol.prototype.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
 });
 _.respace = function()
 {
