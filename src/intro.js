@@ -25,13 +25,10 @@ function proto(sup, cons) {
   return P(sup, { init: cons });
 }
 
-function bind(sup /*, args... */) {
+function bind(cons /*, args... */) {
   var args = __slice.call(arguments, 1);
-
-  return P(sup, function(_, _super) {
-    _.init = function() {
-      _super.init.apply(this, args.concat(arguments));
-    };
-  });
+  return function() {
+    return cons.apply(this, args);
+  };
 }
 
