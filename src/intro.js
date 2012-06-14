@@ -14,40 +14,16 @@ var $ = jQuery,
   min = Math.min,
   max = Math.max;
 
-/**
- * simple sugar for idiomatic JS classes
- * Usage:
- *  var Cat = _class(new Animal, function(furriness) {
- *    this.furriness = furriness;
- *    this.adorableness = furriness/10;
- *  });
- *  _.play = function(){ this.chase('mouse'); };
- */
-function _class(prototype, constructor) {
-  if (!constructor) constructor = function(){};
-  _ = constructor.prototype = prototype;
-  return constructor;
-}
+var __slice = [].slice;
 
 /**
- * more sugar, for classes without a pre-supplied prototype
- * Usage:
- *  var Animal = _baseclass();
- *  _.chase = function(prey) ...
+ * sugar to make defining lots of commands easier.
+ * TODO: rethink this.
  */
-function _baseclass(constructor) {
-  return _class({}, constructor);
-}
-
-/**
- * sugar specifically for copying the constructor
- * Usage:
- *  var HouseCat = _subclass(Cat);
- *  _.play = function(){ this.chase('yarn'); };
- */
-function _subclass(superclass) {
-  return _class(new superclass, function(){
-    superclass.apply(this, arguments);
-  });
+function bind(cons /*, args... */) {
+  var args = __slice.call(arguments, 1);
+  return function() {
+    return cons.apply(this, args);
+  };
 }
 
