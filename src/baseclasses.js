@@ -2,16 +2,29 @@
  * Abstract base classes of blocks and commands.
  ************************************************/
 
+var uuid = (function() {
+  var id = 0;
+
+  return function() { return id += 1; };
+})();
+
 /**
  * MathElement is the core Math DOM tree node prototype.
  * Both MathBlock's and MathCmd's descend from it.
  */
 var MathElement = P(function(_) {
+  _.init = function(obj) {
+    this.id = uuid();
+  };
   _.prev = 0;
   _.next = 0;
   _.parent = 0;
   _.firstChild = 0;
   _.lastChild = 0;
+
+  _.toString = function() {
+    return '[MathElement '+this.id+']';
+  };
 
   _.eachChild = function(fn) {
     for (var child = this.firstChild; child; child = child.next)
@@ -38,9 +51,11 @@ var MathElement = P(function(_) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-var MathCmd = P(MathElement, function(_) {
+var MathCmd = P(MathElement, function(_, _super) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
     var cmd = this;
+
+    _super.init.call(cmd);
 
     if (ctrlSeq) cmd.ctrlSeq = ctrlSeq;
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
