@@ -166,7 +166,6 @@ LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_) {
-  _.init = $.noop;
   _.cmd = '\\frac';
   _.html_template = [
     '<span class="fraction non-leaf"></span>',
