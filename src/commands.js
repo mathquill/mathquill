@@ -299,9 +299,13 @@ CharCmds['}'] = bind(CloseBracket, '{','}','\\{','\\}');
 LatexCmds.rangle =
 LatexCmds.rang = bind(CloseBracket, '&lang;','&rang;','\\langle ','\\rangle ');
 
-var Paren = proto(Bracket, function(open, close) {
-  Bracket.prototype.init.call(this, open, close, open, close);
-});
+var parenMixin = function(_, _super) {
+  _.init = function(open, close) {
+    _super.init.call(this, open, close, open, close);
+  };
+};
+
+var Paren = P(Bracket, parenMixin);
 
 LatexCmds.lparen =
 CharCmds['('] = bind(Paren, '(', ')');
@@ -309,9 +313,7 @@ LatexCmds.lbrack =
 LatexCmds.lbracket =
 CharCmds['['] = bind(Paren, '[', ']');
 
-var CloseParen = proto(CloseBracket, function(open, close) {
-  CloseBracket.prototype.init.call(this, open, close, open, close);
-});
+var CloseParen = P(CloseBracket, parenMixin);
 
 LatexCmds.rparen =
 CharCmds[')'] = bind(CloseParen, '(', ')');
@@ -695,20 +697,22 @@ LatexCmds.vector = P(MathCommand, function(_) {
   };
 });
 
-LatexCmds.editable = proto(RootMathCommand, function() {
-  MathCommand.prototype.init.call(this, '\\editable');
-  var cursor;
-  this.createBefore = function(c){ this._createBefore(cursor = c); };
-  this.createBlocks = function() {
-    RootMathCommand.prototype.createBlocks.call(this);
-    createRoot(this.jQ, this.firstChild, false, true);
-    this.firstChild.blur = function() {
-      if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
-      delete this.blur;
-      this.cursor.appendTo(this);
-      MathBlock.prototype.blur.call(this);
+LatexCmds.editable = P(RootMathCommand, function(_, _super) {
+  _.init = function() {
+    MathCommand.prototype.init.call(this, '\\editable');
+    var cursor;
+    this.createBefore = function(c){ this._createBefore(cursor = c); };
+    this.createBlocks = function() {
+      RootMathCommand.prototype.createBlocks.call(this);
+      createRoot(this.jQ, this.firstChild, false, true);
+      this.firstChild.blur = function() {
+        if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
+        delete this.blur;
+        this.cursor.appendTo(this);
+        MathBlock.prototype.blur.call(this);
+      };
+      this.latex = function(){ return this.firstChild.latex(); };
+      this.text = function(){ return this.firstChild.text(); };
     };
-    this.latex = function(){ return this.firstChild.latex(); };
-    this.text = function(){ return this.firstChild.text(); };
   };
 });

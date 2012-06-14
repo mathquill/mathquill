@@ -20,16 +20,21 @@ var Variable = P(Symbol, function(_, _super) {
   };
 });
 
-var VanillaSymbol = proto(Symbol, function(ch, html) {
-  Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+var VanillaSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+  };
 });
 
 CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
-var NonSymbolaSymbol = proto(Symbol, function(ch, html) { //does not use Symbola font
-  Symbol.prototype.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+// does not use Symbola font
+var NonSymbolaSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    Symbol.prototype.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+  };
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
@@ -56,8 +61,12 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = proto(Symbol, function(latex) {
-  Variable.prototoype.init.call(this,'\\'+latex+' ','&'+latex+';');
+LatexCmds.omega = P(Symbol, function(_, _super) {
+  _.init = function(latex) {
+    // these are italic, so they use Variable's constructor.
+    // TODO: do this better.
+    Variable.prototoype.init.call(this,'\\'+latex+' ','&'+latex+';');
+  };
 });
 
 //why can't anybody FUCKING agree on these
@@ -119,6 +128,7 @@ LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
   bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
+//other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.Gamma =
 LatexCmds.Delta =
 LatexCmds.Theta =
@@ -129,10 +139,10 @@ LatexCmds.Sigma =
 LatexCmds.Phi =
 LatexCmds.Psi =
 LatexCmds.Omega =
-
-//other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.forall = proto(Symbol, function(latex) {
-  VanillaSymbol.prototype.init.call(this,'\\'+latex+' ','&'+latex+';');
+LatexCmds.forall = P(Symbol, function(_, _super) {
+  _.init = function(latex) {
+    VanillaSymbol.prototype.init.call(this,'\\'+latex+' ','&'+latex+';');
+  };
 });
 
 var BinaryOperator = P(Symbol, function(_, _super) {
@@ -184,13 +194,13 @@ LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = proto(BinaryOperator, function(latex) {
-  BinaryOperator.prototoype.init.call(this, '\\'+latex+' ', '&'+latex+';');
+LatexCmds.otimes = P(BinaryOperator, function(_, _super) {
+  _.init = function(latex) {
+    BinaryOperator.prototoype.init.call(this, '\\'+latex+' ', '&'+latex+';');
+  };
 });
 
-LatexCmds.times = proto(BinaryOperator, function(latex) {
-  BinaryOperator.prototoype.init.call(this, '\\times ', '&times;', '[x]')
-});
+LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');

@@ -20,11 +20,6 @@ var __slice = [].slice;
  * sugar to make defining lots of commands easier.
  * TODO: rethink this.
  */
-
-function proto(sup, cons) {
-  return P(sup, { init: cons });
-}
-
 function bind(cons /*, args... */) {
   var args = __slice.call(arguments, 1);
   return function() {
