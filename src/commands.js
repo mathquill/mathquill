@@ -212,7 +212,6 @@ CharCmds['/'] = P(Fraction, function(_) {
 var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_) {
-  _.init = $.noop;
   _.cmd = '\\sqrt';
   _.html_template = [
     '<span class="sqrt"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
@@ -573,7 +572,6 @@ CharCmds['\\'] = P(MathCommand, function(_) {
 var Binomial =
 LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_) {
-  _.init = $.noop;
   _.cmd = '\\binom';
   _.html_template =
     ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
