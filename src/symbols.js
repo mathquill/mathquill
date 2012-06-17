@@ -4,30 +4,37 @@
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
-var Variable = _class(new Symbol, function(ch, html) {
-  Symbol.call(this, ch, '<var>'+(html || ch)+'</var>');
+var Variable = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+  }
+  _.text = function() {
+    var text = this.cmd;
+    if (this.prev && !(this.prev instanceof Variable)
+        && !(this.prev instanceof BinaryOperator))
+      text = '*' + text;
+    if (this.next && !(this.next instanceof BinaryOperator)
+        && !(this.next.cmd === '^'))
+      text += '*';
+    return text;
+  };
 });
-_.text = function() {
-  var text = this.cmd;
-  if (this.prev && !(this.prev instanceof Variable)
-      && !(this.prev instanceof BinaryOperator))
-    text = '*' + text;
-  if (this.next && !(this.next instanceof BinaryOperator)
-      && !(this.next.cmd === '^'))
-    text += '*';
-  return text;
-};
 
-var VanillaSymbol = proto(Symbol, function(ch, html) {
-  Symbol.call(this, ch, '<span>'+(html || ch)+'</span>');
+var VanillaSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+  };
 });
 
 CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
-var NonSymbolaSymbol = proto(Symbol, function(ch, html) { //does not use Symbola font
-  Symbol.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+// does not use Symbola font
+var NonSymbolaSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+  };
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
@@ -54,8 +61,10 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = proto(Symbol, function(latex) {
-  Variable.call(this,'\\'+latex+' ','&'+latex+';');
+LatexCmds.omega = P(Variable, function(_, _super) {
+  _.init = function(latex) {
+    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
+  };
 });
 
 //why can't anybody FUCKING agree on these
@@ -117,6 +126,7 @@ LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
   bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
+//other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.Gamma =
 LatexCmds.Delta =
 LatexCmds.Theta =
@@ -127,35 +137,39 @@ LatexCmds.Sigma =
 LatexCmds.Phi =
 LatexCmds.Psi =
 LatexCmds.Omega =
-
-//other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.forall = proto(Symbol, function(latex) {
-  VanillaSymbol.call(this,'\\'+latex+' ','&'+latex+';');
+LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
+  _.init = function(latex) {
+    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
+  };
 });
 
-var BinaryOperator = _class(new Symbol, //so instanceof will work
-function(cmd, html, text) {
-  Symbol.call(this, cmd, '<span class="binary-operator">'+html+'</span>', text);
+var BinaryOperator = P(Symbol, function(_, _super) {
+  _.init = function(cmd, html, text) {
+    _super.init.call(this,
+      cmd, '<span class="binary-operator">'+html+'</span>', text
+    );
+  };
 });
 
-var PlusMinus = _class(new BinaryOperator, function() {
-  VanillaSymbol.apply(this, arguments);
+var PlusMinus = P(BinaryOperator, function(_) {
+  _.init = VanillaSymbol.prototype.init;
+
+  _.respace = function() {
+    if (!this.prev) {
+      this.jQ[0].className = '';
+    }
+    else if (
+      this.prev instanceof BinaryOperator &&
+      this.next && !(this.next instanceof BinaryOperator)
+    ) {
+      this.jQ[0].className = 'unary-operator';
+    }
+    else {
+      this.jQ[0].className = 'binary-operator';
+    }
+    return this;
+  };
 });
-_.respace = function() {
-  if (!this.prev) {
-    this.jQ[0].className = '';
-  }
-  else if (
-    this.prev instanceof BinaryOperator &&
-    this.next && !(this.next instanceof BinaryOperator)
-  ) {
-    this.jQ[0].className = 'unary-operator';
-  }
-  else {
-    this.jQ[0].className = 'binary-operator';
-  }
-  return this;
-};
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
@@ -178,13 +192,13 @@ LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = proto(BinaryOperator, function(latex) {
-  BinaryOperator.call(this, '\\'+latex+' ', '&'+latex+';');
+LatexCmds.otimes = P(BinaryOperator, function(_, _super) {
+  _.init = function(latex) {
+    _super.init.call(this, '\\'+latex+' ', '&'+latex+';');
+  };
 });
 
-LatexCmds.times = proto(BinaryOperator, function(latex) {
-  BinaryOperator.call(this, '\\times ', '&times;', '[x]')
-});
+LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
@@ -257,9 +271,10 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 
 //sum, product, coproduct, integral
-var BigSymbol = _class(new Symbol, //so instanceof will work
-function(ch, html) {
-  Symbol.call(this, ch, '<big>'+html+'</big>');
+var BigSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ch, html) {
+    _super.init.call(this, ch, '<big>'+html+'</big>');
+  };
 });
 
 LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
@@ -302,13 +317,13 @@ LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
 /* spacing special characters, gonna have to implement this in LatexCommandInput::textInput somehow
 case ',':
-  return new VanillaSymbol('\\, ',' ');
+  return VanillaSymbol('\\, ',' ');
 case ':':
-  return new VanillaSymbol('\\: ','  ');
+  return VanillaSymbol('\\: ','  ');
 case ';':
-  return new VanillaSymbol('\\; ','   ');
+  return VanillaSymbol('\\; ','   ');
 case '!':
-  return new Symbol('\\! ','<span style="margin-right:-.2em"></span>');
+  return Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
 
 //binary operators
@@ -514,15 +529,17 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 
-var NonItalicizedFunction = _class(new Symbol, function(fn) {
-  Symbol.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
+var NonItalicizedFunction = P(Symbol, function(_, _super) {
+  _.init = function(fn) {
+    _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
+  };
+  _.respace = function()
+  {
+    this.jQ[0].className =
+      (this.next instanceof SupSub || this.next instanceof Bracket) ?
+      '' : 'non-italicized-function';
+  };
 });
-_.respace = function()
-{
-  this.jQ[0].className =
-    (this.next instanceof SupSub || this.next instanceof Bracket) ?
-    '' : 'non-italicized-function';
-};
 
 LatexCmds.ln =
 LatexCmds.lg =
