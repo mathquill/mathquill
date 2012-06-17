@@ -36,7 +36,6 @@ var MathElement = P(function(_) {
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
- * May be passed a MathFragment that's being replaced.
  */
 var MathCommand = P(MathElement, function(_) {
   _.init = function(cmd, html_template, text_template) {
