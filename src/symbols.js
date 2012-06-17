@@ -33,7 +33,7 @@ LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    Symbol.prototype.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+    _super.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
   };
 });
 
@@ -61,11 +61,9 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = P(Symbol, function(_, _super) {
+LatexCmds.omega = P(Variable, function(_, _super) {
   _.init = function(latex) {
-    // these are italic, so they use Variable's constructor.
-    // TODO: do this better.
-    Variable.prototoype.init.call(this,'\\'+latex+' ','&'+latex+';');
+    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
   };
 });
 
@@ -139,9 +137,9 @@ LatexCmds.Sigma =
 LatexCmds.Phi =
 LatexCmds.Psi =
 LatexCmds.Omega =
-LatexCmds.forall = P(Symbol, function(_, _super) {
+LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
   _.init = function(latex) {
-    VanillaSymbol.prototype.init.call(this,'\\'+latex+' ','&'+latex+';');
+    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
   };
 });
 
@@ -196,7 +194,7 @@ LatexCmds.equiv =
 LatexCmds.oplus =
 LatexCmds.otimes = P(BinaryOperator, function(_, _super) {
   _.init = function(latex) {
-    BinaryOperator.prototoype.init.call(this, '\\'+latex+' ', '&'+latex+';');
+    _super.init.call(this, '\\'+latex+' ', '&'+latex+';');
   };
 });
 
@@ -273,9 +271,9 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 
 //sum, product, coproduct, integral
-var BigSymbol = P(Symbol, function(_) {
+var BigSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    Symbol.prototype.init.call(this, ch, '<big>'+html+'</big>');
+    _super.init.call(this, ch, '<big>'+html+'</big>');
   };
 });
 
