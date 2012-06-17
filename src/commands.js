@@ -63,7 +63,7 @@ else {
   };
 }
 
-var Style = P(MathCommand, function(_, _super) {
+var Style = P(MathCmd, function(_, _super) {
   _.init = function(cmd, htmlTemplate) {
     _super.init.call(this, cmd, [ htmlTemplate ]);
   };
@@ -79,7 +79,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>
 LatexCmds.underline = bind(Style, '\\underline', '<span class="non-leaf underline"></span>');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="non-leaf overline"></span>');
 
-var SupSub = P(MathCommand, function(_, _super) {
+var SupSub = P(MathCmd, function(_, _super) {
   _.init = function(cmd, html, text) {
     _super.init.call(this, cmd, [ html ], [ text ]);
   };
@@ -165,7 +165,7 @@ var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCommand, function(_, _super) {
+LatexCmds.fraction = P(MathCmd, function(_, _super) {
   _.cmd = '\\frac';
   _.htmlTemplate = [
     '<span class="fraction non-leaf"></span>',
@@ -211,7 +211,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCommand, function(_) {
+LatexCmds['√'] = P(MathCmd, function(_) {
   _.cmd = '\\sqrt';
   _.htmlTemplate = [
     '<span class="sqrt"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
@@ -243,7 +243,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-var Bracket = P(MathCommand, function(_, _super) {
+var Bracket = P(MathCmd, function(_, _super) {
   _.init = function(open, close, cmd, end) {
     _super.init.call(this, '\\left'+cmd,
       ['<span class="non-leaf"><span class="non-leaf paren">'+open+'</span><span class="non-leaf"></span><span class="non-leaf paren">'+close+'</span></span>'],
@@ -251,7 +251,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.end = '\\right'+end;
   };
   _.createBlocks = function() {
-    //FIXME: possible Law of Demeter violation, hardcore MathCommand::createBlocks knowledge needed here
+    //FIXME: possible Law of Demeter violation, hardcore MathCmd::createBlocks knowledge needed here
     this.firstChild = this.lastChild =
       (this.replacedFragment && this.replacedFragment.blockify()) || MathBlock();
     this.firstChild.parent = this;
@@ -337,7 +337,7 @@ LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-LatexCmds.textmd = P(MathCommand, function(_, _super) {
+LatexCmds.textmd = P(MathCmd, function(_, _super) {
   _.cmd = '\\text';
   _.htmlTemplate = ['<span class="text"></span>'];
   _.replaces = function(replacedText) {
@@ -495,7 +495,7 @@ LatexCmds.lowercase =
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
-CharCmds['\\'] = P(MathCommand, function(_, _super) {
+CharCmds['\\'] = P(MathCmd, function(_, _super) {
   _.cmd = '\\';
   _.replaces = function(replacedFragment) {
     this._replacedFragment = replacedFragment.detach();
@@ -572,7 +572,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
 var Binomial =
 LatexCmds.binom =
-LatexCmds.binomial = P(MathCommand, function(_, _super) {
+LatexCmds.binomial = P(MathCmd, function(_, _super) {
   _.cmd = '\\binom';
   _.htmlTemplate =
     ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
@@ -594,7 +594,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var Vector =
-LatexCmds.vector = P(MathCommand, function(_) {
+LatexCmds.vector = P(MathCmd, function(_) {
   _.cmd = '\\vector';
   _.htmlTemplate = ['<span class="array"></span>', '<span></span>'];
   _.latex = function() {
@@ -696,13 +696,13 @@ LatexCmds.vector = P(MathCommand, function(_) {
   };
 });
 
-LatexCmds.editable = P(RootMathCommand, function(_, _super) {
+LatexCmds.editable = P(RootMathCmd, function(_, _super) {
   _.init = function() {
-    MathCommand.prototype.init.call(this, '\\editable');
+    MathCmd.prototype.init.call(this, '\\editable');
     var cursor;
     this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
     this.createBlocks = function() {
-      RootMathCommand.prototype.createBlocks.call(this);
+      RootMathCmd.prototype.createBlocks.call(this);
       createRoot(this.jQ, this.firstChild, false, true);
       this.firstChild.blur = function() {
         if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK

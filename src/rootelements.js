@@ -387,7 +387,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'A':
     case 'U+0041':
       if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-        if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
+        if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCmd
           return;
 
         this.cursor.clearSelection().appendTo(this);
@@ -410,9 +410,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
 });
 
-var RootMathCommand = P(MathCommand, function(_, _super) {
+var RootMathCmd = P(MathCmd, function(_, _super) {
   _.init = function(cursor) {
-    MathCommand.prototype.init.call(this, '$');
+    MathCmd.prototype.init.call(this, '$');
     this.cursor = cursor;
   };
   _.htmlTemplate = ['<span class="mathquill-rendered-math"></span>'];
@@ -465,7 +465,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         else
           chunk = chunk.slice(1);
 
-        var root = RootMathCommand(cursor);
+        var root = RootMathCmd(cursor);
         cursor.insertNew(root);
         root.firstChild.renderLatex(chunk);
         cursor.show().insertAfter(root);
@@ -482,7 +482,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     this.cursor.deleteSelection();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCommand(this.cursor));
+      this.cursor.insertNew(RootMathCmd(this.cursor));
     else
       this.cursor.insertNew(VanillaSymbol(ch));
 

@@ -4,7 +4,7 @@
 
 /**
  * MathElement is the core Math DOM tree node prototype.
- * Both MathBlock's and MathCommand's descend from it.
+ * Both MathBlock's and MathCmd's descend from it.
  */
 var MathElement = P(function(_) {
   _.prev = 0;
@@ -38,7 +38,7 @@ var MathElement = P(function(_) {
  * Descendant commands are organized into blocks.
  * May be passed a MathFragment that's being replaced.
  */
-var MathCommand = P(MathElement, function(_) {
+var MathCmd = P(MathElement, function(_) {
   _.init = function(cmd, htmlTemplate, textTemplate) {
     var self = this; // minifier optimization
 
@@ -184,7 +184,7 @@ var MathCommand = P(MathElement, function(_) {
 /**
  * Lightweight command without blocks or children.
  */
-var Symbol = P(MathCommand, function(_, _super) {
+var Symbol = P(MathCmd, function(_, _super) {
   _.init = function(cmd, html, text) {
     if (!text) text = cmd && cmd.length > 1 ? cmd.slice(1) : cmd;
 
@@ -201,7 +201,7 @@ var Symbol = P(MathCommand, function(_, _super) {
 });
 
 /**
- * Children and parent of MathCommand's. Basically partitions all the
+ * Children and parent of MathCmd's. Basically partitions all the
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
