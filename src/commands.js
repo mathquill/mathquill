@@ -552,7 +552,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
         cmd = cmd(latex);
       }
       else {
-        cmd = TextBlock().replaces(latex);
+        cmd = TextBlock()
+        cmd.replaces(latex);
         cmd.firstChild.focus = function(){ delete this.focus; return this; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
         if (this._replacedFragment)
