@@ -246,12 +246,12 @@ var MathFragment = P(function(_) {
   _.init = function(first, last) {
     if (!arguments.length) return;
 
-    var self = this;
+    var frag = this;
 
-    self.first = first;
-    self.last = last || first; //just select one thing if only one argument
+    frag.first = first;
+    frag.last = last || first; //just select one thing if only one argument
 
-    self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
+    frag.jQinit(frag.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
   }
   _.jQinit = function(children) {
     this.jQ = children;
@@ -276,10 +276,10 @@ var MathFragment = P(function(_) {
     return this.detach();
   };
   _.detach = function() {
-    var self = this,
-      prev = self.first.prev,
-      next = self.last.next,
-      parent = self.last.parent;
+    var frag = this,
+      prev = frag.first.prev,
+      next = frag.last.next,
+      parent = frag.last.parent;
 
     if (prev)
       prev.next = next;
@@ -291,23 +291,23 @@ var MathFragment = P(function(_) {
     else
       parent.lastChild = prev;
 
-    self.detach = chainableNoop;
+    frag.detach = chainableNoop;
 
-    return self;
+    return frag;
   };
   function chainableNoop(){ return this; };
   _.blockify = function() {
-    var self = this.detach();
+    var frag = this.detach();
       newBlock = MathBlock();
-      first = newBlock.firstChild = self.first,
-      last = newBlock.lastChild = self.last;
+      first = newBlock.firstChild = frag.first,
+      last = newBlock.lastChild = frag.last;
 
     first.prev = 0;
     last.next = 0;
 
-    self.each(function(el){ el.parent = newBlock; });
+    frag.each(function(el){ el.parent = newBlock; });
 
-    newBlock.jQ = self.jQ;
+    newBlock.jQ = frag.jQ;
 
     return newBlock;
   };
