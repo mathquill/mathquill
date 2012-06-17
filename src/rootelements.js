@@ -9,14 +9,12 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = jQ.data(jQueryDataKey, {
-    block: root,
-    revert: function() {
-      jQ.empty().unbind('.mathquill')
-        .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
-        .append(contents);
-    }
-  });
+  root.jQ = jQ.attr(mqBlockId, root.id);
+  root.revert = function() {
+    jQ.empty().unbind('.mathquill')
+      .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+      .append(contents);
+  };
 
   var cursor = root.cursor = Cursor(root);
 
@@ -419,7 +417,9 @@ var RootMathCmd = P(MathCmd, function(_, _super) {
   _.createBlocks = function() {
     this.firstChild =
     this.lastChild =
-    this.jQ.data(jQueryDataKey).block = RootMathBlock();
+      RootMathBlock();
+
+    this.jQ.attr(mqBlockId, this.firstChild);
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ;

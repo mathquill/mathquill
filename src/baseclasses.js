@@ -76,7 +76,7 @@ var MathCmd = P(MathElement, function(_, _super) {
   _.createBefore = function(cursor) {
     var cmd = this;
 
-    cmd.jQ = $(cmd.htmlTemplate[0]).data(jQueryDataKey, {cmd: cmd});
+    cmd.jQ = $(cmd.htmlTemplate[0]).attr(mqCmdId, cmd.id);
     cmd.createBlocks();
     cursor.jQ.before(cmd.jQ);
 
@@ -99,8 +99,9 @@ var MathCmd = P(MathElement, function(_, _super) {
     if (cmd.htmlTemplate.length === 1) {
       cmd.firstChild =
       cmd.lastChild =
-      cmd.jQ.data(jQueryDataKey).block =
         (replacedFragment && replacedFragment.blockify()) || MathBlock();
+
+      cmd.jQ.attr(mqBlockId, cmd.firstChild.id);
 
       cmd.firstChild.parent = cmd;
       cmd.firstChild.jQ = cmd.jQ.append(cmd.firstChild.jQ);
@@ -114,7 +115,7 @@ var MathCmd = P(MathElement, function(_, _super) {
 
     newBlock.parent = cmd;
     newBlock.jQ = $(cmd.htmlTemplate[1])
-      .data(jQueryDataKey, {block: newBlock})
+      .attr(mqBlockId, newBlock.id)
       .append(newBlock.jQ)
       .appendTo(cmd.jQ);
 
@@ -128,7 +129,7 @@ var MathCmd = P(MathElement, function(_, _super) {
       prev = newBlock;
 
       newBlock.jQ = $(cmd.htmlTemplate[i])
-        .data(jQueryDataKey, {block: newBlock})
+        .attr(mqBlockId, newBlock.id)
         .appendTo(cmd.jQ);
 
       newBlock.blur();

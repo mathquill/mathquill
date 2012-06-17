@@ -256,7 +256,7 @@ var Bracket = P(MathCmd, function(_, _super) {
       (this.replacedFragment && this.replacedFragment.blockify()) || MathBlock();
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ.children(':eq(1)')
-      .data(jQueryDataKey, {block: this.firstChild})
+      .attr(mqBlockId, this.firstChild.id)
       .append(this.firstChild.jQ);
 
     var block = this.blockjQ = this.firstChild.jQ;
@@ -351,7 +351,9 @@ LatexCmds.textmd = P(MathCmd, function(_, _super) {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
     this.firstChild =
     this.lastChild =
-    this.jQ.data(jQueryDataKey).block = InnerTextBlock();
+      InnerTextBlock();
+
+    this.jQ.attr(mqBlockId, this.firstChild.id);
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
@@ -620,7 +622,7 @@ LatexCmds.vector = P(MathCmd, function(_) {
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>')
-          .data(jQueryDataKey, {block: newBlock})
+          .attr(mqBlockId, newBlock.id)
           .insertAfter(currentBlock.jQ);
         if (currentBlock.next)
           currentBlock.next.prev = newBlock;
@@ -653,7 +655,7 @@ LatexCmds.vector = P(MathCmd, function(_) {
 
         var newBlock = MathBlock();
         newBlock.parent = this;
-        newBlock.jQ = $('<span></span>').data(jQueryDataKey, {block: newBlock}).appendTo(this.jQ);
+        newBlock.jQ = $('<span></span>').attr(mqBlockId, newBlock.id).appendTo(this.jQ);
         this.lastChild = newBlock;
         currentBlock.next = newBlock;
         newBlock.prev = currentBlock;
