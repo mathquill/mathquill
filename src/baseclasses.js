@@ -205,17 +205,17 @@ var Symbol = P(MathCommand, function(_, _super) {
  * ancestor operators.
  */
 var MathBlock = P(MathElement, function(_) {
-  _.latex = function() {
-    return this.foldChildren('', function(latex, child) {
-      return latex + child.latex();
+  _.join = function(methodName) {
+    return this.foldChildren('', function(fold, child) {
+      return fold + child[methodName]();
     });
   };
+  _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.firstChild === this.lastChild ?
       this.firstChild.text() :
-      this.foldChildren('(', function(text, child) {
-        return text + child.text();
-      }) + ')';
+      '(' + this.join('text') + ')'
+    ;
   };
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
