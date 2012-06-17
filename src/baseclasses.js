@@ -206,6 +206,11 @@ var Symbol = P(MathCommand, function(_, _super) {
  * ancestor operators.
  */
 var MathBlock = P(MathElement, function(_) {
+  _.join = function(methodName) {
+    return this.foldChildren('', function(fold, child) {
+      return fold + child[methodName]();
+    });
+  };
   _.latex = function() {
     return this.foldChildren('', function(latex, child) {
       return latex + child.latex();
