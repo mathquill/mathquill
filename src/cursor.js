@@ -226,12 +226,7 @@ var Cursor = P(function(_) {
           token = token.slice(1);
           var cmd = LatexCmds[token];
           if (cmd) {
-            // TEMP HACK - remove once Pjs is complete
-            if (cmd.prototype.hasOwnProperty('init')) {
-              cmd = cmd(token);
-            } else {
-              cmd = cmd(token);
-            }
+            cmd = cmd(token);
             cursor.insertNew(cmd);
           } else {
             cmd = TextBlock(token);
