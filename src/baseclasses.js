@@ -39,11 +39,11 @@ var MathElement = P(function(_) {
  * May be passed a MathFragment that's being replaced.
  */
 var MathCommand = P(MathElement, function(_) {
-  _.init = function(cmd, html_template, text_template) {
+  _.init = function(cmd, htmlTemplate, text_template) {
     var self = this; // minifier optimization
 
     if (cmd) self.cmd = cmd;
-    if (html_template) self.html_template = html_template;
+    if (htmlTemplate) self.htmlTemplate = htmlTemplate;
     if (text_template) self.text_template = text_template;
   };
   _.replaces = function(replacedFragment) {
@@ -52,7 +52,7 @@ var MathCommand = P(MathElement, function(_) {
   _.createBlocks = function() {
     var self = this, replacedFragment = self.replacedFragment;
     //single-block commands
-    if (self.html_template.length === 1) {
+    if (self.htmlTemplate.length === 1) {
       self.firstChild =
       self.lastChild =
       self.jQ.data(jQueryDataKey).block =
@@ -63,13 +63,13 @@ var MathCommand = P(MathElement, function(_) {
 
       return;
     }
-    //otherwise, the succeeding elements of html_template should be child blocks
-    var newBlock, prev, num_blocks = self.html_template.length;
+    //otherwise, the succeeding elements of htmlTemplate should be child blocks
+    var newBlock, prev, num_blocks = self.htmlTemplate.length;
     this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
     newBlock.parent = self;
-    newBlock.jQ = $(self.html_template[1])
+    newBlock.jQ = $(self.htmlTemplate[1])
       .data(jQueryDataKey, {block: newBlock})
       .append(newBlock.jQ)
       .appendTo(self.jQ);
@@ -83,7 +83,7 @@ var MathCommand = P(MathElement, function(_) {
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(self.html_template[i])
+      newBlock.jQ = $(self.htmlTemplate[i])
         .data(jQueryDataKey, {block: newBlock})
         .appendTo(self.jQ);
 
@@ -130,7 +130,7 @@ var MathCommand = P(MathElement, function(_) {
   _.createBefore = function(cursor) {
     var cmd = this;
 
-    cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
+    cmd.jQ = $(cmd.htmlTemplate[0]).data(jQueryDataKey, {cmd: cmd});
     cmd.createBlocks();
     cursor.jQ.before(cmd.jQ);
 

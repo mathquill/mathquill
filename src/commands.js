@@ -64,8 +64,8 @@ else {
 }
 
 var Style = P(MathCommand, function(_, _super) {
-  _.init = function(cmd, html_template) {
-    _super.init.call(this, cmd, [ html_template ]);
+  _.init = function(cmd, htmlTemplate) {
+    _super.init.call(this, cmd, [ htmlTemplate ]);
   };
 });
 
@@ -167,7 +167,7 @@ LatexCmds.dfrac =
 LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.cmd = '\\frac';
-  _.html_template = [
+  _.htmlTemplate = [
     '<span class="fraction non-leaf"></span>',
     '<span class="numerator"></span>',
     '<span class="denominator"></span>'
@@ -213,7 +213,7 @@ var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_) {
   _.cmd = '\\sqrt';
-  _.html_template = [
+  _.htmlTemplate = [
     '<span class="sqrt"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
     '<span class="sqrt-stem"></span>'
   ];
@@ -231,7 +231,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     _super.createBlocks.call(this);
     this.jQ = this.firstChild.jQ.detach().add(this.jQ);
   };
-  _.html_template = [
+  _.htmlTemplate = [
     '<span class="non-leaf"><span class="sqrt-prefix non-leaf">&radic;</span></span>',
     '<sup class="nthroot non-leaf"></sup>',
     '<span class="sqrt-stem non-leaf"></span>'
@@ -339,7 +339,7 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.cmd = '\\text';
-  _.html_template = ['<span class="text"></span>'];
+  _.htmlTemplate = ['<span class="text"></span>'];
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
       this.replacedText = replacedText.remove().jQ.text();
@@ -473,7 +473,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
 function makeTextBlock(latex, html) {
   return P(TextBlock, {
     cmd: latex,
-    html_template: [ html ]
+    htmlTemplate: [ html ]
   });
 }
 
@@ -501,7 +501,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     this._replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
   };
-  _.html_template = ['<span class="latex-command-input">\\</span>'];
+  _.htmlTemplate = ['<span class="latex-command-input">\\</span>'];
   _.text_template = ['\\'];
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
@@ -574,7 +574,7 @@ var Binomial =
 LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.cmd = '\\binom';
-  _.html_template =
+  _.htmlTemplate =
     ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
@@ -596,7 +596,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var Vector =
 LatexCmds.vector = P(MathCommand, function(_) {
   _.cmd = '\\vector';
-  _.html_template = ['<span class="array"></span>', '<span></span>'];
+  _.htmlTemplate = ['<span class="array"></span>', '<span></span>'];
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
       latex.push(child.latex());
