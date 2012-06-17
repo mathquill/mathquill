@@ -211,11 +211,7 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
-  _.latex = function() {
-    return this.foldChildren('', function(latex, child) {
-      return latex + child.latex();
-    });
-  };
+  _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.firstChild === this.lastChild ?
       this.firstChild.text() :
