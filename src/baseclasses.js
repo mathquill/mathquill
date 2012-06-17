@@ -40,56 +40,56 @@ var MathElement = P(function(_) {
  */
 var MathCmd = P(MathElement, function(_) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
-    var self = this; // minifier optimization
+    var cmd = this;
 
-    if (ctrlSeq) self.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) self.htmlTemplate = htmlTemplate;
-    if (textTemplate) self.textTemplate = textTemplate;
+    if (ctrlSeq) cmd.ctrlSeq = ctrlSeq;
+    if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
+    if (textTemplate) cmd.textTemplate = textTemplate;
   };
   _.replaces = function(replacedFragment) {
     this.replacedFragment = replacedFragment;
   };
   _.createBlocks = function() {
-    var self = this, replacedFragment = self.replacedFragment;
+    var cmd = this, replacedFragment = cmd.replacedFragment;
     //single-block commands
-    if (self.htmlTemplate.length === 1) {
-      self.firstChild =
-      self.lastChild =
-      self.jQ.data(jQueryDataKey).block =
+    if (cmd.htmlTemplate.length === 1) {
+      cmd.firstChild =
+      cmd.lastChild =
+      cmd.jQ.data(jQueryDataKey).block =
         (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
-      self.firstChild.parent = self;
-      self.firstChild.jQ = self.jQ.append(self.firstChild.jQ);
+      cmd.firstChild.parent = cmd;
+      cmd.firstChild.jQ = cmd.jQ.append(cmd.firstChild.jQ);
 
       return;
     }
     //otherwise, the succeeding elements of htmlTemplate should be child blocks
-    var newBlock, prev, num_blocks = self.htmlTemplate.length;
+    var newBlock, prev, num_blocks = cmd.htmlTemplate.length;
     this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
-    newBlock.parent = self;
-    newBlock.jQ = $(self.htmlTemplate[1])
+    newBlock.parent = cmd;
+    newBlock.jQ = $(cmd.htmlTemplate[1])
       .data(jQueryDataKey, {block: newBlock})
       .append(newBlock.jQ)
-      .appendTo(self.jQ);
+      .appendTo(cmd.jQ);
 
     newBlock.blur();
 
     for (var i = 2; i < num_blocks; i += 1) {
       newBlock = MathBlock();
-      newBlock.parent = self;
+      newBlock.parent = cmd;
       newBlock.prev = prev;
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(self.htmlTemplate[i])
+      newBlock.jQ = $(cmd.htmlTemplate[i])
         .data(jQueryDataKey, {block: newBlock})
-        .appendTo(self.jQ);
+        .appendTo(cmd.jQ);
 
       newBlock.blur();
     }
-    self.lastChild = newBlock;
+    cmd.lastChild = newBlock;
   };
   _.latex = function() {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
@@ -160,10 +160,10 @@ var MathCmd = P(MathElement, function(_) {
     });
   };
   _.remove = function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
-        parent = self.parent;
+    var cmd = this,
+        prev = cmd.prev,
+        next = cmd.next,
+        parent = cmd.parent;
 
     if (prev)
       prev.next = next;
@@ -175,9 +175,9 @@ var MathCmd = P(MathElement, function(_) {
     else
       parent.lastChild = prev;
 
-    self.jQ.remove();
+    cmd.jQ.remove();
 
-    return self;
+    return cmd;
   };
 });
 
