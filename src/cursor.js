@@ -228,7 +228,8 @@ var Cursor = P(function(_) {
           if (cmd) {
             cmd = cmd(token);
             cursor.insertNew(cmd);
-          } else {
+          }
+          else {
             cmd = TextBlock(token);
             cursor.insertNew(cmd).insertAfter(cmd);
             continue; //skip recursing through children
