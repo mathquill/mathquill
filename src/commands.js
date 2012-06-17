@@ -165,7 +165,7 @@ var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCommand, function(_) {
+LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.cmd = '\\frac';
   _.html_template = [
     '<span class="fraction non-leaf"></span>',
@@ -173,7 +173,7 @@ LatexCmds.fraction = P(MathCommand, function(_) {
     '<span class="denominator"></span>'
   ];
   _.createBlocks = function() {
-    this._createBlocks();
+    _super.createBlocks.call(this);
     this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
   };
   _.text_template = ['(', '/', ')'];
@@ -181,7 +181,7 @@ LatexCmds.fraction = P(MathCommand, function(_) {
 
 var LiveFraction =
 LatexCmds.over =
-CharCmds['/'] = P(Fraction, function(_) {
+CharCmds['/'] = P(Fraction, function(_, _super) {
   _.createBefore = function(cursor) {
     if (!this.replacedFragment) {
       var prev = cursor.prev;
@@ -205,7 +205,7 @@ CharCmds['/'] = P(Fraction, function(_) {
         cursor.prev = prev;
       }
     }
-    this._createBefore(cursor);
+    _super.createBefore.call(this, cursor);
   };
 });
 
@@ -277,7 +277,7 @@ LatexCmds.langle =
 LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
 
 // Closing bracket matching opening bracket above
-var CloseBracket = P(Bracket, function(_) {
+var CloseBracket = P(Bracket, function(_, _super) {
   _.createBefore = function(cursor) {
     // if I'm at the end of my parent who is a matching open-paren,
     // and I am not replacing a selection fragment, don't create me,
@@ -285,7 +285,7 @@ var CloseBracket = P(Bracket, function(_) {
     if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
       cursor.insertAfter(cursor.parent.parent);
     else
-      this._createBefore(cursor);
+      _super.createBefore.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
     this.firstChild.blur();
@@ -337,7 +337,7 @@ LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-LatexCmds.textmd = P(MathCommand, function(_) {
+LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.cmd = '\\text';
   _.html_template = ['<span class="text"></span>'];
   _.replaces = function(replacedText) {
@@ -357,7 +357,7 @@ LatexCmds.textmd = P(MathCommand, function(_) {
     this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
   };
   _.createBefore = function(cursor) {
-    this._createBefore(this.cursor = cursor);
+    _super.createBefore.call(this, this.cursor = cursor);
 
     if (this.replacedText)
       for (var i = 0; i < this.replacedText.length; i += 1)
@@ -495,7 +495,7 @@ LatexCmds.lowercase =
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
-CharCmds['\\'] = P(MathCommand, function(_) {
+CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.cmd = '\\';
   _.replaces = function(replacedFragment) {
     this._replacedFragment = replacedFragment.detach();
@@ -504,7 +504,7 @@ CharCmds['\\'] = P(MathCommand, function(_) {
   _.html_template = ['<span class="latex-command-input">\\</span>'];
   _.text_template = ['\\'];
   _.createBefore = function(cursor) {
-    this._createBefore(cursor);
+    _super.createBefore.call(this, cursor);
     this.cursor = cursor.appendTo(this.firstChild);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -572,12 +572,12 @@ CharCmds['\\'] = P(MathCommand, function(_) {
 
 var Binomial =
 LatexCmds.binom =
-LatexCmds.binomial = P(MathCommand, function(_) {
+LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.cmd = '\\binom';
   _.html_template =
     ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
   _.createBlocks = function() {
-    this._createBlocks();
+    _super.createBlocks.call(this);
     this.jQ.wrapInner('<span class="array non-leaf"></span>');
     this.blockjQ = this.jQ.children();
     this.bracketjQs =
@@ -610,7 +610,7 @@ LatexCmds.vector = P(MathCommand, function(_) {
     }).join() + ']';
   }
   _.createBefore = function(cursor) {
-    this._createBefore(this.cursor = cursor);
+    _super.createBefore.call(this, this.cursor = cursor);
   };
   _.keydown = function(e) {
     var currentBlock = this.cursor.parent;
@@ -700,7 +700,7 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
   _.init = function() {
     MathCommand.prototype.init.call(this, '\\editable');
     var cursor;
-    this.createBefore = function(c){ this._createBefore(cursor = c); };
+    this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
     this.createBlocks = function() {
       RootMathCommand.prototype.createBlocks.call(this);
       createRoot(this.jQ, this.firstChild, false, true);
