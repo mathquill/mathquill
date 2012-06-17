@@ -15,6 +15,7 @@ var uuid = (function() {
 var MathElement = P(function(_) {
   _.init = function(obj) {
     this.id = uuid();
+    MathElement[this.id] = this;
   };
   _.prev = 0;
   _.next = 0;
@@ -44,6 +45,8 @@ var MathElement = P(function(_) {
 
     return this;
   };
+  _.jQ = $();
+  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 });
 
 /**
@@ -182,6 +185,11 @@ var MathCmd = P(MathElement, function(_, _super) {
 
     cmd.jQ.remove();
 
+    (function deleteMe(me) {
+      delete MathElement[me.id];
+      me.eachChild(deleteMe);
+    }(cmd));
+
     return cmd;
   };
 
@@ -197,6 +205,16 @@ var MathCmd = P(MathElement, function(_, _super) {
         return this.blocks[$1].join('html');
       })
     );
+  };
+  _.jQize = function() {
+    var jQ = this.jQ = $(this.html());
+    jQ.find('*').each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) MathElement[cmdId].jQadd(jQ);
+      if (blockId) MathElement[blockId].jQadd(jQ);
+    });
   };
   _.latex = function() {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
