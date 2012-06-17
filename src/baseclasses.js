@@ -46,8 +46,37 @@ var MathCmd = P(MathElement, function(_) {
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
     if (textTemplate) cmd.textTemplate = textTemplate;
   };
+
+  // obvious methods
   _.replaces = function(replacedFragment) {
     this.replacedFragment = replacedFragment;
+  };
+  _.isEmpty = function() {
+    return this.foldChildren(true, function(isEmpty, child) {
+      return isEmpty && child.isEmpty();
+    });
+  };
+
+  // createBefore(cursor) and the methods it calls
+  _.createBefore = function(cursor) {
+    var cmd = this;
+
+    cmd.jQ = $(cmd.htmlTemplate[0]).data(jQueryDataKey, {cmd: cmd});
+    cmd.createBlocks();
+    cursor.jQ.before(cmd.jQ);
+
+    cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
+
+    //adjust context-sensitive spacing
+    cmd.respace();
+    if (cmd.next)
+      cmd.next.respace();
+    if (cmd.prev)
+      cmd.prev.respace();
+
+    cmd.placeCursor(cursor);
+
+    cmd.bubble('redraw');
   };
   _.createBlocks = function() {
     var cmd = this, replacedFragment = cmd.replacedFragment;
@@ -91,23 +120,6 @@ var MathCmd = P(MathElement, function(_) {
     }
     cmd.lastChild = newBlock;
   };
-  _.latex = function() {
-    return this.foldChildren(this.ctrlSeq, function(latex, child) {
-      return latex + '{' + (child.latex() || ' ') + '}';
-    });
-  };
-  _.textTemplate = [''];
-  _.text = function() {
-    var i = 0;
-    return this.foldChildren(this.textTemplate[i], function(text, child) {
-      i += 1;
-      var child_text = child.text();
-      if (text && this.textTemplate[i] === '('
-          && child_text[0] === '(' && child_text.slice(-1) === ')')
-        return text + child_text.slice(1, -1) + this.textTemplate[i];
-      return text + child.text() + (this.textTemplate[i] || '');
-    });
-  };
   _.insertAt = function(parent, prev, next) {
     var cmd = this;
 
@@ -127,26 +139,6 @@ var MathCmd = P(MathElement, function(_) {
 
     return cmd;
   };
-  _.createBefore = function(cursor) {
-    var cmd = this;
-
-    cmd.jQ = $(cmd.htmlTemplate[0]).data(jQueryDataKey, {cmd: cmd});
-    cmd.createBlocks();
-    cursor.jQ.before(cmd.jQ);
-
-    cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
-
-    //adjust context-sensitive spacing
-    cmd.respace();
-    if (cmd.next)
-      cmd.next.respace();
-    if (cmd.prev)
-      cmd.prev.respace();
-
-    cmd.placeCursor(cursor);
-
-    cmd.bubble('redraw');
-  };
   _.respace = $.noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
@@ -154,11 +146,8 @@ var MathCmd = P(MathElement, function(_) {
       return prev.isEmpty() ? prev : child;
     }));
   };
-  _.isEmpty = function() {
-    return this.foldChildren(true, function(isEmpty, child) {
-      return isEmpty && child.isEmpty();
-    });
-  };
+
+  // remove()
   _.remove = function() {
     var cmd = this,
         prev = cmd.prev,
@@ -178,6 +167,25 @@ var MathCmd = P(MathElement, function(_) {
     cmd.jQ.remove();
 
     return cmd;
+  };
+
+  // methods to get a string representation of the math tree
+  _.latex = function() {
+    return this.foldChildren(this.ctrlSeq, function(latex, child) {
+      return latex + '{' + (child.latex() || ' ') + '}';
+    });
+  };
+  _.textTemplate = [''];
+  _.text = function() {
+    var i = 0;
+    return this.foldChildren(this.textTemplate[i], function(text, child) {
+      i += 1;
+      var child_text = child.text();
+      if (text && this.textTemplate[i] === '('
+          && child_text[0] === '(' && child_text.slice(-1) === ')')
+        return text + child_text.slice(1, -1) + this.textTemplate[i];
+      return text + child.text() + (this.textTemplate[i] || '');
+    });
   };
 });
 
