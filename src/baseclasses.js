@@ -39,12 +39,12 @@ var MathElement = P(function(_) {
  * May be passed a MathFragment that's being replaced.
  */
 var MathCommand = P(MathElement, function(_) {
-  _.init = function(cmd, htmlTemplate, text_template) {
+  _.init = function(cmd, htmlTemplate, textTemplate) {
     var self = this; // minifier optimization
 
     if (cmd) self.cmd = cmd;
     if (htmlTemplate) self.htmlTemplate = htmlTemplate;
-    if (text_template) self.text_template = text_template;
+    if (textTemplate) self.textTemplate = textTemplate;
   };
   _.replaces = function(replacedFragment) {
     this.replacedFragment = replacedFragment;
@@ -96,16 +96,16 @@ var MathCommand = P(MathElement, function(_) {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
-  _.text_template = [''];
+  _.textTemplate = [''];
   _.text = function() {
     var i = 0;
-    return this.foldChildren(this.text_template[i], function(text, child) {
+    return this.foldChildren(this.textTemplate[i], function(text, child) {
       i += 1;
       var child_text = child.text();
-      if (text && this.text_template[i] === '('
+      if (text && this.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
-        return text + child_text.slice(1, -1) + this.text_template[i];
-      return text + child.text() + (this.text_template[i] || '');
+        return text + child_text.slice(1, -1) + this.textTemplate[i];
+      return text + child.text() + (this.textTemplate[i] || '');
     });
   };
   _.insertAt = function(parent, prev, next) {
@@ -195,7 +195,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = $.noop;
   _.latex = function(){ return this.cmd; };
-  _.text = function(){ return this.text_template; };
+  _.text = function(){ return this.textTemplate; };
   _.placeCursor = $.noop;
   _.isEmpty = function(){ return true; };
 });

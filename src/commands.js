@@ -176,7 +176,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
     _super.createBlocks.call(this);
     this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
   };
-  _.text_template = ['(', '/', ')'];
+  _.textTemplate = ['(', '/', ')'];
 });
 
 var LiveFraction =
@@ -217,7 +217,7 @@ LatexCmds['√'] = P(MathCommand, function(_) {
     '<span class="sqrt"><span class="non-leaf sqrt-prefix">&radic;</span></span>',
     '<span class="sqrt-stem"></span>'
   ];
-  _.text_template = ['sqrt(', ')'];
+  _.textTemplate = ['sqrt(', ')'];
   _.redraw = function() {
     var block = this.lastChild.jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
@@ -236,7 +236,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     '<sup class="nthroot non-leaf"></sup>',
     '<span class="sqrt-stem non-leaf"></span>'
   ];
-  _.text_template = ['sqrt[', '](', ')'];
+  _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
     return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
   };
@@ -346,7 +346,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     else if (typeof replacedText === 'string')
       this.replacedText = replacedText;
   };
-  _.text_template = ['"', '"'];
+  _.textTemplate = ['"', '"'];
   _.createBlocks = function() {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
     this.firstChild =
@@ -502,7 +502,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     this.isEmpty = function(){ return false; };
   };
   _.htmlTemplate = ['<span class="latex-command-input">\\</span>'];
-  _.text_template = ['\\'];
+  _.textTemplate = ['\\'];
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
     this.cursor = cursor.appendTo(this.firstChild);
@@ -584,7 +584,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
       $('<span class="paren non-leaf">(</span>').prependTo(this.jQ)
       .add( $('<span class="paren non-leaf">)</span>').appendTo(this.jQ) );
   };
-  _.text_template = ['choose(',',',')'];
+  _.textTemplate = ['choose(',',',')'];
   _.redraw = Bracket.prototype.redraw;
 });
 
