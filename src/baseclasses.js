@@ -49,7 +49,7 @@ var MathCommand = P(MathElement, function(_) {
   _.replaces = function(replacedFragment) {
     this.replacedFragment = replacedFragment;
   };
-  _.createBlocks = _._createBlocks = function() {
+  _.createBlocks = function() {
     var self = this, replacedFragment = self.replacedFragment;
     //single-block commands
     if (self.html_template.length === 1) {
@@ -127,7 +127,7 @@ var MathCommand = P(MathElement, function(_) {
 
     return cmd;
   };
-  _.createBefore = _._createBefore = function(cursor) {
+  _.createBefore = function(cursor) {
     var cmd = this;
 
     cmd.jQ = $(cmd.html_template[0]).data(jQueryDataKey, {cmd: cmd});
