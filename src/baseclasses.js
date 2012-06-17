@@ -215,9 +215,8 @@ var MathBlock = P(MathElement, function(_) {
   _.text = function() {
     return this.firstChild === this.lastChild ?
       this.firstChild.text() :
-      this.foldChildren('(', function(text, child) {
-        return text + child.text();
-      }) + ')';
+      '(' + this.join('text') + ')'
+    ;
   };
   _.isEmpty = function() {
     return this.firstChild === 0 && this.lastChild === 0;
