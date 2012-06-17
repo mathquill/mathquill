@@ -46,7 +46,6 @@ var MathCommand = P(MathElement, function(_) {
     if (html_template) self.html_template = html_template;
     if (text_template) self.text_template = text_template;
   };
-
   _.replaces = function(replacedFragment) {
     this.replacedFragment = replacedFragment;
   };
@@ -128,7 +127,6 @@ var MathCommand = P(MathElement, function(_) {
 
     return cmd;
   };
-
   _.createBefore = _._createBefore = function(cursor) {
     var cmd = this;
 
@@ -190,7 +188,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.init = function(cmd, html, text) {
     if (!text) text = cmd && cmd.length > 1 ? cmd.slice(1) : cmd;
 
-    _super.init.call(this, cmd, [html], [text]);
+    _super.init.call(this, cmd, [ html ], [ text ]);
   };
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();

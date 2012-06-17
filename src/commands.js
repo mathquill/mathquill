@@ -550,7 +550,8 @@ CharCmds['\\'] = P(MathCommand, function(_) {
     if (latex) {
       if (cmd = LatexCmds[latex]) {
         cmd = cmd(latex);
-      } else {
+      }
+      else {
         cmd = TextBlock().replaces(latex);
         cmd.firstChild.focus = function(){ delete this.focus; return this; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
