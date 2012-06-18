@@ -42,7 +42,7 @@ var MathCommand = P(MathElement, function(_) {
   _.init = function(cmd, html_template, text_template) {
     var self = this; // minifier optimization
 
-    if (cmd) self.cmd = cmd;
+    if (!self.cmd) self.cmd = cmd;
     if (html_template) self.html_template = html_template;
     if (text_template) self.text_template = text_template;
   };
