@@ -244,18 +244,13 @@ var MathBlock = P(MathElement, function(_) {
  */
 var MathFragment = P(function(_) {
   _.init = function(first, last) {
-    if (!arguments.length) return;
-
     var self = this;
 
     self.first = first;
     self.last = last || first; //just select one thing if only one argument
 
-    self.jQinit(self.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
+    self.jQ = self.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   }
-  _.jQinit = function(children) {
-    this.jQ = children;
-  };
   _.each = function(fn) {
     for (var el = this.first; el !== this.last.next; el = el.next)
       if (fn.call(this, el) === false) break;
