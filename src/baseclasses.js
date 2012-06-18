@@ -207,8 +207,7 @@ var MathCmd = P(MathElement, function(_, _super) {
     );
   };
   _.jQize = function() {
-    var jQ = this.jQ = $(this.html());
-    jQ.find('*').andSelf().each(function() {
+    $(this.html()).find('*').andSelf().each(function() {
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
         blockId = jQ.attr('mathquill-block-id');
