@@ -544,9 +544,10 @@ var Selection = P(MathFragment, function(_, _super) {
     return this;
   };
   _.levelUp = function() {
-    var self = this, gramp = self.first = self.last = self.last.parent.parent;
-    self.clear().jQwrap(gramp.jQ);
-    return self;
+    var seln = this,
+      gramp = seln.first = seln.last = seln.last.parent.parent;
+    seln.clear().jQwrap(gramp.jQ);
+    return seln;
   };
   _.extendLeft = function() {
     this.first = this.first.prev;
