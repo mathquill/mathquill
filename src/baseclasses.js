@@ -97,9 +97,11 @@ var MathCmd = P(MathElement, function(_, _super) {
     cmd.bubble('redraw');
   };
   _.createBlocks = function() {
-    var cmd = this, replacedFragment = cmd.replacedFragment;
+    var cmd = this,
+      htmlTemplate = cmd.htmlTemplate,
+      replacedFragment = cmd.replacedFragment;
     //single-block commands
-    if (cmd.htmlTemplate.length === 1) {
+    if (htmlTemplate.length === 1) {
       cmd.firstChild =
       cmd.lastChild =
         (replacedFragment && replacedFragment.blockify()) || MathBlock();
@@ -112,12 +114,12 @@ var MathCmd = P(MathElement, function(_, _super) {
       return;
     }
     //otherwise, the succeeding elements of htmlTemplate should be child blocks
-    var newBlock, prev, num_blocks = cmd.htmlTemplate.length;
+    var newBlock, prev, num_blocks = htmlTemplate.length;
     this.firstChild = newBlock = prev =
       (replacedFragment && replacedFragment.blockify()) || MathBlock();
 
     newBlock.parent = cmd;
-    newBlock.jQ = $(cmd.htmlTemplate[1])
+    newBlock.jQ = $(htmlTemplate[1])
       .attr(mqBlockId, newBlock.id)
       .append(newBlock.jQ)
       .appendTo(cmd.jQ);
@@ -131,7 +133,7 @@ var MathCmd = P(MathElement, function(_, _super) {
       prev.next = newBlock;
       prev = newBlock;
 
-      newBlock.jQ = $(cmd.htmlTemplate[i])
+      newBlock.jQ = $(htmlTemplate[i])
         .attr(mqBlockId, newBlock.id)
         .appendTo(cmd.jQ);
 
