@@ -36,13 +36,12 @@ var MathElement = P(function(_) {
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
- * May be passed a MathFragment that's being replaced.
  */
 var MathCmd = P(MathElement, function(_) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
     var cmd = this;
 
-    if (ctrlSeq) cmd.ctrlSeq = ctrlSeq;
+    if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
     if (textTemplate) cmd.textTemplate = textTemplate;
   };
@@ -252,18 +251,13 @@ var MathBlock = P(MathElement, function(_) {
  */
 var MathFragment = P(function(_) {
   _.init = function(first, last) {
-    if (!arguments.length) return;
-
     var frag = this;
 
     frag.first = first;
     frag.last = last || first; //just select one thing if only one argument
 
-    frag.jQinit(frag.fold($(), function(jQ, child){ return child.jQ.add(jQ); }));
+    frag.jQ = frag.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   }
-  _.jQinit = function(children) {
-    this.jQ = children;
-  };
   _.each = function(fn) {
     for (var el = this.first; el !== this.last.next; el = el.next)
       if (fn.call(this, el) === false) break;

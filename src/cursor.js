@@ -525,7 +525,13 @@ var Cursor = P(function(_) {
 });
 
 var Selection = P(MathFragment, function(_, _super) {
-  _.jQinit = function(children) {
+  _.init = function() {
+    var frag = this;
+    _super.init.apply(frag, arguments);
+
+    frag.jQwrap(frag.jQ);
+  };
+  _.jQwrap = function(children) {
     this.jQ = children.wrapAll('<span class="selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
@@ -540,7 +546,7 @@ var Selection = P(MathFragment, function(_, _super) {
   _.levelUp = function() {
     var seln = this,
       gramp = seln.first = seln.last = seln.last.parent.parent;
-    seln.clear().jQinit(gramp.jQ);
+    seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
   _.extendLeft = function() {
