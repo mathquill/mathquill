@@ -246,19 +246,12 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 var Bracket = P(MathCmd, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
-      ['<span class="non-leaf"><span class="non-leaf paren">'+open+'</span><span class="non-leaf"></span><span class="non-leaf paren">'+close+'</span></span>'],
+      '<span class="non-leaf" #mqCmdId><span class="non-leaf paren">'+open+'</span><span class="non-leaf" #mqBlockId:0>#mqBlock:0</span><span class="non-leaf paren">'+close+'</span></span>',
       [open, close]);
     this.end = '\\right'+end;
   };
-  _.createBlocks = function() {
-    //FIXME: possible Law of Demeter violation, hardcore MathCmd::createBlocks knowledge needed here
-    this.firstChild = this.lastChild =
-      (this.replacedFragment && this.replacedFragment.blockify()) || MathBlock();
-    this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.children(':eq(1)')
-      .attr(mqBlockId, this.firstChild.id)
-      .append(this.firstChild.jQ);
-
+  _.jQize = function() {
+    _super.jQize.call(this);
     var block = this.blockjQ = this.firstChild.jQ;
     this.bracketjQs = block.prev().add(block.next());
   };
