@@ -195,15 +195,17 @@ var MathCmd = P(MathElement, function(_, _super) {
   };
 
   // methods to get a string representation of the math tree
+  _.numBlocks = 1;
   _.htmlTemplate = '<span #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
   _.html = function() {
-    return (this.htmlTemplate
-      .replace(/#mqCmdId\b/g, 'mathquill-command-id=' + this.id)
+    var cmd = this;
+    return (cmd.htmlTemplate
+      .replace(/#mqCmdId\b/g, 'mathquill-command-id=' + cmd.id)
       .replace(/#mqBlockId:(\d+)/g, function($0, $1) {
-        return 'mathquill-block-id=' + this.blocks[$1].id;
+        return 'mathquill-block-id=' + cmd.blocks[$1].id;
       })
       .replace(/#mqBlock:(\d+)/g, function($0, $1) {
-        return this.blocks[$1].join('html');
+        return cmd.blocks[$1].join('html');
       })
     );
   };
