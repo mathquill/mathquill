@@ -95,7 +95,11 @@ function createRoot(jQ, root, textbox, editable) {
       $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    textarea.focus();
+    setTimeout(function() { textarea.focus(); });
+      // preventDefault won't prevent focus on mousedown in IE<9
+      // that means immediately after this mousedown, whatever was
+      // mousedown-ed will receive focus
+      // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = $.noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
