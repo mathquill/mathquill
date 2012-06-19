@@ -20,6 +20,12 @@
     <!-- chai for assertions -->
     <script src="support/chai/chai.js" type="text/javascript"></script>
 
+    <!-- configure mocha and chai -->
+    <script type="text/javascript">
+      mocha.setup('tdd');
+      window.assert = chai.assert;
+    </script>
+
     <!-- include the library with the tests inlined -->
     <script id="mathquill" type="text/javascript" src="../build/mathquill.test.js"
       onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')">

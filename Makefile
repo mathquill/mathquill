@@ -24,7 +24,6 @@ FONT_SOURCE = $(SRC_DIR)/font
 FONT_TARGET = $(BUILD_DIR)/font
 
 UNIT_TESTS = ./test/unit/*.test.js
-TEST_INTRO = ./test/unit/intro.js
 
 # outputs
 VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
@@ -91,6 +90,6 @@ test: $(BUILD_TEST)
 	@echo
 	@echo "** now open test/test.html in your browser to run the tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES) $(TEST_INTRO) $(UNIT_TESTS) $(OUTRO)
+$(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	mkdir -p $(BUILD_DIR)
 	cat $^ > $@
