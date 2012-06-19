@@ -9,12 +9,12 @@ var Variable = P(Symbol, function(_, _super) {
     _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
   }
   _.text = function() {
-    var text = this.cmd;
+    var text = this.ctrlSeq;
     if (this.prev && !(this.prev instanceof Variable)
         && !(this.prev instanceof BinaryOperator))
       text = '*' + text;
     if (this.next && !(this.next instanceof BinaryOperator)
-        && !(this.next.cmd === '^'))
+        && !(this.next.ctrlSeq === '^'))
       text += '*';
     return text;
   };
@@ -38,7 +38,7 @@ var NonSymbolaSymbol = P(Symbol, function(_, _super) {
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
-LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&');
+LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
@@ -144,9 +144,9 @@ LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
 });
 
 var BinaryOperator = P(Symbol, function(_, _super) {
-  _.init = function(cmd, html, text) {
+  _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
-      cmd, '<span class="binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
     );
   };
 });
