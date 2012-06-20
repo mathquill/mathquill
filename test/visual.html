@@ -108,7 +108,7 @@ var _prepend = $.fn.prepend;
 $.fn.prepend = function(el) {
   if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
     $(el).removeClass('textarea').addClass('shown-textarea');
-  else
+  else if ($(el).hasClass('shown-textarea'))
     $(el).removeClass('shown-textarea').addClass('textarea');
   return _prepend.apply(this, arguments);
 };
