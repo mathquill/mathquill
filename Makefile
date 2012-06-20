@@ -33,7 +33,7 @@ BUILD_JS = $(BUILD_DIR)/mathquill.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
-CLEAN += $(BUILD_DIR)
+CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
 DIST = $(DISTDIR).tgz
@@ -64,18 +64,15 @@ clean:
 	rm -rf $(CLEAN)
 
 $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
-	mkdir -p $(BUILD_DIR)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) $< > $@
 
 $(BUILD_CSS): $(CSS_SOURCES)
-	mkdir -p $(BUILD_DIR)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
 $(FONT_TARGET): $(FONT_SOURCE)
-	mkdir -p $(BUILD_DIR)
 	rm -rf $@
 	cp -r $< $@
 
@@ -91,5 +88,4 @@ test: $(BUILD_TEST)
 	@echo "** now open test/test.html in your browser to run the tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
-	mkdir -p $(BUILD_DIR)
 	cat $^ > $@
