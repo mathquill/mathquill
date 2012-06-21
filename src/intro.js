@@ -28,8 +28,8 @@ function bind(cons /*, args... */) {
 }
 
 /**
- * a development-only assert.  This definition and all
- * calls to `assert` will be stripped from the minified
+ * a development-only debug method.  This definition and all
+ * calls to `debug` will be stripped from the minified
  * build of mathquill.
  *
  * This function must be called by name to be removed
@@ -37,7 +37,7 @@ function bind(cons /*, args... */) {
  * with the same name, and only call this function by
  * name.
  */
-function assert(message, cond) {
+function debug(message, cond) {
   if (typeof cond === 'function') cond = cond();
 
   if (!cond) throw new Error(message);
