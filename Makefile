@@ -67,7 +67,7 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS)
-	$(UGLIFY) $(UGLIFY_OPTS) $< > $@
+	./script/mangle-assert $< | $(UGLIFY) $(UGLIFY_OPTS) > $@
 
 $(BUILD_CSS): $(CSS_SOURCES)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
