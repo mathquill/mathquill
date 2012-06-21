@@ -22,7 +22,7 @@ $.fn.key = (function() {
     if (!modifiers.length && !special) return key;
 
     modifiers.push(key);
-    return '<'+modifiers.join('-')+'>';
+    return modifiers.join('-');
   }
 
   function embellish(evt) {
@@ -31,30 +31,56 @@ $.fn.key = (function() {
 
   // hook up the events
   return function key(cb) {
-    var lastKeydown, lastKeydownHappened, lastKeypressWhich;
+    var notifyTimeout;
+    var keydown = null;
+    var keypress = null;
+    var textarea = $(this);
+    var justFocused;
 
-    function keydown(e) {
-      lastKeydown = e;
-      lastKeydownHappened = true;
-      embellish(e);
-      cb(e);
+    // -*- private methods -*- //
+    function notify() {
+      var text = textarea.val();
+      textarea.val('');
+
+      cb({
+        text: text,
+        key: stringify(keydown),
+        keydown: keydown,
+        keypress: keypress
+      });
     }
 
-    // on auto-repeated key events,
-    // keypress may get triggered but not keydown.
-    // This manually auto-repeats.
-    function keypress(e) {
-      if (lastKeydownHappened) {
-        lastKeydownHappened = false;
-      }
-      else {
-        cb(lastKeydown);
-      }
+    function flush() {
+      if (notifyTimeout) return notify();
+
+      notifyTimeout = setTimeout(function() {
+        notify();
+        notifyTimeout = null;
+      });
     }
 
-    return $(this)
-      .bind('keydown.mathquill', keydown)
-      .bind('keypress.mathquill', keypress)
+    // -*- event handlers -*- //
+    function onKeydown(e) {
+      flush();
+
+      keydown = e;
+      keypress = null;
+    }
+
+    function onKeypress(e) {
+      // flush on keypresses after the first in the episode,
+      // for auto-repeated keypresses.
+      if (keypress) flush();
+      keypress = e;
+    }
+
+    function onFocus() { justFocused = true; }
+
+    // set up events
+    return textarea
+      .bind('keydown.keyboard', onKeydown)
+      .bind('keypress.keyboard', onKeypress)
+      .bind('focus.keyboard', onFocus)
     ;
   };
 })();
