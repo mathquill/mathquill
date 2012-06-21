@@ -82,7 +82,9 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 # -*- Test tasks -*-
 #
-.PHONY: test
+.PHONY: test server
+server:
+	supervisor .
 test: $(BUILD_TEST)
 	@echo
 	@echo "** now open test/test.html in your browser to run the tests. **"
