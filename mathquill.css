@@ -324,6 +324,7 @@
   width: 100%;
   padding: .1em .1em 0 .1em;
   margin-right: -.1em;
+  margin-left: -.1em;
 }
 
 .mathquill-rendered-math sup .fraction, .mathquill-rendered-math sub .fraction {
