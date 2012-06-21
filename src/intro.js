@@ -27,3 +27,18 @@ function bind(cons /*, args... */) {
   };
 }
 
+/**
+ * a development-only assert.  This definition and all
+ * calls to `assert` will be stripped from the minified
+ * build of mathquill.
+ *
+ * This function must be called by name to be removed
+ * at compile time.  Do not define another function
+ * with the same name, and only call this function by
+ * name.
+ */
+function assert(message, cond) {
+  if (typeof cond === 'function') cond = cond();
+
+  if (!cond) throw new Error(message);
+}

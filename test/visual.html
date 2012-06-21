@@ -88,6 +88,8 @@ button {
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript">
@@ -106,7 +108,7 @@ var _prepend = $.fn.prepend;
 $.fn.prepend = function(el) {
   if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
     $(el).removeClass('textarea').addClass('shown-textarea');
-  else
+  else if ($(el).hasClass('shown-textarea'))
     $(el).removeClass('shown-textarea').addClass('textarea');
   return _prepend.apply(this, arguments);
 };
@@ -133,6 +135,11 @@ $('#dynamic tr:eq(3)').each(function() {
   math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
+});
+
+// test selecting from outside the mathquill editable
+$('.math-container').mousedown(function(e) {
+  $(this).find('.mathquill-editable').trigger(e);
 });
 </script>
 </body>
