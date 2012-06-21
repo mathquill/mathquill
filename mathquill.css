@@ -303,7 +303,7 @@
   font-size: 90%;
   text-align: center;
   vertical-align: -.5em;
-  padding: 0 .1em;
+  padding: 0 .2em;
 }
 .mathquill-rendered-math .fraction, x:-moz-any-link { /* Firefox 2 (and older?) only */
   display: -moz-groupbox; /* because display:inline-block is FUBAR in Gecko < 1.9.0 */
