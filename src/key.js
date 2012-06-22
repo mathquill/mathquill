@@ -68,6 +68,9 @@ $.fn.key = (function() {
     }
 
     function onKeypress(e) {
+      // skip phantom keypresses right after focus.
+      if (justFocused) return;
+
       // flush on keypresses after the first in the episode,
       // for auto-repeated keypresses.
       if (keypress) flush();
