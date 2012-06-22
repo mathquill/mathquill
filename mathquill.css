@@ -82,7 +82,7 @@
 }
 
 .mathquill-rendered-math .matrixed {
-  background: white;
+  background: white; /* IE needs opaque background to anti-alias, see wiki page Transforms */
 }
 
 .mathquill-editable .selection,
@@ -101,7 +101,7 @@
 .mathquill-editable .selection .matrixed,
 .mathquill-rendered-math .selection .matrixed,
 .mathquill-rendered-math .selection .block {
-  background: #B4D5FE !important;
+  background: #B4D5FE !important; /* We expect rules overriding .matrixed background, don't let them override selected .matrixed background. See wiki page Transforms. */
   background: Highlight !important;
   color: HighlightText;
   border-color: HighlightText;
