@@ -5,13 +5,13 @@ var uglifyjs = require('uglify-js');
 
 function shouldRemove(el) {
   if (el[0] === 'stat' && shouldRemove(el[1])) return true;
-  if (el[0] === 'defun' && el[1] === 'debug') return true;
-  if (el[0] === 'call' && el[1][0] === 'name' && el[1][1] === 'debug') return true;
+  if (el[0] === 'defun' && el[1] === 'pray') return true;
+  if (el[0] === 'call' && el[1][0] === 'name' && el[1][1] === 'pray') return true;
 
   return false;
 }
 
-var mangleDebug = exports.mangleDebug = function mangleDebug(ast) {
+var manglePray = exports.manglePray = function manglePray(ast) {
   if (!Array.isArray(ast)) return ast;
 
   var out = [];
@@ -20,7 +20,7 @@ var mangleDebug = exports.mangleDebug = function mangleDebug(ast) {
     if (!Array.isArray(el)) return out.push(el);
     if (shouldRemove(el)) return;
 
-    out.push(mangleDebug(el));
+    out.push(manglePray(el));
   });
 
   return out;
@@ -34,7 +34,7 @@ var getAst = exports.getAst = function getAst(fname) {
 function main() {
   var fname = process.argv[2];
 
-  var ast = mangleDebug(getAst(fname));
+  var ast = manglePray(getAst(fname));
   process.stdout.write(uglifyjs.uglify.gen_code(ast));
 }
 
