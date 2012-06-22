@@ -1,15 +1,20 @@
+// We expect rules overriding the .matrixed { background:white }, but we
+// don't want them to override selected .matrixed background, so we have
+// to use !important.
+// See wiki page Transforms.
+
 .mathquill-rendered-math, .mathquill-editable {
   .selection {
     &, & .non-leaf {
-      background: #B4D5FE;
-      background: Highlight;
+      background: #B4D5FE !important;
+      background: Highlight !important;
       color: HighlightText;
       border-color: HighlightText;
     }
 
     &.blur {
       &, & .non-leaf {
-        background: #D4D4D4;
+        background: #D4D4D4 !important;
         color: black;
         border-color: black;
       }
