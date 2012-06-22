@@ -29,7 +29,7 @@ function bind(cons /*, args... */) {
 
 /**
  * a development-only debug method.  This definition and all
- * calls to `debug` will be stripped from the minified
+ * calls to `pray` will be stripped from the minified
  * build of mathquill.
  *
  * This function must be called by name to be removed
@@ -37,8 +37,8 @@ function bind(cons /*, args... */) {
  * with the same name, and only call this function by
  * name.
  */
-function debug(message, cond) {
+function pray(message, cond) {
   if (typeof cond === 'function') cond = cond();
 
-  if (!cond) throw new Error(message);
+  if (!cond) throw new Error('prayer failed: '+message);
 }
