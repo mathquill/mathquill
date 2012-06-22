@@ -73,7 +73,13 @@ $.fn.key = (function() {
 
       // flush on keypresses after the first in the episode,
       // for auto-repeated keypresses.
-      if (keypress) flush();
+      if (keypress) {
+        flush();
+      }
+      else {
+        pray('keypress happens before timeout', notifyTimeout !== null);
+      }
+
       keypress = e;
     }
 
