@@ -61,6 +61,8 @@ transforms, so MathQuill uses a matrix filter to stretch parens etc,
 which won't anti-alias correctly without a opaque background, so
 MathQuill defaults to white. For more details, see
 [Transforms](http://github.com/laughinghan/mathquill/wiki/Transforms).)
+If your background color is dark, you may also want to make the cursor
+white with `#my-math-input .cursor { border-color: white; }` or the like.
 
 Any element that has been MathQuill-ified can be reverted:
 
