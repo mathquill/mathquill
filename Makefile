@@ -37,6 +37,7 @@ CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
 DIST = $(DISTDIR).tgz
+CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= uglifyjs
