@@ -376,7 +376,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     ) {
       if (this.isEmpty())
         this.cursor.insertAfter(this);
-      e.preventDefault();
+
       return false;
     }
   };
