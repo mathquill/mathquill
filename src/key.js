@@ -2,8 +2,37 @@ $.fn.key = (function() {
   var SPECIAL = {
     8: 'Backspace',
     9: 'Tab',
+
+    // for iPhone
+    10: 'Enter',
+
     13: 'Enter',
-    27: 'Esc'
+
+    16: 'Shift',
+    17: 'Control',
+    18: 'Alt',
+    20: 'CapsLock',
+
+    27: 'Esc',
+
+    32: 'Spacebar',
+
+    33: 'PageUp',
+    34: 'PageDown',
+    35: 'End',
+    36: 'Home',
+
+    37: 'Left',
+    38: 'Up',
+    39: 'Right',
+    40: 'Down',
+
+    45: 'Insert',
+
+    46: 'Del',
+
+    144: 'NumLock'
+
     // TODO: more
   };
 
@@ -14,6 +43,7 @@ $.fn.key = (function() {
     var modifiers = [];
 
     if (evt.ctrlKey) modifiers.push('Ctrl');
+    if (evt.metaKey) modifiers.push('Meta');
     if (evt.altKey) modifiers.push('Alt');
     if (evt.shiftKey) modifiers.push('Shift');
 
