@@ -39,6 +39,16 @@ button {
   -moz-user-select: text;
   -webkit-user-select: text;
 }
+
+/* Non-white background test */
+.different-bgcolor.mathquill-editable,
+.different-bgcolor.mathquill-editable .matrixed {
+  background: black;
+  color: white;
+}
+.different-bgcolor.mathquill-editable .cursor {
+  border-color: white;
+}
 </style>
 
 </head>
@@ -61,7 +71,15 @@ button {
   <td><span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span>
 </table>
 
-<p id="selection-performance"><b>Selection Performance</b>: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+
+<h3>Selection Tests</h3>
+
+<p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+
+<p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
+
+<p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
 <h3>Dynamic mathquill-ification</h3>
 <table id="dynamic">
@@ -88,8 +106,6 @@ button {
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
-
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript">
@@ -112,21 +128,32 @@ $.fn.prepend = function(el) {
     $(el).removeClass('shown-textarea').addClass('textarea');
   return _prepend.apply(this, arguments);
 };
+
+// test selecting from outside the mathquill editable
+$('.math-container').mousedown(function(e) {
+  $(this).find('.mathquill-editable').trigger(e);
+});
+
+// Selection Tests
 document.body.onload = function() {
   setTimeout(function() {
-    $('#selection-performance .mathquill-textbox').each(function() {
+    $('#selection-tests .mathquill-textbox').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-      $(this).after(new Date - start);
+      $('#selection-performance').html(new Date - start);
     });
   });
 };
+
+// Dynamic MathQuill-ification
+// Initial LaTeX
 $('#dynamic tr:eq(1)').each(function() {
   var math = $('span', this);
   math.eq(0).mathquill();
   math.eq(1).mathquill('editable');
   math.eq(2).mathquill('editable').mathquill('revert');
 });
+// .mathquill('redraw')
 $('#dynamic tr:eq(3)').each(function() {
   var math = $('span', this), td;
   td = math.eq(0).parent();
@@ -135,11 +162,6 @@ $('#dynamic tr:eq(3)').each(function() {
   math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
-});
-
-// test selecting from outside the mathquill editable
-$('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').trigger(e);
 });
 </script>
 </body>

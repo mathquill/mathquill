@@ -1,12 +1,22 @@
 #!/usr/bin/env node
 
+// this script uses the uglifyjs parser to remove the function `pray()`
+// and all calls to it.  It is run as part of the minification process.
+
 var fs = require('fs');
 var uglifyjs = require('uglify-js');
 
 function shouldRemove(el) {
-  if (el[0] === 'stat' && shouldRemove(el[1])) return true;
+  if (!Array.isArray(el)) return false;
+
+  // function pray() { ... }
   if (el[0] === 'defun' && el[1] === 'pray') return true;
+
+  // pray(...)
   if (el[0] === 'call' && el[1][0] === 'name' && el[1][1] === 'pray') return true;
+
+  // remove the entire statement containing pray();
+  if (el[0] === 'stat' && shouldRemove(el[1])) return true;
 
   return false;
 }
@@ -17,7 +27,6 @@ var manglePray = exports.manglePray = function manglePray(ast) {
   var out = [];
 
   ast.forEach(function(el) {
-    if (!Array.isArray(el)) return out.push(el);
     if (shouldRemove(el)) return;
 
     out.push(manglePray(el));
