@@ -84,7 +84,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 .PHONY: test server
 server:
-	supervisor .
+	supervisor -e js,less .
 test: $(BUILD_TEST)
 	@echo
 	@echo "** now open test/test.html in your browser to run the tests. **"
