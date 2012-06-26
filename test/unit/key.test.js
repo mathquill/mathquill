@@ -31,7 +31,7 @@ suite('key', function() {
 
         done();
       },
-      key: shouldNotBeCalled
+      key: $.noop
     });
 
     el.trigger(Event('keydown', { which: 97 }));
@@ -60,37 +60,32 @@ suite('key', function() {
     var counter = 0;
 
     el.key({
-      text: function(text, keydown, keypress) {
+      key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
 
         assert.ok(keydown);
-        assert.isNull(keypress);
-        assert.equal(text, 'a');
+        assert.equal(key, 'Left');
 
         if (counter === 3) done();
       },
-      key: shouldNotBeCalled
+      text: shouldNotBeCalled
     });
 
-    el.trigger(Event('keydown', { which: 97 }));
-    el.val('a');
-    el.trigger(Event('keydown', { which: 97 }));
-    el.val('a');
-    el.trigger(Event('keydown', { which: 97 }));
-    el.val('a');
+    el.trigger(Event('keydown', { which: 37 }));
+    el.trigger(Event('keydown', { which: 37 }));
+    el.trigger(Event('keydown', { which: 37 }));
   });
 
   test('one keydown and a series of keypresses', function(done) {
     var counter = 0;
 
     el.key({
-      key: function(key, keydown, keypress) {
+      key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
 
         assert.ok(keydown);
-        assert.ok(keypress);
         assert.equal(key, 'Backspace');
 
         if (counter === 3) done();

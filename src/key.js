@@ -60,33 +60,39 @@ $.fn.key = (function() {
   }
 
   // hook up the events
-  return function key(callbacks) {
-    var notifyTimeout;
+  return function key(handlers) {
+    var textTimeout;
     var keydown = null;
     var keypress = null;
     var textarea = $(this);
-    var justFocused;
+
+    pray('text and key handlers are present',
+      !!(handlers.text && handlers.key)
+    );
 
     // -*- private methods -*- //
-    function notify() {
+    function handleText() {
+      textTimeout = undefined;
+
       var text = textarea.val();
       textarea.val('');
 
       if (text) {
-        callbacks.text(text, keydown, keypress);
-      }
-      else {
-        callbacks.key(stringify(keydown), keydown, keypress);
+        handlers.text(text, keydown, keypress);
       }
     }
 
-    function flush() {
-      if (notifyTimeout) return notify();
+    function handleKey() {
+      var res = handlers.key(stringify(keydown), keydown)
 
-      notifyTimeout = setTimeout(function() {
-        notify();
-        notifyTimeout = null;
-      });
+      if (res === false) keydown.preventDefault();
+    }
+
+    function flush() {
+      if (textTimeout) {
+        clearTimeout(textTimeout);
+        handleText();
+      }
     }
 
     // -*- event handlers -*- //
@@ -95,32 +101,39 @@ $.fn.key = (function() {
 
       keydown = e;
       keypress = null;
-      justFocused = false;
+
+      handleKey();
     }
 
     function onKeypress(e) {
-      // skip phantom keypresses right after focus.
-      if (justFocused) return;
+      flush();
 
-      // flush on keypresses after the first in the episode,
-      // for auto-repeated keypresses.
-      if (keypress) {
-        flush();
-      }
-      else {
-        pray('keypress happens before timeout', notifyTimeout !== null);
-      }
+      // call the key handler for repeated keypresses.
+      // This excludes keypresses that happen directly
+      // after keydown.  In that case, there will be
+      // no previous keypress, so we skip it here
+      if (keydown && keypress) handleKey();
 
       keypress = e;
+
+      textTimeout = setTimeout(handleText);
     }
 
-    function onFocus() { justFocused = true; }
+    function onBlur() {
+      flush();
+      keydown = keypress = null;
+    }
+
+    function onInput() {
+      flush();
+    }
 
     // set up events
     return textarea
-      .bind('keydown.keyboard', onKeydown)
-      .bind('keypress.keyboard', onKeypress)
-      .bind('focus.keyboard', onFocus)
+      .bind('keydown', onKeydown)
+      .bind('keypress', onKeypress)
+      .bind('blur', onBlur)
+      .bind('input', onInput)
     ;
   };
 })();
