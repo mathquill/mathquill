@@ -65,6 +65,7 @@ $.fn.key = (function() {
 
       keydown = e;
       keypress = null;
+      justFocused = false;
     }
 
     function onKeypress(e) {
