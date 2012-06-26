@@ -103,4 +103,32 @@ suite('key', function() {
     el.trigger(Event('keypress', { which: 8 }));
     el.trigger(Event('keypress', { which: 8 }));
   });
+
+  test('returning false calls preventDefault on keydown', function(done) {
+    el.key({
+      key: function() { return false; }
+    });
+
+    el.trigger(Event('keydown', {
+      which: 8,
+      preventDefault: function() {
+        done();
+      }
+    }));
+  });
+
+  test('returning false calls preventDefault on keypress', function(done) {
+    el.key({
+      text: function() { return false; }
+    });
+
+    el.trigger(Event('keydown', { which: 97 }));
+    el.trigger(Event('keypress', {
+      which: 97,
+      preventDefault: function() {
+        done();
+      }
+    }));
+    el.val('a');
+  });
 });

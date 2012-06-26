@@ -42,11 +42,20 @@ $.fn.key = (function() {
       var text = textarea.val();
       textarea.val('');
 
+      var ret;
+
       if (text) {
-        callbacks.text(text, keydown, keypress);
+        ret = callbacks.text(text, keydown, keypress);
       }
       else {
-        callbacks.key(stringify(keydown), keydown, keypress);
+        ret = callbacks.key(stringify(keydown), keydown, keypress);
+      }
+
+      // returning false from the handler
+      // implies a preventDefault on both events.
+      if (ret === false && keydown) {
+        if (keydown) keydown.preventDefault();
+        if (keypress) keypress.preventDefault();
       }
     }
 
