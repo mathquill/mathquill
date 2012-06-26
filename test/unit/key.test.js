@@ -2,6 +2,10 @@ suite('key', function() {
   var el;
   var Event = $.Event
 
+  function shouldNotBeCalled() {
+    assert.ok(false, 'this function should not be called');
+  }
+
   setup(function() {
     el = $('<textarea>').appendTo('#mock');
   });
@@ -12,20 +16,22 @@ suite('key', function() {
 
   test('normal keys', function(done) {
     var counter = 0;
-    el.key(function(evt) {
-      counter += 1;
-      assert.ok(counter <= 1, 'callback is only called once');
-      assert.equal(evt.text, 'a', 'text comes back as a');
-      assert.equal(evt.key, 'a', 'from charcode comes back as a');
-      assert.equal(el.val(), '', 'the textarea remains empty');
+    el.key({
+      text: function(text, keydown, keypress) {
+        counter += 1;
+        assert.ok(counter <= 1, 'callback is only called once');
+        assert.equal(text, 'a', 'text comes back as a');
+        assert.equal(el.val(), '', 'the textarea remains empty');
 
-      assert.ok(evt.keydown, 'has a keydown');
-      assert.equal(evt.keydown.type, 'keydown', 'has the correct keydown');
+        assert.ok(keydown, 'has a keydown');
+        assert.equal(keydown.type, 'keydown', 'has the correct keydown');
 
-      assert.ok(evt.keypress, 'has a keypress');
-      assert.equal(evt.keypress.type, 'keypress', 'has the correct keypress');
+        assert.ok(keypress, 'has a keypress');
+        assert.equal(keypress.type, 'keypress', 'has the correct keypress');
 
-      done();
+        done();
+      },
+      key: shouldNotBeCalled
     });
 
     el.trigger(Event('keydown', { which: 97 }));
@@ -36,13 +42,15 @@ suite('key', function() {
   test('one keydown only', function(done) {
     var counter = 0;
 
-    el.key(function(evt) {
-      counter += 1;
-      assert.ok(counter <= 1, 'callback is called only once');
-      assert.equal(evt.text, '', 'no text is set');
-      assert.equal(evt.key, 'Backspace', 'key is correctly set');
+    el.key({
+      key: function(key, evt) {
+        counter += 1;
+        assert.ok(counter <= 1, 'callback is called only once');
+        assert.equal(key, 'Backspace', 'key is correctly set');
 
-      done();
+        done();
+      },
+      text: shouldNotBeCalled
     });
 
     el.trigger(Event('keydown', { which: 8 }));
@@ -51,16 +59,18 @@ suite('key', function() {
   test('a series of keydowns only', function(done) {
     var counter = 0;
 
-    el.key(function(evt) {
-      counter += 1;
-      assert.ok(counter <= 3, 'callback is called at most 3 times');
+    el.key({
+      text: function(text, keydown, keypress) {
+        counter += 1;
+        assert.ok(counter <= 3, 'callback is called at most 3 times');
 
-      assert.ok(evt.keydown);
-      assert.isNull(evt.keypress);
-      assert.equal(evt.text, 'a');
-      assert.equal(evt.key, 'a');
+        assert.ok(keydown);
+        assert.isNull(keypress);
+        assert.equal(text, 'a');
 
-      if (counter === 3) done();
+        if (counter === 3) done();
+      },
+      key: shouldNotBeCalled
     });
 
     el.trigger(Event('keydown', { which: 97 }));
@@ -74,16 +84,18 @@ suite('key', function() {
   test('one keydown and a series of keypresses', function(done) {
     var counter = 0;
 
-    el.key(function(evt) {
-      counter += 1;
-      assert.ok(counter <= 3, 'callback is called at most 3 times');
+    el.key({
+      key: function(key, keydown, keypress) {
+        counter += 1;
+        assert.ok(counter <= 3, 'callback is called at most 3 times');
 
-      assert.ok(evt.keydown);
-      assert.ok(evt.keypress);
-      assert.equal(evt.text, '');
-      assert.equal(evt.key, 'Backspace');
+        assert.ok(keydown);
+        assert.ok(keypress);
+        assert.equal(key, 'Backspace');
 
-      if (counter === 3) done();
+        if (counter === 3) done();
+      },
+      text: shouldNotBeCalled
     });
 
     el.trigger(Event('keydown', { which: 8 }));

@@ -30,7 +30,7 @@ $.fn.key = (function() {
   }
 
   // hook up the events
-  return function key(cb) {
+  return function key(callbacks) {
     var notifyTimeout;
     var keydown = null;
     var keypress = null;
@@ -42,12 +42,12 @@ $.fn.key = (function() {
       var text = textarea.val();
       textarea.val('');
 
-      cb({
-        text: text,
-        key: stringify(keydown),
-        keydown: keydown,
-        keypress: keypress
-      });
+      if (text) {
+        callbacks.text(text, keydown, keypress);
+      }
+      else {
+        callbacks.key(stringify(keydown), keydown, keypress);
+      }
     }
 
     function flush() {
