@@ -288,7 +288,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       var parent = this.cursor.parent;
       if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
         if (parent === this.cursor.root) //cursor is in root editable, continue default
-          return this.skipTextInput = true;
+          return;
         else if (parent.prev) //go one block left
           this.cursor.appendTo(parent.prev);
         else //get out of the block
@@ -296,7 +296,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       }
       else { //plain Tab = go one block right if it exists, else escape right.
         if (parent === this.cursor.root) //cursor is in root editable, continue default
-          return this.skipTextInput = true;
+          return;
         else if (parent.next) //go one block right
           this.cursor.prependTo(parent.next);
         else //get out of the block
@@ -400,16 +400,13 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         break;
       }
     default:
-      this.skipTextInput = false;
       return false;
     }
-    this.skipTextInput = true;
     e.preventDefault();
     return false;
   };
   _.textInput = function(ch) {
-    if (!this.skipTextInput)
-      this.cursor.write(ch);
+    this.cursor.write(ch);
     return false;
   };
 });
@@ -430,8 +427,6 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     var cursor = this.firstChild.cursor = this.cursor;
     this.firstChild.textInput = function(ch) {
-      if (this.skipTextInput) return false;
-
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
@@ -482,8 +477,6 @@ var RootTextBlock = P(MathBlock, function(_) {
   };
   _.keydown = RootMathBlock.prototype.keydown;
   _.textInput = function(ch) {
-    if (this.skipTextInput) return false;
-
     this.cursor.deleteSelection();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
