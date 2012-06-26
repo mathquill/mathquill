@@ -38,6 +38,7 @@ CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
 DIST = $(DISTDIR).tgz
+CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= uglifyjs
@@ -78,7 +79,10 @@ $(FONT_TARGET): $(FONT_SOURCE)
 	cp -r $< $@
 
 $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
-	tar -czf $(DIST) --xform 's:^\./build:$(DISTDIR):' ./build/
+	tar -czf $(DIST) \
+		--xform 's:^\./build:$(DISTDIR):' \
+		--exclude='\.gitkeep' \
+		./build/
 
 #
 # -*- Test tasks -*-
