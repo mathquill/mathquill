@@ -11,7 +11,7 @@ terminal.stdout.pipe(process.stdout);
 terminal.stderr.pipe(process.stderr);
 
 var port = +(process.env.PORT || 9292)
-var host = process.env.HOST || 'localhost';
+var host = process.env.HOST || '0.0.0.0';
 
 terminal.on('exit', function() {
   console.log('listening on '+host+':'+port);
