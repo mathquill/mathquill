@@ -58,6 +58,10 @@ function createRoot(jQ, root, textbox, editable) {
     }
   });
 
+  // HACK: support middle-click in linux by forwarding the root's
+  // paste event to the textarea
+  jQ.on('paste', textareaManager.paste);
+
   /******
    * TODO [Han]: Document this
    */

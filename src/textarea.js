@@ -168,6 +168,9 @@ var makeTextarea = (function() {
     ;
 
     // -*- expose public methods -*- //
-    return { select: select }
+    return {
+      select: select,
+      paste: onPaste
+    }
   };
 })();
