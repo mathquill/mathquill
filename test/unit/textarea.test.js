@@ -31,7 +31,6 @@ suite('key', function() {
 
         done();
       },
-      key: $.noop
     });
 
     el.trigger(Event('keydown', { which: 97 }));
@@ -103,7 +102,6 @@ suite('key', function() {
     test('select populates the textarea but doesn\'t call text', function() {
       var manager = makeTextarea(el, {
         text: shouldNotBeCalled,
-        key: $.noop
       });
 
       manager.select('foobar');
@@ -118,7 +116,6 @@ suite('key', function() {
     test('blurring', function() {
       var manager = makeTextarea(el, {
         text: shouldNotBeCalled,
-        key: $.noop
       });
 
       manager.select('foobar');
@@ -134,7 +131,6 @@ suite('key', function() {
     test('paste event only', function(done) {
       makeTextarea(el, {
         text: shouldNotBeCalled,
-        key: $.noop,
         paste: function(text) {
           assert.equal(text, '$x^2+1$');
 
@@ -149,7 +145,6 @@ suite('key', function() {
     test('paste after keydown/keypress', function(done) {
       makeTextarea(el, {
         text: shouldNotBeCalled,
-        key: $.noop,
         paste: function(text) {
           assert.equal(text, 'foobar');
           done();
@@ -166,7 +161,6 @@ suite('key', function() {
     test('keypress timeout happening before paste timeout', function(done) {
       makeTextarea(el, {
         text: shouldNotBeCalled,
-        key: $.noop,
         paste: function(text) {
           assert.equal(text, 'foobar');
           done();

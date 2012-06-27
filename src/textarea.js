@@ -62,12 +62,14 @@ var makeTextarea = (function() {
     var keypress = null;
     var paste = null;
 
+    if (!handlers) handlers = {};
+    var textCallback = handlers.text || noop;
+    var keyCallback = handlers.key || noop;
+    var pasteCallback = handlers.paste || noop;
+    var cutCallback = handlers.cut || noop;
+
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
-
-    pray('text and key handlers are present',
-      !!(handlers.text && handlers.key)
-    );
 
     function hasSelection() {
       var dom = textarea[0];
@@ -95,18 +97,18 @@ var makeTextarea = (function() {
       var text = popText();
 
       if (text) {
-        handlers.text(text, keydown, keypress);
+        textCallback(text, keydown, keypress);
       }
     }
 
     function handleKey() {
-      handlers.key(stringify(keydown), keydown);
+      keyCallback(stringify(keydown), keydown);
     }
 
     function handlePaste() {
       var text = popText();
 
-      if (text) handlers.paste(text, paste);
+      if (text) pasteCallback(text, paste);
 
       paste = null;
     }
@@ -155,7 +157,7 @@ var makeTextarea = (function() {
       setTimeout(handlePaste);
     }
 
-    var onCut = handlers.cut;
+    var onCut = cutCallback;
 
     // set up events
     textarea
