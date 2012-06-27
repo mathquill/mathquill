@@ -33,6 +33,16 @@ function createRoot(jQ, root, textbox, editable) {
     text: function(text) {
       if (editable) cursor.parent.bubble('textInput', text);
     },
+    cut: function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          cursor.deleteSelection();
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    },
     paste: function(text) {
       // FIXME HACK the parser in RootTextBlock needs to be moved to
       // Cursor::writeLatex or something so this'll work with
@@ -175,20 +185,6 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).blur();
-
-  //clipboard event handling
-  jQ
-    .bind('cut', function(e) {
-      setTextareaSelection();
-      if (cursor.selection)
-        setTimeout(function(){ cursor.deleteSelection(); cursor.parent.bubble('redraw'); });
-      e.stopPropagation();
-    })
-    .bind('copy', function(e) {
-      setTextareaSelection();
-      e.stopPropagation();
-    })
-  ;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {

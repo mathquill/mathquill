@@ -155,6 +155,8 @@ var makeTextarea = (function() {
       setTimeout(handlePaste);
     }
 
+    var onCut = handlers.cut;
+
     // set up events
     textarea
       .bind('keydown', onKeydown)
@@ -162,6 +164,7 @@ var makeTextarea = (function() {
       .bind('blur', onBlur)
       .bind('input', onInput)
       .bind('paste', onPaste)
+      .bind('cut', onCut)
     ;
 
     // -*- expose public methods -*- //
