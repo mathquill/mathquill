@@ -98,4 +98,75 @@ suite('key', function() {
     el.trigger(Event('keypress', { which: 8 }));
     el.trigger(Event('keypress', { which: 8 }));
   });
+
+  suite('select', function() {
+    test('select populates the textarea but doesn\'t call text', function() {
+      var manager = makeTextarea(el, {
+        text: shouldNotBeCalled,
+        key: $.noop
+      });
+
+      manager.select('foobar');
+
+      assert.equal(el.val(), 'foobar');
+      el.trigger('input');
+      assert.equal(el.val(), 'foobar', 'value remains after input');
+      el.trigger('keydown');
+      assert.equal(el.val(), 'foobar', 'value remains after keydown');
+    });
+  });
+
+  suite('paste', function() {
+    test('paste event only', function(done) {
+      makeTextarea(el, {
+        text: shouldNotBeCalled,
+        key: $.noop,
+        paste: function(text) {
+          assert.equal(text, '$x^2+1$');
+
+          done();
+        }
+      });
+
+      el.trigger('paste');
+      el.val('$x^2+1$');
+    });
+
+    test('paste after keydown/keypress', function(done) {
+      makeTextarea(el, {
+        text: shouldNotBeCalled,
+        key: $.noop,
+        paste: function(text) {
+          assert.equal(text, 'foobar');
+          done();
+        }
+      });
+
+      // somebody presses Ctrl-V
+      el.trigger('keydown', { which: 86, ctrlKey: true });
+      el.trigger('keypress', { which: 118, ctrlKey: true });
+      el.trigger('paste');
+      el.val('foobar');
+    });
+
+    test('keypress timeout happening before paste timeout', function(done) {
+      makeTextarea(el, {
+        text: shouldNotBeCalled,
+        key: $.noop,
+        paste: function(text) {
+          assert.equal(text, 'foobar');
+          done();
+        }
+      });
+
+      el.trigger('keydown', { which: 86, ctrlKey: true });
+      el.trigger('keypress', { which: 118, ctrlKey: true });
+      el.trigger('paste');
+      el.val('foobar');
+
+      // this synthesizes the keypress timeout calling handleText()
+      // before the paste timeout happens.
+      el.trigger('input');
+    });
+  });
 });
