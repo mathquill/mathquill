@@ -68,7 +68,10 @@ $.fn.key = (function() {
 
     // -*- private methods -*- //
     function handleText() {
-      textTimeout = undefined;
+      if (textTimeout) {
+        clearTimeout(textTimeout);
+        textTimeout = undefined;
+      }
 
       var text = textarea.val();
       textarea.val('');
@@ -84,16 +87,9 @@ $.fn.key = (function() {
       if (res === false) keydown.preventDefault();
     }
 
-    function flush() {
-      if (textTimeout) {
-        clearTimeout(textTimeout);
-        handleText();
-      }
-    }
-
     // -*- event handlers -*- //
     function onKeydown(e) {
-      flush();
+      handleText();
 
       keydown = e;
       keypress = null;
@@ -102,7 +98,7 @@ $.fn.key = (function() {
     }
 
     function onKeypress(e) {
-      flush();
+      handleText();
 
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -116,12 +112,12 @@ $.fn.key = (function() {
     }
 
     function onBlur() {
-      flush();
+      handleText();
       keydown = keypress = null;
     }
 
     function onInput() {
-      flush();
+      handleText();
     }
 
     // set up events
