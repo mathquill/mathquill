@@ -60,6 +60,7 @@ var makeTextarea = (function() {
     var textTimeout;
     var keydown = null;
     var keypress = null;
+    var selected;
 
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
@@ -74,6 +75,8 @@ var makeTextarea = (function() {
         clearTimeout(textTimeout);
         textTimeout = undefined;
       }
+
+      if (selected) return;
 
       var text = textarea.val();
       textarea.val('');
@@ -121,11 +124,23 @@ var makeTextarea = (function() {
     }
 
     // set up events
-    return textarea
+    textarea
       .bind('keydown', onKeydown)
       .bind('keypress', onKeypress)
       .bind('blur', onBlur)
       .bind('input', onInput)
     ;
+
+    return {
+      setSelection: function(text) {
+        textarea.val(text);
+        if (text) {
+          selected = true;
+          textarea[0].select();
+        } else {
+          selected = false;
+        }
+      }
+    }
   };
 })();

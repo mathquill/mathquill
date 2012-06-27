@@ -26,6 +26,15 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
+  var textareaManager = makeTextarea(textarea, {
+    key: function(key, evt) {
+      if (editable) cursor.parent.bubble('keydown', evt);
+    },
+    text: function(text) {
+      if (editable) cursor.parent.bubble('textInput', text);
+    }
+  });
+
   /******
    * TODO [Han]: Document this
    */
@@ -39,10 +48,7 @@ function createRoot(jQ, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textarea.val(latex);
-    if (latex) {
-      textarea[0].select();
-    }
+    textareaManager.setSelection(latex);
   }
 
   //prevent native selection except textarea
@@ -188,15 +194,6 @@ function createRoot(jQ, root, textbox, editable) {
     textarea.val('');
     pasting = false;
   }
-
-  makeTextarea(textarea, {
-    key: function(key, evt) {
-      cursor.parent.bubble('keydown', evt);
-    },
-    text: function(text) {
-      cursor.parent.bubble('textInput', text);
-    }
-  });
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
@@ -380,7 +377,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
 var RootMathCommand = P(MathCommand, function(_, _super) {
   _.init = function(cursor) {
-    MathCommand.prototype.init.call(this, '$');
+    _super.init.call(this, '$');
+    console.log(this, cursor);
     this.cursor = cursor;
   };
   _.html_template = ['<span class="mathquill-rendered-math"></span>'];
@@ -394,6 +392,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     var cursor = this.firstChild.cursor = this.cursor;
     this.firstChild.textInput = function(ch) {
+// debugger;
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
