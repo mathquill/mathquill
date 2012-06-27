@@ -25,9 +25,13 @@ var MathElement = P(function(_) {
     });
     return fold;
   };
-  _.bubble = function(event, arg) {
-    for (var ancestor = this; ancestor; ancestor = ancestor.parent)
-      if (ancestor[event] && ancestor[event](arg) === false) break;
+  _.bubble = function(event /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
+      if (res === false) break;
+    }
 
     return this;
   };
