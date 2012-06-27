@@ -32,6 +32,19 @@ function createRoot(jQ, root, textbox, editable) {
     },
     text: function(text) {
       if (editable) cursor.parent.bubble('textInput', text);
+    },
+    paste: function(text) {
+      // FIXME HACK the parser in RootTextBlock needs to be moved to
+      // Cursor::writeLatex or something so this'll work with
+      // MathQuill textboxes
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{' + text + '}';
+      }
+
+      cursor.writeLatex(text).show();
     }
   });
 
@@ -164,36 +177,18 @@ function createRoot(jQ, root, textbox, editable) {
   }).blur();
 
   //clipboard event handling
-  jQ.bind('cut', function(e) {
-    setTextareaSelection();
-    if (cursor.selection)
-      setTimeout(function(){ cursor.deleteSelection(); cursor.parent.bubble('redraw'); });
-    e.stopPropagation();
-  })
-  .bind('copy', function(e) {
-    setTextareaSelection();
-    e.stopPropagation();
-  })
-  .bind('paste', function(e) {
-    pasting = true;
-    setTimeout(paste);
-    e.stopPropagation();
-  });
-
-  function paste() {
-    //FIXME HACK the parser in RootTextBlock needs to be moved to
-    //Cursor::writeLatex or something so this'll work with MathQuill textboxes
-    var latex = textarea.val();
-    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
-      latex = latex.slice(1, -1);
-    }
-    else {
-      latex = '\\text{' + latex + '}';
-    }
-    cursor.writeLatex(latex).show();
-    textarea.val('');
-    pasting = false;
-  }
+  jQ
+    .bind('cut', function(e) {
+      setTextareaSelection();
+      if (cursor.selection)
+        setTimeout(function(){ cursor.deleteSelection(); cursor.parent.bubble('redraw'); });
+      e.stopPropagation();
+    })
+    .bind('copy', function(e) {
+      setTextareaSelection();
+      e.stopPropagation();
+    })
+  ;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
