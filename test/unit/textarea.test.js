@@ -16,7 +16,7 @@ suite('key', function() {
 
   test('normal keys', function(done) {
     var counter = 0;
-    el.key({
+    makeTextarea(el, {
       text: function(text, keydown, keypress) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is only called once');
@@ -42,7 +42,7 @@ suite('key', function() {
   test('one keydown only', function(done) {
     var counter = 0;
 
-    el.key({
+    makeTextarea(el, {
       key: function(key, evt) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is called only once');
@@ -59,7 +59,7 @@ suite('key', function() {
   test('a series of keydowns only', function(done) {
     var counter = 0;
 
-    el.key({
+    makeTextarea(el, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
@@ -80,7 +80,7 @@ suite('key', function() {
   test('one keydown and a series of keypresses', function(done) {
     var counter = 0;
 
-    el.key({
+    makeTextarea(el, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');

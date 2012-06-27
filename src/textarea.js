@@ -1,4 +1,4 @@
-$.fn.key = (function() {
+var makeTextarea = (function() {
   var SPECIAL = {
     8: 'Backspace',
     9: 'Tab',
@@ -56,11 +56,13 @@ $.fn.key = (function() {
   }
 
   // hook up the events
-  return function key(handlers) {
+  return function makeTextarea(el, handlers) {
     var textTimeout;
     var keydown = null;
     var keypress = null;
-    var textarea = $(this);
+
+    // TODO: don't assume el is the textarea itself
+    var textarea = $(el);
 
     pray('text and key handlers are present',
       !!(handlers.text && handlers.key)
