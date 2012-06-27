@@ -189,47 +189,14 @@ function createRoot(jQ, root, textbox, editable) {
     pasting = false;
   }
 
-  //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting = false;
-  jQ.bind('keydown.mathquill', function(e) {
-    lastKeydn = e;
-    lastKeydnHappened = true;
-    cursor.parent.bubble('keydown', e);
-  }).bind('keypress.mathquill', function(e) {
-    //on auto-repeated key events, keypress may get triggered but not keydown
-    if (lastKeydnHappened)
-      lastKeydnHappened = false;
-    else
-      cursor.parent.bubble('keydown', lastKeydn);
-
-    //make sure setTextareaSelection() doesn't happen before textInput(), where we
-    //check if any text was typed
-    if (textareaSelectionTimeout !== undefined)
-      clearTimeout(textareaSelectionTimeout);
-
-    //after keypress event, trigger virtual textInput event if text was
-    //input to textarea
-    setTimeout(textInput);
+  makeTextarea(textarea, {
+    key: function(key, evt) {
+      cursor.parent.bubble('keydown', evt);
+    },
+    text: function(text) {
+      cursor.parent.bubble('textInput', text);
+    }
   });
-
-  function textInput() {
-    if (pasting || (
-      'selectionStart' in textarea[0]
-      && textarea[0].selectionStart !== textarea[0].selectionEnd
-    )) return;
-    var text = textarea.val();
-    if (text) {
-      textarea.val('');
-      for (var i = 0; i < text.length; i += 1) {
-        cursor.parent.bubble('textInput', text.charAt(i));
-      }
-      textareaSelectionTimeout = undefined;
-    }
-    else {
-      if (textareaSelectionTimeout !== undefined)
-        setTextareaSelection();
-    }
-  }
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
