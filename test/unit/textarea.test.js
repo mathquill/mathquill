@@ -114,6 +114,20 @@ suite('key', function() {
       el.trigger('keydown');
       assert.equal(el.val(), 'foobar', 'value remains after keydown');
     });
+
+    test('blurring', function() {
+      var manager = makeTextarea(el, {
+        text: shouldNotBeCalled,
+        key: $.noop
+      });
+
+      manager.select('foobar');
+      el.trigger('blur');
+      el.focus();
+      assert.equal(el[0].selectionStart, 0, 'it\'s selected from the start');
+      assert.equal(el[0].selectionEnd, 6, 'it\'s selected to the end');
+      assert.equal(el.val(), 'foobar', 'it still has content');
+    });
   });
 
   suite('paste', function() {
