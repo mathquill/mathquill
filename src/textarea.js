@@ -84,9 +84,7 @@ var makeTextarea = (function() {
     }
 
     function handleKey() {
-      var res = handlers.key(stringify(keydown), keydown)
-
-      if (res === false) keydown.preventDefault();
+      handlers.key(stringify(keydown), keydown);
     }
 
     // -*- event handlers -*- //
