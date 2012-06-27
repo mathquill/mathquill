@@ -48,7 +48,7 @@ function createRoot(jQ, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textareaManager.setSelection(latex);
+    textareaManager.select(latex);
   }
 
   //prevent native selection except textarea

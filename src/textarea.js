@@ -90,6 +90,12 @@ var makeTextarea = (function() {
       handlers.key(stringify(keydown), keydown);
     }
 
+    // -*- public methods -*- //
+    function select(text) {
+      textarea.val(text);
+      if (text) textarea[0].select();
+    }
+
     // -*- event handlers -*- //
     function onKeydown(e) {
       handleText();
@@ -131,16 +137,7 @@ var makeTextarea = (function() {
       .bind('input', onInput)
     ;
 
-    return {
-      setSelection: function(text) {
-        textarea.val(text);
-        if (text) {
-          selected = true;
-          textarea[0].select();
-        } else {
-          selected = false;
-        }
-      }
-    }
+    // -*- expose public methods -*- //
+    return { select: select }
   };
 })();
