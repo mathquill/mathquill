@@ -31,7 +31,7 @@ function createRoot(jQ, root, textbox, editable) {
       if (editable) cursor.parent.bubble('onKey', key, evt);
     },
     text: function(text) {
-      if (editable) cursor.parent.bubble('textInput', text);
+      if (editable) cursor.parent.bubble('onText', text);
     },
     cut: function(e) {
       if (cursor.selection) {
@@ -394,7 +394,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     e.preventDefault();
     return false;
   };
-  _.textInput = function(ch) {
+  _.onText = function(ch) {
     this.cursor.write(ch);
     return false;
   };
@@ -416,7 +416,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     this.firstChild.jQ = this.jQ;
 
     var cursor = this.firstChild.cursor = this.cursor;
-    this.firstChild.textInput = function(ch) {
+    this.firstChild.onText = function(ch) {
 // debugger;
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
@@ -467,7 +467,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     }
   };
   _.keydown = RootMathBlock.prototype.keydown;
-  _.textInput = function(ch) {
+  _.onText = function(ch) {
     this.cursor.deleteSelection();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
