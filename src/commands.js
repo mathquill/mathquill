@@ -12,7 +12,7 @@ var scale, // = function(jQ, x, y) { ... }
 //ideas from http://github.com/louisremi/jquery.transform.js
 //see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
 
-  forceIERedraw = $.noop,
+  forceIERedraw = noop,
   div = document.createElement('div'),
   div_style = div.style,
   transformPropNames = {
