@@ -16,6 +16,8 @@ var $ = jQuery,
 
 var __slice = [].slice;
 
+function noop() {}
+
 /**
  * sugar to make defining lots of commands easier.
  * TODO: rethink this.

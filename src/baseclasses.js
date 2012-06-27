@@ -150,7 +150,7 @@ var MathCommand = P(MathElement, function(_) {
 
     cmd.bubble('redraw');
   };
-  _.respace = $.noop; //placeholder for context-sensitive spacing
+  _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
     cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
@@ -196,10 +196,10 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
   };
-  _.createBlocks = $.noop;
+  _.createBlocks = noop;
   _.latex = function(){ return this.cmd; };
   _.text = function(){ return this.text_template; };
-  _.placeCursor = $.noop;
+  _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
 

@@ -134,7 +134,7 @@ function createRoot(jQ, root, textbox, editable) {
       // mousedown-ed will receive focus
       // http://bugs.jquery.com/ticket/10345
 
-    cursor.blink = $.noop;
+    cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
