@@ -60,6 +60,7 @@ var makeTextarea = (function() {
     var textTimeout;
     var keydown = null;
     var keypress = null;
+    var paste = null;
 
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
@@ -89,7 +90,7 @@ var makeTextarea = (function() {
         textTimeout = undefined;
       }
 
-      if (hasSelection()) return;
+      if (paste || hasSelection()) return;
 
       var text = popText();
 
@@ -100,6 +101,14 @@ var makeTextarea = (function() {
 
     function handleKey() {
       handlers.key(stringify(keydown), keydown);
+    }
+
+    function handlePaste() {
+      var text = popText();
+
+      if (text) handlers.paste(text, paste);
+
+      paste = null;
     }
 
     // -*- public methods -*- //
@@ -141,12 +150,18 @@ var makeTextarea = (function() {
       handleText();
     }
 
+    function onPaste(e) {
+      paste = e;
+      setTimeout(handlePaste);
+    }
+
     // set up events
     textarea
       .bind('keydown', onKeydown)
       .bind('keypress', onKeypress)
       .bind('blur', onBlur)
       .bind('input', onInput)
+      .bind('paste', onPaste)
     ;
 
     // -*- expose public methods -*- //
