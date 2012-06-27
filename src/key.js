@@ -55,10 +55,6 @@ $.fn.key = (function() {
     return modifiers.join('-');
   }
 
-  function embellish(evt) {
-    evt.key = stringify(evt);
-  }
-
   // hook up the events
   return function key(handlers) {
     var textTimeout;
