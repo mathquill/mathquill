@@ -77,6 +77,12 @@ var makeTextarea = (function() {
     }
 
     // -*- private methods -*- //
+    function popText() {
+      var text = textarea.val();
+      textarea.val('');
+      return text;
+    }
+
     function handleText() {
       if (textTimeout) {
         clearTimeout(textTimeout);
@@ -85,8 +91,7 @@ var makeTextarea = (function() {
 
       if (hasSelection()) return;
 
-      var text = textarea.val();
-      textarea.val('');
+      var text = popText();
 
       if (text) {
         handlers.text(text, keydown, keypress);
