@@ -366,12 +366,12 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.write = function(ch) {
     this.cursor.insertNew(VanillaSymbol(ch));
   };
-  _.keydown = function(e) {
+  _.onKey = function(key, e) {
     //backspace and delete and ends of block don't unwrap
     if (!this.cursor.selection &&
       (
-        (e.which === 8 && !this.cursor.prev) ||
-        (e.which === 46 && !this.cursor.next)
+        (key === 'Backspace' && !this.cursor.prev) ||
+        (key === 'Del' && !this.cursor.next)
       )
     ) {
       if (this.isEmpty())
@@ -521,8 +521,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.latex = function() {
     return '\\' + this.firstChild.latex() + ' ';
   };
-  _.keydown = function(e) {
-    if (e.which === 9 || e.which === 13) { //tab or enter
+  _.onKey = function(key, e) {
+    if (key === 'Tab' || key === 'Enter') {
       this.renderCommand();
       e.preventDefault();
       return false;
@@ -613,11 +613,11 @@ LatexCmds.vector = P(MathCommand, function(_) {
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
   };
-  _.keydown = function(e) {
+  _.onKey = function(key, e) {
     var currentBlock = this.cursor.parent;
 
     if (currentBlock.parent === this) {
-      if (e.which === 13) { //enter
+      if (key === 'Enter') { //enter
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>')
@@ -636,7 +636,7 @@ LatexCmds.vector = P(MathCommand, function(_) {
         e.preventDefault();
         return false;
       }
-      else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
+      else if (key === 'Tab' && !currentBlock.next) {
         if (currentBlock.isEmpty()) {
           if (currentBlock.prev) {
             this.cursor.insertAfter(this);
