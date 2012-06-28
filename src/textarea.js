@@ -71,12 +71,25 @@ var makeTextarea = (function() {
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
 
-    function hasSelection() {
+    function hasSelectionOnDocument() {
+      var sel = document.selection;
+
+      if (!sel) return false;
+      if (!sel.createRange) return false;
+
+      return sel.createRange().parentElement() === textarea[0];
+    }
+
+    function hasSelectionInTextarea() {
       var dom = textarea[0];
 
       if (!('selectionStart' in dom)) return false;
-      if (dom.selectionStart === dom.selectionEnd) return false;
-      return true;
+
+      return dom.selectionStart !== dom.selectionEnd;
+    }
+
+    function hasSelection() {
+      return hasSelectionOnDocument() || hasSelectionInTextarea();
     }
 
     // -*- private methods -*- //
