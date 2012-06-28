@@ -43,7 +43,7 @@ var makeTextarea = (function() {
     var modifiers = [];
 
     if (evt.ctrlKey) modifiers.push('Ctrl');
-    if (evt.metaKey) modifiers.push('Meta');
+    if (evt.originalEvent && evt.originalEvent.metaKey) modifiers.push('Meta');
     if (evt.altKey) modifiers.push('Alt');
     if (evt.shiftKey) modifiers.push('Shift');
 
