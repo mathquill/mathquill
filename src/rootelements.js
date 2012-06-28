@@ -405,7 +405,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 var RootMathCommand = P(MathCommand, function(_, _super) {
   _.init = function(cursor) {
     _super.init.call(this, '$');
-    console.log(this, cursor);
     this.cursor = cursor;
   };
   _.html_template = ['<span class="mathquill-rendered-math"></span>'];
