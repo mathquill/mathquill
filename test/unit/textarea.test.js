@@ -113,6 +113,21 @@ suite('key', function() {
       assert.equal(el.val(), 'foobar', 'value remains after keydown');
     });
 
+    test('select populates the textarea but doesn\'t call text' +
+         ' on keydown, even when the selection is not properly' +
+         ' detectable', function() {
+      var manager = makeTextarea(el, { text: shouldNotBeCalled });
+
+      manager.select('foobar');
+      // monkey-patch the dom-level selection to look like it's not
+      // there, as in IE < 9.
+      el[0].selectionStart = el[0].selectionEnd = 0;
+
+      assert.equal(el.val(), 'foobar');
+      el.trigger('keydown');
+      assert.equal(el.val(), 'foobar', 'value remains after keydown');
+    });
+
     test('blurring', function() {
       var manager = makeTextarea(el, {
         text: shouldNotBeCalled,

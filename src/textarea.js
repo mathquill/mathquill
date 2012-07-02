@@ -71,6 +71,9 @@ var makeTextarea = (function() {
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
 
+    // Determine whether there's a selection in the textarea.
+    // This will always return false in IE < 9, since it uses
+    // document.selection instead.
     function hasSelection() {
       var dom = textarea[0];
 
@@ -87,17 +90,28 @@ var makeTextarea = (function() {
     }
 
     function handleText() {
-      if (textTimeout) {
-        clearTimeout(textTimeout);
-        textTimeout = undefined;
-      }
+      textTimeout = undefined;
 
+      // the two cases things might show up
+      // in the textarea outside of normal
+      // text input are if the user is selecting
+      // text, or has just pasted.
+      // TODO: make sure we're not relying on this
+      // in IE < 9, since hasSelection() will always
+      // be false.
       if (paste || hasSelection()) return;
 
       var text = popText();
 
       if (text) {
         textCallback(text, keydown, keypress);
+      }
+    }
+
+    function flushText() {
+      if (textTimeout) {
+        clearTimeout(textTimeout);
+        handleText();
       }
     }
 
@@ -121,7 +135,7 @@ var makeTextarea = (function() {
 
     // -*- event handlers -*- //
     function onKeydown(e) {
-      handleText();
+      flushText();
 
       keydown = e;
       keypress = null;
@@ -130,7 +144,7 @@ var makeTextarea = (function() {
     }
 
     function onKeypress(e) {
-      handleText();
+      flushText();
 
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -144,11 +158,12 @@ var makeTextarea = (function() {
     }
 
     function onBlur() {
-      handleText();
+      flushText();
       keydown = keypress = null;
     }
 
     function onInput() {
+      if (textTimeout) clearTimeout(textTimeout);
       handleText();
     }
 
