@@ -123,7 +123,6 @@ suite('key', function() {
       // there, as in IE < 9.
       el[0].selectionStart = el[0].selectionEnd = 0;
 
-      assert.equal(el.val(), 'foobar');
       el.trigger('keydown');
       assert.equal(el.val(), 'foobar', 'value remains after keydown');
     });
