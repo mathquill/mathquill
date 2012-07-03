@@ -1,10 +1,18 @@
 var manageTextarea = (function() {
-  var SPECIAL = {
+  // The following [key values][1] map was compiled from the
+  // [DOM3 Events appendix section on key codes][2] and
+  // [a widely cited report on cross-browser tests of key codes][3],
+  // except for 10: 'Enter', which I've empirically observed in Safari on iOS
+  // and doesn't appear to conflict with any other known key codes.
+  //
+  // [1]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#keys-keyvalues
+  // [2]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+  // [3]: http://unixpapa.com/js/key.html
+  var KEY_VALUES = {
     8: 'Backspace',
     9: 'Tab',
 
-    // for iPhone
-    10: 'Enter',
+    10: 'Enter', // for Safari on iOS
 
     13: 'Enter',
 
@@ -32,13 +40,11 @@ var manageTextarea = (function() {
     46: 'Del',
 
     144: 'NumLock'
-
-    // TODO: more
   };
 
   function stringify(evt) {
     var which = evt.which || evt.keyCode;
-    var special = SPECIAL[which];
+    var keyVal = KEY_VALUES[which];
     var key;
     var modifiers = [];
 
@@ -47,9 +53,9 @@ var manageTextarea = (function() {
     if (evt.altKey) modifiers.push('Alt');
     if (evt.shiftKey) modifiers.push('Shift');
 
-    key = special || String.fromCharCode(which);
+    key = keyVal || String.fromCharCode(which);
 
-    if (!modifiers.length && !special) return key;
+    if (!modifiers.length && !keyVal) return key;
 
     modifiers.push(key);
     return modifiers.join('-');
