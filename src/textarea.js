@@ -90,7 +90,6 @@ var manageTextarea = (function() {
   return function manageTextarea(el, handlers) {
     var keydown = null;
     var keypress = null;
-    var paste = null;
 
     if (!handlers) handlers = {};
     var textCallback = handlers.text || noop;
