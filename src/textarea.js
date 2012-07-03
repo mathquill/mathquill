@@ -113,14 +113,12 @@ var manageTextarea = (function() {
     }
 
     function handleText() {
-      // the two cases things might show up
-      // in the textarea outside of normal
-      // text input are if the user is selecting
-      // text, or has just pasted.
-      // TODO: make sure we're not relying on this
-      // in IE < 9, since hasSelection() will always
-      // be false.
-      if (paste || hasSelection()) return;
+      // If there is a selection, the contents of the textarea couldn't
+      // possibly have just been typed in.
+      // This happens in browsers like Firefox and Opera that fire
+      // keypress for keystrokes that are not text entry and leave the
+      // selection in the textarea alone, such as Ctrl-C.
+      if (hasSelection()) return;
 
       popText(textCallback);
     }
@@ -131,12 +129,12 @@ var manageTextarea = (function() {
 
     function handlePaste() {
       popText(pasteCallback);
-
-      paste = null;
     }
 
     // -*- public methods -*- //
     function select(text) {
+      flush();
+
       textarea.val(text);
       if (text) textarea[0].select();
     }
@@ -175,8 +173,8 @@ var manageTextarea = (function() {
     }
 
     function onPaste(e) {
-      paste = e;
-      setTimeout(handlePaste);
+      flush();
+      defer(handlePaste);
     }
 
     var onCut = cutCallback;
