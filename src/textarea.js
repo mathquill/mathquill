@@ -119,6 +119,8 @@ var manageTextarea = (function() {
     }
 
 
+    // -*- helper subroutines -*- //
+
     // Determine whether there's a selection in the textarea.
     // This will always return false in IE < 9, since it uses
     // document.selection instead.
@@ -129,7 +131,6 @@ var manageTextarea = (function() {
       return dom.selectionStart !== dom.selectionEnd;
     }
 
-    // -*- private methods -*- //
     function popText(callback) {
       var text = textarea.val();
       textarea.val('');
