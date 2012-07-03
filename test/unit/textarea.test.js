@@ -16,7 +16,7 @@ suite('key', function() {
 
   test('normal keys', function(done) {
     var counter = 0;
-    makeTextarea(el, {
+    manageTextarea(el, {
       text: function(text, keydown, keypress) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is only called once');
@@ -41,7 +41,7 @@ suite('key', function() {
   test('one keydown only', function(done) {
     var counter = 0;
 
-    makeTextarea(el, {
+    manageTextarea(el, {
       key: function(key, evt) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is called only once');
@@ -58,7 +58,7 @@ suite('key', function() {
   test('a series of keydowns only', function(done) {
     var counter = 0;
 
-    makeTextarea(el, {
+    manageTextarea(el, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
@@ -79,7 +79,7 @@ suite('key', function() {
   test('one keydown and a series of keypresses', function(done) {
     var counter = 0;
 
-    makeTextarea(el, {
+    manageTextarea(el, {
       key: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
@@ -100,7 +100,7 @@ suite('key', function() {
 
   suite('select', function() {
     test('select populates the textarea but doesn\'t call text', function() {
-      var manager = makeTextarea(el, {
+      var manager = manageTextarea(el, {
         text: shouldNotBeCalled,
       });
 
@@ -116,7 +116,7 @@ suite('key', function() {
     test('select populates the textarea but doesn\'t call text' +
          ' on keydown, even when the selection is not properly' +
          ' detectable', function() {
-      var manager = makeTextarea(el, { text: shouldNotBeCalled });
+      var manager = manageTextarea(el, { text: shouldNotBeCalled });
 
       manager.select('foobar');
       // monkey-patch the dom-level selection to look like it's not
@@ -128,7 +128,7 @@ suite('key', function() {
     });
 
     test('blurring', function() {
-      var manager = makeTextarea(el, {
+      var manager = manageTextarea(el, {
         text: shouldNotBeCalled,
       });
 
@@ -143,7 +143,7 @@ suite('key', function() {
 
   suite('paste', function() {
     test('paste event only', function(done) {
-      makeTextarea(el, {
+      manageTextarea(el, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, '$x^2+1$');
@@ -157,7 +157,7 @@ suite('key', function() {
     });
 
     test('paste after keydown/keypress', function(done) {
-      makeTextarea(el, {
+      manageTextarea(el, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, 'foobar');
@@ -173,7 +173,7 @@ suite('key', function() {
     });
 
     test('keypress timeout happening before paste timeout', function(done) {
-      makeTextarea(el, {
+      manageTextarea(el, {
         text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, 'foobar');

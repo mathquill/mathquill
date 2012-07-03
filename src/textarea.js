@@ -1,4 +1,4 @@
-var makeTextarea = (function() {
+var manageTextarea = (function() {
   var SPECIAL = {
     8: 'Backspace',
     9: 'Tab',
@@ -56,7 +56,7 @@ var makeTextarea = (function() {
   }
 
   // hook up the events
-  return function makeTextarea(el, handlers) {
+  return function manageTextarea(el, handlers) {
     var textTimeout;
     var keydown = null;
     var keypress = null;
