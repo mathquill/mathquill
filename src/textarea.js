@@ -84,8 +84,7 @@ var manageTextarea = (function() {
       var dom = textarea[0];
 
       if (!('selectionStart' in dom)) return false;
-      if (dom.selectionStart === dom.selectionEnd) return false;
-      return true;
+      return dom.selectionStart !== dom.selectionEnd;
     }
 
     // -*- private methods -*- //
