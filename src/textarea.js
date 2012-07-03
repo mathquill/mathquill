@@ -190,4 +190,4 @@ var manageTextarea = (function() {
       paste: onPaste
     }
   };
-})();
+}());
