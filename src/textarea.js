@@ -1,10 +1,41 @@
-var makeTextarea = (function() {
-  var SPECIAL = {
+/*************************************************
+ * Textarea Manager
+ *
+ * An abstraction layer wrapping the textarea in
+ * an object with methods to manipulate and listen
+ * to events on, that hides all the nasty cross-
+ * browser incompatibilities behind a uniform API.
+ *
+ * Design goal: This is a *HARD* internal
+ * abstraction barrier. Cross-browser
+ * inconsistencies are not allowed to leak through
+ * and be dealt with by event handlers. All future
+ * cross-browser issues that arise must be dealt
+ * with here, and if necessary, the API updated.
+ *
+ * Organization:
+ * - key values map and stringify()
+ * - manageTextarea()
+ *    + defer() and flush()
+ *    + event handler logic
+ *    + attach event handlers and export methods
+ ************************************************/
+
+var manageTextarea = (function() {
+  // The following [key values][1] map was compiled from the
+  // [DOM3 Events appendix section on key codes][2] and
+  // [a widely cited report on cross-browser tests of key codes][3],
+  // except for 10: 'Enter', which I've empirically observed in Safari on iOS
+  // and doesn't appear to conflict with any other known key codes.
+  //
+  // [1]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#keys-keyvalues
+  // [2]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+  // [3]: http://unixpapa.com/js/key.html
+  var KEY_VALUES = {
     8: 'Backspace',
     9: 'Tab',
 
-    // for iPhone
-    10: 'Enter',
+    10: 'Enter', // for Safari on iOS
 
     13: 'Enter',
 
@@ -32,13 +63,13 @@ var makeTextarea = (function() {
     46: 'Del',
 
     144: 'NumLock'
-
-    // TODO: more
   };
 
+  // To the extent possible, create a normalized string representation
+  // of the key combo (i.e., key code and modifier keys).
   function stringify(evt) {
     var which = evt.which || evt.keyCode;
-    var special = SPECIAL[which];
+    var keyVal = KEY_VALUES[which];
     var key;
     var modifiers = [];
 
@@ -47,104 +78,89 @@ var makeTextarea = (function() {
     if (evt.altKey) modifiers.push('Alt');
     if (evt.shiftKey) modifiers.push('Shift');
 
-    key = special || String.fromCharCode(which);
+    key = keyVal || String.fromCharCode(which);
 
-    if (!modifiers.length && !special) return key;
+    if (!modifiers.length && !keyVal) return key;
 
     modifiers.push(key);
     return modifiers.join('-');
   }
 
-  // hook up the events
-  return function makeTextarea(el, handlers) {
-    var textTimeout;
+  // create a textarea manager that calls callbacks at useful times
+  // and exports useful public methods
+  return function manageTextarea(el, handlers) {
     var keydown = null;
     var keypress = null;
-    var paste = null;
 
     if (!handlers) handlers = {};
     var textCallback = handlers.text || noop;
     var keyCallback = handlers.key || noop;
     var pasteCallback = handlers.paste || noop;
-    var cutCallback = handlers.cut || noop;
+    var onCut = handlers.cut || noop;
 
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
 
-    function hasSelectionOnDocument() {
-      var sel = document.selection;
 
-      if (!sel) return false;
-      if (!sel.createRange) return false;
+    // defer() runs fn immediately after the current thread.
+    // flush() will run it even sooner, if possible.
+    // flush always needs to be called before defer, and is called a
+    // few other places besides.
+    var timeout, deferredFn;
+    function defer(fn) {
+      timeout = setTimeout(fn);
+      deferredFn = fn;
+    }
+    function flush() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = undefined;
+        deferredFn();
+      }
+    }
+    textarea.bind('keydown keypress input keyup blur paste', flush);
 
-      return sel.createRange().parentElement() === textarea[0];
+
+    // -*- public methods -*- //
+    function select(text) {
+      flush();
+
+      textarea.val(text);
+      if (text) textarea[0].select();
+    }
+    function paste() {
+      flush();
+      onPaste();
     }
 
-    function hasSelectionInTextarea() {
+    // -*- helper subroutines -*- //
+
+    // Determine whether there's a selection in the textarea.
+    // This will always return false in IE < 9, which don't support
+    // HTMLTextareaElement::selection{Start,End}.
+    function hasSelection() {
       var dom = textarea[0];
 
       if (!('selectionStart' in dom)) return false;
-
       return dom.selectionStart !== dom.selectionEnd;
     }
-
-    function hasSelection() {
-      return hasSelectionOnDocument() || hasSelectionInTextarea();
-    }
-
-    // -*- private methods -*- //
-    function popText() {
+    function popText(callback) {
       var text = textarea.val();
       textarea.val('');
-      return text;
+      if (text) callback(text);
     }
-
-    function handleText() {
-      if (textTimeout) {
-        clearTimeout(textTimeout);
-        textTimeout = undefined;
-      }
-
-      if (paste || hasSelection()) return;
-
-      var text = popText();
-
-      if (text) {
-        textCallback(text, keydown, keypress);
-      }
-    }
-
     function handleKey() {
       keyCallback(stringify(keydown), keydown);
     }
 
-    function handlePaste() {
-      var text = popText();
-
-      if (text) pasteCallback(text, paste);
-
-      paste = null;
-    }
-
-    // -*- public methods -*- //
-    function select(text) {
-      textarea.val(text);
-      if (text) textarea[0].select();
-    }
-
     // -*- event handlers -*- //
     function onKeydown(e) {
-      handleText();
-
       keydown = e;
       keypress = null;
 
       handleKey();
     }
-
     function onKeypress(e) {
-      handleText();
-
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
       // after keydown.  In that case, there will be
@@ -153,39 +169,51 @@ var makeTextarea = (function() {
 
       keypress = e;
 
-      textTimeout = setTimeout(handleText);
-    }
+      defer(function() {
+        // If there is a selection, the contents of the textarea couldn't
+        // possibly have just been typed in.
+        // This happens in browsers like Firefox and Opera that fire
+        // keypress for keystrokes that are not text entry and leave the
+        // selection in the textarea alone, such as Ctrl-C.
+        // Note: we assume that browsers that don't support hasSelection()
+        // also never fire keypress on keystrokes that are not text entry.
+        // This seems reasonably safe because:
+        // - all modern browsers including IE 9+ support hasSelection(),
+        //   making it extremely unlikely any browser besides IE < 9 won't
+        // - as far as we know IE < 9 never fires keypress on keystrokes
+        //   that aren't text entry, which is only as reliable as our
+        //   tests are comprehensive, but the IE < 9 way to do
+        //   hasSelection() is poorly documented and is also only as
+        //   reliable as our tests are comprehensive
+        // If anything like #40 or #71 is reported in IE < 9, see
+        // b1318e5349160b665003e36d4eedd64101ceacd8
+        if (hasSelection()) return;
 
+        popText(textCallback);
+      });
+    }
     function onBlur() {
-      handleText();
       keydown = keypress = null;
     }
-
-    function onInput() {
-      handleText();
-    }
-
     function onPaste(e) {
-      paste = e;
-      setTimeout(handlePaste);
+      defer(function() {
+        popText(pasteCallback);
+      });
     }
 
-    var onCut = cutCallback;
+    // -*- attach event handlers -*- //
+    textarea.bind({
+      keydown: onKeydown,
+      keypress: onKeypress,
+      blur: onBlur,
+      cut: onCut,
+      paste: onPaste
+    });
 
-    // set up events
-    textarea
-      .bind('keydown', onKeydown)
-      .bind('keypress', onKeypress)
-      .bind('blur', onBlur)
-      .bind('input', onInput)
-      .bind('paste', onPaste)
-      .bind('cut', onCut)
-    ;
-
-    // -*- expose public methods -*- //
+    // -*- export public methods -*- //
     return {
       select: select,
-      paste: onPaste
+      paste: paste
     }
   };
-})();
+}());
