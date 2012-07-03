@@ -117,6 +117,7 @@ var manageTextarea = (function() {
         deferredFn();
       }
     }
+    textarea.bind('keydown keypress input keyup blur paste', flush);
 
 
     // -*- public methods -*- //
@@ -125,6 +126,10 @@ var manageTextarea = (function() {
 
       textarea.val(text);
       if (text) textarea[0].select();
+    }
+    function paste() {
+      flush();
+      onPaste();
     }
 
     // -*- helper subroutines -*- //
@@ -151,8 +156,6 @@ var manageTextarea = (function() {
 
     // -*- event handlers -*- //
     function onKeydown(e) {
-      flush();
-
       keydown = e;
       keypress = null;
 
@@ -160,8 +163,6 @@ var manageTextarea = (function() {
     }
 
     function onKeypress(e) {
-      flush();
-
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
       // after keydown.  In that case, there will be
@@ -183,16 +184,10 @@ var manageTextarea = (function() {
     }
 
     function onBlur() {
-      flush();
       keydown = keypress = null;
     }
 
-    function onInput() {
-      flush();
-    }
-
     function onPaste(e) {
-      flush();
       defer(function() {
         popText(pasteCallback);
       });
@@ -203,7 +198,6 @@ var manageTextarea = (function() {
       keydown: onKeydown,
       keypress: onKeypress,
       blur: onBlur,
-      input: onInput,
       paste: onPaste,
       cut: onCut
     });
@@ -211,7 +205,7 @@ var manageTextarea = (function() {
     // -*- expose public methods -*- //
     return {
       select: select,
-      paste: onPaste
+      paste: paste
     }
   };
 }());
