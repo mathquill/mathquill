@@ -23,12 +23,6 @@ suite('key', function() {
         assert.equal(text, 'a', 'text comes back as a');
         assert.equal(el.val(), '', 'the textarea remains empty');
 
-        assert.ok(keydown, 'has a keydown');
-        assert.equal(keydown.type, 'keydown', 'has the correct keydown');
-
-        assert.ok(keypress, 'has a keypress');
-        assert.equal(keypress.type, 'keypress', 'has the correct keypress');
-
         done();
       },
     });

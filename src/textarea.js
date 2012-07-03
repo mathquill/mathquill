@@ -88,10 +88,10 @@ var manageTextarea = (function() {
     }
 
     // -*- private methods -*- //
-    function popText() {
+    function popText(callback) {
       var text = textarea.val();
       textarea.val('');
-      return text;
+      if (text) callback(text);
     }
 
     function handleText() {
@@ -106,11 +106,7 @@ var manageTextarea = (function() {
       // be false.
       if (paste || hasSelection()) return;
 
-      var text = popText();
-
-      if (text) {
-        textCallback(text, keydown, keypress);
-      }
+      popText(textCallback);
     }
 
     function flushText() {
@@ -125,9 +121,7 @@ var manageTextarea = (function() {
     }
 
     function handlePaste() {
-      var text = popText();
-
-      if (text) pasteCallback(text, paste);
+      popText(pasteCallback);
 
       paste = null;
     }
