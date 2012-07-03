@@ -136,8 +136,8 @@ var manageTextarea = (function() {
     // -*- helper subroutines -*- //
 
     // Determine whether there's a selection in the textarea.
-    // This will always return false in IE < 9, since it uses
-    // document.selection instead.
+    // This will always return false in IE < 9, which don't support
+    // HTMLTextareaElement::selection{Start,End}.
     function hasSelection() {
       var dom = textarea[0];
 
@@ -175,6 +175,18 @@ var manageTextarea = (function() {
         // This happens in browsers like Firefox and Opera that fire
         // keypress for keystrokes that are not text entry and leave the
         // selection in the textarea alone, such as Ctrl-C.
+        // Note: we assume that browsers that don't support hasSelection()
+        // also never fire keypress on keystrokes that are not text entry.
+        // This seems reasonably safe because:
+        // - all modern browsers including IE 9+ support hasSelection(),
+        //   making it extremely unlikely any browser besides IE < 9 won't
+        // - as far as we know IE < 9 never fires keypress on keystrokes
+        //   that aren't text entry, which is only as reliable as our
+        //   tests are comprehensive, but the IE < 9 way to do
+        //   hasSelection() is poorly documented and is also only as
+        //   reliable as our tests are comprehensive
+        // If anything like #40 or #71 is reported in IE < 9, see
+        // b1318e5349160b665003e36d4eedd64101ceacd8
         if (hasSelection()) return;
 
         popText(textCallback);
