@@ -204,14 +204,14 @@ var manageTextarea = (function() {
     var onCut = cutCallback;
 
     // set up events
-    textarea
-      .bind('keydown', onKeydown)
-      .bind('keypress', onKeypress)
-      .bind('blur', onBlur)
-      .bind('input', onInput)
-      .bind('paste', onPaste)
-      .bind('cut', onCut)
-    ;
+    textarea.bind({
+      keydown: onKeydown,
+      keypress: onKeypress,
+      blur: onBlur,
+      input: onInput,
+      paste: onPaste,
+      cut: onCut
+    });
 
     // -*- expose public methods -*- //
     return {
