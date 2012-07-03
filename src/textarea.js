@@ -10,7 +10,7 @@
  * abstraction barrier. Cross-browser
  * inconsistencies are not allowed to leak through
  * and be dealt with by event handlers. All future
- * cross-browser issues that arise must be deal
+ * cross-browser issues that arise must be dealt
  * with here, and if necessary, the API updated.
  *
  * Organization:
@@ -86,7 +86,8 @@ var manageTextarea = (function() {
     return modifiers.join('-');
   }
 
-  // hook up the events
+  // create a textarea manager that calls callbacks at useful times
+  // and exports useful public methods
   return function manageTextarea(el, handlers) {
     var keydown = null;
     var keypress = null;
@@ -143,13 +144,11 @@ var manageTextarea = (function() {
       if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
     }
-
     function popText(callback) {
       var text = textarea.val();
       textarea.val('');
       if (text) callback(text);
     }
-
     function handleKey() {
       keyCallback(stringify(keydown), keydown);
     }
@@ -161,7 +160,6 @@ var manageTextarea = (function() {
 
       handleKey();
     }
-
     function onKeypress(e) {
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -182,27 +180,25 @@ var manageTextarea = (function() {
         popText(textCallback);
       });
     }
-
     function onBlur() {
       keydown = keypress = null;
     }
-
     function onPaste(e) {
       defer(function() {
         popText(pasteCallback);
       });
     }
 
-    // set up events
+    // -*- attach event handlers -*- //
     textarea.bind({
       keydown: onKeydown,
       keypress: onKeypress,
       blur: onBlur,
-      paste: onPaste,
-      cut: onCut
+      cut: onCut,
+      paste: onPaste
     });
 
-    // -*- expose public methods -*- //
+    // -*- export public methods -*- //
     return {
       select: select,
       paste: paste
