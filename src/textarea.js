@@ -107,10 +107,12 @@ var manageTextarea = (function() {
     // flush always needs to be called before defer, and is called a
     // few other places besides.
     var timeout, deferredFn;
+
     function defer(fn) {
       timeout = setTimeout(fn);
       deferredFn = fn;
     }
+
     function flush() {
       if (timeout) {
         clearTimeout(timeout);
@@ -118,6 +120,7 @@ var manageTextarea = (function() {
         deferredFn();
       }
     }
+
     textarea.bind('keydown keypress input keyup blur paste', flush);
 
 
@@ -128,6 +131,7 @@ var manageTextarea = (function() {
       textarea.val(text);
       if (text) textarea[0].select();
     }
+
     function paste() {
       flush();
       onPaste();
@@ -144,11 +148,13 @@ var manageTextarea = (function() {
       if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
     }
+
     function popText(callback) {
       var text = textarea.val();
       textarea.val('');
       if (text) callback(text);
     }
+
     function handleKey() {
       keyCallback(stringify(keydown), keydown);
     }
@@ -160,6 +166,7 @@ var manageTextarea = (function() {
 
       handleKey();
     }
+
     function onKeypress(e) {
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -192,9 +199,9 @@ var manageTextarea = (function() {
         popText(textCallback);
       });
     }
-    function onBlur() {
-      keydown = keypress = null;
-    }
+
+    function onBlur() { keydown = keypress = null; }
+
     function onPaste(e) {
       defer(function() {
         popText(pasteCallback);
