@@ -63,7 +63,6 @@ var manageTextarea = (function() {
 
   // hook up the events
   return function manageTextarea(el, handlers) {
-    var textTimeout;
     var keydown = null;
     var keypress = null;
     var paste = null;
@@ -76,6 +75,25 @@ var manageTextarea = (function() {
 
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
+
+
+    // defer() runs fn immediately after the current thread.
+    // flush() will run it even sooner, if possible.
+    // flush always needs to be called before defer, and is called a
+    // few other places besides.
+    var timeout, deferredFn;
+    function defer(fn) {
+      timeout = setTimeout(fn);
+      deferredFn = fn;
+    }
+    function flush() {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = undefined;
+        deferredFn();
+      }
+    }
+
 
     // Determine whether there's a selection in the textarea.
     // This will always return false in IE < 9, since it uses
@@ -95,8 +113,6 @@ var manageTextarea = (function() {
     }
 
     function handleText() {
-      textTimeout = undefined;
-
       // the two cases things might show up
       // in the textarea outside of normal
       // text input are if the user is selecting
@@ -107,13 +123,6 @@ var manageTextarea = (function() {
       if (paste || hasSelection()) return;
 
       popText(textCallback);
-    }
-
-    function flushText() {
-      if (textTimeout) {
-        clearTimeout(textTimeout);
-        handleText();
-      }
     }
 
     function handleKey() {
@@ -134,7 +143,7 @@ var manageTextarea = (function() {
 
     // -*- event handlers -*- //
     function onKeydown(e) {
-      flushText();
+      flush();
 
       keydown = e;
       keypress = null;
@@ -143,7 +152,7 @@ var manageTextarea = (function() {
     }
 
     function onKeypress(e) {
-      flushText();
+      flush();
 
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -153,17 +162,16 @@ var manageTextarea = (function() {
 
       keypress = e;
 
-      textTimeout = setTimeout(handleText);
+      defer(handleText);
     }
 
     function onBlur() {
-      flushText();
+      flush();
       keydown = keypress = null;
     }
 
     function onInput() {
-      if (textTimeout) clearTimeout(textTimeout);
-      handleText();
+      flush();
     }
 
     function onPaste(e) {
