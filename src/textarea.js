@@ -119,6 +119,14 @@ var manageTextarea = (function() {
     }
 
 
+    // -*- public methods -*- //
+    function select(text) {
+      flush();
+
+      textarea.val(text);
+      if (text) textarea[0].select();
+    }
+
     // -*- helper subroutines -*- //
 
     // Determine whether there's a selection in the textarea.
@@ -139,14 +147,6 @@ var manageTextarea = (function() {
 
     function handleKey() {
       keyCallback(stringify(keydown), keydown);
-    }
-
-    // -*- public methods -*- //
-    function select(text) {
-      flush();
-
-      textarea.val(text);
-      if (text) textarea[0].select();
     }
 
     // -*- event handlers -*- //
