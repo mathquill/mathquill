@@ -11,7 +11,7 @@
   }
 
   // TODO: dasherize non-symbola
-  var, .text, .nonSymbola {
+  .times {
     font-family: @times;
     line-height: .9;
   }
@@ -71,11 +71,11 @@
   }
 
   .sans-serif {
-    font-family: sans-serif, Symbola, serif;
+    font-family: sans-serif, Stix, serif;
   }
 
   .monospace {
-    font-family: monospace, Symbola, serif;
+    font-family: monospace, Stix, serif;
   }
 
   .overline {
@@ -181,7 +181,7 @@
   // non-italicized functions
   // like \sin, \cos, \ln, etc.
   .non-italicized-function {
-    font-family: Symbola, "Times New Roman", serif;
+    font-family: @stix;
     line-height: .9;
     font-style: normal;
     padding-right: .2em;
@@ -252,6 +252,6 @@
 
   &, .mathquill-editable {
     cursor: text;
-    font-family: @symbola;
+    font-family: @stix;
   }
 }
