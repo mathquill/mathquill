@@ -95,7 +95,7 @@ var manageTextarea = (function() {
     var textCallback = handlers.text || noop;
     var keyCallback = handlers.key || noop;
     var pasteCallback = handlers.paste || noop;
-    var cutCallback = handlers.cut || noop;
+    var onCut = handlers.cut || noop;
 
     // TODO: don't assume el is the textarea itself
     var textarea = $(el);
@@ -197,8 +197,6 @@ var manageTextarea = (function() {
         popText(pasteCallback);
       });
     }
-
-    var onCut = cutCallback;
 
     // set up events
     textarea.bind({
