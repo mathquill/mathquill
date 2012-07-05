@@ -144,4 +144,25 @@ suite('tree', function() {
       assert.equal(parent.lastChild, next, 'parent.lastChild is next');
     });
   });
+
+  suite('fragments', function() {
+    test('an empty fragment', function() {
+      var empty = Fragment();
+      var count = 0;
+
+      empty.each(function() { count += 1 });
+
+      assert.equal(count, 0, 'each is a noop on an empty fragment');
+    });
+
+    test('half-empty fragments are disallowed', function() {
+      assert.throws(function() {
+        Fragment(Node(), 0)
+      }, 'half-empty on the right');
+
+      assert.throws(function() {
+        Fragment(0, Node());
+      }, 'half-empty on the left');
+    });
+  });
 });

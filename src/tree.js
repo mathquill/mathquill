@@ -33,8 +33,14 @@ var Fragment = P(function(_) {
   _.last = 0;
 
   _.init = function(first, last) {
+    pray('no half-empty fragments', !first === !last);
+
+    if (!first) return;
+
     pray('first node is passed to Fragment', first instanceof Node);
     pray('last node is passed to Fragment', last instanceof Node);
+    pray('first and last have the same parent',
+         first.parent === last.parent);
 
     this.first = first;
     this.last = last;
@@ -61,6 +67,9 @@ var Fragment = P(function(_) {
 
     var self = this;
     var first = self.first;
+
+    if (!first) return this;
+
     var last = self.last;
 
     if (prev) {
@@ -90,8 +99,10 @@ var Fragment = P(function(_) {
   };
 
   _.disown = function() {
-    var first = this.first;
-    var last = this.last;
+    var self = this;
+    var first = self.first;
+    if (!first) return self;
+    var last = self.last;
     var parent = first.parent;
 
     if (first.prev) {
@@ -107,17 +118,21 @@ var Fragment = P(function(_) {
     }
 
     first.prev = last.next = 0;
-    this.each(function(el) { el.parent = 0; });
+    self.each(function(el) { el.parent = 0; });
 
     return self;
   }
 
   _.each = function(fn) {
-    for (var el = this.first; el && el !== this.last.next; el = el.next) {
-      if (fn.call(this, el) === false) break;
+    var self = this;
+    var el = self.first;
+    if (!el) return self;
+
+    for (;el !== self.last.next; el = el.next) {
+      if (fn.call(self, el) === false) break;
     }
 
-    return this;
+    return self;
   };
 
   _.fold = function(fold, fn) {
