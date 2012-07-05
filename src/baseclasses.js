@@ -6,25 +6,7 @@
  * MathElement is the core Math DOM tree node prototype.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(function(_) {
-  _.prev = 0;
-  _.next = 0;
-  _.parent = 0;
-  _.firstChild = 0;
-  _.lastChild = 0;
-
-  _.eachChild = function(fn) {
-    for (var child = this.firstChild; child; child = child.next)
-      if (fn.call(this, child) === false) break;
-
-    return this;
-  };
-  _.foldChildren = function(fold, fn) {
-    this.eachChild(function(child) {
-      fold = fn.call(this, fold, child);
-    });
-    return fold;
-  };
+var MathElement = P(Node, function(_) {
   _.bubble = function(event /*, args... */) {
     var args = __slice.call(arguments, 1);
 
@@ -245,26 +227,11 @@ var MathBlock = P(MathElement, function(_) {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-var MathFragment = P(function(_) {
+var MathFragment = P(Range, function(_, _super) {
   _.init = function(first, last) {
-    var self = this;
-
-    self.first = first;
-    self.last = last || first; //just select one thing if only one argument
-
-    self.jQ = self.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
-  }
-  _.each = function(fn) {
-    for (var el = this.first; el !== this.last.next; el = el.next)
-      if (fn.call(this, el) === false) break;
-
-    return this;
-  };
-  _.fold = function(fold, fn) {
-    this.each(function(el) {
-      fold = fn.call(this, fold, el);
-    });
-    return fold;
+    // just select one thing if only one argument
+    _super.init.call(this, first, last || first);
+    this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   };
   _.latex = function() {
     return this.fold('', function(latex, el){ return latex + el.latex(); });
