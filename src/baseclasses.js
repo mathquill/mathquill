@@ -209,24 +209,10 @@ var MathFragment = P(Fragment, function(_, _super) {
     return this.detach();
   };
   _.detach = function() {
-    var self = this,
-      prev = self.first.prev,
-      next = self.last.next,
-      parent = self.last.parent;
+    this.disown();
+    this.detach = chainableNoop;
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
-
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
-
-    self.detach = chainableNoop;
-
-    return self;
+    return this;
   };
   function chainableNoop(){ return this; };
   _.blockify = function() {
