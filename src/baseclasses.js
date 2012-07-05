@@ -227,7 +227,7 @@ var MathBlock = P(MathElement, function(_) {
  * a "view" of part of the tree, not an actual node/entity in the tree)
  * that delimit a list of symbols and operators.
  */
-var MathFragment = P(Range, function(_, _super) {
+var MathFragment = P(Fragment, function(_, _super) {
   _.init = function(first, last) {
     // just select one thing if only one argument
     _super.init.call(this, first, last || first);

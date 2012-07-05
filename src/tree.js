@@ -6,7 +6,7 @@ var Node = P(function(_) {
   _.lastChild = 0;
 
   _.children = function() {
-    return Range(this.firstChild, this.lastChild);
+    return Fragment(this.firstChild, this.lastChild);
   };
 
   _.eachChild = function(fn) {
@@ -78,7 +78,7 @@ var Node = P(function(_) {
   };
 });
 
-var Range = P(function(_) {
+var Fragment = P(function(_) {
   _.first = 0;
   _.last = 0;
 
