@@ -36,6 +36,22 @@ window.assert = (function() {
         explanation: 'expected ('+thing1+') to equal ('+thing2+')'
       });
     },
+    throws: function(fn, message) {
+      var error = false;
+
+      try {
+        fn();
+      } catch(e) {
+        error = true;
+      }
+
+      if (error) return;
+
+      fail({
+        message: message,
+        explanation: 'expected '+fn+' to throw an error'
+      });
+    },
     fail: function(message) {
       fail({ message: message, explanation: 'generic fail' });
     }
