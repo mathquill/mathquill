@@ -467,7 +467,7 @@ var RootTextBlock = P(MathBlock, function(_) {
       }
     }
   };
-  _.keydown = RootMathBlock.prototype.keydown;
+  _.onKey = RootMathBlock.prototype.onKey;
   _.onText = function(ch) {
     this.cursor.deleteSelection();
     if (ch === '$')
