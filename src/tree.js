@@ -16,6 +16,64 @@ var Node = P(function(_) {
   _.foldChildren = function(fold, fn) {
     return this.children().fold(fold, fn);
   };
+
+  _.adopt = function(parent, prev, next) {
+    pray('a parent is always passed to Node::adopt', parent);
+
+    pray('prev is properly set up', (function() {
+      // either it's empty and next is the first child (possibly empty)
+      if (!prev) return parent.firstChild === next;
+
+      // or it's there and its next and parent are properly set up
+      return prev.next === next && prev.parent === parent;
+    })());
+
+    pray('next is properly set up', (function() {
+      // either it's empty and prev is the last child (possibly empty)
+      if (!next) return parent.lastChild === prev;
+
+      // or it's there and its next and parent are properly set up
+      return next.prev === prev && next.parent === parent;
+    })());
+
+    var self = this;
+
+    self.parent = parent;
+    self.next = next;
+    self.prev = prev;
+
+    if (prev) {
+      prev.next = self;
+    } else {
+      parent.firstChild = self;
+    }
+
+    if (next) {
+      next.prev = self;
+    } else {
+      parent.lastChild = self;
+    }
+
+    return self;
+  };
+
+  _.disown = function() {
+    var self = this;
+
+    if (self.prev) {
+      self.prev.next = self.next;
+    } else {
+      self.parent.firstChild = self.next;
+    }
+
+    if (self.next) {
+      self.next.prev = self.prev;
+    } else {
+      self.parent.lastChild = self.prev;
+    }
+
+    return self;
+  };
 });
 
 var Range = P(function(_) {
