@@ -10,10 +10,10 @@ function shouldRemove(el) {
   if (!Array.isArray(el)) return false;
 
   // function pray() { ... }
-  if (el[0] === 'defun' && el[1] === 'pray') return true;
+  if (el[0] === 'defun' && el[1].indexOf('pray' === 0)) return true;
 
   // pray(...)
-  if (el[0] === 'call' && el[1][0] === 'name' && el[1][1] === 'pray') return true;
+  if (el[0] === 'call' && el[1][0] === 'name' && el[1][1].indexOf('pray') === 0) return true;
 
   // remove the entire statement containing pray();
   if (el[0] === 'stat' && shouldRemove(el[1])) return true;
