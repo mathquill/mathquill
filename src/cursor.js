@@ -303,31 +303,24 @@ var Cursor = P(function(_) {
     return this;
   };
   _.unwrapGramp = function() {
-    var gramp = this.parent.parent,
-      greatgramp = gramp.parent,
-      prev = gramp.prev,
-      cursor = this;
+    var gramp = this.parent.parent;
+    var greatgramp = gramp.parent;
+    var next = gramp.next;
+    var cursor = this;
 
-    gramp.eachChild(function(uncle) {
+    var prev = gramp.prev;
+    gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
-      uncle.eachChild(function(cousin) {
-        cousin.parent = greatgramp;
-        cousin.jQ.insertBefore(gramp.jQ.first());
-      });
-      uncle.firstChild.prev = prev;
-      if (prev)
-        prev.next = uncle.firstChild;
-      else
-        greatgramp.firstChild = uncle.firstChild;
+      uncle.children()
+        .adopt(greatgramp, prev, next)
+        .each(function(cousin) {
+          cousin.jQ.insertBefore(gramp.jQ.first());
+        })
+      ;
 
       prev = uncle.lastChild;
     });
-    prev.next = gramp.next;
-    if (gramp.next)
-      gramp.next.prev = prev;
-    else
-      greatgramp.lastChild = prev;
 
     if (!this.next) { //then find something to be next to insertBefore
       if (this.prev)
