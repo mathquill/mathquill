@@ -216,18 +216,13 @@ var MathFragment = P(Fragment, function(_, _super) {
   };
   function chainableNoop(){ return this; };
   _.blockify = function() {
-    var self = this.detach();
-      newBlock = MathBlock();
-      first = newBlock.firstChild = self.first,
-      last = newBlock.lastChild = self.last;
+    var self = this;
+    var block = MathBlock();
+    block.jQ = self.jQ;
 
-    first.prev = 0;
-    last.next = 0;
+    self.detach();
+    self.adopt(block, 0, 0);
 
-    self.each(function(el){ el.parent = newBlock; });
-
-    newBlock.jQ = self.jQ;
-
-    return newBlock;
+    return block;
   };
 });
