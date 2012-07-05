@@ -227,15 +227,13 @@ LatexCmds['√'] = P(MathCmd, function(_) {
 
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
-  _.createBlocks = function() {
-    _super.createBlocks.call(this);
-    this.jQ = this.firstChild.jQ.detach().add(this.jQ);
-  };
-  _.htmlTemplate = [
-    '<span class="non-leaf"><span class="sqrt-prefix non-leaf">&radic;</span></span>',
-    '<sup class="nthroot non-leaf"></sup>',
-    '<span class="sqrt-stem non-leaf"></span>'
-  ];
+  _.htmlTemplate =
+      '<sup class="nthroot non-leaf" #mqCmdId #mqBlockId:0>#mqBlock:0</sup>'
+    + '<span class="non-leaf" #mqCmdId>'
+    +   '<span class="sqrt-prefix non-leaf">&radic;</span>'
+    +   '<span class="sqrt-stem non-leaf" #mqBlockId:1>#mqBlock:1</span>'
+    + '</span>'
+  ;
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
     return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
