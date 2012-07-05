@@ -127,24 +127,10 @@ var MathCommand = P(MathElement, function(_) {
     });
   };
   _.remove = function() {
-    var self = this,
-        prev = self.prev,
-        next = self.next,
-        parent = self.parent;
+    this.disown()
+    this.jQ.remove();
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
-
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
-
-    self.jQ.remove();
-
-    return self;
+    return this;
   };
 });
 
