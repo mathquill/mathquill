@@ -101,6 +101,12 @@ suite('tree', function() {
       two.disown();
 
       assertSingleChild(parent, one);
+
+      assert.equal(two.parent, parent, 'two retains its parent');
+      assert.equal(two.prev, one, 'two retains its prev');
+
+      assert.throws(function() { two.disown(); },
+                    'disown fails on a malformed tree');
     });
 
     test('disowning the first child', function() {
@@ -114,6 +120,12 @@ suite('tree', function() {
       one.disown();
 
       assertSingleChild(parent, two);
+
+      assert.equal(one.parent, parent, 'one retains its parent');
+      assert.equal(one.next, two, 'one retains its next');
+
+      assert.throws(function() { one.disown(); },
+                    'disown fails on a malformed tree');
     });
 
     test('disowning the middle', function() {
@@ -132,6 +144,13 @@ suite('tree', function() {
       assert.equal(next.prev, prev, 'next.prev is prev');
       assert.equal(parent.firstChild, prev, 'parent.firstChild is prev');
       assert.equal(parent.lastChild, next, 'parent.lastChild is next');
+
+      assert.equal(middle.parent, parent, 'middle retains its parent');
+      assert.equal(middle.next, next, 'middle retains its next');
+      assert.equal(middle.prev, prev, 'middle retains its prev');
+
+      assert.throws(function() { middle.disown(); },
+                    'disown fails on a malformed tree');
     });
   });
 
