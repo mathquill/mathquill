@@ -124,6 +124,7 @@ var MathCmd = P(MathElement, function(_, _super) {
         newBlock.parent = cmd;
         newBlock.prev = prev;
         newBlock.blur();
+        prev = newBlock;
       }
       cmd.firstChild = blocks[0];
       cmd.lastChild = blocks[-1 + numBlocks];
