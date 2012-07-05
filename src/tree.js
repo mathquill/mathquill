@@ -72,6 +72,8 @@ var Node = P(function(_) {
       self.parent.lastChild = self.prev;
     }
 
+    self.parent = self.next = self.prev = 0;
+
     return self;
   };
 });
