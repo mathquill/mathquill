@@ -93,25 +93,7 @@ var MathCommand = P(MathElement, function(_) {
       return text + child.text() + (this.text_template[i] || '');
     });
   };
-  _.insertAt = function(parent, prev, next) {
-    var cmd = this;
-
-    cmd.parent = parent;
-    cmd.next = next;
-    cmd.prev = prev;
-
-    if (prev)
-      prev.next = cmd;
-    else
-      parent.firstChild = cmd;
-
-    if (next)
-      next.prev = cmd;
-    else
-      parent.lastChild = cmd;
-
-    return cmd;
-  };
+  _.insertAt = _.adopt;
   _.createBefore = function(cursor) {
     var cmd = this;
 
