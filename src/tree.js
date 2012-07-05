@@ -23,23 +23,8 @@ var Node = P(function(_) {
   };
 
   _.disown = function() {
-    var self = this;
-
-    if (self.prev) {
-      self.prev.next = self.next;
-    } else {
-      self.parent.firstChild = self.next;
-    }
-
-    if (self.next) {
-      self.next.prev = self.prev;
-    } else {
-      self.parent.lastChild = self.prev;
-    }
-
-    self.parent = self.next = self.prev = 0;
-
-    return self;
+    Fragment(this, this).disown();
+    return this;
   };
 });
 
@@ -103,6 +88,29 @@ var Fragment = P(function(_) {
 
     return self;
   };
+
+  _.disown = function() {
+    var first = this.first;
+    var last = this.last;
+    var parent = first.parent;
+
+    if (first.prev) {
+      first.prev.next = last.next;
+    } else {
+      parent.firstChild = last.next;
+    }
+
+    if (last.next) {
+      last.next.prev = first.prev;
+    } else {
+      parent.lastChild = first.prev;
+    }
+
+    first.prev = last.next = 0;
+    this.each(function(el) { el.parent = 0; });
+
+    return self;
+  }
 
   _.each = function(fn) {
     for (var el = this.first; el && el !== this.last.next; el = el.next) {
