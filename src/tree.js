@@ -46,9 +46,8 @@ var Fragment = P(function(_) {
     this.last = last;
   };
 
-  _.adopt = function(parent, prev, next) {
-    pray('a parent is always passed to Fragment::adopt', parent);
-
+  function prayWellFormed(parent, prev, next) {
+    pray('a parent is always present', parent);
     pray('prev is properly set up', (function() {
       // either it's empty and next is the first child (possibly empty)
       if (!prev) return parent.firstChild === next;
@@ -64,6 +63,10 @@ var Fragment = P(function(_) {
       // or it's there and its next and parent are properly set up
       return next.prev === prev && next.parent === parent;
     })());
+  }
+
+  _.adopt = function(parent, prev, next) {
+    prayWellFormed(parent, prev, next);
 
     var self = this;
     var first = self.first;
@@ -104,6 +107,9 @@ var Fragment = P(function(_) {
     if (!first) return self;
     var last = self.last;
     var parent = first.parent;
+
+    prayWellFormed(parent, first.prev, first);
+    prayWellFormed(parent, last, last.next);
 
     if (first.prev) {
       first.prev.next = last.next;
