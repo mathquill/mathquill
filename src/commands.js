@@ -595,7 +595,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var Vector =
-LatexCmds.vector = P(MathCommand, function(_) {
+LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.cmd = '\\vector';
   _.html_template = ['<span class="array"></span>', '<span></span>'];
   _.latex = function() {
