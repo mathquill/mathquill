@@ -123,11 +123,8 @@ var Fragment = P(function(_) {
       parent.lastChild = first.prev;
     }
 
-    first.prev = last.next = 0;
-    self.each(function(el) { el.parent = 0; });
-
     return self;
-  }
+  };
 
   _.each = function(fn) {
     var self = this;

@@ -72,12 +72,6 @@ suite('tree', function() {
   });
 
   suite('disown', function() {
-    function assertDisowned(node) {
-      assert.ok(!node.parent, 'disowned node has no parent');
-      assert.ok(!node.prev, 'disowned node has no prev');
-      assert.ok(!node.next, 'disowned node has no next');
-    }
-
     function assertSingleChild(parent, child) {
       assert.equal(parent.firstChild, child, 'parent.firstChild is child');
       assert.equal(parent.lastChild, child, 'parent.lastChild is child');
@@ -94,7 +88,6 @@ suite('tree', function() {
 
       assert.ok(!parent.firstChild, 'parent has no firstChild');
       assert.ok(!parent.lastChild, 'parent has no lastChild');
-      assertDisowned(child);
     });
 
     test('disowning the last child', function() {
@@ -108,7 +101,6 @@ suite('tree', function() {
       two.disown();
 
       assertSingleChild(parent, one);
-      assertDisowned(two);
     });
 
     test('disowning the first child', function() {
@@ -122,7 +114,6 @@ suite('tree', function() {
       one.disown();
 
       assertSingleChild(parent, two);
-      assertDisowned(one);
     });
 
     test('disowning the middle', function() {
@@ -137,7 +128,6 @@ suite('tree', function() {
 
       middle.disown();
 
-      assertDisowned(middle);
       assert.equal(prev.next, next, 'prev.next is next');
       assert.equal(next.prev, prev, 'next.prev is prev');
       assert.equal(parent.firstChild, prev, 'parent.firstChild is prev');
