@@ -375,7 +375,10 @@ var MathFragment = P(function(_) {
   };
   _.remove = function() {
     this.jQ.remove();
-    return this.detach();
+    return this.each(function deleteMe(me) {
+      delete MathElement[me.id];
+      me.eachChild(deleteMe);
+    }).detach();
   };
   _.detach = function() {
     var frag = this,
