@@ -498,7 +498,7 @@ CharCmds['\\'] = P(MathCmd, function(_, _super) {
     this._replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
   };
-  _.htmlTemplate = ['<span class="latex-command-input">\\</span>'];
+  _.htmlTemplate = '<span class="latex-command-input" #mqCmdId #mqBlockId:0>\\#mqBlock:0</span>';
   _.textTemplate = ['\\'];
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
