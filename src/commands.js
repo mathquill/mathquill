@@ -599,7 +599,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var Vector =
 LatexCmds.vector = P(MathCmd, function(_) {
   _.ctrlSeq = '\\vector';
-  _.htmlTemplate = ['<span class="array"></span>', '<span></span>'];
+  _.htmlTemplate = '<span class="array" #mqCmdId><span #mqBlockId:0>#mqBlock:0</span></span>';
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
       latex.push(child.latex());
