@@ -117,7 +117,7 @@ var MathCmd = P(MathElement, function(_, _super) {
       replacedFragment = cmd.replacedFragment;
     if (!(htmlTemplate instanceof Array)) {
       var prev = 0,
-        numBlocks = cmd.numBlocks,
+        numBlocks = cmd.numBlocks(),
         blocks = cmd.blocks = Array(numBlocks);
       for (var i = 0; i < numBlocks; i += 1) {
         var newBlock = blocks[i] = prev.next = MathBlock();
@@ -226,7 +226,9 @@ var MathCmd = P(MathElement, function(_, _super) {
   };
 
   // methods to get a string representation of the math tree
-  _.numBlocks = 1;
+  _.numBlocks = function() {
+    return this.htmlTemplate.match(/#mqBlock:(\d+)/g).length;
+  };
   _.htmlTemplate = '<span #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
   _.html = function() {
     var cmd = this;
