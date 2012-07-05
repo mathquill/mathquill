@@ -70,4 +70,78 @@ suite('tree', function() {
       assert.equal(parent.lastChild, next, 'parent.lastChild is next');
     });
   });
+
+  suite('disown', function() {
+    function assertDisowned(node) {
+      assert.ok(!node.parent, 'disowned node has no parent');
+      assert.ok(!node.prev, 'disowned node has no prev');
+      assert.ok(!node.next, 'disowned node has no next');
+    }
+
+    function assertSingleChild(parent, child) {
+      assert.equal(parent.firstChild, child, 'parent.firstChild is child');
+      assert.equal(parent.lastChild, child, 'parent.lastChild is child');
+      assert.ok(!child.prev, 'child has no prev');
+      assert.ok(!child.next, 'child has no next');
+    }
+
+    test('the empty case', function() {
+      var parent = Node();
+      var child = Node();
+
+      child.adopt(parent, 0, 0);
+      child.disown();
+
+      assert.ok(!parent.firstChild, 'parent has no firstChild');
+      assert.ok(!parent.lastChild, 'parent has no lastChild');
+      assertDisowned(child);
+    });
+
+    test('disowning the last child', function() {
+      var parent = Node();
+      var one = Node();
+      var two = Node();
+
+      one.adopt(parent, 0, 0);
+      two.adopt(parent, one, 0);
+
+      two.disown();
+
+      assertSingleChild(parent, one);
+      assertDisowned(two);
+    });
+
+    test('disowning the first child', function() {
+      var parent = Node();
+      var one = Node();
+      var two = Node();
+
+      one.adopt(parent, 0, 0);
+      two.adopt(parent, one, 0);
+
+      one.disown();
+
+      assertSingleChild(parent, two);
+      assertDisowned(one);
+    });
+
+    test('disowning the middle', function() {
+      var parent = Node();
+      var prev = Node();
+      var next = Node();
+      var middle = Node();
+
+      prev.adopt(parent, 0, 0);
+      next.adopt(parent, prev, 0);
+      middle.adopt(parent, prev, next);
+
+      middle.disown();
+
+      assertDisowned(middle);
+      assert.equal(prev.next, next, 'prev.next is next');
+      assert.equal(next.prev, prev, 'next.prev is prev');
+      assert.equal(parent.firstChild, prev, 'parent.firstChild is prev');
+      assert.equal(parent.lastChild, next, 'parent.lastChild is next');
+    });
+  });
 });
