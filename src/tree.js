@@ -104,7 +104,10 @@ var Fragment = P(function(_) {
   _.disown = function() {
     var self = this;
     var first = self.first;
+
+    // guard for empty fragments
     if (!first) return self;
+
     var last = self.last;
     var parent = first.parent;
 
