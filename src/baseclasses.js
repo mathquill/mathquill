@@ -225,12 +225,25 @@ var MathCmd = P(MathElement, function(_, _super) {
     return cmd;
   };
 
-  // methods to get a string representation of the math tree
+  // methods involved in creating and cross-linking with HTML DOM nodes
+  // They all expect an .htmlTemplate like
+  //   '<span #mqCmdId #mqBlockId:0>#mqBlock:0</span>'
+  // or
+  //   '<span #mqCmdId><span #mqBlockId:0>#mqBlock:0</span><span #mqBlockId:1>#mqBlock:1</span></span>'.
+  // Specifically,
+  // - all top-level tags must have a #mqCmdId attribute macro, which
+  //   will be set in order as the .jQ of this command
+  // - for each block of the command,
+  //     + there should be exactly one tag with a #mqBlockId:_ attribute
+  //       macro, where _ is the 0-based-index of the block
+  //     + and exactly one #mqBlock:_ include macro, which will be
+  //       replaced with the contents of the block
   _.numBlocks = function() {
     return this.htmlTemplate.match(/#mqBlock:(\d+)/g).length;
   };
-  _.htmlTemplate = '<span #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
   _.html = function() {
+    // Renders the entire math subtree rooted at this command as HTML.
+    // Expects .createBlocks() to have been called already.
     var cmd = this;
     return (cmd.htmlTemplate
       .replace(/#mqCmdId\b/g, 'mathquill-command-id=' + cmd.id)
@@ -243,6 +256,9 @@ var MathCmd = P(MathElement, function(_, _super) {
     );
   };
   _.jQize = function() {
+    // Sets the .jQ of the entire math subtree rooted at this command.
+    // Expects .createBlocks() to have been called already, since it
+    // calls .html().
     $(this.html()).find('*').andSelf().each(function() {
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
@@ -251,6 +267,8 @@ var MathCmd = P(MathElement, function(_, _super) {
       if (blockId) MathElement[blockId].jQadd(jQ);
     });
   };
+
+  // methods to export a string representation of the math tree
   _.latex = function() {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
       return latex + '{' + (child.latex() || ' ') + '}';
