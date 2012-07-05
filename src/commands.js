@@ -573,14 +573,19 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCmd, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-    ['<span class="non-leaf"></span>', '<span></span>', '<span></span>'];
-  _.createBlocks = function() {
-    _super.createBlocks.call(this);
-    this.jQ.wrapInner('<span class="array non-leaf"></span>');
+      '<span class="paren non-leaf" #mqCmdId>(</span>'
+    + '<span class="non-leaf" #mqCmdId>'
+    +   '<span class="array non-leaf">'
+    +     '<span #mqBlockId:0>#mqBlock:0</span>'
+    +     '<span #mqBlockId:1>#mqBlock:1</span>'
+    +   '</span>'
+    + '</span>'
+    + '<span class="paren non-leaf" #mqCmdId>)</span>'
+  ;
+  _.jQize = function() {
+    _super.jQize.call(this);
     this.blockjQ = this.jQ.children();
-    this.bracketjQs =
-      $('<span class="paren non-leaf">(</span>').prependTo(this.jQ)
-      .add( $('<span class="paren non-leaf">)</span>').appendTo(this.jQ) );
+    this.bracketjQs = this.blockjQ.parent().siblings();
   };
   _.textTemplate = ['choose(',',',')'];
   _.redraw = Bracket.prototype.redraw;
