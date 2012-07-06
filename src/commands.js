@@ -64,20 +64,20 @@ else {
 }
 
 var Style = P(MathCmd, function(_, _super) {
-  _.init = function(ctrlSeq, htmlTemplate) {
-    _super.init.call(this, ctrlSeq, [ htmlTemplate ]);
+  _.init = function(ctrlSeq, tagName, attrs) {
+    _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+' #mqCmdId #mqBlockId:0>#mqBlock:0</'+tagName+'>');
   };
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', '<span class="roman font"></span>');
-LatexCmds.mathit = bind(Style, '\\mathit', '<i class="font"></i>');
-LatexCmds.mathbf = bind(Style, '\\mathbf', '<b class="font"></b>');
-LatexCmds.mathsf = bind(Style, '\\mathsf', '<span class="sans-serif font"></span>');
-LatexCmds.mathtt = bind(Style, '\\mathtt', '<span class="monospace font"></span>');
+LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman font"');
+LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="font"');
+LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="font"');
+LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif font"');
+LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', '<span class="non-leaf underline"></span>');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', '<span class="non-leaf overline"></span>');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
 
 var SupSub = P(MathCmd, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
