@@ -78,24 +78,20 @@ var MathCmd = P(MathElement, function(_, _super) {
   _.createBefore = function(cursor) {
     var cmd = this;
 
-    if (cmd.htmlTemplate instanceof Array) {
-      cmd.jQ = $(cmd.htmlTemplate[0]).attr(mqCmdId, cmd.id);
-    }
     cmd.createBlocks();
-    if (!(cmd.htmlTemplate instanceof Array)) {
-      cmd.jQize();
-      if (cmd.replacedFragment) {
-        var firstBlock = cmd.firstChild,
-          replacementBlock = cmd.replacedFragment.blockify();
-        firstBlock.jQ.append(replacementBlock.jQ);
-        // insert math tree contents of replacementBlock into firstBlock
-        firstBlock.firstChild = replacementBlock.firstChild;
-        firstBlock.lastChild = replacementBlock.lastChild;
-        firstBlock.eachChild(function(child) {
-          child.parent = firstBlock;
-        });
-      }
+    cmd.jQize();
+    if (cmd.replacedFragment) {
+      var firstBlock = cmd.firstChild,
+        replacementBlock = cmd.replacedFragment.blockify();
+      firstBlock.jQ.append(replacementBlock.jQ);
+      // insert math tree contents of replacementBlock into firstBlock
+      firstBlock.firstChild = replacementBlock.firstChild;
+      firstBlock.lastChild = replacementBlock.lastChild;
+      firstBlock.eachChild(function(child) {
+        child.parent = firstBlock;
+      });
     }
+
     cursor.jQ.before(cmd.jQ);
 
     cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
@@ -113,63 +109,18 @@ var MathCmd = P(MathElement, function(_, _super) {
   };
   _.createBlocks = function() {
     var cmd = this,
-      htmlTemplate = cmd.htmlTemplate,
-      replacedFragment = cmd.replacedFragment;
-    if (!(htmlTemplate instanceof Array)) {
-      var prev = 0,
-        numBlocks = cmd.numBlocks(),
-        blocks = cmd.blocks = Array(numBlocks);
-      for (var i = 0; i < numBlocks; i += 1) {
-        var newBlock = blocks[i] = prev.next = MathBlock();
-        newBlock.parent = cmd;
-        newBlock.prev = prev;
-        newBlock.blur();
-        prev = newBlock;
-      }
-      cmd.firstChild = blocks[0];
-      cmd.lastChild = blocks[-1 + numBlocks];
-      return;
-    }
-    //single-block commands
-    if (htmlTemplate.length === 1) {
-      cmd.firstChild =
-      cmd.lastChild =
-        (replacedFragment && replacedFragment.blockify()) || MathBlock();
-
-      cmd.jQ.attr(mqBlockId, cmd.firstChild.id);
-
-      cmd.firstChild.parent = cmd;
-      cmd.firstChild.jQ = cmd.jQ.append(cmd.firstChild.jQ);
-
-      return;
-    }
-    //otherwise, the succeeding elements of htmlTemplate should be child blocks
-    var newBlock, prev, num_blocks = htmlTemplate.length;
-    this.firstChild = newBlock = prev =
-      (replacedFragment && replacedFragment.blockify()) || MathBlock();
-
-    newBlock.parent = cmd;
-    newBlock.jQ = $(htmlTemplate[1])
-      .attr(mqBlockId, newBlock.id)
-      .append(newBlock.jQ)
-      .appendTo(cmd.jQ);
-
-    newBlock.blur();
-
-    for (var i = 2; i < num_blocks; i += 1) {
-      newBlock = MathBlock();
+      prev = 0,
+      numBlocks = cmd.numBlocks(),
+      blocks = cmd.blocks = Array(numBlocks);
+    for (var i = 0; i < numBlocks; i += 1) {
+      var newBlock = blocks[i] = prev.next = MathBlock();
       newBlock.parent = cmd;
       newBlock.prev = prev;
-      prev.next = newBlock;
-      prev = newBlock;
-
-      newBlock.jQ = $(htmlTemplate[i])
-        .attr(mqBlockId, newBlock.id)
-        .appendTo(cmd.jQ);
-
       newBlock.blur();
+      prev = newBlock;
     }
-    cmd.lastChild = newBlock;
+    cmd.firstChild = blocks[0];
+    cmd.lastChild = blocks[-1 + numBlocks];
   };
   _.insertAt = function(parent, prev, next) {
     var cmd = this;
