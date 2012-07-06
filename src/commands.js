@@ -334,7 +334,7 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = P(MathCmd, function(_, _super) {
   _.ctrlSeq = '\\text';
-  _.htmlTemplate = ['<span class="text"></span>'];
+  _.htmlTemplate = '<span class="text" #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
       this.replacedText = replacedText.remove().jQ.text();
@@ -348,7 +348,7 @@ LatexCmds.textmd = P(MathCmd, function(_, _super) {
     this.lastChild =
       InnerTextBlock();
 
-    this.jQ.attr(mqBlockId, this.firstChild.id);
+    this.blocks = [ this.firstChild ];
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
@@ -467,28 +467,28 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
 });
 
 
-function makeTextBlock(latex, html) {
+function makeTextBlock(latex, tagName, attrs) {
   return P(TextBlock, {
     ctrlSeq: latex,
-    htmlTemplate: [ html ]
+    htmlTemplate: '<'+tagName+' '+attrs+' #mqCmdId #mqBlockId:0>#mqBlock:0</'+tagName+'>'
   });
 }
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
 LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', '<i class="text"></i>');
+  makeTextBlock('\\textit', 'i', 'class="text"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', '<b class="text"></b>');
+  makeTextBlock('\\textbf', 'b', 'class="text"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', '<span class="sans-serif text"></span>');
+  makeTextBlock('\\textsf', 'span', 'class="sans-serif text"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', '<span class="monospace text"></span>');
+  makeTextBlock('\\texttt', 'span', 'class="monospace text"');
 LatexCmds.textsc =
-  makeTextBlock('\\textsc', '<span style="font-variant:small-caps" class="text"></span>');
+  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="text"');
 LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', '<span style="text-transform:uppercase" class="text"></span>');
+  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="text"');
 LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', '<span style="text-transform:lowercase" class="text"></span>');
+  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
