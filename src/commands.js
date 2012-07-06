@@ -80,8 +80,8 @@ LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underl
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
 
 var SupSub = P(MathCmd, function(_, _super) {
-  _.init = function(ctrlSeq, html, text) {
-    _super.init.call(this, ctrlSeq, [ html ], [ text ]);
+  _.init = function(ctrlSeq, tag, text) {
+    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf" #mqCmdId #mqBlockId:0>#mqBlock:0</'+tag+'>', [ text ]);
   };
 
   _.latex = function() {
@@ -155,11 +155,11 @@ var SupSub = P(MathCmd, function(_, _super) {
 });
 
 LatexCmds.subscript =
-LatexCmds._ = bind(SupSub, '_', '<sub class="non-leaf"></sub>', '_');
+LatexCmds._ = bind(SupSub, '_', 'sub', '_');
 
 LatexCmds.superscript =
 LatexCmds.supscript =
-LatexCmds['^'] = bind(SupSub, '^', '<sup class="non-leaf"></sup>', '**');
+LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
 
 var Fraction =
 LatexCmds.frac =
