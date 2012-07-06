@@ -704,8 +704,8 @@ LatexCmds.editable = P(RootMathCmd, function(_, _super) {
     MathCmd.prototype.init.call(this, '\\editable');
     var cursor;
     this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
-    this.createBlocks = function() {
-      RootMathCmd.prototype.createBlocks.call(this);
+    this.jQize = function() {
+      RootMathCmd.prototype.jQize.call(this);
       createRoot(this.jQ, this.firstChild, false, true);
       this.firstChild.blur = function() {
         if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK

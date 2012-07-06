@@ -413,13 +413,13 @@ var RootMathCmd = P(MathCmd, function(_, _super) {
     MathCmd.prototype.init.call(this, '$');
     this.cursor = cursor;
   };
-  _.htmlTemplate = ['<span class="mathquill-rendered-math"></span>'];
+  _.htmlTemplate = '<span class="mathquill-rendered-math" #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
   _.createBlocks = function() {
     this.firstChild =
     this.lastChild =
       RootMathBlock();
 
-    this.jQ.attr(mqBlockId, this.firstChild);
+    this.blocks = [ this.firstChild ];
 
     this.firstChild.parent = this;
     this.firstChild.jQ = this.jQ;
