@@ -295,7 +295,10 @@ var Symbol = P(MathCmd, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
-    _super.init.call(this, ctrlSeq, [ html ], [ text ]);
+    // add #mqCmdId attribute macro to all open tags
+    html = html.replace(/<([^\/>][^>]*)>/g, '<$1 #mqCmdId>');
+
+    _super.init.call(this, ctrlSeq, html, [ text ]);
   };
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
