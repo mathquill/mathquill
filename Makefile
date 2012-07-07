@@ -92,7 +92,7 @@ server:
 	supervisor -e js,less,Makefile .
 test: $(BUILD_TEST)
 	@echo
-	@echo "** now open test/test.html in your browser to run the tests. **"
+	@echo "** now open test/unit.html in your browser to run the unit tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
