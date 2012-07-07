@@ -4,6 +4,8 @@
   "devDependencies": {
     "mocha": "*",
     "uglify-js": "*",
-    "less": "git://github.com/cloudhead/less.js"
+    "less": "git://github.com/cloudhead/less.js",
+    "supervisor": "*",
+    "connect": "*"
   }
 }

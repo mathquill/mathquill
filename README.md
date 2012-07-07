@@ -50,6 +50,20 @@ it is visible MathQuill will need to recalculate:
 
     $('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')
 
+If you want to give a MathQuill editable a background color other than
+white, support IE8, and support square roots, parentheses, square
+brackets, or curly braces, you will need to also set all descendants of
+the MathQuill editable element with class `matrixed` to also have that
+background color, like `#my-math-input .matrixed { background:
+#lightblue; }`. (Almost all math rendered by MathQuill has
+`background:transparent`; the exception is, IE8 doesn't support CSS
+transforms, so MathQuill uses a matrix filter to stretch parens etc,
+which won't anti-alias correctly without a opaque background, so
+MathQuill defaults to white. For more details, see
+[Transforms](http://github.com/laughinghan/mathquill/wiki/Transforms).)
+If your background color is dark, you may also want to make the cursor
+white with `#my-math-input .cursor { border-color: white; }` or the like.
+
 Any element that has been MathQuill-ified can be reverted:
 
     $('.mathquill-embedded-latex').mathquill('revert');

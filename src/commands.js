@@ -12,7 +12,7 @@ var scale, // = function(jQ, x, y) { ... }
 //ideas from http://github.com/louisremi/jquery.transform.js
 //see also http://msdn.microsoft.com/en-us/library/ms533014(v=vs.85).aspx
 
-  forceIERedraw = $.noop,
+  forceIERedraw = noop,
   div = document.createElement('div'),
   div_style = div.style,
   transformPropNames = {
@@ -363,21 +363,21 @@ LatexCmds.textmd = P(MathCmd, function(_, _super) {
   _.write = function(ch) {
     this.cursor.insertNew(VanillaSymbol(ch));
   };
-  _.keydown = function(e) {
+  _.onKey = function(key, e) {
     //backspace and delete and ends of block don't unwrap
     if (!this.cursor.selection &&
       (
-        (e.which === 8 && !this.cursor.prev) ||
-        (e.which === 46 && !this.cursor.next)
+        (key === 'Backspace' && !this.cursor.prev) ||
+        (key === 'Del' && !this.cursor.next)
       )
     ) {
       if (this.isEmpty())
         this.cursor.insertAfter(this);
-      e.preventDefault();
+
       return false;
     }
   };
-  _.textInput = function(ch) {
+  _.onText = function(ch) {
     this.cursor.deleteSelection();
     if (ch !== '$')
       this.write(ch);
@@ -518,14 +518,14 @@ CharCmds['\\'] = P(MathCmd, function(_, _super) {
   _.latex = function() {
     return '\\' + this.firstChild.latex() + ' ';
   };
-  _.keydown = function(e) {
-    if (e.which === 9 || e.which === 13) { //tab or enter
+  _.onKey = function(key, e) {
+    if (key === 'Tab' || key === 'Enter') {
       this.renderCommand();
       e.preventDefault();
       return false;
     }
   };
-  _.textInput = function(ch) {
+  _.onText = function(ch) {
     if (ch.match(/[a-z]/i)) {
       this.cursor.deleteSelection();
       this.cursor.insertNew(VanillaSymbol(ch));
@@ -597,7 +597,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var Vector =
-LatexCmds.vector = P(MathCmd, function(_) {
+LatexCmds.vector = P(MathCmd, function(_, _super) {
   _.ctrlSeq = '\\vector';
   _.htmlTemplate = '<span class="array" #mqCmdId><span #mqBlockId:0>#mqBlock:0</span></span>';
   _.latex = function() {
@@ -615,11 +615,11 @@ LatexCmds.vector = P(MathCmd, function(_) {
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
   };
-  _.keydown = function(e) {
+  _.onKey = function(key, e) {
     var currentBlock = this.cursor.parent;
 
     if (currentBlock.parent === this) {
-      if (e.which === 13) { //enter
+      if (key === 'Enter') { //enter
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>')
@@ -638,7 +638,7 @@ LatexCmds.vector = P(MathCmd, function(_) {
         e.preventDefault();
         return false;
       }
-      else if (e.which === 9 && !e.shiftKey && !currentBlock.next) { //tab
+      else if (key === 'Tab' && !currentBlock.next) {
         if (currentBlock.isEmpty()) {
           if (currentBlock.prev) {
             this.cursor.insertAfter(this);
@@ -705,10 +705,13 @@ LatexCmds.editable = P(RootMathCmd, function(_, _super) {
     var cursor;
     this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
     this.jQize = function() {
-      RootMathCmd.prototype.jQize.call(this);
+      _super.jQize.call(this);
       createRoot(this.jQ, this.firstChild, false, true);
+
       this.firstChild.blur = function() {
-        if (cursor.prev !== this.parent) return; //when cursor is inserted after editable, append own cursor FIXME HACK
+        // when cursor is inserted after editable, append own
+        // cursor FIXME HACK
+        if (cursor.prev !== this.parent) return;
         delete this.blur;
         this.cursor.appendTo(this);
         MathBlock.prototype.blur.call(this);

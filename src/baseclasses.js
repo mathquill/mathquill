@@ -39,9 +39,13 @@ var MathElement = P(function(_) {
     });
     return fold;
   };
-  _.bubble = function(event, arg) {
-    for (var ancestor = this; ancestor; ancestor = ancestor.parent)
-      if (ancestor[event] && ancestor[event](arg) === false) break;
+  _.bubble = function(event /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
+      if (res === false) break;
+    }
 
     return this;
   };
@@ -141,7 +145,7 @@ var MathCmd = P(MathElement, function(_, _super) {
 
     return cmd;
   };
-  _.respace = $.noop; //placeholder for context-sensitive spacing
+  _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
     cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
@@ -254,10 +258,10 @@ var Symbol = P(MathCmd, function(_, _super) {
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
   };
-  _.createBlocks = $.noop;
+  _.createBlocks = noop;
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
-  _.placeCursor = $.noop;
+  _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
 

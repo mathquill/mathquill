@@ -9,6 +9,7 @@ OUTRO = $(SRC_DIR)/outro.js
 
 SOURCES = \
   ./vendor/pjs/src/p.js \
+  $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/baseclasses.js \
   $(SRC_DIR)/rootelements.js \
   $(SRC_DIR)/commands.js \
@@ -24,7 +25,6 @@ FONT_SOURCE = $(SRC_DIR)/font
 FONT_TARGET = $(BUILD_DIR)/font
 
 UNIT_TESTS = ./test/unit/*.test.js
-TEST_INTRO = ./test/unit/intro.js
 
 # outputs
 VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
@@ -34,10 +34,11 @@ BUILD_JS = $(BUILD_DIR)/mathquill.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
-CLEAN += $(BUILD_DIR)
+CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
 DIST = $(DISTDIR).tgz
+CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= uglifyjs
@@ -65,32 +66,33 @@ clean:
 	rm -rf $(CLEAN)
 
 $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
-	mkdir -p $(BUILD_DIR)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS)
-	$(UGLIFY) $(UGLIFY_OPTS) $< > $@
+	./script/mangle-pray $< | $(UGLIFY) $(UGLIFY_OPTS) > $@
 
 $(BUILD_CSS): $(CSS_SOURCES)
-	mkdir -p $(BUILD_DIR)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
 $(FONT_TARGET): $(FONT_SOURCE)
-	mkdir -p $(BUILD_DIR)
 	rm -rf $@
 	cp -r $< $@
 
 $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
-	tar -czf $(DIST) --xform 's:^\./build:$(DISTDIR):' ./build/
+	tar -czf $(DIST) \
+		--xform 's:^\./build:$(DISTDIR):' \
+		--exclude='\.gitkeep' \
+		./build/
 
 #
 # -*- Test tasks -*-
 #
-.PHONY: test
-test: $(BUILD_TEST)
+.PHONY: test server
+server:
+	supervisor -e js,less,Makefile .
+test: dev $(BUILD_TEST)
 	@echo
-	@echo "** now open test/test.html in your browser to run the tests. **"
+	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES) $(TEST_INTRO) $(UNIT_TESTS) $(OUTRO)
-	mkdir -p $(BUILD_DIR)
+$(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
