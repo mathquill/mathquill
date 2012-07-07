@@ -90,9 +90,9 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 .PHONY: test server
 server:
 	supervisor -e js,less,Makefile .
-test: $(BUILD_TEST)
+test: dev $(BUILD_TEST)
 	@echo
-	@echo "** now open test/unit.html in your browser to run the unit tests. **"
+	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
