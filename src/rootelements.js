@@ -405,7 +405,7 @@ var RootMathCmd = P(MathCmd, function(_, _super) {
     _super.init.call(this, '$');
     this.cursor = cursor;
   };
-  _.htmlTemplate = '<span class="mathquill-rendered-math" #mqCmdId #mqBlockId:0>#mqBlock:0</span>';
+  _.htmlTemplate = '<span class="mathquill-rendered-math">#0</span>';
   _.createBlocks = function() {
     this.firstChild =
     this.lastChild =
