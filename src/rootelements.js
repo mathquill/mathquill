@@ -382,7 +382,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         this.cursor.deleteForward();
       break;
 
-    case 'Ctrl-a':
+    case 'Meta-A':
+    case 'Ctrl-A':
       //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
