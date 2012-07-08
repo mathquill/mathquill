@@ -498,8 +498,25 @@ CharCmds['\\'] = P(MathCmd, function(_, _super) {
     this._replacedFragment = replacedFragment.detach();
     this.isEmpty = function(){ return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input" #mqCmdId #mqBlockId:0>\\#mqBlock:0</span>';
+  _.htmlTemplate = '<span class="latex-command-input" #mqCmdId>\\<span #mqBlockId:0>#mqBlock:0</span></span>';
   _.textTemplate = ['\\'];
+  _.createBlocks = function() {
+    _super.createBlocks.call(this);
+    this.firstChild.focus = function() {
+      this.parent.jQ.addClass('hasCursor');
+      if (this.isEmpty())
+        this.parent.jQ.removeClass('empty');
+
+      return this;
+    };
+    this.firstChild.blur = function() {
+      this.parent.jQ.removeClass('hasCursor');
+      if (this.isEmpty())
+        this.parent.jQ.addClass('empty');
+
+      return this;
+    };
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
     this.cursor = cursor.appendTo(this.firstChild);
