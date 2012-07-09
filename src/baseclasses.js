@@ -242,10 +242,11 @@ var MathCmd = P(MathElement, function(_, _super) {
     //   and token becomes undefined. This will not infinite loop, even in
     //   production without pray(), because it will then TypeError on .slice().
 
-    var cmd = this,
-      blocks = cmd.blocks,
-      cmdId = ' mathquill-command-id=' + cmd.id,
-      tokens = cmd.htmlTemplate.match(/<[^<>]+>|[^<>]+/g);
+    var cmd = this;
+    var blocks = cmd.blocks;
+    var cmdId = ' mathquill-command-id=' + cmd.id;
+    var tokens = cmd.htmlTemplate.match(/<[^<>]+>|[^<>]+/g);
+
     pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
     // add cmdId to all top-level tags
