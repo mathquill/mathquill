@@ -252,7 +252,9 @@ var MathCmd = P(MathElement, function(_, _super) {
     // add cmdId to all top-level tags
     for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
       // top-level self-closing tags
-      if (token.slice(-2) === '/>') tokens[i] = token.slice(0,-2) + cmdId + '/>';
+      if (token.slice(-2) === '/>') {
+        tokens[i] = token.slice(0,-2) + cmdId + '/>';
+      }
       // top-level open tags
       else if (token.charAt(0) === '<') {
         pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
@@ -265,9 +267,13 @@ var MathCmd = P(MathElement, function(_, _super) {
           i += 1, token = tokens[i];
           pray('no missing close tags', token);
           // close tags
-          if (token.slice(0,2) === '</') nesting -= 1;
+          if (token.slice(0,2) === '</') {
+            nesting -= 1;
+          }
           // non-self-closing open tags
-          else if (token.charAt(0) === '<' && token.slice(-2) !== '/>') nesting += 1;
+          else if (token.charAt(0) === '<' && token.slice(-2) !== '/>') {
+            nesting += 1;
+          }
         } while (nesting > 0);
       }
     }
