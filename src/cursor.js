@@ -136,6 +136,59 @@ var Cursor = P(function(_) {
     }
     return this.show();
   };
+  /**
+   * moveUp and moveDown have almost identical algorithms:
+   * - first check next and prev, if so prepend/appendTo them
+   * - else do the equivalent of this.parent.bubble('up'/'down', this), except
+   *   instead of requiring .up/.down to be a function, it can be a MathBlock,
+   *   and if so,
+   *     + moveUp will appendTo it
+   *     + moveDown will prependTo it
+   *   The idea is to be analogous to how with jQuery, when you bind an event
+   *   handler, instead of a function, it can be `false` and jQuery will know
+   *   you meant `function() { return false; }`, while we know you meant
+   *   `function(cursor) { cursor.append/prependTo(theMathBlock); }`.
+   */
+  _.moveUp = function() {
+    if (this.next.up) this.prependTo(this.next.up);
+    else if (this.prev.up) this.appendTo(this.prev.up);
+    else {
+      var ancestorBlock = this.parent;
+      do {
+        var up = ancestorBlock.up;
+        if (up) {
+          if (up instanceof MathBlock) {
+            this.appendTo(up);
+            break;
+          }
+          if (ancestorBlock.up(this) === false) break;
+        }
+        ancestorBlock = ancestorBlock.parent.parent;
+      } while (ancestorBlock);
+    }
+
+    return this.clearSelection();
+  };
+  _.moveDown = function() {
+    if (this.next.down) this.prependTo(this.next.down);
+    else if (this.prev.down) this.appendTo(this.prev.down);
+    else {
+      var ancestorBlock = this.parent;
+      do {
+        var down = ancestorBlock.down;
+        if (down) {
+          if (down instanceof MathBlock) {
+            this.prependTo(down);
+            break;
+          }
+          if (ancestorBlock.down(this) === false) break;
+        }
+        ancestorBlock = ancestorBlock.parent.parent;
+      } while (ancestorBlock);
+    }
+
+    return this.clearSelection();
+  };
   _.seek = function(target, pageX, pageY) {
     var cursor = this.clearSelection();
     if (target.hasClass('empty')) {
