@@ -334,16 +334,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Shift-Right': this.cursor.selectRight(); break;
     case 'Ctrl-Right': break;
 
-    case 'Up':
-      if (this.cursor.parent.prev) {
-        this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      } else if (this.cursor.prev) {
-        this.cursor.clearSelection().prependTo(this.cursor.parent);
-      }
-      else if (this.cursor.parent !== this) {
-        this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-      }
-      break;
+    case 'Up': this.cursor.moveUp(); break;
+    case 'Down': this.cursor.moveDown(); break;
 
     case 'Shift-Up':
       if (this.cursor.prev) {
@@ -351,18 +343,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       } else {
         this.cursor.selectLeft();
       }
-
-    case 'Ctrl-Up': break;
-
-    case 'Down':
-      if (this.cursor.parent.next) {
-        this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      } else if (this.cursor.next) {
-        this.cursor.clearSelection().appendTo(this.cursor.parent);
-      } else if (this.cursor.parent !== this) {
-        this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-      }
-      break;
 
     case 'Shift-Down':
       if (this.cursor.next) {
@@ -372,6 +352,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         this.cursor.selectRight();
       }
 
+    case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
 
     case 'Del':
