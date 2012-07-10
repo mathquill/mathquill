@@ -1,3 +1,14 @@
+/*************************************************
+ * Base classes of the MathQuill virtual DOM tree
+ *
+ * Only doing tree node manipulation via these
+ * adopt/ disown methods guarantees well-formedness
+ * of the tree.
+ ************************************************/
+
+/**
+ * MathQuill virtual-DOM tree-node abstract base class
+ */
 var Node = P(function(_) {
   _.prev = 0;
   _.next = 0;
@@ -28,6 +39,18 @@ var Node = P(function(_) {
   };
 });
 
+/**
+ * An entity outside the virtual tree with one-way pointers (so it's only a
+ * "view" of part of the tree, not an actual node/entity in the tree) that
+ * delimits a doubly-linked list of sibling nodes.
+ * It's like a fanfic love-child between HTML DOM DocumentFragment and the Range
+ * classes: like DocumentFragment, its contents must be sibling nodes
+ * (unlike Range, whose contents are arbitrary contiguous pieces of subtrees),
+ * but like Range, it has only one-way pointers to its contents, its contents
+ * have no reference to it and in fact may still be in the visible tree (unlike
+ * DocumentFragment, whose contents must be detached from the visible tree
+ * and have their 'parent' pointers set to the DocumentFragment).
+ */
 var Fragment = P(function(_) {
   _.first = 0;
   _.last = 0;
