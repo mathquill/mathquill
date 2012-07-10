@@ -25,6 +25,7 @@ function createRoot(jQ, root, textbox, editable) {
     textarea = textareaSpan.children();
 
   var textareaManager = manageTextarea(textarea, {
+    container: jQ,
     key: function(key, evt) {
       if (editable) cursor.parent.bubble('onKey', key, evt);
     },

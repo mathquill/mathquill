@@ -88,19 +88,18 @@ var manageTextarea = (function() {
 
   // create a textarea manager that calls callbacks at useful times
   // and exports useful public methods
-  return function manageTextarea(el, handlers) {
+  return function manageTextarea(el, opts) {
     var keydown = null;
     var keypress = null;
 
-    if (!handlers) handlers = {};
-    var textCallback = handlers.text || noop;
-    var keyCallback = handlers.key || noop;
-    var pasteCallback = handlers.paste || noop;
-    var onCut = handlers.cut || noop;
+    if (!opts) opts = {};
+    var textCallback = opts.text || noop;
+    var keyCallback = opts.key || noop;
+    var pasteCallback = opts.paste || noop;
+    var onCut = opts.cut || noop;
 
-    // TODO: don't assume el is the textarea itself
     var textarea = $(el);
-
+    var target = $(opts.container || textarea);
 
     // defer() runs fn immediately after the current thread.
     // flush() will run it even sooner, if possible.
@@ -121,7 +120,7 @@ var manageTextarea = (function() {
       }
     }
 
-    textarea.bind('keydown keypress input keyup focusout paste', flush);
+    target.bind('keydown keypress input keyup focusout paste', flush);
 
 
     // -*- public methods -*- //
@@ -209,7 +208,7 @@ var manageTextarea = (function() {
     }
 
     // -*- attach event handlers -*- //
-    textarea.bind({
+    target.bind({
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
