@@ -131,11 +131,6 @@ var manageTextarea = (function() {
       if (text) textarea[0].select();
     }
 
-    function paste() {
-      flush();
-      onPaste();
-    }
-
     // -*- helper subroutines -*- //
 
     // Determine whether there's a selection in the textarea.
@@ -202,6 +197,20 @@ var manageTextarea = (function() {
     function onBlur() { keydown = keypress = null; }
 
     function onPaste(e) {
+      // browsers are dumb.
+      //
+      // In Linux, middle-click pasting causes onPaste to be called,
+      // when the textarea is not necessarily focused.  We focus it
+      // here to ensure that the pasted text actually ends up in the
+      // textarea.
+      //
+      // It's pretty nifty that by changing focus in this handler,
+      // we can change the target of the default action.  (This works
+      // on keydown too, FWIW).
+      //
+      // And by nifty, we mean dumb (but useful sometimes).
+      textarea.focus();
+
       defer(function() {
         popText(pasteCallback);
       });
@@ -218,8 +227,7 @@ var manageTextarea = (function() {
 
     // -*- export public methods -*- //
     return {
-      select: select,
-      paste: paste
-    }
+      select: select
+    };
   };
 }());
