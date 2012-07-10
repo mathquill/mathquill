@@ -137,36 +137,37 @@ var Cursor = P(function(_) {
     return this.show();
   };
   _.seek = function(target, pageX, pageY) {
-    var cursor = this.clearSelection();
+    var cmd, block, cursor = this.clearSelection();
     if (target.hasClass('empty')) {
-      cursor.prependTo(target.data(jQueryDataKey).block);
+      cursor.prependTo(MathElement[target.attr(mqBlockId)]);
       return cursor;
     }
 
-    var data = target.data(jQueryDataKey);
-    if (data) {
-      //if clicked a symbol, insert at whichever side is closer
-      if (data.cmd && !data.block) {
-        if (target.outerWidth() > 2*(pageX - target.offset().left))
-          cursor.insertBefore(data.cmd);
-        else
-          cursor.insertAfter(data.cmd);
+    cmd = MathElement[target.attr(mqCmdId)];
+    if (cmd instanceof Symbol) { //insert at whichever side is closer
+      if (target.outerWidth() > 2*(pageX - target.offset().left))
+        cursor.insertBefore(cmd);
+      else
+        cursor.insertAfter(cmd);
 
-        return cursor;
+      return cursor;
+    }
+    if (!cmd) {
+      block = MathElement[target.attr(mqBlockId)];
+      if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
+        target = target.parent();
+        cmd = MathElement[target.attr(mqCmdId)];
+        if (!cmd) {
+          block = MathElement[target.attr(mqBlockId)];
+          if (!block) block = cursor.root;
+        }
       }
     }
-    //if no MathQuill data, try parent, if still no, forget it
-    else {
-      target = target.parent();
-      data = target.data(jQueryDataKey);
-      if (!data)
-        data = {block: cursor.root};
-    }
 
-    if (data.cmd)
-      cursor.insertAfter(data.cmd);
+    if (cmd)
+      cursor.insertAfter(cmd);
     else
-      cursor.appendTo(data.block);
+      cursor.appendTo(block);
 
     //move cursor to position closest to click
     var dist = cursor.offset().left - pageX, prevDist;
@@ -537,9 +538,10 @@ var Selection = P(MathFragment, function(_, _super) {
     return this;
   };
   _.levelUp = function() {
-    var self = this, gramp = self.first = self.last = self.last.parent.parent;
-    self.clear().jQwrap(gramp.jQ);
-    return self;
+    var seln = this,
+      gramp = seln.first = seln.last = seln.last.parent.parent;
+    seln.clear().jQwrap(gramp.jQ);
+    return seln;
   };
   _.extendLeft = function() {
     this.first = this.first.prev;
