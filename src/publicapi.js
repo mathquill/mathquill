@@ -8,8 +8,8 @@ $.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     return this.each(function() {
-      var data = $(this).data(jQueryDataKey),
-        rootBlock = data && data.block;
+      var blockId = $(this).attr(mqBlockId),
+        rootBlock = blockId && MathElement[blockId];
       if (rootBlock) {
         (function postOrderRedraw(el) {
           el.eachChild(postOrderRedraw);
@@ -19,24 +19,28 @@ $.fn.mathquill = function(cmd, latex) {
     });
   case 'revert':
     return this.each(function() {
-      var data = $(this).data(jQueryDataKey);
-      if (data && data.revert)
-        data.revert();
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId];
+      if (block && block.revert)
+        block.revert();
     });
   case 'latex':
     if (arguments.length > 1) {
       return this.each(function() {
-        var data = $(this).data(jQueryDataKey);
-        if (data && data.block && data.block.renderLatex)
-          data.block.renderLatex(latex);
+        var blockId = $(this).attr(mqBlockId),
+          block = blockId && MathElement[blockId];
+        if (block)
+          block.renderLatex(latex);
       });
     }
 
-    var data = this.data(jQueryDataKey);
-    return data && data.block && data.block.latex();
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId];
+    return block && block.latex();
   case 'text':
-    var data = this.data(jQueryDataKey);
-    return data && data.block && data.block.text();
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId];
+    return block && block.text();
   case 'html':
     return this.html().replace(/ ?hasCursor|hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')
@@ -45,8 +49,8 @@ $.fn.mathquill = function(cmd, latex) {
   case 'write':
     if (arguments.length > 1)
       return this.each(function() {
-        var data = $(this).data(jQueryDataKey),
-          block = data && data.block,
+        var blockId = $(this).attr(mqBlockId),
+          block = blockId && MathElement[blockId],
           cursor = block && block.cursor;
 
         if (cursor)
@@ -55,8 +59,8 @@ $.fn.mathquill = function(cmd, latex) {
   case 'cmd':
     if (arguments.length > 1)
       return this.each(function() {
-        var data = $(this).data(jQueryDataKey),
-          block = data && data.block,
+        var blockId = $(this).attr(mqBlockId),
+          block = blockId && MathElement[blockId],
           cursor = block && block.cursor;
 
         if (cursor) {
