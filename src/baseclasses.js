@@ -1,5 +1,5 @@
 /*************************************************
- * Abstract base classes of blocks and commands.
+ * Abstract classes of math blocks and commands.
  ************************************************/
 
 var uuid = (function() {
@@ -9,7 +9,8 @@ var uuid = (function() {
 })();
 
 /**
- * MathElement is the core Math DOM tree node prototype.
+ * Math tree node base class.
+ * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_) {
@@ -312,9 +313,8 @@ var MathBlock = P(MathElement, function(_) {
 });
 
 /**
- * An entity outside the Math DOM tree with one-way pointers (so it's only
- * a "view" of part of the tree, not an actual node/entity in the tree)
- * that delimit a list of symbols and operators.
+ * Math tree fragment base class.
+ * Some math-tree-specific extensions to Fragment.
  */
 var MathFragment = P(Fragment, function(_, _super) {
   _.init = function(first, last) {
