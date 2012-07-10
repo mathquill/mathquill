@@ -173,5 +173,15 @@ suite('tree', function() {
         Fragment(0, Node());
       }, 'half-empty on the left');
     });
+
+    test('disown is idempotent', function() {
+      var parent = Node();
+      var one = Node().adopt(parent, 0, 0);
+      var two = Node().adopt(parent, one, 0);
+
+      var frag = Fragment(one, two);
+      frag.disown();
+      frag.disown();
+    });
   });
 });

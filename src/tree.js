@@ -69,8 +69,9 @@ var Fragment = P(function(_) {
     prayWellFormed(parent, prev, next);
 
     var self = this;
-    var first = self.first;
+    self.disowned = false;
 
+    var first = self.first;
     if (!first) return this;
 
     var last = self.last;
@@ -105,8 +106,10 @@ var Fragment = P(function(_) {
     var self = this;
     var first = self.first;
 
-    // guard for empty fragments
-    if (!first) return self;
+    // guard for empty and already-disowned fragments
+    if (!first || self.disowned) return self;
+
+    self.disowned = true;
 
     var last = self.last;
     var parent = first.parent;
