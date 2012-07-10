@@ -10,7 +10,7 @@ var uuid = (function() {
 
 /**
  * MathElement is the core Math DOM tree node prototype.
- * Both MathBlock's and MathCmd's descend from it.
+ * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(function(_) {
   _.init = function(obj) {
@@ -57,10 +57,9 @@ var MathElement = P(function(_) {
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
-var MathCmd = P(MathElement, function(_, _super) {
+var MathCommand = P(MathElement, function(_, _super) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
     var cmd = this;
-
     _super.init.call(cmd);
 
     if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
@@ -317,7 +316,7 @@ var MathCmd = P(MathElement, function(_, _super) {
 /**
  * Lightweight command without blocks or children.
  */
-var Symbol = P(MathCmd, function(_, _super) {
+var Symbol = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
@@ -334,7 +333,7 @@ var Symbol = P(MathCmd, function(_, _super) {
 });
 
 /**
- * Children and parent of MathCmd's. Basically partitions all the
+ * Children and parent of MathCommand's. Basically partitions all the
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */

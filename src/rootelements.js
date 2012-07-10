@@ -381,7 +381,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       break;
 
     case 'Ctrl-a':
-      //so not stopPropagation'd at RootMathCmd
+      //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
       this.cursor.clearSelection().appendTo(this);
@@ -400,7 +400,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
 });
 
-var RootMathCmd = P(MathCmd, function(_, _super) {
+var RootMathCommand = P(MathCommand, function(_, _super) {
   _.init = function(cursor) {
     _super.init.call(this, '$');
     this.cursor = cursor;
@@ -456,7 +456,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         else
           chunk = chunk.slice(1);
 
-        var root = RootMathCmd(cursor);
+        var root = RootMathCommand(cursor);
         cursor.insertNew(root);
         root.firstChild.renderLatex(chunk);
         cursor.show().insertAfter(root);
@@ -471,7 +471,7 @@ var RootTextBlock = P(MathBlock, function(_) {
   _.onText = function(ch) {
     this.cursor.deleteSelection();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCmd(this.cursor));
+      this.cursor.insertNew(RootMathCommand(this.cursor));
     else
       this.cursor.insertNew(VanillaSymbol(ch));
 

@@ -12,7 +12,7 @@ suite('HTML', function() {
         join: function() { return 'Block:' + this.i; }
       };
     }
-    return MathCmd.prototype.html.call(cmd);
+    return MathCommand.prototype.html.call(cmd);
   }
 
   test('simple HTML templates', function() {

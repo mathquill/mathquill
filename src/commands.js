@@ -63,7 +63,7 @@ else {
   };
 }
 
-var Style = P(MathCmd, function(_, _super) {
+var Style = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tagName, attrs) {
     _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>#0</'+tagName+'>');
   };
@@ -79,7 +79,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
 
-var SupSub = P(MathCmd, function(_, _super) {
+var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">#0</'+tag+'>', [ text ]);
   };
@@ -165,7 +165,7 @@ var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCmd, function(_, _super) {
+LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="fraction non-leaf">'
@@ -209,7 +209,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCmd, function(_) {
+LatexCmds['√'] = P(MathCommand, function(_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="sqrt">'
@@ -241,7 +241,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-var Bracket = P(MathCmd, function(_, _super) {
+var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="non-leaf">'
@@ -332,7 +332,7 @@ LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-LatexCmds.textmd = P(MathCmd, function(_, _super) {
+LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
   _.htmlTemplate = '<span class="text">#0</span>';
   _.replaces = function(replacedText) {
@@ -492,7 +492,7 @@ LatexCmds.lowercase =
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
-CharCmds['\\'] = P(MathCmd, function(_, _super) {
+CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\';
   _.replaces = function(replacedFragment) {
     this._replacedFragment = replacedFragment.detach();
@@ -587,7 +587,7 @@ CharCmds['\\'] = P(MathCmd, function(_, _super) {
 
 var Binomial =
 LatexCmds.binom =
-LatexCmds.binomial = P(MathCmd, function(_, _super) {
+LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="paren non-leaf">(</span>'
@@ -614,7 +614,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var Vector =
-LatexCmds.vector = P(MathCmd, function(_, _super) {
+LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vector';
   _.htmlTemplate = '<span class="array"><span>#0</span></span>';
   _.latex = function() {
@@ -716,9 +716,9 @@ LatexCmds.vector = P(MathCmd, function(_, _super) {
   };
 });
 
-LatexCmds.editable = P(RootMathCmd, function(_, _super) {
+LatexCmds.editable = P(RootMathCommand, function(_, _super) {
   _.init = function() {
-    MathCmd.prototype.init.call(this, '\\editable');
+    MathCommand.prototype.init.call(this, '\\editable');
     var cursor;
     this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
     this.jQize = function() {
