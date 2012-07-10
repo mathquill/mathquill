@@ -121,7 +121,7 @@ var manageTextarea = (function() {
       }
     }
 
-    textarea.bind('keydown keypress input keyup blur paste', flush);
+    textarea.bind('keydown keypress input keyup focusout paste', flush);
 
 
     // -*- public methods -*- //
@@ -212,7 +212,7 @@ var manageTextarea = (function() {
     textarea.bind({
       keydown: onKeydown,
       keypress: onKeypress,
-      blur: onBlur,
+      focusout: onBlur,
       cut: onCut,
       paste: onPaste
     });
