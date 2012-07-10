@@ -175,6 +175,9 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.createBlocks = function() {
     _super.createBlocks.call(this);
     this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
+
+    this.up = this.lastChild.up = this.firstChild;
+    this.down = this.firstChild.down = this.lastChild;
   };
   _.text_template = ['(', '/', ')'];
 });
