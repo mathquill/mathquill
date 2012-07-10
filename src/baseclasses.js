@@ -52,6 +52,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // obvious methods
   _.replaces = function(replacedFragment) {
+    replacedFragment.disown();
     this.replacedFragment = replacedFragment;
   };
   _.isEmpty = function() {
@@ -63,19 +64,13 @@ var MathCommand = P(MathElement, function(_, _super) {
   // createBefore(cursor) and the methods it calls
   _.createBefore = function(cursor) {
     var cmd = this;
+    var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
     cmd.jQize();
-    if (cmd.replacedFragment) {
-      var firstBlock = cmd.firstChild,
-        replacementBlock = cmd.replacedFragment.blockify();
-      firstBlock.jQ.append(replacementBlock.jQ);
-      // insert math tree contents of replacementBlock into firstBlock
-      firstBlock.firstChild = replacementBlock.firstChild;
-      firstBlock.lastChild = replacementBlock.lastChild;
-      firstBlock.eachChild(function(child) {
-        child.parent = firstBlock;
-      });
+    if (replacedFragment) {
+      replacedFragment.adopt(cmd.firstChild, 0, 0);
+      replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
     }
 
     cursor.jQ.before(cmd.jQ);
@@ -336,26 +331,12 @@ var MathFragment = P(Fragment, function(_, _super) {
   };
   _.remove = function() {
     this.jQ.remove();
-    return this.each(function deleteMe(me) {
+
+    this.each(function deleteMe(me) {
       delete MathElement[me.id];
       me.eachChild(deleteMe);
-    }).detach();
-  };
-  _.detach = function() {
-    this.disown();
-    this.detach = chainableNoop;
+    });
 
-    return this;
-  };
-  function chainableNoop(){ return this; };
-  _.blockify = function() {
-    var self = this;
-    var block = MathBlock();
-    block.jQ = self.jQ;
-
-    self.detach();
-    self.adopt(block, 0, 0);
-
-    return block;
+    return this.disown();
   };
 });

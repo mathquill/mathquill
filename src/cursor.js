@@ -529,9 +529,9 @@ var Selection = P(MathFragment, function(_, _super) {
     this.jQ = children.wrapAll('<span class="selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
-  _.blockify = function() {
+  _.adopt = function() {
     this.jQ.replaceWith(this.jQ = this.jQ.children());
-    return _super.blockify.call(this);
+    return _super.adopt.apply(this, arguments);
   };
   _.clear = function() {
     this.jQ.replaceWith(this.jQ.children());
