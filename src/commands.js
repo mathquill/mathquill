@@ -199,7 +199,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor.prev) {
-        this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev).detach());
+        this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev));
         cursor.prev = prev;
       }
     }
