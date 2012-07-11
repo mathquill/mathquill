@@ -96,23 +96,37 @@ var Cursor = P(function(_) {
     this.next = this.next.next;
     return this;
   };
+  _.moveLeftWithin = function(block) {
+    if (this.prev) {
+      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
+      else this.hopLeft();
+    }
+    else {
+      // we're at the beginning of the containing block, so do nothing.
+      if (this.parent === block) return;
+
+      if (this.parent.prev) this.appendTo(this.parent.prev);
+      else this.insertBefore(this.parent.parent);
+    }
+  };
+  _.moveRightWithin = function(block) {
+    if (this.next) {
+      if (this.next.firstChild) this.prependTo(this.next.firstChild)
+      else this.hopRight();
+    }
+    else {
+      // we're at the end of the containing block, so do nothing.
+      if (this.parent === block) return;
+
+      if (this.parent.next) this.prependTo(this.parent.next);
+      else this.insertAfter(this.parent.parent);
+    }
+  };
   _.moveLeft = function() {
     if (this.selection)
       this.insertBefore(this.selection.first).clearSelection();
     else {
-      if (this.prev) {
-        if (this.prev.lastChild)
-          this.appendTo(this.prev.lastChild)
-        else
-          this.hopLeft();
-      }
-      else { //we're at the beginning of a block
-        if (this.parent.prev)
-          this.appendTo(this.parent.prev);
-        else if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        //else we're at the beginning of the root, so do nothing.
-      }
+      this.moveLeftWithin(this.root);
     }
     return this.show();
   };
@@ -120,19 +134,7 @@ var Cursor = P(function(_) {
     if (this.selection)
       this.insertAfter(this.selection.last).clearSelection();
     else {
-      if (this.next) {
-        if (this.next.firstChild)
-          this.prependTo(this.next.firstChild)
-        else
-          this.hopRight();
-      }
-      else { //we're at the end of a block
-        if (this.parent.next)
-          this.prependTo(this.parent.next);
-        else if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        //else we're at the end of the root, so do nothing.
-      }
+      this.moveRightWithin(this.root);
     }
     return this.show();
   };
