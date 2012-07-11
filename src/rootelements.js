@@ -35,7 +35,7 @@ function createRoot(jQ, root, textbox, editable) {
     cut: function(e) {
       if (cursor.selection) {
         setTimeout(function() {
-          cursor.deleteSelection();
+          cursor.prepareEdit();
           cursor.parent.bubble('redraw');
         });
       }
@@ -446,7 +446,7 @@ var RootTextBlock = P(MathBlock, function(_) {
   };
   _.onKey = RootMathBlock.prototype.onKey;
   _.onText = function(ch) {
-    this.cursor.deleteSelection();
+    this.cursor.prepareEdit();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
     else

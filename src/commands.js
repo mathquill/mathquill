@@ -412,7 +412,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     }
   };
   _.onText = function(ch) {
-    this.cursor.deleteSelection();
+    this.cursor.prepareEdit();
     if (ch !== '$')
       this.write(ch);
     else if (this.isEmpty())
@@ -578,7 +578,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.onText = function(ch) {
     if (ch.match(/[a-z]/i)) {
-      this.cursor.deleteSelection();
+      this.cursor.prepareEdit();
       this.cursor.insertNew(VanillaSymbol(ch));
       return false;
     }

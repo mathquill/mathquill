@@ -244,7 +244,7 @@ var Cursor = P(function(_) {
     return offset;
   }
   _.writeLatex = function(latex) {
-    this.deleteSelection();
+    this.show().deleteSelection();
     latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
     (function writeLatexBlock(cursor) {
       while (latex.length) {
@@ -419,7 +419,7 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this;
+    return this.show();
   };
   _.deleteForward = function() {
     if (this.deleteSelection());
@@ -442,7 +442,7 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this;
+    return this.show();
   };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
@@ -546,6 +546,11 @@ var Cursor = P(function(_) {
     }
     this.root.selectionChanged();
   };
+
+  _.prepareEdit = function() {
+    return this.show().deleteSelection();
+  }
+
   _.clearSelection = function() {
     if (this.show().selection) {
       this.selection.clear();
@@ -555,7 +560,7 @@ var Cursor = P(function(_) {
     return this;
   };
   _.deleteSelection = function() {
-    if (!this.show().selection) return false;
+    if (!this.selection) return false;
 
     this.prev = this.selection.first.prev;
     this.next = this.selection.last.next;
