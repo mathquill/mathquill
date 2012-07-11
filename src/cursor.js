@@ -139,15 +139,15 @@ var Cursor = P(function(_) {
   /**
    * moveUp and moveDown have almost identical algorithms:
    * - first check next and prev, if so prepend/appendTo them
-   * - else do the equivalent of this.parent.bubble('up'/'down', this), except
-   *   instead of requiring .up/.down to be a function, it can be a MathBlock,
-   *   and if so,
+   * - else check the parent's 'up'/'down' property - if it's a function,
+   *   call it with the cursor as the sole argument and use the return value.
+   *
+   *   Given undefined, will bubble up to the next ancestor block.
+   *   Given false, will stop bubbling.
+   *   Given a MathBlock,
    *     + moveUp will appendTo it
    *     + moveDown will prependTo it
-   *   The idea is to be analogous to how with jQuery, when you bind an event
-   *   handler, instead of a function, it can be `false` and jQuery will know
-   *   you meant `function() { return false; }`, while we know you meant
-   *   `function(cursor) { cursor.append/prependTo(theMathBlock); }`.
+   *
    */
   _.moveUp = function() {
     if (this.next.up) this.prependTo(this.next.up);
@@ -157,11 +157,13 @@ var Cursor = P(function(_) {
       do {
         var up = ancestorBlock.up;
         if (up) {
+          if (typeof up === 'function') up = ancestorBlock.up(this);
+          if (up === false) break;
+
           if (up instanceof MathBlock) {
             this.appendTo(up);
             break;
           }
-          if (ancestorBlock.up(this) === false) break;
         }
         ancestorBlock = ancestorBlock.parent.parent;
       } while (ancestorBlock);
@@ -177,11 +179,13 @@ var Cursor = P(function(_) {
       do {
         var down = ancestorBlock.down;
         if (down) {
+          if (typeof down === 'function') down = ancestorBlock.down(this);
+          if (down === false) break;
+
           if (down instanceof MathBlock) {
             this.prependTo(down);
             break;
           }
-          if (ancestorBlock.down(this) === false) break;
         }
         ancestorBlock = ancestorBlock.parent.parent;
       } while (ancestorBlock);
