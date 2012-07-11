@@ -399,7 +399,7 @@ var Cursor = P(function(_) {
       gramp.next.respace();
   };
   _.backspace = function() {
-    if (this.deleteSelection());
+    if (this.deleteSelection()); // pass
     else if (this.prev) {
       if (this.prev.isEmpty())
         this.prev = this.prev.remove().prev;
@@ -422,7 +422,7 @@ var Cursor = P(function(_) {
     return this.show();
   };
   _.deleteForward = function() {
-    if (this.deleteSelection());
+    if (this.deleteSelection()); // pass
     else if (this.next) {
       if (this.next.isEmpty())
         this.next = this.next.remove().next;
