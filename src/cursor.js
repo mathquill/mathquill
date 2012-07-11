@@ -136,6 +136,7 @@ var Cursor = P(function(_) {
     }
     return this.show();
   };
+
   /**
    * moveUp and moveDown have almost identical algorithms:
    * - first check next and prev, if so prepend/appendTo them
@@ -149,19 +150,23 @@ var Cursor = P(function(_) {
    *     + moveDown will prependTo it
    *
    */
-  _.moveUp = function() {
-    if (this.next.up) this.prependTo(this.next.up);
-    else if (this.prev.up) this.appendTo(this.prev.up);
+  _.moveUp = function() { return moveUpDown(this, 'up'); };
+  _.moveDown = function() { return moveUpDown(this, 'down'); };
+  function moveUpDown(self, dir) {
+    if (self.next[dir]) self.prependTo(self.next[dir]);
+    else if (self.prev[dir]) self.appendTo(self.prev[dir]);
     else {
-      var ancestorBlock = this.parent;
+      var ancestorBlock = self.parent;
       do {
-        var up = ancestorBlock.up;
-        if (up) {
-          if (typeof up === 'function') up = ancestorBlock.up(this);
-          if (up === false) break;
+        var prop = ancestorBlock[dir];
+        if (prop) {
+          if (typeof prop === 'function') prop = ancestorBlock[dir](self);
+          if (prop === false) break;
 
-          if (up instanceof MathBlock) {
-            this.appendTo(up);
+          if (prop instanceof MathBlock) {
+            var pageX = self.offset().left;
+            self.appendTo(prop);
+            self.seekHoriz(pageX);
             break;
           }
         }
@@ -169,30 +174,9 @@ var Cursor = P(function(_) {
       } while (ancestorBlock);
     }
 
-    return this.clearSelection();
-  };
-  _.moveDown = function() {
-    if (this.next.down) this.prependTo(this.next.down);
-    else if (this.prev.down) this.appendTo(this.prev.down);
-    else {
-      var ancestorBlock = this.parent;
-      do {
-        var down = ancestorBlock.down;
-        if (down) {
-          if (typeof down === 'function') down = ancestorBlock.down(this);
-          if (down === false) break;
+    return self.clearSelection();
+  }
 
-          if (down instanceof MathBlock) {
-            this.prependTo(down);
-            break;
-          }
-        }
-        ancestorBlock = ancestorBlock.parent.parent;
-      } while (ancestorBlock);
-    }
-
-    return this.clearSelection();
-  };
   _.seek = function(target, pageX, pageY) {
     var cmd, block, cursor = this.clearSelection();
     if (target.hasClass('empty')) {
