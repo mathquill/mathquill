@@ -25,6 +25,7 @@ function createRoot(jQ, root, textbox, editable) {
     textarea = textareaSpan.children();
 
   var textareaManager = manageTextarea(textarea, {
+    container: jQ,
     key: function(key, evt) {
       if (editable) cursor.parent.bubble('onKey', key, evt);
     },
@@ -55,10 +56,6 @@ function createRoot(jQ, root, textbox, editable) {
       cursor.writeLatex(text).show();
     }
   });
-
-  // HACK: support middle-click in linux by forwarding the root's
-  // paste event to the textarea
-  jQ.on('paste', textareaManager.paste);
 
   /******
    * TODO [Han]: Document this
