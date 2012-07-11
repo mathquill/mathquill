@@ -166,7 +166,7 @@ var Cursor = P(function(_) {
           if (prop === false) break;
 
           if (prop instanceof MathBlock) {
-            var pageX = self.offset().left;
+            var pageX = offset(self).left;
             self.appendTo(prop);
             self.seekHoriz(pageX, prop);
             break;
@@ -217,13 +217,13 @@ var Cursor = P(function(_) {
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
     var cursor = this;
-    var dist = cursor.offset().left - pageX;
+    var dist = offset(cursor).left - pageX;
     var prevDist;
 
     do {
       cursor.moveLeftWithin(block);
       prevDist = dist;
-      dist = cursor.offset().left - pageX;
+      dist = offset(cursor).left - pageX;
     }
     while (dist > 0 && (cursor.prev || cursor.parent !== block));
 
@@ -231,7 +231,7 @@ var Cursor = P(function(_) {
 
     return cursor;
   };
-  _.offset = function() {
+  function offset(self) {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -239,11 +239,10 @@ var Cursor = P(function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var jQ = this.jQ.removeClass('cursor'),
-      offset = jQ.offset();
-    jQ.addClass('cursor');
+    var offset = self.jQ.removeClass('cursor').offset();
+    self.jQ.addClass('cursor');
     return offset;
-  };
+  }
   _.writeLatex = function(latex) {
     this.deleteSelection();
     latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
