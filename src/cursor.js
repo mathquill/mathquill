@@ -168,7 +168,7 @@ var Cursor = P(function(_) {
           if (prop instanceof MathBlock) {
             var pageX = self.offset().left;
             self.appendTo(prop);
-            self.seekHoriz(pageX);
+            self.seekHoriz(pageX, prop);
             break;
           }
         }
@@ -212,22 +212,22 @@ var Cursor = P(function(_) {
     else
       cursor.appendTo(block);
 
-    return cursor.seekHoriz(pageX);
+    return cursor.seekHoriz(pageX, cursor.root);
   };
-  _.seekHoriz = function(pageX) {
+  _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
     var cursor = this;
     var dist = cursor.offset().left - pageX;
     var prevDist;
 
     do {
-      cursor.moveLeft();
+      cursor.moveLeftWithin(block);
       prevDist = dist;
       dist = cursor.offset().left - pageX;
     }
-    while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
+    while (dist > 0 && (cursor.prev || cursor.parent !== block));
 
-    if (-dist > prevDist) cursor.moveRight();
+    if (-dist > prevDist) cursor.moveRightWithin(block);
 
     return cursor;
   };
