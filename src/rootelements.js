@@ -419,7 +419,6 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     var cursor = this.firstChild.cursor = this.cursor;
     this.firstChild.onText = function(ch) {
-// debugger;
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
