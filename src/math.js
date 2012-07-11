@@ -1,5 +1,5 @@
 /*************************************************
- * Abstract base classes of blocks and commands.
+ * Abstract classes of math blocks and commands.
  ************************************************/
 
 var uuid = (function() {
@@ -9,36 +9,20 @@ var uuid = (function() {
 })();
 
 /**
- * MathElement is the core Math DOM tree node prototype.
+ * Math tree node base class.
+ * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(function(_) {
+var MathElement = P(Node, function(_) {
   _.init = function(obj) {
     this.id = uuid();
     MathElement[this.id] = this;
   };
-  _.prev = 0;
-  _.next = 0;
-  _.parent = 0;
-  _.firstChild = 0;
-  _.lastChild = 0;
 
   _.toString = function() {
     return '[MathElement '+this.id+']';
   };
 
-  _.eachChild = function(fn) {
-    for (var child = this.firstChild; child; child = child.next)
-      if (fn.call(this, child) === false) break;
-
-    return this;
-  };
-  _.foldChildren = function(fold, fn) {
-    this.eachChild(function(child) {
-      fold = fn.call(this, fold, child);
-    });
-    return fold;
-  };
   _.bubble = function(event /*, args... */) {
     var args = __slice.call(arguments, 1);
 
@@ -69,6 +53,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // obvious methods
   _.replaces = function(replacedFragment) {
+    replacedFragment.disown();
     this.replacedFragment = replacedFragment;
   };
   _.isEmpty = function() {
@@ -80,24 +65,20 @@ var MathCommand = P(MathElement, function(_, _super) {
   // createBefore(cursor) and the methods it calls
   _.createBefore = function(cursor) {
     var cmd = this;
+    var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
     cmd.jQize();
-    if (cmd.replacedFragment) {
-      var firstBlock = cmd.firstChild,
-        replacementBlock = cmd.replacedFragment.blockify();
-      firstBlock.jQ.append(replacementBlock.jQ);
-      // insert math tree contents of replacementBlock into firstBlock
-      firstBlock.firstChild = replacementBlock.firstChild;
-      firstBlock.lastChild = replacementBlock.lastChild;
-      firstBlock.eachChild(function(child) {
-        child.parent = firstBlock;
-      });
+    if (replacedFragment) {
+      replacedFragment.adopt(cmd.firstChild, 0, 0);
+      replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
     }
+
+    cmd.eachChild(function(b) { b.blur(); });
 
     cursor.jQ.before(cmd.jQ);
 
-    cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
+    cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
 
     //adjust context-sensitive spacing
     cmd.respace();
@@ -112,37 +93,13 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.createBlocks = function() {
     var cmd = this,
-      prev = 0,
       numBlocks = cmd.numBlocks(),
       blocks = cmd.blocks = Array(numBlocks);
+
     for (var i = 0; i < numBlocks; i += 1) {
-      var newBlock = blocks[i] = prev.next = MathBlock();
-      newBlock.parent = cmd;
-      newBlock.prev = prev;
-      newBlock.blur();
-      prev = newBlock;
+      var newBlock = blocks[i] = MathBlock();
+      newBlock.adopt(cmd, cmd.lastChild, 0);
     }
-    cmd.firstChild = blocks[0];
-    cmd.lastChild = blocks[-1 + numBlocks];
-  };
-  _.insertAt = function(parent, prev, next) {
-    var cmd = this;
-
-    cmd.parent = parent;
-    cmd.next = next;
-    cmd.prev = prev;
-
-    if (prev)
-      prev.next = cmd;
-    else
-      parent.firstChild = cmd;
-
-    if (next)
-      next.prev = cmd;
-    else
-      parent.lastChild = cmd;
-
-    return cmd;
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
@@ -154,29 +111,15 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // remove()
   _.remove = function() {
-    var cmd = this,
-        prev = cmd.prev,
-        next = cmd.next,
-        parent = cmd.parent;
-
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
-
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
-
-    cmd.jQ.remove();
+    this.disown()
+    this.jQ.remove();
 
     (function deleteMe(me) {
       delete MathElement[me.id];
       me.eachChild(deleteMe);
-    }(cmd));
+    }(this));
 
-    return cmd;
+    return this;
   };
 
   // methods involved in creating and cross-linking with HTML DOM nodes
@@ -370,75 +313,26 @@ var MathBlock = P(MathElement, function(_) {
 });
 
 /**
- * An entity outside the Math DOM tree with one-way pointers (so it's only
- * a "view" of part of the tree, not an actual node/entity in the tree)
- * that delimit a list of symbols and operators.
+ * Math tree fragment base class.
+ * Some math-tree-specific extensions to Fragment.
  */
-var MathFragment = P(function(_) {
+var MathFragment = P(Fragment, function(_, _super) {
   _.init = function(first, last) {
-    var frag = this;
-
-    frag.first = first;
-    frag.last = last || first; //just select one thing if only one argument
-
-    frag.jQ = frag.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
-  }
-  _.each = function(fn) {
-    for (var el = this.first; el !== this.last.next; el = el.next)
-      if (fn.call(this, el) === false) break;
-
-    return this;
-  };
-  _.fold = function(fold, fn) {
-    this.each(function(el) {
-      fold = fn.call(this, fold, el);
-    });
-    return fold;
+    // just select one thing if only one argument
+    _super.init.call(this, first, last || first);
+    this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   };
   _.latex = function() {
     return this.fold('', function(latex, el){ return latex + el.latex(); });
   };
   _.remove = function() {
     this.jQ.remove();
-    return this.each(function deleteMe(me) {
+
+    this.each(function deleteMe(me) {
       delete MathElement[me.id];
       me.eachChild(deleteMe);
-    }).detach();
-  };
-  _.detach = function() {
-    var frag = this,
-      prev = frag.first.prev,
-      next = frag.last.next,
-      parent = frag.last.parent;
+    });
 
-    if (prev)
-      prev.next = next;
-    else
-      parent.firstChild = next;
-
-    if (next)
-      next.prev = prev;
-    else
-      parent.lastChild = prev;
-
-    frag.detach = chainableNoop;
-
-    return frag;
-  };
-  function chainableNoop(){ return this; };
-  _.blockify = function() {
-    var frag = this.detach();
-      newBlock = MathBlock();
-      first = newBlock.firstChild = frag.first,
-      last = newBlock.lastChild = frag.last;
-
-    first.prev = 0;
-    last.next = 0;
-
-    frag.each(function(el){ el.parent = newBlock; });
-
-    newBlock.jQ = frag.jQ;
-
-    return newBlock;
+    return this.disown();
   };
 });

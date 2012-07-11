@@ -234,7 +234,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor.prev) {
-        this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev).detach());
+        this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev));
         cursor.prev = prev;
       }
     }
@@ -386,7 +386,6 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     this.blocks = [ this.firstChild ];
 
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
@@ -530,8 +529,8 @@ var LatexCommandInput =
 CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\';
   _.replaces = function(replacedFragment) {
-    this._replacedFragment = replacedFragment.detach();
-    this.isEmpty = function(){ return false; };
+    this._replacedFragment = replacedFragment.disown();
+    this.isEmpty = function() { return false; };
   };
   _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>#0</span></span>';
   _.textTemplate = ['\\'];
@@ -590,10 +589,11 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
     this.remove();
-    if (this.next)
+    if (this.next) {
       this.cursor.insertBefore(this.next);
-    else
+    } else {
       this.cursor.appendTo(this.parent);
+    }
 
     var latex = this.firstChild.latex(), cmd;
     if (latex) {

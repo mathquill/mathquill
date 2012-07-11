@@ -88,19 +88,18 @@ var manageTextarea = (function() {
 
   // create a textarea manager that calls callbacks at useful times
   // and exports useful public methods
-  return function manageTextarea(el, handlers) {
+  return function manageTextarea(el, opts) {
     var keydown = null;
     var keypress = null;
 
-    if (!handlers) handlers = {};
-    var textCallback = handlers.text || noop;
-    var keyCallback = handlers.key || noop;
-    var pasteCallback = handlers.paste || noop;
-    var onCut = handlers.cut || noop;
+    if (!opts) opts = {};
+    var textCallback = opts.text || noop;
+    var keyCallback = opts.key || noop;
+    var pasteCallback = opts.paste || noop;
+    var onCut = opts.cut || noop;
 
-    // TODO: don't assume el is the textarea itself
     var textarea = $(el);
-
+    var target = $(opts.container || textarea);
 
     // defer() runs fn immediately after the current thread.
     // flush() will run it even sooner, if possible.
@@ -121,7 +120,7 @@ var manageTextarea = (function() {
       }
     }
 
-    textarea.bind('keydown keypress input keyup blur paste', flush);
+    target.bind('keydown keypress input keyup focusout paste', flush);
 
 
     // -*- public methods -*- //
@@ -130,11 +129,6 @@ var manageTextarea = (function() {
 
       textarea.val(text);
       if (text) textarea[0].select();
-    }
-
-    function paste() {
-      flush();
-      onPaste();
     }
 
     // -*- helper subroutines -*- //
@@ -203,24 +197,37 @@ var manageTextarea = (function() {
     function onBlur() { keydown = keypress = null; }
 
     function onPaste(e) {
+      // browsers are dumb.
+      //
+      // In Linux, middle-click pasting causes onPaste to be called,
+      // when the textarea is not necessarily focused.  We focus it
+      // here to ensure that the pasted text actually ends up in the
+      // textarea.
+      //
+      // It's pretty nifty that by changing focus in this handler,
+      // we can change the target of the default action.  (This works
+      // on keydown too, FWIW).
+      //
+      // And by nifty, we mean dumb (but useful sometimes).
+      textarea.focus();
+
       defer(function() {
         popText(pasteCallback);
       });
     }
 
     // -*- attach event handlers -*- //
-    textarea.bind({
+    target.bind({
       keydown: onKeydown,
       keypress: onKeypress,
-      blur: onBlur,
+      focusout: onBlur,
       cut: onCut,
       paste: onPaste
     });
 
     // -*- export public methods -*- //
     return {
-      select: select,
-      paste: paste
-    }
+      select: select
+    };
   };
 }());
