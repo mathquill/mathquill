@@ -73,6 +73,8 @@ var MathCommand = P(MathElement, function(_, _super) {
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
     }
 
+    cmd.eachChild(function(b) { b.blur(); });
+
     cursor.jQ.before(cmd.jQ);
 
     cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
