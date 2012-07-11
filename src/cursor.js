@@ -226,8 +226,14 @@ var Cursor = P(function(_) {
     else
       cursor.appendTo(block);
 
+    return cursor.seekHoriz(pageX);
+  };
+  _.seekHoriz = function(pageX) {
     //move cursor to position closest to click
-    var dist = cursor.offset().left - pageX, prevDist;
+    var cursor = this;
+    var dist = cursor.offset().left - pageX;
+    var prevDist;
+
     do {
       cursor.moveLeft();
       prevDist = dist;
@@ -235,8 +241,7 @@ var Cursor = P(function(_) {
     }
     while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
 
-    if (-dist > prevDist)
-      cursor.moveRight();
+    if (-dist > prevDist) cursor.moveRight();
 
     return cursor;
   };
