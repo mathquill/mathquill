@@ -90,18 +90,13 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.createBlocks = function() {
     var cmd = this,
-      prev = 0,
       numBlocks = cmd.numBlocks(),
       blocks = cmd.blocks = Array(numBlocks);
+
     for (var i = 0; i < numBlocks; i += 1) {
-      var newBlock = blocks[i] = prev.next = MathBlock();
-      newBlock.parent = cmd;
-      newBlock.prev = prev;
-      newBlock.blur();
-      prev = newBlock;
+      var newBlock = blocks[i] = MathBlock();
+      newBlock.adopt(cmd, cmd.lastChild, 0);
     }
-    cmd.firstChild = blocks[0];
-    cmd.lastChild = blocks[-1 + numBlocks];
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
