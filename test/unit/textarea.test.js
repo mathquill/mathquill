@@ -6,6 +6,10 @@ suite('key', function() {
     assert.ok(false, 'this function should not be called');
   }
 
+  function supportsSelectionAPI() {
+    return 'selectionStart' in el[0];
+  }
+
   setup(function() {
     el = $('<textarea>').appendTo('#mock');
   });
@@ -101,10 +105,15 @@ suite('key', function() {
       manager.select('foobar');
 
       assert.equal(el.val(), 'foobar');
-      el.trigger('input');
-      assert.equal(el.val(), 'foobar', 'value remains after input');
       el.trigger('keydown');
       assert.equal(el.val(), 'foobar', 'value remains after keydown');
+
+      if (supportsSelectionAPI()) {
+        el.trigger('keypress');
+        assert.equal(el.val(), 'foobar', 'value remains after keypress');
+        el.trigger('input');
+        assert.equal(el.val(), 'foobar', 'value remains after flush after keypress');
+      }
     });
 
     test('select populates the textarea but doesn\'t call text' +
@@ -113,8 +122,8 @@ suite('key', function() {
       var manager = manageTextarea(el, { text: shouldNotBeCalled });
 
       manager.select('foobar');
-      // monkey-patch the dom-level selection to look like it's not
-      // there, as in IE < 9.
+      // monkey-patch the dom-level selection so that hasSelection()
+      // returns false, as in IE < 9.
       el[0].selectionStart = el[0].selectionEnd = 0;
 
       el.trigger('keydown');
@@ -129,8 +138,13 @@ suite('key', function() {
       manager.select('foobar');
       el.trigger('blur');
       el.focus();
-      assert.equal(el[0].selectionStart, 0, 'it\'s selected from the start');
-      assert.equal(el[0].selectionEnd, 6, 'it\'s selected to the end');
+
+      // IE < 9 doesn't support selection{Start,End}
+      if (supportsSelectionAPI()) {
+        assert.equal(el[0].selectionStart, 0, 'it\'s selected from the start');
+        assert.equal(el[0].selectionEnd, 6, 'it\'s selected to the end');
+      }
+
       assert.equal(el.val(), 'foobar', 'it still has content');
     });
   });
