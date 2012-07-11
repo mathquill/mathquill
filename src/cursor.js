@@ -17,6 +17,8 @@ var Cursor = P(function(_) {
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('blink'); }
+
+    this.upDownCache = {};
   };
 
   _.prev = 0;
@@ -123,6 +125,8 @@ var Cursor = P(function(_) {
     }
   };
   _.moveLeft = function() {
+    clearUpDownCache(this);
+
     if (this.selection)
       this.insertBefore(this.selection.first).clearSelection();
     else {
@@ -131,6 +135,8 @@ var Cursor = P(function(_) {
     return this.show();
   };
   _.moveRight = function() {
+    clearUpDownCache(this);
+
     if (this.selection)
       this.insertAfter(this.selection.last).clearSelection();
     else {
@@ -163,12 +169,24 @@ var Cursor = P(function(_) {
         var prop = ancestorBlock[dir];
         if (prop) {
           if (typeof prop === 'function') prop = ancestorBlock[dir](self);
-          if (prop === false) break;
+          if (prop === false || prop instanceof MathBlock) {
+            self.upDownCache[ancestorBlock.id] = { parent: self.parent, prev: self.prev, next: self.next };
 
-          if (prop instanceof MathBlock) {
-            var pageX = offset(self).left;
-            self.appendTo(prop);
-            self.seekHoriz(pageX, prop);
+            if (prop instanceof MathBlock) {
+              var cached = self.upDownCache[prop.id];
+
+              if (cached) {
+                if (cached.next) {
+                  self.insertBefore(cached.next);
+                } else {
+                  self.appendTo(cached.parent);
+                }
+              } else {
+                var pageX = offset(self).left;
+                self.appendTo(prop);
+                self.seekHoriz(pageX, prop);
+              }
+            }
             break;
           }
         }
@@ -180,6 +198,7 @@ var Cursor = P(function(_) {
   }
 
   _.seek = function(target, pageX, pageY) {
+    clearUpDownCache(this);
     var cmd, block, cursor = this.clearSelection().show();
     if (target.hasClass('empty')) {
       cursor.prependTo(MathElement[target.attr(mqBlockId)]);
@@ -244,7 +263,9 @@ var Cursor = P(function(_) {
     return offset;
   }
   _.writeLatex = function(latex) {
+    clearUpDownCache(this);
     this.show().deleteSelection();
+
     latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
     (function writeLatexBlock(cursor) {
       while (latex.length) {
@@ -399,6 +420,8 @@ var Cursor = P(function(_) {
       gramp.next.respace();
   };
   _.backspace = function() {
+    clearUpDownCache(this);
+
     if (this.deleteSelection()); // pass
     else if (this.prev) {
       if (this.prev.isEmpty())
@@ -422,6 +445,8 @@ var Cursor = P(function(_) {
     return this.show();
   };
   _.deleteForward = function() {
+    clearUpDownCache(this);
+
     if (this.deleteSelection()); // pass
     else if (this.next) {
       if (this.next.isEmpty())
@@ -487,6 +512,7 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
   _.selectLeft = function() {
+    clearUpDownCache(this);
     if (this.selection) {
       if (this.selection.first === this.next) { //if cursor is at left edge of selection;
         if (this.prev) //then extend left if possible
@@ -517,6 +543,7 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
   _.selectRight = function() {
+    clearUpDownCache(this);
     if (this.selection) {
       if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
         if (this.next) //then extend right if possible
@@ -547,11 +574,17 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
 
+  function clearUpDownCache(self) {
+    self.upDownCache = {};
+  }
+
   _.prepareMove = function() {
+    clearUpDownCache(this);
     return this.show().clearSelection();
   };
 
   _.prepareEdit = function() {
+    clearUpDownCache(this);
     return this.show().deleteSelection();
   }
 
