@@ -351,7 +351,6 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     this.blocks = [ this.firstChild ];
 
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ.append(this.firstChild.jQ);
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);

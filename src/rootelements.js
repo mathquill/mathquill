@@ -415,7 +415,6 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     this.blocks = [ this.firstChild ];
 
     this.firstChild.parent = this;
-    this.firstChild.jQ = this.jQ;
 
     var cursor = this.firstChild.cursor = this.cursor;
     this.firstChild.onText = function(ch) {
