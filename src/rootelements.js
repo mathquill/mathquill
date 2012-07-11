@@ -241,6 +241,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       // cursor is in root editable, continue default
       if (parent === this.cursor.root) return;
 
+      this.cursor.prepareMove();
       if (parent.next) {
         // go one block right
         this.cursor.prependTo(parent.next);
@@ -248,8 +249,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         // get out of the block
         this.cursor.insertAfter(parent.parent);
       }
-
-      this.cursor.clearSelection();
       break;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
@@ -258,6 +257,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //cursor is in root editable, continue default
       if (parent === this.cursor.root) return;
 
+      this.cursor.prepareMove();
       if (parent.prev) {
         // go one block left
         this.cursor.appendTo(parent.prev);
@@ -265,8 +265,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         //get out of the block
         this.cursor.insertBefore(parent.parent);
       }
-
-      this.cursor.clearSelection();
       break;
 
     // Prevent newlines from showing up
@@ -275,12 +273,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // End -> move to the end of the current block.
     case 'End':
-      this.cursor.clearSelection().appendTo(this.cursor.parent);
+      this.cursor.prepareMove().appendTo(this.cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      this.cursor.clearSelection().appendTo(this);
+      this.cursor.prepareMove().appendTo(this);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -299,12 +297,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      this.cursor.clearSelection().prependTo(this.cursor.parent);
+      this.cursor.prepareMove().prependTo(this.cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      this.cursor.clearSelection().prependTo(this);
+      this.cursor.prepareMove().prependTo(this);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -363,7 +361,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
-      this.cursor.clearSelection().appendTo(this);
+      this.cursor.prepareMove().appendTo(this);
       while (this.cursor.prev) this.cursor.selectLeft();
       break;
 

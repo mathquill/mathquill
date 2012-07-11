@@ -176,11 +176,11 @@ var Cursor = P(function(_) {
       } while (ancestorBlock);
     }
 
-    return self.clearSelection();
+    return self.clearSelection().show();
   }
 
   _.seek = function(target, pageX, pageY) {
-    var cmd, block, cursor = this.clearSelection();
+    var cmd, block, cursor = this.clearSelection().show();
     if (target.hasClass('empty')) {
       cursor.prependTo(MathElement[target.attr(mqBlockId)]);
       return cursor;
@@ -497,7 +497,7 @@ var Cursor = P(function(_) {
       else { //else cursor is at right edge of selection, retract left if possible
         this.hopLeft();
         if (this.selection.first === this.selection.last) {
-          this.clearSelection(); //clear selection if retracting to nothing
+          this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
         this.selection.retractLeft();
@@ -527,7 +527,7 @@ var Cursor = P(function(_) {
       else { //else cursor is at left edge of selection, retract right if possible
         this.hopRight();
         if (this.selection.first === this.selection.last) {
-          this.clearSelection(); //clear selection if retracting to nothing
+          this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
         this.selection.retractRight();
@@ -547,12 +547,16 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
 
+  _.prepareMove = function() {
+    return this.show().clearSelection();
+  };
+
   _.prepareEdit = function() {
     return this.show().deleteSelection();
   }
 
   _.clearSelection = function() {
-    if (this.show().selection) {
+    if (this.selection) {
       this.selection.clear();
       delete this.selection;
       this.root.selectionChanged();
