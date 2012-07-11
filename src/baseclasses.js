@@ -75,7 +75,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     cursor.jQ.before(cmd.jQ);
 
-    cursor.prev = cmd.insertAt(cursor.parent, cursor.prev, cursor.next);
+    cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
 
     //adjust context-sensitive spacing
     cmd.respace();
@@ -103,7 +103,6 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.firstChild = blocks[0];
     cmd.lastChild = blocks[-1 + numBlocks];
   };
-  _.insertAt = _.adopt;
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
