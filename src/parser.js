@@ -58,10 +58,10 @@ var Parser = P(function(_) {
 
   // -*- higher-level combinators -*- //
   _.then = function(next) { return this.bind(function() { return next; }); };
-  _.constResult = function(c) { return this.then(Epsilon(c)); };
+  _.constResult = function(c) { return this.then(Succeed(c)); };
 
   _.pipe = function(f) {
-    return this.bind(function(result) { return Epsilon(f(result)); });
+    return this.bind(function(result) { return Succeed(f(result)); });
   };
 
   _.skip = function(next) {
@@ -77,11 +77,11 @@ var Parser = P(function(_) {
       return self.many().pipe(function(xs) {
         return [x].concat(xs);
       });
-    }).or(Epsilon([]));
+    }).or(Succeed([]));
   };
 });
 
-function Epsilon(result) {
+function Succeed(result) {
   // Make a Parser that matches nothing and just always succeeds with `result`.
   return Parser(function(stream, onSuccess, onFailure) {
     return onSuccess(stream, result);
