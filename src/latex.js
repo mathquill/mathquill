@@ -1,6 +1,4 @@
-var WhiteSpaceParser = CharParser(/\s/).many();
-var LetterParser = CharParser(/[a-z]/i);
-
+// Parser MathCommand
 var VariableParser = LetterParser.then(Variable);
 var SymbolParser = CharParser(/[^{}]/).then(VanillaSymbol);
 
@@ -33,7 +31,6 @@ var ControlSequenceParser =
   })
 ;
 
-// Parser MathCommand
 var CommandParser =
   ControlSequenceParser
   .or(SupSubParser)

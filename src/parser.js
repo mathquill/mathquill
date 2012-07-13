@@ -108,3 +108,6 @@ function CharParser(ch) {
     }
   });
 }
+
+var WhiteSpaceParser = CharParser(/\s/).many();
+var LetterParser = CharParser(/[a-z]/i);
