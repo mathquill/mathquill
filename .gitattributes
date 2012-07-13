@@ -1,0 +1,5 @@
+# default is unix-style line feed only
+* text=lf
+
+# don't mess with fonts
+src/font/* text=binary

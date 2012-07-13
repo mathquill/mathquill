@@ -1,0 +1,76 @@
+.mathquill-editable {
+  .inline-block;
+
+  .cursor {
+    border-left: 1px solid black;
+    margin-right: -1px;
+    position: relative;
+    z-index: 1;
+    padding: 0;
+    .inline-block;
+
+    &.blink { visibility: hidden; }
+  }
+
+  // This is a workaround to override the
+  // styles on .mathquill-editable *.
+  // TODO: figure out a better way.
+  &, .mathquill-embedded-latex & {
+    border: 1px solid gray;
+    padding: 2px;
+  }
+// special styles for editables within static math
+  .mathquill-embedded-latex & {
+    margin: 1px;
+  }
+
+  // TODO: dasherize has-cursor
+  &.hasCursor, .hasCursor {
+    .box-shadow(#68B4DF 0 0 3px 2px);
+  }
+
+  ////
+  // command input with \
+  .latex-command-input {
+    color: inherit;
+    font-family: @mono;
+    border: 1px solid gray;
+    padding-right: 1px;
+    margin-right: 1px;
+    margin-left: 2px;
+
+    &.empty {
+      background: transparent;
+    }
+
+    // TODO: dasherize has-cursor
+    &.hasCursor {
+      border-color: ActiveBorder;
+    }
+  }
+}
+
+// Keeps blocks from collapsing to zero width/height
+// when empty by inserting invisible text.
+// TODO: find a way to unify the three concepts below.
+.mathquill-editable.empty:after,
+.mathquill-textbox:after,
+.mathquill-rendered-math .empty:after {
+  visibility: hidden;
+  content: 'c';
+}
+
+// separated from above because unrecognized pseudoclasses
+// invalidate the entire selector
+.mathquill-editable .cursor:only-child:after,
+.mathquill-editable .textarea+.cursor:last-child:after {
+  visibility: hidden;
+  content: 'c';
+}
+
+.mathquill-textbox {
+  overflow-x: auto;
+
+  // so IE8 won't show a vertical scrollbar
+  overflow-y: hidden;
+}
