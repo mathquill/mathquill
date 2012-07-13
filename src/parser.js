@@ -16,12 +16,14 @@ var Parser = P(function(_) {
   function ensureParser(x) {
     if (x instanceof Parser) return x;
 
-    return Parser(function(stream, success) {
+    return Parser('EnsuredParser', function(stream, success) {
       return success(stream, x);
     });
   }
 
-  _.init = function(body) { this._ = body; };
+  _.init = function(name, body) { this.name = name; this._ = body; };
+
+  _.is = function(parser) { this._ = parser._; return this; };
 
   _.parse = function(stream) {
     function success(stream, result) {
@@ -33,11 +35,11 @@ var Parser = P(function(_) {
     return this._(stream, success, parseError);
   };
 
-  // -*- primitive combinators -*- //
+  // -*- combinators -*- //
   _.or = function(two) {
     var one = this;
 
-    return Parser(function(stream, onSuccess, onFailure) {
+    return Parser(one.name, function(stream, onSuccess, onFailure) {
       return one._(stream, onSuccess, failure);
 
       function failure(newStream) {
@@ -50,7 +52,7 @@ var Parser = P(function(_) {
     var one = this;
     two = ensureFunction(two);
 
-    return Parser(function(stream, onSuccess, onFailure) {
+    return Parser(one.name, function(stream, onSuccess, onFailure) {
       return one._(stream, success, onFailure);
 
       function success(newStream, result) {
@@ -59,7 +61,6 @@ var Parser = P(function(_) {
     });
   };
 
-  // -*- higher-level combinators -*- //
   _.after = function(two) {
     var one = this;
     two = ensureFunction(two);
@@ -82,7 +83,9 @@ var Parser = P(function(_) {
   };
 });
 
-function CharParser(ch) {
+function CharParser(ch, name) {
+  if (!name) name = 'UnnamedParser :(';
+
   var cond;
   if (ch === undefined) {
     cond = function() { return true; };
@@ -97,7 +100,7 @@ function CharParser(ch) {
     cond = function(head) { return ch === head; };
   }
 
-  return Parser(function(stream, onSuccess, onFailure) {
+  return Parser(name, function(stream, onSuccess, onFailure) {
     if (!stream.length) return onFailure(stream);
 
     var head = stream.charAt(0);
@@ -110,5 +113,5 @@ function CharParser(ch) {
   });
 }
 
-var WhiteSpaceParser = CharParser(/\s/).many();
-var LetterParser = CharParser(/[a-z]/i);
+var WhiteSpaceParser = CharParser(/\s/, 'WhiteSpaceParser').many();
+var LetterParser = CharParser(/[a-z]/i, 'LetterParser');
