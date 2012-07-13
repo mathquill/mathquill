@@ -1,12 +1,8 @@
 var WhiteSpaceParser = CharParser(/\s/).many();
-WhiteSpaceParser.name = 'WhiteSpaceParser';
 var LetterParser = CharParser(/[a-z]/i);
-LetterParser.name = 'LetterParser';
 
 var VariableParser = LetterParser.then(Variable);
-VariableParser.name = 'VariableParser';
 var SymbolParser = CharParser(/[^{}]/).then(VanillaSymbol);
-SymbolParser.name = 'SymbolParser';
 
 var SupSubParser = CharParser(/[_^]/).then(function(ch) {
   var cmd = LatexCmds[ch]();
@@ -17,7 +13,6 @@ var SupSubParser = CharParser(/[_^]/).then(function(ch) {
     return cmd;
   });
 });
-SupSubParser.name = 'SupSubParser';
 
 var ControlSequenceParser =
   CharParser('\\').then(
@@ -37,7 +32,6 @@ var ControlSequenceParser =
     }
   })
 ;
-ControlSequenceParser.name = 'ControlSequenceParser';
 
 // Parser MathCommand
 var CommandParser =
@@ -46,11 +40,9 @@ var CommandParser =
   .or(VariableParser)
   .or(SymbolParser)
 ;
-CommandParser.name = 'CommandParser';
 
 // Parser [MathCommand]
 var GroupParser = CharParser('{').then(CommandParser.many()).after(CharParser('}'));
-GroupParser.name = 'GroupParser';
 
 // Parser MathBlock
 var BlockParser =
@@ -66,7 +58,6 @@ var BlockParser =
     return block;
   })
 ;
-BlockParser.name = 'BlockParser';
 
 var RootParser = CommandParser.many().then(function(commands) {
   var block = MathBlock();
@@ -77,4 +68,3 @@ var RootParser = CommandParser.many().then(function(commands) {
 
   return block;
 });
-RootParser.name = 'RootParser';
