@@ -22,13 +22,13 @@ var Parser = P(function(_) {
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
+    return this._(stream, success, parseError);
+
     function success(stream, result) {
       if (stream) parseError(stream, 'expected EOF');
 
       return result;
     }
-
-    return this._(stream, success, parseError);
   };
 
   // -*- primitive combinators -*- //
