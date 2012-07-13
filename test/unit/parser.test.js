@@ -45,6 +45,18 @@ suite('parser', function() {
       assert.equal(parser.parse('x'), 'y')
       assert.equal(piped, 'x');
     });
+
+    test('can use with bind and closure to combine values', function() {
+      var parser = CharParser('x').bind(function(x) {
+        return CharParser('y').pipe(function(y) {
+          return x + y;
+        });
+      });
+
+      assert.equal(parser.parse('xy'), 'xy');
+      assert.throws(function() { parser.parse('x'); });
+      assert.throws(function() { parser.parse('y'); });
+    });
   });
 
   suite('skip', function() {
