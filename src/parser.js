@@ -33,7 +33,7 @@ var Parser = P(function(_) {
     return this._(stream, success, parseError);
   };
 
-  // -*- combinators -*- //
+  // -*- primitive combinators -*- //
   _.or = function(two) {
     var one = this;
 
@@ -59,6 +59,7 @@ var Parser = P(function(_) {
     });
   };
 
+  // -*- higher-level combinators -*- //
   _.after = function(two) {
     var one = this;
     two = ensureFunction(two);
