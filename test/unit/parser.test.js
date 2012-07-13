@@ -1,4 +1,4 @@
-suite('latex', function() {
+suite('parser', function() {
   test('CharParser', function() {
     var parser = CharParser('x');
     assert.equal(parser.parse('x'), 'x');
