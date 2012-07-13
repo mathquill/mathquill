@@ -14,7 +14,7 @@ var SupSubParser = CharParser(/[_^]/).then(function(ch) {
 
 var ControlSequenceParser =
   CharParser('\\').then(
-    LetterParser.many().after(WhiteSpaceParser)
+    LetterParser.many().skip(WhiteSpaceParser)
     .or(WhiteSpaceParser.then(' '))
     .or(CharParser())
   ).then(function(ctrlSeq) {
@@ -39,7 +39,7 @@ var CommandParser =
 ;
 
 // Parser [MathCommand]
-var GroupParser = CharParser('{').then(CommandParser.many()).after(CharParser('}'));
+var GroupParser = CharParser('{').then(CommandParser.many()).skip(CharParser('}'));
 
 // Parser MathBlock
 var BlockParser =

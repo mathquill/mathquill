@@ -43,16 +43,16 @@ suite('parser', function() {
     });
   });
 
-  suite('after', function() {
+  suite('skip', function() {
     test('with a parser, uses the previous return value', function() {
-      var parser = CharParser('x').after(CharParser('y'));
+      var parser = CharParser('x').skip(CharParser('y'));
 
       assert.equal(parser.parse('xy'), 'x');
       assert.throws(function() { parser.parse('x'); });
     });
 
     test('with a function, uses the previous return value', function() {
-      var parser = CharParser('x').after(function() { return 'y'; });
+      var parser = CharParser('x').skip(function() { return 'y'; });
 
       assert.equal(parser.parse('x'), 'x');
     });
@@ -61,7 +61,7 @@ suite('parser', function() {
          'uses the previous return value', function() {
       var piped;
 
-      var parser = CharParser('x').after(function(x) {
+      var parser = CharParser('x').skip(function(x) {
         piped = x;
         return CharParser('y');
       });

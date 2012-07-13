@@ -64,7 +64,7 @@ var Parser = P(function(_) {
   };
 
   // -*- higher-level combinators -*- //
-  _.after = function(two) {
+  _.skip = function(two) {
     var one = this;
     two = ensureFunction(two);
 
