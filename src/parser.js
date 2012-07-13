@@ -1,7 +1,11 @@
 // Parser a
 var Parser = P(function(_) {
+
   function returning(x) { return function() { return x; } }
-  function parseError(stream) { throw new Error(stream); }
+  function parseError(stream, message) {
+
+    throw 'parse error - ' + message + ', got \''+stream+'\'';
+  }
 
   function ensureFunction(thing) {
     if (typeof thing !== 'function') thing = returning(thing);
@@ -21,7 +25,7 @@ var Parser = P(function(_) {
 
   _.parse = function(stream) {
     function success(stream, result) {
-      if (stream) parseError(stream);
+      if (stream) parseError(stream, 'expected EOF');
 
       return result;
     }
@@ -86,7 +90,7 @@ function CharConditionParser(cond) {
       return onSuccess(stream.slice(1), head);
     }
     else {
-      return onFailure(stream);
+      return onFailure(stream, ch);
     }
   });
 }
