@@ -81,7 +81,21 @@ var Parser = P(function(_) {
   };
 });
 
-function CharConditionParser(cond) {
+function CharParser(ch) {
+  var cond;
+  if (ch === undefined) {
+    cond = function() { return true; };
+  }
+  else if (typeof ch === 'function') {
+    cond = ch;
+  }
+  else if (ch instanceof RegExp) {
+    cond = function(head) { return ch.test(head); };
+  }
+  else {
+    cond = function(head) { return ch === head; };
+  }
+
   return Parser(function(stream, onSuccess, onFailure) {
     if (!stream.length) return onFailure(stream);
 
@@ -94,13 +108,3 @@ function CharConditionParser(cond) {
     }
   });
 }
-
-function CharParser(ch) {
-  return CharConditionParser(function(head) { return head === ch; });
-}
-
-function CharClassParser(regex) {
-  return CharConditionParser(function(head) { return regex.test(head); });
-}
-
-var LetterParser = CharClassParser(/[a-z]/i);

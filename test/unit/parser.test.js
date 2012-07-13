@@ -5,8 +5,8 @@ suite('latex', function() {
     assert.throws(function() { parser.parse('y') })
   });
 
-  test('CharClassParser', function() {
-    var parser = CharClassParser(/[0-9]/);
+  test('CharParser with a regex', function() {
+    var parser = CharParser(/[0-9]/);
 
     assert.equal(parser.parse('1'), '1');
     assert.equal(parser.parse('4'), '4');
