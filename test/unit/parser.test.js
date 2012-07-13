@@ -13,6 +13,17 @@ suite('parser', function() {
     assert.throws(function() { parser.parse('x'); });
   });
 
+  suite('bind', function() {
+    test('with a function that returns a parser, continues with that parser', function() {
+      var parser = CharParser('x').bind(function(x) {
+        return CharParser('y');
+      });
+
+      assert.equal(parser.parse('xy'), 'y');
+      assert.throws(function() { parser.parse('x'); });
+    });
+  });
+
   suite('then', function() {
     test('with a parser, uses the last return value', function() {
       var parser = CharParser('x').then(CharParser('y'));
@@ -20,26 +31,19 @@ suite('parser', function() {
       assert.throws(function() { parser.parse('y'); });
       assert.throws(function() { parser.parse('xz'); });
     });
+  });
 
-    test('with a function, pipes the value in and uses that return value', function() {
+  suite('pipe', function() {
+    test('with a function, passes in the value so far and uses return value', function() {
       var piped;
 
-      var parser = CharParser('x').then(function(x) {
+      var parser = CharParser('x').pipe(function(x) {
         piped = x;
         return 'y';
       });
 
       assert.equal(parser.parse('x'), 'y')
       assert.equal(piped, 'x');
-    });
-
-    test('with a function that returns a parser, continues with that parser', function() {
-      var parser = CharParser('x').then(function(x) {
-        return CharParser('y');
-      });
-
-      assert.equal(parser.parse('xy'), 'y');
-      assert.throws(function() { parser.parse('x'); });
     });
   });
 
@@ -51,23 +55,15 @@ suite('parser', function() {
       assert.throws(function() { parser.parse('x'); });
     });
 
-    test('with a function, uses the previous return value', function() {
-      var parser = CharParser('x').skip(function() { return 'y'; });
+    test('uses the previous return value, even if it was a function', function() {
+      var parser = CharParser('x').constResult(function() {
+        return 'the right result';
+      }).skip(CharParser('y'));
 
-      assert.equal(parser.parse('x'), 'x');
-    });
-
-    test('with a function that returns a parser, '+
-         'uses the previous return value', function() {
-      var piped;
-
-      var parser = CharParser('x').skip(function(x) {
-        piped = x;
-        return CharParser('y');
-      });
-
-      assert.equal(parser.parse('xy'), 'x');
-      assert.equal(piped, 'x');
+      var result = parser.parse('xy');
+      assert.equal(typeof result, 'function');
+      assert.equal(result(), 'the right result');
+      assert.throws(function() { parser.parse('x'); });
     });
   });
 
@@ -80,9 +76,9 @@ suite('parser', function() {
       assert.throws(function() { parser.parse('z') });
     });
 
-    test('with then', function() {
+    test('with bind', function() {
       var parser = CharParser('\\')
-        .then(function() {
+        .bind(function() {
           return CharParser('y')
         }).or(CharParser('z'));
 

@@ -1,11 +1,11 @@
 // Parser MathCommand
-var VariableParser = LetterParser.then(Variable);
-var SymbolParser = CharParser(/[^{}]/).then(VanillaSymbol);
+var VariableParser = LetterParser.pipe(Variable);
+var SymbolParser = CharParser(/[^{}]/).pipe(VanillaSymbol);
 
-var SupSubParser = CharParser(/[_^]/).then(function(ch) {
+var SupSubParser = CharParser(/[_^]/).bind(function(ch) {
   var cmd = LatexCmds[ch]();
 
-  return BlockParser.then(function(block) {
+  return BlockParser.pipe(function(block) {
     block.adopt(cmd, 0, 0);
 
     return cmd;
@@ -15,9 +15,9 @@ var SupSubParser = CharParser(/[_^]/).then(function(ch) {
 var ControlSequenceParser =
   CharParser('\\').then(
     LetterParser.many().skip(WhiteSpaceParser)
-    .or(WhiteSpaceParser.then(' '))
+    .or(WhiteSpaceParser.constResult(' '))
     .or(CharParser())
-  ).then(function(ctrlSeq) {
+  ).pipe(function(ctrlSeq) {
     var cmdKlass = LatexCmds[ctrlSeq];
 
     if (cmdKlass) {
@@ -44,8 +44,8 @@ var GroupParser = CharParser('{').then(CommandParser.many()).skip(CharParser('}'
 // Parser MathBlock
 var BlockParser =
   GroupParser
-  .or(CommandParser.then(function(x) { return [x]; }))
-  .then(function(commands) {
+  .or(CommandParser.pipe(function(x) { return [x]; }))
+  .pipe(function(commands) {
     var block = MathBlock();
 
     for (var i = 0; i < commands.length; i += 1) {
@@ -56,7 +56,7 @@ var BlockParser =
   })
 ;
 
-var RootParser = CommandParser.many().then(function(commands) {
+var RootParser = CommandParser.many().pipe(function(commands) {
   var block = MathBlock();
 
   for (var i = 0; i < commands.length; i += 1) {

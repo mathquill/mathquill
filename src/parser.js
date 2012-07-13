@@ -6,23 +6,8 @@ var Parser = P(function(_) {
   // construct your Parser from the base parsers and the
   // parser combinator methods.
 
-  function returning(x) { return function() { return x; } }
   function parseError(stream, message) {
     throw 'Parse Error: ' + message + ', got \''+stream+'\'';
-  }
-
-  function ensureFunction(thing) {
-    if (typeof thing !== 'function') thing = returning(thing);
-
-    return thing;
-  }
-
-  function ensureParser(x) {
-    if (x instanceof Parser) return x;
-
-    return Parser(function(stream, success) {
-      return success(stream, x);
-    });
   }
 
   _.init = function(body) { this._ = body; };
@@ -38,55 +23,73 @@ var Parser = P(function(_) {
   };
 
   // -*- primitive combinators -*- //
-  _.or = function(two) {
-    var one = this;
+  _.or = function(alternative) {
+    // Make a Parser that first tries to parse the stream with `this`
+    // parser, and if it fails, tries the to parse the stream with the
+    // `alternative`, which must be a Parser.
+    var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, onSuccess, failure);
+      return self._(stream, onSuccess, failure);
 
       function failure(newStream) {
-        return ensureParser(two)._(stream, onSuccess, onFailure);
+        return alternative._(stream, onSuccess, onFailure);
       }
     });
   };
 
-  _.then = function(two) {
-    var one = this;
-    two = ensureFunction(two);
+  _.bind = function(makeParser) {
+    // Make a Parser that first parses the stream with `this` parser,
+    // then passes the result to `makeParser`, which must be a function
+    // that takes one argument and returns a Parser, and then uses the
+    // returned Parser to continue to parse the stream.
+    var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, success, onFailure);
+      return self._(stream, success, onFailure);
 
       function success(newStream, result) {
-        return ensureParser(two(result))._(newStream, onSuccess, onFailure);
+        return makeParser(result)._(newStream, onSuccess, onFailure);
       }
     });
   };
 
   // -*- higher-level combinators -*- //
-  _.skip = function(two) {
-    var one = this;
-    two = ensureFunction(two);
+  _.then = function(next) { return this.bind(function() { return next; }); };
+  _.constResult = function(c) { return this.then(Epsilon(c)); };
 
-    return one.then(function(result) {
-      return ensureParser(two(result)).then(function() {
-        return ensureParser(result);
-      });
+  _.pipe = function(f) {
+    return this.bind(function(result) { return Epsilon(f(result)); });
+  };
+
+  _.skip = function(next) {
+    return this.bind(function(firstResult) {
+      return next.constResult(firstResult);
     });
   };
 
   _.many = function() {
     var self = this;
 
-    return self.then(function(x) {
-      return self.many().then(function(xs) {
+    return self.bind(function(x) {
+      return self.many().pipe(function(xs) {
         return [x].concat(xs);
       });
-    }).or([]);
+    }).or(Epsilon([]));
   };
 });
 
+function Epsilon(result) {
+  // Make a Parser that matches nothing and just always succeeds with `result`.
+  return Parser(function(stream, onSuccess, onFailure) {
+    return onSuccess(stream, result);
+  });
+}
+
 function CharParser(ch) {
+  // Make a Parser that matches a single character if and only if the character
+  // matches `ch` if `ch` is a character, a regex, or a function, or matches
+  // any character if `ch` is not passed.
   var cond;
   if (ch === undefined) {
     cond = function() { return true; };
