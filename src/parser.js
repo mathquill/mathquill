@@ -1,5 +1,11 @@
-// Parser a
 var Parser = P(function(_) {
+  // The Parser object is a wrapper for a parser function.
+  // Externally, you use one to parse a string by calling
+  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
+  // You should never call the constructor, rather you should
+  // construct your Parser from the base parsers and the
+  // parser combinator methods.
+
   function returning(x) { return function() { return x; } }
   function parseError(stream, message) {
     throw 'Parse Error: ' + message + ', got \''+stream+'\'';
