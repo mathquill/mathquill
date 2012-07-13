@@ -106,5 +106,13 @@ suite('parser', function() {
       assert.throws(function() { xs.parse('y'); });
       assert.throws(function() { xs.parse('xxxy'); });
     });
+
+    test('followed by then', function() {
+      var parser = CharParser('x').many().then(CharParser('y'));
+
+      assert.equal(parser.parse('y'), 'y');
+      assert.equal(parser.parse('xy'), 'y');
+      assert.equal(parser.parse('xxxxxy'), 'y');
+    });
   });
 });
