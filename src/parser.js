@@ -2,7 +2,7 @@
 var Parser = P(function(_) {
   function returning(x) { return function() { return x; } }
   function parseError(stream, message) {
-    throw 'parse error - ' + message + ', got \''+stream+'\'';
+    throw 'Parse Error: ' + message + ', got \''+stream+'\'';
   }
 
   function ensureFunction(thing) {
