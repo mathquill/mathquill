@@ -6,8 +6,10 @@ var Parser = P(function(_) {
   // construct your Parser from the base parsers and the
   // parser combinator methods.
 
-  function parseError(stream, message) {
-    throw 'Parse Error: ' + message + ', got \''+stream+'\'';
+  function parseError(stream, expected) {
+    if (!stream) stream = 'EOF';
+    else stream = '"' + stream + '"';
+    throw 'Parse Error: expected ' + expected + ', got ' + stream;
   }
 
   _.init = function(body) { this._ = body; };
@@ -16,7 +18,7 @@ var Parser = P(function(_) {
     return this._(stream, success, parseError);
 
     function success(stream, result) {
-      if (stream) parseError(stream, 'expected EOF');
+      if (stream) parseError(stream, 'EOF');
 
       return result;
     }
@@ -105,7 +107,7 @@ function CharParser(ch) {
   }
 
   return Parser(function(stream, onSuccess, onFailure) {
-    if (!stream.length) return onFailure(stream);
+    if (!stream.length) return onFailure(stream, ch);
 
     var head = stream.charAt(0);
     if (cond(head)) {
