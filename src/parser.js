@@ -91,6 +91,13 @@ function Succeed(result) {
   });
 }
 
+function Fail(message) {
+  // Make a Parser that always fails with `message`.
+  return Parser(function(stream, onSuccess, onFailure) {
+    return onFailure(stream, message);
+  });
+}
+
 function CharParser(ch) {
   // Make a Parser that matches a single character if and only if the character
   // matches `ch` if `ch` is a character, a regex, or a function, or matches

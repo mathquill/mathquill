@@ -123,4 +123,35 @@ suite('parser', function() {
       assert.equal(parser.parse('xxxxxy'), 'y');
     });
   });
+
+  suite('Succeed and Fail', function() {
+    test('use Fail to fail dynamically', function() {
+      var parser = CharParser()
+        .bind(function(ch) {
+          return Fail('character \'' + ch + '\' not allowed');
+        })
+        .or(CharParser('x'));
+
+      assert.throws(function() { parser.parse('y'); });
+      assert.equal(parser.parse('x'), 'x');
+    });
+
+    test('use Succeed or Fail to branch conditionally', function() {
+      var allowedOperator;
+      var parser = CharParser('x')
+        .then(CharParser('+').or(CharParser('*')))
+        .bind(function(operator) {
+          if (operator === allowedOperator) return Succeed(operator);
+          else return Fail(Parser.expected(allowedOperator));
+        }).skip(CharParser('y'));
+
+      allowedOperator = '+';
+      assert.equal(parser.parse('x+y'), '+');
+      assert.throws(function() { parser.parse('x*y'); });
+
+      allowedOperator = '*';
+      assert.equal(parser.parse('x*y'), '*');
+      assert.throws(function() { parser.parse('x+y'); });
+    });
+  });
 });
