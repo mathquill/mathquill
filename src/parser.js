@@ -1,4 +1,4 @@
-var Parser = P(function(_) {
+var Parser = P(function(_, _super, Parser) {
   // The Parser object is a wrapper for a parser function.
   // Externally, you use one to parse a string by calling
   //   var result = SomeParser.parse('Me Me Me! Parse Me!');
@@ -6,21 +6,24 @@ var Parser = P(function(_) {
   // construct your Parser from the base parsers and the
   // parser combinator methods.
 
-  function parseError(stream, expected) {
+  Parser.expected = function(expected, stream, onFailure) {
     if (!stream) stream = 'EOF';
     else stream = '"' + stream + '"';
-    throw 'Parse Error: expected ' + expected + ', got ' + stream;
-  }
+    return onFailure(stream, 'expected ' + expected + ', got ' + stream);
+  };
 
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
-    return this._(stream, success, parseError);
+    return this._(stream, success, failure);
 
     function success(stream, result) {
-      if (stream) parseError(stream, 'EOF');
+      if (stream) return Parser.expected('EOF', stream, failure);
 
       return result;
+    }
+    function failure(stream, message) {
+      throw 'Parse Error: ' + message;
     }
   };
 
@@ -107,17 +110,21 @@ function CharParser(ch) {
   }
 
   return Parser(function(stream, onSuccess, onFailure) {
-    if (!stream.length) return onFailure(stream, ch);
+    if (!stream.length) return CharParser.expected(ch, stream, onFailure);
 
     var head = stream.charAt(0);
     if (cond(head)) {
       return onSuccess(stream.slice(1), head);
     }
     else {
-      return onFailure(stream, ch);
+      return CharParser.expected(ch, stream, onFailure);
     }
   });
 }
+CharParser.expected = function(ch, stream, onFailure) {
+  if (typeof ch === 'string') ch = "'" + ch + "'";
+  return Parser.expected(ch, stream, onFailure);
+};
 
 var WhiteSpaceParser = CharParser(/\s/).many();
 var LetterParser = CharParser(/[a-z]/i);
