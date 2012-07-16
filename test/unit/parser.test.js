@@ -115,4 +115,21 @@ suite('parser', function() {
       assert.equal(parser.parse('xxxxxy'), 'y');
     });
   });
+
+  suite('times', function() {
+    test('zero case', function() {
+      var zeroLetters = LetterParser.times(0);
+
+      assertEqualArray(zeroLetters.parse(''), []);
+      assert.throws(function() { zeroLetters.parse('x'); });
+    });
+
+    test('nonzero case', function() {
+      var threeLetters = LetterParser.times(3);
+
+      assertEqualArray(threeLetters.parse('xyz'), ['x', 'y', 'z']);
+      assert.throws(function() { threeLetters.parse('xy'); });
+      assert.throws(function() { threeLetters.parse('xyzw'); });
+    });
+  });
 });

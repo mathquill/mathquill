@@ -78,23 +78,40 @@ var Parser = P(function(_) {
   _.many = function() {
     var self = this;
 
-    return manyReverse(this).then(function(reversed) {
-      var out = [];
-      for (var i = reversed.length; i > 0; i -= 1) {
-        out.push(reversed[i-1]);
-      }
-
-      return out;
-    });
+    return manyReverse(this).then(reverseArray);
   };
 
   function manyReverse(self) {
     return self.then(function(x) {
-      return manyReverse(self).then(function(xs) {
-        xs.push(x);
-        return xs;
-      });
+      return manyReverse(self).then(accumulate(x));
     }).or([]);
+  }
+
+  function accumulate(x) {
+    return function(xs) {
+      xs.push(x);
+      return xs;
+    }
+  }
+
+  _.times = function(n) {
+    return timesReverse(this, n).then(reverseArray);
+  };
+
+  function timesReverse(self, n) {
+    if (n === 0) return ensureParser([]);
+
+    return self.then(function(x) {
+      return timesReverse(self, n - 1).then(accumulate(x))
+    });
+  }
+
+  function reverseArray(reversed) {
+    var out = [];
+    for (var i = reversed.length; i > 0; i -= 1) {
+      out.push(reversed[i-1]);
+    }
+    return out;
   }
 });
 
