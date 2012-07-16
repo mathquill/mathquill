@@ -1,4 +1,4 @@
-var Parser = P(function(_) {
+var Parser = P(function(_, _super, Parser) {
   // The Parser object is a wrapper for a parser function.
   // Externally, you use one to parse a string by calling
   //   var result = SomeParser.parse('Me Me Me! Parse Me!');
@@ -106,42 +106,64 @@ var Parser = P(function(_) {
     });
   }
 
+  _.manyOne = function() {
+    var self = this;
+
+    return self.then(function(x) {
+      return self.many().then(function(xs) {
+        return [x].concat(xs);
+      });
+    });
+  };
+
   function reverseArray(reversed) {
     var out = [];
     for (var i = reversed.length; i > 0; i -= 1) {
       out.push(reversed[i-1]);
     }
+
     return out;
   }
-});
 
-function CharParser(ch) {
-  var cond;
-  if (ch === undefined) {
-    cond = function() { return true; };
-  }
-  else if (typeof ch === 'function') {
-    cond = ch;
-  }
-  else if (ch instanceof RegExp) {
-    cond = function(head) { return ch.test(head); };
-  }
-  else {
-    cond = function(head) { return ch === head; };
-  }
+  // -*- primitive parsers -*- //
+  var string = this.string = function(str) {
+    var len = str.length;
 
-  return Parser(function(stream, onSuccess, onFailure) {
-    if (!stream.length) return onFailure(stream);
+    return Parser(function(stream, onSuccess, onFailure) {
+      var head = stream.slice(0, len);
 
-    var head = stream.charAt(0);
-    if (cond(head)) {
-      return onSuccess(stream.slice(1), head);
-    }
-    else {
-      return onFailure(stream, ch);
-    }
+      if (head === str) {
+        return onSuccess(stream.slice(len), head);
+      }
+      else {
+        return onFailure(stream, str);
+      }
+    });
+  };
+
+  var regex = this.regex = function(re) {
+    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
+
+    return Parser(function(stream, onSuccess, onFailure) {
+      var match = re.exec(stream);
+
+      if (match) {
+        var result = match[0];
+        return onSuccess(stream.slice(result.length), result);
+      }
+      else {
+        return onFailure(stream, re);
+      }
+    });
+  };
+
+  var letter = Parser.letter = regex(/^[a-z]/i);
+  var letters = Parser.letters = regex(/^[a-z]*/i);
+  var digit = Parser.digit = regex(/^[0-9]/);
+  var digits = Parser.digits = regex(/^[0-9]*/);
+  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
+    if (!stream.length) return onFailure(stream, 'any character');
+
+    return onSuccess(stream.slice(1), stream.charAt(0));
   });
-}
-
-var WhiteSpaceParser = CharParser(/\s/).many();
-var LetterParser = CharParser(/[a-z]/i);
+});
