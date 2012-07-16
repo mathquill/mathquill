@@ -78,12 +78,24 @@ var Parser = P(function(_) {
   _.many = function() {
     var self = this;
 
+    return manyReverse(this).then(function(reversed) {
+      var out = [];
+      for (var i = reversed.length; i > 0; i -= 1) {
+        out.push(reversed[i-1]);
+      }
+
+      return out;
+    });
+  };
+
+  function manyReverse(self) {
     return self.then(function(x) {
-      return self.many().then(function(xs) {
-        return [x].concat(xs);
+      return manyReverse(self).then(function(xs) {
+        xs.push(x);
+        return xs;
       });
     }).or([]);
-  };
+  }
 });
 
 function CharParser(ch) {
