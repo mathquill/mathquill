@@ -1,5 +1,5 @@
 suite('latex', function() {
-  function parseRoot(str) { return RootParser.parse(str); }
+  function parseRoot(str) { return latexParser.parse(str); }
 
   function assertParsesLatex(parser, str, latex) {
     if (!latex) latex = str;
