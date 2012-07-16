@@ -98,13 +98,13 @@ suite('parser', function() {
 
   suite('many', function() {
     test('simple case', function() {
-      var xs = CharParser('x').many();
+      var letters = LetterParser.many();
 
-      assertEqualArray(xs.parse('x'), ['x']);
-      assertEqualArray(xs.parse('xxx'), ['x','x','x']);
-      assertEqualArray(xs.parse(''), []);
-      assert.throws(function() { xs.parse('y'); });
-      assert.throws(function() { xs.parse('xxxy'); });
+      assertEqualArray(letters.parse('x'), ['x']);
+      assertEqualArray(letters.parse('xyz'), ['x','y','z']);
+      assertEqualArray(letters.parse(''), []);
+      assert.throws(function() { letters.parse('1'); });
+      assert.throws(function() { letters.parse('xyz1'); });
     });
 
     test('followed by then', function() {
