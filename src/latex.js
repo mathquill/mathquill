@@ -43,38 +43,46 @@ var latexParser = (function() {
     .skip(string('}'))
   ;
 
-  var commandOrInnerGroup =
+  // Parser [MathCommand]
+  var commandOrGroup =
     group.or(command.then(function(x) { return [x]; }))
   ;
 
-  // Parser MathBlock
+  // Parser [MathCommand]
   var commandSequence =
-    commandOrInnerGroup
+    commandOrGroup
     .many().then(function(lists) {
-      var block = MathBlock();
+      var out = [];
 
       for (var i = 0; i < lists.length; i += 1) {
         for (var j = 0; j < lists[i].length; j += 1) {
-          lists[i][j].adopt(block, block.lastChild, 0);
+          out.push(lists[i][j]);
         }
       }
 
-      return block;
+      return out;
     });
 
   // Parser MathBlock
   var block =
-    group.or(command.then(function(cmd) {
+    commandOrGroup
+    .then(function(commands) {
       var block = MathBlock();
-      cmd.adopt(block, 0, 0);
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(block, block.lastChild, 0);
+      }
+
       return block;
-    }))
+    });
   ;
 
   var latex =
-    commandSequence.then(function(block) {
+    commandSequence.then(function(commands) {
       var rootBlock = RootMathBlock();
-      block.children().adopt(rootBlock, 0, 0);
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(rootBlock, rootBlock.lastChild, 0);
+      }
+
       return rootBlock;
     })
   ;
