@@ -8,16 +8,15 @@ var latexParser = (function() {
   var variable = letter.then(Variable);
   var symbol = regex(/^[^{}]/).then(VanillaSymbol);
 
-  var supSub = regex(/^[_^]/).then(function(ch) {
-    return LatexCmds[ch]();
-  });
+  var supSub = regex(/^[_^]/);
 
   var controlSequence =
-    string('\\').then(
+    supSub
+    .or(string('\\').then(
       regex(/^[a-z]+/i)
       .or(regex(/^\s+/).then(' '))
       .or(any)
-    ).then(function(ctrlSeq) {
+    )).then(function(ctrlSeq) {
       var cmdKlass = LatexCmds[ctrlSeq];
 
       if (cmdKlass) {
@@ -33,7 +32,6 @@ var latexParser = (function() {
 
   var command =
     controlSequence
-    .or(supSub)
     .or(variable)
     .or(symbol)
   ;
