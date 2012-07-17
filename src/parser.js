@@ -20,15 +20,15 @@ var Parser = P(function(_, _super, Parser) {
   function ensureParser(x) {
     if (x instanceof Parser) return x;
 
-    return Parser(function(stream, success) {
+    return Parser(function(stream, context, success) {
       return success(stream, x);
     });
   }
 
   _.init = function(body) { this._ = body; };
 
-  _.parse = function(stream) {
-    return this._(stream, success, parseError);
+  _.parse = function(stream, context) {
+    return this._(stream, context, success, parseError);
 
     function success(stream, result) {
       if (stream) parseError(stream, 'expected EOF');
@@ -41,11 +41,11 @@ var Parser = P(function(_, _super, Parser) {
   _.or = function(two) {
     var one = this;
 
-    return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, onSuccess, failure);
+    return Parser(function(stream, context, onSuccess, onFailure) {
+      return one._(stream, context, onSuccess, failure);
 
       function failure(newStream) {
-        return ensureParser(two)._(stream, onSuccess, onFailure);
+        return ensureParser(two)._(stream, context, onSuccess, onFailure);
       }
     });
   };
@@ -54,11 +54,11 @@ var Parser = P(function(_, _super, Parser) {
     var one = this;
     two = ensureFunction(two);
 
-    return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, success, onFailure);
+    return Parser(function(stream, context, onSuccess, onFailure) {
+      return one._(stream, context, success, onFailure);
 
       function success(newStream, result) {
-        return ensureParser(two(result))._(newStream, onSuccess, onFailure);
+        return ensureParser(two(result, context))._(newStream, context, onSuccess, onFailure);
       }
     });
   };
@@ -129,7 +129,7 @@ var Parser = P(function(_, _super, Parser) {
   var string = this.string = function(str) {
     var len = str.length;
 
-    return Parser(function(stream, onSuccess, onFailure) {
+    return Parser(function(stream, context, onSuccess, onFailure) {
       var head = stream.slice(0, len);
 
       if (head === str) {
@@ -144,7 +144,7 @@ var Parser = P(function(_, _super, Parser) {
   var regex = this.regex = function(re) {
     pray('regexp parser is anchored', re.toString().charAt(1) === '^');
 
-    return Parser(function(stream, onSuccess, onFailure) {
+    return Parser(function(stream, context, onSuccess, onFailure) {
       var match = re.exec(stream);
 
       if (match) {
@@ -161,7 +161,7 @@ var Parser = P(function(_, _super, Parser) {
   var letters = Parser.letters = regex(/^[a-z]*/i);
   var digit = Parser.digit = regex(/^[0-9]/);
   var digits = Parser.digits = regex(/^[0-9]*/);
-  var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
+  var any = Parser.any = Parser(function(stream, context, onSuccess, onFailure) {
     if (!stream.length) return onFailure(stream, 'any character');
 
     return onSuccess(stream.slice(1), stream.charAt(0));

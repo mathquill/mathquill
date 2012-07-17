@@ -2,6 +2,7 @@ suite('parser', function() {
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
+  var any = Parser.any;
 
   test('Parser.string', function() {
     var parser = string('x');
@@ -135,6 +136,31 @@ suite('parser', function() {
       assertEqualArray(threeLetters.parse('xyz'), ['x', 'y', 'z']);
       assert.throws(function() { threeLetters.parse('xy'); });
       assert.throws(function() { threeLetters.parse('xyzw'); });
+    });
+  });
+
+  suite('context', function() {
+    test('something about context', function() {
+      var parser = any.then(function(foo, context) {
+        return context * 2;
+      });
+
+      assert.equal(parser.parse('f', 2), 4);
+    });
+
+    test('pass around built-up string as context', function() {
+      var parser = string('x')
+        .then(function(result, context) {
+          return context.result += result;
+        })
+        .then(string('y'))
+        .then(function(result, context) {
+          return context.result += result;
+        })
+      ;
+
+      var result = parser.parse('xy', { result: '' });
+      assert.equal(result, 'xy');
     });
   });
 });
