@@ -42,7 +42,7 @@ var latexParser = (function() {
   var group =
     string('{')
     .then(command.many())
-    .after(string('}'))
+    .skip(string('}'))
   ;
 
   // Parser MathBlock
