@@ -11,8 +11,13 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.jQ = jQ.attr(mqBlockId, root.id);
   root.revert = function() {
-    jQ.empty().unbind('.mathquill')
+    (function deleteMe(me) {
+      delete MathElement[me.id];
+      me.eachChild(deleteMe);
+    }(this));
+    return jQ.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+      .removeAttr('mathquill-block-id')
       .append(contents);
   };
 
@@ -217,7 +222,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     next ? jQ.insertBefore(next) : jQ.appendTo(parent);
 
     // XXX HACK ALERT
-    this.jQ.mathquill('redraw');
+    MathQuillEl.prototype.redraw.call({rootBlock: this});
     this.blur();
   };
   _.onKey = function(key, e) {

@@ -57,7 +57,7 @@ code span {
 
 <p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
 
-<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
+<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="MathQuill.MathField($(this).text('MathQuill($(this).next()).revert()').next()); var orig = arguments.callee; this.onclick = function(){ MathQuill($(this).text('MathQuill.MathField($(this).next())').next()).revert(); this.onclick = orig;$};">MathQuill.MathField($(this).next())</button>
 <span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 </div>
@@ -81,10 +81,10 @@ $('#codecogs').click(function() {
 $(function() {
   latexMath.bind('keydown keypress', function() {
     setTimeout(function() {
-      var latex = latexMath.mathquill('latex');
+      var latex = MathQuill(latexMath).latex();
       latexSource.val(latex);
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
-      htmlSource.text(printTree(latexMath.mathquill('html')));
+      htmlSource.text(printTree(MathQuill(latexMath).html()));
     });
   }).keydown().focus();
 
@@ -93,14 +93,14 @@ $(function() {
     setTimeout(function() {
       var newtext = latexSource.val();
       if(newtext !== oldtext) {
-        latexMath.mathquill('latex', newtext);
-        htmlSource.text(printTree(latexMath.mathquill('html')));
+        MathQuill(latexMath).latex('newtext');
+        htmlSource.text(printTree(MathQuill(latexMath).html()));
       }
     });
   });
 
   if(location.hash && location.hash.length > 1)
-    latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).focus();
+    MathQuill(latexMath).latex(decodeURIComponent(location.hash.slice(1))).focus();
 });
 
 //print the HTML source as an indented tree. TODO: syntax highlight
