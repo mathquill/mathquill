@@ -280,6 +280,10 @@ var Symbol = P(MathCommand, function(_, _super) {
 
     _super.init.call(this, ctrlSeq, html, [ text ]);
   };
+
+  _.parser = function() { return this; };
+  _.numBlocks = function() { return 0; };
+
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
   };
