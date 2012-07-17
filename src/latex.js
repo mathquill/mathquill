@@ -65,15 +65,8 @@ var latexParser = (function() {
     })
   ;
 
-  // Parser RootMathBlock
-  var latex =
-    commandSequence.then(function(block) {
-      var rootBlock = RootMathBlock();
-      block.children().adopt(rootBlock, 0, 0);
-
-      return rootBlock;
-    })
-  ;
+  // Parser MathBlock
+  var latex = commandSequence;
 
   latex.block = block;
   return latex;
