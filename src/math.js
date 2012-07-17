@@ -62,6 +62,21 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
+  _.parser = function() {
+    var block = latexParser.block;
+    var self = this;
+
+    return block.times(self.numBlocks()).then(function(blocks) {
+      self.blocks = blocks;
+
+      for (var i = 0; i < blocks.length; i += 1) {
+        blocks[i].adopt(self, self.lastChild, 0);
+      }
+
+      return self;
+    });
+  };
+
   // createBefore(cursor) and the methods it calls
   _.createBefore = function(cursor) {
     var cmd = this;

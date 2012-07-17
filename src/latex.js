@@ -21,7 +21,7 @@ var latexParser = (function() {
       var cmdKlass = LatexCmds[ctrlSeq];
 
       if (cmdKlass) {
-        return cmdKlass(ctrlSeq);
+        return cmdKlass(ctrlSeq).parser();
       }
       else {
         var textBlock = TextBlock();
@@ -71,6 +71,7 @@ var latexParser = (function() {
     })
   ;
 
+  latex.block = block;
   return latex;
 
 })();
