@@ -1,30 +1,28 @@
 suite('latex', function() {
-  function parseRoot(str) { return latexParser.parse(str); }
-
-  function assertParsesLatex(parser, str, latex) {
+  function assertParsesLatex(str, latex) {
     if (!latex) latex = str;
 
-    var result = parser(str).join('latex');
+    var result = latexParser.parse(str).join('latex');
     assert.equal(result, latex,
       'parsing '+str+', got '+result+', expected '+latex
     );
   }
 
   test('variables', function() {
-    assertParsesLatex(parseRoot, 'xyz');
+    assertParsesLatex('xyz');
   });
 
   test('simple exponent', function() {
-    assertParsesLatex(parseRoot, 'x^n');
+    assertParsesLatex('x^n');
   });
 
   test('block exponent', function() {
-    assertParsesLatex(parseRoot, 'x^{n}', 'x^n');
-    assertParsesLatex(parseRoot, 'x^{nm}');
-    assertParsesLatex(parseRoot, 'x^{}', 'x^{ }');
+    assertParsesLatex('x^{n}', 'x^n');
+    assertParsesLatex('x^{nm}');
+    assertParsesLatex('x^{}', 'x^{ }');
   });
 
   test('nested exponents', function() {
-    assertParsesLatex(parseRoot, 'x^{n^m}');
+    assertParsesLatex('x^{n^m}');
   });
 });
