@@ -33,8 +33,24 @@ var MathElement = P(Node, function(_) {
 
     return this;
   };
+
   _.jQ = $();
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+
+  this.jQize = function(html) {
+    // Sets the .jQ of the entire math subtree rooted at this command.
+    // Expects .createBlocks() to have been called already, since it
+    // calls .html().
+    var jQ = $(html);
+    jQ.find('*').andSelf().each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) MathElement[cmdId].jQadd(jQ);
+      if (blockId) MathElement[blockId].jQadd(jQ);
+    });
+    return jQ;
+  };
 });
 
 /**
@@ -83,7 +99,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    cmd.jQize();
+    MathElement.jQize(cmd.html());
     if (replacedFragment) {
       replacedFragment.adopt(cmd.firstChild, 0, 0);
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
@@ -236,18 +252,6 @@ var MathCommand = P(MathElement, function(_, _super) {
     }
     return tokens.join('').replace(/>#(\d+)/g, function($0, $1) {
       return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
-    });
-  };
-  _.jQize = function() {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    $(this.html()).find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) MathElement[cmdId].jQadd(jQ);
-      if (blockId) MathElement[blockId].jQadd(jQ);
     });
   };
 
