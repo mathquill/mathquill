@@ -8,7 +8,14 @@ var Parser = P(function(_, _super, Parser) {
 
   function returning(x) { return function() { return x; } }
   function parseError(stream, message) {
-    throw 'Parse Error: ' + message + ', got \''+stream+'\'';
+    if (stream) {
+      stream = "'"+stream+"'";
+    }
+    else {
+      stream = 'EOF';
+    }
+
+    throw 'Parse Error: '+message+' at '+stream;
   }
 
   function ensureFunction(thing) {
@@ -128,6 +135,7 @@ var Parser = P(function(_, _super, Parser) {
   // -*- primitive parsers -*- //
   var string = this.string = function(str) {
     var len = str.length;
+    var expected = "expected '"+str+"'";
 
     return Parser(function(stream, onSuccess, onFailure) {
       var head = stream.slice(0, len);
@@ -136,13 +144,15 @@ var Parser = P(function(_, _super, Parser) {
         return onSuccess(stream.slice(len), head);
       }
       else {
-        return onFailure(stream, str);
+        return onFailure(stream, expected);
       }
     });
   };
 
   var regex = this.regex = function(re) {
     pray('regexp parser is anchored', re.toString().charAt(1) === '^');
+
+    var expected = 'expected '+re;
 
     return Parser(function(stream, onSuccess, onFailure) {
       var match = re.exec(stream);
@@ -152,7 +162,7 @@ var Parser = P(function(_, _super, Parser) {
         return onSuccess(stream.slice(result.length), result);
       }
       else {
-        return onFailure(stream, re);
+        return onFailure(stream, expected);
       }
     });
   };
