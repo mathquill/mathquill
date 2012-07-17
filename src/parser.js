@@ -157,6 +157,18 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
+  var succeed = Parser.succeed = function(result) {
+    return Parser(function(stream, onSuccess) {
+      return onSuccess(stream, result);
+    });
+  };
+
+  var fail = Parser.fail = function(msg) {
+    return Parser(function(stream, _, onFailure) {
+      return onFailure(stream, msg);
+    });
+  };
+
   var letter = Parser.letter = regex(/^[a-z]/i);
   var letters = Parser.letters = regex(/^[a-z]*/i);
   var digit = Parser.digit = regex(/^[0-9]/);

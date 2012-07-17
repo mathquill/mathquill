@@ -2,6 +2,7 @@ suite('parser', function() {
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
+  var any = Parser.any;
 
   test('Parser.string', function() {
     var parser = string('x');
@@ -135,6 +136,42 @@ suite('parser', function() {
       assertEqualArray(threeLetters.parse('xyz'), ['x', 'y', 'z']);
       assert.throws(function() { threeLetters.parse('xy'); });
       assert.throws(function() { threeLetters.parse('xyzw'); });
+    });
+  });
+
+  suite('fail', function() {
+    var fail = Parser.fail;
+    var succeed = Parser.succeed;
+
+    test('use Parser.fail to fail dynamically', function() {
+      var parser = any.then(function(ch) {
+        return fail('character '+ch+' not allowed');
+      }).or(string('x'));
+
+      assert.throws(function() { parser.parse('y'); });
+      assert.equal(parser.parse('x'), 'x');
+    });
+
+    test('use Parser.succeed or Parser.fail to branch conditionally', function() {
+      var allowedOperator;
+
+      var parser =
+        string('x')
+        .then(string('+').or(string('*')))
+        .then(function(operator) {
+          if (operator === allowedOperator) return succeed(operator);
+          else return fail('expected '+allowedOperator);
+        })
+        .skip(string('y'))
+      ;
+
+      allowedOperator = '+';
+      assert.equal(parser.parse('x+y'), '+');
+      assert.throws(function() { parser.parse('x*y'); });
+
+      allowedOperator = '*';
+      assert.equal(parser.parse('x*y'), '*');
+      assert.throws(function() { parser.parse('x+y'); });
     });
   });
 });
