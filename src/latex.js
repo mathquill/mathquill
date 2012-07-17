@@ -36,52 +36,40 @@ var latexParser = (function() {
     .or(symbol)
   ;
 
-  // Parser [MathCommand]
+  // Parser MathBlock
   var group =
     string('{')
     .then(function() { return commandSequence; })
     .skip(string('}'))
   ;
 
-  // Parser [MathCommand]
-  var commandOrGroup =
-    group.or(command.then(function(x) { return [x]; }))
-  ;
-
-  // Parser [MathCommand]
-  var commandSequence =
-    commandOrGroup
-    .many().then(function(lists) {
-      var out = [];
-
-      for (var i = 0; i < lists.length; i += 1) {
-        for (var j = 0; j < lists[i].length; j += 1) {
-          out.push(lists[i][j]);
-        }
-      }
-
-      return out;
-    });
-
   // Parser MathBlock
   var block =
-    commandOrGroup
-    .then(function(commands) {
+    group.or(command.then(function(cmd) {
       var block = MathBlock();
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(block, block.lastChild, 0);
-      }
-
+      cmd.adopt(block, 0, 0);
       return block;
-    });
+    }))
   ;
 
-  var latex =
-    commandSequence.then(function(commands) {
-      var rootBlock = RootMathBlock();
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(rootBlock, rootBlock.lastChild, 0);
+  // Parser MathBlock
+  var commandSequence =
+    block.many().then(function(blocks) {
+      var firstBlock = blocks[0] || MathBlock();
+
+      for (var i = 1; i < blocks.length; i += 1) {
+        blocks[i].children().adopt(firstBlock, firstBlock.lastChild, 0);
       }
+
+      return firstBlock;
+    })
+  ;
+
+  // Parser RootMathBlock
+  var latex =
+    commandSequence.then(function(block) {
+      var rootBlock = RootMathBlock();
+      block.children().adopt(rootBlock, 0, 0);
 
       return rootBlock;
     })
