@@ -64,11 +64,11 @@ var latexMathParser = (function() {
       }
 
       return firstBlock;
-    })
+    }).skip(optWhitespace)
   ;
 
   // Parser MathBlock
-  var latexMath = mathCommandSequence.skip(optWhitespace);
+  var latexMath = mathCommandSequence;
 
   latexMath.block = mathBlock;
   return latexMath;
