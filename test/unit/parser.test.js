@@ -3,6 +3,10 @@ suite('parser', function() {
   var regex = Parser.regex;
   var letter = Parser.letter;
   var any = Parser.any;
+  var optWhitespace = Parser.optWhitespace;
+  var eof = Parser.eof;
+  var succeed = Parser.succeed;
+  var all = Parser.all;
 
   test('Parser.string', function() {
     var parser = string('x');
@@ -181,5 +185,12 @@ suite('parser', function() {
       assert.equal(parser.parse('x*y'), '*');
       assert.throws(function() { parser.parse('x+y'); });
     });
+  });
+
+  test('eof', function() {
+    var parser = optWhitespace.skip(eof).or(all.result('default'));
+
+    assert.equal(parser.parse('  '), '  ')
+    assert.equal(parser.parse('x'), 'default');
   });
 });
