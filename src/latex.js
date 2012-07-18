@@ -6,15 +6,17 @@ var latexParser = (function() {
   var any = Parser.any;
   var succeed = Parser.succeed;
 
+  var whitespace = regex(/^\s*/);
+
   var variable = letter.map(Variable);
   var symbol = regex(/^[^{}]/).map(VanillaSymbol);
 
-  var supSub = regex(/^[_^]/);
+  var supSub = regex(/^[_^]/).skip(whitespace);
 
   var controlSequence =
     supSub
     .or(string('\\').then(
-      regex(/^[a-z]+/i)
+      regex(/^[a-z]+/i).skip(whitespace)
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {

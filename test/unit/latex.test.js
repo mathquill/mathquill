@@ -26,6 +26,10 @@ suite('latex', function() {
     assertParsesLatex('x^{n^m}');
   });
 
+  test('exponents with spaces', function() {
+    assertParsesLatex('x^ 2', 'x^2');
+  });
+
   test('inner groups', function() {
     assertParsesLatex('a{bc}d', 'abcd');
     assertParsesLatex('{bc}d', 'bcd');
@@ -38,5 +42,10 @@ suite('latex', function() {
     assertParsesLatex('x^{{bc}d}', 'x^{bcd}');
 
     assertParsesLatex('{asdf{asdf{asdf}asdf}asdf}', 'asdfasdfasdfasdfasdf');
+  });
+
+  test('commands without braces', function() {
+    assertParsesLatex('\\frac12', '\\frac{1}{2}');
+    assertParsesLatex('\\frac ab', '\\frac{a}{b}');
   });
 });
