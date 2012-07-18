@@ -201,7 +201,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
 
-    var mathTree = latexParser.parse(latex);
+    var mathTree = latexMathParser.parse(latex);
     mathTree.children().adopt(this, 0, 0);
 
     var html = this.join('html');

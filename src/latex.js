@@ -1,22 +1,27 @@
 // Parser MathCommand
-var latexParser = (function() {
+var latexMathParser = (function() {
+  function commandToBlock(cmd) {
+    var block = MathBlock();
+    cmd.adopt(block, 0, 0);
+    return block;
+  }
+
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
   var any = Parser.any;
   var succeed = Parser.succeed;
-
-  var whitespace = regex(/^\s*/);
+  var optWhitespace = Parser.optWhitespace;
 
   var variable = letter.map(Variable);
   var symbol = regex(/^[^{}]/).map(VanillaSymbol);
 
-  var supSub = regex(/^[_^]/).skip(whitespace);
+  var supSub = regex(/^[_^]/).skip(optWhitespace);
 
   var controlSequence =
     supSub
     .or(string('\\').then(
-      regex(/^[a-z]+/i).skip(whitespace)
+      regex(/^[a-z]+/i).skip(optWhitespace)
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {
@@ -40,24 +45,19 @@ var latexParser = (function() {
   ;
 
   // Parser MathBlock
-  var group =
+  var mathGroup =
     string('{')
-    .then(function() { return commandSequence; })
+    .then(function() { return mathCommandSequence; })
     .skip(string('}'))
   ;
 
   // Parser MathBlock
-  var block =
-    group.or(command.map(function(cmd) {
-      var block = MathBlock();
-      cmd.adopt(block, 0, 0);
-      return block;
-    }))
-  ;
+  // NB: we skip whitespace after every block because we're in math mode.
+  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
 
   // Parser MathBlock
-  var commandSequence =
-    block.many().map(function(blocks) {
+  var mathCommandSequence =
+    mathBlock.many().map(function(blocks) {
       var firstBlock = blocks[0] || MathBlock();
 
       for (var i = 1; i < blocks.length; i += 1) {
@@ -69,9 +69,8 @@ var latexParser = (function() {
   ;
 
   // Parser MathBlock
-  var latex = commandSequence;
+  var latexMath = mathCommandSequence.skip(optWhitespace);
 
-  latex.block = block;
-  return latex;
-
+  latexMath.block = mathBlock;
+  return latexMath;
 })();

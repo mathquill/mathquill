@@ -79,7 +79,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
 
   _.parser = function() {
-    var block = latexParser.block;
+    var block = latexMathParser.block;
     var self = this;
 
     return block.times(self.numBlocks()).map(function(blocks) {

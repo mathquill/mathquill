@@ -185,6 +185,8 @@ var Parser = P(function(_, _super, Parser) {
   var letters = Parser.letters = regex(/^[a-z]*/i);
   var digit = Parser.digit = regex(/^[0-9]/);
   var digits = Parser.digits = regex(/^[0-9]*/);
+  var whitespace = Parser.whitespace = regex(/^\s+/);
+  var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
   var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
     if (!stream.length) return onFailure(stream, 'any character');
 
