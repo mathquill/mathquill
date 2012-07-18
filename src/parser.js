@@ -175,7 +175,7 @@ var Parser = P(function(_, _super, Parser) {
   var whitespace = Parser.whitespace = regex(/^\s+/);
   var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
   var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
-    if (!stream.length) return onFailure(stream, 'any character');
+    if (!stream) return onFailure(stream, 'expected any character');
 
     return onSuccess(stream.slice(1), stream.charAt(0));
   });
