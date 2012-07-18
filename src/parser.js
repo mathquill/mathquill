@@ -129,13 +129,9 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  function reverseArray(reversed) {
-    var out = [];
-    for (var i = reversed.length; i > 0; i -= 1) {
-      out.push(reversed[i-1]);
-    }
-
-    return out;
+  function reverseArray(arr) {
+    arr.reverse();
+    return arr;
   }
 
   // -*- primitive parsers -*- //
