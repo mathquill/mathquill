@@ -28,6 +28,9 @@ suite('latex', function() {
 
   test('exponents with spaces', function() {
     assertParsesLatex('x^ 2', 'x^2');
+
+    // TODO
+    // assertParsesLatex('x ^2', 'x^2');
   });
 
   test('inner groups', function() {
@@ -47,5 +50,8 @@ suite('latex', function() {
   test('commands without braces', function() {
     assertParsesLatex('\\frac12', '\\frac{1}{2}');
     assertParsesLatex('\\frac ab', '\\frac{a}{b}');
+
+    // TODO
+    // assertParsesLatex('\\frac{1} 2', '\\frac{1}{2}');
   });
 });
