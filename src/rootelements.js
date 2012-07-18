@@ -201,11 +201,19 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
 
-    var mathTree = latexMathParser.parse(latex);
-    mathTree.children().adopt(this, 0, 0);
+    var all = Parser.all;
+    var eof = Parser.eof;
 
-    var html = this.join('html');
-    MathElement.jQize(html).appendTo(jQ);
+    var mathTree = latexMathParser.skip(eof).or(all.result(false))
+      .parse(latex)
+    ;
+
+    if (mathTree) {
+      mathTree.children().adopt(this, 0, 0);
+
+      var html = this.join('html');
+      MathElement.jQize(html).appendTo(jQ);
+    }
 
     this.cursor.appendTo(this);
 
