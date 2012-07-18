@@ -213,6 +213,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
       var html = this.join('html');
       MathElement.jQize(html).appendTo(jQ);
+
+      // XXX HACK
+      (function blurMe(el) {
+        el.blur();
+        el.eachChild(function(cmd) { cmd.eachChild(blurMe); });
+      })(this);
     }
 
     this.cursor.appendTo(this);
