@@ -252,16 +252,19 @@ var Bracket = P(MathCommand, function(_, _super) {
       [open, close]);
     this.end = '\\right'+end;
   };
-  _.jQize = function() {
-    _super.jQize.call(this);
-    var block = this.blockjQ = this.firstChild.jQ;
-    this.bracketjQs = block.prev().add(block.next());
+  _.jQadd = function() {
+    _super.jQadd.apply(this, arguments);
+    var jQ = this.jQ;
+    this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
     return this.ctrlSeq + this.firstChild.latex() + this.end;
   };
   _.redraw = function() {
-    var height = this.blockjQ.outerHeight()/+this.blockjQ.css('fontSize').slice(0,-2);
+    var blockjQ = this.firstChild.jQ;
+
+    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
 });
@@ -599,13 +602,15 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     + '</span>'
     + '<span class="paren non-leaf">)</span>'
   ;
-  _.jQize = function() {
-    _super.jQize.call(this);
-    this.blockjQ = this.jQ.children();
-    this.bracketjQs = this.blockjQ.parent().siblings();
-  };
   _.textTemplate = ['choose(',',',')'];
-  _.redraw = Bracket.prototype.redraw;
+  _.redraw = function() {
+    var blockjQ = this.jQ.children(':eq(1)');
+
+    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
+    var parens = this.children('.paren');
+    scale(paren, min(1 + .2*(height - 1), 1.2), 1.05*height);
+  };
 });
 
 var Choose =
