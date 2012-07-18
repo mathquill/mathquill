@@ -269,6 +269,43 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
 });
 
+LatexCmds.left = P(MathCommand, function(_) {
+  _.parser = function() {
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    return regex(/^(?:[([|]|\\\{)/).then(function(open) {
+      if (open.charAt(0) === '\\') open = open.slice(1);
+
+      var cmd = CharCmds[open]();
+
+      return latexMathParser
+        .map(function (block) {
+          cmd.blocks = [ block ];
+          block.adopt(cmd, 0, 0);
+        })
+        .then(string('\\right')).then(regex(/^(?:[\])|]|\\\})/))
+        .then(function(close) {
+          if (close.slice(-1) !== cmd.end.slice(-1)) {
+            return Parser.fail('open doesn\'t match close');
+          }
+
+          return succeed(cmd);
+        })
+      ;
+    });
+  };
+});
+
+LatexCmds.right = P(MathCommand, function(_) {
+  _.parser = function() {
+    return Parser.fail('unmatched \\right');
+  };
+});
+
 LatexCmds.lbrace =
 CharCmds['{'] = bind(Bracket, '{', '}', '\\{', '\\}');
 LatexCmds.langle =
