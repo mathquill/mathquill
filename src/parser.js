@@ -25,14 +25,6 @@ var Parser = P(function(_, _super, Parser) {
     return thing;
   }
 
-  function ensureParser(x) {
-    if (x instanceof Parser) return x;
-
-    return Parser(function(stream, success) {
-      return success(stream, x);
-    });
-  }
-
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
@@ -47,13 +39,15 @@ var Parser = P(function(_, _super, Parser) {
 
   // -*- primitive combinators -*- //
   _.or = function(two) {
+    pray('or is passed a parser', two instanceof Parser);
+
     var one = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
       return one._(stream, onSuccess, failure);
 
       function failure(newStream) {
-        return ensureParser(two)._(stream, onSuccess, onFailure);
+        return two._(stream, onSuccess, onFailure);
       }
     });
   };
@@ -78,14 +72,7 @@ var Parser = P(function(_, _super, Parser) {
 
   // -*- higher-level combinators -*- //
   _.skip = function(two) {
-    var one = this;
-    two = ensureFunction(two);
-
-    return one.then(function(result) {
-      return ensureParser(two(result)).then(function() {
-        return ensureParser(result);
-      });
-    });
+    return this.then(function(result) { return two.result(result); });
   };
 
   _.many = function() {
@@ -97,7 +84,7 @@ var Parser = P(function(_, _super, Parser) {
   function manyReverse(self) {
     return self.then(function(x) {
       return manyReverse(self).map(accumulate(x));
-    }).or([]);
+    }).or(succeed([]));
   }
 
   function accumulate(x) {
