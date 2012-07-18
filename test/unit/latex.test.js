@@ -1,10 +1,10 @@
 suite('latex', function() {
   function assertParsesLatex(str, latex) {
-    if (!latex) latex = str;
+    if (arguments.length < 2) latex = str;
 
-    var result = latexParser.parse(str).join('latex');
+    var result = latexMathParser.parse(str).join('latex');
     assert.equal(result, latex,
-      'parsing '+str+', got '+result+', expected '+latex
+      'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );
   }
 
