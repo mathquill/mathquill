@@ -92,7 +92,7 @@ function createRoot(jQ, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       jQ.unbind('mousemove', mousemove);
-      $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
     setTimeout(function() { textarea.focus(); });
@@ -109,7 +109,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (!editable) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
-    $(document).mousemove(docmousemove).mouseup(mouseup);
+    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
     return false;
   });
