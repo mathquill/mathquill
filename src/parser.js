@@ -74,7 +74,7 @@ var Parser = P(function(_, _super, Parser) {
   };
 
   _.map = function(fn) { return this.then(compose(succeed, fn)); };
-  _.result = function(res) { return this.map(returning(res)); };
+  _.result = function(res) { return this.then(succeed(res)); };
 
   // -*- higher-level combinators -*- //
   _.skip = function(two) {
