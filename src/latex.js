@@ -14,7 +14,7 @@ var latexMathParser = (function() {
   var optWhitespace = Parser.optWhitespace;
 
   var variable = letter.map(Variable);
-  var symbol = regex(/^[^{}]/).map(VanillaSymbol);
+  var symbol = regex(/^[^{}\\]/).map(VanillaSymbol);
 
   var supSub = regex(/^[_^]/).skip(optWhitespace);
 

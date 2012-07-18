@@ -54,6 +54,8 @@ suite('latex', function() {
     assertParsesLatex('\\frac a b', '\\frac{a}{b}');
     assertParsesLatex(' \\frac a b ', '\\frac{a}{b}');
     assertParsesLatex('\\frac{1} 2', '\\frac{1}{2}');
+
+    assert.throws(function() { latexMathParser.parse('\\frac'); });
   });
 
   test('whitespace', function() {
