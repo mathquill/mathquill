@@ -322,8 +322,7 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+    this.jQ.removeClass('empty');
 
     return this;
   };
