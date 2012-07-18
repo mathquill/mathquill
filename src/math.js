@@ -177,7 +177,8 @@ var MathCommand = P(MathElement, function(_, _super) {
       Close tags are never optional.
   */
   _.numBlocks = function() {
-    return this.htmlTemplate.match(/#\d+/g).length;
+    var matches = this.htmlTemplate.match(/#\d+/g);
+    return matches ? matches.length : 0;
   };
   _.html = function() {
     // Render the entire math subtree rooted at this command, as HTML.
