@@ -28,13 +28,9 @@ var Parser = P(function(_, _super, Parser) {
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
-    return this._(stream, success, parseError);
+    return this.skip(eof)._(stream, success, parseError);
 
-    function success(stream, result) {
-      if (stream) parseError(stream, 'expected EOF');
-
-      return result;
-    }
+    function success(stream, result) { return result; }
   };
 
   // -*- primitive combinators -*- //
@@ -174,9 +170,20 @@ var Parser = P(function(_, _super, Parser) {
   var digits = Parser.digits = regex(/^[0-9]*/);
   var whitespace = Parser.whitespace = regex(/^\s+/);
   var optWhitespace = Parser.optWhitespace = regex(/^\s*/);
+
   var any = Parser.any = Parser(function(stream, onSuccess, onFailure) {
     if (!stream) return onFailure(stream, 'expected any character');
 
     return onSuccess(stream.slice(1), stream.charAt(0));
+  });
+
+  var all = Parser.all = Parser(function(stream, onSuccess, onFailure) {
+    return onSuccess('', stream);
+  });
+
+  var eof = Parser.eof = Parser(function(stream, onSuccess, onFailure) {
+    if (stream) return onFailure(stream, 'expected EOF');
+
+    return onSuccess(stream, stream);
   });
 });
