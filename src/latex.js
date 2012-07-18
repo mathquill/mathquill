@@ -10,8 +10,9 @@ var latexMathParser = (function() {
   var regex = Parser.regex;
   var letter = Parser.letter;
   var any = Parser.any;
-  var succeed = Parser.succeed;
   var optWhitespace = Parser.optWhitespace;
+  var succeed = Parser.succeed;
+  var fail = Parser.fail;
 
   var variable = letter.map(Variable);
   var symbol = regex(/^[^{}\\]/).map(VanillaSymbol);
@@ -31,9 +32,7 @@ var latexMathParser = (function() {
         return cmdKlass(ctrlSeq).parser();
       }
       else {
-        var textBlock = TextBlock();
-        textBlock.replaces(ctrlSeq);
-        return succeed(textBlock);
+        return fail('unknown command: \\'+ctrlSeq);
       }
     })
   ;
