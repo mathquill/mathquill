@@ -7,6 +7,7 @@ var Parser = P(function(_, _super, Parser) {
   // parser combinator methods.
 
   function returning(x) { return function() { return x; } }
+  function compose(f, g) { return function() { return f(g.apply(this, arguments)); }; }
   function parseError(stream, message) {
     if (stream) {
       stream = "'"+stream+"'";
@@ -65,10 +66,15 @@ var Parser = P(function(_, _super, Parser) {
       return one._(stream, success, onFailure);
 
       function success(newStream, result) {
-        return ensureParser(two(result))._(newStream, onSuccess, onFailure);
+        var newParser = two(result);
+        pray('a parser is returned', newParser instanceof Parser);
+        return newParser._(newStream, onSuccess, onFailure);
       }
     });
   };
+
+  _.map = function(fn) { return this.then(compose(succeed, fn)); };
+  _.result = function(res) { return this.map(returning(res)); };
 
   // -*- higher-level combinators -*- //
   _.skip = function(two) {
@@ -85,12 +91,12 @@ var Parser = P(function(_, _super, Parser) {
   _.many = function() {
     var self = this;
 
-    return manyReverse(this).then(reverseArray);
+    return manyReverse(this).map(reverseArray);
   };
 
   function manyReverse(self) {
     return self.then(function(x) {
-      return manyReverse(self).then(accumulate(x));
+      return manyReverse(self).map(accumulate(x));
     }).or([]);
   }
 
@@ -102,14 +108,14 @@ var Parser = P(function(_, _super, Parser) {
   }
 
   _.times = function(n) {
-    return timesReverse(this, n).then(reverseArray);
+    return timesReverse(this, n).map(reverseArray);
   };
 
   function timesReverse(self, n) {
-    if (n === 0) return ensureParser([]);
+    if (n === 0) return succeed([]);
 
     return self.then(function(x) {
-      return timesReverse(self, n - 1).then(accumulate(x))
+      return timesReverse(self, n - 1).map(accumulate(x))
     });
   }
 

@@ -82,7 +82,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var block = latexParser.block;
     var self = this;
 
-    return block.times(self.numBlocks()).then(function(blocks) {
+    return block.times(self.numBlocks()).map(function(blocks) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
@@ -285,7 +285,7 @@ var Symbol = P(MathCommand, function(_, _super) {
     _super.init.call(this, ctrlSeq, html, [ text ]);
   };
 
-  _.parser = function() { return this; };
+  _.parser = function() { return Parser.succeed(this); };
   _.numBlocks = function() { return 0; };
 
   _.replaces = function(replacedFragment) {

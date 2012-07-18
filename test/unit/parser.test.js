@@ -27,10 +27,32 @@ suite('parser', function() {
       assert.throws(function() { parser.parse('xz'); });
     });
 
+    test('asserts that a parser is returned', function() {
+      var parser1 = letter.then(function() { return 'not a parser' });
+      assert.throws(function() { parser1.parse('x'); });
+
+      var parser2 = letter.then('x');
+      assert.throws(function() { letter.parse('xx'); });
+    });
+
+    test('with a function that returns a parser, continues with that parser', function() {
+      var piped;
+      var parser = string('x').then(function(x) {
+        piped = x;
+        return string('y');
+      });
+
+      assert.equal(parser.parse('xy'), 'y');
+      assert.equal(piped, 'x');
+      assert.throws(function() { parser.parse('x'); });
+    });
+  });
+
+  suite('map', function() {
     test('with a function, pipes the value in and uses that return value', function() {
       var piped;
 
-      var parser = string('x').then(function(x) {
+      var parser = string('x').map(function(x) {
         piped = x;
         return 'y';
       });
@@ -38,14 +60,19 @@ suite('parser', function() {
       assert.equal(parser.parse('x'), 'y')
       assert.equal(piped, 'x');
     });
+  });
 
-    test('with a function that returns a parser, continues with that parser', function() {
-      var parser = string('x').then(function(x) {
-        return string('y');
-      });
+  suite('result', function() {
+    test('returns a constant result', function() {
+      var myResult = 1;
+      var oneParser = string('x').result(1);
 
-      assert.equal(parser.parse('xy'), 'y');
-      assert.throws(function() { parser.parse('x'); });
+      assert.equal(oneParser.parse('x'), 1);
+
+      var myFn = function() {};
+      var fnParser = string('x').result(myFn);
+
+      assert.equal(fnParser.parse('x'), myFn);
     });
   });
 

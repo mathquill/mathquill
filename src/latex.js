@@ -4,9 +4,10 @@ var latexParser = (function() {
   var regex = Parser.regex;
   var letter = Parser.letter;
   var any = Parser.any;
+  var succeed = Parser.succeed;
 
-  var variable = letter.then(Variable);
-  var symbol = regex(/^[^{}]/).then(VanillaSymbol);
+  var variable = letter.map(Variable);
+  var symbol = regex(/^[^{}]/).map(VanillaSymbol);
 
   var supSub = regex(/^[_^]/);
 
@@ -14,7 +15,7 @@ var latexParser = (function() {
     supSub
     .or(string('\\').then(
       regex(/^[a-z]+/i)
-      .or(regex(/^\s+/).then(' '))
+      .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {
       var cmdKlass = LatexCmds[ctrlSeq];
@@ -25,7 +26,7 @@ var latexParser = (function() {
       else {
         var textBlock = TextBlock();
         textBlock.replaces(ctrlSeq);
-        return textBlock;
+        return succeed(textBlock);
       }
     })
   ;
@@ -45,7 +46,7 @@ var latexParser = (function() {
 
   // Parser MathBlock
   var block =
-    group.or(command.then(function(cmd) {
+    group.or(command.map(function(cmd) {
       var block = MathBlock();
       cmd.adopt(block, 0, 0);
       return block;
@@ -54,7 +55,7 @@ var latexParser = (function() {
 
   // Parser MathBlock
   var commandSequence =
-    block.many().then(function(blocks) {
+    block.many().map(function(blocks) {
       var firstBlock = blocks[0] || MathBlock();
 
       for (var i = 1; i < blocks.length; i += 1) {
