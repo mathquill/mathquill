@@ -73,4 +73,8 @@ suite('latex', function() {
     assert.equal(contents, '123');
     assert.equal(tree.join('latex'), '\\left(123\\right)');
   });
+
+  test('parens with whitespace', function() {
+    assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
+  });
 });
