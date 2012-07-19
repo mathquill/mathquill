@@ -463,8 +463,7 @@ var RootTextBlock = P(MathBlock, function(_) {
       var html = self.join('html');
       MathElement.jQize(html).appendTo(self.jQ);
 
-      this.postOrder('blur');
-      this.postOrder('redraw');
+      this.finalizeInsert();
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;
