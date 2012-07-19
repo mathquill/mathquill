@@ -10,11 +10,13 @@ OUTRO = $(SRC_DIR)/outro.js
 SOURCES = \
   ./vendor/pjs/src/p.js \
   $(SRC_DIR)/textarea.js \
+  $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/math.js \
   $(SRC_DIR)/rootelements.js \
   $(SRC_DIR)/commands.js \
   $(SRC_DIR)/symbols.js \
+  $(SRC_DIR)/latex.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/publicapi.js
 
