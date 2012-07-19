@@ -74,48 +74,71 @@ var Parser = P(function(_, _super, Parser) {
   _.many = function() {
     var self = this;
 
-    return manyReverse(this).map(reverseArray);
-  };
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      while (self._(stream, success, failure));
+      return onSuccess(stream, xs);
 
-  function manyReverse(self) {
-    return self.then(function(x) {
-      return manyReverse(self).map(accumulate(x));
-    }).or(succeed([]));
-  }
+      function success(newStream, x) {
+        stream = newStream;
+        xs.push(x);
+        return true;
+      }
 
-  function accumulate(x) {
-    return function(xs) {
-      xs.push(x);
-      return xs;
-    }
-  }
-
-  _.times = function(n) {
-    return timesReverse(this, n).map(reverseArray);
-  };
-
-  function timesReverse(self, n) {
-    if (n === 0) return succeed([]);
-
-    return self.then(function(x) {
-      return timesReverse(self, n - 1).map(accumulate(x))
+      function failure() {
+        return false;
+      }
     });
-  }
+  };
 
-  _.manyOne = function() {
+  _.times = function(min, max) {
+    if (arguments.length < 2) max = min;
     var self = this;
 
-    return self.then(function(x) {
-      return self.many().then(function(xs) {
-        return [x].concat(xs);
+    return Parser(function(stream, onSuccess, onFailure) {
+      var xs = [];
+      var result = true;
+      var failure;
+
+      for (var i = 0; i < min; i += 1) {
+        result = self._(stream, success, firstFailure);
+        if (!result) return onFailure(stream, failure);
+      }
+
+      for (; i < max && result; i += 1) {
+        result = self._(stream, success, secondFailure);
+      }
+
+      return onSuccess(stream, xs);
+
+      function success(newStream, x) {
+        xs.push(x);
+        stream = newStream;
+        return true;
+      }
+
+      function firstFailure(newStream, msg) {
+        failure = msg;
+        stream = newStream;
+        return false;
+      }
+
+      function secondFailure(newStream, msg) {
+        return false;
+      }
+    });
+  };
+
+  _.atLeast = function(n) {
+    var self = this;
+    return self.times(n).then(function(start) {
+      return self.many().map(function(end) {
+        return start.concat(end);
       });
     });
   };
 
-  function reverseArray(arr) {
-    arr.reverse();
-    return arr;
-  }
+  _.atMost = function(n) { return this.times(0, n); };
 
   // -*- primitive parsers -*- //
   var string = this.string = function(str) {

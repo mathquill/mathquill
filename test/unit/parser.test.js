@@ -2,6 +2,7 @@ suite('parser', function() {
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
+  var digit = Parser.digit;
   var any = Parser.any;
   var optWhitespace = Parser.optWhitespace;
   var eof = Parser.eof;
@@ -148,6 +149,39 @@ suite('parser', function() {
       assertEqualArray(threeLetters.parse('xyz'), ['x', 'y', 'z']);
       assert.throws(function() { threeLetters.parse('xy'); });
       assert.throws(function() { threeLetters.parse('xyzw'); });
+
+      var thenDigit = threeLetters.then(digit);
+      assert.equal(thenDigit.parse('xyz1'), '1');
+      assert.throws(function() { thenDigit.parse('xy1'); });
+      assert.throws(function() { thenDigit.parse('xyz'); });
+      assert.throws(function() { thenDigit.parse('xyzw'); });
+    });
+
+    test('with a min and max', function() {
+      var someLetters = letter.times(2, 4);
+
+      assertEqualArray(someLetters.parse('xy'), ['x', 'y']);
+      assertEqualArray(someLetters.parse('xyz'), ['x', 'y', 'z']);
+      assertEqualArray(someLetters.parse('xyzw'), ['x', 'y', 'z', 'w']);
+      assert.throws(function() { someLetters.parse('xyzwv'); });
+      assert.throws(function() { someLetters.parse('x'); });
+
+      var thenDigit = someLetters.then(digit);
+      assert.equal(thenDigit.parse('xy1'), '1');
+      assert.equal(thenDigit.parse('xyz1'), '1');
+      assert.equal(thenDigit.parse('xyzw1'), '1');
+      assert.throws(function() { thenDigit.parse('xy'); });
+      assert.throws(function() { thenDigit.parse('xyzw'); });
+      assert.throws(function() { thenDigit.parse('xyzwv1'); });
+      assert.throws(function() { thenDigit.parse('x1'); });
+    });
+
+    test('atLeast', function() {
+      var atLeastTwo = letter.atLeast(2);
+
+      assertEqualArray(atLeastTwo.parse('xy'), ['x', 'y']);
+      assertEqualArray(atLeastTwo.parse('xyzw'), ['x', 'y', 'z', 'w']);
+      assert.throws(function() { atLeastTwo.parse('x'); });
     });
   });
 
