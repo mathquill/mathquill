@@ -387,6 +387,25 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       this.replacedText = replacedText;
   };
   _.textTemplate = ['"', '"'];
+  _.parser = function() {
+    // TODO: correctly parse text mode
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return optWhitespace
+      .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
+      .map(function(text) {
+        var cmd = TextBlock();
+        cmd.createBlocks();
+        var block = cmd.firstChild;
+        for (var i = 0; i < text.length; i += 1) {
+          var ch = VanillaSymbol(text.charAt(i));
+          ch.adopt(block, block.lastChild, 0);
+        }
+        return cmd;
+      })
+    ;
+  };
   _.createBlocks = function() {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
     this.firstChild =

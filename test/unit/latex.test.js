@@ -77,4 +77,10 @@ suite('latex', function() {
   test('parens with whitespace', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
+
+  test('\\text', function() {
+    assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
+    assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
+                      '\\text{apples}\\ne \\text{oranges}');
+  });
 });
