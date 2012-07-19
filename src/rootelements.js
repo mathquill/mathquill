@@ -445,29 +445,56 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this, cursor = self.cursor;
+    var self = this
+    var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.firstChild = self.lastChild = 0;
     cursor.show().appendTo(self);
 
-    latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g) || '';
-    for (var i = 0; i < latex.length; i += 1) {
-      var chunk = latex[i];
-      if (chunk[0] === '$') {
-        if (chunk[-1+chunk.length] === '$' && chunk[-2+chunk.length] !== '\\')
-          chunk = chunk.slice(1, -1);
-        else
-          chunk = chunk.slice(1);
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var eof = Parser.eof;
+    var all = Parser.all;
 
-        var root = RootMathCommand(cursor);
-        cursor.insertNew(root);
-        root.firstChild.renderLatex(chunk);
-        cursor.show().insertAfter(root);
+    // Parser RootMathCommand
+    var mathMode = string('$').then(latexMathParser)
+      // because TeX is insane, math mode doesn't necessarily
+      // have to end.  So we allow for the case that math mode
+      // continues to the end of the stream.
+      .skip(string('$').or(eof))
+      .map(function(block) {
+        // HACK FIXME: this shouldn't have to have access to cursor
+        var rootMathCommand = RootMathCommand(cursor);
+
+        rootMathCommand.createBlocks();
+        var rootMathBlock = rootMathCommand.firstChild;
+        block.children().adopt(rootMathBlock, 0, 0);
+
+        return rootMathCommand;
+      })
+    ;
+
+    var escapedDollar = string('\\$').result('$');
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var latexText = mathMode.or(textChar).many();
+    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+
+    if (commands) {
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(self, self.lastChild, 0);
       }
-      else {
-        for (var j = 0; j < chunk.length; j += 1)
-          this.cursor.insertNew(VanillaSymbol(chunk[j]));
-      }
+
+      var html = self.join('html');
+      MathElement.jQize(html).appendTo(self.jQ);
+
+      // XXX HACK
+      (function blurMe(el) {
+        el.blur();
+        el.eachChild(function(cmd) { cmd.eachChild(blurMe); });
+      })(this);
+
+      // XXX HACK AGAIN
+      this.jQ.mathquill('redraw');
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;
