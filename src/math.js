@@ -34,6 +34,22 @@ var MathElement = P(Node, function(_) {
     return this;
   };
 
+  _.postOrder = function(fn /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    if (typeof fn === 'string') {
+      var methodName = fn;
+      fn = function(el) {
+        if (methodName in el) el[methodName].apply(el, arguments);
+      };
+    }
+
+    (function recurse(desc) {
+      desc.eachChild(recurse);
+      fn(desc);
+    })(this);
+  };
+
   _.jQ = $();
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 
