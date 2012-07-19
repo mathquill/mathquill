@@ -201,24 +201,28 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
 
-    // temporarily take the element out of the displayed DOM
-    // while we add stuff to it.  Grab the next or parent node
-    // so we know where to put it back.
-    // NOTE: careful that it be the next or parent DOM **node** and not
-    // HTML element, lest we skip a text node.
-    var next = jQ[0].nextSibling,
-      parent = jQ[0].parentNode;
+    var all = Parser.all;
+    var eof = Parser.eof;
 
-    jQ.detach();
-    this.cursor.appendTo(this).writeLatex(latex);
+    var mathTree = latexMathParser.skip(eof).or(all.result(false))
+      .parse(latex)
+    ;
 
-    // Put. the element. back.
-    // if there's no next element, it's at the end of its parent
-    next ? jQ.insertBefore(next) : jQ.appendTo(parent);
+    if (mathTree) {
+      mathTree.children().adopt(this, 0, 0);
 
-    // XXX HACK ALERT
-    this.jQ.mathquill('redraw');
-    this.blur();
+      var html = this.join('html');
+      MathElement.jQize(html).appendTo(jQ);
+    }
+
+    this.cursor.appendTo(this);
+
+    // note: this order is important.
+    // empty elements need the empty box provided by blur to
+    // be present in order for their dimensions to be measured
+    // correctly in redraw.
+    this.postOrder('blur');
+    this.postOrder('redraw');
   };
   _.onKey = function(key, e) {
     switch (key) {
@@ -438,29 +442,50 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this, cursor = self.cursor;
+    var self = this
+    var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.firstChild = self.lastChild = 0;
     cursor.show().appendTo(self);
 
-    latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g) || '';
-    for (var i = 0; i < latex.length; i += 1) {
-      var chunk = latex[i];
-      if (chunk[0] === '$') {
-        if (chunk[-1+chunk.length] === '$' && chunk[-2+chunk.length] !== '\\')
-          chunk = chunk.slice(1, -1);
-        else
-          chunk = chunk.slice(1);
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var eof = Parser.eof;
+    var all = Parser.all;
 
-        var root = RootMathCommand(cursor);
-        cursor.insertNew(root);
-        root.firstChild.renderLatex(chunk);
-        cursor.show().insertAfter(root);
+    // Parser RootMathCommand
+    var mathMode = string('$').then(latexMathParser)
+      // because TeX is insane, math mode doesn't necessarily
+      // have to end.  So we allow for the case that math mode
+      // continues to the end of the stream.
+      .skip(string('$').or(eof))
+      .map(function(block) {
+        // HACK FIXME: this shouldn't have to have access to cursor
+        var rootMathCommand = RootMathCommand(cursor);
+
+        rootMathCommand.createBlocks();
+        var rootMathBlock = rootMathCommand.firstChild;
+        block.children().adopt(rootMathBlock, 0, 0);
+
+        return rootMathCommand;
+      })
+    ;
+
+    var escapedDollar = string('\\$').result('$');
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var latexText = mathMode.or(textChar).many();
+    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+
+    if (commands) {
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(self, self.lastChild, 0);
       }
-      else {
-        for (var j = 0; j < chunk.length; j += 1)
-          this.cursor.insertNew(VanillaSymbol(chunk[j]));
-      }
+
+      var html = self.join('html');
+      MathElement.jQize(html).appendTo(self.jQ);
+
+      this.postOrder('blur');
+      this.postOrder('redraw');
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;

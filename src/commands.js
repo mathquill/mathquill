@@ -252,17 +252,62 @@ var Bracket = P(MathCommand, function(_, _super) {
       [open, close]);
     this.end = '\\right'+end;
   };
-  _.jQize = function() {
-    _super.jQize.call(this);
-    var block = this.blockjQ = this.firstChild.jQ;
-    this.bracketjQs = block.prev().add(block.next());
+  _.jQadd = function() {
+    _super.jQadd.apply(this, arguments);
+    var jQ = this.jQ;
+    this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
     return this.ctrlSeq + this.firstChild.latex() + this.end;
   };
   _.redraw = function() {
-    var height = this.blockjQ.outerHeight()/+this.blockjQ.css('fontSize').slice(0,-2);
+    var blockjQ = this.firstChild.jQ;
+
+    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
+  };
+});
+
+LatexCmds.left = P(MathCommand, function(_) {
+  _.parser = function() {
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+    var optWhitespace = Parser.optWhitespace;
+
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
+      .then(function(open) {
+        if (open.charAt(0) === '\\') open = open.slice(1);
+
+        var cmd = CharCmds[open]();
+
+        return latexMathParser
+          .map(function (block) {
+            cmd.blocks = [ block ];
+            block.adopt(cmd, 0, 0);
+          })
+          .then(string('\\right'))
+          .skip(optWhitespace)
+          .then(regex(/^(?:[\])|]|\\\})/))
+          .then(function(close) {
+            if (close.slice(-1) !== cmd.end.slice(-1)) {
+              return Parser.fail('open doesn\'t match close');
+            }
+
+            return succeed(cmd);
+          })
+        ;
+      })
+    ;
+  };
+});
+
+LatexCmds.right = P(MathCommand, function(_) {
+  _.parser = function() {
+    return Parser.fail('unmatched \\right');
   };
 });
 
@@ -342,6 +387,25 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       this.replacedText = replacedText;
   };
   _.textTemplate = ['"', '"'];
+  _.parser = function() {
+    // TODO: correctly parse text mode
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return optWhitespace
+      .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
+      .map(function(text) {
+        var cmd = TextBlock();
+        cmd.createBlocks();
+        var block = cmd.firstChild;
+        for (var i = 0; i < text.length; i += 1) {
+          var ch = VanillaSymbol(text.charAt(i));
+          ch.adopt(block, block.lastChild, 0);
+        }
+        return cmd;
+      })
+    ;
+  };
   _.createBlocks = function() {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
     this.firstChild =
@@ -599,13 +663,15 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     + '</span>'
     + '<span class="paren non-leaf">)</span>'
   ;
-  _.jQize = function() {
-    _super.jQize.call(this);
-    this.blockjQ = this.jQ.children();
-    this.bracketjQs = this.blockjQ.parent().siblings();
-  };
   _.textTemplate = ['choose(',',',')'];
-  _.redraw = Bracket.prototype.redraw;
+  _.redraw = function() {
+    var blockjQ = this.jQ.eq(1);
+
+    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
+    var parens = this.jQ.filter('.paren');
+    scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
+  };
 });
 
 var Choose =
@@ -719,22 +785,34 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
 LatexCmds.editable = P(RootMathCommand, function(_, _super) {
   _.init = function() {
     MathCommand.prototype.init.call(this, '\\editable');
-    var cursor;
-    this.createBefore = function(c){ _super.createBefore.call(this, cursor = c); };
-    this.jQize = function() {
-      _super.jQize.call(this);
-      createRoot(this.jQ, this.firstChild, false, true);
-
-      this.firstChild.blur = function() {
-        // when cursor is inserted after editable, append own
-        // cursor FIXME HACK
-        if (cursor.prev !== this.parent) return;
-        delete this.blur;
-        this.cursor.appendTo(this);
-        MathBlock.prototype.blur.call(this);
-      };
-      this.latex = function(){ return this.firstChild.latex(); };
-      this.text = function(){ return this.firstChild.text(); };
-    };
   };
+
+  _.jQadd = function() {
+    var self = this;
+    // FIXME: this entire method is a giant hack to get around
+    // having to call createBlocks, and createRoot expecting to
+    // render the contents' LaTeX. Both need to be refactored.
+    _super.jQadd.apply(self, arguments);
+    var block = self.firstChild.disown();
+    var blockjQ = self.jQ.children().detach();
+
+    self.firstChild =
+    self.lastChild =
+      RootMathBlock();
+
+    self.blocks = [ self.firstChild ];
+
+    self.firstChild.parent = self;
+
+    createRoot(self.jQ, self.firstChild, false, true);
+    self.cursor = self.firstChild.cursor;
+
+    block.children().adopt(self.firstChild, 0, 0);
+    blockjQ.appendTo(self.firstChild.jQ);
+
+    self.firstChild.cursor.appendTo(self.firstChild);
+  };
+
+  _.latex = function(){ return this.firstChild.latex(); };
+  _.text = function(){ return this.firstChild.text(); };
 });

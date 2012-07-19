@@ -9,6 +9,8 @@
 <link rel="stylesheet" type="text/css" href="support/home.css">
 <link rel="stylesheet" type="text/css" href="../build/mathquill.css">
 
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+
 <style type="text/css">
 body {
   font-size: .8em;
@@ -73,6 +75,30 @@ button {
 
 <p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
 
+<h3>Redrawing</h3>
+<p>
+  <span id="redrawing-test" class="mathquill-editable">\sqrt{}</span>
+  &larr; These square roots should be sized correctly.
+</p>
+<script type="text/javascript">
+  $(function() {
+    setTimeout(function() {
+      var test = $('#redrawing-test');
+      var textarea = test.find('textarea');
+
+      // focus
+      test.focus();
+
+      // move left into the square root
+      textarea.trigger($.Event('keydown', { which: 37 }));
+
+      // paste some stuff that needs resizing
+      textarea.trigger('paste');
+      textarea.val('$\\sqrt{\\sqrt{\\frac12}}$');
+    });
+  });
+</script>
+
 <h3>Selection Tests</h3>
 
 <p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
@@ -107,7 +133,6 @@ button {
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
 </div>
-<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript">
 window.onerror = function() {
   $('html').css('background', 'red');
