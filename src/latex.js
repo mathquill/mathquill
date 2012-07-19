@@ -17,12 +17,12 @@ var latexMathParser = (function() {
   var variable = letter.map(Variable);
   var symbol = regex(/^[^${}\\]/).map(VanillaSymbol);
 
-  var supSub = regex(/^[_^]/).skip(optWhitespace);
+  var supSub = regex(/^[_^]/);
 
   var controlSequence =
     supSub
     .or(string('\\').then(
-      regex(/^[a-z]+/i).skip(optWhitespace)
+      regex(/^[a-z]+/i)
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {
