@@ -161,10 +161,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     this.disown()
     this.jQ.remove();
 
-    (function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
-    }(this));
+    this.postOrder(function(el) { delete MathElement[el.id]; });
 
     return this;
   };
@@ -367,9 +364,10 @@ var MathFragment = P(Fragment, function(_, _super) {
   _.remove = function() {
     this.jQ.remove();
 
-    this.each(function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
+    this.each(function(el) {
+      el.postOrder(function(desc) {
+        delete MathElement[desc.id];
+      });
     });
 
     return this.disown();
