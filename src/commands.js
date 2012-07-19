@@ -83,9 +83,7 @@ var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">#0</'+tag+'>', [ text ]);
   };
-  _.createBlocks = function() {
-    _super.createBlocks.call(this);
-
+  _.finalizeTree = function() {
     //TODO: use inheritance
     pray('SupSub is only _ and ^',
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
@@ -205,8 +203,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
     + '</span>'
   ;
   _.textTemplate = ['(', '/', ')'];
-  _.createBlocks = function() {
-    _super.createBlocks.call(this);
+  _.finalizeTree = function() {
     this.up = this.lastChild.up = this.firstChild;
     this.down = this.firstChild.down = this.lastChild;
   };
