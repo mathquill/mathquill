@@ -201,7 +201,7 @@ _.offset = function() {
 };
 _.writeLatex = function(latex) {
   this.deleteSelection();
-  latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
+  latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\:|\\[a-z]*|[^\s]/ig) ) || 0;
   (function writeLatexBlock(cursor) {
     while (latex.length) {
       var token = latex.shift(); //pop first item
@@ -226,7 +226,7 @@ _.writeLatex = function(latex) {
         else //was an open-paren, hack to put the following latex
           latex.unshift('{'); //in the ParenBlock in the math DOM
       }
-      else if (/^\\[a-z]+$/i.test(token)) {
+      else if (/^\\[a-z:]+$/i.test(token)) {
         token = token.slice(1);
         var cmd = LatexCmds[token];
         if (cmd)

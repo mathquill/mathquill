@@ -24,7 +24,7 @@ function VanillaSymbol(ch, html) {
 }
 VanillaSymbol.prototype = Symbol.prototype;
 
-CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
+LatexCmds[':'] = CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
