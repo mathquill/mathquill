@@ -121,11 +121,19 @@ var MathCommand = P(MathElement, function(_, _super) {
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
     }
 
-    cmd.eachChild(function(b) { b.blur(); });
+    cmd.finalizeInsert(cursor);
+
+    cmd.placeCursor(cursor);
+
+    cmd.bubble('redraw');
+  };
+  _.finalizeInsert = function(cursor) {
+    var cmd = this;
 
     cursor.jQ.before(cmd.jQ);
-
     cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
+
+    cmd.postOrder('blur');
 
     //adjust context-sensitive spacing
     cmd.respace();
@@ -133,10 +141,6 @@ var MathCommand = P(MathElement, function(_, _super) {
       cmd.next.respace();
     if (cmd.prev)
       cmd.prev.respace();
-
-    cmd.placeCursor(cursor);
-
-    cmd.bubble('redraw');
   };
   _.createBlocks = function() {
     var cmd = this,
