@@ -201,28 +201,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.firstChild = this.lastChild = 0;
 
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var mathTree = latexMathParser.skip(eof).or(all.result(false))
-      .parse(latex)
-    ;
-
-    if (mathTree) {
-      mathTree.children().adopt(this, 0, 0);
-
-      var html = this.join('html');
-      MathElement.jQize(html).appendTo(jQ);
-    }
-
-    this.cursor.appendTo(this);
-
-    // note: this order is important.
-    // empty elements need the empty box provided by blur to
-    // be present in order for their dimensions to be measured
-    // correctly in redraw.
-    this.postOrder('blur');
-    this.postOrder('redraw');
+    this.cursor.writeLatex(latex);
   };
   _.onKey = function(key, e) {
     switch (key) {
@@ -463,8 +442,7 @@ var RootTextBlock = P(MathBlock, function(_) {
       var html = self.join('html');
       MathElement.jQize(html).appendTo(self.jQ);
 
-      this.postOrder('blur');
-      this.postOrder('redraw');
+      this.finalizeInsert();
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;

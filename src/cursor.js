@@ -272,12 +272,11 @@ var Cursor = P(function(_) {
     var block = latexMathParser.or(all.result(false)).parse(latex);
 
     if (block) {
-      block.eachChild(function(cmd) {
-        MathElement.jQize(cmd.html());
-        cmd.finalizeInsert(self);
-        cmd.postOrder('redraw');
-        cmd.bubble('redraw');
-      });
+      block.children().adopt(self.parent, self.prev, self.next);
+      MathElement.jQize(block.join('html')).insertBefore(self.jQ);
+      self.prev = block.lastChild;
+      block.finalizeInsert();
+      self.parent.bubble('redraw');
     }
 
     return this.hide();

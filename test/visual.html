@@ -78,7 +78,10 @@ button {
 <h3>Redrawing</h3>
 <p>
   <span id="redrawing-test" class="mathquill-editable">\sqrt{}</span>
-  &larr; These square roots should be sized correctly.
+  should look the same as
+  <span class="mathquill-embedded-latex">
+    \sqrt{\pi\sqrt\sqrt\frac12}
+  </span>
 </p>
 <script type="text/javascript">
   $(function() {
@@ -94,7 +97,7 @@ button {
 
       // paste some stuff that needs resizing
       textarea.trigger('paste');
-      textarea.val('$\\sqrt{\\sqrt{\\frac12}}$');
+      textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');
     });
   });
 </script>
