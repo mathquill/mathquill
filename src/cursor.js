@@ -197,68 +197,22 @@ var Cursor = P(function(_) {
     return offset;
   };
   _.writeLatex = function(latex) {
-    this.deleteSelection();
-    latex = ( latex && latex.match(/\\text\{([^}]|\\\})*\}|\\[a-z]*|[^\s]/ig) ) || 0;
-    (function writeLatexBlock(cursor) {
-      while (latex.length) {
-        var token = latex.shift(); //pop first item
-        if (!token || token === '}') return;
+    var self = this;
+    self.deleteSelection();
 
-        var cmd;
-        if (token.slice(0, 6) === '\\text{') {
-          cmd = TextBlock(token.slice(6, -1));
-          cursor.insertNew(cmd).insertAfter(cmd);
-          continue; //skip recursing through children
-        }
-        else if (token === '\\left' || token === '\\right') { //FIXME HACK: implement real \left and \right LaTeX commands, rather than special casing them here
-          token = latex.shift();
-          if (token === '\\')
-            token = latex.shift();
+    var all = Parser.all;
 
-          cursor.insertCh(token);
-          cmd = cursor.prev || cursor.parent.parent;
+    var block = latexMathParser.or(all.result(false)).parse(latex);
 
-          if (cursor.prev) //was a close-paren, so break recursion
-            return;
-          else //was an open-paren, hack to put the following latex
-            latex.unshift('{'); //in the ParenBlock in the math DOM
-        }
-        else if (/^\\[a-z]+$/i.test(token)) {
-          token = token.slice(1);
-          var cmd = LatexCmds[token];
-          if (cmd) {
-            cmd = cmd(token);
-            cursor.insertNew(cmd);
-          }
-          else {
-            cmd = TextBlock(token);
-            cursor.insertNew(cmd).insertAfter(cmd);
-            continue; //skip recursing through children
-          }
-        }
-        else {
-          if (token.match(/[a-eg-zA-Z]/)) //exclude f because want florin
-            cmd = Variable(token);
-          else if (cmd = LatexCmds[token])
-            cmd = cmd(token);
-          else
-            cmd = VanillaSymbol(token);
+    if (block) {
+      block.eachChild(function(cmd) {
+        MathElement.jQize(cmd.html());
+        cmd.finalizeInsert(self);
+        cmd.postOrder('redraw');
+        cmd.bubble('redraw');
+      });
+    }
 
-          cursor.insertNew(cmd);
-        }
-        cmd.eachChild(function(child) {
-          cursor.appendTo(child);
-          var token = latex.shift();
-          if (!token) return false;
-
-          if (token === '{')
-            writeLatexBlock(cursor);
-          else
-            cursor.insertCh(token);
-        });
-        cursor.insertAfter(cmd);
-      }
-    }(this));
     return this.hide();
   };
   _.write = function(ch) {
