@@ -33,8 +33,40 @@ var MathElement = P(Node, function(_) {
 
     return this;
   };
+
+  _.postOrder = function(fn /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    if (typeof fn === 'string') {
+      var methodName = fn;
+      fn = function(el) {
+        if (methodName in el) el[methodName].apply(el, arguments);
+      };
+    }
+
+    (function recurse(desc) {
+      desc.eachChild(recurse);
+      fn(desc);
+    })(this);
+  };
+
   _.jQ = $();
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+
+  this.jQize = function(html) {
+    // Sets the .jQ of the entire math subtree rooted at this command.
+    // Expects .createBlocks() to have been called already, since it
+    // calls .html().
+    var jQ = $(html);
+    jQ.find('*').andSelf().each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) MathElement[cmdId].jQadd(jQ);
+      if (blockId) MathElement[blockId].jQadd(jQ);
+    });
+    return jQ;
+  };
 });
 
 /**
@@ -62,23 +94,46 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
+  _.parser = function() {
+    var block = latexMathParser.block;
+    var self = this;
+
+    return block.times(self.numBlocks()).map(function(blocks) {
+      self.blocks = blocks;
+
+      for (var i = 0; i < blocks.length; i += 1) {
+        blocks[i].adopt(self, self.lastChild, 0);
+      }
+
+      return self;
+    });
+  };
+
   // createBefore(cursor) and the methods it calls
   _.createBefore = function(cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    cmd.jQize();
+    MathElement.jQize(cmd.html());
     if (replacedFragment) {
       replacedFragment.adopt(cmd.firstChild, 0, 0);
       replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
     }
 
-    cmd.eachChild(function(b) { b.blur(); });
+    cmd.finalizeInsert(cursor);
+
+    cmd.placeCursor(cursor);
+
+    cmd.bubble('redraw');
+  };
+  _.finalizeInsert = function(cursor) {
+    var cmd = this;
 
     cursor.jQ.before(cmd.jQ);
-
     cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
+
+    cmd.postOrder('blur');
 
     //adjust context-sensitive spacing
     cmd.respace();
@@ -86,10 +141,6 @@ var MathCommand = P(MathElement, function(_, _super) {
       cmd.next.respace();
     if (cmd.prev)
       cmd.prev.respace();
-
-    cmd.placeCursor(cursor);
-
-    cmd.bubble('redraw');
   };
   _.createBlocks = function() {
     var cmd = this,
@@ -114,10 +165,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     this.disown()
     this.jQ.remove();
 
-    (function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
-    }(this));
+    this.postOrder(function(el) { delete MathElement[el.id]; });
 
     return this;
   };
@@ -146,7 +194,8 @@ var MathCommand = P(MathElement, function(_, _super) {
       Close tags are never optional.
   */
   _.numBlocks = function() {
-    return this.htmlTemplate.match(/#\d+/g).length;
+    var matches = this.htmlTemplate.match(/#\d+/g);
+    return matches ? matches.length : 0;
   };
   _.html = function() {
     // Render the entire math subtree rooted at this command, as HTML.
@@ -223,18 +272,6 @@ var MathCommand = P(MathElement, function(_, _super) {
       return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
     });
   };
-  _.jQize = function() {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    $(this.html()).find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) MathElement[cmdId].jQadd(jQ);
-      if (blockId) MathElement[blockId].jQadd(jQ);
-    });
-  };
 
   // methods to export a string representation of the math tree
   _.latex = function() {
@@ -265,6 +302,10 @@ var Symbol = P(MathCommand, function(_, _super) {
 
     _super.init.call(this, ctrlSeq, html, [ text ]);
   };
+
+  _.parser = function() { return Parser.succeed(this); };
+  _.numBlocks = function() { return 0; };
+
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
   };
@@ -298,8 +339,7 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+    this.jQ.removeClass('empty');
 
     return this;
   };
@@ -328,9 +368,10 @@ var MathFragment = P(Fragment, function(_, _super) {
   _.remove = function() {
     this.jQ.remove();
 
-    this.each(function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
+    this.each(function(el) {
+      el.postOrder(function(desc) {
+        delete MathElement[desc.id];
+      });
     });
 
     return this.disown();
