@@ -24,37 +24,49 @@ To use MathQuill on your website you need to serve
 
 then on your webpages include the stylesheet
 
-    <link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```html
+<link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```
 
 and after [jQuery](http://jquery.com), the script
 
-    <script src="/path/to/mathquill.min.js"></script>
+```html
+<script src="/path/to/mathquill.min.js"></script>
+```
 
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
-    <span class="mathquill-static-math">\frac{d}{dx}\sqrt{x}</span>
+```html
+<span class="mathquill-static-math">\frac{d}{dx}\sqrt{x}</span>
+```
 
 or have an editable math field:
 
-    <span class="mathquill-math-field">f(x)=?</span>
+```html
+<span class="mathquill-math-field">f(x)=?</span>
+```
 
 This is done by waiting for the jQuery `ready` event and searching the document
 for elements with those CSS classes, so for dynamically created elements that
 weren't in the document on `ready`, you will need to call our public API after
 inserting into the visible document:
 
-    var el = $('<span>x^2</span>').appendTo('body');
-    var editableMath = MathQuill.MathField(el);
-    editableMath instanceof MathQuill.MathField; // => true
-    editableMath instanceof MathQuill; // => true
+```js
+var el = $('<span>x^2</span>').appendTo('body');
+var editableMath = MathQuill.MathField(el);
+editableMath instanceof MathQuill.MathField; // => true
+editableMath instanceof MathQuill; // => true
+```
 
 Note that if during MathQuill-ification the element isn't in the visible HTML
 DOM, then you may need to call `.redraw()` on our public API once it is visible
 so that MathQuill can perform calculations based on computed CSS values:
 
-    var editableMath = MathQuill.MathField('<span>\\sqrt{2}</span>');
-    editableMath.jQ().appendTo('body');
-    editableMath.redraw();
+```js
+var editableMath = MathQuill.MathField('<span>\\sqrt{2}</span>');
+editableMath.jQ().appendTo('body');
+editableMath.redraw();
+```
 
 If you want to give a MathQuill editable a background color other than
 white, support IE8, and support square roots, parentheses, square
@@ -72,10 +84,13 @@ white with `#my-math-input .cursor { border-color: white; }` or the like.
 
 Any element that has been MathQuill-ified can be reverted:
 
-    <span id="revert-me" class="mathquill-static-math">some <code>HTML</code></span>
-
-    var math = MathQuill('#revert-me');
-    math.revert().html(); // => 'some <code>HTML</code>'
+```html
+<span id="revert-me" class="mathquill-static-math">some <code>HTML</code></span>
+```
+```js
+var math = MathQuill('#revert-me');
+math.revert().html(); // => 'some <code>HTML</code>'
+```
 
 Manipulating the HTML DOM inside MathQuill-ified elements can break our
 rendering and functionality, but we have a public API to manipulate MathQuill
