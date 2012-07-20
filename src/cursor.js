@@ -268,8 +268,9 @@ var Cursor = P(function(_) {
     self.show().deleteSelection();
 
     var all = Parser.all;
+    var eof = Parser.eof;
 
-    var block = latexMathParser.or(all.result(false)).parse(latex);
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
     if (block) {
       block.children().adopt(self.parent, self.prev, self.next);

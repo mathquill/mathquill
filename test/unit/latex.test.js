@@ -83,4 +83,29 @@ suite('latex', function() {
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
   });
+
+  suite('error handling', function() {
+    var el;
+    setup(function() {
+      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+    });
+    teardown(function() {
+      el.remove();
+    });
+
+    function testCantParse(title /*, latex...*/) {
+      var latex = [].slice.call(arguments, 1);
+      test(title, function() {
+        for (var i = 0; i < latex.length; i += 1) {
+          el.mathquill('latex', latex[i]);
+          assert.equal(el.mathquill('latex'), '', "shouldn\'t parse '"+latex[i]+"'");
+        }
+      });
+    }
+
+    testCantParse('missing blocks', '\\frac', '\\sqrt', '^', '_');
+    testCantParse('unmatched close brace', '}', ' 1 + 2 } ', '1 - {2 + 3} }', '\\sqrt{ x }} + \\sqrt{y}');
+    testCantParse('unmatched open brace', '{', '1 * { 2 + 3', '\\frac{ \\sqrt x }{{ \\sqrt y}');
+    testCantParse('unmatched \\left/\\right', '\\left ( 1 + 2 )', ' [ 1, 2 \\right ]');
+  });
 });

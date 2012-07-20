@@ -15,7 +15,7 @@ var latexMathParser = (function() {
   var fail = Parser.fail;
 
   var variable = letter.map(Variable);
-  var symbol = regex(/^[^${}\\]/).map(VanillaSymbol);
+  var symbol = regex(/^[^${}\\_^]/).map(VanillaSymbol);
 
   var supSub = regex(/^[_^]/);
 
