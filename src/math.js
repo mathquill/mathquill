@@ -69,13 +69,15 @@ var MathElement = P(Node, function(_) {
   };
 
   _.finalizeInsert = function() {
+    var self = this;
+    self.postOrder('finalizeTree');
+
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly in redraw.
-    var self = this;
-
     self.postOrder('blur');
+
     // adjust context-sensitive spacing
     self.postOrder('respace');
     if (self.next.respace) self.next.respace();
