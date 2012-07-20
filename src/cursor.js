@@ -17,6 +17,8 @@ var Cursor = P(function(_) {
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('blink'); }
+
+    this.upDownCache = {};
   };
 
   _.prev = 0;
@@ -96,48 +98,108 @@ var Cursor = P(function(_) {
     this.next = this.next.next;
     return this;
   };
+  _.moveLeftWithin = function(block) {
+    if (this.prev) {
+      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
+      else this.hopLeft();
+    }
+    else {
+      // we're at the beginning of the containing block, so do nothing.
+      if (this.parent === block) return;
+
+      if (this.parent.prev) this.appendTo(this.parent.prev);
+      else this.insertBefore(this.parent.parent);
+    }
+  };
+  _.moveRightWithin = function(block) {
+    if (this.next) {
+      if (this.next.firstChild) this.prependTo(this.next.firstChild)
+      else this.hopRight();
+    }
+    else {
+      // we're at the end of the containing block, so do nothing.
+      if (this.parent === block) return;
+
+      if (this.parent.next) this.prependTo(this.parent.next);
+      else this.insertAfter(this.parent.parent);
+    }
+  };
   _.moveLeft = function() {
+    clearUpDownCache(this);
+
     if (this.selection)
       this.insertBefore(this.selection.first).clearSelection();
     else {
-      if (this.prev) {
-        if (this.prev.lastChild)
-          this.appendTo(this.prev.lastChild)
-        else
-          this.hopLeft();
-      }
-      else { //we're at the beginning of a block
-        if (this.parent.prev)
-          this.appendTo(this.parent.prev);
-        else if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        //else we're at the beginning of the root, so do nothing.
-      }
+      this.moveLeftWithin(this.root);
     }
     return this.show();
   };
   _.moveRight = function() {
+    clearUpDownCache(this);
+
     if (this.selection)
       this.insertAfter(this.selection.last).clearSelection();
     else {
-      if (this.next) {
-        if (this.next.firstChild)
-          this.prependTo(this.next.firstChild)
-        else
-          this.hopRight();
-      }
-      else { //we're at the end of a block
-        if (this.parent.next)
-          this.prependTo(this.parent.next);
-        else if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        //else we're at the end of the root, so do nothing.
-      }
+      this.moveRightWithin(this.root);
     }
     return this.show();
   };
+
+  /**
+   * moveUp and moveDown have almost identical algorithms:
+   * - first check next and prev, if so prepend/appendTo them
+   * - else check the parent's 'up'/'down' property - if it's a function,
+   *   call it with the cursor as the sole argument and use the return value.
+   *
+   *   Given undefined, will bubble up to the next ancestor block.
+   *   Given false, will stop bubbling.
+   *   Given a MathBlock,
+   *     + moveUp will appendTo it
+   *     + moveDown will prependTo it
+   *
+   */
+  _.moveUp = function() { return moveUpDown(this, 'up'); };
+  _.moveDown = function() { return moveUpDown(this, 'down'); };
+  function moveUpDown(self, dir) {
+    if (self.next[dir]) self.prependTo(self.next[dir]);
+    else if (self.prev[dir]) self.appendTo(self.prev[dir]);
+    else {
+      var ancestorBlock = self.parent;
+      do {
+        var prop = ancestorBlock[dir];
+        if (prop) {
+          if (typeof prop === 'function') prop = ancestorBlock[dir](self);
+          if (prop === false || prop instanceof MathBlock) {
+            self.upDownCache[ancestorBlock.id] = { parent: self.parent, prev: self.prev, next: self.next };
+
+            if (prop instanceof MathBlock) {
+              var cached = self.upDownCache[prop.id];
+
+              if (cached) {
+                if (cached.next) {
+                  self.insertBefore(cached.next);
+                } else {
+                  self.appendTo(cached.parent);
+                }
+              } else {
+                var pageX = offset(self).left;
+                self.appendTo(prop);
+                self.seekHoriz(pageX, prop);
+              }
+            }
+            break;
+          }
+        }
+        ancestorBlock = ancestorBlock.parent.parent;
+      } while (ancestorBlock);
+    }
+
+    return self.clearSelection().show();
+  }
+
   _.seek = function(target, pageX, pageY) {
-    var cmd, block, cursor = this.clearSelection();
+    clearUpDownCache(this);
+    var cmd, block, cursor = this.clearSelection().show();
     if (target.hasClass('empty')) {
       cursor.prependTo(MathElement[target.attr(mqBlockId)]);
       return cursor;
@@ -169,21 +231,26 @@ var Cursor = P(function(_) {
     else
       cursor.appendTo(block);
 
+    return cursor.seekHoriz(pageX, cursor.root);
+  };
+  _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
-    var dist = cursor.offset().left - pageX, prevDist;
-    do {
-      cursor.moveLeft();
-      prevDist = dist;
-      dist = cursor.offset().left - pageX;
-    }
-    while (dist > 0 && (cursor.prev || cursor.parent !== cursor.root));
+    var cursor = this;
+    var dist = offset(cursor).left - pageX;
+    var prevDist;
 
-    if (-dist > prevDist)
-      cursor.moveRight();
+    do {
+      cursor.moveLeftWithin(block);
+      prevDist = dist;
+      dist = offset(cursor).left - pageX;
+    }
+    while (dist > 0 && (cursor.prev || cursor.parent !== block));
+
+    if (-dist > prevDist) cursor.moveRightWithin(block);
 
     return cursor;
   };
-  _.offset = function() {
+  function offset(self) {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -191,14 +258,14 @@ var Cursor = P(function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var jQ = this.jQ.removeClass('cursor'),
-      offset = jQ.offset();
-    jQ.addClass('cursor');
+    var offset = self.jQ.removeClass('cursor').offset();
+    self.jQ.addClass('cursor');
     return offset;
-  };
+  }
   _.writeLatex = function(latex) {
     var self = this;
-    self.deleteSelection();
+    clearUpDownCache(self);
+    self.show().deleteSelection();
 
     var all = Parser.all;
 
@@ -305,7 +372,9 @@ var Cursor = P(function(_) {
       gramp.next.respace();
   };
   _.backspace = function() {
-    if (this.deleteSelection());
+    clearUpDownCache(this);
+
+    if (this.deleteSelection()); // pass
     else if (this.prev) {
       if (this.prev.isEmpty())
         this.prev = this.prev.remove().prev;
@@ -325,10 +394,12 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this;
+    return this.show();
   };
   _.deleteForward = function() {
-    if (this.deleteSelection());
+    clearUpDownCache(this);
+
+    if (this.deleteSelection()); // pass
     else if (this.next) {
       if (this.next.isEmpty())
         this.next = this.next.remove().next;
@@ -348,7 +419,7 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this;
+    return this.show();
   };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
@@ -393,6 +464,7 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
   _.selectLeft = function() {
+    clearUpDownCache(this);
     if (this.selection) {
       if (this.selection.first === this.next) { //if cursor is at left edge of selection;
         if (this.prev) //then extend left if possible
@@ -403,7 +475,7 @@ var Cursor = P(function(_) {
       else { //else cursor is at right edge of selection, retract left if possible
         this.hopLeft();
         if (this.selection.first === this.selection.last) {
-          this.clearSelection(); //clear selection if retracting to nothing
+          this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
         this.selection.retractLeft();
@@ -423,6 +495,7 @@ var Cursor = P(function(_) {
     this.root.selectionChanged();
   };
   _.selectRight = function() {
+    clearUpDownCache(this);
     if (this.selection) {
       if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
         if (this.next) //then extend right if possible
@@ -433,7 +506,7 @@ var Cursor = P(function(_) {
       else { //else cursor is at left edge of selection, retract right if possible
         this.hopRight();
         if (this.selection.first === this.selection.last) {
-          this.clearSelection(); //clear selection if retracting to nothing
+          this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
         this.selection.retractRight();
@@ -452,8 +525,23 @@ var Cursor = P(function(_) {
     }
     this.root.selectionChanged();
   };
+
+  function clearUpDownCache(self) {
+    self.upDownCache = {};
+  }
+
+  _.prepareMove = function() {
+    clearUpDownCache(this);
+    return this.show().clearSelection();
+  };
+
+  _.prepareEdit = function() {
+    clearUpDownCache(this);
+    return this.show().deleteSelection();
+  }
+
   _.clearSelection = function() {
-    if (this.show().selection) {
+    if (this.selection) {
       this.selection.clear();
       delete this.selection;
       this.root.selectionChanged();
@@ -461,7 +549,7 @@ var Cursor = P(function(_) {
     return this;
   };
   _.deleteSelection = function() {
-    if (!this.show().selection) return false;
+    if (!this.selection) return false;
 
     this.prev = this.selection.first.prev;
     this.next = this.selection.last.next;

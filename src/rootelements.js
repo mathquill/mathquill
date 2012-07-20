@@ -35,7 +35,7 @@ function createRoot(jQ, root, textbox, editable) {
     cut: function(e) {
       if (cursor.selection) {
         setTimeout(function() {
-          cursor.deleteSelection();
+          cursor.prepareEdit();
           cursor.parent.bubble('redraw');
         });
       }
@@ -224,6 +224,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       // cursor is in root editable, continue default
       if (parent === this.cursor.root) return;
 
+      this.cursor.prepareMove();
       if (parent.next) {
         // go one block right
         this.cursor.prependTo(parent.next);
@@ -231,8 +232,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         // get out of the block
         this.cursor.insertAfter(parent.parent);
       }
-
-      this.cursor.clearSelection();
       break;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
@@ -241,6 +240,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //cursor is in root editable, continue default
       if (parent === this.cursor.root) return;
 
+      this.cursor.prepareMove();
       if (parent.prev) {
         // go one block left
         this.cursor.appendTo(parent.prev);
@@ -248,8 +248,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         //get out of the block
         this.cursor.insertBefore(parent.parent);
       }
-
-      this.cursor.clearSelection();
       break;
 
     // Prevent newlines from showing up
@@ -258,12 +256,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // End -> move to the end of the current block.
     case 'End':
-      this.cursor.clearSelection().appendTo(this.cursor.parent);
+      this.cursor.prepareMove().appendTo(this.cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      this.cursor.clearSelection().appendTo(this);
+      this.cursor.prepareMove().appendTo(this);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -282,12 +280,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      this.cursor.clearSelection().prependTo(this.cursor.parent);
+      this.cursor.prepareMove().prependTo(this.cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      this.cursor.clearSelection().prependTo(this);
+      this.cursor.prepareMove().prependTo(this);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -312,16 +310,8 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Shift-Right': this.cursor.selectRight(); break;
     case 'Ctrl-Right': break;
 
-    case 'Up':
-      if (this.cursor.parent.prev) {
-        this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-      } else if (this.cursor.prev) {
-        this.cursor.clearSelection().prependTo(this.cursor.parent);
-      }
-      else if (this.cursor.parent !== this) {
-        this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-      }
-      break;
+    case 'Up': this.cursor.moveUp(); break;
+    case 'Down': this.cursor.moveDown(); break;
 
     case 'Shift-Up':
       if (this.cursor.prev) {
@@ -329,18 +319,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       } else {
         this.cursor.selectLeft();
       }
-
-    case 'Ctrl-Up': break;
-
-    case 'Down':
-      if (this.cursor.parent.next) {
-        this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-      } else if (this.cursor.next) {
-        this.cursor.clearSelection().appendTo(this.cursor.parent);
-      } else if (this.cursor.parent !== this) {
-        this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-      }
-      break;
 
     case 'Shift-Down':
       if (this.cursor.next) {
@@ -350,6 +328,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         this.cursor.selectRight();
       }
 
+    case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
 
     case 'Del':
@@ -365,7 +344,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
-      this.cursor.clearSelection().appendTo(this);
+      this.cursor.prepareMove().appendTo(this);
       while (this.cursor.prev) this.cursor.selectLeft();
       break;
 
@@ -468,7 +447,7 @@ var RootTextBlock = P(MathBlock, function(_) {
   };
   _.onKey = RootMathBlock.prototype.onKey;
   _.onText = function(ch) {
-    this.cursor.deleteSelection();
+    this.cursor.prepareEdit();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
     else
