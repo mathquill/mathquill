@@ -57,7 +57,7 @@ var MathQuillEl = P(function(_) {
  * Globally exported function that will take anything you can pass to jQuery
  * (selector, DOM element, etc) that resolves to a root HTML element of a
  * MathQuill editable or static math or text field, and returns the
- * MathQuillEl instance corresponding to it, or false if it is not a MathQuill
+ * MathQuillEl instance corresponding to it, or null if it is not a MathQuill
  * thing editable or static math or text field.
  *
  * Guarantees identity of returned object if called multiple separate times on
@@ -74,7 +74,7 @@ function MathQuill(el) {
   pray('el is a single element', el.length === 1);
 
   var blockId = $(el).attr(mqBlockId);
-  if (!blockId) return false;
+  if (!blockId) return null;
 
   var rootBlock = MathElement[blockId];
   return !!rootBlock && rootBlock.jQ[0] === el[0] && rootBlock.publicMathQuillObj;
