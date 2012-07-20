@@ -67,11 +67,12 @@ var MathQuillEl = P(function(_) {
  *   assert(MathQuill('#mathfield') === MathQuill('#mathfield'));
  *
  * If jQuery doesn't resolve the argument to a single HTML element, an
- * exception will be thrown. [Would it be better to just return false?]
+ * exception will be thrown.
  */
-function MathQuill(el) {
+function MathQuill(el, dotName) {
   el = $(el);
-  pray('el is a single element', el.length === 1);
+  if (el.length !== 1) throw 'MathQuill'+(dotName || '')+'() must be passed a\
+single element, got to '+el.length+' elements instead';
 
   var blockId = $(el).attr(mqBlockId);
   if (!blockId) return null;
@@ -83,10 +84,11 @@ MathQuill.prototype = MathQuillEl.prototype; // for instanceof
 
 // TODO: make this + createRoot() suck less
 function setMathQuillDot(name, RootBlock, textbox, editable) {
-  var SubClass = P(MathQuillEl, noop);
+  var SubClass = P(MathQuillEl, { type: name });
   MathQuill[name] = function(el) {
-    var mq = MathQuill(el);
-    if (mq) return mq; // TODO: what if mq is a MathQuillEl but not instanceof SubClass?
+    var mq = MathQuill(el, '.'+name);
+    if (mq instanceof SubClass) return mq;
+    if (mq) throw 'MathQuill.'+name+'() was passed a MathQuill.'+mq.type;
 
     var rootBlock = RootBlock();
     createRoot($(el), rootBlock, textbox, editable);
