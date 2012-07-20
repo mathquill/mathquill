@@ -9,6 +9,7 @@
 var MathQuillEl = P(function(_) {
   _.init = function(rootBlock) { this.rootBlock = rootBlock; };
   _.revert = function() { return this.rootBlock.revert(); };
+  _.jQ = function() { return this.rootBlock.jQ; };
 
   _.redraw = function() {
     (function postOrderRedraw(el) {
