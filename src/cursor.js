@@ -374,6 +374,7 @@ var Cursor = P(function(_) {
   };
   _.backspace = function() {
     clearUpDownCache(this);
+    this.show();
 
     if (this.deleteSelection()); // pass
     else if (this.prev) {
@@ -395,10 +396,11 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this.show();
+    return this;
   };
   _.deleteForward = function() {
     clearUpDownCache(this);
+    this.show();
 
     if (this.deleteSelection()); // pass
     else if (this.next) {
@@ -420,7 +422,7 @@ var Cursor = P(function(_) {
       this.next.respace();
     this.parent.bubble('redraw');
 
-    return this.show();
+    return this;
   };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
