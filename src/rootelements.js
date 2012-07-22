@@ -24,39 +24,6 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
-  var textareaManager = manageTextarea(textarea, {
-    container: jQ,
-    key: function(key, evt) {
-      if (editable) cursor.parent.bubble('onKey', key, evt);
-    },
-    text: function(text) {
-      if (editable) cursor.parent.bubble('onText', text);
-    },
-    cut: function(e) {
-      if (editable && cursor.selection) {
-        setTimeout(function() {
-          cursor.deleteSelection();
-          cursor.parent.bubble('redraw');
-        });
-      }
-
-      e.stopPropagation();
-    },
-    paste: function(text) {
-      // FIXME HACK the parser in RootTextBlock needs to be moved to
-      // Cursor::writeLatex or something so this'll work with
-      // MathQuill textboxes
-      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-        text = text.slice(1, -1);
-      }
-      else {
-        text = '\\text{' + text + '}';
-      }
-
-      cursor.writeLatex(text).show();
-    }
-  });
-
   /******
    * TODO [Han]: Document this
    */
@@ -143,6 +110,7 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   if (!editable) {
+    var textareaManager = manageTextarea(textarea, { container: jQ });
     jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
@@ -154,6 +122,39 @@ function createRoot(jQ, root, textbox, editable) {
     }
     return;
   }
+
+  var textareaManager = manageTextarea(textarea, {
+    container: jQ,
+    key: function(key, evt) {
+      cursor.parent.bubble('onKey', key, evt);
+    },
+    text: function(text) {
+      cursor.parent.bubble('onText', text);
+    },
+    cut: function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          cursor.deleteSelection();
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    },
+    paste: function(text) {
+      // FIXME HACK the parser in RootTextBlock needs to be moved to
+      // Cursor::writeLatex or something so this'll work with
+      // MathQuill textboxes
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{' + text + '}';
+      }
+
+      cursor.writeLatex(text).show();
+    }
+  });
 
   jQ.prepend(textareaSpan);
 
