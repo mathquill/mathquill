@@ -65,7 +65,7 @@ else {
 
 var Style = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tagName, attrs) {
-    _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>#0</'+tagName+'>');
+    _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
   };
 });
 
@@ -81,7 +81,7 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="n
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">#0</'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
@@ -197,8 +197,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="fraction non-leaf">'
-    +   '<span class="numerator">#0</span>'
-    +   '<span class="denominator">#1</span>'
+    +   '<span class="numerator">&0</span>'
+    +   '<span class="denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -246,7 +246,7 @@ LatexCmds['√'] = P(MathCommand, function(_) {
   _.htmlTemplate =
       '<span class="sqrt">'
     +   '<span class="non-leaf sqrt-prefix">&radic;</span>'
-    +   '<span class="sqrt-stem">#0</span>'
+    +   '<span class="sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -260,10 +260,10 @@ LatexCmds['√'] = P(MathCommand, function(_) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
-      '<sup class="nthroot non-leaf">#0</sup>'
+      '<sup class="nthroot non-leaf">&0</sup>'
     + '<span class="non-leaf">'
     +   '<span class="sqrt-prefix non-leaf">&radic;</span>'
-    +   '<span class="sqrt-stem non-leaf">#1</span>'
+    +   '<span class="sqrt-stem non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -278,7 +278,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="non-leaf">'
       +   '<span class="non-leaf paren">'+open+'</span>'
-      +   '<span class="non-leaf">#0</span>'
+      +   '<span class="non-leaf">&0</span>'
       +   '<span class="non-leaf paren">'+close+'</span>'
       + '</span>',
       [open, close]);
@@ -411,7 +411,7 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
-  _.htmlTemplate = '<span class="text">#0</span>';
+  _.htmlTemplate = '<span class="text">&0</span>';
   _.replaces = function(replacedText) {
     if (replacedText instanceof MathFragment)
       this.replacedText = replacedText.remove().jQ.text();
@@ -565,7 +565,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
 function makeTextBlock(latex, tagName, attrs) {
   return P(TextBlock, {
     ctrlSeq: latex,
-    htmlTemplate: '<'+tagName+' '+attrs+'>#0</'+tagName+'>'
+    htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
   });
 }
 
@@ -593,7 +593,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>#0</span></span>';
+  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
@@ -689,8 +689,8 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
       '<span class="paren non-leaf">(</span>'
     + '<span class="non-leaf">'
     +   '<span class="array non-leaf">'
-    +     '<span>#0</span>'
-    +     '<span>#1</span>'
+    +     '<span>&0</span>'
+    +     '<span>&1</span>'
     +   '</span>'
     + '</span>'
     + '<span class="paren non-leaf">)</span>'
@@ -714,7 +714,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var Vector =
 LatexCmds.vector = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vector';
-  _.htmlTemplate = '<span class="array"><span>#0</span></span>';
+  _.htmlTemplate = '<span class="array"><span>&0</span></span>';
   _.latex = function() {
     return '\\begin{matrix}' + this.foldChildren([], function(latex, child) {
       latex.push(child.latex());
