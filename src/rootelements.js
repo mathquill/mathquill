@@ -33,7 +33,7 @@ function createRoot(jQ, root, textbox, editable) {
       if (editable) cursor.parent.bubble('onText', text);
     },
     cut: function(e) {
-      if (cursor.selection) {
+      if (editable && cursor.selection) {
         setTimeout(function() {
           cursor.deleteSelection();
           cursor.parent.bubble('redraw');
