@@ -90,19 +90,19 @@ var SupSub = P(MathCommand, function(_, _super) {
     );
 
     if (this.ctrlSeq === '_') {
-      this.down = this.firstChild;
-      this.firstChild.up = insertBeforeUnlessAtEnd;
+      this.down = this.ch[L];
+      this.ch[L].up = insertBeforeUnlessAtEnd;
     }
     else {
-      this.up = this.firstChild;
-      this.firstChild.down = insertBeforeUnlessAtEnd;
+      this.up = this.ch[L];
+      this.ch[L].down = insertBeforeUnlessAtEnd;
     }
     function insertBeforeUnlessAtEnd(cursor) {
       // cursor.insertBefore(cmd), unless cursor at the end of block, and every
       // ancestor cmd is at the end of every ancestor block
       var cmd = this.parent, ancestorCmd = cursor;
       do {
-        if (ancestorCmd.next) {
+        if (ancestorCmd[R]) {
           cursor.insertBefore(cmd);
           return false;
         }
@@ -113,30 +113,30 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
   };
   _.latex = function() {
-    var latex = this.firstChild.latex();
+    var latex = this.ch[L].latex();
     if (latex.length === 1)
       return this.ctrlSeq + latex;
     else
       return this.ctrlSeq + '{' + (latex || ' ') + '}';
   };
   _.redraw = function() {
-    if (this.prev)
-      this.prev.respace();
+    if (this[L])
+      this[L].respace();
     //SupSub::respace recursively calls respace on all the following SupSubs
     //so if prev is a SupSub, no need to call respace on this or following nodes
-    if (!(this.prev instanceof SupSub)) {
+    if (!(this[L] instanceof SupSub)) {
       this.respace();
       //and if next is a SupSub, then this.respace() will have already called
-      //this.next.respace()
-      if (this.next && !(this.next instanceof SupSub))
-        this.next.respace();
+      //this[R].respace()
+      if (this[R] && !(this[R] instanceof SupSub))
+        this[R].respace();
     }
   };
   _.respace = function() {
     if (
-      this.prev.ctrlSeq === '\\int ' || (
-        this.prev instanceof SupSub && this.prev.ctrlSeq != this.ctrlSeq
-        && this.prev.prev && this.prev.prev.ctrlSeq === '\\int '
+      this[L].ctrlSeq === '\\int ' || (
+        this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq
+        && this[L][L] && this[L][L].ctrlSeq === '\\int '
       )
     ) {
       if (!this.limit) {
@@ -151,10 +151,10 @@ var SupSub = P(MathCommand, function(_, _super) {
       }
     }
 
-    this.respaced = this.prev instanceof SupSub && this.prev.ctrlSeq != this.ctrlSeq && !this.prev.respaced;
+    this.respaced = this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq && !this[L].respaced;
     if (this.respaced) {
       var fontSize = +this.jQ.css('fontSize').slice(0,-2),
-        prevWidth = this.prev.jQ.outerWidth()
+        prevWidth = this[L].jQ.outerWidth()
         thisWidth = this.jQ.outerWidth();
       this.jQ.css({
         left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
@@ -175,8 +175,8 @@ var SupSub = P(MathCommand, function(_, _super) {
       });
     }
 
-    if (this.next instanceof SupSub)
-      this.next.respace();
+    if (this[R] instanceof SupSub)
+      this[R].respace();
 
     return this;
   };
@@ -204,8 +204,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
-    this.up = this.lastChild.up = this.firstChild;
-    this.down = this.firstChild.down = this.lastChild;
+    this.up = this.ch[R].up = this.ch[L];
+    this.down = this.ch[L].down = this.ch[R];
   };
 });
 
@@ -214,7 +214,7 @@ LatexCmds.over =
 CharCmds['/'] = P(Fraction, function(_, _super) {
   _.createBefore = function(cursor) {
     if (!this.replacedFragment) {
-      var prev = cursor.prev;
+      var prev = cursor[L];
       while (prev &&
         !(
           prev instanceof BinaryOperator ||
@@ -222,17 +222,17 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           prev instanceof BigSymbol
         ) //lookbehind for operator
       )
-        prev = prev.prev;
+        prev = prev[L];
 
-      if (prev instanceof BigSymbol && prev.next instanceof SupSub) {
-        prev = prev.next;
-        if (prev.next instanceof SupSub && prev.next.ctrlSeq != prev.ctrlSeq)
-          prev = prev.next;
+      if (prev instanceof BigSymbol && prev[R] instanceof SupSub) {
+        prev = prev[R];
+        if (prev[R] instanceof SupSub && prev[R].ctrlSeq != prev.ctrlSeq)
+          prev = prev[R];
       }
 
-      if (prev !== cursor.prev) {
-        this.replaces(MathFragment(prev.next || cursor.parent.firstChild, cursor.prev));
-        cursor.prev = prev;
+      if (prev !== cursor[L]) {
+        this.replaces(MathFragment(prev[R] || cursor.parent.ch[L], cursor[L]));
+        cursor[L] = prev;
       }
     }
     _super.createBefore.call(this, cursor);
@@ -251,7 +251,7 @@ LatexCmds['√'] = P(MathCommand, function(_) {
   ;
   _.textTemplate = ['sqrt(', ')'];
   _.redraw = function() {
-    var block = this.lastChild.jQ;
+    var block = this.ch[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
 });
@@ -268,7 +268,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
-    return '\\sqrt['+this.firstChild.latex()+']{'+this.lastChild.latex()+'}';
+    return '\\sqrt['+this.ch[L].latex()+']{'+this.ch[R].latex()+'}';
   };
 });
 
@@ -290,10 +290,10 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
-    return this.ctrlSeq + this.firstChild.latex() + this.end;
+    return this.ctrlSeq + this.ch[L].latex() + this.end;
   };
   _.redraw = function() {
-    var blockjQ = this.firstChild.jQ;
+    var blockjQ = this.ch[L].jQ;
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
@@ -354,13 +354,13 @@ var CloseBracket = P(Bracket, function(_, _super) {
     // if I'm at the end of my parent who is a matching open-paren,
     // and I am not replacing a selection fragment, don't create me,
     // just put cursor after my parent
-    if (!cursor.next && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
+    if (!cursor[R] && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
       cursor.insertAfter(cursor.parent.parent);
     else
       _super.createBefore.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
-    this.firstChild.blur();
+    this.ch[L].blur();
     cursor.insertAfter(this);
   };
 });
@@ -429,10 +429,10 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       .map(function(text) {
         var cmd = TextBlock();
         cmd.createBlocks();
-        var block = cmd.firstChild;
+        var block = cmd.ch[L];
         for (var i = 0; i < text.length; i += 1) {
           var ch = VanillaSymbol(text.charAt(i));
-          ch.adopt(block, block.lastChild, 0);
+          ch.adopt(block, block.ch[R], 0);
         }
         return cmd;
       })
@@ -440,13 +440,13 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = function() {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
-    this.firstChild =
-    this.lastChild =
+    this.ch[L] =
+    this.ch[R] =
       InnerTextBlock();
 
-    this.blocks = [ this.firstChild ];
+    this.blocks = [ this.ch[L] ];
 
-    this.firstChild.parent = this;
+    this.ch[L].parent = this;
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
@@ -462,8 +462,8 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     //backspace and delete and ends of block don't unwrap
     if (!this.cursor.selection &&
       (
-        (key === 'Backspace' && !this.cursor.prev) ||
-        (key === 'Del' && !this.cursor.next)
+        (key === 'Backspace' && !this.cursor[L]) ||
+        (key === 'Del' && !this.cursor[R])
       )
     ) {
       if (this.isEmpty())
@@ -478,22 +478,22 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       this.write(ch);
     else if (this.isEmpty())
       this.cursor.insertAfter(this).backspace().insertNew(VanillaSymbol('\\$','$'));
-    else if (!this.cursor.next)
+    else if (!this.cursor[R])
       this.cursor.insertAfter(this);
-    else if (!this.cursor.prev)
+    else if (!this.cursor[L])
       this.cursor.insertBefore(this);
     else { //split apart
-      var next = TextBlock(MathFragment(this.cursor.next, this.firstChild.lastChild));
+      var next = TextBlock(MathFragment(this.cursor[R], this.ch[L].ch[R]));
       next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
-        this.prev = 0;
+        this[L] = 0;
         delete this.placeCursor;
         this.placeCursor(cursor);
       };
-      next.firstChild.focus = function(){ return this; };
+      next.ch[L].focus = function(){ return this; };
       this.cursor.insertAfter(this).insertNew(next);
-      next.prev = this;
+      next[L] = this;
       this.cursor.insertBefore(next);
-      delete next.firstChild.focus;
+      delete next.ch[L].focus;
     }
     return false;
   };
@@ -509,10 +509,10 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
       else {
         cursor.hide();
         textblock.remove();
-        if (cursor.next === textblock)
-          cursor.next = textblock.next;
-        else if (cursor.prev === textblock)
-          cursor.prev = textblock.prev;
+        if (cursor[R] === textblock)
+          cursor[R] = textblock[R];
+        else if (cursor[L] === textblock)
+          cursor[L] = textblock[L];
 
         cursor.show().parent.bubble('redraw');
       }
@@ -523,39 +523,39 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     _super.focus.call(this);
 
     var textblock = this.parent;
-    if (textblock.next.ctrlSeq === textblock.ctrlSeq) { //TODO: seems like there should be a better way to move MathElements around
+    if (textblock[R].ctrlSeq === textblock.ctrlSeq) { //TODO: seems like there should be a better way to move MathElements around
       var innerblock = this,
         cursor = textblock.cursor,
-        next = textblock.next.firstChild;
+        next = textblock[R].ch[L];
 
       next.eachChild(function(child){
         child.parent = innerblock;
         child.jQ.appendTo(innerblock.jQ);
       });
 
-      if (this.lastChild)
-        this.lastChild.next = next.firstChild;
+      if (this.ch[R])
+        this.ch[R][R] = next.ch[L];
       else
-        this.firstChild = next.firstChild;
+        this.ch[L] = next.ch[L];
 
-      next.firstChild.prev = this.lastChild;
-      this.lastChild = next.lastChild;
+      next.ch[L][L] = this.ch[R];
+      this.ch[R] = next.ch[R];
 
       next.parent.remove();
 
-      if (cursor.prev)
-        cursor.insertAfter(cursor.prev);
+      if (cursor[L])
+        cursor.insertAfter(cursor[L]);
       else
         cursor.prependTo(this);
 
       cursor.parent.bubble('redraw');
     }
-    else if (textblock.prev.ctrlSeq === textblock.ctrlSeq) {
+    else if (textblock[L].ctrlSeq === textblock.ctrlSeq) {
       var cursor = textblock.cursor;
-      if (cursor.prev)
-        textblock.prev.firstChild.focus();
+      if (cursor[L])
+        textblock[L].ch[L].focus();
       else
-        cursor.appendTo(textblock.prev.firstChild);
+        cursor.appendTo(textblock[L].ch[L]);
     }
     return this;
   };
@@ -597,14 +597,14 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
-    this.firstChild.focus = function() {
+    this.ch[L].focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('empty');
 
       return this;
     };
-    this.firstChild.blur = function() {
+    this.ch[L].blur = function() {
       this.parent.jQ.removeClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('empty');
@@ -614,7 +614,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
-    this.cursor = cursor.appendTo(this.firstChild);
+    this.cursor = cursor.appendTo(this.ch[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -628,7 +628,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
   };
   _.latex = function() {
-    return '\\' + this.firstChild.latex() + ' ';
+    return '\\' + this.ch[L].latex() + ' ';
   };
   _.onKey = function(key, e) {
     if (key === 'Tab' || key === 'Enter') {
@@ -644,19 +644,19 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return false;
     }
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
+    if (ch === ' ' || (ch === '\\' && this.ch[L].isEmpty()))
       return false;
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
     this.remove();
-    if (this.next) {
-      this.cursor.insertBefore(this.next);
+    if (this[R]) {
+      this.cursor.insertBefore(this[R]);
     } else {
       this.cursor.appendTo(this.parent);
     }
 
-    var latex = this.firstChild.latex(), cmd;
+    var latex = this.ch[L].latex(), cmd;
     if (latex) {
       if (cmd = LatexCmds[latex]) {
         cmd = cmd(latex);
@@ -664,7 +664,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       else {
         cmd = TextBlock()
         cmd.replaces(latex);
-        cmd.firstChild.focus = function(){ delete this.focus; return this; };
+        cmd.ch[L].focus = function(){ delete this.focus; return this; };
         this.cursor.insertNew(cmd).insertAfter(cmd);
         if (this._replacedFragment)
           this._replacedFragment.remove();
@@ -740,25 +740,25 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         newBlock.jQ = $('<span></span>')
           .attr(mqBlockId, newBlock.id)
           .insertAfter(currentBlock.jQ);
-        if (currentBlock.next)
-          currentBlock.next.prev = newBlock;
+        if (currentBlock[R])
+          currentBlock[R][L] = newBlock;
         else
-          this.lastChild = newBlock;
+          this.ch[R] = newBlock;
 
-        newBlock.next = currentBlock.next;
-        currentBlock.next = newBlock;
-        newBlock.prev = currentBlock;
+        newBlock[R] = currentBlock[R];
+        currentBlock[R] = newBlock;
+        newBlock[L] = currentBlock;
         this.bubble('redraw').cursor.appendTo(newBlock);
 
         e.preventDefault();
         return false;
       }
-      else if (key === 'Tab' && !currentBlock.next) {
+      else if (key === 'Tab' && !currentBlock[R]) {
         if (currentBlock.isEmpty()) {
-          if (currentBlock.prev) {
+          if (currentBlock[L]) {
             this.cursor.insertAfter(this);
-            delete currentBlock.prev.next;
-            this.lastChild = currentBlock.prev;
+            delete currentBlock[L][R];
+            this.ch[R] = currentBlock[L];
             currentBlock.jQ.remove();
             this.bubble('redraw');
 
@@ -772,9 +772,9 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>').attr(mqBlockId, newBlock.id).appendTo(this.jQ);
-        this.lastChild = newBlock;
-        currentBlock.next = newBlock;
-        newBlock.prev = currentBlock;
+        this.ch[R] = newBlock;
+        currentBlock[R] = newBlock;
+        newBlock[L] = currentBlock;
         this.bubble('redraw').cursor.appendTo(newBlock);
 
         e.preventDefault();
@@ -782,19 +782,19 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       }
       else if (e.which === 8) { //backspace
         if (currentBlock.isEmpty()) {
-          if (currentBlock.prev) {
-            this.cursor.appendTo(currentBlock.prev)
-            currentBlock.prev.next = currentBlock.next;
+          if (currentBlock[L]) {
+            this.cursor.appendTo(currentBlock[L])
+            currentBlock[L][R] = currentBlock[R];
           }
           else {
             this.cursor.insertBefore(this);
-            this.firstChild = currentBlock.next;
+            this.ch[L] = currentBlock[R];
           }
 
-          if (currentBlock.next)
-            currentBlock.next.prev = currentBlock.prev;
+          if (currentBlock[R])
+            currentBlock[R][L] = currentBlock[L];
           else
-            this.lastChild = currentBlock.prev;
+            this.ch[R] = currentBlock[L];
 
           currentBlock.jQ.remove();
           if (this.isEmpty())
@@ -805,7 +805,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
           e.preventDefault();
           return false;
         }
-        else if (!this.cursor.prev) {
+        else if (!this.cursor[L]) {
           e.preventDefault();
           return false;
         }
@@ -825,26 +825,26 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     // having to call createBlocks, and createRoot expecting to
     // render the contents' LaTeX. Both need to be refactored.
     _super.jQadd.apply(self, arguments);
-    var block = self.firstChild.disown();
+    var block = self.ch[L].disown();
     var blockjQ = self.jQ.children().detach();
 
-    self.firstChild =
-    self.lastChild =
+    self.ch[L] =
+    self.ch[R] =
       RootMathBlock();
 
-    self.blocks = [ self.firstChild ];
+    self.blocks = [ self.ch[L] ];
 
-    self.firstChild.parent = self;
+    self.ch[L].parent = self;
 
-    createRoot(self.jQ, self.firstChild, false, true);
-    self.cursor = self.firstChild.cursor;
+    createRoot(self.jQ, self.ch[L], false, true);
+    self.cursor = self.ch[L].cursor;
 
-    block.children().adopt(self.firstChild, 0, 0);
-    blockjQ.appendTo(self.firstChild.jQ);
+    block.children().adopt(self.ch[L], 0, 0);
+    blockjQ.appendTo(self.ch[L].jQ);
 
-    self.firstChild.cursor.appendTo(self.firstChild);
+    self.ch[L].cursor.appendTo(self.ch[L]);
   };
 
-  _.latex = function(){ return this.firstChild.latex(); };
-  _.text = function(){ return this.firstChild.text(); };
+  _.latex = function(){ return this.ch[L].latex(); };
+  _.text = function(){ return this.ch[L].text(); };
 });

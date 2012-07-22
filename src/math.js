@@ -13,8 +13,9 @@ var uuid = (function() {
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(Node, function(_) {
+var MathElement = P(Node, function(_, _super) {
   _.init = function(obj) {
+    _super.init.call(this);
     this.id = uuid();
     MathElement[this.id] = this;
   };
@@ -80,8 +81,8 @@ var MathElement = P(Node, function(_) {
 
     // adjust context-sensitive spacing
     self.postOrder('respace');
-    if (self.next.respace) self.next.respace();
-    if (self.prev.respace) self.prev.respace();
+    if (self[R].respace) self[R].respace();
+    if (self[L].respace) self[L].respace();
 
     self.postOrder('redraw');
     self.bubble('redraw');
@@ -121,7 +122,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.lastChild, 0);
+        blocks[i].adopt(self, self.ch[R], 0);
       }
 
       return self;
@@ -136,12 +137,12 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.createBlocks();
     MathElement.jQize(cmd.html());
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.firstChild, 0, 0);
-      replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
+      replacedFragment.adopt(cmd.ch[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
     }
 
     cursor.jQ.before(cmd.jQ);
-    cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
+    cursor[L] = cmd.adopt(cursor.parent, cursor[L], cursor[R]);
 
     cmd.finalizeInsert(cursor);
 
@@ -154,13 +155,13 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.lastChild, 0);
+      newBlock.adopt(cmd, cmd.ch[R], 0);
     }
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
+    cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
   };
@@ -334,13 +335,13 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.firstChild === this.lastChild ?
-      this.firstChild.text() :
+    return this.ch[L] === this.ch[R] ?
+      this.ch[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.firstChild === 0 && this.lastChild === 0;
+    return this.ch[L] === 0 && this.ch[R] === 0;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

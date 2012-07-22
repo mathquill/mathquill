@@ -6,18 +6,30 @@
  * of the tree.
  ************************************************/
 
+// L = 'left'
+// R = 'right'
+//
+// the contract is that they can be used as object properties
+// and (-L) === R, and (-R) === L.
+var L = -1;
+var R = 1;
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
 var Node = P(function(_) {
-  _.prev = 0;
-  _.next = 0;
+  _[L] = 0;
+  _[R] = 0
   _.parent = 0;
-  _.firstChild = 0;
-  _.lastChild = 0;
+
+  _.init = function() {
+    this.ch = {};
+    this.ch[L] = 0;
+    this.ch[R] = 0;
+  };
 
   _.children = function() {
-    return Fragment(this.firstChild, this.lastChild);
+    return Fragment(this.ch[L], this.ch[R]);
   };
 
   _.eachChild = function(fn) {
@@ -52,11 +64,10 @@ var Node = P(function(_) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.first = 0;
-  _.last = 0;
-
   _.init = function(first, last) {
     pray('no half-empty fragments', !first === !last);
+
+    this.ends = {};
 
     if (!first) return;
 
@@ -65,26 +76,26 @@ var Fragment = P(function(_) {
     pray('first and last have the same parent',
          first.parent === last.parent);
 
-    this.first = first;
-    this.last = last;
+    this.ends[L] = first;
+    this.ends[R] = last;
   };
 
   function prayWellFormed(parent, prev, next) {
     pray('a parent is always present', parent);
     pray('prev is properly set up', (function() {
       // either it's empty and next is the first child (possibly empty)
-      if (!prev) return parent.firstChild === next;
+      if (!prev) return parent.ch[L] === next;
 
       // or it's there and its next and parent are properly set up
-      return prev.next === next && prev.parent === parent;
+      return prev[R] === next && prev.parent === parent;
     })());
 
     pray('next is properly set up', (function() {
       // either it's empty and prev is the last child (possibly empty)
-      if (!next) return parent.lastChild === prev;
+      if (!next) return parent.ch[R] === prev;
 
       // or it's there and its next and parent are properly set up
-      return next.prev === prev && next.parent === parent;
+      return next[L] === prev && next.parent === parent;
     })());
   }
 
@@ -94,30 +105,30 @@ var Fragment = P(function(_) {
     var self = this;
     self.disowned = false;
 
-    var first = self.first;
+    var first = self.ends[L];
     if (!first) return this;
 
-    var last = self.last;
+    var last = self.ends[R];
 
     if (prev) {
       // NB: this is handled in the ::each() block
-      // prev.next = first
+      // prev[R] = first
     } else {
-      parent.firstChild = first;
+      parent.ch[L] = first;
     }
 
     if (next) {
-      next.prev = last;
+      next[L] = last;
     } else {
-      parent.lastChild = last;
+      parent.ch[R] = last;
     }
 
-    self.last.next = next;
+    self.ends[R][R] = next;
 
     self.each(function(el) {
-      el.prev = prev;
+      el[L] = prev;
       el.parent = parent;
-      if (prev) prev.next = el;
+      if (prev) prev[R] = el;
 
       prev = el;
     });
@@ -127,29 +138,29 @@ var Fragment = P(function(_) {
 
   _.disown = function() {
     var self = this;
-    var first = self.first;
+    var first = self.ends[L];
 
     // guard for empty and already-disowned fragments
     if (!first || self.disowned) return self;
 
     self.disowned = true;
 
-    var last = self.last;
+    var last = self.ends[R]
     var parent = first.parent;
 
-    prayWellFormed(parent, first.prev, first);
-    prayWellFormed(parent, last, last.next);
+    prayWellFormed(parent, first[L], first);
+    prayWellFormed(parent, last, last[R]);
 
-    if (first.prev) {
-      first.prev.next = last.next;
+    if (first[L]) {
+      first[L][R] = last[R];
     } else {
-      parent.firstChild = last.next;
+      parent.ch[L] = last[R];
     }
 
-    if (last.next) {
-      last.next.prev = first.prev;
+    if (last[R]) {
+      last[R][L] = first[L];
     } else {
-      parent.lastChild = first.prev;
+      parent.ch[R] = first[L];
     }
 
     return self;
@@ -157,10 +168,10 @@ var Fragment = P(function(_) {
 
   _.each = function(fn) {
     var self = this;
-    var el = self.first;
+    var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.last.next; el = el.next) {
+    for (;el !== self.ends[R][R]; el = el[R]) {
       if (fn.call(self, el) === false) break;
     }
 

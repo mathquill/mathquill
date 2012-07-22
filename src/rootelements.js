@@ -85,7 +85,7 @@ function createRoot(jQ, root, textbox, editable) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
-      if (cursor.prev !== anticursor.prev
+      if (cursor[L] !== anticursor[L]
           || cursor.parent !== anticursor.parent) {
         cursor.selectFrom(anticursor);
       }
@@ -132,7 +132,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
+    anticursor = {parent: cursor.parent, prev: cursor[L], next: cursor[R]};
 
     if (!editable) jQ.prepend(textareaSpan);
 
@@ -199,7 +199,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.firstChild = this.lastChild = 0;
+    this.ch[L] = this.ch[R] = 0;
 
     this.cursor.writeLatex(latex);
   };
@@ -207,7 +207,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
-      while (this.cursor.prev || this.cursor.selection) {
+      while (this.cursor[L] || this.cursor.selection) {
         this.cursor.backspace();
       }
       break;
@@ -225,9 +225,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       if (parent === this.cursor.root) return;
 
       this.cursor.prepareMove();
-      if (parent.next) {
+      if (parent[R]) {
         // go one block right
-        this.cursor.prependTo(parent.next);
+        this.cursor.prependTo(parent[R]);
       } else {
         // get out of the block
         this.cursor.insertAfter(parent.parent);
@@ -241,9 +241,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       if (parent === this.cursor.root) return;
 
       this.cursor.prepareMove();
-      if (parent.prev) {
+      if (parent[L]) {
         // go one block left
-        this.cursor.appendTo(parent.prev);
+        this.cursor.appendTo(parent[L]);
       } else {
         //get out of the block
         this.cursor.insertBefore(parent.parent);
@@ -266,14 +266,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-End -> select to the end of the current block.
     case 'Shift-End':
-      while (this.cursor.next) {
+      while (this.cursor[R]) {
         this.cursor.selectRight();
       }
       break;
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
-      while (this.cursor.next || this.cursor.parent !== this) {
+      while (this.cursor[R] || this.cursor.parent !== this) {
         this.cursor.selectRight();
       }
       break;
@@ -290,14 +290,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-Home -> select to the start of the current block.
     case 'Shift-Home':
-      while (this.cursor.prev) {
+      while (this.cursor[L]) {
         this.cursor.selectLeft();
       }
       break;
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
-      while (this.cursor.prev || this.cursor.parent !== this) {
+      while (this.cursor[L] || this.cursor.parent !== this) {
         this.cursor.selectLeft();
       }
       break;
@@ -314,15 +314,15 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Down': this.cursor.moveDown(); break;
 
     case 'Shift-Up':
-      if (this.cursor.prev) {
-        while (this.cursor.prev) this.cursor.selectLeft();
+      if (this.cursor[L]) {
+        while (this.cursor[L]) this.cursor.selectLeft();
       } else {
         this.cursor.selectLeft();
       }
 
     case 'Shift-Down':
-      if (this.cursor.next) {
-        while (this.cursor.next) this.cursor.selectRight();
+      if (this.cursor[R]) {
+        while (this.cursor[R]) this.cursor.selectRight();
       }
       else {
         this.cursor.selectRight();
@@ -333,7 +333,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Del':
       if (e.ctrlKey)
-        while (this.cursor.next || this.cursor.selection)
+        while (this.cursor[R] || this.cursor.selection)
           this.cursor.deleteForward();
       else
         this.cursor.deleteForward();
@@ -345,7 +345,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       if (this !== this.cursor.root) return;
 
       this.cursor.prepareMove().appendTo(this);
-      while (this.cursor.prev) this.cursor.selectLeft();
+      while (this.cursor[L]) this.cursor.selectLeft();
       break;
 
     default:
@@ -367,25 +367,25 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">#0</span>';
   _.createBlocks = function() {
-    this.firstChild =
-    this.lastChild =
+    this.ch[L] =
+    this.ch[R] =
       RootMathBlock();
 
-    this.blocks = [ this.firstChild ];
+    this.blocks = [ this.ch[L] ];
 
-    this.firstChild.parent = this;
+    this.ch[L].parent = this;
 
-    var cursor = this.firstChild.cursor = this.cursor;
-    this.firstChild.onText = function(ch) {
+    var cursor = this.ch[L].cursor = this.cursor;
+    this.ch[L].onText = function(ch) {
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
         cursor.insertAfter(this.parent).backspace()
           .insertNew(VanillaSymbol('\\$','$')).show();
       }
-      else if (!cursor.next)
+      else if (!cursor[R])
         cursor.insertAfter(this.parent);
-      else if (!cursor.prev)
+      else if (!cursor[L])
         cursor.insertBefore(this.parent);
       else
         cursor.write(ch);
@@ -394,7 +394,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     };
   };
   _.latex = function() {
-    return '$' + this.firstChild.latex() + '$';
+    return '$' + this.ch[L].latex() + '$';
   };
 });
 
@@ -403,7 +403,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var self = this
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.firstChild = self.lastChild = 0;
+    self.ch[L] = self.ch[R] = 0;
     cursor.show().appendTo(self);
 
     var regex = Parser.regex;
@@ -422,7 +422,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         var rootMathCommand = RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.firstChild;
+        var rootMathBlock = rootMathCommand.ch[L];
         block.children().adopt(rootMathBlock, 0, 0);
 
         return rootMathCommand;
@@ -436,7 +436,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.lastChild, 0);
+        commands[i].adopt(self, self.ch[R], 0);
       }
 
       var html = self.join('html');
