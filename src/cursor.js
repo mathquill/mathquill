@@ -75,21 +75,25 @@ var Cursor = P(function(_) {
   _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
   _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
 
-  _.prependTo = function(el) {
-    this.insertAt(el, 0, el.ch[L]);
-    if (el.textarea) //never insert before textarea
-      this.jQ.insertAfter(el.textarea);
-    else
-      this.jQ.prependTo(el.jQ);
+  _.appendDir = function(dir, el) {
+    prayDirection(dir);
+    this.insertAtPoint(el.extremePoint(dir));
+
+    // never insert before textarea
+    if (dir === L && el.textarea) {
+      jQinsertAdjacent(-dir, this.jQ, el.textarea);
+    }
+    else {
+      jQappendDir(dir, this.jQ, el.jQ);
+    }
+
     el.focus();
+
     return this;
   };
-  _.appendTo = function(el) {
-    this.insertAt(el, el.ch[R], 0);
-    this.jQ.appendTo(el.jQ);
-    el.focus();
-    return this;
-  };
+  _.prependTo = function(el) { return this.appendDir(L, el); };
+  _.appendTo = function(el) { return this.appendDir(R, el); };
+
   _.hopLeft = function() {
     this.jQ.insertBefore(this[L].jQ.first());
     this[R] = this[L];
