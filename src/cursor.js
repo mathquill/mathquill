@@ -50,6 +50,13 @@ var Cursor = P(function(_) {
     this.jQ = $();
     return this;
   };
+  _.insertAtPoint = function(point) {
+    var oldParent = this.parent;
+    this.parent = point.parent;
+    this[L] = point[L];
+    this[R] = point[R];
+    oldParent.blur();
+  };
   _.insertAt = function(parent, prev, next) {
     var old_parent = this.parent;
 
@@ -59,18 +66,15 @@ var Cursor = P(function(_) {
 
     old_parent.blur(); //blur may need to know cursor's destination
   };
-  _.insertBefore = function(el) {
-    this.insertAt(el.parent, el[L], el)
+  _.insertAdjacent = function(dir, el) {
+    prayDirection(dir);
+    this.insertAtPoint(el.adjacentPoint(dir));
     this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ.first());
-    return this;
+    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
   };
-  _.insertAfter = function(el) {
-    this.insertAt(el.parent, el, el[R]);
-    this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertAfter(el.jQ.last());
-    return this;
-  };
+  _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
+  _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
+
   _.prependTo = function(el) {
     this.insertAt(el, 0, el.ch[L]);
     if (el.textarea) //never insert before textarea
