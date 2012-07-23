@@ -462,68 +462,50 @@ var Cursor = P(function(_) {
     this.insertAfter(right[R][L] || right.parent.ch[R]);
     this.root.selectionChanged();
   };
-  _.selectLeft = function() {
+  _.selectDir = function(dir) {
+    prayDirection(dir);
     clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.ends[L] === this[R]) { //if cursor is at left edge of selection;
-        if (this[L]) //then extend left if possible
-          this.hopLeft().selection.extendLeft();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at right edge of selection, retract left if possible
-        this.hopLeft();
-        if (this.selection.ends[L] === this.selection.ends[R]) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
-        }
-        this.selection.retractLeft();
-      }
-    }
-    else {
-      if (this[L])
-        this.hopLeft();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        else
-          return;
 
-      this.hide().selection = Selection(this[R]);
+    if (this.selection) {
+      // if cursor is at the (dir) edge of selection
+      if (this.selection.ends[dir] === this[-dir]) {
+        // then extend (dir) if possible
+        if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
+        // else level up if possible
+        else if (this.parent !== this.root) {
+          this.insertAdjacent(dir, this.parent.parent).selection.levelUp();
+        }
+      }
+      // else cursor is at the (-dir) edge of selection, retract if possible
+      else {
+        this.hopDir(dir);
+
+        // clear the selection if we only have one thing selected
+        if (this.selection.ends[dir] === this.selection.ends[-dir]) {
+          this.clearSelection().show();
+          return;
+        }
+
+        this.selection.retractDir(dir);
+      }
     }
+    // no selection, create one
+    else {
+      if (this[dir]) this.hopDir(dir);
+      // else edge of a block
+      else {
+        if (this.parent === this.root) return;
+
+        this.insertAdjacent(dir, this.parent.parent);
+      }
+
+      this.hide().selection = Selection(this[-dir]);
+    }
+
     this.root.selectionChanged();
   };
-  _.selectRight = function() {
-    clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.ends[R] === this[L]) { //if cursor is at right edge of selection;
-        if (this[R]) //then extend right if possible
-          this.hopRight().selection.extendRight();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at left edge of selection, retract right if possible
-        this.hopRight();
-        if (this.selection.ends[L] === this.selection.ends[R]) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
-        }
-        this.selection.retractRight();
-      }
-    }
-    else {
-      if (this[R])
-        this.hopRight();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        else
-          return;
-
-      this.hide().selection = Selection(this[L]);
-    }
-    this.root.selectionChanged();
-  };
+  _.selectLeft = function() { return this.selectDir(L); };
+  _.selectRight = function() { return this.selectDir(R); };
 
   function clearUpDownCache(self) {
     self.upDownCache = {};
