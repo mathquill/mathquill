@@ -126,26 +126,22 @@ var Cursor = P(function(_) {
   _.moveRightWithin = function(block) {
     return this.moveDirWithin(R, block);
   };
-  _.moveLeft = function() {
+  _.moveDir = function(dir) {
+    prayDirection(dir);
+
     clearUpDownCache(this);
 
-    if (this.selection)
-      this.insertBefore(this.selection.ends[R]).clearSelection();
-    else {
-      this.moveLeftWithin(this.root);
+    if (this.selection)  {
+      this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
     }
-    return this.show();
-  };
-  _.moveRight = function() {
-    clearUpDownCache(this);
+    else {
+      this.moveDirWithin(dir, this.root);
+    }
 
-    if (this.selection)
-      this.insertAfter(this.selection.ends[R]).clearSelection();
-    else {
-      this.moveRightWithin(this.root);
-    }
     return this.show();
   };
+  _.moveLeft = function() { return this.moveDir(L); };
+  _.moveRight = function() { return this.moveDir(R); };
 
   /**
    * moveUp and moveDown have almost identical algorithms:
