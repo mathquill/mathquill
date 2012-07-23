@@ -15,6 +15,41 @@ var $ = jQuery,
   min = Math.min,
   max = Math.max;
 
+var left = new String('left');
+var right = new String('right');
+function leftOrRight(f) {
+  f(left, right);
+  f(right, left);
+}
+leftOrRight(function(left) {
+  left.most = new String(left+'most');
+  left.most.child = left.most+'Child';
+});
+
+var jQ = {};
+jQ.left = 'jQprev';
+jQ.right = 'jQnext';
+jQ.leftmost = 'jQfirst';
+jQ.rightmost = 'jQlast';
+
+var insert = { left: {}, right: {} };
+insert.left.of = 'insertBefore';
+insert.right.of = 'insertAfter';
+insert.left.most = 'prependTo';
+insert.right.most = 'appendTo';
+
+var del = { left: 'backspace', right: 'deleteForward' };
+
+var hop = { left: 'hopLeft', right: 'hopRight' };
+var extend = { left: 'extendLeft', right: 'extendRight' };
+var retract = { left: 'retractLeft', right: 'retractRight' };
+
+var move = {};
+move.left = new String('moveLeft');
+move.right = new String('moveRight');
+move.left.within = 'moveLeftWithin';
+move.right.within = 'moveRightWithin';
+
 var __slice = [].slice;
 
 function noop() {}

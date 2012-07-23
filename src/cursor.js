@@ -86,64 +86,39 @@ var Cursor = P(function(_) {
     el.focus();
     return this;
   };
-  _.hopLeft = function() {
-    this.jQ.insertBefore(this.left.jQ.first());
-    this.right = this.left;
-    this.left = this.left.left;
-    return this;
-  };
-  _.hopRight = function() {
-    this.jQ.insertAfter(this.right.jQ.last());
-    this.left = this.right;
-    this.right = this.right.right;
-    return this;
-  };
-  _.moveLeftWithin = function(block) {
-    if (this.left) {
-      if (this.left.rightmostChild) this.appendTo(this.left.rightmostChild)
-      else this.hopLeft();
-    }
-    else {
-      // we're at the beginning of the containing block, so do nothing.
-      if (this.parent === block) return;
 
-      if (this.parent.left) this.appendTo(this.parent.left);
-      else this.insertBefore(this.parent.parent);
-    }
-  };
-  _.moveRightWithin = function(block) {
-    if (this.right) {
-      if (this.right.leftmostChild) this.prependTo(this.right.leftmostChild)
-      else this.hopRight();
-    }
-    else {
-      // we're at the end of the containing block, so do nothing.
-      if (this.parent === block) return;
 
-      if (this.parent.right) this.prependTo(this.parent.right);
-      else this.insertAfter(this.parent.parent);
-    }
-  };
-  _.moveLeft = function() {
-    clearUpDownCache(this);
+  leftOrRight(function(left, right) {
+    _[hop[left]] = function() {
+      this.jQ[insert[left].of](this[left][jQ[left.most]]());
+      this[right] = this[left];
+      this[left] = this[left][left];
+      return this;
+    };
 
-    if (this.selection)
-      this.insertBefore(this.selection.leftmost).clearSelection();
-    else {
-      this.moveLeftWithin(this.root);
-    }
-    return this.show();
-  };
-  _.moveRight = function() {
-    clearUpDownCache(this);
+    _[move[left].within] = function(block) {
+      if (this[left]) {
+        if (this[left][right.most.child]) this[insert[right].most](this[left][right.most.child]);
+        else this[hop[left]]();
+      }
+      else {
+        // if we're at the left (or right) edge of the containing block, do nothing
+        if (this.parent === block) return;
 
-    if (this.selection)
-      this.insertAfter(this.selection.rightmost).clearSelection();
-    else {
-      this.moveRightWithin(this.root);
-    }
-    return this.show();
-  };
+        if (this.parent[left]) this[insert[right].most](this.parent[left]);
+        else this[insert[left].of](this.parent.parent);
+      }
+    };
+
+    _[move[left]] = function() {
+      clearUpDownCache(this);
+
+      if (this.selection) this[insert[left].of](this.selection[left.most]).clearSelection();
+      else this[move[left].within](this.root);
+
+      return this.show();
+    };
+  });
 
   /**
    * moveUp and moveDown have almost identical algorithms:
@@ -372,58 +347,34 @@ var Cursor = P(function(_) {
     if (gramp.right)
       gramp.right.respace();
   };
-  _.backspace = function() {
-    clearUpDownCache(this);
-    this.show();
 
-    if (this.deleteSelection()); // pass
-    else if (this.left) {
-      if (this.left.isEmpty())
-        this.left = this.left.remove().left;
-      else
-        this.selectLeft();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertAfter(this.parent.parent).backspace();
-      else
-        this.unwrapGramp();
-    }
+  leftOrRight(function(left, right) {
+    _[del[left]] = function() {
+      clearUpDownCache(this);
+      this.show();
 
-    if (this.left)
-      this.left.respace();
-    if (this.right)
-      this.right.respace();
-    this.parent.bubble('redraw');
+      if (this.deleteSelection()); // pass
+      else if (this[left]) {
+        if (this[left].isEmpty())
+          this[left] = this[left].remove()[left];
+        else
+          this[select[left]]();
+      }
+      else if (this.parent !== this.root) {
+        if (this.parent.parent.isEmpty())
+          return this[insert[right].of](this.parent.parent)[del[left]]();
+        else
+          this.unwrapGramp();
+      }
 
-    return this;
-  };
-  _.deleteForward = function() {
-    clearUpDownCache(this);
-    this.show();
+      if (this.left) this.left.respace();
+      if (this.right) this.right.respace();
+      this.parent.bubble('redraw');
 
-    if (this.deleteSelection()); // pass
-    else if (this.right) {
-      if (this.right.isEmpty())
-        this.right = this.right.remove().right;
-      else
-        this.selectRight();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertBefore(this.parent.parent).deleteForward();
-      else
-        this.unwrapGramp();
-    }
+      return this;
+    };
+  });
 
-    if (this.left)
-      this.left.respace();
-    if (this.right)
-      this.right.respace();
-    this.parent.bubble('redraw');
-
-    return this;
-  };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
     var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
@@ -466,68 +417,41 @@ var Cursor = P(function(_) {
     this.insertAfter(right.right.left || right.parent.rightmostChild);
     this.root.selectionChanged();
   };
-  _.selectLeft = function() {
-    clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.leftmost === this.right) { //if cursor is at left edge of selection;
-        if (this.left) //then extend left if possible
-          this.hopLeft().selection.extendLeft();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at right edge of selection, retract left if possible
-        this.hopLeft();
-        if (this.selection.leftmost === this.selection.rightmost) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
-        }
-        this.selection.retractLeft();
-      }
-    }
-    else {
-      if (this.left)
-        this.hopLeft();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        else
-          return;
 
-      this.hide().selection = Selection(this.right);
-    }
-    this.root.selectionChanged();
-  };
-  _.selectRight = function() {
-    clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.rightmost === this.left) { //if cursor is at right edge of selection;
-        if (this.right) //then extend right if possible
-          this.hopRight().selection.extendRight();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at left edge of selection, retract right if possible
-        this.hopRight();
-        if (this.selection.leftmost === this.selection.rightmost) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
+  var select = { left: 'selectLeft', right: 'selectRight' };
+  leftOrRight(function(left, right) {
+    _[select[left]] = function() {
+      clearUpDownCache(this);
+      if (this.selection) {
+        if (this.selection[left.most] === this[right]) { //if cursor is at left (or right) edge of selection;
+          if (this[left]) //then extend left (or right) if possible
+            this[hop[left]]().selection[extend[left]]();
+          else if (this.parent !== this.root) //else level up if possible
+            this[insert[left].of](this.parent.parent).selection.levelUp();
         }
-        this.selection.retractRight();
+        else { //else cursor is at right (or left) edge of selection, retract left (or right) if possible
+          this[hop[left]]();
+          if (this.selection.leftmost === this.selection.rightmost) {
+            this.clearSelection().show(); //clear selection if retracting to nothing
+            return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
+          }
+          this.selection[retract[left]]();
+        }
       }
-    }
-    else {
-      if (this.right)
-        this.hopRight();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        else
-          return;
+      else {
+        if (this[left])
+          this[hop[left]]();
+        else //end of a block
+          if (this.parent !== this.root)
+            this[insert[left].of](this.parent.parent);
+          else
+            return;
 
-      this.hide().selection = Selection(this.left);
-    }
-    this.root.selectionChanged();
-  };
+        this.hide().selection = Selection(this[right]);
+      }
+      this.root.selectionChanged();
+    };
+  });
 
   function clearUpDownCache(self) {
     self.upDownCache = {};
@@ -587,20 +511,14 @@ var Selection = P(MathFragment, function(_, _super) {
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
-  _.extendLeft = function() {
-    this.leftmost = this.leftmost.left;
-    this.leftmost.jQ.prependTo(this.jQ);
-  };
-  _.extendRight = function() {
-    this.rightmost = this.rightmost.right;
-    this.rightmost.jQ.appendTo(this.jQ);
-  };
-  _.retractRight = function() {
-    this.leftmost.jQ.insertBefore(this.jQ);
-    this.leftmost = this.leftmost.right;
-  };
-  _.retractLeft = function() {
-    this.rightmost.jQ.insertAfter(this.jQ);
-    this.rightmost = this.rightmost.left;
-  };
+  leftOrRight(function(left, right) {
+    _[extend[left]] = function() {
+      this[left.most] = this[left.most][left];
+      this[left.most].jQ[insert[left].most](this.jQ);
+    };
+    _[retract[right]] = function() {
+      this[left.most].jQ[insert[left].of](this.jQ);
+      this[left.most] = this[left.most][right];
+    };
+  });
 });

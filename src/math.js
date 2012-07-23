@@ -52,6 +52,10 @@ var MathElement = P(Node, function(_) {
 
   _.jQ = $();
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+  _.jQprev = function() { return this.jQ.prev(); };
+  _.jQnext = function() { return this.jQ.next(); };
+  _.jQfirst = function() { return this.jQ.first(); };
+  _.jQlast = function() { return this.jQ.last(); };
 
   this.jQize = function(html) {
     // Sets the .jQ of the entire math subtree rooted at this command.
