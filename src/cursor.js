@@ -170,7 +170,7 @@ var Cursor = P(function(_) {
         if (prop) {
           if (typeof prop === 'function') prop = ancestorBlock[dir](self);
           if (prop === false || prop instanceof MathBlock) {
-            self.upDownCache[ancestorBlock.id] = { parent: self.parent, prev: self[L], next: self[R] };
+            self.upDownCache[ancestorBlock.id] = Point(self.parent, self[L], self[R]);
 
             if (prop instanceof MathBlock) {
               var cached = self.upDownCache[prop.id];
