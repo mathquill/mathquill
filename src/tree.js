@@ -49,6 +49,26 @@ var Node = P(function(_) {
     Fragment(this, this).disown();
     return this;
   };
+
+  _.adjacentPoint = function(dir) {
+    prayDirection(dir);
+    return (
+      dir === L ?
+      Point(this.parent, this[L], this) :
+      Point(this.parent, this, this[R])
+    )
+  };
+
+  _.extremePoint = function(dir) {
+    prayDirection(dir);
+
+    var out = Point();
+    out.parent = this;
+    out[dir] = 0;
+    out[-dir] = this.ch[dir];
+
+    return out;
+  };
 });
 
 /**
@@ -184,5 +204,17 @@ var Fragment = P(function(_) {
     });
 
     return fold;
+  };
+});
+
+var Point = P(function(_) {
+  _.parent = 0;
+  _[L] = 0;
+  _[R] = 0;
+
+  _.init = function(parent, prev, next) {
+    this.parent = parent || 0;
+    this[L] = prev || 0;
+    this[R] = next || 0;
   };
 });
