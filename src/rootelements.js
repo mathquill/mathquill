@@ -237,6 +237,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
+    case 'Shift-Esc':
       var parent = this.cursor.parent;
       //cursor is in root editable, continue default
       if (parent === this.cursor.root) return;
