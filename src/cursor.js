@@ -94,18 +94,17 @@ var Cursor = P(function(_) {
   _.prependTo = function(el) { return this.appendDir(L, el); };
   _.appendTo = function(el) { return this.appendDir(R, el); };
 
-  _.hopLeft = function() {
-    this.jQ.insertBefore(this[L].jQ.first());
-    this[R] = this[L];
-    this[L] = this[L][L];
+  _.hopDir = function(dir) {
+    prayDirection(dir);
+
+    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
+    this[-dir] = this[dir];
+    this[dir] = this[dir][dir];
     return this;
   };
-  _.hopRight = function() {
-    this.jQ.insertAfter(this[R].jQ.last());
-    this[L] = this[R];
-    this[R] = this[R][R];
-    return this;
-  };
+  _.hopLeft = function() { return this.hopDir(L); };
+  _.hopRight = function() { return this.hopDir(R); };
+
   _.moveLeftWithin = function(block) {
     if (this[L]) {
       if (this[L].ch[R]) this.appendTo(this[L].ch[R])
