@@ -21,19 +21,19 @@ var Cursor = P(function(_) {
     this.upDownCache = {};
   };
 
-  _.prev = 0;
-  _.next = 0;
+  _.left = 0;
+  _.right = 0;
   _.parent = 0;
   _.show = function() {
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
-      if (this.next) {
-        if (this.selection && this.selection.first.prev === this.prev)
+      if (this.right) {
+        if (this.selection && this.selection.leftmost.left === this.left)
           this.jQ.insertBefore(this.selection.jQ);
         else
-          this.jQ.insertBefore(this.next.jQ.first());
+          this.jQ.insertBefore(this.right.jQ.first());
       }
       else
         this.jQ.appendTo(this.parent.jQ);
@@ -54,25 +54,25 @@ var Cursor = P(function(_) {
     var old_parent = this.parent;
 
     this.parent = parent;
-    this.prev = prev;
-    this.next = next;
+    this.left = prev;
+    this.right = next;
 
     old_parent.blur(); //blur may need to know cursor's destination
   };
   _.insertBefore = function(el) {
-    this.insertAt(el.parent, el.prev, el)
+    this.insertAt(el.parent, el.left, el)
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
   };
   _.insertAfter = function(el) {
-    this.insertAt(el.parent, el, el.next);
+    this.insertAt(el.parent, el, el.right);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertAfter(el.jQ.last());
     return this;
   };
   _.prependTo = function(el) {
-    this.insertAt(el, 0, el.firstChild);
+    this.insertAt(el, 0, el.leftmostChild);
     if (el.textarea) //never insert before textarea
       this.jQ.insertAfter(el.textarea);
     else
@@ -81,46 +81,46 @@ var Cursor = P(function(_) {
     return this;
   };
   _.appendTo = function(el) {
-    this.insertAt(el, el.lastChild, 0);
+    this.insertAt(el, el.rightmostChild, 0);
     this.jQ.appendTo(el.jQ);
     el.focus();
     return this;
   };
   _.hopLeft = function() {
-    this.jQ.insertBefore(this.prev.jQ.first());
-    this.next = this.prev;
-    this.prev = this.prev.prev;
+    this.jQ.insertBefore(this.left.jQ.first());
+    this.right = this.left;
+    this.left = this.left.left;
     return this;
   };
   _.hopRight = function() {
-    this.jQ.insertAfter(this.next.jQ.last());
-    this.prev = this.next;
-    this.next = this.next.next;
+    this.jQ.insertAfter(this.right.jQ.last());
+    this.left = this.right;
+    this.right = this.right.right;
     return this;
   };
   _.moveLeftWithin = function(block) {
-    if (this.prev) {
-      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
+    if (this.left) {
+      if (this.left.rightmostChild) this.appendTo(this.left.rightmostChild)
       else this.hopLeft();
     }
     else {
       // we're at the beginning of the containing block, so do nothing.
       if (this.parent === block) return;
 
-      if (this.parent.prev) this.appendTo(this.parent.prev);
+      if (this.parent.left) this.appendTo(this.parent.left);
       else this.insertBefore(this.parent.parent);
     }
   };
   _.moveRightWithin = function(block) {
-    if (this.next) {
-      if (this.next.firstChild) this.prependTo(this.next.firstChild)
+    if (this.right) {
+      if (this.right.leftmostChild) this.prependTo(this.right.leftmostChild)
       else this.hopRight();
     }
     else {
       // we're at the end of the containing block, so do nothing.
       if (this.parent === block) return;
 
-      if (this.parent.next) this.prependTo(this.parent.next);
+      if (this.parent.right) this.prependTo(this.parent.right);
       else this.insertAfter(this.parent.parent);
     }
   };
@@ -128,7 +128,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
 
     if (this.selection)
-      this.insertBefore(this.selection.first).clearSelection();
+      this.insertBefore(this.selection.leftmost).clearSelection();
     else {
       this.moveLeftWithin(this.root);
     }
@@ -138,7 +138,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
 
     if (this.selection)
-      this.insertAfter(this.selection.last).clearSelection();
+      this.insertAfter(this.selection.rightmost).clearSelection();
     else {
       this.moveRightWithin(this.root);
     }
@@ -161,8 +161,8 @@ var Cursor = P(function(_) {
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    if (self.next[dir]) self.prependTo(self.next[dir]);
-    else if (self.prev[dir]) self.appendTo(self.prev[dir]);
+    if (self.right[dir]) self.prependTo(self.right[dir]);
+    else if (self.left[dir]) self.appendTo(self.left[dir]);
     else {
       var ancestorBlock = self.parent;
       do {
@@ -170,14 +170,14 @@ var Cursor = P(function(_) {
         if (prop) {
           if (typeof prop === 'function') prop = ancestorBlock[dir](self);
           if (prop === false || prop instanceof MathBlock) {
-            self.upDownCache[ancestorBlock.id] = { parent: self.parent, prev: self.prev, next: self.next };
+            self.upDownCache[ancestorBlock.id] = { parent: self.parent, left: self.left, right: self.right };
 
             if (prop instanceof MathBlock) {
               var cached = self.upDownCache[prop.id];
 
               if (cached) {
-                if (cached.next) {
-                  self.insertBefore(cached.next);
+                if (cached.right) {
+                  self.insertBefore(cached.right);
                 } else {
                   self.appendTo(cached.parent);
                 }
@@ -244,7 +244,7 @@ var Cursor = P(function(_) {
       prevDist = dist;
       dist = offset(cursor).left - pageX;
     }
-    while (dist > 0 && (cursor.prev || cursor.parent !== block));
+    while (dist > 0 && (cursor.left || cursor.parent !== block));
 
     if (-dist > prevDist) cursor.moveRightWithin(block);
 
@@ -273,9 +273,9 @@ var Cursor = P(function(_) {
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
     if (block) {
-      block.children().adopt(self.parent, self.prev, self.next);
+      block.children().adopt(self.parent, self.left, self.right);
       MathElement.jQize(block.join('html')).insertBefore(self.jQ);
-      self.prev = block.lastChild;
+      self.left = block.rightmostChild;
       block.finalizeInsert();
       self.parent.bubble('redraw');
     }
@@ -295,8 +295,8 @@ var Cursor = P(function(_) {
       cmd = VanillaSymbol(ch);
 
     if (this.selection) {
-      this.prev = this.selection.first.prev;
-      this.next = this.selection.last.next;
+      this.left = this.selection.leftmost.left;
+      this.right = this.selection.rightmost.right;
       cmd.replaces(this.selection);
       delete this.selection;
     }
@@ -317,7 +317,7 @@ var Cursor = P(function(_) {
     }
     else {
       cmd = TextBlock(latexCmd);
-      cmd.firstChild.focus = function(){ delete this.focus; return this; };
+      cmd.leftmostChild.focus = function(){ delete this.focus; return this; };
       this.insertNew(cmd).insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
@@ -327,10 +327,10 @@ var Cursor = P(function(_) {
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
-    var next = gramp.next;
+    var next = gramp.right;
     var cursor = this;
 
-    var prev = gramp.prev;
+    var prev = gramp.left;
     gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
@@ -341,45 +341,45 @@ var Cursor = P(function(_) {
         })
       ;
 
-      prev = uncle.lastChild;
+      prev = uncle.rightmostChild;
     });
 
-    if (!this.next) { //then find something to be next to insertBefore
-      if (this.prev)
-        this.next = this.prev.next;
+    if (!this.right) { //then find something to be next to insertBefore
+      if (this.left)
+        this.right = this.left.right;
       else {
-        while (!this.next) {
-          this.parent = this.parent.next;
+        while (!this.right) {
+          this.parent = this.parent.right;
           if (this.parent)
-            this.next = this.parent.firstChild;
+            this.right = this.parent.leftmostChild;
           else {
-            this.next = gramp.next;
+            this.right = gramp.right;
             this.parent = greatgramp;
             break;
           }
         }
       }
     }
-    if (this.next)
-      this.insertBefore(this.next);
+    if (this.right)
+      this.insertBefore(this.right);
     else
       this.appendTo(greatgramp);
 
     gramp.jQ.remove();
 
-    if (gramp.prev)
-      gramp.prev.respace();
-    if (gramp.next)
-      gramp.next.respace();
+    if (gramp.left)
+      gramp.left.respace();
+    if (gramp.right)
+      gramp.right.respace();
   };
   _.backspace = function() {
     clearUpDownCache(this);
     this.show();
 
     if (this.deleteSelection()); // pass
-    else if (this.prev) {
-      if (this.prev.isEmpty())
-        this.prev = this.prev.remove().prev;
+    else if (this.left) {
+      if (this.left.isEmpty())
+        this.left = this.left.remove().left;
       else
         this.selectLeft();
     }
@@ -390,10 +390,10 @@ var Cursor = P(function(_) {
         this.unwrapGramp();
     }
 
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
+    if (this.left)
+      this.left.respace();
+    if (this.right)
+      this.right.respace();
     this.parent.bubble('redraw');
 
     return this;
@@ -403,9 +403,9 @@ var Cursor = P(function(_) {
     this.show();
 
     if (this.deleteSelection()); // pass
-    else if (this.next) {
-      if (this.next.isEmpty())
-        this.next = this.next.remove().next;
+    else if (this.right) {
+      if (this.right.isEmpty())
+        this.right = this.right.remove().right;
       else
         this.selectRight();
     }
@@ -416,10 +416,10 @@ var Cursor = P(function(_) {
         this.unwrapGramp();
     }
 
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
+    if (this.left)
+      this.left.respace();
+    if (this.right)
+      this.right.respace();
     this.parent.bubble('redraw');
 
     return this;
@@ -449,9 +449,9 @@ var Cursor = P(function(_) {
     }
     //figure out which is left/prev and which is right/next
     var left, right, leftRight;
-    if (left.next !== right) {
-      for (var next = left; next; next = next.next) {
-        if (next === right.prev) {
+    if (left.right !== right) {
+      for (var next = left; next; next = next.right) {
+        if (next === right.left) {
           leftRight = true;
           break;
         }
@@ -462,22 +462,22 @@ var Cursor = P(function(_) {
         left = leftRight;
       }
     }
-    this.hide().selection = Selection(left.prev.next || left.parent.firstChild, right.next.prev || right.parent.lastChild);
-    this.insertAfter(right.next.prev || right.parent.lastChild);
+    this.hide().selection = Selection(left.left.right || left.parent.leftmostChild, right.right.left || right.parent.rightmostChild);
+    this.insertAfter(right.right.left || right.parent.rightmostChild);
     this.root.selectionChanged();
   };
   _.selectLeft = function() {
     clearUpDownCache(this);
     if (this.selection) {
-      if (this.selection.first === this.next) { //if cursor is at left edge of selection;
-        if (this.prev) //then extend left if possible
+      if (this.selection.leftmost === this.right) { //if cursor is at left edge of selection;
+        if (this.left) //then extend left if possible
           this.hopLeft().selection.extendLeft();
         else if (this.parent !== this.root) //else level up if possible
           this.insertBefore(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at right edge of selection, retract left if possible
         this.hopLeft();
-        if (this.selection.first === this.selection.last) {
+        if (this.selection.leftmost === this.selection.rightmost) {
           this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
@@ -485,7 +485,7 @@ var Cursor = P(function(_) {
       }
     }
     else {
-      if (this.prev)
+      if (this.left)
         this.hopLeft();
       else //end of a block
         if (this.parent !== this.root)
@@ -493,22 +493,22 @@ var Cursor = P(function(_) {
         else
           return;
 
-      this.hide().selection = Selection(this.next);
+      this.hide().selection = Selection(this.right);
     }
     this.root.selectionChanged();
   };
   _.selectRight = function() {
     clearUpDownCache(this);
     if (this.selection) {
-      if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
-        if (this.next) //then extend right if possible
+      if (this.selection.rightmost === this.left) { //if cursor is at right edge of selection;
+        if (this.right) //then extend right if possible
           this.hopRight().selection.extendRight();
         else if (this.parent !== this.root) //else level up if possible
           this.insertAfter(this.parent.parent).selection.levelUp();
       }
       else { //else cursor is at left edge of selection, retract right if possible
         this.hopRight();
-        if (this.selection.first === this.selection.last) {
+        if (this.selection.leftmost === this.selection.rightmost) {
           this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
@@ -516,7 +516,7 @@ var Cursor = P(function(_) {
       }
     }
     else {
-      if (this.next)
+      if (this.right)
         this.hopRight();
       else //end of a block
         if (this.parent !== this.root)
@@ -524,7 +524,7 @@ var Cursor = P(function(_) {
         else
           return;
 
-      this.hide().selection = Selection(this.prev);
+      this.hide().selection = Selection(this.left);
     }
     this.root.selectionChanged();
   };
@@ -554,8 +554,8 @@ var Cursor = P(function(_) {
   _.deleteSelection = function() {
     if (!this.selection) return false;
 
-    this.prev = this.selection.first.prev;
-    this.next = this.selection.last.next;
+    this.left = this.selection.leftmost.left;
+    this.right = this.selection.rightmost.right;
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
@@ -583,24 +583,24 @@ var Selection = P(MathFragment, function(_, _super) {
   };
   _.levelUp = function() {
     var seln = this,
-      gramp = seln.first = seln.last = seln.last.parent.parent;
+      gramp = seln.leftmost = seln.rightmost = seln.rightmost.parent.parent;
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
   _.extendLeft = function() {
-    this.first = this.first.prev;
-    this.first.jQ.prependTo(this.jQ);
+    this.leftmost = this.leftmost.left;
+    this.leftmost.jQ.prependTo(this.jQ);
   };
   _.extendRight = function() {
-    this.last = this.last.next;
-    this.last.jQ.appendTo(this.jQ);
+    this.rightmost = this.rightmost.right;
+    this.rightmost.jQ.appendTo(this.jQ);
   };
   _.retractRight = function() {
-    this.first.jQ.insertBefore(this.jQ);
-    this.first = this.first.next;
+    this.leftmost.jQ.insertBefore(this.jQ);
+    this.leftmost = this.leftmost.right;
   };
   _.retractLeft = function() {
-    this.last.jQ.insertAfter(this.jQ);
-    this.last = this.last.prev;
+    this.rightmost.jQ.insertAfter(this.jQ);
+    this.rightmost = this.rightmost.left;
   };
 });

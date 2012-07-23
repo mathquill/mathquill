@@ -80,8 +80,8 @@ var MathElement = P(Node, function(_) {
 
     // adjust context-sensitive spacing
     self.postOrder('respace');
-    if (self.next.respace) self.next.respace();
-    if (self.prev.respace) self.prev.respace();
+    if (self.right.respace) self.right.respace();
+    if (self.left.respace) self.left.respace();
 
     self.postOrder('redraw');
     self.bubble('redraw');
@@ -121,7 +121,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.lastChild, 0);
+        blocks[i].adopt(self, self.rightmostChild, 0);
       }
 
       return self;
@@ -136,12 +136,12 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.createBlocks();
     MathElement.jQize(cmd.html());
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.firstChild, 0, 0);
-      replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
+      replacedFragment.adopt(cmd.leftmostChild, 0, 0);
+      replacedFragment.jQ.appendTo(cmd.leftmostChild.jQ);
     }
 
     cursor.jQ.before(cmd.jQ);
-    cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
+    cursor.left = cmd.adopt(cursor.parent, cursor.left, cursor.right);
 
     cmd.finalizeInsert(cursor);
 
@@ -154,13 +154,13 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.lastChild, 0);
+      newBlock.adopt(cmd, cmd.rightmostChild, 0);
     }
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
+    cursor.appendTo(this.foldChildren(this.leftmostChild, function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
   };
@@ -337,13 +337,13 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.firstChild === this.lastChild ?
-      this.firstChild.text() :
+    return this.leftmostChild === this.rightmostChild ?
+      this.leftmostChild.text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.firstChild === 0 && this.lastChild === 0;
+    return this.leftmostChild === 0 && this.rightmostChild === 0;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

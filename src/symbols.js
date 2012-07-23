@@ -10,11 +10,11 @@ var Variable = P(Symbol, function(_, _super) {
   }
   _.text = function() {
     var text = this.ctrlSeq;
-    if (this.prev && !(this.prev instanceof Variable)
-        && !(this.prev instanceof BinaryOperator))
+    if (this.left && !(this.left instanceof Variable)
+        && !(this.left instanceof BinaryOperator))
       text = '*' + text;
-    if (this.next && !(this.next instanceof BinaryOperator)
-        && !(this.next.ctrlSeq === '^'))
+    if (this.right && !(this.right instanceof BinaryOperator)
+        && !(this.right.ctrlSeq === '^'))
       text += '*';
     return text;
   };
@@ -155,12 +155,12 @@ var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
   _.respace = function() {
-    if (!this.prev) {
+    if (!this.left) {
       this.jQ[0].className = '';
     }
     else if (
-      this.prev instanceof BinaryOperator &&
-      this.next && !(this.next instanceof BinaryOperator)
+      this.left instanceof BinaryOperator &&
+      this.right && !(this.right instanceof BinaryOperator)
     ) {
       this.jQ[0].className = 'unary-operator';
     }
@@ -536,7 +536,7 @@ var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.respace = function()
   {
     this.jQ[0].className =
-      (this.next instanceof SupSub || this.next instanceof Bracket) ?
+      (this.right instanceof SupSub || this.right instanceof Bracket) ?
       '' : 'non-italicized-function';
   };
 });

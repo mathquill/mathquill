@@ -4,13 +4,13 @@ suite('tree', function() {
       assert.equal(one.parent, parent, 'one.parent is set');
       assert.equal(two.parent, parent, 'two.parent is set');
 
-      assert.ok(!one.prev, 'one has no prev');
-      assert.equal(one.next, two, 'one.next is two');
-      assert.equal(two.prev, one, 'two.prev is one');
-      assert.ok(!two.next, 'two has no next');
+      assert.ok(!one.left, 'one has no prev');
+      assert.equal(one.right, two, 'one.right is two');
+      assert.equal(two.left, one, 'two.left is one');
+      assert.ok(!two.right, 'two has no next');
 
-      assert.equal(parent.firstChild, one, 'parent.firstChild is one');
-      assert.equal(parent.lastChild, two, 'parent.lastChild is two');
+      assert.equal(parent.leftmostChild, one, 'parent.leftmostChild is one');
+      assert.equal(parent.rightmostChild, two, 'parent.rightmostChild is two');
     }
 
     test('the empty case', function() {
@@ -20,11 +20,11 @@ suite('tree', function() {
       child.adopt(parent, 0, 0);
 
       assert.equal(child.parent, parent, 'child.parent is set');
-      assert.ok(!child.next, 'child has no next');
-      assert.ok(!child.prev, 'child has no prev');
+      assert.ok(!child.right, 'child has no next');
+      assert.ok(!child.left, 'child has no prev');
 
-      assert.equal(parent.firstChild, child, 'child is parent.firstChild');
-      assert.equal(parent.lastChild, child, 'child is parent.lastChild');
+      assert.equal(parent.leftmostChild, child, 'child is parent.leftmostChild');
+      assert.equal(parent.rightmostChild, child, 'child is parent.rightmostChild');
     });
 
     test('with two children from the left', function() {
@@ -60,23 +60,23 @@ suite('tree', function() {
       middle.adopt(parent, prev, next);
 
       assert.equal(middle.parent, parent, 'middle.parent is set');
-      assert.equal(middle.prev, prev, 'middle.prev is set');
-      assert.equal(middle.next, next, 'middle.next is set');
+      assert.equal(middle.left, prev, 'middle.left is set');
+      assert.equal(middle.right, next, 'middle.right is set');
 
-      assert.equal(prev.next, middle, 'prev.next is middle');
-      assert.equal(next.prev, middle, 'next.prev is middle');
+      assert.equal(prev.right, middle, 'prev.right is middle');
+      assert.equal(next.left, middle, 'next.left is middle');
 
-      assert.equal(parent.firstChild, prev, 'parent.firstChild is prev');
-      assert.equal(parent.lastChild, next, 'parent.lastChild is next');
+      assert.equal(parent.leftmostChild, prev, 'parent.leftmostChild is prev');
+      assert.equal(parent.rightmostChild, next, 'parent.rightmostChild is next');
     });
   });
 
   suite('disown', function() {
     function assertSingleChild(parent, child) {
-      assert.equal(parent.firstChild, child, 'parent.firstChild is child');
-      assert.equal(parent.lastChild, child, 'parent.lastChild is child');
-      assert.ok(!child.prev, 'child has no prev');
-      assert.ok(!child.next, 'child has no next');
+      assert.equal(parent.leftmostChild, child, 'parent.leftmostChild is child');
+      assert.equal(parent.rightmostChild, child, 'parent.rightmostChild is child');
+      assert.ok(!child.left, 'child has no prev');
+      assert.ok(!child.right, 'child has no next');
     }
 
     test('the empty case', function() {
@@ -86,8 +86,8 @@ suite('tree', function() {
       child.adopt(parent, 0, 0);
       child.disown();
 
-      assert.ok(!parent.firstChild, 'parent has no firstChild');
-      assert.ok(!parent.lastChild, 'parent has no lastChild');
+      assert.ok(!parent.leftmostChild, 'parent has no firstChild');
+      assert.ok(!parent.rightmostChild, 'parent has no lastChild');
     });
 
     test('disowning the last child', function() {
@@ -103,7 +103,7 @@ suite('tree', function() {
       assertSingleChild(parent, one);
 
       assert.equal(two.parent, parent, 'two retains its parent');
-      assert.equal(two.prev, one, 'two retains its prev');
+      assert.equal(two.left, one, 'two retains its prev');
 
       assert.throws(function() { two.disown(); },
                     'disown fails on a malformed tree');
@@ -122,7 +122,7 @@ suite('tree', function() {
       assertSingleChild(parent, two);
 
       assert.equal(one.parent, parent, 'one retains its parent');
-      assert.equal(one.next, two, 'one retains its next');
+      assert.equal(one.right, two, 'one retains its next');
 
       assert.throws(function() { one.disown(); },
                     'disown fails on a malformed tree');
@@ -140,14 +140,14 @@ suite('tree', function() {
 
       middle.disown();
 
-      assert.equal(prev.next, next, 'prev.next is next');
-      assert.equal(next.prev, prev, 'next.prev is prev');
-      assert.equal(parent.firstChild, prev, 'parent.firstChild is prev');
-      assert.equal(parent.lastChild, next, 'parent.lastChild is next');
+      assert.equal(prev.right, next, 'prev.right is next');
+      assert.equal(next.left, prev, 'next.left is prev');
+      assert.equal(parent.leftmostChild, prev, 'parent.leftmostChild is prev');
+      assert.equal(parent.rightmostChild, next, 'parent.rightmostChild is next');
 
       assert.equal(middle.parent, parent, 'middle retains its parent');
-      assert.equal(middle.next, next, 'middle retains its next');
-      assert.equal(middle.prev, prev, 'middle retains its prev');
+      assert.equal(middle.right, next, 'middle retains its next');
+      assert.equal(middle.left, prev, 'middle retains its prev');
 
       assert.throws(function() { middle.disown(); },
                     'disown fails on a malformed tree');
