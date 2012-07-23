@@ -105,31 +105,26 @@ var Cursor = P(function(_) {
   _.hopLeft = function() { return this.hopDir(L); };
   _.hopRight = function() { return this.hopDir(R); };
 
-  _.moveLeftWithin = function(block) {
-    if (this[L]) {
-      if (this[L].ch[R]) this.appendTo(this[L].ch[R])
-      else this.hopLeft();
+  _.moveDirWithin = function(dir, block) {
+    prayDirection(dir);
+
+    if (this[dir]) {
+      if (this[dir].ch[-dir]) this.appendDir(-dir, this[dir].ch[-dir]);
+      else this.hopDir(dir);
     }
     else {
-      // we're at the beginning of the containing block, so do nothing.
+      // we're at the beginning/end of the containing block, so do nothing
       if (this.parent === block) return;
 
-      if (this.parent[L]) this.appendTo(this.parent[L]);
-      else this.insertBefore(this.parent.parent);
+      if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
+      else this.insertAdjacent(dir, this.parent.parent);
     }
   };
+  _.moveLeftWithin = function(block) {
+    return this.moveDirWithin(L, block);
+  };
   _.moveRightWithin = function(block) {
-    if (this[R]) {
-      if (this[R].ch[L]) this.prependTo(this[R].ch[L])
-      else this.hopRight();
-    }
-    else {
-      // we're at the end of the containing block, so do nothing.
-      if (this.parent === block) return;
-
-      if (this.parent[R]) this.prependTo(this.parent[R]);
-      else this.insertAfter(this.parent.parent);
-    }
+    return this.moveDirWithin(R, block);
   };
   _.moveLeft = function() {
     clearUpDownCache(this);
