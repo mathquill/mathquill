@@ -1,6 +1,5 @@
 suite('tree', function() {
   suite('adopt', function() {
-    console.log('tree -> adopt');
     function assertTwoChildren(parent, one, two) {
       assert.equal(one.parent, parent, 'one.parent is set');
       assert.equal(two.parent, parent, 'two.parent is set');
@@ -18,7 +17,6 @@ suite('tree', function() {
       var parent = Node();
       var child = Node();
 
-      debugger;
       child.adopt(parent, 0, 0);
 
       assert.equal(child.parent, parent, 'child.parent is set');
