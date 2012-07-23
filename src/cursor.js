@@ -583,20 +583,20 @@ var Selection = P(MathFragment, function(_, _super) {
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
-  _.extendLeft = function() {
-    this.ends[L] = this.ends[L][L];
-    this.ends[L].jQ.prependTo(this.jQ);
+  _.extendDir = function(dir) {
+    prayDirection(dir);
+    this.ends[dir] = this.ends[dir][dir];
+    jQappendDir(dir, this.ends[dir].jQ, this.jQ);
+    return this;
   };
-  _.extendRight = function() {
-    this.ends[R] = this.ends[R][R];
-    this.ends[R].jQ.appendTo(this.jQ);
+  _.extendLeft = function() { return this.extendDir(L); };
+  _.extendRight = function() { return this.extendDir(R); };
+
+  _.retractDir = function(dir) {
+    prayDirection(dir);
+    jQinsertAdjacent(-dir, this.ends[-dir].jQ, this.jQ);
+    this.ends[-dir] = this.ends[-dir][dir];
   };
-  _.retractRight = function() {
-    this.ends[L].jQ.insertBefore(this.jQ);
-    this.ends[L] = this.ends[L][R];
-  };
-  _.retractLeft = function() {
-    this.ends[R].jQ.insertAfter(this.jQ);
-    this.ends[R] = this.ends[R][L];
-  };
+  _.retractRight = function() { return this.retractDir(R); };
+  _.retractLeft = function() { return this.retractDir(L); };
 });
