@@ -30,7 +30,7 @@ var Cursor = P(function(_) {
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
-        if (this.selection && this.selection.first[L] === this[L])
+        if (this.selection && this.selection.ends[L][L] === this[L])
           this.jQ.insertBefore(this.selection.jQ);
         else
           this.jQ.insertBefore(this[R].jQ.first());
@@ -128,7 +128,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
 
     if (this.selection)
-      this.insertBefore(this.selection.first).clearSelection();
+      this.insertBefore(this.selection.ends[R]).clearSelection();
     else {
       this.moveLeftWithin(this.root);
     }
@@ -138,7 +138,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
 
     if (this.selection)
-      this.insertAfter(this.selection.last).clearSelection();
+      this.insertAfter(this.selection.ends[R]).clearSelection();
     else {
       this.moveRightWithin(this.root);
     }
@@ -295,8 +295,8 @@ var Cursor = P(function(_) {
       cmd = VanillaSymbol(ch);
 
     if (this.selection) {
-      this[L] = this.selection.first[L];
-      this[R] = this.selection.last[R];
+      this[L] = this.selection.ends[L][L];
+      this[R] = this.selection.ends[R][R];
       cmd.replaces(this.selection);
       delete this.selection;
     }
@@ -467,7 +467,7 @@ var Cursor = P(function(_) {
   _.selectLeft = function() {
     clearUpDownCache(this);
     if (this.selection) {
-      if (this.selection.first === this[R]) { //if cursor is at left edge of selection;
+      if (this.selection.ends[L] === this[R]) { //if cursor is at left edge of selection;
         if (this[L]) //then extend left if possible
           this.hopLeft().selection.extendLeft();
         else if (this.parent !== this.root) //else level up if possible
@@ -475,7 +475,7 @@ var Cursor = P(function(_) {
       }
       else { //else cursor is at right edge of selection, retract left if possible
         this.hopLeft();
-        if (this.selection.first === this.selection.last) {
+        if (this.selection.ends[L] === this.selection.ends[R]) {
           this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
@@ -498,7 +498,7 @@ var Cursor = P(function(_) {
   _.selectRight = function() {
     clearUpDownCache(this);
     if (this.selection) {
-      if (this.selection.last === this[L]) { //if cursor is at right edge of selection;
+      if (this.selection.ends[R] === this[L]) { //if cursor is at right edge of selection;
         if (this[R]) //then extend right if possible
           this.hopRight().selection.extendRight();
         else if (this.parent !== this.root) //else level up if possible
@@ -506,7 +506,7 @@ var Cursor = P(function(_) {
       }
       else { //else cursor is at left edge of selection, retract right if possible
         this.hopRight();
-        if (this.selection.first === this.selection.last) {
+        if (this.selection.ends[L] === this.selection.ends[R]) {
           this.clearSelection().show(); //clear selection if retracting to nothing
           return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
         }
@@ -552,8 +552,8 @@ var Cursor = P(function(_) {
   _.deleteSelection = function() {
     if (!this.selection) return false;
 
-    this[L] = this.selection.first[L];
-    this[R] = this.selection.last[R];
+    this[L] = this.selection.ends[L][L];
+    this[R] = this.selection.ends[R][R];
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
@@ -581,24 +581,24 @@ var Selection = P(MathFragment, function(_, _super) {
   };
   _.levelUp = function() {
     var seln = this,
-      gramp = seln.first = seln.last = seln.last.parent.parent;
+      gramp = seln.ends[L] = seln.ends[R] = seln.ends[R].parent.parent;
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
   _.extendLeft = function() {
-    this.first = this.first[L];
-    this.first.jQ.prependTo(this.jQ);
+    this.ends[L] = this.ends[L][L];
+    this.ends[L].jQ.prependTo(this.jQ);
   };
   _.extendRight = function() {
-    this.last = this.last[R];
-    this.last.jQ.appendTo(this.jQ);
+    this.ends[R] = this.ends[R][R];
+    this.ends[R].jQ.appendTo(this.jQ);
   };
   _.retractRight = function() {
-    this.first.jQ.insertBefore(this.jQ);
-    this.first = this.first[R];
+    this.ends[L].jQ.insertBefore(this.jQ);
+    this.ends[L] = this.ends[L][R];
   };
   _.retractLeft = function() {
-    this.last.jQ.insertAfter(this.jQ);
-    this.last = this.last[L];
+    this.ends[R].jQ.insertAfter(this.jQ);
+    this.ends[R] = this.ends[R][L];
   };
 });
