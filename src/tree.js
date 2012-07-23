@@ -14,6 +14,35 @@
 var L = -1;
 var R = 1;
 
+function prayDirection(dir) {
+  pray('a direction was passed', dir === L || dir === R);
+}
+
+// directionalizable versions of common jQuery traversals
+function jQinsertAdjacent(dir, el, target) {
+  return (
+    dir === L ?
+    el.insertBefore(target) :
+    el.insertAfter(target)
+  );
+}
+
+function jQappendDir(dir, el, target) {
+  return (
+    dir === L ?
+    el.prependTo(target) :
+    el.appendTo(target)
+  );
+}
+
+function jQgetExtreme(dir, el) {
+  return (
+    dir === L ?
+    el.first() :
+    el.last()
+  )
+}
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
