@@ -658,7 +658,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
     var latex = this.firstChild.latex(), cmd;
     if (latex) {
-      if (cmd = LatexCmds[latex]) {
+      cmd = LatexCmds[latex];
+      if (cmd) {
         cmd = cmd(latex);
       }
       else {
