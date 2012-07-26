@@ -5,6 +5,15 @@ var latexMathParser = (function() {
     cmd.adopt(block, 0, 0);
     return block;
   }
+  function joinBlocks(blocks) {
+    var firstBlock = blocks[0] || MathBlock();
+
+    for (var i = 1; i < blocks.length; i += 1) {
+      blocks[i].children().adopt(firstBlock, firstBlock.lastChild, 0);
+    }
+
+    return firstBlock;
+  }
 
   var string = Parser.string;
   var regex = Parser.regex;
@@ -14,6 +23,7 @@ var latexMathParser = (function() {
   var succeed = Parser.succeed;
   var fail = Parser.fail;
 
+  // Parsers yielding MathCommands
   var variable = letter.map(Variable);
   var symbol = regex(/^[^${}\\_^]/).map(VanillaSymbol);
 
@@ -41,32 +51,12 @@ var latexMathParser = (function() {
     .or(symbol)
   ;
 
-  // Parser MathBlock
-  var mathGroup =
-    string('{')
-    .then(function() { return mathCommandSequence; })
-    .skip(string('}'))
-  ;
-
-  // Parser MathBlock
-  // NB: we skip whitespace after every block because we're in math mode.
+  // Parsers yielding MathBlocks
+  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
   var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
+  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
 
-  // Parser MathBlock
-  var mathCommandSequence =
-    mathBlock.many().map(function(blocks) {
-      var firstBlock = blocks[0] || MathBlock();
-
-      for (var i = 1; i < blocks.length; i += 1) {
-        blocks[i].children().adopt(firstBlock, firstBlock.lastChild, 0);
-      }
-
-      return firstBlock;
-    }).skip(optWhitespace)
-  ;
-
-  // Parser MathBlock
-  var latexMath = mathCommandSequence;
+  var latexMath = mathSequence;
 
   latexMath.block = mathBlock;
   return latexMath;
