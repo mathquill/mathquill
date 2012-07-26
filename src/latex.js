@@ -56,8 +56,18 @@ var latexMathParser = (function() {
   var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
   var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
 
+  var optMathBlock =
+    string('[').then(
+      mathBlock.then(function(block) {
+        return block.join('latex') !== ']' ? succeed(block) : fail();
+      })
+      .many().map(joinBlocks).skip(optWhitespace)
+    ).skip(string(']'))
+  ;
+
   var latexMath = mathSequence;
 
   latexMath.block = mathBlock;
+  latexMath.optBlock = optMathBlock;
   return latexMath;
 })();
