@@ -39,6 +39,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
           block = blockId && Node.byId[blockId];
         if (block) {
           block.renderLatex(latex);
+          if (!block.textarea.focused) block.cursor.hide().parent.blur();
         }
       });
     }
@@ -61,8 +62,10 @@ jQuery.fn.mathquill = function(cmd, latex) {
           block = blockId && Node.byId[blockId],
           cursor = block && block.cursor;
 
-        if (cursor)
-          cursor.writeLatex(latex).parent.blur();
+        if (cursor) {
+          cursor.writeLatex(latex)
+          if (!block.textarea.focused) cursor.hide().parent.blur();
+        }
       });
   case 'cmd':
     if (arguments.length > 1)
@@ -75,7 +78,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
           var seln = cursor.prepareWrite();
           if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
           else cursor.parent.write(latex, seln);
-          cursor.hide().parent.blur();
+          if (!block.textarea.focused) cursor.hide().parent.blur();
         }
       });
   default:
