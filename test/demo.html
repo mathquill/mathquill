@@ -57,7 +57,7 @@ code span {
 
 <p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
 
-<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').focus(); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').focus()').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').focus()</button>
+<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').mathquill('focus'); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').mathquill(\'focus\')').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').mathquill('focus')</button>
 <span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 </div>
@@ -86,7 +86,7 @@ $(function() {
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.mathquill('html')));
     });
-  }).keydown().focus();
+  }).keydown().mathquill('focus');
 
   latexSource.bind('keydown keypress', function() {
     var oldtext = latexSource.val();
@@ -100,7 +100,7 @@ $(function() {
   });
 
   if(location.hash && location.hash.length > 1)
-    latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).focus();
+    latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).mathquill('focus');
 });
 
 //print the HTML source as an indented tree. TODO: syntax highlight
