@@ -241,7 +241,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCommand, function(_) {
+LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="sqrt">'
@@ -250,6 +250,17 @@ LatexCmds['√'] = P(MathCommand, function(_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var nthroot = NthRoot();
+        nthroot.blocks = [ optBlock, block ];
+        optBlock.adopt(nthroot, 0, 0);
+        block.adopt(nthroot, optBlock, 0);
+        return nthroot;
+      });
+    }).or(_super.parser.call(this));
+  };
   _.redraw = function() {
     var block = this.lastChild.jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
