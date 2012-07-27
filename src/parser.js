@@ -63,14 +63,7 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  _.map = function(fn) { return this.then(compose(succeed, fn)); };
-  _.result = function(res) { return this.then(succeed(res)); };
-
-  // -*- higher-level combinators -*- //
-  _.skip = function(two) {
-    return this.then(function(result) { return two.result(result); });
-  };
-
+  // -*- optimized iterative combinators -*- //
   _.many = function() {
     var self = this;
 
@@ -129,6 +122,9 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
+  // -*- higher-level combinators -*- //
+  _.result = function(res) { return this.then(succeed(res)); };
+  _.atMost = function(n) { return this.times(0, n); };
   _.atLeast = function(n) {
     var self = this;
     return self.times(n).then(function(start) {
@@ -138,7 +134,11 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  _.atMost = function(n) { return this.times(0, n); };
+  _.map = function(fn) { return this.then(compose(succeed, fn)); };
+
+  _.skip = function(two) {
+    return this.then(function(result) { return two.result(result); });
+  };
 
   // -*- primitive parsers -*- //
   var string = this.string = function(str) {
