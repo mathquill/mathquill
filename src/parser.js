@@ -34,16 +34,16 @@ var Parser = P(function(_, _super, Parser) {
   };
 
   // -*- primitive combinators -*- //
-  _.or = function(two) {
-    pray('or is passed a parser', two instanceof Parser);
+  _.or = function(alternative) {
+    pray('or is passed a parser', alternative instanceof Parser);
 
-    var one = this;
+    var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, onSuccess, failure);
+      return self._(stream, onSuccess, failure);
 
       function failure(newStream) {
-        return two._(stream, onSuccess, onFailure);
+        return alternative._(stream, onSuccess, onFailure);
       }
     });
   };
