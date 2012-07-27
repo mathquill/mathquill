@@ -116,9 +116,10 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.parser = function() {
     var block = latexMathParser.block;
     var self = this;
-    var blocks = self.blocks = [];
+    var numBlocks = self.numBlocks();
+    var blocks = self.blocks = Array(numBlocks)
 
-    return block.times(self.numBlocks(), 0, function(i, block) {
+    return block.times(numBlocks, 0, function(i, block) {
       blocks[i] = block.adopt(self, self.lastChild, 0);
       return i + 1;
     }).result(self);
