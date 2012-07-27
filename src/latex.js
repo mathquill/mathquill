@@ -17,10 +17,8 @@ var latexMathParser = (function() {
   var variable = letter.map(Variable);
   var symbol = regex(/^[^${}\\_^]/).map(VanillaSymbol);
 
-  var supSub = regex(/^[_^]/);
-
   var controlSequence =
-    supSub
+    regex(/^[^\\]/)
     .or(string('\\').then(
       regex(/^[a-z]+/i)
       .or(regex(/^\s+/).result(' '))
