@@ -283,6 +283,7 @@ var Cursor = P(function(_) {
     return this.hide();
   };
   _.write = function(ch) {
+    clearUpDownCache(this);
     return this.show().insertCh(ch);
   };
   _.insertCh = function(ch) {
