@@ -332,12 +332,16 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
 
-    case 'Del':
-      if (e.ctrlKey)
-        while (this.cursor.next || this.cursor.selection)
-          this.cursor.deleteForward();
-      else
+    case 'Ctrl-Shift-Del':
+    case 'Ctrl-Del':
+      while (this.cursor.next || this.cursor.selection) {
         this.cursor.deleteForward();
+      }
+      break;
+
+    case 'Shift-Del':
+    case 'Del':
+      this.cursor.deleteForward();
       break;
 
     case 'Meta-A':
