@@ -6,7 +6,6 @@ var Parser = P(function(_, _super, Parser) {
   // construct your Parser from the base parsers and the
   // parser combinator methods.
 
-  function compose(f, g) { return function() { return f(g.apply(this, arguments)); }; }
   function parseError(stream, message) {
     if (stream) {
       stream = "'"+stream+"'";
@@ -126,7 +125,9 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  _.map = function(fn) { return this.then(compose(succeed, fn)); };
+  _.map = function(fn) {
+    return this.then(function(result) { return succeed(fn(result)); });
+  };
 
   _.skip = function(two) {
     return this.then(function(result) { return two.result(result); });
