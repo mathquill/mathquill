@@ -5,14 +5,9 @@ var latexMathParser = (function() {
     cmd.adopt(block, 0, 0);
     return block;
   }
-  function joinBlocks(blocks) {
-    var firstBlock = blocks[0] || MathBlock();
-
-    for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.lastChild, 0);
-    }
-
-    return firstBlock;
+  function foldBlocks(foldedBlock, block) {
+    block.children().adopt(foldedBlock, foldedBlock.lastChild, 0);
+    return foldedBlock;
   }
 
   var string = Parser.string;
@@ -54,14 +49,14 @@ var latexMathParser = (function() {
   // Parsers yielding MathBlocks
   var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
   var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
-  var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
+  var mathSequence = mathBlock.many(MathBlock, foldBlocks).skip(optWhitespace);
 
   var optMathBlock =
     string('[').then(
       mathBlock.then(function(block) {
         return block.join('latex') !== ']' ? succeed(block) : fail();
       })
-      .many().map(joinBlocks).skip(optWhitespace)
+      .many(MathBlock, foldBlocks).skip(optWhitespace)
     ).skip(string(']'))
   ;
 

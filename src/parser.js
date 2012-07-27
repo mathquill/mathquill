@@ -55,17 +55,17 @@ var Parser = P(function(_, _super, Parser) {
   };
 
   // -*- optimized iterative combinators -*- //
-  _.many = function() {
+  _.many = function(init, fold) {
     var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
+      var xs = (typeof init === 'function' ? init() : init);
       while (self._(stream, success, failure));
       return onSuccess(stream, xs);
 
       function success(newStream, x) {
         stream = newStream;
-        xs.push(x);
+        xs = fold(xs, x);
         return true;
       }
 
@@ -75,12 +75,12 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  _.times = function(min, max) {
-    if (arguments.length < 2) max = min;
+  _.times = function(min, max, init, fold) {
+    if (arguments.length < 4) fold = init, init = max, max = min;
     var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      var xs = [];
+      var xs = (typeof init === 'function' ? init() : init);
       var result = true;
       var failure;
 
@@ -96,7 +96,7 @@ var Parser = P(function(_, _super, Parser) {
       return onSuccess(stream, xs);
 
       function success(newStream, x) {
-        xs.push(x);
+        xs = fold(xs, x);
         stream = newStream;
         return true;
       }
@@ -115,14 +115,12 @@ var Parser = P(function(_, _super, Parser) {
 
   // -*- higher-level combinators -*- //
   _.result = function(res) { return this.then(succeed(res)); };
-  _.atMost = function(n) { return this.times(0, n); };
-  _.atLeast = function(n) {
+  _.atMost = function(n, init, fold) { return this.times(0, n, init, fold); };
+  _.atLeast = function(n, init, fold) {
     var self = this;
-    return self.times(n).then(function(start) {
-      return self.many().map(function(end) {
-        return start.concat(end);
-      });
-    });
+    return self.times(n, init, fold)
+      .then(function(result) { return self.many(result, fold); })
+    ;
   };
 
   _.map = function(fn) {

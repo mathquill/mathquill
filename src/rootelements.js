@@ -436,19 +436,16 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     var escapedDollar = string('\\$').result('$');
     var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+    var latexText = mathMode.or(textChar).many(0, function(prev, cmd) {
+      return cmd.adopt(self, prev, 0);
+    });
 
-    if (commands) {
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.lastChild, 0);
-      }
+    latexText.skip(eof).or(all.result(false)).parse(latex);
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+    var html = self.join('html');
+    MathElement.jQize(html).appendTo(self.jQ);
 
-      this.finalizeInsert();
-    }
+    this.finalizeInsert();
   };
   _.onKey = RootMathBlock.prototype.onKey;
   _.onText = function(ch) {

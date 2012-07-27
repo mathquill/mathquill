@@ -116,16 +116,12 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.parser = function() {
     var block = latexMathParser.block;
     var self = this;
+    var blocks = self.blocks = [];
 
-    return block.times(self.numBlocks()).map(function(blocks) {
-      self.blocks = blocks;
-
-      for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.lastChild, 0);
-      }
-
-      return self;
-    });
+    return block.times(self.numBlocks(), 0, function(i, block) {
+      blocks[i] = block.adopt(self, self.lastChild, 0);
+      return i + 1;
+    }).result(self);
   };
 
   // createBefore(cursor) and the methods it calls

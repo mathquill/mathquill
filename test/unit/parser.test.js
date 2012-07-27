@@ -113,17 +113,17 @@ suite('parser', function() {
 
   function assertParses(parser, str, expectedResult) {
     if (arguments.length < 3) expectedResult = str;
-    var result = parser.parse(str);
-    if (result instanceof Array) result = result.join('');
-    assert.equal(result, expectedResult);
+    assert.equal(parser.parse(str), expectedResult);
   }
   function assertDoesntParse(parser, str) {
     assert.throws(function() { parser.parse(str); });
   }
 
+  function cat(x, y) { return x + y; }
+
   suite('many', function() {
     test('simple case', function() {
-      var letters = letter.many();
+      var letters = letter.many('', cat);
 
       assertParses(letters, 'x');
       assertParses(letters, 'xyz');
@@ -133,7 +133,7 @@ suite('parser', function() {
     });
 
     test('followed by then', function() {
-      var parser = string('x').many().then(string('y'));
+      var parser = string('x').many('', cat).then(string('y'));
 
       assertParses(parser, 'y', 'y');
       assertParses(parser, 'xy', 'y');
@@ -146,14 +146,14 @@ suite('parser', function() {
 
   suite('times', function() {
     test('zero case', function() {
-      var zeroLetters = letter.times(0);
+      var zeroLetters = letter.times(0, '', cat);
 
       assertParses(zeroLetters, '');
       assertDoesntParse(zeroLetters, 'x');
     });
 
     test('nonzero case', function() {
-      var threeLetters = letter.times(3);
+      var threeLetters = letter.times(3, '', cat);
 
       assertParses(threeLetters, 'xyz');
       assertDoesntParse(threeLetters, 'xy');
@@ -168,7 +168,7 @@ suite('parser', function() {
     });
 
     test('with a min and max', function() {
-      var someLetters = letter.times(2, 4);
+      var someLetters = letter.times(2, 4, '', cat);
 
       assertParses(someLetters, 'xy');
       assertParses(someLetters, 'xyz');
@@ -188,7 +188,7 @@ suite('parser', function() {
     });
 
     test('atLeast', function() {
-      var atLeastTwo = letter.atLeast(2);
+      var atLeastTwo = letter.atLeast(2, '', cat);
 
       assertParses(atLeastTwo, 'xy');
       assertParses(atLeastTwo, 'xyzw');
