@@ -34,7 +34,7 @@ button {
   position: relative;
   display: inline;
 }
-.shown-textarea textarea {
+.shown-textarea * {
   position: absolute;
   top: -45px;
   user-select: text;
@@ -87,7 +87,7 @@ button {
   $(function() {
     setTimeout(function() {
       var test = $('#redrawing-test');
-      var textarea = test.find('textarea');
+      var textarea = test.find('.textarea *');
 
       // focus
       test.focus();
@@ -179,7 +179,7 @@ document.body.onload = function() {
   setTimeout(function() {
     $('#selection-tests .mathquill-textbox').each(function() {
       var start = +new Date;
-      $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
+      $('.textarea *', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
       $('#selection-performance').html(new Date - start);
     });
   });
