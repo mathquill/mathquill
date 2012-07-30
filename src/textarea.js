@@ -90,7 +90,6 @@ var manageTextarea = (function() {
   // and exports useful public methods
   return function manageTextarea(el, opts) {
     var keydown = null;
-    var keypress = null;
 
     if (!opts) opts = {};
     var textCallback = opts.text || noop;
@@ -156,9 +155,8 @@ var manageTextarea = (function() {
     // -*- event handlers -*- //
     function onKeydown(e) {
       keydown = e;
-      keypress = null;
 
-      handleKey();
+      onKeypress();
     }
 
     function onKeypress(e) {
@@ -166,9 +164,7 @@ var manageTextarea = (function() {
       // This excludes keypresses that happen directly
       // after keydown.  In that case, there will be
       // no previous keypress, so we skip it here
-      if (keydown && keypress) handleKey();
-
-      keypress = e;
+      if (keydown) handleKey();
 
       defer(function() {
         // If there is a selection, the contents of the textarea couldn't
@@ -194,7 +190,7 @@ var manageTextarea = (function() {
       });
     }
 
-    function onBlur() { keydown = keypress = null; }
+    function onBlur() { keydown = null; }
 
     function onPaste(e) {
       // browsers are dumb.
