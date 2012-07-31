@@ -642,7 +642,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     return '\\' + this.firstChild.latex() + ' ';
   };
   _.onKey = function(key, e) {
-    if (key === 'Tab' || key === 'Enter') {
+    if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
       this.renderCommand();
       e.preventDefault();
       return false;
@@ -655,7 +655,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return false;
     }
     this.renderCommand();
-    if (ch === ' ' || (ch === '\\' && this.firstChild.isEmpty()))
+    if (ch === '\\' && this.firstChild.isEmpty())
       return false;
   };
   _.renderCommand = function() {
