@@ -44,10 +44,10 @@ DIST = $(DISTDIR).tgz
 CLEAN += $(DIST)
 
 # programs and flags
-UGLIFY ?= uglifyjs
+UGLIFY ?= node_modules/.bin/uglifyjs
 UGLIFY_OPTS ?= --lift-vars
 
-LESSC ?= lessc
+LESSC ?= node_modules/.bin/lessc
 LESS_OPTS ?=
 
 # environment constants
@@ -92,7 +92,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 .PHONY: test server
 server:
-	supervisor -e js,less,Makefile .
+	node_modules/.bin/supervisor -e js,less,Makefile .
 test: dev $(BUILD_TEST)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
