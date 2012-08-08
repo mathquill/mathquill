@@ -57,15 +57,6 @@ var Cursor = P(function(_) {
     this[R] = point[R];
     oldParent.blur();
   };
-  _.insertAt = function(parent, prev, next) {
-    var old_parent = this.parent;
-
-    this.parent = parent;
-    this[L] = prev;
-    this[R] = next;
-
-    old_parent.blur(); //blur may need to know cursor's destination
-  };
   _.insertAdjacent = function(dir, el) {
     prayDirection(dir);
     this.insertAtPoint(el.adjacentPoint(dir));
