@@ -53,6 +53,19 @@ var Point = P(function(_) {
     this[L] = prev || 0;
     this[R] = next || 0;
   };
+
+  // directionalizable maker
+  this.byDir = function(dir, parent, along, against) {
+    prayDirection(dir);
+
+    var pt = Point();
+
+    pt.parent = parent;
+    pt[dir] = along;
+    pt[-dir] = against;
+
+    return pt;
+  };
 });
 
 /**
@@ -92,23 +105,11 @@ var Node = P(function(_) {
   };
 
   _.adjacentPoint = function(dir) {
-    prayDirection(dir);
-    return (
-      dir === L ?
-      Point(this.parent, this[L], this) :
-      Point(this.parent, this, this[R])
-    )
+    return Point.byDir(dir, this.parent, this[dir], this);
   };
 
   _.extremePoint = function(dir) {
-    prayDirection(dir);
-
-    var out = Point();
-    out.parent = this;
-    out[dir] = 0;
-    out[-dir] = this.ch[dir];
-
-    return out;
+    return Point.byDir(dir, this, 0, this.ch[dir]);
   };
 });
 
