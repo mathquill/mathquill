@@ -68,8 +68,8 @@ suite('latex', function() {
   test('parens', function() {
     var tree = latexMathParser.parse('\\left(123\\right)');
 
-    assert.ok(tree.firstChild instanceof Bracket);
-    var contents = tree.firstChild.firstChild.join('latex');
+    assert.ok(tree.ch[L] instanceof Bracket);
+    var contents = tree.ch[L].ch[L].join('latex');
     assert.equal(contents, '123');
     assert.equal(tree.join('latex'), '\\left(123\\right)');
   });
