@@ -132,7 +132,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    anticursor = {parent: cursor.parent, prev: cursor[L], next: cursor[R]};
+    anticursor = Point(cursor.parent, cursor[L], cursor[R]);
 
     if (!editable) jQ.prepend(textareaSpan);
 
