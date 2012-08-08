@@ -10,7 +10,7 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-var Cursor = P(function(_) {
+var Cursor = P(Point, function(_, _super) {
   _.init = function(root) {
     this.parent = this.root = root;
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
@@ -21,9 +21,6 @@ var Cursor = P(function(_) {
     this.upDownCache = {};
   };
 
-  _[L] = 0;
-  _[R] = 0;
-  _.parent = 0;
   _.show = function() {
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval
@@ -50,11 +47,9 @@ var Cursor = P(function(_) {
     this.jQ = $();
     return this;
   };
-  _.insertAtPoint = function(point) {
+  _.insertAtPoint = function(pt) {
     var oldParent = this.parent;
-    this.parent = point.parent;
-    this[L] = point[L];
-    this[R] = point[R];
+    _super.init.call(this, pt.parent, pt[L], pt[R]);
     oldParent.blur();
   };
   _.insertAdjacent = function(dir, el) {
