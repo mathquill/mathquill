@@ -53,19 +53,6 @@ var Point = P(function(_) {
     this[L] = prev;
     this[R] = next;
   };
-
-  // directionalizable maker
-  this.byDir = function(dir, parent, along, against) {
-    prayDirection(dir);
-
-    var pt = Point();
-
-    pt.parent = parent;
-    pt[dir] = along;
-    pt[-dir] = against;
-
-    return pt;
-  };
 });
 
 /**
@@ -102,14 +89,6 @@ var Node = P(function(_) {
   _.disown = function() {
     Fragment(this, this).disown();
     return this;
-  };
-
-  _.adjacentPoint = function(dir) {
-    return Point.byDir(dir, this.parent, this[dir], this);
-  };
-
-  _.extremePoint = function(dir) {
-    return Point.byDir(dir, this, 0, this.ch[dir]);
   };
 });
 

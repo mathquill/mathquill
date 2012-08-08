@@ -10,7 +10,7 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-var Cursor = P(Point, function(_, _super) {
+var Cursor = P(Point, function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
@@ -47,14 +47,17 @@ var Cursor = P(Point, function(_, _super) {
     this.jQ = $();
     return this;
   };
-  _.insertAtPoint = function(pt) {
+
+  _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
     var oldParent = this.parent;
-    _super.init.call(this, pt.parent, pt[L], pt[R]);
+    this.parent = parent;
+    this[dir] = withDir;
+    this[-dir] = oppDir;
     oldParent.blur();
   };
   _.insertAdjacent = function(dir, el) {
     prayDirection(dir);
-    this.insertAtPoint(el.adjacentPoint(dir));
+    this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
     jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
   };
@@ -63,7 +66,7 @@ var Cursor = P(Point, function(_, _super) {
 
   _.appendDir = function(dir, el) {
     prayDirection(dir);
-    this.insertAtPoint(el.extremePoint(dir));
+    this.withDirInsertAt(dir, el, 0, el.ch[dir]);
 
     // never insert before textarea
     if (dir === L && el.textarea) {
