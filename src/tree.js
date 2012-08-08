@@ -49,9 +49,9 @@ var Point = P(function(_) {
   _[R] = 0;
 
   _.init = function(parent, prev, next) {
-    this.parent = parent || 0;
-    this[L] = prev || 0;
-    this[R] = next || 0;
+    this.parent = parent;
+    this[L] = prev;
+    this[R] = next;
   };
 
   // directionalizable maker
