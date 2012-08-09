@@ -368,7 +368,7 @@ var Cursor = P(Point, function(_) {
 
     if (this.deleteSelection()); // pass
     else if (this[dir]) {
-      if (this[dir].isEmpty())
+      if (this[dir] instanceof Symbol)
         this[dir] = this[dir].remove()[dir];
       else
         this.selectDir(dir);
