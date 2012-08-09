@@ -359,19 +359,20 @@ var Cursor = P(Point, function(_) {
     if (gramp[R])
       gramp[R].respace();
   };
-  _.backspace = function() {
+  _.deleteDir = function(dir) {
+    prayDirection(dir);
     clearUpDownCache(this);
 
     if (this.deleteSelection()); // pass
-    else if (this[L]) {
-      if (this[L].isEmpty())
-        this[L] = this[L].remove()[L];
+    else if (this[dir]) {
+      if (this[dir].isEmpty())
+        this[dir] = this[dir].remove()[dir];
       else
-        this.selectLeft();
+        this.selectDir(dir);
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
-        return this.insertAfter(this.parent.parent).backspace();
+        return this.insertAdjacent(-dir, this.parent.parent).deleteDir(dir);
       else
         this.unwrapGramp();
     }
@@ -384,31 +385,8 @@ var Cursor = P(Point, function(_) {
 
     return this.show();
   };
-  _.deleteForward = function() {
-    clearUpDownCache(this);
-
-    if (this.deleteSelection()); // pass
-    else if (this[R]) {
-      if (this[R].isEmpty())
-        this[R] = this[R].remove()[R];
-      else
-        this.selectRight();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertBefore(this.parent.parent).deleteForward();
-      else
-        this.unwrapGramp();
-    }
-
-    if (this[L])
-      this[L].respace();
-    if (this[R])
-      this[R].respace();
-    this.parent.bubble('redraw');
-
-    return this.show();
-  };
+  _.backspace = function() { return this.deleteDir(L); };
+  _.deleteForward = function() { return this.deleteDir(R); };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
     var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
