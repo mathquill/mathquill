@@ -60,6 +60,7 @@ var Cursor = P(Point, function(_) {
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
     jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    return this;
   };
   _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
   _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
