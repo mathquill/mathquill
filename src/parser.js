@@ -6,8 +6,6 @@ var Parser = P(function(_, _super, Parser) {
   // construct your Parser from the base parsers and the
   // parser combinator methods.
 
-  function returning(x) { return function() { return x; } }
-  function compose(f, g) { return function() { return f(g.apply(this, arguments)); }; }
   function parseError(stream, message) {
     if (stream) {
       stream = "'"+stream+"'";
@@ -19,12 +17,6 @@ var Parser = P(function(_, _super, Parser) {
     throw 'Parse Error: '+message+' at '+stream;
   }
 
-  function ensureFunction(thing) {
-    if (typeof thing !== 'function') thing = returning(thing);
-
-    return thing;
-  }
-
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
@@ -34,43 +26,35 @@ var Parser = P(function(_, _super, Parser) {
   };
 
   // -*- primitive combinators -*- //
-  _.or = function(two) {
-    pray('or is passed a parser', two instanceof Parser);
+  _.or = function(alternative) {
+    pray('or is passed a parser', alternative instanceof Parser);
 
-    var one = this;
+    var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, onSuccess, failure);
+      return self._(stream, onSuccess, failure);
 
       function failure(newStream) {
-        return two._(stream, onSuccess, onFailure);
+        return alternative._(stream, onSuccess, onFailure);
       }
     });
   };
 
-  _.then = function(two) {
-    var one = this;
-    two = ensureFunction(two);
+  _.then = function(next) {
+    var self = this;
 
     return Parser(function(stream, onSuccess, onFailure) {
-      return one._(stream, success, onFailure);
+      return self._(stream, success, onFailure);
 
       function success(newStream, result) {
-        var newParser = two(result);
-        pray('a parser is returned', newParser instanceof Parser);
-        return newParser._(newStream, onSuccess, onFailure);
+        var nextParser = (next instanceof Parser ? next : next(result));
+        pray('a parser is returned', nextParser instanceof Parser);
+        return nextParser._(newStream, onSuccess, onFailure);
       }
     });
   };
 
-  _.map = function(fn) { return this.then(compose(succeed, fn)); };
-  _.result = function(res) { return this.then(succeed(res)); };
-
-  // -*- higher-level combinators -*- //
-  _.skip = function(two) {
-    return this.then(function(result) { return two.result(result); });
-  };
-
+  // -*- optimized iterative combinators -*- //
   _.many = function() {
     var self = this;
 
@@ -129,6 +113,9 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
+  // -*- higher-level combinators -*- //
+  _.result = function(res) { return this.then(succeed(res)); };
+  _.atMost = function(n) { return this.times(0, n); };
   _.atLeast = function(n) {
     var self = this;
     return self.times(n).then(function(start) {
@@ -138,7 +125,13 @@ var Parser = P(function(_, _super, Parser) {
     });
   };
 
-  _.atMost = function(n) { return this.times(0, n); };
+  _.map = function(fn) {
+    return this.then(function(result) { return succeed(fn(result)); });
+  };
+
+  _.skip = function(two) {
+    return this.then(function(result) { return two.result(result); });
+  };
 
   // -*- primitive parsers -*- //
   var string = this.string = function(str) {

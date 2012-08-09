@@ -271,6 +271,7 @@ var Cursor = P(Point, function(_) {
     return this.hide();
   };
   _.write = function(ch) {
+    clearUpDownCache(this);
     return this.show().insertCh(ch);
   };
   _.insertCh = function(ch) {
@@ -363,6 +364,7 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     clearUpDownCache(this);
+    this.show();
 
     if (this.deleteSelection()); // pass
     else if (this[dir]) {
@@ -384,7 +386,7 @@ var Cursor = P(Point, function(_) {
       this[R].respace();
     this.parent.bubble('redraw');
 
-    return this.show();
+    return this;
   };
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };

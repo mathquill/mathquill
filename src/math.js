@@ -179,15 +179,15 @@ var MathCommand = P(MathElement, function(_, _super) {
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
     They all expect an .htmlTemplate like
-      '<span>#0</span>'
+      '<span>&0</span>'
     or
-      '<span><span>#0</span><span>#1</span></span>'
+      '<span><span>&0</span><span>&1</span></span>'
 
     See html.test.js for more examples.
 
     Requirements:
     - For each block of the command, there must be exactly one "block content
-      marker" of the form '#<number>' where <number> is the 0-based index of the
+      marker" of the form '&<number>' where <number> is the 0-based index of the
       block. (Like the LaTeX \newcommand syntax, but with a 0-based rather than
       1-based index, because JavaScript because C because Dijkstra.)
     - The block content marker must be the sole contents of the containing
@@ -198,9 +198,12 @@ var MathCommand = P(MathElement, function(_, _super) {
       conform to the XHTML requirements on tags, specifically all tags must
       either be self-closing (like '<br/>') or come in matching pairs.
       Close tags are never optional.
+
+    Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
+    your HTML template would have to have '&amp;123'.
   */
   _.numBlocks = function() {
-    var matches = this.htmlTemplate.match(/#\d+/g);
+    var matches = this.htmlTemplate.match(/&\d+/g);
     return matches ? matches.length : 0;
   };
   _.html = function() {
@@ -274,7 +277,7 @@ var MathCommand = P(MathElement, function(_, _super) {
         } while (nesting > 0);
       }
     }
-    return tokens.join('').replace(/>#(\d+)/g, function($0, $1) {
+    return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
       return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
     });
   };

@@ -24,39 +24,6 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
-  var textareaManager = manageTextarea(textarea, {
-    container: jQ,
-    key: function(key, evt) {
-      if (editable) cursor.parent.bubble('onKey', key, evt);
-    },
-    text: function(text) {
-      if (editable) cursor.parent.bubble('onText', text);
-    },
-    cut: function(e) {
-      if (cursor.selection) {
-        setTimeout(function() {
-          cursor.prepareEdit();
-          cursor.parent.bubble('redraw');
-        });
-      }
-
-      e.stopPropagation();
-    },
-    paste: function(text) {
-      // FIXME HACK the parser in RootTextBlock needs to be moved to
-      // Cursor::writeLatex or something so this'll work with
-      // MathQuill textboxes
-      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-        text = text.slice(1, -1);
-      }
-      else {
-        text = '\\text{' + text + '}';
-      }
-
-      cursor.writeLatex(text).show();
-    }
-  });
-
   /******
    * TODO [Han]: Document this
    */
@@ -143,6 +110,7 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   if (!editable) {
+    var textareaManager = manageTextarea(textarea, { container: jQ });
     jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
@@ -154,6 +122,39 @@ function createRoot(jQ, root, textbox, editable) {
     }
     return;
   }
+
+  var textareaManager = manageTextarea(textarea, {
+    container: jQ,
+    key: function(key, evt) {
+      cursor.parent.bubble('onKey', key, evt);
+    },
+    text: function(text) {
+      cursor.parent.bubble('onText', text);
+    },
+    cut: function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          cursor.prepareEdit();
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    },
+    paste: function(text) {
+      // FIXME HACK the parser in RootTextBlock needs to be moved to
+      // Cursor::writeLatex or something so this'll work with
+      // MathQuill textboxes
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{' + text + '}';
+      }
+
+      cursor.writeLatex(text).show();
+    }
+  });
 
   jQ.prepend(textareaSpan);
 
@@ -169,7 +170,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(root.selectionChanged); //select textarea after focus
+      setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
     }
     else
       cursor.show();
@@ -201,7 +202,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.ch[L] = this.ch[R] = 0;
 
-    this.cursor.writeLatex(latex);
+    this.cursor.appendTo(this).writeLatex(latex);
   };
   _.onKey = function(key, e) {
     switch (key) {
@@ -220,9 +221,13 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     // Tab or Esc -> go one block right if it exists, else escape right.
     case 'Esc':
     case 'Tab':
+    case 'Spacebar':
       var parent = this.cursor.parent;
       // cursor is in root editable, continue default
-      if (parent === this.cursor.root) return;
+      if (parent === this.cursor.root) {
+        if (key === 'Spacebar') e.preventDefault();
+        return;
+      }
 
       this.cursor.prepareMove();
       if (parent[R]) {
@@ -236,9 +241,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
+    case 'Shift-Esc':
+    case 'Shift-Spacebar':
       var parent = this.cursor.parent;
       //cursor is in root editable, continue default
-      if (parent === this.cursor.root) return;
+      if (parent === this.cursor.root) {
+        if (key === 'Shift-Spacebar') e.preventDefault();
+        return;
+      }
 
       this.cursor.prepareMove();
       if (parent[L]) {
@@ -331,12 +341,16 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
 
-    case 'Del':
-      if (e.ctrlKey)
-        while (this.cursor[R] || this.cursor.selection)
-          this.cursor.deleteForward();
-      else
+    case 'Ctrl-Shift-Del':
+    case 'Ctrl-Del':
+      while (this.cursor[R] || this.cursor.selection) {
         this.cursor.deleteForward();
+      }
+      break;
+
+    case 'Shift-Del':
+    case 'Del':
+      this.cursor.deleteForward();
       break;
 
     case 'Meta-A':
@@ -365,7 +379,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     _super.init.call(this, '$');
     this.cursor = cursor;
   };
-  _.htmlTemplate = '<span class="mathquill-rendered-math">#0</span>';
+  _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
     this.ch[L] =
     this.ch[R] =

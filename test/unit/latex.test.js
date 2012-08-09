@@ -84,6 +84,28 @@ suite('latex', function() {
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
+  suite('RootMathBlock::renderLatex', function() {
+    var el;
+    setup(function() {
+      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+    });
+    teardown(function() {
+      el.remove();
+    });
+
+    test('basic rendering', function() {
+      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    });
+
+    test('re-rendering', function() {
+      el.mathquill('latex', 'a x^2 + b x + c = 0');
+      assert.equal(el.mathquill('latex'), 'ax^2+bx+c=0');
+      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    });
+  });
+
   suite('error handling', function() {
     var el;
     setup(function() {
