@@ -10,7 +10,7 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-var Cursor = P(function(_) {
+var Cursor = P(Point, function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
@@ -21,19 +21,16 @@ var Cursor = P(function(_) {
     this.upDownCache = {};
   };
 
-  _.prev = 0;
-  _.next = 0;
-  _.parent = 0;
   _.show = function() {
     this.jQ = this._jQ.removeClass('blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
-      if (this.next) {
-        if (this.selection && this.selection.first.prev === this.prev)
+      if (this[R]) {
+        if (this.selection && this.selection.ends[L][L] === this[L])
           this.jQ.insertBefore(this.selection.jQ);
         else
-          this.jQ.insertBefore(this.next.jQ.first());
+          this.jQ.insertBefore(this[R].jQ.first());
       }
       else
         this.jQ.appendTo(this.parent.jQ);
@@ -50,100 +47,91 @@ var Cursor = P(function(_) {
     this.jQ = $();
     return this;
   };
-  _.insertAt = function(parent, prev, next) {
-    var old_parent = this.parent;
 
+  _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
+    var oldParent = this.parent;
     this.parent = parent;
-    this.prev = prev;
-    this.next = next;
+    this[dir] = withDir;
+    this[-dir] = oppDir;
+    oldParent.blur();
+  };
+  _.insertAdjacent = function(dir, el) {
+    prayDirection(dir);
+    this.withDirInsertAt(dir, el.parent, el[dir], el);
+    this.parent.jQ.addClass('hasCursor');
+    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    return this;
+  };
+  _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
+  _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
 
-    old_parent.blur(); //blur may need to know cursor's destination
-  };
-  _.insertBefore = function(el) {
-    this.insertAt(el.parent, el.prev, el)
-    this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertBefore(el.jQ.first());
-    return this;
-  };
-  _.insertAfter = function(el) {
-    this.insertAt(el.parent, el, el.next);
-    this.parent.jQ.addClass('hasCursor');
-    this.jQ.insertAfter(el.jQ.last());
-    return this;
-  };
-  _.prependTo = function(el) {
-    this.insertAt(el, 0, el.firstChild);
-    if (el.textarea) //never insert before textarea
-      this.jQ.insertAfter(el.textarea);
-    else
-      this.jQ.prependTo(el.jQ);
+  _.appendDir = function(dir, el) {
+    prayDirection(dir);
+    this.withDirInsertAt(dir, el, 0, el.ch[dir]);
+
+    // never insert before textarea
+    if (dir === L && el.textarea) {
+      jQinsertAdjacent(-dir, this.jQ, el.textarea);
+    }
+    else {
+      jQappendDir(dir, this.jQ, el.jQ);
+    }
+
     el.focus();
+
     return this;
   };
-  _.appendTo = function(el) {
-    this.insertAt(el, el.lastChild, 0);
-    this.jQ.appendTo(el.jQ);
-    el.focus();
+  _.prependTo = function(el) { return this.appendDir(L, el); };
+  _.appendTo = function(el) { return this.appendDir(R, el); };
+
+  _.hopDir = function(dir) {
+    prayDirection(dir);
+
+    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
+    this[-dir] = this[dir];
+    this[dir] = this[dir][dir];
     return this;
   };
-  _.hopLeft = function() {
-    this.jQ.insertBefore(this.prev.jQ.first());
-    this.next = this.prev;
-    this.prev = this.prev.prev;
-    return this;
-  };
-  _.hopRight = function() {
-    this.jQ.insertAfter(this.next.jQ.last());
-    this.prev = this.next;
-    this.next = this.next.next;
-    return this;
+  _.hopLeft = function() { return this.hopDir(L); };
+  _.hopRight = function() { return this.hopDir(R); };
+
+  _.moveDirWithin = function(dir, block) {
+    prayDirection(dir);
+
+    if (this[dir]) {
+      if (this[dir].ch[-dir]) this.appendDir(-dir, this[dir].ch[-dir]);
+      else this.hopDir(dir);
+    }
+    else {
+      // we're at the beginning/end of the containing block, so do nothing
+      if (this.parent === block) return;
+
+      if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
+      else this.insertAdjacent(dir, this.parent.parent);
+    }
   };
   _.moveLeftWithin = function(block) {
-    if (this.prev) {
-      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
-      else this.hopLeft();
-    }
-    else {
-      // we're at the beginning of the containing block, so do nothing.
-      if (this.parent === block) return;
-
-      if (this.parent.prev) this.appendTo(this.parent.prev);
-      else this.insertBefore(this.parent.parent);
-    }
+    return this.moveDirWithin(L, block);
   };
   _.moveRightWithin = function(block) {
-    if (this.next) {
-      if (this.next.firstChild) this.prependTo(this.next.firstChild)
-      else this.hopRight();
-    }
-    else {
-      // we're at the end of the containing block, so do nothing.
-      if (this.parent === block) return;
-
-      if (this.parent.next) this.prependTo(this.parent.next);
-      else this.insertAfter(this.parent.parent);
-    }
+    return this.moveDirWithin(R, block);
   };
-  _.moveLeft = function() {
+  _.moveDir = function(dir) {
+    prayDirection(dir);
+
     clearUpDownCache(this);
 
-    if (this.selection)
-      this.insertBefore(this.selection.first).clearSelection();
-    else {
-      this.moveLeftWithin(this.root);
+    if (this.selection)  {
+      this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
     }
-    return this.show();
-  };
-  _.moveRight = function() {
-    clearUpDownCache(this);
+    else {
+      this.moveDirWithin(dir, this.root);
+    }
 
-    if (this.selection)
-      this.insertAfter(this.selection.last).clearSelection();
-    else {
-      this.moveRightWithin(this.root);
-    }
     return this.show();
   };
+  _.moveLeft = function() { return this.moveDir(L); };
+  _.moveRight = function() { return this.moveDir(R); };
 
   /**
    * moveUp and moveDown have almost identical algorithms:
@@ -161,8 +149,8 @@ var Cursor = P(function(_) {
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    if (self.next[dir]) self.prependTo(self.next[dir]);
-    else if (self.prev[dir]) self.appendTo(self.prev[dir]);
+    if (self[R][dir]) self.prependTo(self[R][dir]);
+    else if (self[L][dir]) self.appendTo(self[L][dir]);
     else {
       var ancestorBlock = self.parent;
       do {
@@ -170,14 +158,14 @@ var Cursor = P(function(_) {
         if (prop) {
           if (typeof prop === 'function') prop = ancestorBlock[dir](self);
           if (prop === false || prop instanceof MathBlock) {
-            self.upDownCache[ancestorBlock.id] = { parent: self.parent, prev: self.prev, next: self.next };
+            self.upDownCache[ancestorBlock.id] = Point(self.parent, self[L], self[R]);
 
             if (prop instanceof MathBlock) {
               var cached = self.upDownCache[prop.id];
 
               if (cached) {
-                if (cached.next) {
-                  self.insertBefore(cached.next);
+                if (cached[R]) {
+                  self.insertBefore(cached[R]);
                 } else {
                   self.appendTo(cached.parent);
                 }
@@ -244,7 +232,7 @@ var Cursor = P(function(_) {
       prevDist = dist;
       dist = offset(cursor).left - pageX;
     }
-    while (dist > 0 && (cursor.prev || cursor.parent !== block));
+    while (dist > 0 && (cursor[L] || cursor.parent !== block));
 
     if (-dist > prevDist) cursor.moveRightWithin(block);
 
@@ -273,9 +261,9 @@ var Cursor = P(function(_) {
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
     if (block) {
-      block.children().adopt(self.parent, self.prev, self.next);
+      block.children().adopt(self.parent, self[L], self[R]);
       MathElement.jQize(block.join('html')).insertBefore(self.jQ);
-      self.prev = block.lastChild;
+      self[L] = block.ch[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
     }
@@ -296,8 +284,8 @@ var Cursor = P(function(_) {
       cmd = VanillaSymbol(ch);
 
     if (this.selection) {
-      this.prev = this.selection.first.prev;
-      this.next = this.selection.last.next;
+      this[L] = this.selection.ends[L][L];
+      this[R] = this.selection.ends[R][R];
       cmd.replaces(this.selection);
       delete this.selection;
     }
@@ -318,7 +306,7 @@ var Cursor = P(function(_) {
     }
     else {
       cmd = TextBlock(latexCmd);
-      cmd.firstChild.focus = function(){ delete this.focus; return this; };
+      cmd.ch[L].focus = function(){ delete this.focus; return this; };
       this.insertNew(cmd).insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
@@ -328,10 +316,10 @@ var Cursor = P(function(_) {
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
-    var next = gramp.next;
+    var next = gramp[R];
     var cursor = this;
 
-    var prev = gramp.prev;
+    var prev = gramp[L];
     gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
@@ -342,89 +330,66 @@ var Cursor = P(function(_) {
         })
       ;
 
-      prev = uncle.lastChild;
+      prev = uncle.ch[R];
     });
 
-    if (!this.next) { //then find something to be next to insertBefore
-      if (this.prev)
-        this.next = this.prev.next;
+    if (!this[R]) { //then find something to be next to insertBefore
+      if (this[L])
+        this[R] = this[L][R];
       else {
-        while (!this.next) {
-          this.parent = this.parent.next;
+        while (!this[R]) {
+          this.parent = this.parent[R];
           if (this.parent)
-            this.next = this.parent.firstChild;
+            this[R] = this.parent.ch[L];
           else {
-            this.next = gramp.next;
+            this[R] = gramp[R];
             this.parent = greatgramp;
             break;
           }
         }
       }
     }
-    if (this.next)
-      this.insertBefore(this.next);
+    if (this[R])
+      this.insertBefore(this[R]);
     else
       this.appendTo(greatgramp);
 
     gramp.jQ.remove();
 
-    if (gramp.prev)
-      gramp.prev.respace();
-    if (gramp.next)
-      gramp.next.respace();
+    if (gramp[L])
+      gramp[L].respace();
+    if (gramp[R])
+      gramp[R].respace();
   };
-  _.backspace = function() {
+  _.deleteDir = function(dir) {
+    prayDirection(dir);
     clearUpDownCache(this);
     this.show();
 
     if (this.deleteSelection()); // pass
-    else if (this.prev) {
-      if (this.prev.isEmpty())
-        this.prev = this.prev.remove().prev;
+    else if (this[dir]) {
+      if (this[dir].isEmpty())
+        this[dir] = this[dir].remove()[dir];
       else
-        this.selectLeft();
+        this.selectDir(dir);
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
-        return this.insertAfter(this.parent.parent).backspace();
+        return this.insertAdjacent(-dir, this.parent.parent).deleteDir(dir);
       else
         this.unwrapGramp();
     }
 
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
+    if (this[L])
+      this[L].respace();
+    if (this[R])
+      this[R].respace();
     this.parent.bubble('redraw');
 
     return this;
   };
-  _.deleteForward = function() {
-    clearUpDownCache(this);
-    this.show();
-
-    if (this.deleteSelection()); // pass
-    else if (this.next) {
-      if (this.next.isEmpty())
-        this.next = this.next.remove().next;
-      else
-        this.selectRight();
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertBefore(this.parent.parent).deleteForward();
-      else
-        this.unwrapGramp();
-    }
-
-    if (this.prev)
-      this.prev.respace();
-    if (this.next)
-      this.next.respace();
-    this.parent.bubble('redraw');
-
-    return this;
-  };
+  _.backspace = function() { return this.deleteDir(L); };
+  _.deleteForward = function() { return this.deleteDir(R); };
   _.selectFrom = function(anticursor) {
     //find ancestors of each with common parent
     var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
@@ -450,9 +415,9 @@ var Cursor = P(function(_) {
     }
     //figure out which is left/prev and which is right/next
     var left, right, leftRight;
-    if (left.next !== right) {
-      for (var next = left; next; next = next.next) {
-        if (next === right.prev) {
+    if (left[R] !== right) {
+      for (var next = left; next; next = next[R]) {
+        if (next === right[L]) {
           leftRight = true;
           break;
         }
@@ -463,72 +428,54 @@ var Cursor = P(function(_) {
         left = leftRight;
       }
     }
-    this.hide().selection = Selection(left.prev.next || left.parent.firstChild, right.next.prev || right.parent.lastChild);
-    this.insertAfter(right.next.prev || right.parent.lastChild);
+    this.hide().selection = Selection(left[L][R] || left.parent.ch[L], right[R][L] || right.parent.ch[R]);
+    this.insertAfter(right[R][L] || right.parent.ch[R]);
     this.root.selectionChanged();
   };
-  _.selectLeft = function() {
+  _.selectDir = function(dir) {
+    prayDirection(dir);
     clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.first === this.next) { //if cursor is at left edge of selection;
-        if (this.prev) //then extend left if possible
-          this.hopLeft().selection.extendLeft();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertBefore(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at right edge of selection, retract left if possible
-        this.hopLeft();
-        if (this.selection.first === this.selection.last) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
-        }
-        this.selection.retractLeft();
-      }
-    }
-    else {
-      if (this.prev)
-        this.hopLeft();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertBefore(this.parent.parent);
-        else
-          return;
 
-      this.hide().selection = Selection(this.next);
+    if (this.selection) {
+      // if cursor is at the (dir) edge of selection
+      if (this.selection.ends[dir] === this[-dir]) {
+        // then extend (dir) if possible
+        if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
+        // else level up if possible
+        else if (this.parent !== this.root) {
+          this.insertAdjacent(dir, this.parent.parent).selection.levelUp();
+        }
+      }
+      // else cursor is at the (-dir) edge of selection, retract if possible
+      else {
+        this.hopDir(dir);
+
+        // clear the selection if we only have one thing selected
+        if (this.selection.ends[dir] === this.selection.ends[-dir]) {
+          this.clearSelection().show();
+          return;
+        }
+
+        this.selection.retractDir(dir);
+      }
     }
+    // no selection, create one
+    else {
+      if (this[dir]) this.hopDir(dir);
+      // else edge of a block
+      else {
+        if (this.parent === this.root) return;
+
+        this.insertAdjacent(dir, this.parent.parent);
+      }
+
+      this.hide().selection = Selection(this[-dir]);
+    }
+
     this.root.selectionChanged();
   };
-  _.selectRight = function() {
-    clearUpDownCache(this);
-    if (this.selection) {
-      if (this.selection.last === this.prev) { //if cursor is at right edge of selection;
-        if (this.next) //then extend right if possible
-          this.hopRight().selection.extendRight();
-        else if (this.parent !== this.root) //else level up if possible
-          this.insertAfter(this.parent.parent).selection.levelUp();
-      }
-      else { //else cursor is at left edge of selection, retract right if possible
-        this.hopRight();
-        if (this.selection.first === this.selection.last) {
-          this.clearSelection().show(); //clear selection if retracting to nothing
-          return; //skip this.root.selectionChanged(), this.clearSelection() does it anyway
-        }
-        this.selection.retractRight();
-      }
-    }
-    else {
-      if (this.next)
-        this.hopRight();
-      else //end of a block
-        if (this.parent !== this.root)
-          this.insertAfter(this.parent.parent);
-        else
-          return;
-
-      this.hide().selection = Selection(this.prev);
-    }
-    this.root.selectionChanged();
-  };
+  _.selectLeft = function() { return this.selectDir(L); };
+  _.selectRight = function() { return this.selectDir(R); };
 
   function clearUpDownCache(self) {
     self.upDownCache = {};
@@ -555,8 +502,8 @@ var Cursor = P(function(_) {
   _.deleteSelection = function() {
     if (!this.selection) return false;
 
-    this.prev = this.selection.first.prev;
-    this.next = this.selection.last.next;
+    this[L] = this.selection.ends[L][L];
+    this[R] = this.selection.ends[R][R];
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
@@ -584,24 +531,24 @@ var Selection = P(MathFragment, function(_, _super) {
   };
   _.levelUp = function() {
     var seln = this,
-      gramp = seln.first = seln.last = seln.last.parent.parent;
+      gramp = seln.ends[L] = seln.ends[R] = seln.ends[R].parent.parent;
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
-  _.extendLeft = function() {
-    this.first = this.first.prev;
-    this.first.jQ.prependTo(this.jQ);
+  _.extendDir = function(dir) {
+    prayDirection(dir);
+    this.ends[dir] = this.ends[dir][dir];
+    jQappendDir(dir, this.ends[dir].jQ, this.jQ);
+    return this;
   };
-  _.extendRight = function() {
-    this.last = this.last.next;
-    this.last.jQ.appendTo(this.jQ);
+  _.extendLeft = function() { return this.extendDir(L); };
+  _.extendRight = function() { return this.extendDir(R); };
+
+  _.retractDir = function(dir) {
+    prayDirection(dir);
+    jQinsertAdjacent(-dir, this.ends[-dir].jQ, this.jQ);
+    this.ends[-dir] = this.ends[-dir][dir];
   };
-  _.retractRight = function() {
-    this.first.jQ.insertBefore(this.jQ);
-    this.first = this.first.next;
-  };
-  _.retractLeft = function() {
-    this.last.jQ.insertAfter(this.jQ);
-    this.last = this.last.prev;
-  };
+  _.retractRight = function() { return this.retractDir(R); };
+  _.retractLeft = function() { return this.retractDir(L); };
 });
