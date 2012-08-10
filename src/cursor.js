@@ -541,14 +541,9 @@ var Selection = P(MathFragment, function(_, _super) {
     jQappendDir(dir, this.ends[dir].jQ, this.jQ);
     return this;
   };
-  _.extendLeft = function() { return this.extendDir(L); };
-  _.extendRight = function() { return this.extendDir(R); };
-
   _.retractDir = function(dir) {
     prayDirection(dir);
     jQinsertAdjacent(-dir, this.ends[-dir].jQ, this.jQ);
     this.ends[-dir] = this.ends[-dir][dir];
   };
-  _.retractRight = function() { return this.retractDir(R); };
-  _.retractLeft = function() { return this.retractDir(L); };
 });
