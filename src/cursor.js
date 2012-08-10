@@ -84,17 +84,6 @@ var Cursor = P(Point, function(_) {
   _.prependTo = function(el) { return this.appendDir(L, el); };
   _.appendTo = function(el) { return this.appendDir(R, el); };
 
-  _.hopDir = function(dir) {
-    prayDirection(dir);
-
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
-    this[-dir] = this[dir];
-    this[dir] = this[dir][dir];
-    return this;
-  };
-  _.hopLeft = function() { return this.hopDir(L); };
-  _.hopRight = function() { return this.hopDir(R); };
-
   _.moveDirWithin = function(dir, block) {
     prayDirection(dir);
 
@@ -427,41 +416,8 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
     clearUpDownCache(this);
 
-    if (this.selection) {
-      // if cursor is at the (dir) edge of selection
-      if (this.selection.ends[dir] === this[-dir]) {
-        // then extend (dir) if possible
-        if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
-        // else level up if possible
-        else if (this.parent !== this.root) {
-          this.insertAdjacent(dir, this.parent.parent).selection.levelUp();
-        }
-      }
-      // else cursor is at the (-dir) edge of selection, retract if possible
-      else {
-        this.hopDir(dir);
-
-        // clear the selection if we only have one thing selected
-        if (this.selection.ends[dir] === this.selection.ends[-dir]) {
-          this.clearSelection().show();
-          return;
-        }
-
-        this.selection.retractDir(dir);
-      }
-    }
-    // no selection, create one
-    else {
-      if (this[dir]) this.hopDir(dir);
-      // else edge of a block
-      else {
-        if (this.parent === this.root) return;
-
-        this.insertAdjacent(dir, this.parent.parent);
-      }
-
-      this.hide().selection = Selection(this[-dir]);
-    }
+    if (this[dir]) this[dir].selectTowards(dir, this);
+    else if (this.parent !== this.root) this.parent.selectOutOf(dir, this);
 
     this.root.selectionChanged();
   };
@@ -519,22 +475,5 @@ var Selection = P(MathFragment, function(_, _super) {
   _.clear = function() {
     this.jQ.replaceWith(this.jQ.children());
     return this;
-  };
-  _.levelUp = function() {
-    var seln = this,
-      gramp = seln.ends[L] = seln.ends[R] = seln.ends[R].parent.parent;
-    seln.clear().jQwrap(gramp.jQ);
-    return seln;
-  };
-  _.extendDir = function(dir) {
-    prayDirection(dir);
-    this.ends[dir] = this.ends[dir][dir];
-    jQappendDir(dir, this.ends[dir].jQ, this.jQ);
-    return this;
-  };
-  _.retractDir = function(dir) {
-    prayDirection(dir);
-    jQinsertAdjacent(-dir, this.ends[-dir].jQ, this.jQ);
-    this.ends[-dir] = this.ends[-dir][dir];
   };
 });

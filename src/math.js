@@ -170,6 +170,32 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
+  _.selectTowards = function(dir, cursor) {
+    cursor[-dir] = this;
+    cursor[dir] = this[dir];
+
+    var seln = cursor.selection;
+    // no selection, create one
+    if (!seln) cursor.hide().selection = Selection(this);
+    // if cursor is at the (dir) edge of selection
+    else if (seln.ends[dir] === this[-dir]) {
+      // extend the selection (dir)ward
+      seln.ends[dir] = this;
+      jQappendDir(dir, this.jQ, seln.jQ);
+    }
+    // else cursor is at the (-dir) edge of selection
+    else {
+      // if only one thing selected, clear selection
+      if (seln.ends[dir] === seln.ends[-dir]) {
+        cursor.clearSelection().show();
+      }
+      // else retract the selection (dir)ward
+      else {
+        jQinsertAdjacent(-dir, this.jQ, seln.jQ);
+        seln.ends[-dir] = this[dir];
+      }
+    }
+  };
 
   // remove()
   _.remove = function() {
@@ -365,6 +391,11 @@ var MathBlock = P(MathElement, function(_) {
   _.moveOutOf = function(dir, cursor) {
     if (this[dir]) cursor.appendDir(-dir, this[dir]);
     else cursor.insertAdjacent(dir, this.parent);
+  };
+  _.selectOutOf = function(dir, cursor) {
+    var cmd = this.parent;
+    cursor.hide().insertAdjacent(dir, cmd)
+    .selection = Selection(cmd);
   };
 
   _.focus = function() {
