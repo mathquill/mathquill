@@ -196,6 +196,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       }
     }
   };
+  _.deleteTowards = _.selectTowards;
 
   // remove()
   _.remove = function() {
@@ -356,6 +357,9 @@ var Symbol = P(MathCommand, function(_, _super) {
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
+  _.deleteTowards = function(dir, cursor) {
+    cursor[dir] = this.remove()[dir];
+  };
 
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
@@ -396,6 +400,9 @@ var MathBlock = P(MathElement, function(_) {
     var cmd = this.parent;
     cursor.hide().insertAdjacent(dir, cmd)
     .selection = Selection(cmd);
+  };
+  _.deleteOutOf = function(dir, cursor) {
+    cursor.unwrapGramp();
   };
 
   _.focus = function() {

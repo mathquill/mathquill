@@ -347,18 +347,8 @@ var Cursor = P(Point, function(_) {
     this.show();
 
     if (this.deleteSelection()); // pass
-    else if (this[dir]) {
-      if (this[dir] instanceof Symbol)
-        this[dir] = this[dir].remove()[dir];
-      else
-        this.selectDir(dir);
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertAdjacent(-dir, this.parent.parent).deleteDir(dir);
-      else
-        this.unwrapGramp();
-    }
+    else if (this[dir]) this[dir].deleteTowards(dir, this);
+    else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
 
     if (this[L])
       this[L].respace();
