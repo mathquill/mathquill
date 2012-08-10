@@ -166,6 +166,11 @@ var MathCommand = P(MathElement, function(_, _super) {
     }));
   };
 
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
+  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
+
   // remove()
   _.remove = function() {
     this.disown()
@@ -319,6 +324,13 @@ var Symbol = P(MathCommand, function(_, _super) {
     replacedFragment.remove();
   };
   _.createBlocks = noop;
+
+  _.moveTowards = function(dir, cursor) {
+    jQinsertAdjacent(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
+    cursor[-dir] = this;
+    cursor[dir] = this[dir];
+  };
+
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
   _.placeCursor = noop;
@@ -346,6 +358,15 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.ch[L] === 0 && this.ch[R] === 0;
   };
+
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
+  _.moveOutOf = function(dir, cursor) {
+    if (this[dir]) cursor.appendDir(-dir, this[dir]);
+    else cursor.insertAdjacent(dir, this.parent);
+  };
+
   _.focus = function() {
     this.jQ.addClass('hasCursor');
     this.jQ.removeClass('empty');

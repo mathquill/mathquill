@@ -98,17 +98,8 @@ var Cursor = P(Point, function(_) {
   _.moveDirWithin = function(dir, block) {
     prayDirection(dir);
 
-    if (this[dir]) {
-      if (this[dir].ch[-dir]) this.appendDir(-dir, this[dir].ch[-dir]);
-      else this.hopDir(dir);
-    }
-    else {
-      // we're at the beginning/end of the containing block, so do nothing
-      if (this.parent === block) return;
-
-      if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
-      else this.insertAdjacent(dir, this.parent.parent);
-    }
+    if (this[dir]) this[dir].moveTowards(dir, this);
+    else if (this.parent !== block) this.parent.moveOutOf(dir, this);
   };
   _.moveLeftWithin = function(block) {
     return this.moveDirWithin(L, block);
