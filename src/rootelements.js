@@ -222,42 +222,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Esc':
     case 'Tab':
     case 'Spacebar':
-      var parent = this.cursor.parent;
-      // cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent[R]) {
-        // go one block right
-        this.cursor.prependTo(parent[R]);
-      } else {
-        // get out of the block
-        this.cursor.insertAfter(parent.parent);
-      }
+      this.cursor.escapeDir(R, key, e);
       break;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
-      var parent = this.cursor.parent;
-      //cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Shift-Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent[L]) {
-        // go one block left
-        this.cursor.appendTo(parent[L]);
-      } else {
-        //get out of the block
-        this.cursor.insertBefore(parent.parent);
-      }
+      this.cursor.escapeDir(L, key, e);
       break;
 
     // Prevent newlines from showing up

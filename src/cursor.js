@@ -84,6 +84,24 @@ var Cursor = P(Point, function(_) {
   _.prependTo = function(el) { return this.appendDir(L, el); };
   _.appendTo = function(el) { return this.appendDir(R, el); };
 
+  _.escapeDir = function(dir, key, e) {
+    prayDirection(dir);
+
+    // always prevent default of Spacebar, but only prevent default of Tab if
+    // not in the root editable
+    if (key === 'Spacebar' || this.parent !== this.root) {
+      e.preventDefault();
+    }
+
+    // want to be a noop if in the root editable (in fact, Tab has an unrelated
+    // default browser action if so)
+    if (this.parent === this.root) return;
+
+    clearUpDownCache(this);
+    this.show().clearSelection();
+    this.parent.moveOutOf(dir, this);
+  };
+
   _.moveDirWithin = function(dir, block) {
     prayDirection(dir);
 
