@@ -2,28 +2,12 @@
  * Abstract classes of math blocks and commands.
  ************************************************/
 
-var uuid = (function() {
-  var id = 0;
-
-  return function() { return id += 1; };
-})();
-
 /**
  * Math tree node base class.
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, _super) {
-  _.init = function(obj) {
-    _super.init.call(this);
-    this.id = uuid();
-    MathElement[this.id] = this;
-  };
-
-  _.toString = function() {
-    return '[MathElement '+this.id+']';
-  };
-
   _.bubble = function(event /*, args... */) {
     var args = __slice.call(arguments, 1);
 
@@ -63,8 +47,8 @@ var MathElement = P(Node, function(_, _super) {
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
         blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) MathElement[cmdId].jQadd(jQ);
-      if (blockId) MathElement[blockId].jQadd(jQ);
+      if (cmdId) Node.byId[cmdId].jQadd(jQ);
+      if (blockId) Node.byId[blockId].jQadd(jQ);
     });
     return jQ;
   };
@@ -203,7 +187,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     this.disown()
     this.jQ.remove();
 
-    this.postOrder(function(el) { delete MathElement[el.id]; });
+    this.postOrder(function(el) { delete Node.byId[el.id]; });
 
     return this;
   };
@@ -438,7 +422,7 @@ var MathFragment = P(Fragment, function(_, _super) {
 
     this.each(function(el) {
       el.postOrder(function(desc) {
-        delete MathElement[desc.id];
+        delete Node.byId[desc.id];
       });
     });
 

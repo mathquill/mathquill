@@ -63,11 +63,20 @@ var Node = P(function(_) {
   _[R] = 0
   _.parent = 0;
 
+  var id = 0;
+  function uniqueNodeId() { return id += 1; }
+  this.byId = {};
+
   _.init = function() {
+    this.id = uniqueNodeId();
+    Node.byId[this.id] = this;
+
     this.ch = {};
     this.ch[L] = 0;
     this.ch[R] = 0;
   };
+
+  _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
   _.children = function() {
     return Fragment(this.ch[L], this.ch[R]);

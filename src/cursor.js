@@ -187,11 +187,11 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
     var cmd, block, cursor = this.clearSelection().show();
     if (target.hasClass('empty')) {
-      cursor.prependTo(MathElement[target.attr(mqBlockId)]);
+      cursor.prependTo(Node.byId[target.attr(mqBlockId)]);
       return cursor;
     }
 
-    cmd = MathElement[target.attr(mqCmdId)];
+    cmd = Node.byId[target.attr(mqCmdId)];
     if (cmd instanceof Symbol) { //insert at whichever side is closer
       if (target.outerWidth() > 2*(pageX - target.offset().left))
         cursor.insertBefore(cmd);
@@ -201,12 +201,12 @@ var Cursor = P(Point, function(_) {
       return cursor;
     }
     if (!cmd) {
-      block = MathElement[target.attr(mqBlockId)];
+      block = Node.byId[target.attr(mqBlockId)];
       if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
         target = target.parent();
-        cmd = MathElement[target.attr(mqCmdId)];
+        cmd = Node.byId[target.attr(mqCmdId)];
         if (!cmd) {
-          block = MathElement[target.attr(mqBlockId)];
+          block = Node.byId[target.attr(mqBlockId)];
           if (!block) block = cursor.root;
         }
       }

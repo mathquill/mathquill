@@ -2,7 +2,7 @@ suite('up/down', function() {
   var el, rootBlock, cursor;
   setup(function() {
     el = $('<span></span>').appendTo('#mock').mathquill();
-    rootBlock = MathElement[el.attr(mqBlockId)];
+    rootBlock = Node.byId[el.attr(mqBlockId)];
     cursor = rootBlock.cursor;
   });
   teardown(function() {
