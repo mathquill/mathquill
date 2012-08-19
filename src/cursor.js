@@ -137,9 +137,9 @@ var Cursor = P(Point, function(_) {
    * - else check the parent's 'up'/'down' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
-   *   + if it's a undefined, bubble up to the next ancestor block.
+   *   + if it's a undefined, bubble up to the next ancestor.
    *   + if it's false, stop bubbling.
-   *   + if it's a MathBlock, check if there's a Point in it cached for it,
+   *   + if it's a Node, check if there's a Point in it cached for it,
    *     - if so put the cursor there,
    *     - if not seek a position in the block that is horizontally closest to
    *       the cursor's current position
@@ -151,15 +151,15 @@ var Cursor = P(Point, function(_) {
     if (self[R][dirInto]) self.prependTo(self[R][dirInto]);
     else if (self[L][dirInto]) self.appendTo(self[L][dirInto]);
     else {
-      var ancestorBlock = self.parent;
+      var ancestor = self.parent;
       do {
-        var prop = ancestorBlock[dirOutOf];
+        var prop = ancestor[dirOutOf];
         if (prop) {
-          if (typeof prop === 'function') prop = ancestorBlock[dirOutOf](self);
-          if (prop === false || prop instanceof MathBlock) {
-            self.upDownCache[ancestorBlock.id] = Point(self.parent, self[L], self[R]);
+          if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
+          if (prop === false || prop instanceof Node) {
+            self.upDownCache[ancestor.id] = Point(self.parent, self[L], self[R]);
 
-            if (prop instanceof MathBlock) {
+            if (prop instanceof Node) {
               var cached = self.upDownCache[prop.id];
 
               if (cached) {
@@ -177,8 +177,8 @@ var Cursor = P(Point, function(_) {
             break;
           }
         }
-        ancestorBlock = ancestorBlock.parent.parent;
-      } while (ancestorBlock);
+        ancestor = ancestor.parent;
+      } while (ancestor);
     }
 
     return self.clearSelection().show();
