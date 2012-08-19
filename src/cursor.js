@@ -147,14 +147,15 @@ var Cursor = P(Point, function(_) {
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    if (self[R][dir]) self.prependTo(self[R][dir]);
-    else if (self[L][dir]) self.appendTo(self[L][dir]);
+    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
+    if (self[R][dirInto]) self.prependTo(self[R][dirInto]);
+    else if (self[L][dirInto]) self.appendTo(self[L][dirInto]);
     else {
       var ancestorBlock = self.parent;
       do {
-        var prop = ancestorBlock[dir];
+        var prop = ancestorBlock[dirOutOf];
         if (prop) {
-          if (typeof prop === 'function') prop = ancestorBlock[dir](self);
+          if (typeof prop === 'function') prop = ancestorBlock[dirOutOf](self);
           if (prop === false || prop instanceof MathBlock) {
             self.upDownCache[ancestorBlock.id] = Point(self.parent, self[L], self[R]);
 

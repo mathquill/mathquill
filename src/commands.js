@@ -90,12 +90,12 @@ var SupSub = P(MathCommand, function(_, _super) {
     );
 
     if (this.ctrlSeq === '_') {
-      this.down = this.ch[L];
-      this.ch[L].up = insertBeforeUnlessAtEnd;
+      this.downInto = this.ch[L];
+      this.ch[L].upOutOf = insertBeforeUnlessAtEnd;
     }
     else {
-      this.up = this.ch[L];
-      this.ch[L].down = insertBeforeUnlessAtEnd;
+      this.upInto = this.ch[L];
+      this.ch[L].downOutOf = insertBeforeUnlessAtEnd;
     }
     function insertBeforeUnlessAtEnd(cursor) {
       // cursor.insertBefore(cmd), unless cursor at the end of block, and every
@@ -204,8 +204,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
-    this.up = this.ch[R].up = this.ch[L];
-    this.down = this.ch[L].down = this.ch[R];
+    this.upInto = this.ch[R].upOutOf = this.ch[L];
+    this.downInto = this.ch[L].downOutOf = this.ch[R];
   };
 });
 
