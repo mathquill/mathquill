@@ -181,6 +181,10 @@ var MathCommand = P(MathElement, function(_, _super) {
     }
   };
   _.deleteTowards = _.selectTowards;
+  _.selectChildren = function(cursor) {
+    cursor.selection = Selection(this);
+    cursor.insertAfter(this);
+  };
 
   // remove()
   _.remove = function() {
@@ -387,6 +391,10 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
+  };
+  _.selectChildren = function(cursor, first, last) {
+    cursor.selection = Selection(first, last);
+    cursor.insertAfter(last);
   };
 
   _.focus = function() {

@@ -390,14 +390,7 @@ var Cursor = P(Point, function(_) {
     var rightEnd = selection.ends[L];
     var lca = leftEnd.parent;
 
-    if (lca instanceof MathCommand) {
-      this.hide().selection = Selection(lca);
-      this.insertAfter(lca);
-    }
-    else {
-      this.hide().selection = Selection(leftEnd, rightEnd);
-      this.insertAfter(rightEnd);
-    }
+    lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
