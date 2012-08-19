@@ -183,5 +183,83 @@ suite('tree', function() {
       frag.disown();
       frag.disown();
     });
+
+    suite('Fragment.between()', function() {
+      function assertFragmentBetween(A, B, first, last) {
+        last = last || first;
+
+        (function eitherOrder(A, B) {
+
+          var frag = Fragment.between(A, B);
+          assert.equal(frag.ends[L], first);
+          assert.equal(frag.ends[R], last);
+
+          return eitherOrder;
+        }(A, B)(B, A));
+      }
+
+      var parent = Node();
+      var child1 = Node().adopt(parent, parent.ch[R], 0);
+      var child2 = Node().adopt(parent, parent.ch[R], 0);
+      var child3 = Node().adopt(parent, parent.ch[R], 0);
+      var A = Point(parent, 0, child1);
+      var B = Point(parent, child1, child2);
+      var C = Point(parent, child2, child3);
+      var D = Point(parent, child3, 0);
+      var pt1 = Point(child1, 0, 0);
+      var pt2 = Point(child2, 0, 0);
+      var pt3 = Point(child3, 0, 0);
+
+      test('same parent, one Node', function() {
+        assertFragmentBetween(A, B, child1);
+        assertFragmentBetween(B, C, child2);
+        assertFragmentBetween(C, D, child3);
+      });
+
+      test('same Parent, many Nodes', function() {
+        assertFragmentBetween(A, C, child1, child2);
+        assertFragmentBetween(A, D, child1, child3);
+        assertFragmentBetween(B, D, child2, child3);
+      });
+
+      test('Point next to parent of other Point', function() {
+        assertFragmentBetween(A, pt1, child1);
+        assertFragmentBetween(B, pt1, child1);
+
+        assertFragmentBetween(B, pt2, child2);
+        assertFragmentBetween(C, pt2, child2);
+
+        assertFragmentBetween(C, pt3, child3);
+        assertFragmentBetween(D, pt3, child3);
+      });
+
+      test('Points\' parents are siblings', function() {
+        assertFragmentBetween(pt1, pt2, child1, child2);
+        assertFragmentBetween(pt2, pt3, child2, child3);
+        assertFragmentBetween(pt1, pt3, child1, child3);
+      });
+
+      test('Point is sibling of parent of other Point', function() {
+        assertFragmentBetween(A, pt2, child1, child2);
+        assertFragmentBetween(A, pt3, child1, child3);
+        assertFragmentBetween(B, pt3, child2, child3);
+        assertFragmentBetween(pt1, D, child1, child3);
+        assertFragmentBetween(pt1, C, child1, child2);
+      });
+
+      test('same Point', function() {
+        assert.throws(function() {
+          var A2 = Point(parent, 0, child1);
+          Fragment.between(A, A2);
+        });
+      });
+
+      test('different trees', function() {
+        var anotherTree = Node();
+        var pt = Point(anotherTree, 0, 0);
+        assert.throws(function() { Fragment.between(pt, A); });
+        assert.throws(function() { Fragment.between(A, pt); });
+      });
+    });
   });
 });

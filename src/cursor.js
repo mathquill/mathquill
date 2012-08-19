@@ -379,45 +379,25 @@ var Cursor = P(Point, function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
   _.selectFrom = function(anticursor) {
-    //find ancestors of each with common parent
-    var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
-    loopThroughAncestors: while (true) {
-      for (var oneI = this; oneI !== oneA.parent.parent; oneI = oneI.parent.parent) //one intermediate, the other intermediate
-        if (oneI.parent === otherA.parent) {
-          left = oneI;
-          right = otherA;
-          break loopThroughAncestors;
-        }
+    // `this` cursor and the anticursor should be in the same tree, because
+    // the mousemove handler attached to the document, unlike the one attached
+    // to the root HTML DOM element, doesn't try to get the math tree node of
+    // the mousemove target, and Cursor::seek() based solely on coordinates
+    // stays within the tree of `this` cursor's root.
+    var selection = Fragment.between(this, anticursor);
 
-      for (var otherI = anticursor; otherI !== otherA.parent.parent; otherI = otherI.parent.parent)
-        if (oneA.parent === otherI.parent) {
-          left = oneA;
-          right = otherI;
-          break loopThroughAncestors;
-        }
+    var leftEnd = selection.ends[L];
+    var rightEnd = selection.ends[L];
+    var lca = leftEnd.parent;
 
-      if (oneA.parent.parent)
-        oneA = oneA.parent.parent;
-      if (otherA.parent.parent)
-        otherA = otherA.parent.parent;
+    if (lca instanceof MathCommand) {
+      this.hide().selection = Selection(lca);
+      this.insertAfter(lca);
     }
-    //figure out which is left/prev and which is right/next
-    var left, right, leftRight;
-    if (left[R] !== right) {
-      for (var next = left; next; next = next[R]) {
-        if (next === right[L]) {
-          leftRight = true;
-          break;
-        }
-      }
-      if (!leftRight) {
-        leftRight = right;
-        right = left;
-        left = leftRight;
-      }
+    else {
+      this.hide().selection = Selection(leftEnd, rightEnd);
+      this.insertAfter(rightEnd);
     }
-    this.hide().selection = Selection(left[L][R] || left.parent.ch[L], right[R][L] || right.parent.ch[R]);
-    this.insertAfter(right[R][L] || right.parent.ch[R]);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
