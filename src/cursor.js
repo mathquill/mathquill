@@ -139,10 +139,7 @@ var Cursor = P(Point, function(_) {
    *     use the return value as if it were the value of the property
    *   + if it's undefined, bubble up to the next ancestor.
    *   + if it's false, stop bubbling.
-   *   + if it's a Node, check if there's a Point in it cached for it,
-   *     - if so put the cursor there,
-   *     - if not seek a position in the block that is horizontally closest to
-   *       the cursor's current position
+   *   + if it's a Node, jump up or down to it
    */
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
@@ -156,24 +153,9 @@ var Cursor = P(Point, function(_) {
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
-          if (prop === false || prop instanceof Node) {
-            self.upDownCache[ancestor.id] = Point(self.parent, self[L], self[R]);
-
-            if (prop instanceof Node) {
-              var cached = self.upDownCache[prop.id];
-
-              if (cached) {
-                if (cached[R]) {
-                  self.insertBefore(cached[R]);
-                } else {
-                  self.appendTo(cached.parent);
-                }
-              } else {
-                var pageX = offset(self).left;
-                self.appendTo(prop);
-                self.seekHoriz(pageX, prop);
-              }
-            }
+          if (prop === false) break;
+          if (prop instanceof Node) {
+            self.jumpUpDown(ancestor, prop);
             break;
           }
         }
@@ -183,6 +165,26 @@ var Cursor = P(Point, function(_) {
 
     return self.clearSelection().show();
   }
+  /**
+   * jump up or down from one block Node to another:
+   * - cache the current Point in the node we're jumping from
+   * - check if there's a Point in it cached for the node we're jumping to
+   *   + if so put the cursor there,
+   *   + if not seek a position in the node that is horizontally closest to
+   *     the cursor's current position
+   */
+  _.jumpUpDown = function(from, to) {
+    var self = this;
+    self.upDownCache[from.id] = Point(self.parent, self[L], self[R]);
+    var cached = self.upDownCache[to.id];
+    if (cached) {
+      cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
+    }
+    else {
+      var pageX = offset(self).left;
+      self.appendTo(to).seekHoriz(pageX, to);
+    }
+  };
 
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
