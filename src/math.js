@@ -410,7 +410,7 @@ var MathFragment = P(Fragment, function(_, _super) {
   };
   _.remove = function() {
     this.jQ.remove();
-    this.each(function(el) { el.postOrder('dispose'); });
+    this.each(send('postOrder', 'dispose'));
     return this.disown();
   };
 });

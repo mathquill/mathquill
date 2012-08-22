@@ -19,6 +19,13 @@ var __slice = [].slice;
 
 function noop() {}
 
+function send(method /*, args... */) {
+  var args = __slice.call(arguments, 1);
+  return function(obj) {
+    return obj[method].apply(obj, args);
+  };
+}
+
 /**
  * sugar to make defining lots of commands easier.
  * TODO: rethink this.
