@@ -390,7 +390,7 @@ var Cursor = P(Point, function(_) {
     var selection = Fragment.between(this, anticursor);
 
     var leftEnd = selection.ends[L];
-    var rightEnd = selection.ends[L];
+    var rightEnd = selection.ends[R];
     var lca = leftEnd.parent;
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
