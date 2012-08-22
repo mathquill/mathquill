@@ -188,39 +188,19 @@ var Cursor = P(Point, function(_) {
 
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
-    var cmd, block, cursor = this.clearSelection().show();
-    if (target.hasClass('empty')) {
-      cursor.prependTo(Node.byId[target.attr(mqBlockId)]);
-      return cursor;
+    var cursor = this.clearSelection().show();
+
+    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
+    if (!nodeId) {
+      var targetParent = target.parent();
+      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
     }
+    var node = nodeId ? Node.byId[nodeId] : cursor.root;
+    pray('nodeId is the id of some Node that exists', node);
 
-    cmd = Node.byId[target.attr(mqCmdId)];
-    if (cmd instanceof Symbol) { //insert at whichever side is closer
-      if (target.outerWidth() > 2*(pageX - target.offset().left))
-        cursor.insertBefore(cmd);
-      else
-        cursor.insertAfter(cmd);
+    node.seek(pageX, cursor);
 
-      return cursor;
-    }
-    if (!cmd) {
-      block = Node.byId[target.attr(mqBlockId)];
-      if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
-        target = target.parent();
-        cmd = Node.byId[target.attr(mqCmdId)];
-        if (!cmd) {
-          block = Node.byId[target.attr(mqBlockId)];
-          if (!block) block = cursor.root;
-        }
-      }
-    }
-
-    if (cmd)
-      cursor.insertAfter(cmd);
-    else
-      cursor.appendTo(block);
-
-    return cursor.seekHoriz(pageX, cursor.root);
+    return cursor;
   };
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click

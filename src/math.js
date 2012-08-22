@@ -185,6 +185,9 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
     cursor.insertAfter(this);
   };
+  _.seek = function(pageX, cursor) {
+    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
+  };
 
   // remove()
   _.remove = function() {
@@ -348,6 +351,13 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.deleteTowards = function(dir, cursor) {
     cursor[dir] = this.remove()[dir];
   };
+  _.seek = function(pageX, cursor) {
+    // insert at whichever side the click was closer to
+    if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
+      cursor.insertBefore(this);
+    else
+      cursor.insertAfter(this);
+  };
 
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
@@ -395,6 +405,9 @@ var MathBlock = P(MathElement, function(_) {
   _.selectChildren = function(cursor, first, last) {
     cursor.selection = Selection(first, last);
     cursor.insertAfter(last);
+  };
+  _.seek = function(pageX, cursor) {
+    cursor.appendTo(this).seekHoriz(pageX, this);
   };
 
   _.focus = function() {
