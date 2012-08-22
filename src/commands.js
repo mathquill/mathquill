@@ -668,28 +668,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.firstChild.latex(), cmd;
-    if (latex) {
-      cmd = LatexCmds[latex];
-      if (cmd) {
-        cmd = cmd(latex);
-      }
-      else {
-        cmd = TextBlock()
-        cmd.replaces(latex);
-        cmd.firstChild.focus = function(){ delete this.focus; return this; };
-        this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this._replacedFragment)
-          this._replacedFragment.remove();
-
-        return;
-      }
-    }
-    else
-      cmd = VanillaSymbol('\\backslash ','\\');
-
-    if (this._replacedFragment)
-      cmd.replaces(this._replacedFragment);
-    this.cursor.insertNew(cmd);
+    if (!latex) latex = 'backslash';
+    this.cursor.insertCmd(latex, this._replacedFragment);
   };
 });
 
