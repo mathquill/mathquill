@@ -66,13 +66,13 @@ $.fn.mathquill = function(cmd, latex) {
         if (cursor) {
           cursor.show();
           if (/^\\[a-z]+$/i.test(latex)) {
-            if (cursor.selection) {
-              //gotta do cursor before cursor.selection is mutated by 'new cmd(cursor.selection)'
-              cursor[L] = cursor.selection[L];
-              cursor[R] = cursor.selection[R];
+            var selection = cursor.selection;
+            if (selection) {
+              cursor[L] = selection.ends[L][L];
+              cursor[R] = selection.ends[R][R];
+              delete cursor.selection;
             }
-            cursor.insertCmd(latex.slice(1), cursor.selection);
-            delete cursor.selection;
+            cursor.insertCmd(latex.slice(1), selection);
           }
           else
             cursor.insertCh(latex);
