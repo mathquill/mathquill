@@ -187,8 +187,8 @@ var Cursor = P(Point, function(_) {
   };
 
   _.seek = function(target, pageX, pageY) {
-    clearUpDownCache(this);
     var cursor = this;
+    clearUpDownCache(cursor);
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
