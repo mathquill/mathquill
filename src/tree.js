@@ -78,6 +78,33 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
+  _.bubble = function(event /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
+      if (res === false) break;
+    }
+
+    return this;
+  };
+
+  _.postOrder = function(fn /*, args... */) {
+    var args = __slice.call(arguments, 1);
+
+    if (typeof fn === 'string') {
+      var methodName = fn;
+      fn = function(el) {
+        if (methodName in el) el[methodName].apply(el, arguments);
+      };
+    }
+
+    (function recurse(desc) {
+      desc.eachChild(recurse);
+      fn(desc);
+    })(this);
+  };
+
   _.children = function() {
     return Fragment(this.ch[L], this.ch[R]);
   };
