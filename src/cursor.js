@@ -188,7 +188,7 @@ var Cursor = P(Point, function(_) {
 
   _.seek = function(target, pageX, pageY) {
     clearUpDownCache(this);
-    var cursor = this.clearSelection().show();
+    var cursor = this;
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -197,6 +197,10 @@ var Cursor = P(Point, function(_) {
     }
     var node = nodeId ? Node.byId[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
+
+    // target could've been selection span, so get node from target before
+    // clearing selection
+    cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
 
