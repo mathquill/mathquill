@@ -178,7 +178,7 @@ var Cursor = P(Point, function(_) {
           }
         }
         ancestor = ancestor.parent;
-      } while (ancestor);
+      } while (ancestor !== self.root);
     }
 
     return self.clearSelection().show();
