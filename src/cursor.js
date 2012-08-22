@@ -134,10 +134,10 @@ var Cursor = P(Point, function(_) {
   /**
    * moveUp and moveDown have almost identical algorithms:
    * - first check next and prev, if so prepend/appendTo them
-   * - else check the parent's 'up'/'down' property:
+   * - else check the parent's 'upOutOf'/'downOutOf' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
-   *   + if it's a undefined, bubble up to the next ancestor.
+   *   + if it's undefined, bubble up to the next ancestor.
    *   + if it's false, stop bubbling.
    *   + if it's a Node, check if there's a Point in it cached for it,
    *     - if so put the cursor there,
