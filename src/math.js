@@ -164,12 +164,9 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // remove()
   _.remove = function() {
-    this.disown()
     this.jQ.remove();
-
     this.postOrder(function(el) { delete Node.byId[el.id]; });
-
-    return this;
+    return this.disown();
   };
 
   // methods involved in creating and cross-linking with HTML DOM nodes
