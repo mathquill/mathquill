@@ -104,8 +104,8 @@ var Node = P(function(_) {
     return Fragment(this.ch[L], this.ch[R]);
   };
 
-  _.eachChild = function(fn) {
-    return this.children().each(fn);
+  _.eachChild = function() {
+    return Fragment.prototype.each.apply(this.children(), arguments);
   };
 
   _.foldChildren = function(fold, fn) {
@@ -238,17 +238,20 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = function(fn) {
+  _.each = variadic(1, function(fn, args) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
+    if (typeof fn === 'string') fn = send(fn);
+
     for (;el !== self.ends[R][R]; el = el[R]) {
-      if (fn.call(self, el) === false) break;
+      var result = fn.apply(self, [ el ].concat(args));
+      if (result === false) break;
     }
 
     return self;
-  };
+  });
 
   _.fold = function(fold, fn) {
     this.each(function(el) {
