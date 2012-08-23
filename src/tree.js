@@ -80,23 +80,25 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
-  _.bubble = function(event /*, args... */) {
-    var args = __slice.call(arguments, 1);
+  _.bubble = variadic(1, function(fn, args) {
+    if (typeof fn === 'string') fn = send(fn);
 
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
-      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
-      if (res === false) break;
+      var result = fn.apply(ancestor, [ ancestor ].concat(args));
+      if (result === false) break;
     }
 
     return this;
-  };
+  });
 
-  _.postOrder = function(method) {
-    (function recurse(desc) {
-      desc.eachChild(recurse);
-      if (method in desc) desc[method]();
+  _.postOrder = variadic(1, function(fn, args) {
+    if (typeof fn === 'string') fn = send(fn);
+
+    (function recurse(descendant) {
+      descendant.eachChild(recurse);
+      fn.apply(descendant, [ descendant ].concat(args));
     })(this);
-  };
+  });
 
   _.children = function() {
     return Fragment(this.ch[L], this.ch[R]);

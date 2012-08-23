@@ -15,16 +15,22 @@ var $ = jQuery,
   min = Math.min,
   max = Math.max;
 
-var __slice = [].slice;
-
 function noop() {}
 
-function send(method /*, args... */) {
-  var args = __slice.call(arguments, 1);
-  return function(obj) {
-    return obj[method].apply(obj, args);
+var __slice = [].slice;
+function variadic(n, fn) {
+  return function() {
+    var args = __slice.call(arguments, 0, n);
+    var varArg = __slice.call(arguments, n);
+    return fn.apply(this, args.concat([ varArg ]));
   };
 }
+
+var send = variadic(1, function(method, args) {
+  return variadic(1, function(obj, moreArgs) {
+    if (method in obj) return obj[method].apply(obj, args.concat(moreArgs));
+  });
+});
 
 /**
  * sugar to make defining lots of commands easier.
