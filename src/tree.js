@@ -76,6 +76,8 @@ var Node = P(function(_) {
     this.ch[R] = 0;
   };
 
+  _.dispose = function() { delete Node.byId[this.id]; };
+
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
   _.bubble = function(event /*, args... */) {
@@ -89,17 +91,10 @@ var Node = P(function(_) {
     return this;
   };
 
-  _.postOrder = function(fn) {
-    if (typeof fn === 'string') {
-      var methodName = fn;
-      fn = function(el) {
-        if (methodName in el) el[methodName].apply(el, arguments);
-      };
-    }
-
+  _.postOrder = function(method) {
     (function recurse(desc) {
       desc.eachChild(recurse);
-      fn(desc);
+      if (method in desc) desc[method]();
     })(this);
   };
 

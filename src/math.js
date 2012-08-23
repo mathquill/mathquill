@@ -165,7 +165,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   // remove()
   _.remove = function() {
     this.jQ.remove();
-    this.postOrder(function(el) { delete Node.byId[el.id]; });
+    this.postOrder('dispose');
     return this.disown();
   };
 
@@ -410,13 +410,7 @@ var MathFragment = P(Fragment, function(_, _super) {
   };
   _.remove = function() {
     this.jQ.remove();
-
-    this.each(function(el) {
-      el.postOrder(function(desc) {
-        delete Node.byId[desc.id];
-      });
-    });
-
+    this.each(function(el) { el.postOrder('dispose'); });
     return this.disown();
   };
 });
