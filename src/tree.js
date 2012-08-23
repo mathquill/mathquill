@@ -89,9 +89,7 @@ var Node = P(function(_) {
     return this;
   };
 
-  _.postOrder = function(fn /*, args... */) {
-    var args = __slice.call(arguments, 1);
-
+  _.postOrder = function(fn) {
     if (typeof fn === 'string') {
       var methodName = fn;
       fn = function(el) {
