@@ -17,17 +17,26 @@ var $ = jQuery,
 
 function noop() {}
 
+/**
+ * A utility higher-order function that makes defining variadic
+ * functions more convenient by letting you essentially define functions
+ * with the last argument as a splat, i.e. the last argument "gathers up"
+ * remaining arguments to the function:
+ *   var doStuff = variadic(function(first, rest) { return rest; });
+ *   doStuff(1, 2, 3); // => [2, 3]
+ */
 var __slice = [].slice;
-function variadic(n, fn) {
+function variadic(fn) {
+  var numFixedArgs = fn.length - 1;
   return function() {
-    var args = __slice.call(arguments, 0, n);
-    var varArg = __slice.call(arguments, n);
+    var args = __slice.call(arguments, 0, numFixedArgs);
+    var varArg = __slice.call(arguments, numFixedArgs);
     return fn.apply(this, args.concat([ varArg ]));
   };
 }
 
-var send = variadic(1, function(method, args) {
-  return variadic(1, function(obj, moreArgs) {
+var send = variadic(function(method, args) {
+  return variadic(function(obj, moreArgs) {
     if (method in obj) return obj[method].apply(obj, args.concat(moreArgs));
   });
 });

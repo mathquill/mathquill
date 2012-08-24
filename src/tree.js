@@ -80,7 +80,7 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
-  _.bubble = variadic(1, function(fn, args) {
+  _.bubble = variadic(function(fn, args) {
     if (typeof fn === 'string') fn = send(fn);
 
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
@@ -91,7 +91,7 @@ var Node = P(function(_) {
     return this;
   });
 
-  _.postOrder = variadic(1, function(fn, args) {
+  _.postOrder = variadic(function(fn, args) {
     if (typeof fn === 'string') fn = send(fn);
 
     (function recurse(descendant) {
@@ -238,7 +238,7 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = variadic(1, function(fn, args) {
+  _.each = variadic(function(fn, args) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
