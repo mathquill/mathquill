@@ -241,7 +241,7 @@ var Fragment = P(function(_) {
     var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.ends[R][R]; el = el[R]) {
+    for (; el !== self.ends[R][R]; el = el[R]) {
       var result = yield(el);
       if (result === false) break;
     }
