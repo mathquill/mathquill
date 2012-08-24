@@ -94,6 +94,8 @@ var Node = P(function(_) {
       descendant.eachChild(recurse);
       yield(descendant);
     })(this);
+
+    return this;
   });
 
   _.children = function() {
