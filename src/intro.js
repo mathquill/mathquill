@@ -57,6 +57,39 @@ var send = variadic(function(method, args) {
 });
 
 /**
+ * A utility higher-order function that creates "implicit iterators"
+ * from "generators": given a function that takes in a sole argument,
+ * a "yield" function, that calls "yield" repeatedly with an object as
+ * a sole argument (presumably objects being iterated over), returns
+ * a function that calls it's first argument on each of those objects
+ * (if the first argument is a function, it is called repeatedly with
+ * each object as the first argument, otherwise it is stringified and
+ * the method of that name is called on each object (if such a method
+ * exists)), passing along all additional arguments:
+ *   var a = [
+ *     { method: function(list) { list.push(1); } },
+ *     { method: function(list) { list.push(2); } },
+ *     { method: function(list) { list.push(3); } }
+ *   ];
+ *   a.each = iterator(function(yield) {
+ *     for (var i in this) yield(this[i]);
+ *   });
+ *   var list = [];
+ *   a.each('method', list);
+ *   list; // => [1, 2, 3]
+ *   // Note that the for-in loop will yield 'each', but 'each' maps to
+ *   // the function object created by iterator() which does not have a
+ *   // .method() method, so that just fails silently.
+ */
+function iterator(generator) {
+  return variadic(function(fn, args) {
+    if (typeof fn !== 'function') fn = send(fn);
+    var yield = function(obj) { return fn.apply(obj, [ obj ].concat(args)); };
+    return generator.call(this, yield);
+  });
+}
+
+/**
  * sugar to make defining lots of commands easier.
  * TODO: rethink this.
  */

@@ -80,23 +80,19 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
-  _.bubble = variadic(function(fn, args) {
-    if (typeof fn === 'string') fn = send(fn);
-
+  _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
-      var result = fn.apply(ancestor, [ ancestor ].concat(args));
+      var result = yield(ancestor);
       if (result === false) break;
     }
 
     return this;
   });
 
-  _.postOrder = variadic(function(fn, args) {
-    if (typeof fn === 'string') fn = send(fn);
-
+  _.postOrder = iterator(function(yield) {
     (function recurse(descendant) {
       descendant.eachChild(recurse);
-      fn.apply(descendant, [ descendant ].concat(args));
+      yield(descendant);
     })(this);
   });
 
@@ -238,15 +234,13 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = variadic(function(fn, args) {
+  _.each = iterator(function(yield) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
-    if (typeof fn === 'string') fn = send(fn);
-
     for (;el !== self.ends[R][R]; el = el[R]) {
-      var result = fn.apply(self, [ el ].concat(args));
+      var result = yield(el);
       if (result === false) break;
     }
 
