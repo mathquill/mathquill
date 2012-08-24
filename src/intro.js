@@ -35,6 +35,21 @@ function variadic(fn) {
   };
 }
 
+/**
+ * A utility higher-order function that makes combining object-oriented
+ * programming and functional programming techniques more convenient:
+ * given a method name and any number of arguments to be bound, returns
+ * a function that calls it's first argument's method of that name (if
+ * it exists) with the bound arguments and any additional arguments that
+ * are passed:
+ *   var sendMethod = send('method', 1, 2);
+ *   var obj = { method: function() { return Array.apply(this, arguments); } };
+ *   sendMethod(obj, 3, 4); // => [1, 2, 3, 4]
+ *   // or more specifically,
+ *   var obj2 = { method: function(one, two, three) { return one*two + three; } };
+ *   sendMethod(obj2, 3); // => 5
+ *   sendMethod(obj2, 4); // => 6
+ */
 var send = variadic(function(method, args) {
   return variadic(function(obj, moreArgs) {
     if (method in obj) return obj[method].apply(obj, args.concat(moreArgs));
