@@ -103,7 +103,9 @@ var Node = P(function(_) {
   };
 
   _.eachChild = function() {
-    return Fragment.prototype.each.apply(this.children(), arguments);
+    var children = this.children();
+    children.each.apply(children, arguments);
+    return this;
   };
 
   _.foldChildren = function(fold, fn) {
