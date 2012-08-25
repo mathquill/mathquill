@@ -80,30 +80,32 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
-  _.bubble = function(event /*, args... */) {
-    var args = __slice.call(arguments, 1);
-
+  _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
-      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
-      if (res === false) break;
+      var result = yield(ancestor);
+      if (result === false) break;
     }
 
     return this;
-  };
+  });
 
-  _.postOrder = function(method) {
-    (function recurse(desc) {
-      desc.eachChild(recurse);
-      if (method in desc) desc[method]();
+  _.postOrder = iterator(function(yield) {
+    (function recurse(descendant) {
+      descendant.eachChild(recurse);
+      yield(descendant);
     })(this);
-  };
+
+    return this;
+  });
 
   _.children = function() {
     return Fragment(this.ch[L], this.ch[R]);
   };
 
-  _.eachChild = function(fn) {
-    return this.children().each(fn);
+  _.eachChild = function() {
+    var children = this.children();
+    children.each.apply(children, arguments);
+    return this;
   };
 
   _.foldChildren = function(fold, fn) {
@@ -236,17 +238,18 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = function(fn) {
+  _.each = iterator(function(yield) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.ends[R][R]; el = el[R]) {
-      if (fn.call(self, el) === false) break;
+    for (; el !== self.ends[R][R]; el = el[R]) {
+      var result = yield(el);
+      if (result === false) break;
     }
 
     return self;
-  };
+  });
 
   _.fold = function(fold, fn) {
     this.each(function(el) {
