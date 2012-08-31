@@ -284,13 +284,13 @@ var Cursor = P(Point, function(_) {
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
-      cmd = cmd(replacedFragment, latexCmd);
+      cmd = cmd(latexCmd);
+      if (replacedFragment) cmd.replaces(replacedFragment);
       this.insertNew(cmd);
-      if (cmd instanceof Symbol && replacedFragment)
-        replacedFragment.remove();
     }
     else {
-      cmd = TextBlock(latexCmd);
+      cmd = TextBlock();
+      cmd.replaces(latexCmd);
       cmd.ch[L].focus = function(){ delete this.focus; return this; };
       this.insertNew(cmd).insertAfter(cmd);
       if (replacedFragment)

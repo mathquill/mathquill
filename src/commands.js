@@ -459,6 +459,11 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     this.ch[L].parent = this;
   };
+  _.finalizeInsert = function() {
+    //FIXME HACK blur removes the TextBlock
+    this.ch[L].blur = function() { delete this.blur; return this; };
+    _super.finalizeInsert.call(this);
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
 
@@ -668,28 +673,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.ch[L].latex(), cmd;
-    if (latex) {
-      cmd = LatexCmds[latex];
-      if (cmd) {
-        cmd = cmd(latex);
-      }
-      else {
-        cmd = TextBlock()
-        cmd.replaces(latex);
-        cmd.ch[L].focus = function(){ delete this.focus; return this; };
-        this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this._replacedFragment)
-          this._replacedFragment.remove();
-
-        return;
-      }
-    }
-    else
-      cmd = VanillaSymbol('\\backslash ','\\');
-
-    if (this._replacedFragment)
-      cmd.replaces(this._replacedFragment);
-    this.cursor.insertNew(cmd);
+    if (!latex) latex = 'backslash';
+    this.cursor.insertCmd(latex, this._replacedFragment);
   };
 });
 
