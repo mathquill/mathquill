@@ -459,6 +459,11 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     this.firstChild.parent = this;
   };
+  _.finalizeInsert = function() {
+    //FIXME HACK blur removes the TextBlock
+    this.firstChild.blur = function() { delete this.blur; return this; };
+    _super.finalizeInsert.call(this);
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
 
