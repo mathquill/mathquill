@@ -36,7 +36,13 @@ function createRoot(jQ, root, textbox, editable) {
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
-    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+    var latex = '';
+    if (cursor.selection) {
+      latex = cursor.selection.fold('', function(latex, el) {
+        return latex + el.latex();
+      });
+      latex = '$' + latex + '$';
+    }
     textareaManager.select(latex);
   }
 

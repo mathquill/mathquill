@@ -405,9 +405,6 @@ var MathFragment = P(Fragment, function(_, _super) {
     _super.init.call(this, first, last || first);
     this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   };
-  _.latex = function() {
-    return this.fold('', function(latex, el){ return latex + el.latex(); });
-  };
   _.remove = function() {
     this.jQ.remove();
     this.each('postOrder', 'dispose');
