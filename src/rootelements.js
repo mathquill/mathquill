@@ -394,8 +394,8 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
-        cursor.insRightOf(this.parent).backspace()
-          .insertNew(VanillaSymbol('\\$','$')).show();
+        cursor.insRightOf(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createLeftOf(cursor);
       }
       else if (!cursor[R])
         cursor.insRightOf(this.parent);
@@ -463,12 +463,12 @@ var RootTextBlock = P(MathBlock, function(_) {
   _.onText = function(ch) {
     this.cursor.prepareEdit();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCommand(this.cursor));
+      RootMathCommand(this.cursor).createLeftOf(this.cursor);
     else {
       var html;
       if (ch === '<') html = '&lt;';
       else if (ch === '>') html = '&gt;';
-      this.cursor.insertNew(VanillaSymbol(ch, html));
+      VanillaSymbol(ch, html).createLeftOf(this.cursor);
     }
 
     return false;

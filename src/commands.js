@@ -477,14 +477,16 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     var html;
     if (ch === '<') html = '&lt;';
     else if (ch === '>') html = '&gt;';
-    this.cursor.insertNew(VanillaSymbol(ch, html));
+    VanillaSymbol(ch, html).createLeftOf(this.cursor);
   };
   _.onText = function(ch) {
     this.cursor.prepareEdit();
     if (ch !== '$')
       this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insRightOf(this).backspace().insertNew(VanillaSymbol('\\$','$'));
+    else if (this.isEmpty()) {
+      this.cursor.insRightOf(this).backspace();
+      VanillaSymbol('\\$','$').createLeftOf(this.cursor);
+    }
     else if (!this.cursor[R])
       this.cursor.insRightOf(this);
     else if (!this.cursor[L])
@@ -497,7 +499,8 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
         this.placeCursor(cursor);
       };
       rightward.endChild[L].focus = function(){ return this; };
-      this.cursor.insRightOf(this).insertNew(rightward);
+      this.cursor.insRightOf(this);
+      rightward.createLeftOf(this.cursor);
       rightward[L] = this;
       this.cursor.insLeftOf(rightward);
       delete rightward.endChild[L].focus;
@@ -651,7 +654,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.onText = function(ch) {
     if (ch.match(/[a-z]/i)) {
       this.cursor.prepareEdit();
-      this.cursor.insertNew(VanillaSymbol(ch));
+      VanillaSymbol(ch).createLeftOf(this.cursor);
       return false;
     }
     this.renderCommand();
