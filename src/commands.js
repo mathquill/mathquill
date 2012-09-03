@@ -231,7 +231,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor[L]) {
-        this.replaces(MathFragment(prev[R] || cursor.parent.ch[L], cursor[L]));
+        this.replaces(Fragment(prev[R] || cursor.parent.ch[L], cursor[L]));
         cursor[L] = prev;
       }
     }
@@ -424,7 +424,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\text';
   _.htmlTemplate = '<span class="text">&0</span>';
   _.replaces = function(replacedText) {
-    if (replacedText instanceof MathFragment)
+    if (replacedText instanceof Fragment)
       this.replacedText = replacedText.remove().jQ.text();
     else if (typeof replacedText === 'string')
       this.replacedText = replacedText;
@@ -499,7 +499,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     else if (!this.cursor[L])
       this.cursor.insertBefore(this);
     else { //split apart
-      var next = TextBlock(MathFragment(this.cursor[R], this.ch[L].ch[R]));
+      var next = TextBlock(Fragment(this.cursor[R], this.ch[L].ch[R]));
       next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
         this[L] = 0;
         delete this.placeCursor;

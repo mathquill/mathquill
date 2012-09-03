@@ -425,12 +425,14 @@ var Cursor = P(Point, function(_) {
   };
 });
 
-var Selection = P(MathFragment, function(_, _super) {
-  _.init = function() {
-    var frag = this;
-    _super.init.apply(frag, arguments);
+var Selection = P(Fragment, function(_, _super) {
+  _.init = function(first, last) {
+    var seln = this;
 
-    frag.jQwrap(frag.jQ);
+    // just select one thing if only one argument
+    _super.init.call(seln, first, last || first);
+
+    seln.jQwrap(seln.jQ);
   };
   _.jQwrap = function(children) {
     this.jQ = children.wrapAll('<span class="selection"></span>').parent();

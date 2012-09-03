@@ -391,14 +391,3 @@ var MathBlock = P(MathElement, function(_) {
     return this;
   };
 });
-
-/**
- * Math tree fragment base class.
- * Some math-tree-specific extensions to Fragment.
- */
-var MathFragment = P(Fragment, function(_, _super) {
-  _.init = function(first, last) {
-    // just select one thing if only one argument
-    _super.init.call(this, first, last || first);
-  };
-});
