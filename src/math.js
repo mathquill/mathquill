@@ -401,9 +401,4 @@ var MathFragment = P(Fragment, function(_, _super) {
     // just select one thing if only one argument
     _super.init.call(this, first, last || first);
   };
-  _.remove = function() {
-    this.jQ.remove();
-    this.each('postOrder', 'dispose');
-    return this.disown();
-  };
 });

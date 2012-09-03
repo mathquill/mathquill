@@ -244,6 +244,12 @@ var Fragment = P(function(_) {
     return self;
   };
 
+  _.remove = function() {
+    this.jQ.remove();
+    this.each('postOrder', 'dispose');
+    return this.disown();
+  };
+
   _.each = iterator(function(yield) {
     var self = this;
     var el = self.ends[L];
