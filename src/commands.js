@@ -479,20 +479,6 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     else if (ch === '>') html = '&gt;';
     this.cursor.insertNew(VanillaSymbol(ch, html));
   };
-  _.onKey = function(key, e) {
-    //backspace and delete and ends of block don't unwrap
-    if (!this.cursor.selection &&
-      (
-        (key === 'Backspace' && !this.cursor[L]) ||
-        (key === 'Del' && !this.cursor[R])
-      )
-    ) {
-      if (this.isEmpty())
-        this.cursor.insRightOf(this);
-
-      return false;
-    }
-  };
   _.onText = function(ch) {
     this.cursor.prepareEdit();
     if (ch !== '$')
@@ -521,6 +507,10 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 });
 
 var InnerTextBlock = P(MathBlock, function(_, _super) {
+  // backspace and delete at ends of block don't unwrap
+  _.deleteOutOf = function(dir, cursor) {
+    if (this.isEmpty()) cursor.insRightOf(this.parent);
+  };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
