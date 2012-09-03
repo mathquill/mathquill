@@ -432,6 +432,8 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   };
   _.textTemplate = ['"', '"'];
   _.parser = function() {
+    var self = this;
+
     // TODO: correctly parse text mode
     var string = Parser.string;
     var regex = Parser.regex;
@@ -439,14 +441,13 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     return optWhitespace
       .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
       .map(function(text) {
-        var cmd = TextBlock();
-        cmd.createBlocks();
-        var block = cmd.endChild[L];
+        self.createBlocks();
+        var block = self.endChild[L];
         for (var i = 0; i < text.length; i += 1) {
           var ch = VanillaSymbol(text.charAt(i));
           ch.adopt(block, block.endChild[R], 0);
         }
-        return cmd;
+        return self;
       })
     ;
   };
