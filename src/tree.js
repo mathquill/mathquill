@@ -80,6 +80,9 @@ var Node = P(function(_) {
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
+  _.jQ = $();
+  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield(ancestor);
@@ -150,7 +153,10 @@ var Fragment = P(function(_) {
 
     this.ends[L] = first;
     this.ends[R] = last;
+
+    this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
+  _.jQ = $();
 
   function prayWellFormed(parent, prev, next) {
     pray('a parent is always present', parent);

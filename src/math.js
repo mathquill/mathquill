@@ -8,9 +8,6 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, _super) {
-  _.jQ = $();
-  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
-
   this.jQize = function(html) {
     // Sets the .jQ of the entire math subtree rooted at this command.
     // Expects .createBlocks() to have been called already, since it
@@ -403,7 +400,6 @@ var MathFragment = P(Fragment, function(_, _super) {
   _.init = function(first, last) {
     // just select one thing if only one argument
     _super.init.call(this, first, last || first);
-    this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   };
   _.remove = function() {
     this.jQ.remove();
