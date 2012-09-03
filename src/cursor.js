@@ -275,9 +275,6 @@ var Cursor = P(Point, function(_) {
       delete this.selection;
     }
 
-    return this.insertNew(cmd);
-  };
-  _.insertNew = function(cmd) {
     cmd.createBefore(this);
     return this;
   };
@@ -286,13 +283,14 @@ var Cursor = P(Point, function(_) {
     if (cmd) {
       cmd = cmd(latexCmd);
       if (replacedFragment) cmd.replaces(replacedFragment);
-      this.insertNew(cmd);
+      cmd.createBefore(this);
     }
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
       cmd.ch[L].focus = function(){ delete this.focus; return this; };
-      this.insertNew(cmd).insertAfter(cmd);
+      cmd.createBefore(this);
+      this.insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
