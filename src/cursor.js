@@ -260,17 +260,7 @@ var Cursor = P(Point, function(_) {
     return this.insertCh(ch, seln);
   };
   _.insertCh = function(ch, replacedFragment) {
-    var cmd;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = Variable(ch);
-    else if (cmd = CharCmds[ch] || LatexCmds[ch])
-      cmd = cmd(ch);
-    else
-      cmd = VanillaSymbol(ch);
-
-    if (replacedFragment) cmd.replaces(replacedFragment);
-
-    cmd.createBefore(this);
+    this.parent.write(this, ch, replacedFragment);
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {

@@ -376,6 +376,19 @@ var MathBlock = P(MathElement, function(_) {
   _.seek = function(pageX, cursor) {
     cursor.appendTo(this).seekHoriz(pageX, this);
   };
+  _.write = function(cursor, ch, replacedFragment) {
+    var cmd;
+    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+      cmd = Variable(ch);
+    else if (cmd = CharCmds[ch] || LatexCmds[ch])
+      cmd = cmd(ch);
+    else
+      cmd = VanillaSymbol(ch);
+
+    if (replacedFragment) cmd.replaces(replacedFragment);
+
+    cmd.createBefore(cursor);
+  };
 
   _.focus = function() {
     this.jQ.addClass('hasCursor');
