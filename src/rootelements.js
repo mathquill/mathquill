@@ -367,10 +367,10 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     this.ch[L].parent = this;
 
-    var cursor = this.ch[L].cursor = this.cursor;
-    this.ch[L].onText = function(ch) {
-      if (ch !== '$' || cursor.parent !== this)
-        cursor.write(ch);
+    this.ch[L].cursor = this.cursor;
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (ch !== '$')
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
         cursor.insertAfter(this.parent).backspace().show();
         VanillaSymbol('\\$','$').createBefore(cursor);
@@ -380,9 +380,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
       else if (!cursor[L])
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch);
-
-      return false;
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
   };
   _.latex = function() {
