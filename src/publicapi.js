@@ -64,18 +64,9 @@ $.fn.mathquill = function(cmd, latex) {
           cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show();
-          if (/^\\[a-z]+$/i.test(latex)) {
-            var selection = cursor.selection;
-            if (selection) {
-              cursor[L] = selection.ends[L][L];
-              cursor[R] = selection.ends[R][R];
-              delete cursor.selection;
-            }
-            cursor.insertCmd(latex.slice(1), selection);
-          }
-          else
-            cursor.insertCh(latex);
+          var seln = cursor.prepareWrite();
+          if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
+          else cursor.insertCh(latex, seln);
           cursor.hide().parent.blur();
         }
       });

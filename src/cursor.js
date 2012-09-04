@@ -256,10 +256,10 @@ var Cursor = P(Point, function(_) {
     return this.hide();
   };
   _.write = function(ch) {
-    clearUpDownCache(this);
-    return this.show().insertCh(ch);
+    var seln = this.prepareWrite();
+    return this.insertCh(ch, seln);
   };
-  _.insertCh = function(ch) {
+  _.insertCh = function(ch, replacedFragment) {
     var cmd;
     if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
       cmd = Variable(ch);
@@ -268,12 +268,7 @@ var Cursor = P(Point, function(_) {
     else
       cmd = VanillaSymbol(ch);
 
-    if (this.selection) {
-      this[L] = this.selection.ends[L][L];
-      this[R] = this.selection.ends[R][R];
-      cmd.replaces(this.selection);
-      delete this.selection;
-    }
+    if (replacedFragment) cmd.replaces(replacedFragment);
 
     cmd.createBefore(this);
     return this;
@@ -398,11 +393,14 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
     return this.show().clearSelection();
   };
-
   _.prepareEdit = function() {
     clearUpDownCache(this);
     return this.show().deleteSelection();
-  }
+  };
+  _.prepareWrite = function() {
+    clearUpDownCache(this);
+    return this.show().replaceSelection();
+  };
 
   _.clearSelection = function() {
     if (this.selection) {
@@ -420,6 +418,15 @@ var Cursor = P(Point, function(_) {
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
+  };
+  _.replaceSelection = function() {
+    var seln = this.selection;
+    if (seln) {
+      this[L] = seln.ends[L][L];
+      this[R] = seln.ends[R][R];
+      delete this.selection;
+    }
+    return seln;
   };
 });
 
