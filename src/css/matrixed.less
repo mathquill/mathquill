@@ -1,6 +1,20 @@
 @import "./mixins/display";
 
-.mathquill-rendered-math .matrixed {
-  background: white; // IE needs opaque background to anti-alias,
-                     // see wiki page Transforms.
+// We have to set an opaque background color for matrix-stretched
+// elements to anti-alias correctly, so we use the Chroma filter
+// on the immediate parent to make the solid background color
+// transparent.
+
+// See http://github.com/laughinghan/mathquill/wiki/Transforms
+// for more details.
+
+.mathquill-rendered-math {
+  .matrixed {
+    background: white;
+    .inline-block;
+  }
+  .matrixed-container {
+    filter: progid:DXImageTransform.Microsoft.Chroma(color='white');
+    margin-top: -.1em;
+  }
 }
