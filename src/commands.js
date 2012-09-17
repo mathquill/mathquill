@@ -471,41 +471,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     if (this.replacedText)
       for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  };
-  _.write = function(ch) {
-    var html;
-    if (ch === '<') html = '&lt;';
-    else if (ch === '>') html = '&gt;';
-    VanillaSymbol(ch, html).createLeftOf(this.cursor);
-  };
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty()) {
-      this.cursor.insRightOf(this).backspace();
-      VanillaSymbol('\\$','$').createLeftOf(this.cursor);
-    }
-    else if (!this.cursor[R])
-      this.cursor.insRightOf(this);
-    else if (!this.cursor[L])
-      this.cursor.insLeftOf(this);
-    else { //split apart
-      var rightward = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
-      rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      rightward.endChild[L].focus = function(){ return this; };
-      this.cursor.insRightOf(this);
-      rightward.createLeftOf(this.cursor);
-      rightward[L] = this;
-      this.cursor.insLeftOf(rightward);
-      delete rightward.endChild[L].focus;
-    }
-    return false;
+        this.endChild[L].write(cursor, this.replacedText.charAt(i));
   };
 });
 
@@ -513,6 +479,39 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
     if (this.isEmpty()) cursor.insRightOf(this.parent);
+  };
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
+
+    if (ch !== '$') {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      VanillaSymbol(ch, html).createLeftOf(cursor);
+    }
+    else if (this.isEmpty()) {
+      cursor.insRightOf(this).backspace();
+      VanillaSymbol('\\$','$').createLeftOf(cursor);
+    }
+    else if (!cursor[R])
+      cursor.insRightOf(this);
+    else if (!cursor[L])
+      cursor.insLeftOf(this);
+    else { //split apart
+      var rightward = TextBlock(MathFragment(cursor[R], this.endChild[R]));
+      rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
+        this[L] = 0;
+        delete this.placeCursor;
+        this.placeCursor(cursor);
+      };
+      rightward.endChild[L].focus = function(){ return this; };
+      cursor.insRightOf(this.parent);
+      rightward.createLeftOf(cursor);
+      rightward[L] = this.parent;
+      cursor.insLeftOf(rightward);
+      delete rightward.endChild[L].focus;
+    }
+    return false;
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
