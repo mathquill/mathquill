@@ -505,7 +505,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 var InnerTextBlock = P(MathBlock, function(_, _super) {
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
-    if (this.isEmpty()) cursor.insertAfter(this);
+    if (this.isEmpty()) cursor.insertAfter(this.parent);
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
