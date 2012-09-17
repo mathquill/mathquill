@@ -470,38 +470,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     if (this.replacedText)
       for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  };
-  _.write = function(ch) {
-    VanillaSymbol(ch).createBefore(this.cursor);
-  };
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty()) {
-      this.cursor.insertAfter(this).backspace();
-      VanillaSymbol('\\$','$').createBefore(this.cursor);
-    }
-    else if (!this.cursor[R])
-      this.cursor.insertAfter(this);
-    else if (!this.cursor[L])
-      this.cursor.insertBefore(this);
-    else { //split apart
-      var next = TextBlock(Fragment(this.cursor[R], this.ch[L].ch[R]));
-      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.ch[L].focus = function(){ return this; };
-      this.cursor.insertAfter(this);
-      next.createBefore(this.cursor);
-      next[L] = this;
-      this.cursor.insertBefore(next);
-      delete next.ch[L].focus;
-    }
-    return false;
+        this.ch[L].write(cursor, this.replacedText.charAt(i));
   };
 });
 
@@ -509,6 +478,35 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
     if (this.isEmpty()) cursor.insertAfter(this.parent);
+  };
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
+
+    if (ch !== '$')
+      VanillaSymbol(ch).createBefore(cursor);
+    else if (this.isEmpty()) {
+      cursor.insertAfter(this.parent).backspace();
+      VanillaSymbol('\\$','$').createBefore(cursor);
+    }
+    else if (!cursor[R])
+      cursor.insertAfter(this.parent);
+    else if (!cursor[L])
+      cursor.insertBefore(this.parent);
+    else { //split apart
+      var next = TextBlock(Fragment(cursor[R], this.ch[R]));
+      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
+        this[L] = 0;
+        delete this.placeCursor;
+        this.placeCursor(cursor);
+      };
+      next.ch[L].focus = function(){ return this; };
+      cursor.insertAfter(this.parent);
+      next.createBefore(cursor);
+      next[L] = this.parent;
+      cursor.insertBefore(next);
+      delete next.ch[L].focus;
+    }
+    return false;
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
