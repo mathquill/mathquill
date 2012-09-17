@@ -458,17 +458,16 @@ var RootTextBlock = P(MathBlock, function(_) {
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
+  _.onText = RootMathBlock.prototype.onText;
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      RootMathCommand(this.cursor).createLeftOf(this.cursor);
+      RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
       if (ch === '<') html = '&lt;';
       else if (ch === '>') html = '&gt;';
-      VanillaSymbol(ch, html).createLeftOf(this.cursor);
+      VanillaSymbol(ch, html).createLeftOf(cursor);
     }
-
-    return false;
   };
 });
