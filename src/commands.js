@@ -624,6 +624,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
+
     this.cursor = cursor.appendTo(this.ch[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -636,6 +637,16 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
+
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createBefore(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
   };
   _.latex = function() {
     return '\\' + this.ch[L].latex() + ' ';
@@ -646,16 +657,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       e.preventDefault();
       return false;
     }
-  };
-  _.onText = function(ch) {
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.prepareEdit();
-      VanillaSymbol(ch).createBefore(this.cursor);
-      return false;
-    }
-    this.renderCommand();
-    if (ch === '\\' && this.ch[L].isEmpty())
-      return false;
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
