@@ -628,6 +628,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createLeftOf = function(cursor) {
     _super.createLeftOf.call(this, cursor);
+
     this.cursor = cursor.insAtRightEnd(this.endChild[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -640,6 +641,16 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
+
+    this.endChild[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
   };
   _.latex = function() {
     return '\\' + this.endChild[L].latex() + ' ';
@@ -650,16 +661,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       e.preventDefault();
       return false;
     }
-  };
-  _.onText = function(ch) {
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.prepareEdit();
-      VanillaSymbol(ch).createLeftOf(this.cursor);
-      return false;
-    }
-    this.renderCommand();
-    if (ch === '\\' && this.endChild[L].isEmpty())
-      return false;
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
