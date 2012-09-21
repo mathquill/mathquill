@@ -124,6 +124,12 @@ var Node = P(function(_) {
     Fragment(this, this).disown();
     return this;
   };
+
+  _.remove = function() {
+    this.jQ.remove();
+    this.postOrder('dispose');
+    return this.disown();
+  };
 });
 
 /**

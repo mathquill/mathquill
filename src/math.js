@@ -159,13 +159,6 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.insertAfter(this).seekHoriz(pageX, this.parent);
   };
 
-  // remove()
-  _.remove = function() {
-    this.jQ.remove();
-    this.postOrder('dispose');
-    return this.disown();
-  };
-
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
     They all expect an .htmlTemplate like
