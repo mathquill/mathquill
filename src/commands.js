@@ -493,18 +493,22 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     else if (!cursor[L])
       cursor.insertBefore(this.parent);
     else { //split apart
-      var next = TextBlock(Fragment(cursor[R], this.ch[R]));
-      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.ch[L].focus = function(){ return this; };
+      var next = TextBlock();
+      next.replaces(Fragment(cursor[R], this.ch[R]));
+
       cursor.insertAfter(this.parent);
+
+      // FIXME HACK: pretend no prev so they don't get merged when
+      // .createBefore() calls blur on the InnerTextBlock
+      next.adopt = function() {
+        delete this.adopt;
+        this.adopt.apply(this, arguments);
+        this[L] = 0;
+      };
       next.createBefore(cursor);
       next[L] = this.parent;
+
       cursor.insertBefore(next);
-      delete next.ch[L].focus;
     }
     return false;
   };
