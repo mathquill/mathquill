@@ -367,22 +367,20 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     this.ch[L].parent = this;
 
-    var cursor = this.ch[L].cursor = this.cursor;
-    this.ch[L].onText = function(ch) {
-      if (ch !== '$' || cursor.parent !== this)
-        cursor.write(ch);
+    this.ch[L].cursor = this.cursor;
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (ch !== '$')
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
-          .insertNew(VanillaSymbol('\\$','$')).show();
+        cursor.insertAfter(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createBefore(cursor);
       }
       else if (!cursor[R])
         cursor.insertAfter(this.parent);
       else if (!cursor[L])
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch);
-
-      return false;
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
   };
   _.latex = function() {
@@ -438,13 +436,12 @@ var RootTextBlock = P(MathBlock, function(_) {
     }
   };
   _.onKey = RootMathBlock.prototype.onKey;
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
+  _.onText = RootMathBlock.prototype.onText;
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCommand(this.cursor));
+      RootMathCommand(cursor).createBefore(cursor);
     else
-      this.cursor.insertNew(VanillaSymbol(ch));
-
-    return false;
+      VanillaSymbol(ch).createBefore(cursor);
   };
 });

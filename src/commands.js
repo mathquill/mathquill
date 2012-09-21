@@ -470,35 +470,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     if (this.replacedText)
       for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  };
-  _.write = function(ch) {
-    this.cursor.insertNew(VanillaSymbol(ch));
-  };
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insertAfter(this).backspace().insertNew(VanillaSymbol('\\$','$'));
-    else if (!this.cursor[R])
-      this.cursor.insertAfter(this);
-    else if (!this.cursor[L])
-      this.cursor.insertBefore(this);
-    else { //split apart
-      var next = TextBlock(Fragment(this.cursor[R], this.ch[L].ch[R]));
-      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.ch[L].focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(next);
-      next[L] = this;
-      this.cursor.insertBefore(next);
-      delete next.ch[L].focus;
-    }
-    return false;
+        this.ch[L].write(cursor, this.replacedText.charAt(i));
   };
 });
 
@@ -506,6 +478,35 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
     if (this.isEmpty()) cursor.insertAfter(this.parent);
+  };
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
+
+    if (ch !== '$')
+      VanillaSymbol(ch).createBefore(cursor);
+    else if (this.isEmpty()) {
+      cursor.insertAfter(this.parent).backspace();
+      VanillaSymbol('\\$','$').createBefore(cursor);
+    }
+    else if (!cursor[R])
+      cursor.insertAfter(this.parent);
+    else if (!cursor[L])
+      cursor.insertBefore(this.parent);
+    else { //split apart
+      var next = TextBlock(Fragment(cursor[R], this.ch[R]));
+      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
+        this[L] = 0;
+        delete this.placeCursor;
+        this.placeCursor(cursor);
+      };
+      next.ch[L].focus = function(){ return this; };
+      cursor.insertAfter(this.parent);
+      next.createBefore(cursor);
+      next[L] = this.parent;
+      cursor.insertBefore(next);
+      delete next.ch[L].focus;
+    }
+    return false;
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
@@ -621,6 +622,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
+
     this.cursor = cursor.appendTo(this.ch[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -633,6 +635,16 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
+
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createBefore(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
   };
   _.latex = function() {
     return '\\' + this.ch[L].latex() + ' ';
@@ -643,16 +655,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       e.preventDefault();
       return false;
     }
-  };
-  _.onText = function(ch) {
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.prepareEdit();
-      this.cursor.insertNew(VanillaSymbol(ch));
-      return false;
-    }
-    this.renderCommand();
-    if (ch === '\\' && this.ch[L].isEmpty())
-      return false;
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();

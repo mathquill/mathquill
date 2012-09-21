@@ -256,29 +256,11 @@ var Cursor = P(Point, function(_) {
     return this.hide();
   };
   _.write = function(ch) {
-    clearUpDownCache(this);
-    return this.show().insertCh(ch);
+    var seln = this.prepareWrite();
+    return this.insertCh(ch, seln);
   };
-  _.insertCh = function(ch) {
-    var cmd;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = Variable(ch);
-    else if (cmd = CharCmds[ch] || LatexCmds[ch])
-      cmd = cmd(ch);
-    else
-      cmd = VanillaSymbol(ch);
-
-    if (this.selection) {
-      this[L] = this.selection.ends[L][L];
-      this[R] = this.selection.ends[R][R];
-      cmd.replaces(this.selection);
-      delete this.selection;
-    }
-
-    return this.insertNew(cmd);
-  };
-  _.insertNew = function(cmd) {
-    cmd.createBefore(this);
+  _.insertCh = function(ch, replacedFragment) {
+    this.parent.write(this, ch, replacedFragment);
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
@@ -286,13 +268,14 @@ var Cursor = P(Point, function(_) {
     if (cmd) {
       cmd = cmd(latexCmd);
       if (replacedFragment) cmd.replaces(replacedFragment);
-      this.insertNew(cmd);
+      cmd.createBefore(this);
     }
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
       cmd.ch[L].focus = function(){ delete this.focus; return this; };
-      this.insertNew(cmd).insertAfter(cmd);
+      cmd.createBefore(this);
+      this.insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
@@ -400,11 +383,14 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
     return this.show().clearSelection();
   };
-
   _.prepareEdit = function() {
     clearUpDownCache(this);
     return this.show().deleteSelection();
-  }
+  };
+  _.prepareWrite = function() {
+    clearUpDownCache(this);
+    return this.show().replaceSelection();
+  };
 
   _.clearSelection = function() {
     if (this.selection) {
@@ -422,6 +408,15 @@ var Cursor = P(Point, function(_) {
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
+  };
+  _.replaceSelection = function() {
+    var seln = this.selection;
+    if (seln) {
+      this[L] = seln.ends[L][L];
+      this[R] = seln.ends[R][R];
+      delete this.selection;
+    }
+    return seln;
   };
 });
 
