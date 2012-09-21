@@ -457,7 +457,10 @@ var RootTextBlock = P(MathBlock, function(_) {
       this.finalizeInsert();
     }
   };
-  _.onKey = RootMathBlock.prototype.onKey;
+  _.onKey = function(key) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
+    RootMathBlock.prototype.onKey.apply(this, arguments);
+  };
   _.onText = RootMathBlock.prototype.onText;
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
