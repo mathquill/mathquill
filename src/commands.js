@@ -498,18 +498,22 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     else if (!cursor[L])
       cursor.insLeftOf(this);
     else { //split apart
-      var rightward = TextBlock(MathFragment(cursor[R], this.endChild[R]));
-      rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      rightward.endChild[L].focus = function(){ return this; };
+      var rightward = TextBlock();
+      rightward.replaces(MathFragment(cursor[R], this.endChild[R]));
+
       cursor.insRightOf(this.parent);
+
+      // FIXME HACK: pretend no prev so they don't get merged when
+      // .createLeftOf() calls blur on the InnerTextBlock
+      rightward.adopt = function() {
+        delete this.adopt;
+        this.adopt.apply(this, arguments);
+        this[L] = 0;
+      };
       rightward.createLeftOf(cursor);
       rightward[L] = this.parent;
+
       cursor.insLeftOf(rightward);
-      delete rightward.endChild[L].focus;
     }
     return false;
   };
