@@ -475,6 +475,9 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 });
 
 var InnerTextBlock = P(MathBlock, function(_, _super) {
+  _.onKey = function(key, e) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return false;
+  };
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
     if (this.isEmpty()) cursor.insertAfter(this.parent);
