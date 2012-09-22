@@ -429,8 +429,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         commands[i].adopt(self, self.ch[R], 0);
       }
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+      self.jQize().appendTo(self.jQ);
 
       this.finalizeInsert();
     }

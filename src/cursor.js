@@ -247,7 +247,7 @@ var Cursor = P(Point, function(_) {
 
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
-      MathElement.jQize(block.join('html')).insertBefore(self.jQ);
+      block.jQize().insertBefore(self.jQ);
       self[L] = block.ch[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');

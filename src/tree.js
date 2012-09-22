@@ -82,6 +82,18 @@ var Node = P(function(_) {
 
   _.jQ = $();
   _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+  _.jQize = function() {
+    // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
+    var jQ = $(this.html());
+    jQ.find('*').andSelf().each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) Node.byId[cmdId].jQadd(jQ);
+      if (blockId) Node.byId[blockId].jQadd(jQ);
+    });
+    return jQ;
+  };
 
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {

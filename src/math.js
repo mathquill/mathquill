@@ -8,21 +8,6 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, _super) {
-  this.jQize = function(html) {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    var jQ = $(html);
-    jQ.find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) Node.byId[cmdId].jQadd(jQ);
-      if (blockId) Node.byId[blockId].jQadd(jQ);
-    });
-    return jQ;
-  };
-
   _.finalizeInsert = function() {
     var self = this;
     self.postOrder('finalizeTree');
@@ -89,7 +74,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    MathElement.jQize(cmd.html());
+    cmd.jQize();
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ch[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
@@ -336,6 +321,7 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
+  _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
     return this.ch[L] === this.ch[R] ?
