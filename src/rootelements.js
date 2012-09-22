@@ -431,7 +431,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
       self.jQize().appendTo(self.jQ);
 
-      this.finalizeInsert();
+      self.finalizeInsert();
     }
   };
   _.onKey = function(key) {
