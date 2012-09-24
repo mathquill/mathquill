@@ -74,17 +74,12 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    cmd.jQize();
+    _super.createBefore.call(cmd, cursor);
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ch[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
     }
-
-    cursor.jQ.before(cmd.jQ);
-    cursor[L] = cmd.adopt(cursor.parent, cursor[L], cursor[R]);
-
     cmd.finalizeInsert(cursor);
-
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {

@@ -95,6 +95,14 @@ var Node = P(function(_) {
     return jQ;
   };
 
+  _.createBefore = function(cursor) {
+    var node = this;
+    node.jQize();
+    cursor.jQ.before(node.jQ);
+    cursor[L] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    return node;
+  };
+
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield(ancestor);
