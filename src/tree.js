@@ -95,13 +95,15 @@ var Node = P(function(_) {
     return jQ;
   };
 
-  _.createBefore = function(cursor) {
+  _.createDir = function(dir, cursor) {
+    prayDirection(dir);
     var node = this;
     node.jQize();
-    cursor.jQ.before(node.jQ);
-    cursor[L] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    jQinsertAdjacent(dir, node.jQ, cursor.jQ);
+    cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };
+  _.createBefore = function(el) { return this.createDir(L, el); };
 
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
