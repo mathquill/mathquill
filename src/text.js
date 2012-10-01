@@ -44,9 +44,7 @@ var TextBlock = P(Node, function(_, _super) {
     return optWhitespace
       .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
       .map(function(text) {
-        var textPc = TextPiece();
-        textPc.initText(text);
-        textPc.adopt(textBlock, 0, 0);
+        TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
       })
     ;
@@ -78,8 +76,8 @@ var TextBlock = P(Node, function(_, _super) {
     if (replacedFragment) replacedFragment.remove();
 
     if (ch !== '$') {
-      if (!cursor[L]) TextPiece().createBefore(cursor);
-      cursor[L].appendCh(ch);
+      if (!cursor[L]) TextPiece(ch).createBefore(cursor);
+      else cursor[L].appendCh(ch);
     }
     else if (this.isEmpty()) {
       cursor.insertAfter(this);
@@ -106,10 +104,15 @@ var TextBlock = P(Node, function(_, _super) {
 /**
  * Piece of plain text, with a TextBlock as a parent and no children.
  * Wraps a single DOMTextNode.
+ * For convenience, has a .text property that's just a JavaScript string
+ * mirroring the text contents of the DOMTextNode.
+ * Text contents must always be nonempty.
  */
 var TextPiece = P(Node, function(_, _super) {
-  _.text = '';
-  _.initText = function(text) { this.text = text; };
+  _.init = function(text) {
+    _super.init.call(this);
+    this.text = text;
+  };
   _.jQize = function() {
     return this.jQ = document.createTextNode(this.text);
   };
