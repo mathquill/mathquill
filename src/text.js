@@ -114,11 +114,12 @@ var TextPiece = P(Node, function(_, _super) {
     this.text = text;
   };
   _.jQize = function() {
-    return this.jQ = document.createTextNode(this.text);
+    this.dom = document.createTextNode(this.text);
+    return this.jQ = $(this.dom);
   };
   _.appendCh = function(ch) {
     this.text += ch;
-    this.jQ.appendData(ch);
+    this.dom.appendData(ch);
   };
 });
 
