@@ -68,6 +68,8 @@ var TextBlock = P(Node, function(_, _super) {
   _.onKey = function(key, e) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return false;
   };
+  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
+  _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
   // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
     if (this.isEmpty()) cursor.insertAfter(this);
@@ -120,6 +122,37 @@ var TextPiece = P(Node, function(_, _super) {
   _.appendCh = function(ch) {
     this.text += ch;
     this.dom.appendData(ch);
+  };
+  _.prependCh = function(ch) {
+    this.text = ch + this.text;
+    this.dom.insertData(0, ch);
+  };
+  _.appendChInDir = function(ch, dir) {
+    prayDirection(dir);
+    if (dir === R) this.appendCh(ch);
+    else this.prependCh(ch);
+  };
+
+  _.moveTowards = function(dir, cursor) {
+    prayDirection(dir);
+
+    var oppDirEnd = (dir === R ? 0 : -1 + this.text.length);
+    var ch = this.text.charAt(oppDirEnd);
+
+    var from = this[-dir];
+    if (from) from.appendChInDir(ch, dir);
+    else TextPiece(ch).createDir(-dir, cursor);
+
+    if (this.text.length > 1) {
+      this.dom.deleteData(oppDirEnd, 1);
+      if (dir === R) this.text = this.text.slice(1);
+      else this.text = this.text.slice(0, -1);
+    }
+    else {
+      this.remove();
+      this.jQ.remove();
+      cursor[dir] = 0;
+    }
   };
 });
 
