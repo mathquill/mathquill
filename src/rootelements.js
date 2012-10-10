@@ -286,7 +286,7 @@ _.renderLatex = function(latex) {
 _.keydown = function(e)
 {
   e.ctrlKey = e.ctrlKey || e.metaKey;
-  switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
+  switch (e.which) {
   case 8: //backspace
   case 'Backspace':
   case 'U+0008':
@@ -325,6 +325,7 @@ _.keydown = function(e)
     this.cursor.clearSelection();
     break;
   case 13: //enter
+  case 10: //iPhone safari enter.
   case 'Enter':
     break;
   case 35: //end
