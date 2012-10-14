@@ -247,9 +247,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="sqrt">'
+      '<span class="non-leaf">'
     +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="sqrt-stem">&0</span>'
+    +   '<span class="non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
