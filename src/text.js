@@ -143,8 +143,7 @@ var TextPiece = P(Node, function(_, _super) {
   _.moveTowards = function(dir, cursor) {
     prayDirection(dir);
 
-    var oppDirEnd = (dir === R ? 0 : -1 + this.text.length);
-    var ch = this.text.charAt(oppDirEnd);
+    var ch = this.text.charAt(dir === R ? 0 : -1 + this.text.length);
 
     var from = this[-dir];
     if (from) from.appendChInDir(ch, dir);
@@ -155,10 +154,14 @@ var TextPiece = P(Node, function(_, _super) {
 
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
-      var oppDirEnd = (dir === R ? 0 : -1 + this.text.length);
-      this.dom.deleteData(oppDirEnd, 1);
-      if (dir === R) this.text = this.text.slice(1);
-      else this.text = this.text.slice(0, -1);
+      if (dir === R) {
+        this.dom.deleteData(0, 1);
+        this.text = this.text.slice(1);
+      }
+      else {
+        this.dom.deleteData(-1 + this.text.length, 1);
+        this.text = this.text.slice(0, -1);
+      }
     }
     else {
       this.remove();
