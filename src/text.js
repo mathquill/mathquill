@@ -150,7 +150,12 @@ var TextPiece = P(Node, function(_, _super) {
     if (from) from.appendChInDir(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
 
+    return this.deleteTowards(dir, cursor);
+  };
+
+  _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
+      var oppDirEnd = (dir === R ? 0 : -1 + this.text.length);
       this.dom.deleteData(oppDirEnd, 1);
       if (dir === R) this.text = this.text.slice(1);
       else this.text = this.text.slice(0, -1);
