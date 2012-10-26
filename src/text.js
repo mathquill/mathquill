@@ -70,6 +70,13 @@ var TextBlock = P(Node, function(_, _super) {
   };
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
+  _.selectTowards = MathCommand.prototype.selectTowards;
+  _.selectOutOf = function(dir, cursor) {
+    var cmd = this;
+    cursor.hide().insertAdjacent(dir, cmd)
+    .selection = Selection(cmd);
+  };
+  _.deleteTowards = _.selectTowards;
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insertAfter(this);
