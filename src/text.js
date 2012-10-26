@@ -70,8 +70,8 @@ var TextBlock = P(Node, function(_, _super) {
   };
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
-  // backspace and delete at ends of block don't unwrap
   _.deleteOutOf = function(dir, cursor) {
+    // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insertAfter(this);
   };
   _.write = function(cursor, ch, replacedFragment) {
