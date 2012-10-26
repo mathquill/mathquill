@@ -92,7 +92,6 @@ var MathCommand = P(MathElement, function(_, _super) {
       newBlock.adopt(cmd, cmd.ch[R], 0);
     }
   };
-  _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
     cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {

@@ -105,6 +105,8 @@ var Node = P(function(_) {
   };
   _.createBefore = function(el) { return this.createDir(L, el); };
 
+  _.respace = noop;
+
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield(ancestor);
