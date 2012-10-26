@@ -159,6 +159,8 @@ var TextPiece = P(Node, function(_, _super) {
         this.text = this.text.slice(1);
       }
       else {
+        // note that the order of these 2 lines is annoyingly important
+        // (the second line mutates this.text.length)
         this.dom.deleteData(-1 + this.text.length, 1);
         this.text = this.text.slice(0, -1);
       }
