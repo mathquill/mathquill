@@ -337,8 +337,16 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.selectOutOf = function(dir, cursor) {
     var cmd = this.parent;
-    cursor.hide().insertAdjacent(dir, cmd)
-    .selection = Selection(cmd);
+    cursor.insertAdjacent(dir, cmd);
+
+    var seln = cursor.selection;
+    // no selection, create one
+    if (!seln) cursor.hide().selection = Selection(cmd);
+    // else "level up" selection
+    else {
+      seln.ends[L] = seln.ends[R] = cmd;
+      seln.clear().jQwrap(cmd.jQ);
+    }
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
