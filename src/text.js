@@ -107,17 +107,17 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   _.seek = function() {
-    this.consolidateChildren();
+    consolidateChildren(this);
     MathBlock.prototype.seek.apply(this, arguments);
   };
 
   _.blur = function() {
     MathBlock.prototype.blur.call(this);
-    this.consolidateChildren();
+    consolidateChildren(this);
   };
 
-  _.consolidateChildren = function() {
-    var firstChild = this.ch[L];
+  function consolidateChildren(self) {
+    var firstChild = self.ch[L];
     var next;
 
     while (next = firstChild[R]) {
