@@ -86,7 +86,7 @@ var TextBlock = P(Node, function(_, _super) {
 
     if (ch !== '$') {
       if (!cursor[L]) TextPiece(ch).createBefore(cursor);
-      else cursor[L].appendCh(ch);
+      else cursor[L].appendText(ch);
     }
     else if (this.isEmpty()) {
       cursor.insertAfter(this);
@@ -122,7 +122,7 @@ var TextBlock = P(Node, function(_, _super) {
 
     while (next = firstChild[R]) {
       next.remove();
-      firstChild.appendCh(next.text);
+      firstChild.appendText(next.text);
     }
   }
 
@@ -166,18 +166,18 @@ var TextPiece = P(Node, function(_, _super) {
     this.text = this.dom.data;
     return this.jQ = $(this.dom);
   };
-  _.appendCh = function(ch) {
-    this.text += ch;
-    this.dom.appendData(ch);
+  _.appendText = function(text) {
+    this.text += text;
+    this.dom.appendData(text);
   };
-  _.prependCh = function(ch) {
-    this.text = ch + this.text;
-    this.dom.insertData(0, ch);
+  _.prependText = function(text) {
+    this.text = text + this.text;
+    this.dom.insertData(0, text);
   };
-  _.appendChInDir = function(ch, dir) {
+  _.appendTextInDir = function(text, dir) {
     prayDirection(dir);
-    if (dir === R) this.appendCh(ch);
-    else this.prependCh(ch);
+    if (dir === R) this.appendText(text);
+    else this.prependText(text);
   };
 
   _.moveTowards = function(dir, cursor) {
@@ -186,7 +186,7 @@ var TextPiece = P(Node, function(_, _super) {
     var ch = this.text.charAt(dir === R ? 0 : -1 + this.text.length);
 
     var from = this[-dir];
-    if (from) from.appendChInDir(ch, dir);
+    if (from) from.appendTextInDir(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
