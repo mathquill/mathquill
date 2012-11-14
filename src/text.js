@@ -180,10 +180,14 @@ var TextPiece = P(Node, function(_, _super) {
     else this.prependText(text);
   };
 
+  function endChar(dir, text) {
+    return text.charAt(dir === R ? 0 : -1 + text.length);
+  }
+
   _.moveTowards = function(dir, cursor) {
     prayDirection(dir);
 
-    var ch = this.text.charAt(dir === R ? 0 : -1 + this.text.length);
+    var ch = endChar(dir, this.text)
 
     var from = this[-dir];
     if (from) from.appendTextInDir(ch, dir);
@@ -191,6 +195,8 @@ var TextPiece = P(Node, function(_, _super) {
 
     return this.deleteTowards(dir, cursor);
   };
+
+  _.latex = function() { return this.text; };
 
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
@@ -210,6 +216,20 @@ var TextPiece = P(Node, function(_, _super) {
       this.jQ.remove();
       cursor[dir] = 0;
     }
+  };
+
+  _.selectTowards = function(dir, cursor) {
+    if (!cursor.selection) {
+      cursor.hide()
+      cursor.selection = Selection(TextPiece('').createDir(-dir, cursor))
+      jQinsertAdjacent(-dir, cursor.selection.jQ, this.jQ);
+    }
+
+    var selectedPiece = cursor.selection.ends[L];
+    var outerChar = endChar(dir, this.text);
+
+    this.deleteTowards(dir, cursor);
+    selectedPiece.appendTextInDir(outerChar, dir);
   };
 });
 
