@@ -142,8 +142,8 @@ var TextPiece = P(Node, function(_, _super) {
     _super.init.call(this);
     this.text = text;
   };
-  // jQize is for when the user types \text, and we need to set everything
-  // up from scratch.
+  // overriding .jQize because neither jQuery nor our html parsing
+  // format like text nodes.
   _.jQize = function() {
     this.dom = document.createTextNode(this.text);
     return this.jQ = $(this.dom);
