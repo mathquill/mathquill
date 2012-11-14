@@ -122,8 +122,28 @@ var TextPiece = P(Node, function(_, _super) {
     _super.init.call(this);
     this.text = text;
   };
+  // jQize is for when the user types \text, and we need to set everything
+  // up from scratch.
   _.jQize = function() {
     this.dom = document.createTextNode(this.text);
+    return this.jQ = $(this.dom);
+  };
+  // finalizeTree is for when we've parsed \text{abc}, created the dom,
+  // and need to link everything up
+  _.finalizeTree = function() {
+    var parentJQ = this.parent.jQ;
+    this.dom = parentJQ[0].childNodes[0];
+
+    // TODO: is this the correct behavior when parsing
+    // the latex \text{} ?  This violates the requirement that
+    // the text contents are always nonempty.  Should we just
+    // disown the parent node instead?
+    if (!this.dom) {
+      this.dom = document.createTextNode('');
+      parentJQ.append(this.dom);
+    }
+
+    this.text = this.dom.data;
     return this.jQ = $(this.dom);
   };
   _.appendCh = function(ch) {
