@@ -105,7 +105,22 @@ var TextBlock = P(Node, function(_, _super) {
     }
     return false;
   };
-  _.blur = MathBlock.prototype.blur;
+
+  _.blur = function() {
+    MathBlock.prototype.blur.call(this);
+    this.consolidateChildren();
+  };
+
+  _.consolidateChildren = function() {
+    var firstChild = this.ch[L];
+    var next;
+
+    while (next = firstChild[R]) {
+      next.remove();
+      firstChild.appendCh(next.text);
+    }
+  }
+
   _.focus = MathBlock.prototype.focus;
   _.isEmpty = MathBlock.prototype.isEmpty;
 });
