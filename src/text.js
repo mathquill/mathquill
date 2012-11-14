@@ -106,6 +106,11 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
+  _.seek = function() {
+    this.consolidateChildren();
+    MathBlock.prototype.seek.apply(this, arguments);
+  };
+
   _.blur = function() {
     MathBlock.prototype.blur.call(this);
     this.consolidateChildren();
