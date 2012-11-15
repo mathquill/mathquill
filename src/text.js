@@ -79,7 +79,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.selectOutOf = function(dir, cursor) {
     var cmd = this;
-    cursor.hide().insertAdjacent(dir, cmd)
+    cursor.clearSelection().hide().insertAdjacent(dir, cmd)
     .selection = Selection(cmd);
   };
   _.deleteTowards = _.createSelection;
