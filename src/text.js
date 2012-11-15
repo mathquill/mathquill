@@ -124,11 +124,9 @@ var TextBlock = P(Node, function(_, _super) {
 
   function consolidateChildren(self) {
     var firstChild = self.ch[L];
-    var next;
 
-    while (next = firstChild[R]) {
-      next.remove();
-      firstChild.appendText(next.text);
+    while (firstChild[R]) {
+      firstChild.combineDir(R);
     }
   }
 
@@ -200,6 +198,13 @@ var TextPiece = P(Node, function(_, _super) {
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
+  };
+
+  _.combineDir = function(dir) {
+    var toCombine = this[dir];
+
+    this.appendTextInDir(toCombine.text, dir);
+    toCombine.remove();
   };
 
   _.latex = function() { return this.text; };
