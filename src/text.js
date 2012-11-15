@@ -228,6 +228,62 @@ var TextPiece = P(Node, function(_, _super) {
       cursor[dir] = 0;
     }
   };
+
+  // -*- selection methods -*- //
+
+  // there's gotta be a better way to move the cursor...
+  function insertCursorAdjacent(dir, cursor, el) {
+    cursor[-dir] = el;
+    cursor[dir] = el[dir];
+    cursor.hide().show();
+  }
+
+  _.createSelection = function(dir, cursor) {
+    var selectedPiece = TextPiece(endChar(-dir, this.text));
+    this.deleteTowards(dir, cursor);
+    selectedPiece.createDir(dir, cursor);
+
+    cursor.selection = Selection(selectedPiece);
+
+    insertCursorAdjacent(dir, cursor, selectedPiece);
+  }
+
+  _.clearSelection = function(dir, cursor) {
+    // cursor calls our clearSelection every time because the selection
+    // only every contains one Node.
+    if (this.text.length > 1) return this.retractSelection(dir, cursor);
+
+    var cursorSibling = this;
+
+    if (this[-dir]) {
+      cursorSibling = this[-dir];
+      cursorSibling.combineDir(dir);
+    }
+
+    insertCursorAdjacent(dir, cursor, cursorSibling);
+
+    cursor.clearSelection();
+  };
+
+  _.expandSelection = function(dir, cursor) {
+    var selectedPiece = cursor.selection.ends[L];
+    var selectChar = endChar(-dir, this.text);
+    selectedPiece.appendTextInDir(selectChar, dir);
+    this.deleteTowards(dir, cursor);
+  };
+
+  _.retractSelection = function(dir, cursor) {
+    var deselectChar = endChar(-dir, this.text);
+
+    if (this[-dir]) {
+      this[-dir].appendTextInDir(deselectChar, dir);
+    }
+    else {
+      TextPiece(deselectChar).createDir(-dir, cursor);
+    }
+
+    this.deleteTowards(dir, cursor);
+  };
 });
 
 CharCmds.$ =
