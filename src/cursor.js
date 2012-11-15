@@ -457,7 +457,9 @@ var Selection = P(Fragment, function(_, _super) {
     return _super.adopt.apply(this, arguments);
   };
   _.clear = function() {
-    this.jQ.replaceWith(this.jQ.children());
+    // using the browser's native .childNodes property so that we
+    // don't discard text nodes.
+    this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
 });
