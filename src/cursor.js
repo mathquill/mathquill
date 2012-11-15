@@ -364,13 +364,32 @@ var Cursor = P(Point, function(_) {
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
+    var self = this;
     prayDirection(dir);
     clearUpDownCache(this);
 
-    if (this[dir]) this[dir].selectTowards(dir, this);
-    else if (this.parent !== this.root) this.parent.selectOutOf(dir, this);
+    if (self[dir]) {
+      var adjacent = self[dir],
+          selection = self.selection;
 
-    this.root.selectionChanged();
+      if (!selection) {
+        adjacent.createSelection(dir, self);
+      }
+      else if (selection.ends[dir] === self[-dir]) {
+        adjacent.expandSelection(dir, self);
+      }
+      else if (selection.ends[dir] === selection.ends[-dir]) {
+        adjacent.clearSelection(dir, self);
+      }
+      else {
+        adjacent.retractSelection(dir, self);
+      }
+    }
+    else if (self.parent !== self.root) {
+      self.parent.selectOutOf(dir, self);
+    }
+
+    self.root.selectionChanged();
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };

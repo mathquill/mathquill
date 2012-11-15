@@ -103,33 +103,37 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
-  _.selectTowards = function(dir, cursor) {
-    cursor[-dir] = this;
-    cursor[dir] = this[dir];
 
-    var seln = cursor.selection;
-    // no selection, create one
-    if (!seln) cursor.hide().selection = Selection(this);
-    // if cursor is at the (dir) edge of selection
-    else if (seln.ends[dir] === this[-dir]) {
-      // extend the selection (dir)ward
-      seln.ends[dir] = this;
-      jQappendDir(dir, this.jQ, seln.jQ);
-    }
-    // else cursor is at the (-dir) edge of selection
-    else {
-      // if only one thing selected, clear selection
-      if (seln.ends[dir] === seln.ends[-dir]) {
-        cursor.clearSelection().show();
-      }
-      // else retract the selection (dir)ward
-      else {
-        jQinsertAdjacent(-dir, this.jQ, seln.jQ);
-        seln.ends[-dir] = this[dir];
-      }
-    }
+  function placeCursorInDir(self, dir, cursor) {
+    cursor[-dir] = self;
+    cursor[dir] = self[dir];
+  }
+
+  _.createSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.hide().selection = Selection(this);
+  }
+
+  _.expandSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.selection.ends[dir] = this;
+    jQappendDir(dir, this.jQ, cursor.selection.jQ);
   };
-  _.deleteTowards = _.selectTowards;
+
+  _.clearSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.clearSelection().show();
+  };
+
+  _.retractSelection = function(dir, cursor) {
+    var self = this, seln = cursor.selection;
+
+    placeCursorInDir(self, dir, cursor);
+    jQinsertAdjacent(-dir, self.jQ, seln.jQ);
+    seln.ends[-dir] = self[dir];
+  };
+
+  _.deleteTowards = _.createSelection;
   _.selectChildren = function(cursor) {
     cursor.selection = Selection(this);
     cursor.insertAfter(this);

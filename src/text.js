@@ -70,13 +70,19 @@ var TextBlock = P(Node, function(_, _super) {
   };
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
-  _.selectTowards = MathCommand.prototype.selectTowards;
+
+  // TODO: make these methods part of a shared mixin or something.
+  _.createSelection = MathCommand.prototype.createSelection;
+  _.expandSelection = MathCommand.prototype.expandSelection;
+  _.clearSelection = MathCommand.prototype.clearSelection;
+  _.retractSelection = MathCommand.prototype.retractSelection;
+
   _.selectOutOf = function(dir, cursor) {
     var cmd = this;
     cursor.hide().insertAdjacent(dir, cmd)
     .selection = Selection(cmd);
   };
-  _.deleteTowards = _.selectTowards;
+  _.deleteTowards = _.createSelection;
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insertAfter(this);
