@@ -202,6 +202,8 @@ var TextPiece = P(Node, function(_, _super) {
     return this.deleteTowards(dir, cursor);
   };
 
+  _.latex = function() { return this.text; };
+
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
       if (dir === R) {
