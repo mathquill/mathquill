@@ -186,10 +186,14 @@ var TextPiece = P(Node, function(_, _super) {
     else this.prependText(text);
   };
 
+  function endChar(dir, text) {
+    return text.charAt(dir === L ? 0 : -1 + text.length);
+  }
+
   _.moveTowards = function(dir, cursor) {
     prayDirection(dir);
 
-    var ch = this.text.charAt(dir === R ? 0 : -1 + this.text.length);
+    var ch = endChar(-dir, this.text)
 
     var from = this[-dir];
     if (from) from.appendTextInDir(ch, dir);
