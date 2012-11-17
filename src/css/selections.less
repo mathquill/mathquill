@@ -1,22 +1,56 @@
-// We expect rules overriding the .matrixed { background:white }, but we
-// don't want them to override selected .matrixed background, so we have
-// to use !important.
-// See wiki page Transforms.
+// All these !important's are unfortunately necessary, because
+// pages using MathQuill who change the background color have to
+// have rules setting the background color of .matrixed and
+// .matrixed-container, and we need to guarantee that our rules
+// setting the background color of matrixed/containers inside
+// selections have higher specificity.
+
+// See http://github.com/laughinghan/mathquill/wiki/Transforms
+// for more details.
 
 .mathquill-rendered-math, .mathquill-editable {
   .selection {
-    &, & .non-leaf {
+    &, & .non-leaf, & .scaled {
       background: #B4D5FE !important;
       background: Highlight !important;
       color: HighlightText;
       border-color: HighlightText;
     }
 
+    .matrixed {
+      // The Chroma filter doesn't support the 'Highlight' keyword,
+      // but is only used in IE 8 and below anyway, so just use the
+      // default Windows highlight color. Even if the highlight color
+      // of the system has been customized, it's not a big deal,
+      // most of the solid blue area is chroma keyed, there'll just
+      // be a blue anti-aliased fringe around the matrix-filter-
+      // stretched text.
+
+      // If you use IE 8 or below and customized your highlight
+      // color, and after the effort I put into making everything
+      // else in MathQuill work in IE 8 and below have the *gall*
+      // to complain about the blue fringe that appears in selections
+      // around the otherwise beautifully stretched square roots and
+      // stuff, and you have no ideas for how to solve the problem,
+      // just a complaint, then I'd like to politely suggest that you
+      // go choke on a dick. Unless you're into that, in which case,
+      // go do something that would make you unhappy instead.
+
+      background: #39F !important;
+    }
+    .matrixed-container {
+      filter: progid:DXImageTransform.Microsoft.Chroma(color='#3399FF') !important;
+    }
+
     &.blur {
-      &, & .non-leaf {
+      &, & .non-leaf, & .matrixed {
         background: #D4D4D4 !important;
         color: black;
         border-color: black;
+      }
+
+      .matrixed-container {
+        filter: progid:DXImageTransform.Microsoft.Chroma(color='#D4D4D4') !important;
       }
     }
   }

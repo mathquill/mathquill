@@ -50,20 +50,6 @@ it is visible MathQuill will need to recalculate:
 
     $('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')
 
-If you want to give a MathQuill editable a background color other than
-white, support IE8, and support square roots, parentheses, square
-brackets, or curly braces, you will need to also set all descendants of
-the MathQuill editable element with class `matrixed` to also have that
-background color, like `#my-math-input .matrixed { background:
-#lightblue; }`. (Almost all math rendered by MathQuill has
-`background:transparent`; the exception is, IE8 doesn't support CSS
-transforms, so MathQuill uses a matrix filter to stretch parens etc,
-which won't anti-alias correctly without a opaque background, so
-MathQuill defaults to white. For more details, see
-[Transforms](http://github.com/laughinghan/mathquill/wiki/Transforms).)
-If your background color is dark, you may also want to make the cursor
-white with `#my-math-input .cursor { border-color: white; }` or the like.
-
 Any element that has been MathQuill-ified can be reverted:
 
     $('.mathquill-embedded-latex').mathquill('revert');
@@ -86,6 +72,42 @@ Currently, MathQuill only supports a limited scripting API:
 * To insert a LaTeX command at the current cursor position or with the current selection:
 
         someMathQuillifiedElement.mathquill('cmd','\\sqrt')
+
+**A Note On Changing Colors:**
+
+To change the foreground color, don't just set the `color`, also set
+the `border-color`, because the cursor, fraction bar, and square root
+overline are all borders, not text. (Example below.)
+
+Due to technical limitations of IE8, if you support it, and want to give
+a MathQuill editable a background color other than white, and support
+square roots, parentheses, square brackets, or curly braces, you will
+need to, in addition to of course setting the background color on the
+editable itself, set it on elements with class `matrixed`, and then set
+a Chroma filter on elements with class `matrixed-container`.
+
+For example, to style as white-on-black instead of black-on-white:
+
+    #my-math-input {
+      color: white;
+      border-color: white;
+      background: black;
+    }
+    #my-math-input .matrixed {
+      background: black;
+    }
+    #my-math-input .matrixed-container {
+      filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
+    }
+
+(This is because almost all math rendered by MathQuill has a transparent
+background, so for them it's sufficient to set the background color on
+the editable itself. The exception is, IE8 doesn't support CSS
+transforms, so MathQuill uses a matrix filter to stretch parens etc,
+which [anti-aliases wrongly without an opaque background][Transforms],
+so MathQuill defaults to white.)
+
+[Transforms]: http://github.com/laughinghan/mathquill/wiki/Transforms
 
 ## Building and Testing
 
