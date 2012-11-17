@@ -2,39 +2,30 @@
  * Abstract classes of math blocks and commands.
  ************************************************/
 
-var uuid = (function() {
-  var id = 0;
-
-  return function() { return id += 1; };
-})();
-
 /**
  * Math tree node base class.
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(Node, function(_) {
-  _.init = function(obj) {
-    this.id = uuid();
-    MathElement[this.id] = this;
+var MathElement = P(Node, function(_, _super) {
+  _.finalizeInsert = function() {
+    var self = this;
+    self.postOrder('finalizeTree');
+
+    // note: this order is important.
+    // empty elements need the empty box provided by blur to
+    // be present in order for their dimensions to be measured
+    // correctly in redraw.
+    self.postOrder('blur');
+
+    // adjust context-sensitive spacing
+    self.postOrder('respace');
+    if (self[R].respace) self[R].respace();
+    if (self[L].respace) self[L].respace();
+
+    self.postOrder('redraw');
+    self.bubble('redraw');
   };
-
-  _.toString = function() {
-    return '[MathElement '+this.id+']';
-  };
-
-  _.bubble = function(event /*, args... */) {
-    var args = __slice.call(arguments, 1);
-
-    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
-      var res = ancestor[event] && ancestor[event].apply(ancestor, args);
-      if (res === false) break;
-    }
-
-    return this;
-  };
-  _.jQ = $();
-  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
 });
 
 /**
@@ -62,34 +53,34 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
+  _.parser = function() {
+    var block = latexMathParser.block;
+    var self = this;
+
+    return block.times(self.numBlocks()).map(function(blocks) {
+      self.blocks = blocks;
+
+      for (var i = 0; i < blocks.length; i += 1) {
+        blocks[i].adopt(self, self.ch[R], 0);
+      }
+
+      return self;
+    });
+  };
+
   // createBefore(cursor) and the methods it calls
   _.createBefore = function(cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    cmd.jQize();
+    _super.createBefore.call(cmd, cursor);
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.firstChild, 0, 0);
-      replacedFragment.jQ.appendTo(cmd.firstChild.jQ);
+      replacedFragment.adopt(cmd.ch[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
     }
-
-    cmd.eachChild(function(b) { b.blur(); });
-
-    cursor.jQ.before(cmd.jQ);
-
-    cursor.prev = cmd.adopt(cursor.parent, cursor.prev, cursor.next);
-
-    //adjust context-sensitive spacing
-    cmd.respace();
-    if (cmd.next)
-      cmd.next.respace();
-    if (cmd.prev)
-      cmd.prev.respace();
-
+    cmd.finalizeInsert(cursor);
     cmd.placeCursor(cursor);
-
-    cmd.bubble('redraw');
   };
   _.createBlocks = function() {
     var cmd = this,
@@ -98,42 +89,71 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.lastChild, 0);
+      newBlock.adopt(cmd, cmd.ch[R], 0);
     }
   };
-  _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.firstChild, function(prev, child) {
+    cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
   };
 
-  // remove()
-  _.remove = function() {
-    this.disown()
-    this.jQ.remove();
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
+  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
 
-    (function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
-    }(this));
+  function placeCursorInDir(self, dir, cursor) {
+    cursor[-dir] = self;
+    cursor[dir] = self[dir];
+  }
 
-    return this;
+  _.createSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.hide().selection = Selection(this);
+  }
+
+  _.expandSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.selection.ends[dir] = this;
+    jQappendDir(dir, this.jQ, cursor.selection.jQ);
+  };
+
+  _.clearSelection = function(dir, cursor) {
+    placeCursorInDir(this, dir, cursor);
+    cursor.clearSelection().show();
+  };
+
+  _.retractSelection = function(dir, cursor) {
+    var self = this, seln = cursor.selection;
+
+    placeCursorInDir(self, dir, cursor);
+    jQinsertAdjacent(-dir, self.jQ, seln.jQ);
+    seln.ends[-dir] = self[dir];
+  };
+
+  _.deleteTowards = _.createSelection;
+  _.selectChildren = function(cursor) {
+    cursor.selection = Selection(this);
+    cursor.insertAfter(this);
+  };
+  _.seek = function(pageX, cursor) {
+    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
   };
 
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
     They all expect an .htmlTemplate like
-      '<span>#0</span>'
+      '<span>&0</span>'
     or
-      '<span><span>#0</span><span>#1</span></span>'
+      '<span><span>&0</span><span>&1</span></span>'
 
     See html.test.js for more examples.
 
     Requirements:
     - For each block of the command, there must be exactly one "block content
-      marker" of the form '#<number>' where <number> is the 0-based index of the
+      marker" of the form '&<number>' where <number> is the 0-based index of the
       block. (Like the LaTeX \newcommand syntax, but with a 0-based rather than
       1-based index, because JavaScript because C because Dijkstra.)
     - The block content marker must be the sole contents of the containing
@@ -144,9 +164,13 @@ var MathCommand = P(MathElement, function(_, _super) {
       conform to the XHTML requirements on tags, specifically all tags must
       either be self-closing (like '<br/>') or come in matching pairs.
       Close tags are never optional.
+
+    Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
+    your HTML template would have to have '&amp;123'.
   */
   _.numBlocks = function() {
-    return this.htmlTemplate.match(/#\d+/g).length;
+    var matches = this.htmlTemplate.match(/&\d+/g);
+    return matches ? matches.length : 0;
   };
   _.html = function() {
     // Render the entire math subtree rooted at this command, as HTML.
@@ -219,20 +243,8 @@ var MathCommand = P(MathElement, function(_, _super) {
         } while (nesting > 0);
       }
     }
-    return tokens.join('').replace(/>#(\d+)/g, function($0, $1) {
+    return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
       return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
-    });
-  };
-  _.jQize = function() {
-    // Sets the .jQ of the entire math subtree rooted at this command.
-    // Expects .createBlocks() to have been called already, since it
-    // calls .html().
-    $(this.html()).find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) MathElement[cmdId].jQadd(jQ);
-      if (blockId) MathElement[blockId].jQadd(jQ);
     });
   };
 
@@ -265,10 +277,31 @@ var Symbol = P(MathCommand, function(_, _super) {
 
     _super.init.call(this, ctrlSeq, html, [ text ]);
   };
+
+  _.parser = function() { return Parser.succeed(this); };
+  _.numBlocks = function() { return 0; };
+
   _.replaces = function(replacedFragment) {
     replacedFragment.remove();
   };
   _.createBlocks = noop;
+
+  _.moveTowards = function(dir, cursor) {
+    jQinsertAdjacent(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
+    cursor[-dir] = this;
+    cursor[dir] = this[dir];
+  };
+  _.deleteTowards = function(dir, cursor) {
+    cursor[dir] = this.remove()[dir];
+  };
+  _.seek = function(pageX, cursor) {
+    // insert at whichever side the click was closer to
+    if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
+      cursor.insertBefore(this);
+    else
+      cursor.insertAfter(this);
+  };
+
   _.latex = function(){ return this.ctrlSeq; };
   _.text = function(){ return this.textTemplate; };
   _.placeCursor = noop;
@@ -286,20 +319,65 @@ var MathBlock = P(MathElement, function(_) {
       return fold + child[methodName]();
     });
   };
+  _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.firstChild === this.lastChild ?
-      this.firstChild.text() :
+    return this.ch[L] === this.ch[R] ?
+      this.ch[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.firstChild === 0 && this.lastChild === 0;
+    return this.ch[L] === 0 && this.ch[R] === 0;
   };
+
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
+  _.moveOutOf = function(dir, cursor) {
+    if (this[dir]) cursor.appendDir(-dir, this[dir]);
+    else cursor.insertAdjacent(dir, this.parent);
+  };
+  _.selectOutOf = function(dir, cursor) {
+    var cmd = this.parent;
+    cursor.insertAdjacent(dir, cmd);
+
+    var seln = cursor.selection;
+    // no selection, create one
+    if (!seln) cursor.hide().selection = Selection(cmd);
+    // else "level up" selection
+    else {
+      seln.ends[L] = seln.ends[R] = cmd;
+      seln.clear().jQwrap(cmd.jQ);
+    }
+  };
+  _.deleteOutOf = function(dir, cursor) {
+    cursor.unwrapGramp();
+  };
+  _.selectChildren = function(cursor, first, last) {
+    cursor.selection = Selection(first, last);
+    cursor.insertAfter(last);
+  };
+  _.seek = function(pageX, cursor) {
+    cursor.appendTo(this).seekHoriz(pageX, this);
+  };
+  _.write = function(cursor, ch, replacedFragment) {
+    var cmd;
+    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+      cmd = Variable(ch);
+    else if (cmd = CharCmds[ch] || LatexCmds[ch])
+      cmd = cmd(ch);
+    else
+      cmd = VanillaSymbol(ch);
+
+    if (replacedFragment) cmd.replaces(replacedFragment);
+
+    cmd.createBefore(cursor);
+  };
+
   _.focus = function() {
     this.jQ.addClass('hasCursor');
-    if (this.isEmpty())
-      this.jQ.removeClass('empty');
+    this.jQ.removeClass('empty');
 
     return this;
   };
@@ -309,30 +387,5 @@ var MathBlock = P(MathElement, function(_) {
       this.jQ.addClass('empty');
 
     return this;
-  };
-});
-
-/**
- * Math tree fragment base class.
- * Some math-tree-specific extensions to Fragment.
- */
-var MathFragment = P(Fragment, function(_, _super) {
-  _.init = function(first, last) {
-    // just select one thing if only one argument
-    _super.init.call(this, first, last || first);
-    this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
-  };
-  _.latex = function() {
-    return this.fold('', function(latex, el){ return latex + el.latex(); });
-  };
-  _.remove = function() {
-    this.jQ.remove();
-
-    this.each(function deleteMe(me) {
-      delete MathElement[me.id];
-      me.eachChild(deleteMe);
-    });
-
-    return this.disown();
   };
 });

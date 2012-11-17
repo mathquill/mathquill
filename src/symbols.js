@@ -10,11 +10,11 @@ var Variable = P(Symbol, function(_, _super) {
   }
   _.text = function() {
     var text = this.ctrlSeq;
-    if (this.prev && !(this.prev instanceof Variable)
-        && !(this.prev instanceof BinaryOperator))
+    if (this[L] && !(this[L] instanceof Variable)
+        && !(this[L] instanceof BinaryOperator))
       text = '*' + text;
-    if (this.next && !(this.next instanceof BinaryOperator)
-        && !(this.next.ctrlSeq === '^'))
+    if (this[R] && !(this[R] instanceof BinaryOperator)
+        && !(this[R].ctrlSeq === '^'))
       text += '*';
     return text;
   };
@@ -143,6 +143,47 @@ LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
   };
 });
 
+// symbols that aren't a single MathCommand, but are instead a whole
+// Fragment. Creates the Fragment from a LaTeX string
+var LatexFragment = P(MathCommand, function(_) {
+  _.init = function(latex) { this.latex = latex; };
+  _.createBefore = function(cursor) { cursor.writeLatex(this.latex); };
+  _.parser = function() {
+    var frag = latexMathParser.parse(this.latex).children();
+    return Parser.succeed(frag);
+  };
+});
+
+// for what seems to me like [stupid reasons][1], Unicode provides
+// subscripted and superscripted versions of all ten Arabic numerals,
+// as well as [so-called "vulgar fractions"][2].
+// Nobody really cares about most of them, but some of them actually
+// predate Unicode, dating back to [ISO-8859-1][3], apparently also
+// known as "Latin-1", which among other things [Windows-1252][4]
+// largely coincides with, so Microsoft Word sometimes inserts them
+// and they get copy-pasted into MathQuill.
+//
+// (Irrelevant but funny story: Windows-1252 is actually a strict
+// superset of the "closely related but distinct"[3] "ISO 8859-1" --
+// see the lack of a dash after "ISO"? Completely different character
+// set, like elephants vs elephant seals, or "Zombies" vs "Zombie
+// Redneck Torture Family". What kind of idiot would get them confused.
+// People in fact got them confused so much, it was so common to
+// mislabel Windows-1252 text as ISO-8859-1, that most modern web
+// browsers and email clients treat the MIME charset of ISO-8859-1
+// as actually Windows-1252, behavior now standard in the HTML5 spec.)
+//
+// [1]: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
+// [2]: http://en.wikipedia.org/wiki/Number_Forms
+// [3]: http://en.wikipedia.org/wiki/ISO/IEC_8859-1
+// [4]: http://en.wikipedia.org/wiki/Windows-1252
+LatexCmds['¹'] = bind(LatexFragment, '^1');
+LatexCmds['²'] = bind(LatexFragment, '^2');
+LatexCmds['³'] = bind(LatexFragment, '^3');
+LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
+LatexCmds['½'] = bind(LatexFragment, '\\frac12');
+LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
+
 var BinaryOperator = P(Symbol, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
@@ -155,12 +196,12 @@ var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
   _.respace = function() {
-    if (!this.prev) {
+    if (!this[L]) {
       this.jQ[0].className = '';
     }
     else if (
-      this.prev instanceof BinaryOperator &&
-      this.next && !(this.next instanceof BinaryOperator)
+      this[L] instanceof BinaryOperator &&
+      this[R] && !(this[R] instanceof BinaryOperator)
     ) {
       this.jQ[0].className = 'unary-operator';
     }
@@ -536,7 +577,7 @@ var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.respace = function()
   {
     this.jQ[0].className =
-      (this.next instanceof SupSub || this.next instanceof Bracket) ?
+      (this[R] instanceof SupSub || this[R] instanceof Bracket) ?
       '' : 'non-italicized-function';
   };
 });

@@ -77,7 +77,7 @@ single element, got to '+el.length+' elements instead';
   var blockId = $(el).attr(mqBlockId);
   if (!blockId) return null;
 
-  var rootBlock = MathElement[blockId];
+  var rootBlock = Node.byId[blockId];
   return !!rootBlock && rootBlock.jQ[0] === el[0] && rootBlock.publicMathQuillObj;
 }
 MathQuill.prototype = MathQuillEl.prototype; // for instanceof

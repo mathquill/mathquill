@@ -10,11 +10,14 @@ OUTRO = $(SRC_DIR)/outro.js
 SOURCES = \
   ./vendor/pjs/src/p.js \
   $(SRC_DIR)/textarea.js \
+  $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/math.js \
   $(SRC_DIR)/rootelements.js \
   $(SRC_DIR)/commands.js \
   $(SRC_DIR)/symbols.js \
+  $(SRC_DIR)/text.js \
+  $(SRC_DIR)/latex.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/publicapi.js
 
@@ -42,10 +45,10 @@ DIST = $(DISTDIR).tgz
 CLEAN += $(DIST)
 
 # programs and flags
-UGLIFY ?= uglifyjs
+UGLIFY ?= ./node_modules/.bin/uglifyjs
 UGLIFY_OPTS ?= --lift-vars
 
-LESSC ?= lessc
+LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=
 
 # environment constants
@@ -70,7 +73,7 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS)
-	./script/mangle-pray $< | $(UGLIFY) $(UGLIFY_OPTS) > $@
+	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BUILD_CSS): $(CSS_SOURCES)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
@@ -90,7 +93,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 .PHONY: test server
 server:
-	supervisor -e js,less,Makefile .
+	./node_modules/.bin/supervisor -e js,less,Makefile .
 test: dev $(BUILD_TEST)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"

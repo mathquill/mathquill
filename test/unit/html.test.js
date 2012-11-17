@@ -21,15 +21,15 @@ suite('HTML', function() {
 
     assert.equal(html, renderHtml(0, htmlTemplate), 'a symbol');
 
-    htmlTemplate = '<span>#0</span>';
+    htmlTemplate = '<span>&0</span>';
     html = '<span mathquill-command-id=1 mathquill-block-id=2>Block:0</span>';
 
     assert.equal(html, renderHtml(1, htmlTemplate), 'same span is cmd and block');
 
     htmlTemplate =
         '<span>'
-      +   '<span>#0</span>'
-      +   '<span>#1</span>'
+      +   '<span>&0</span>'
+      +   '<span>&1</span>'
       + '</span>'
     ;
     html =
@@ -50,10 +50,10 @@ suite('HTML', function() {
 
     htmlTemplate =
         '<span>'
-      +   '<span>#0</span>'
+      +   '<span>&0</span>'
       + '</span>'
       + '<span>'
-      +   '<span>#1</span>'
+      +   '<span>&1</span>'
       + '</span>'
     ;
     html =
@@ -74,11 +74,11 @@ suite('HTML', function() {
       +   '<span>'
       +     '<span/>'
       +   '</span>'
-      +   '<span>#1</span>'
+      +   '<span>&1</span>'
       +   '<span/>'
       +   '<span></span>'
       + '</span>'
-      + '<span>#0</span>'
+      + '<span>&0</span>'
     ;
     html =
         '<span mathquill-command-id=1></span>'
