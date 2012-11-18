@@ -36,7 +36,13 @@ function createRoot(jQ, root, textbox, editable) {
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
-    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+    var latex = '';
+    if (cursor.selection) {
+      latex = cursor.selection.fold('', function(latex, el) {
+        return latex + el.latex();
+      });
+      latex = '$' + latex + '$';
+    }
     textareaManager.select(latex);
   }
 
@@ -222,42 +228,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Esc':
     case 'Tab':
     case 'Spacebar':
-      var parent = this.cursor.parent;
-      // cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent[R]) {
-        // go one block right
-        this.cursor.prependTo(parent[R]);
-      } else {
-        // get out of the block
-        this.cursor.insertAfter(parent.parent);
-      }
+      this.cursor.escapeDir(R, key, e);
       break;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
-      var parent = this.cursor.parent;
-      //cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Shift-Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent[L]) {
-        // go one block left
-        this.cursor.appendTo(parent[L]);
-      } else {
-        //get out of the block
-        this.cursor.insertBefore(parent.parent);
-      }
+      this.cursor.escapeDir(L, key, e);
       break;
 
     // Prevent newlines from showing up
@@ -389,22 +367,20 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
     this.ch[L].parent = this;
 
-    var cursor = this.ch[L].cursor = this.cursor;
-    this.ch[L].onText = function(ch) {
-      if (ch !== '$' || cursor.parent !== this)
-        cursor.write(ch);
+    this.ch[L].cursor = this.cursor;
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (ch !== '$')
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
-          .insertNew(VanillaSymbol('\\$','$')).show();
+        cursor.insertAfter(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createBefore(cursor);
       }
       else if (!cursor[R])
         cursor.insertAfter(this.parent);
       else if (!cursor[L])
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch);
-
-      return false;
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
   };
   _.latex = function() {
@@ -453,20 +429,21 @@ var RootTextBlock = P(MathBlock, function(_) {
         commands[i].adopt(self, self.ch[R], 0);
       }
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+      self.jQize().appendTo(self.jQ);
 
-      this.finalizeInsert();
+      self.finalizeInsert();
     }
   };
-  _.onKey = RootMathBlock.prototype.onKey;
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
+  _.onKey = function(key) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
+    RootMathBlock.prototype.onKey.apply(this, arguments);
+  };
+  _.onText = RootMathBlock.prototype.onText;
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCommand(this.cursor));
+      RootMathCommand(cursor).createBefore(cursor);
     else
-      this.cursor.insertNew(VanillaSymbol(ch));
-
-    return false;
+      VanillaSymbol(ch).createBefore(cursor);
   };
 });

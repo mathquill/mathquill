@@ -9,7 +9,7 @@ $.fn.mathquill = function(cmd, latex) {
   case 'redraw':
     return this.each(function() {
       var blockId = $(this).attr(mqBlockId),
-        rootBlock = blockId && MathElement[blockId];
+        rootBlock = blockId && Node.byId[blockId];
       if (rootBlock) {
         (function postOrderRedraw(el) {
           el.eachChild(postOrderRedraw);
@@ -20,7 +20,7 @@ $.fn.mathquill = function(cmd, latex) {
   case 'revert':
     return this.each(function() {
       var blockId = $(this).attr(mqBlockId),
-        block = blockId && MathElement[blockId];
+        block = blockId && Node.byId[blockId];
       if (block && block.revert)
         block.revert();
     });
@@ -28,18 +28,18 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1) {
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
-          block = blockId && MathElement[blockId];
+          block = blockId && Node.byId[blockId];
         if (block)
           block.renderLatex(latex);
       });
     }
 
     var blockId = $(this).attr(mqBlockId),
-      block = blockId && MathElement[blockId];
+      block = blockId && Node.byId[blockId];
     return block && block.latex();
   case 'text':
     var blockId = $(this).attr(mqBlockId),
-      block = blockId && MathElement[blockId];
+      block = blockId && Node.byId[blockId];
     return block && block.text();
   case 'html':
     return this.html().replace(/ ?hasCursor|hasCursor /, '')
@@ -50,7 +50,7 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
-          block = blockId && MathElement[blockId],
+          block = blockId && Node.byId[blockId],
           cursor = block && block.cursor;
 
         if (cursor)
@@ -60,22 +60,13 @@ $.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
-          block = blockId && MathElement[blockId],
+          block = blockId && Node.byId[blockId],
           cursor = block && block.cursor;
 
         if (cursor) {
-          cursor.show();
-          if (/^\\[a-z]+$/i.test(latex)) {
-            if (cursor.selection) {
-              //gotta do cursor before cursor.selection is mutated by 'new cmd(cursor.selection)'
-              cursor[L] = cursor.selection[L];
-              cursor[R] = cursor.selection[R];
-            }
-            cursor.insertCmd(latex.slice(1), cursor.selection);
-            delete cursor.selection;
-          }
-          else
-            cursor.insertCh(latex);
+          var seln = cursor.prepareWrite();
+          if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
+          else cursor.insertCh(latex, seln);
           cursor.hide().parent.blur();
         }
       });

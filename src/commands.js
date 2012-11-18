@@ -90,12 +90,12 @@ var SupSub = P(MathCommand, function(_, _super) {
     );
 
     if (this.ctrlSeq === '_') {
-      this.down = this.ch[L];
-      this.ch[L].up = insertBeforeUnlessAtEnd;
+      this.downInto = this.ch[L];
+      this.ch[L].upOutOf = insertBeforeUnlessAtEnd;
     }
     else {
-      this.up = this.ch[L];
-      this.ch[L].down = insertBeforeUnlessAtEnd;
+      this.upInto = this.ch[L];
+      this.ch[L].downOutOf = insertBeforeUnlessAtEnd;
     }
     function insertBeforeUnlessAtEnd(cursor) {
       // cursor.insertBefore(cmd), unless cursor at the end of block, and every
@@ -204,8 +204,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
-    this.up = this.ch[R].up = this.ch[L];
-    this.down = this.ch[L].down = this.ch[R];
+    this.upInto = this.ch[R].upOutOf = this.ch[L];
+    this.downInto = this.ch[L].downOutOf = this.ch[R];
   };
 });
 
@@ -231,7 +231,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor[L]) {
-        this.replaces(MathFragment(prev[R] || cursor.parent.ch[L], cursor[L]));
+        this.replaces(Fragment(prev[R] || cursor.parent.ch[L], cursor[L]));
         cursor[L] = prev;
       }
     }
@@ -414,188 +414,6 @@ CharCmds['|'] = P(Paren, function(_, _super) {
   _.createBefore = CloseBracket.prototype.createBefore;
 });
 
-var TextBlock =
-CharCmds.$ =
-LatexCmds.text =
-LatexCmds.textnormal =
-LatexCmds.textrm =
-LatexCmds.textup =
-LatexCmds.textmd = P(MathCommand, function(_, _super) {
-  _.ctrlSeq = '\\text';
-  _.htmlTemplate = '<span class="text">&0</span>';
-  _.replaces = function(replacedText) {
-    if (replacedText instanceof MathFragment)
-      this.replacedText = replacedText.remove().jQ.text();
-    else if (typeof replacedText === 'string')
-      this.replacedText = replacedText;
-  };
-  _.textTemplate = ['"', '"'];
-  _.parser = function() {
-    // TODO: correctly parse text mode
-    var string = Parser.string;
-    var regex = Parser.regex;
-    var optWhitespace = Parser.optWhitespace;
-    return optWhitespace
-      .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
-      .map(function(text) {
-        var cmd = TextBlock();
-        cmd.createBlocks();
-        var block = cmd.ch[L];
-        for (var i = 0; i < text.length; i += 1) {
-          var ch = VanillaSymbol(text.charAt(i));
-          ch.adopt(block, block.ch[R], 0);
-        }
-        return cmd;
-      })
-    ;
-  };
-  _.createBlocks = function() {
-    //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
-    this.ch[L] =
-    this.ch[R] =
-      InnerTextBlock();
-
-    this.blocks = [ this.ch[L] ];
-
-    this.ch[L].parent = this;
-  };
-  _.createBefore = function(cursor) {
-    _super.createBefore.call(this, this.cursor = cursor);
-
-    if (this.replacedText)
-      for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
-  };
-  _.write = function(ch) {
-    this.cursor.insertNew(VanillaSymbol(ch));
-  };
-  _.onKey = function(key, e) {
-    //backspace and delete and ends of block don't unwrap
-    if (!this.cursor.selection &&
-      (
-        (key === 'Backspace' && !this.cursor[L]) ||
-        (key === 'Del' && !this.cursor[R])
-      )
-    ) {
-      if (this.isEmpty())
-        this.cursor.insertAfter(this);
-
-      return false;
-    }
-  };
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insertAfter(this).backspace().insertNew(VanillaSymbol('\\$','$'));
-    else if (!this.cursor[R])
-      this.cursor.insertAfter(this);
-    else if (!this.cursor[L])
-      this.cursor.insertBefore(this);
-    else { //split apart
-      var next = TextBlock(MathFragment(this.cursor[R], this.ch[L].ch[R]));
-      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
-        this[L] = 0;
-        delete this.placeCursor;
-        this.placeCursor(cursor);
-      };
-      next.ch[L].focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(next);
-      next[L] = this;
-      this.cursor.insertBefore(next);
-      delete next.ch[L].focus;
-    }
-    return false;
-  };
-});
-
-var InnerTextBlock = P(MathBlock, function(_, _super) {
-  _.blur = function() {
-    this.jQ.removeClass('hasCursor');
-    if (this.isEmpty()) {
-      var textblock = this.parent, cursor = textblock.cursor;
-      if (cursor.parent === this)
-        this.jQ.addClass('empty');
-      else {
-        cursor.hide();
-        textblock.remove();
-        if (cursor[R] === textblock)
-          cursor[R] = textblock[R];
-        else if (cursor[L] === textblock)
-          cursor[L] = textblock[L];
-
-        cursor.show().parent.bubble('redraw');
-      }
-    }
-    return this;
-  };
-  _.focus = function() {
-    _super.focus.call(this);
-
-    var textblock = this.parent;
-    if (textblock[R].ctrlSeq === textblock.ctrlSeq) { //TODO: seems like there should be a better way to move MathElements around
-      var innerblock = this,
-        cursor = textblock.cursor,
-        next = textblock[R].ch[L];
-
-      next.eachChild(function(child){
-        child.parent = innerblock;
-        child.jQ.appendTo(innerblock.jQ);
-      });
-
-      if (this.ch[R])
-        this.ch[R][R] = next.ch[L];
-      else
-        this.ch[L] = next.ch[L];
-
-      next.ch[L][L] = this.ch[R];
-      this.ch[R] = next.ch[R];
-
-      next.parent.remove();
-
-      if (cursor[L])
-        cursor.insertAfter(cursor[L]);
-      else
-        cursor.prependTo(this);
-
-      cursor.parent.bubble('redraw');
-    }
-    else if (textblock[L].ctrlSeq === textblock.ctrlSeq) {
-      var cursor = textblock.cursor;
-      if (cursor[L])
-        textblock[L].ch[L].focus();
-      else
-        cursor.appendTo(textblock[L].ch[L]);
-    }
-    return this;
-  };
-});
-
-
-function makeTextBlock(latex, tagName, attrs) {
-  return P(TextBlock, {
-    ctrlSeq: latex,
-    htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
-  });
-}
-
-LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
-LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="text"');
-LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', 'b', 'class="text"');
-LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="sans-serif text"');
-LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="monospace text"');
-LatexCmds.textsc =
-  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="text"');
-LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="text"');
-LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
-
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
 CharCmds['\\'] = P(MathCommand, function(_, _super) {
@@ -625,6 +443,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
+
     this.cursor = cursor.appendTo(this.ch[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -637,6 +456,16 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
+
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createBefore(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
   };
   _.latex = function() {
     return '\\' + this.ch[L].latex() + ' ';
@@ -648,16 +477,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return false;
     }
   };
-  _.onText = function(ch) {
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.prepareEdit();
-      this.cursor.insertNew(VanillaSymbol(ch));
-      return false;
-    }
-    this.renderCommand();
-    if (ch === '\\' && this.ch[L].isEmpty())
-      return false;
-  };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
     this.remove();
@@ -668,28 +487,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.ch[L].latex(), cmd;
-    if (latex) {
-      cmd = LatexCmds[latex];
-      if (cmd) {
-        cmd = cmd(latex);
-      }
-      else {
-        cmd = TextBlock()
-        cmd.replaces(latex);
-        cmd.ch[L].focus = function(){ delete this.focus; return this; };
-        this.cursor.insertNew(cmd).insertAfter(cmd);
-        if (this._replacedFragment)
-          this._replacedFragment.remove();
-
-        return;
-      }
-    }
-    else
-      cmd = VanillaSymbol('\\backslash ','\\');
-
-    if (this._replacedFragment)
-      cmd.replaces(this._replacedFragment);
-    this.cursor.insertNew(cmd);
+    if (!latex) latex = 'backslash';
+    this.cursor.insertCmd(latex, this._replacedFragment);
   };
 });
 

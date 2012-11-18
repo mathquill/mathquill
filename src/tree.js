@@ -63,18 +63,76 @@ var Node = P(function(_) {
   _[R] = 0
   _.parent = 0;
 
+  var id = 0;
+  function uniqueNodeId() { return id += 1; }
+  this.byId = {};
+
   _.init = function() {
+    this.id = uniqueNodeId();
+    Node.byId[this.id] = this;
+
     this.ch = {};
     this.ch[L] = 0;
     this.ch[R] = 0;
   };
 
+  _.dispose = function() { delete Node.byId[this.id]; };
+
+  _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
+
+  _.jQ = $();
+  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+  _.jQize = function() {
+    // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
+    var jQ = $(this.html());
+    jQ.find('*').andSelf().each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) Node.byId[cmdId].jQadd(jQ);
+      if (blockId) Node.byId[blockId].jQadd(jQ);
+    });
+    return jQ;
+  };
+
+  _.createDir = function(dir, cursor) {
+    prayDirection(dir);
+    var node = this;
+    node.jQize();
+    jQinsertAdjacent(dir, node.jQ, cursor.jQ);
+    cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    return node;
+  };
+  _.createBefore = function(el) { return this.createDir(L, el); };
+
+  _.respace = noop;
+
+  _.bubble = iterator(function(yield) {
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var result = yield(ancestor);
+      if (result === false) break;
+    }
+
+    return this;
+  });
+
+  _.postOrder = iterator(function(yield) {
+    (function recurse(descendant) {
+      descendant.eachChild(recurse);
+      yield(descendant);
+    })(this);
+
+    return this;
+  });
+
   _.children = function() {
     return Fragment(this.ch[L], this.ch[R]);
   };
 
-  _.eachChild = function(fn) {
-    return this.children().each(fn);
+  _.eachChild = function() {
+    var children = this.children();
+    children.each.apply(children, arguments);
+    return this;
   };
 
   _.foldChildren = function(fold, fn) {
@@ -89,6 +147,12 @@ var Node = P(function(_) {
   _.disown = function() {
     Fragment(this, this).disown();
     return this;
+  };
+
+  _.remove = function() {
+    this.jQ.remove();
+    this.postOrder('dispose');
+    return this.disown();
   };
 });
 
@@ -119,7 +183,10 @@ var Fragment = P(function(_) {
 
     this.ends[L] = first;
     this.ends[R] = last;
+
+    this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
+  _.jQ = $();
 
   function prayWellFormed(parent, prev, next) {
     pray('a parent is always present', parent);
@@ -207,17 +274,24 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = function(fn) {
+  _.remove = function() {
+    this.jQ.remove();
+    this.each('postOrder', 'dispose');
+    return this.disown();
+  };
+
+  _.each = iterator(function(yield) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.ends[R][R]; el = el[R]) {
-      if (fn.call(self, el) === false) break;
+    for (; el !== self.ends[R][R]; el = el[R]) {
+      var result = yield(el);
+      if (result === false) break;
     }
 
     return self;
-  };
+  });
 
   _.fold = function(fold, fn) {
     this.each(function(el) {
@@ -225,5 +299,86 @@ var Fragment = P(function(_) {
     });
 
     return fold;
+  };
+
+  // create and return the Fragment between Point A and Point B, or if they
+  // don't share a parent, between the ancestor of A and the ancestor of B
+  // who share a common parent (which would be the lowest common ancestor (LCA)
+  // of A and B)
+  // There must exist an LCA, i.e., A and B must be in the same tree, and A
+  // and B must not be the same Point.
+  this.between = function(A, B) {
+    pray('A and B are not the same Point',
+      A.parent !== B.parent || A[L] !== B[L] || A[R] !== B[R]
+    );
+
+    var ancA = A; // an ancestor of A
+    var ancB = B; // an ancestor of B
+    var ancMapA = {}; // a map from the id of each ancestor of A visited
+    // so far, to the child of that ancestor who is also an ancestor of B, e.g.
+    // the LCA's id maps to the ancestor of the cursor whose parent is the LCA
+    var ancMapB = {}; // a map of the castle and school grounds magically
+    // displaying the current location of everyone within the covered area,
+    // activated by pointing one's wand at it and saying "I solemnly swear
+    // that I am up to no good".
+    // What do you mean, you expected it to be the same as ancMapA, but
+    // ancestors of B instead? That's a complete non sequitur.
+
+    do {
+      ancMapA[ancA.parent.id] = ancA;
+      ancMapB[ancB.parent.id] = ancB;
+
+      if (ancB.parent.id in ancMapA) {
+        ancA = ancMapA[ancB.parent.id];
+        break;
+      }
+      if (ancA.parent.id in ancMapB) {
+        ancB = ancMapB[ancA.parent.id];
+        break;
+      }
+
+      if (ancA.parent) ancA = ancA.parent;
+      if (ancB.parent) ancB = ancB.parent;
+    } while (ancA.parent || ancB.parent);
+    // the only way for this condition to fail is if A and B are in separate
+    // trees, which should be impossible, but infinite loops must never happen,
+    // even under error conditions.
+
+    pray('A and B are in the same tree', ancA.parent || ancB.parent);
+
+    // Now we have two either Nodes or Points, guaranteed to have a common
+    // parent and guaranteed that if both are Points, they are not the same,
+    // and we have to figure out which is on the left and which on the right
+    // of the selection.
+    var left, right;
+
+    // This is an extremely subtle algorithm.
+    // As a special case, ancA could be a Point and ancB a Node immediately
+    // to ancA's left.
+    // In all other cases,
+    // - both Nodes
+    // - ancA a Point and ancB a Node
+    // - ancA a Node and ancB a Point
+    // ancB[R] === next[R] for some next that is ancA or to its right if and
+    // only if anticursorA is to the right of cursorA.
+    if (ancA[L] !== ancB) {
+      for (var next = ancA; next; next = next[R]) {
+        if (next[R] === ancB[R]) {
+          left = ancA;
+          right = ancB;
+          break;
+        }
+      }
+    }
+    if (!left) {
+      left = ancB;
+      right = ancA;
+    }
+
+    // only want to select Nodes up to Points, can't select Points themselves
+    if (left instanceof Point) left = left[R];
+    if (right instanceof Point) right = right[L];
+
+    return Fragment(left, right);
   };
 });

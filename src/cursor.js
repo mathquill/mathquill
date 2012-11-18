@@ -84,31 +84,29 @@ var Cursor = P(Point, function(_) {
   _.prependTo = function(el) { return this.appendDir(L, el); };
   _.appendTo = function(el) { return this.appendDir(R, el); };
 
-  _.hopDir = function(dir) {
+  _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
 
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
-    this[-dir] = this[dir];
-    this[dir] = this[dir][dir];
-    return this;
+    // always prevent default of Spacebar, but only prevent default of Tab if
+    // not in the root editable
+    if (key === 'Spacebar' || this.parent !== this.root) {
+      e.preventDefault();
+    }
+
+    // want to be a noop if in the root editable (in fact, Tab has an unrelated
+    // default browser action if so)
+    if (this.parent === this.root) return;
+
+    clearUpDownCache(this);
+    this.show().clearSelection();
+    this.parent.moveOutOf(dir, this);
   };
-  _.hopLeft = function() { return this.hopDir(L); };
-  _.hopRight = function() { return this.hopDir(R); };
 
   _.moveDirWithin = function(dir, block) {
     prayDirection(dir);
 
-    if (this[dir]) {
-      if (this[dir].ch[-dir]) this.appendDir(-dir, this[dir].ch[-dir]);
-      else this.hopDir(dir);
-    }
-    else {
-      // we're at the beginning/end of the containing block, so do nothing
-      if (this.parent === block) return;
-
-      if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
-      else this.insertAdjacent(dir, this.parent.parent);
-    }
+    if (this[dir]) this[dir].moveTowards(dir, this);
+    else if (this.parent !== block) this.parent.moveOutOf(dir, this);
   };
   _.moveLeftWithin = function(block) {
     return this.moveDirWithin(L, block);
@@ -136,90 +134,77 @@ var Cursor = P(Point, function(_) {
   /**
    * moveUp and moveDown have almost identical algorithms:
    * - first check next and prev, if so prepend/appendTo them
-   * - else check the parent's 'up'/'down' property - if it's a function,
-   *   call it with the cursor as the sole argument and use the return value.
-   *
-   *   Given undefined, will bubble up to the next ancestor block.
-   *   Given false, will stop bubbling.
-   *   Given a MathBlock,
-   *     + moveUp will appendTo it
-   *     + moveDown will prependTo it
-   *
+   * - else check the parent's 'upOutOf'/'downOutOf' property:
+   *   + if it's a function, call it with the cursor as the sole argument and
+   *     use the return value as if it were the value of the property
+   *   + if it's undefined, bubble up to the next ancestor.
+   *   + if it's false, stop bubbling.
+   *   + if it's a Node, jump up or down to it
    */
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    if (self[R][dir]) self.prependTo(self[R][dir]);
-    else if (self[L][dir]) self.appendTo(self[L][dir]);
+    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
+    if (self[R][dirInto]) self.prependTo(self[R][dirInto]);
+    else if (self[L][dirInto]) self.appendTo(self[L][dirInto]);
     else {
-      var ancestorBlock = self.parent;
+      var ancestor = self.parent;
       do {
-        var prop = ancestorBlock[dir];
+        var prop = ancestor[dirOutOf];
         if (prop) {
-          if (typeof prop === 'function') prop = ancestorBlock[dir](self);
-          if (prop === false || prop instanceof MathBlock) {
-            self.upDownCache[ancestorBlock.id] = Point(self.parent, self[L], self[R]);
-
-            if (prop instanceof MathBlock) {
-              var cached = self.upDownCache[prop.id];
-
-              if (cached) {
-                if (cached[R]) {
-                  self.insertBefore(cached[R]);
-                } else {
-                  self.appendTo(cached.parent);
-                }
-              } else {
-                var pageX = offset(self).left;
-                self.appendTo(prop);
-                self.seekHoriz(pageX, prop);
-              }
-            }
+          if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
+          if (prop === false) break;
+          if (prop instanceof Node) {
+            self.jumpUpDown(ancestor, prop);
             break;
           }
         }
-        ancestorBlock = ancestorBlock.parent.parent;
-      } while (ancestorBlock);
+        ancestor = ancestor.parent;
+      } while (ancestor !== self.root);
     }
 
     return self.clearSelection().show();
   }
+  /**
+   * jump up or down from one block Node to another:
+   * - cache the current Point in the node we're jumping from
+   * - check if there's a Point in it cached for the node we're jumping to
+   *   + if so put the cursor there,
+   *   + if not seek a position in the node that is horizontally closest to
+   *     the cursor's current position
+   */
+  _.jumpUpDown = function(from, to) {
+    var self = this;
+    self.upDownCache[from.id] = Point(self.parent, self[L], self[R]);
+    var cached = self.upDownCache[to.id];
+    if (cached) {
+      cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
+    }
+    else {
+      var pageX = offset(self).left;
+      self.appendTo(to).seekHoriz(pageX, to);
+    }
+  };
 
   _.seek = function(target, pageX, pageY) {
-    clearUpDownCache(this);
-    var cmd, block, cursor = this.clearSelection().show();
-    if (target.hasClass('empty')) {
-      cursor.prependTo(MathElement[target.attr(mqBlockId)]);
-      return cursor;
+    var cursor = this;
+    clearUpDownCache(cursor);
+
+    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
+    if (!nodeId) {
+      var targetParent = target.parent();
+      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
     }
+    var node = nodeId ? Node.byId[nodeId] : cursor.root;
+    pray('nodeId is the id of some Node that exists', node);
 
-    cmd = MathElement[target.attr(mqCmdId)];
-    if (cmd instanceof Symbol) { //insert at whichever side is closer
-      if (target.outerWidth() > 2*(pageX - target.offset().left))
-        cursor.insertBefore(cmd);
-      else
-        cursor.insertAfter(cmd);
+    // target could've been selection span, so get node from target before
+    // clearing selection
+    cursor.clearSelection().show();
 
-      return cursor;
-    }
-    if (!cmd) {
-      block = MathElement[target.attr(mqBlockId)];
-      if (!block) { //if no MathQuill data, try parent, if still no, just start from the root
-        target = target.parent();
-        cmd = MathElement[target.attr(mqCmdId)];
-        if (!cmd) {
-          block = MathElement[target.attr(mqBlockId)];
-          if (!block) block = cursor.root;
-        }
-      }
-    }
+    node.seek(pageX, cursor);
 
-    if (cmd)
-      cursor.insertAfter(cmd);
-    else
-      cursor.appendTo(block);
-
-    return cursor.seekHoriz(pageX, cursor.root);
+    return cursor;
   };
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
@@ -262,7 +247,7 @@ var Cursor = P(Point, function(_) {
 
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
-      MathElement.jQize(block.join('html')).insertBefore(self.jQ);
+      block.jQize().insertBefore(self.jQ);
       self[L] = block.ch[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
@@ -271,43 +256,26 @@ var Cursor = P(Point, function(_) {
     return this.hide();
   };
   _.write = function(ch) {
-    clearUpDownCache(this);
-    return this.show().insertCh(ch);
+    var seln = this.prepareWrite();
+    return this.insertCh(ch, seln);
   };
-  _.insertCh = function(ch) {
-    var cmd;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = Variable(ch);
-    else if (cmd = CharCmds[ch] || LatexCmds[ch])
-      cmd = cmd(ch);
-    else
-      cmd = VanillaSymbol(ch);
-
-    if (this.selection) {
-      this[L] = this.selection.ends[L][L];
-      this[R] = this.selection.ends[R][R];
-      cmd.replaces(this.selection);
-      delete this.selection;
-    }
-
-    return this.insertNew(cmd);
-  };
-  _.insertNew = function(cmd) {
-    cmd.createBefore(this);
+  _.insertCh = function(ch, replacedFragment) {
+    this.parent.write(this, ch, replacedFragment);
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
-      cmd = cmd(replacedFragment, latexCmd);
-      this.insertNew(cmd);
-      if (cmd instanceof Symbol && replacedFragment)
-        replacedFragment.remove();
+      cmd = cmd(latexCmd);
+      if (replacedFragment) cmd.replaces(replacedFragment);
+      cmd.createBefore(this);
     }
     else {
-      cmd = TextBlock(latexCmd);
+      cmd = TextBlock();
+      cmd.replaces(latexCmd);
       cmd.ch[L].focus = function(){ delete this.focus; return this; };
-      this.insertNew(cmd).insertAfter(cmd);
+      cmd.createBefore(this);
+      this.insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
@@ -367,18 +335,8 @@ var Cursor = P(Point, function(_) {
     this.show();
 
     if (this.deleteSelection()); // pass
-    else if (this[dir]) {
-      if (this[dir].isEmpty())
-        this[dir] = this[dir].remove()[dir];
-      else
-        this.selectDir(dir);
-    }
-    else if (this.parent !== this.root) {
-      if (this.parent.parent.isEmpty())
-        return this.insertAdjacent(-dir, this.parent.parent).deleteDir(dir);
-      else
-        this.unwrapGramp();
-    }
+    else if (this[dir]) this[dir].deleteTowards(dir, this);
+    else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
 
     if (this[L])
       this[L].respace();
@@ -391,88 +349,47 @@ var Cursor = P(Point, function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
   _.selectFrom = function(anticursor) {
-    //find ancestors of each with common parent
-    var oneA = this, otherA = anticursor; //one ancestor, the other ancestor
-    loopThroughAncestors: while (true) {
-      for (var oneI = this; oneI !== oneA.parent.parent; oneI = oneI.parent.parent) //one intermediate, the other intermediate
-        if (oneI.parent === otherA.parent) {
-          left = oneI;
-          right = otherA;
-          break loopThroughAncestors;
-        }
+    // `this` cursor and the anticursor should be in the same tree, because
+    // the mousemove handler attached to the document, unlike the one attached
+    // to the root HTML DOM element, doesn't try to get the math tree node of
+    // the mousemove target, and Cursor::seek() based solely on coordinates
+    // stays within the tree of `this` cursor's root.
+    var selection = Fragment.between(this, anticursor);
 
-      for (var otherI = anticursor; otherI !== otherA.parent.parent; otherI = otherI.parent.parent)
-        if (oneA.parent === otherI.parent) {
-          left = oneA;
-          right = otherI;
-          break loopThroughAncestors;
-        }
+    var leftEnd = selection.ends[L];
+    var rightEnd = selection.ends[R];
+    var lca = leftEnd.parent;
 
-      if (oneA.parent.parent)
-        oneA = oneA.parent.parent;
-      if (otherA.parent.parent)
-        otherA = otherA.parent.parent;
-    }
-    //figure out which is left/prev and which is right/next
-    var left, right, leftRight;
-    if (left[R] !== right) {
-      for (var next = left; next; next = next[R]) {
-        if (next === right[L]) {
-          leftRight = true;
-          break;
-        }
-      }
-      if (!leftRight) {
-        leftRight = right;
-        right = left;
-        left = leftRight;
-      }
-    }
-    this.hide().selection = Selection(left[L][R] || left.parent.ch[L], right[R][L] || right.parent.ch[R]);
-    this.insertAfter(right[R][L] || right.parent.ch[R]);
+    lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
+    var self = this;
     prayDirection(dir);
     clearUpDownCache(this);
 
-    if (this.selection) {
-      // if cursor is at the (dir) edge of selection
-      if (this.selection.ends[dir] === this[-dir]) {
-        // then extend (dir) if possible
-        if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
-        // else level up if possible
-        else if (this.parent !== this.root) {
-          this.insertAdjacent(dir, this.parent.parent).selection.levelUp();
-        }
+    if (self[dir]) {
+      var adjacent = self[dir],
+          selection = self.selection;
+
+      if (!selection) {
+        adjacent.createSelection(dir, self);
       }
-      // else cursor is at the (-dir) edge of selection, retract if possible
+      else if (selection.ends[dir] === self[-dir]) {
+        adjacent.expandSelection(dir, self);
+      }
+      else if (selection.ends[dir] === selection.ends[-dir]) {
+        adjacent.clearSelection(dir, self);
+      }
       else {
-        this.hopDir(dir);
-
-        // clear the selection if we only have one thing selected
-        if (this.selection.ends[dir] === this.selection.ends[-dir]) {
-          this.clearSelection().show();
-          return;
-        }
-
-        this.selection.retractDir(dir);
+        adjacent.retractSelection(dir, self);
       }
     }
-    // no selection, create one
-    else {
-      if (this[dir]) this.hopDir(dir);
-      // else edge of a block
-      else {
-        if (this.parent === this.root) return;
-
-        this.insertAdjacent(dir, this.parent.parent);
-      }
-
-      this.hide().selection = Selection(this[-dir]);
+    else if (self.parent !== self.root) {
+      self.parent.selectOutOf(dir, self);
     }
 
-    this.root.selectionChanged();
+    self.root.selectionChanged();
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
@@ -485,11 +402,14 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
     return this.show().clearSelection();
   };
-
   _.prepareEdit = function() {
     clearUpDownCache(this);
     return this.show().deleteSelection();
-  }
+  };
+  _.prepareWrite = function() {
+    clearUpDownCache(this);
+    return this.show().replaceSelection();
+  };
 
   _.clearSelection = function() {
     if (this.selection) {
@@ -508,14 +428,25 @@ var Cursor = P(Point, function(_) {
     this.root.selectionChanged();
     return delete this.selection;
   };
+  _.replaceSelection = function() {
+    var seln = this.selection;
+    if (seln) {
+      this[L] = seln.ends[L][L];
+      this[R] = seln.ends[R][R];
+      delete this.selection;
+    }
+    return seln;
+  };
 });
 
-var Selection = P(MathFragment, function(_, _super) {
-  _.init = function() {
-    var frag = this;
-    _super.init.apply(frag, arguments);
+var Selection = P(Fragment, function(_, _super) {
+  _.init = function(first, last) {
+    var seln = this;
 
-    frag.jQwrap(frag.jQ);
+    // just select one thing if only one argument
+    _super.init.call(seln, first, last || first);
+
+    seln.jQwrap(seln.jQ);
   };
   _.jQwrap = function(children) {
     this.jQ = children.wrapAll('<span class="selection"></span>').parent();
@@ -526,29 +457,9 @@ var Selection = P(MathFragment, function(_, _super) {
     return _super.adopt.apply(this, arguments);
   };
   _.clear = function() {
-    this.jQ.replaceWith(this.jQ.children());
+    // using the browser's native .childNodes property so that we
+    // don't discard text nodes.
+    this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  _.levelUp = function() {
-    var seln = this,
-      gramp = seln.ends[L] = seln.ends[R] = seln.ends[R].parent.parent;
-    seln.clear().jQwrap(gramp.jQ);
-    return seln;
-  };
-  _.extendDir = function(dir) {
-    prayDirection(dir);
-    this.ends[dir] = this.ends[dir][dir];
-    jQappendDir(dir, this.ends[dir].jQ, this.jQ);
-    return this;
-  };
-  _.extendLeft = function() { return this.extendDir(L); };
-  _.extendRight = function() { return this.extendDir(R); };
-
-  _.retractDir = function(dir) {
-    prayDirection(dir);
-    jQinsertAdjacent(-dir, this.ends[-dir].jQ, this.jQ);
-    this.ends[-dir] = this.ends[-dir][dir];
-  };
-  _.retractRight = function() { return this.retractDir(R); };
-  _.retractLeft = function() { return this.retractDir(L); };
 });
