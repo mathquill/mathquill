@@ -9,6 +9,8 @@
 <link rel="stylesheet" type="text/css" href="support/home.css">
 <link rel="stylesheet" type="text/css" href="../build/mathquill.css">
 
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+
 <style type="text/css">
 body {
   font-size: .8em;
@@ -154,6 +156,8 @@ document.body.onload = function() {
 // Initial LaTeX
 $('#dynamic-initial tr').each(function() {
   var math = $('span', this);
+  if (!math.length) return;
+
   MathQuill.StaticMath(math.eq(0));
   MathQuill.MathField(math.eq(1));
   MathQuill.MathField(math.eq(2)).revert();

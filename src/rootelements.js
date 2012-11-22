@@ -11,6 +11,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.jQ = jQ.attr(mqBlockId, root.id);
   root.revert = function() {
+    this.postOrder('dispose');
     jQ.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
       .append(contents);
