@@ -24,54 +24,88 @@ To use MathQuill on your website you need to serve
 
 then on your webpages include the stylesheet
 
-    <link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```html
+<link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```
 
 and after [jQuery](http://jquery.com), the script
 
-    <script src="/path/to/mathquill.min.js"></script>
+```html
+<script src="/path/to/mathquill.min.js"></script>
+```
 
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
-    <span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+```html
+<span class="mathquill-static-math">\frac{d}{dx}\sqrt{x}</span>
+```
 
-or have an editable math textbox:
+or have an editable math field:
 
-    <span class="mathquill-editable">f(x)=?</span>
+```html
+<span class="mathquill-math-field">f(x)=?</span>
+```
 
-Note that for dynamically created elements that weren't in the HTML DOM on
-document ready, you will need to call our jQuery plugin after inserting into
-the visible HTML DOM:
+This is done by waiting for the jQuery `ready` event and searching the document
+for elements with those CSS classes, so for dynamically created elements that
+weren't in the document on `ready`, you will need to call our public API after
+inserting into the visible document:
 
-`$('<span>x^2</span>').appendTo('body').mathquill()` or `.mathquill('editable')`
+```js
+var el = $('<span>x^2</span>').appendTo('body');
+var editableMath = MathQuill.MathField(el);
+editableMath instanceof MathQuill.MathField; // => true
+editableMath instanceof MathQuill; // => true
+```
 
-MathQuill has to perform calculations based on computed CSS values. If you
-mathquill-ify an element before inserting into the visible HTML DOM, then once
-it is visible MathQuill will need to recalculate:
+Note that if during MathQuill-ification the element isn't in the visible HTML
+DOM, then you may need to call `.redraw()` on our public API once it is visible
+so that MathQuill can perform calculations based on computed CSS values:
 
-    $('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')
+```js
+var editableMath = MathQuill.MathField('<span>\\sqrt{2}</span>');
+editableMath.jQ().appendTo('body');
+editableMath.redraw();
+```
 
 Any element that has been MathQuill-ified can be reverted:
 
-    $('.mathquill-embedded-latex').mathquill('revert');
+```html
+<span id="revert-me" class="mathquill-static-math">some <code>HTML</code></span>
+```
+```js
+var math = MathQuill('#revert-me');
+math.revert().html(); // => 'some <code>HTML</code>'
+```
 
-Manipulating the HTML DOM inside editable math textboxes can break MathQuill.
-Currently, MathQuill only supports a limited scripting API:
+Manipulating the HTML DOM inside MathQuill-ified elements can break our
+rendering and functionality, but we have a public API to manipulate MathQuill
+things: the global `MathQuill()` function takes one argument, which jQuery must
+resolve to a single HTML element, and will return a MathQuill object if that
+element is a MathQuill thing, or `null` otherwise.
 
-* To access the LaTeX contents of a mathquill-ified element:
+`MathQuill.noConflict()` resets the global `MathQuill` variable to whatever it
+was before, and returns the `MathQuill` function to be used locally or set to
+some other variable, _a la_ [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict).
 
-        $('<span>x^{-1}</span>').mathquill().mathquill('latex') === 'x^{-1}'
+`MathQuill.StaticMath()` and `MathQuill.MathField()` also take one argument that
+jQuery must resolve to a single HTML element, and additionally the element must
+either be not yet MathQuill-ified or a MathQuill instance of the same type. If
+not yet MathQuill-ified they will MathQuill-ify the element as described above,
+and in either case they will return a MathQuill object for that MathQuill
+instance.
 
-* To render some LaTeX in a mathquill-ified element:
+The MathQuill objects expose the following public methods to manipulate a
+MathQuill instance:
 
-        $('<span/>').mathquill().appendTo('body').mathquill('latex','a_n x^n')
-
-* To write some LaTeX at the current cursor position:
-
-        someMathQuillifiedElement.mathquill('write','\\frac{d}{dx}')
-
-* To insert a LaTeX command at the current cursor position or with the current selection:
-
-        someMathQuillifiedElement.mathquill('cmd','\\sqrt')
+* `.revert()` reverts
+* `.jQ()` returns a jQuery object wrapping the root HTML element
+* `.html()` returns the contents as static HTML
+* `.latex()` returns the contents as LaTeX
+* `.latex('a_n x^n')` will render the argument as LaTeX
+* `.write(' - 1')` will write some LaTeX at the current cursor position
+* `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
+  with the current selection
 
 **A Note On Changing Colors:**
 
