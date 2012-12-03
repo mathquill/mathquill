@@ -153,7 +153,7 @@ throughout MathQuill, plus some globals and opening boilerplate.
 
 [pjs]: https://github.com/jayferd/pjs
 
-`tree.js` defines the abstract classes for the JS objects that make up the virtual math DOM tree.
+`tree.js` defines the abstract classes for the JS objects that make up the edit tree.
 
 * A `Node` is a node in the tree.
 * A `Point` is a position between two nodes, or at the beginning or end
@@ -161,12 +161,12 @@ throughout MathQuill, plus some globals and opening boilerplate.
 * A `Fragment` is a range of siblings in the tree.  This is used, for
   example, for selections.
 
-* The math DOM has two kinds of nodes: commands and blocks
+* The edit tree has two kinds of nodes: commands and blocks
     - blocks, like the root block, can contain any number of commands
     - commands, like `x`, `1`, `+`, `\frac`, `\sqrt` (clearly siblings in the
       tree) contain a fixed number of blocks
         + symbols like `x`, `y`, `1`, `2`, `+`, `-` are commands with 0 blocks
-* All math DOM nodes are instances of `MathElement`
+* All edit tree nodes are instances of `MathElement`
     - blocks are instances of `MathBlock`
     - commands are instances of `MathCommand`
         + symbols are instances of `Symbol`
@@ -177,7 +177,7 @@ cursor and highlighted selection.
 * The methods on `Cursor` pretty much do what they say on the tin.
   They're how the tree is supposed to traversed and modified.
 
-`rootelements.js` defines the math DOM tree root elements, and a function
+`rootelements.js` defines the edit tree root elements, and a function
 `createRoot()` that attaches event handlers to the jQuery-wrapped HTML elements:
 
 * Some root elements can actually be in others, so rather than attaching
@@ -187,9 +187,9 @@ cursor and highlighted selection.
 * Event delegation is used in 2 ways:
   - in the HTML DOM, the root `span` element of each MathQuill thing is
     delegated all the events in it's own MathQuill thing
-    + keyboard events usually end up triggering their analogue in the virtual
-      DOM on the virtual cursor, which then bubble upwards
-  - in the virtual math DOM, the root MathElement is delegated most of these
+    + keyboard events usually end up triggering their analogue in the edit tree
+      on the cursor, which then bubble upwards
+  - in the edit tree, the root MathElement is delegated most of these
     virtual keyboard events
     + for example, `RootMathBlock::keydown()`
     + some special commands do intercept these events, though
