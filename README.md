@@ -194,7 +194,7 @@ cursor and highlighted selection.
     + for example, `RootMathBlock::keydown()`
     + some special commands do intercept these events, though
 
-`textarea.js` handles all the dom events necessary to emulate a textarea, using
+`textarea.js` handles all the HTML DOM events necessary to emulate a textarea, using
 a hidden textarea.
 
 `symbols.js` defines classes for all the symbols like `&` and `\partial`, and
