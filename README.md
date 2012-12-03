@@ -148,16 +148,18 @@ In comments and internal documentation, `::` means `.prototype.`.
 `intro.js` defines some simple sugar for the idiomatic JS classes used
 throughout MathQuill, plus some globals and opening boilerplate.
 
-* By convention, when assigning or accessing many properties of an object,
-  you can use the `_` variable to save having to type the object's name every
-  time.
-    - DO NOT use `with`, see
-      [`with` considered harmful](http://crockford.com/with.html).
-* The sugar saves typing when creating idiomatic prototypal JS classes,
-  including setting `_` so you can assign methods and fields to the prototype.
+* Classes are defined using [Pjs][], and the variable `_` is used by convention
+  as the prototype.
 
-`math.js` defines abstract base classes for the JS objects that make up the
-virtual math DOM tree:
+[pjs]: https://github.com/jayferd/pjs
+
+`tree.js` defines the abstract classes for the JS objects that make up the virtual math DOM tree.
+
+* A `Node` is a node in the tree.
+* A `Point` is a position between two nodes, or at the beginning or end
+  of a parent node.  This is used, for example, for the cursor.
+* A `Fragment` is a range of siblings in the tree.  This is used, for
+  example, for selections.
 
 * The math DOM has two kinds of nodes: commands and blocks
     - blocks, like the root block, can contain any number of commands
@@ -168,17 +170,11 @@ virtual math DOM tree:
     - blocks are instances of `MathBlock`
     - commands are instances of `MathCommand`
         + symbols are instances of `Symbol`
-* `MathFragment`s are basically 'subblocks' that encapsulate a "view" of
-  multiple commands. Like a pointer to a particular command, they have access
-  to nodes in the tree but aren't part of the tree.
-    - `prev` and `next` seemed like a good idea at the time, they match
-      `Cursor`, but `first` and `last` instead are under consideration
 
 `cursor.js` defines the "singleton" classes for the visible blinking
-cursor and highlighted selection. They are not part of the tree but have
-access and point to elements in it to keep track of their location:
+cursor and highlighted selection.
 
-* The methods of `Cursor.prototype` pretty much do what they say on the tin.
+* The methods on `Cursor` pretty much do what they say on the tin.
   They're how the tree is supposed to traversed and modified.
 
 `rootelements.js` defines the math DOM tree root elements, and a function
@@ -197,9 +193,9 @@ access and point to elements in it to keep track of their location:
     virtual keyboard events
     + for example, `RootMathBlock::keydown()`
     + some special commands do intercept these events, though
-* Keyboard events are very inconsistent between browsers, so `rootelements.js`
-  has some complicated but very effective logic documented in the Wiki page
-  "Keyboard Events".
+
+`textarea.js` handles all the dom events necessary to emulate a textarea, using
+a hidden textarea.
 
 `symbols.js` defines classes for all the symbols like `&` and `\partial`, and
 adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
@@ -219,4 +215,4 @@ the current active development discussion.
 
 [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
 
-Copyleft 2010-2011 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+Copyleft 2010-2012 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
