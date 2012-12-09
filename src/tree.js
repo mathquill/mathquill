@@ -6,22 +6,133 @@
  * of the tree.
  ************************************************/
 
+// L = 'left'
+// R = 'right'
+//
+// the contract is that they can be used as object properties
+// and (-L) === R, and (-R) === L.
+var L = -1;
+var R = 1;
+
+function prayDirection(dir) {
+  pray('a direction was passed', dir === L || dir === R);
+}
+
+// directionalizable versions of common jQuery traversals
+function jQinsertAdjacent(dir, el, target) {
+  return (
+    dir === L ?
+    el.insertBefore(target) :
+    el.insertAfter(target)
+  );
+}
+
+function jQappendDir(dir, el, target) {
+  return (
+    dir === L ?
+    el.prependTo(target) :
+    el.appendTo(target)
+  );
+}
+
+function jQgetExtreme(dir, el) {
+  return (
+    dir === L ?
+    el.first() :
+    el.last()
+  )
+}
+
+var Point = P(function(_) {
+  _.parent = 0;
+  _[L] = 0;
+  _[R] = 0;
+
+  _.init = function(parent, prev, next) {
+    this.parent = parent;
+    this[L] = prev;
+    this[R] = next;
+  };
+});
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
 var Node = P(function(_) {
-  _.prev = 0;
-  _.next = 0;
+  _[L] = 0;
+  _[R] = 0
   _.parent = 0;
-  _.firstChild = 0;
-  _.lastChild = 0;
 
-  _.children = function() {
-    return Fragment(this.firstChild, this.lastChild);
+  var id = 0;
+  function uniqueNodeId() { return id += 1; }
+  this.byId = {};
+
+  _.init = function() {
+    this.id = uniqueNodeId();
+    Node.byId[this.id] = this;
+
+    this.ch = {};
+    this.ch[L] = 0;
+    this.ch[R] = 0;
   };
 
-  _.eachChild = function(fn) {
-    return this.children().each(fn);
+  _.dispose = function() { delete Node.byId[this.id]; };
+
+  _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
+
+  _.jQ = $();
+  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+  _.jQize = function() {
+    // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
+    var jQ = $(this.html());
+    jQ.find('*').andSelf().each(function() {
+      var jQ = $(this),
+        cmdId = jQ.attr('mathquill-command-id'),
+        blockId = jQ.attr('mathquill-block-id');
+      if (cmdId) Node.byId[cmdId].jQadd(jQ);
+      if (blockId) Node.byId[blockId].jQadd(jQ);
+    });
+    return jQ;
+  };
+
+  _.createDir = function(dir, cursor) {
+    prayDirection(dir);
+    var node = this;
+    node.jQize();
+    jQinsertAdjacent(dir, node.jQ, cursor.jQ);
+    cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    return node;
+  };
+  _.createBefore = function(el) { return this.createDir(L, el); };
+
+  _.respace = noop;
+
+  _.bubble = iterator(function(yield) {
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var result = yield(ancestor);
+      if (result === false) break;
+    }
+
+    return this;
+  });
+
+  _.postOrder = iterator(function(yield) {
+    (function recurse(descendant) {
+      descendant.eachChild(recurse);
+      yield(descendant);
+    })(this);
+
+    return this;
+  });
+
+  _.children = function() {
+    return Fragment(this.ch[L], this.ch[R]);
+  };
+
+  _.eachChild = function() {
+    var children = this.children();
+    children.each.apply(children, arguments);
+    return this;
   };
 
   _.foldChildren = function(fold, fn) {
@@ -36,6 +147,12 @@ var Node = P(function(_) {
   _.disown = function() {
     Fragment(this, this).disown();
     return this;
+  };
+
+  _.remove = function() {
+    this.jQ.remove();
+    this.postOrder('dispose');
+    return this.disown();
   };
 });
 
@@ -52,11 +169,10 @@ var Node = P(function(_) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.first = 0;
-  _.last = 0;
-
   _.init = function(first, last) {
     pray('no half-empty fragments', !first === !last);
+
+    this.ends = {};
 
     if (!first) return;
 
@@ -65,26 +181,29 @@ var Fragment = P(function(_) {
     pray('first and last have the same parent',
          first.parent === last.parent);
 
-    this.first = first;
-    this.last = last;
+    this.ends[L] = first;
+    this.ends[R] = last;
+
+    this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
+  _.jQ = $();
 
   function prayWellFormed(parent, prev, next) {
     pray('a parent is always present', parent);
     pray('prev is properly set up', (function() {
       // either it's empty and next is the first child (possibly empty)
-      if (!prev) return parent.firstChild === next;
+      if (!prev) return parent.ch[L] === next;
 
       // or it's there and its next and parent are properly set up
-      return prev.next === next && prev.parent === parent;
+      return prev[R] === next && prev.parent === parent;
     })());
 
     pray('next is properly set up', (function() {
       // either it's empty and prev is the last child (possibly empty)
-      if (!next) return parent.lastChild === prev;
+      if (!next) return parent.ch[R] === prev;
 
       // or it's there and its next and parent are properly set up
-      return next.prev === prev && next.parent === parent;
+      return next[L] === prev && next.parent === parent;
     })());
   }
 
@@ -94,30 +213,30 @@ var Fragment = P(function(_) {
     var self = this;
     self.disowned = false;
 
-    var first = self.first;
+    var first = self.ends[L];
     if (!first) return this;
 
-    var last = self.last;
+    var last = self.ends[R];
 
     if (prev) {
       // NB: this is handled in the ::each() block
-      // prev.next = first
+      // prev[R] = first
     } else {
-      parent.firstChild = first;
+      parent.ch[L] = first;
     }
 
     if (next) {
-      next.prev = last;
+      next[L] = last;
     } else {
-      parent.lastChild = last;
+      parent.ch[R] = last;
     }
 
-    self.last.next = next;
+    self.ends[R][R] = next;
 
     self.each(function(el) {
-      el.prev = prev;
+      el[L] = prev;
       el.parent = parent;
-      if (prev) prev.next = el;
+      if (prev) prev[R] = el;
 
       prev = el;
     });
@@ -127,45 +246,52 @@ var Fragment = P(function(_) {
 
   _.disown = function() {
     var self = this;
-    var first = self.first;
+    var first = self.ends[L];
 
     // guard for empty and already-disowned fragments
     if (!first || self.disowned) return self;
 
     self.disowned = true;
 
-    var last = self.last;
+    var last = self.ends[R]
     var parent = first.parent;
 
-    prayWellFormed(parent, first.prev, first);
-    prayWellFormed(parent, last, last.next);
+    prayWellFormed(parent, first[L], first);
+    prayWellFormed(parent, last, last[R]);
 
-    if (first.prev) {
-      first.prev.next = last.next;
+    if (first[L]) {
+      first[L][R] = last[R];
     } else {
-      parent.firstChild = last.next;
+      parent.ch[L] = last[R];
     }
 
-    if (last.next) {
-      last.next.prev = first.prev;
+    if (last[R]) {
+      last[R][L] = first[L];
     } else {
-      parent.lastChild = first.prev;
+      parent.ch[R] = first[L];
     }
 
     return self;
   };
 
-  _.each = function(fn) {
+  _.remove = function() {
+    this.jQ.remove();
+    this.each('postOrder', 'dispose');
+    return this.disown();
+  };
+
+  _.each = iterator(function(yield) {
     var self = this;
-    var el = self.first;
+    var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.last.next; el = el.next) {
-      if (fn.call(self, el) === false) break;
+    for (; el !== self.ends[R][R]; el = el[R]) {
+      var result = yield(el);
+      if (result === false) break;
     }
 
     return self;
-  };
+  });
 
   _.fold = function(fold, fn) {
     this.each(function(el) {
@@ -173,5 +299,86 @@ var Fragment = P(function(_) {
     });
 
     return fold;
+  };
+
+  // create and return the Fragment between Point A and Point B, or if they
+  // don't share a parent, between the ancestor of A and the ancestor of B
+  // who share a common parent (which would be the lowest common ancestor (LCA)
+  // of A and B)
+  // There must exist an LCA, i.e., A and B must be in the same tree, and A
+  // and B must not be the same Point.
+  this.between = function(A, B) {
+    pray('A and B are not the same Point',
+      A.parent !== B.parent || A[L] !== B[L] || A[R] !== B[R]
+    );
+
+    var ancA = A; // an ancestor of A
+    var ancB = B; // an ancestor of B
+    var ancMapA = {}; // a map from the id of each ancestor of A visited
+    // so far, to the child of that ancestor who is also an ancestor of B, e.g.
+    // the LCA's id maps to the ancestor of the cursor whose parent is the LCA
+    var ancMapB = {}; // a map of the castle and school grounds magically
+    // displaying the current location of everyone within the covered area,
+    // activated by pointing one's wand at it and saying "I solemnly swear
+    // that I am up to no good".
+    // What do you mean, you expected it to be the same as ancMapA, but
+    // ancestors of B instead? That's a complete non sequitur.
+
+    do {
+      ancMapA[ancA.parent.id] = ancA;
+      ancMapB[ancB.parent.id] = ancB;
+
+      if (ancB.parent.id in ancMapA) {
+        ancA = ancMapA[ancB.parent.id];
+        break;
+      }
+      if (ancA.parent.id in ancMapB) {
+        ancB = ancMapB[ancA.parent.id];
+        break;
+      }
+
+      if (ancA.parent) ancA = ancA.parent;
+      if (ancB.parent) ancB = ancB.parent;
+    } while (ancA.parent || ancB.parent);
+    // the only way for this condition to fail is if A and B are in separate
+    // trees, which should be impossible, but infinite loops must never happen,
+    // even under error conditions.
+
+    pray('A and B are in the same tree', ancA.parent || ancB.parent);
+
+    // Now we have two either Nodes or Points, guaranteed to have a common
+    // parent and guaranteed that if both are Points, they are not the same,
+    // and we have to figure out which is on the left and which on the right
+    // of the selection.
+    var left, right;
+
+    // This is an extremely subtle algorithm.
+    // As a special case, ancA could be a Point and ancB a Node immediately
+    // to ancA's left.
+    // In all other cases,
+    // - both Nodes
+    // - ancA a Point and ancB a Node
+    // - ancA a Node and ancB a Point
+    // ancB[R] === next[R] for some next that is ancA or to its right if and
+    // only if anticursorA is to the right of cursorA.
+    if (ancA[L] !== ancB) {
+      for (var next = ancA; next; next = next[R]) {
+        if (next[R] === ancB[R]) {
+          left = ancA;
+          right = ancB;
+          break;
+        }
+      }
+    }
+    if (!left) {
+      left = ancB;
+      right = ancA;
+    }
+
+    // only want to select Nodes up to Points, can't select Points themselves
+    if (left instanceof Point) left = left[R];
+    if (right instanceof Point) right = right[L];
+
+    return Fragment(left, right);
   };
 });

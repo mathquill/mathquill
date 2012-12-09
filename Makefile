@@ -16,6 +16,7 @@ SOURCES = \
   $(SRC_DIR)/rootelements.js \
   $(SRC_DIR)/commands.js \
   $(SRC_DIR)/symbols.js \
+  $(SRC_DIR)/text.js \
   $(SRC_DIR)/latex.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/publicapi.js

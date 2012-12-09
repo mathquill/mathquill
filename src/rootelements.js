@@ -36,7 +36,13 @@ function createRoot(jQ, root, textbox, editable) {
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
-    var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
+    var latex = '';
+    if (cursor.selection) {
+      latex = cursor.selection.fold('', function(latex, el) {
+        return latex + el.latex();
+      });
+      latex = '$' + latex + '$';
+    }
     textareaManager.select(latex);
   }
 
@@ -52,7 +58,7 @@ function createRoot(jQ, root, textbox, editable) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
-      if (cursor.prev !== anticursor.prev
+      if (cursor[L] !== anticursor[L]
           || cursor.parent !== anticursor.parent) {
         cursor.selectFrom(anticursor);
       }
@@ -99,7 +105,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
+    anticursor = Point(cursor.parent, cursor[L], cursor[R]);
 
     if (!editable) jQ.prepend(textareaSpan);
 
@@ -200,7 +206,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.firstChild = this.lastChild = 0;
+    this.ch[L] = this.ch[R] = 0;
 
     this.cursor.appendTo(this).writeLatex(latex);
   };
@@ -208,7 +214,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
-      while (this.cursor.prev || this.cursor.selection) {
+      while (this.cursor[L] || this.cursor.selection) {
         this.cursor.backspace();
       }
       break;
@@ -222,42 +228,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Esc':
     case 'Tab':
     case 'Spacebar':
-      var parent = this.cursor.parent;
-      // cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent.next) {
-        // go one block right
-        this.cursor.prependTo(parent.next);
-      } else {
-        // get out of the block
-        this.cursor.insertAfter(parent.parent);
-      }
+      this.cursor.escapeDir(R, key, e);
       break;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
-      var parent = this.cursor.parent;
-      //cursor is in root editable, continue default
-      if (parent === this.cursor.root) {
-        if (key === 'Shift-Spacebar') e.preventDefault();
-        return;
-      }
-
-      this.cursor.prepareMove();
-      if (parent.prev) {
-        // go one block left
-        this.cursor.appendTo(parent.prev);
-      } else {
-        //get out of the block
-        this.cursor.insertBefore(parent.parent);
-      }
+      this.cursor.escapeDir(L, key, e);
       break;
 
     // Prevent newlines from showing up
@@ -276,14 +254,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-End -> select to the end of the current block.
     case 'Shift-End':
-      while (this.cursor.next) {
+      while (this.cursor[R]) {
         this.cursor.selectRight();
       }
       break;
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
-      while (this.cursor.next || this.cursor.parent !== this) {
+      while (this.cursor[R] || this.cursor.parent !== this) {
         this.cursor.selectRight();
       }
       break;
@@ -300,14 +278,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Shift-Home -> select to the start of the current block.
     case 'Shift-Home':
-      while (this.cursor.prev) {
+      while (this.cursor[L]) {
         this.cursor.selectLeft();
       }
       break;
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
-      while (this.cursor.prev || this.cursor.parent !== this) {
+      while (this.cursor[L] || this.cursor.parent !== this) {
         this.cursor.selectLeft();
       }
       break;
@@ -324,15 +302,15 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Down': this.cursor.moveDown(); break;
 
     case 'Shift-Up':
-      if (this.cursor.prev) {
-        while (this.cursor.prev) this.cursor.selectLeft();
+      if (this.cursor[L]) {
+        while (this.cursor[L]) this.cursor.selectLeft();
       } else {
         this.cursor.selectLeft();
       }
 
     case 'Shift-Down':
-      if (this.cursor.next) {
-        while (this.cursor.next) this.cursor.selectRight();
+      if (this.cursor[R]) {
+        while (this.cursor[R]) this.cursor.selectRight();
       }
       else {
         this.cursor.selectRight();
@@ -343,7 +321,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
-      while (this.cursor.next || this.cursor.selection) {
+      while (this.cursor[R] || this.cursor.selection) {
         this.cursor.deleteForward();
       }
       break;
@@ -359,7 +337,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       if (this !== this.cursor.root) return;
 
       this.cursor.prepareMove().appendTo(this);
-      while (this.cursor.prev) this.cursor.selectLeft();
+      while (this.cursor[L]) this.cursor.selectLeft();
       break;
 
     default:
@@ -381,34 +359,32 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    this.firstChild =
-    this.lastChild =
+    this.ch[L] =
+    this.ch[R] =
       RootMathBlock();
 
-    this.blocks = [ this.firstChild ];
+    this.blocks = [ this.ch[L] ];
 
-    this.firstChild.parent = this;
+    this.ch[L].parent = this;
 
-    var cursor = this.firstChild.cursor = this.cursor;
-    this.firstChild.onText = function(ch) {
-      if (ch !== '$' || cursor.parent !== this)
-        cursor.write(ch);
+    this.ch[L].cursor = this.cursor;
+    this.ch[L].write = function(cursor, ch, replacedFragment) {
+      if (ch !== '$')
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
-          .insertNew(VanillaSymbol('\\$','$')).show();
+        cursor.insertAfter(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createBefore(cursor);
       }
-      else if (!cursor.next)
+      else if (!cursor[R])
         cursor.insertAfter(this.parent);
-      else if (!cursor.prev)
+      else if (!cursor[L])
         cursor.insertBefore(this.parent);
       else
-        cursor.write(ch);
-
-      return false;
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
   };
   _.latex = function() {
-    return '$' + this.firstChild.latex() + '$';
+    return '$' + this.ch[L].latex() + '$';
   };
 });
 
@@ -417,7 +393,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var self = this
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.firstChild = self.lastChild = 0;
+    self.ch[L] = self.ch[R] = 0;
     cursor.show().appendTo(self);
 
     var regex = Parser.regex;
@@ -436,7 +412,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         var rootMathCommand = RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.firstChild;
+        var rootMathBlock = rootMathCommand.ch[L];
         block.children().adopt(rootMathBlock, 0, 0);
 
         return rootMathCommand;
@@ -450,23 +426,24 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.lastChild, 0);
+        commands[i].adopt(self, self.ch[R], 0);
       }
 
-      var html = self.join('html');
-      MathElement.jQize(html).appendTo(self.jQ);
+      self.jQize().appendTo(self.jQ);
 
-      this.finalizeInsert();
+      self.finalizeInsert();
     }
   };
-  _.onKey = RootMathBlock.prototype.onKey;
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
+  _.onKey = function(key) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
+    RootMathBlock.prototype.onKey.apply(this, arguments);
+  };
+  _.onText = RootMathBlock.prototype.onText;
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      this.cursor.insertNew(RootMathCommand(this.cursor));
+      RootMathCommand(cursor).createBefore(cursor);
     else
-      this.cursor.insertNew(VanillaSymbol(ch));
-
-    return false;
+      VanillaSymbol(ch).createBefore(cursor);
   };
 });
