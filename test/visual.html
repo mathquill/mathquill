@@ -6,8 +6,10 @@
 
 <title>MathQuill Test Page</title>
 
-<link rel="stylesheet" type="text/css" href="home.css">
-<link rel="stylesheet" type="text/css" href="mathquill.css">
+<link rel="stylesheet" type="text/css" href="support/home.css">
+<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 
 <style type="text/css">
 body {
@@ -39,6 +41,16 @@ button {
   -moz-user-select: text;
   -webkit-user-select: text;
 }
+
+/* Non-white background test */
+.different-bgcolor.mathquill-editable,
+.different-bgcolor.mathquill-editable .matrixed {
+  background: black;
+  color: white;
+}
+.different-bgcolor.mathquill-editable .cursor {
+  border-color: white;
+}
 </style>
 
 </head>
@@ -61,15 +73,68 @@ button {
   <td><span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span>
 </table>
 
-<p id="selection-performance"><b>Selection Performance</b>: <span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+
+<h3>Redrawing</h3>
+<p>
+  <span id="redrawing-test" class="mathquill-editable">\sqrt{}</span>
+  should look the same as
+  <span class="mathquill-embedded-latex">
+    \sqrt{\pi\sqrt\sqrt\frac12}
+  </span>
+</p>
+<script type="text/javascript">
+  $(function() {
+    setTimeout(function() {
+      var test = $('#redrawing-test');
+      var textarea = test.find('textarea');
+
+      // focus
+      test.focus();
+
+      // move left into the square root
+      textarea.trigger($.Event('keydown', { which: 37 }));
+
+      // paste some stuff that needs resizing
+      textarea.trigger('paste');
+      textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');
+    });
+  });
+</script>
+
+<h3>Up/Down seeking and caching</h3>
+
+<p>
+  <span id="seek-test" class="mathquill-editable">
+    \frac{1}{\sqrt \sqrt \sqrt \sqrt \sqrt \sqrt x}
+  </span>
+</p>
+
+<p>
+&uarr; If you hit down from next to the 1, you should end up inside one of the square roots. If you hit up from the right of the x and then hit down again, you should end up where you were.
+</p>
+
+<h3>Selection Tests</h3>
+
+<p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+
+<p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
+
+<p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
 <h3>Dynamic mathquill-ification</h3>
-<table id="dynamic">
+<table id="dynamic-initial">
 <tr><th colspan=3>Initial LaTeX
 <tr>
   <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
   <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
   <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
+<tr>
+  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
+  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
+  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
+</table>
+<table id="dynamic-redraw">
 <tr><th colspan=3><code>.mathquill('redraw')</code>
 <tr>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
@@ -81,23 +146,20 @@ button {
 <table>
 <tr><td><span class="mathquill-embedded-latex">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
 <tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
-<tr><td><span class="mathquill-embedded-latex">\nthroot{n}{1}</span><td><span>\nthroot{n}{1}</span>
+<tr><td><span class="mathquill-embedded-latex">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
 <tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span>
 <tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
 </table>
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
-
 </div>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.js"></script>
 <script type="text/javascript">
 window.onerror = function() {
   $('html').css('background', 'red');
 };
 </script>
-<script type="text/javascript" src="build/mathquill.js"></script>
+<script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
 $('button').click(function() {
   $(document.body).toggleClass('show-textareas');
@@ -112,22 +174,33 @@ $.fn.prepend = function(el) {
     $(el).removeClass('shown-textarea').addClass('textarea');
   return _prepend.apply(this, arguments);
 };
+
+// test selecting from outside the mathquill editable
+$('.math-container').mousedown(function(e) {
+  $(this).find('.mathquill-editable').trigger(e);
+});
+
+// Selection Tests
 document.body.onload = function() {
   setTimeout(function() {
-    $('#selection-performance .mathquill-textbox').each(function() {
+    $('#selection-tests .mathquill-textbox').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-      $(this).after(new Date - start);
+      $('#selection-performance').html(new Date - start);
     });
   });
 };
-$('#dynamic tr:eq(1)').each(function() {
+
+// Dynamic MathQuill-ification
+// Initial LaTeX
+$('#dynamic-initial tr').each(function() {
   var math = $('span', this);
   math.eq(0).mathquill();
   math.eq(1).mathquill('editable');
   math.eq(2).mathquill('editable').mathquill('revert');
 });
-$('#dynamic tr:eq(3)').each(function() {
+// .mathquill('redraw')
+$('#dynamic-redraw tr').each(function() {
   var math = $('span', this), td;
   td = math.eq(0).parent();
   math.eq(0).detach().mathquill().appendTo(td).mathquill('redraw');
@@ -135,11 +208,6 @@ $('#dynamic tr:eq(3)').each(function() {
   math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
-});
-
-// test selecting from outside the mathquill editable
-$('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').trigger(e);
 });
 </script>
 </body>

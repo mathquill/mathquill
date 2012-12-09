@@ -1,0 +1,252 @@
+.mathquill-rendered-math {
+  font-variant: normal;
+  font-weight: normal;
+  font-style: normal;
+  font-size: 115%;
+  line-height: 1;
+
+  .inline-block;
+  .non-leaf, .scaled {
+    .inline-block;
+  }
+
+  // TODO: dasherize non-symbola
+  var, .text, .nonSymbola {
+    font-family: @times;
+    line-height: .9;
+  }
+
+  * {
+    font-size: inherit;
+    line-height: inherit;
+    margin: 0;
+    padding: 0;
+    border-color: black;
+    .user-select(none);
+    white-space: pre-wrap;
+  }
+
+  // TODO: what's the difference between these?
+  .empty {
+    background: #ccc;
+  }
+
+  &.empty {
+    background: transparent;
+  }
+
+
+  .text {
+    font-size: 87%;
+  }
+
+  .font {
+    font: 1em @times;
+
+    * {
+      font-family: inherit;
+      font-style: inherit;
+    }
+  }
+
+  // TODO [Han]: Why do we have to special-case .font?
+  b, b.font {
+    font-weight: bolder;
+  }
+
+  var, i, i.font {
+    font-syle: italic;
+  }
+
+  var.florin {
+    margin: 0 -0.1em;
+  }
+
+  big {
+    font-size: 125%;
+  }
+
+  .roman {
+    font-style: normal;
+  }
+
+  .sans-serif {
+    font-family: sans-serif, Symbola, serif;
+  }
+
+  .monospace {
+    font-family: monospace, Symbola, serif;
+  }
+
+  .overline {
+    border-top: 1px solid black;
+    margin-top: 1px;
+  }
+  .underline {
+    border-bottom: 1px solid black;
+    margin-bottom: 1px;
+  }
+
+  ////
+  // operators
+  @operator-padding: 0.2em;
+
+  .binary-operator {
+    padding: 0 @operator-padding;
+    .inline-block;
+  }
+
+  .unary-operator {
+    padding-left: @operator-padding;
+  }
+
+  ////
+  // ^, _
+  // sup/sub
+  sup, sub {
+    position: relative;
+    font-size: 90%;
+
+    .binary-operator {
+      padding: 0 .1em;
+    }
+
+    .unary-operator {
+      padding-left: .1em;
+    }
+
+    &.limit, &.nthroot {
+      font-size: 80%;
+    }
+
+    // special styles for fractions
+    // within sup/sub.
+    .fraction {
+      font-size: 70%;
+      vertical-align: -0.4em;
+    }
+
+    .numerator {
+      padding-bottom: 0;
+    }
+
+    .denominator {
+      padding-top: 0;
+    }
+  }
+
+  sup {
+    vertical-align: .5em;
+    &.limit, &.nthroot {
+      vertical-align: 0.8em
+    }
+
+    &.nthroot {
+      margin-right: -.6em;
+      margin-left: .2em;
+      min-width: .5em;
+    }
+  }
+
+  sub {
+    vertical-align: -.4em;
+
+    &.limit {
+      vertical-align: -.6em;
+    }
+  }
+
+  ////
+  // parentheses
+  .paren {
+    padding: 0 .1em;
+    vertical-align: bottom;
+    -webkit-transform-origin: bottom center;
+    -moz-transform-origin: bottom center;
+    -ms-transform-origin: bottom center;
+    -o-transform-origin: bottom center;
+    transform-origin: bottom center;
+  }
+
+  .array {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  .array > span {
+    display: block;
+  }
+
+  ////
+  // non-italicized functions
+  // like \sin, \cos, \ln, etc.
+  .non-italicized-function {
+    font-family: Symbola, "Times New Roman", serif;
+    line-height: .9;
+    font-style: normal;
+    padding-right: .2em;
+  }
+
+  ////
+  // \frac
+  // fractions
+  .fraction {
+    font-size: 90%;
+    text-align: center;
+    vertical-align: -.5em;
+    padding: 0 .2em;
+  }
+
+  // Firefox 2 (and older?) only
+  // because display:inline-block is FUBAR in Gecko < 1.9.0
+  .fraction, x:-moz-any-link {
+    display: -moz-groupbox;
+  }
+
+  // Firefox 3+ (Gecko 1.9.0+)
+  .fraction, x:-moz-any-link, x:default {
+    display: inline-block;
+  }
+
+  .numerator, .denominator {
+    display: block;
+  }
+
+  .numerator {
+    padding: 0 0.1em;
+    margin-bottom: -0.1em;
+  }
+
+  .denominator {
+    border-top: 1px solid;
+    float: right; // take out of normal flow to manipulate baseline
+    width: 100%;
+    padding: .1em .1em 0 .1em;
+    margin-right: -.1em;
+    margin-left: -.1em;
+  }
+
+  ////
+  // \sqrt
+  // square roots
+  .sqrt-prefix {
+    padding-top: 0;
+    position: relative;
+    top: .1em;
+    vertical-align: top;
+    .transform-origin(top);
+  }
+
+  .sqrt-stem {
+    border-top: 1px solid;
+    margin-top: 1px;
+    padding-left: .15em;
+    padding-right: .2em;
+    margin-right: .1em;
+  }
+
+  &, .mathquill-editable {
+    cursor: text;
+    font-family: @symbola;
+  }
+}

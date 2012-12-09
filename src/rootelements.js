@@ -9,16 +9,14 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = jQ.data(jQueryDataKey, {
-    block: root,
-    revert: function() {
-      jQ.empty().unbind('.mathquill')
-        .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
-        .append(contents);
-    }
-  });
+  root.jQ = jQ.attr(mqBlockId, root.id);
+  root.revert = function() {
+    jQ.empty().unbind('.mathquill')
+      .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+      .append(contents);
+  };
 
-  var cursor = root.cursor = new Cursor(root);
+  var cursor = root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
 
@@ -39,10 +37,7 @@ function createRoot(jQ, root, textbox, editable) {
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
     var latex = cursor.selection ? '$'+cursor.selection.latex()+'$' : '';
-    textarea.val(latex);
-    if (latex) {
-      textarea[0].select();
-    }
+    textareaManager.select(latex);
   }
 
   //prevent native selection except textarea
@@ -101,10 +96,10 @@ function createRoot(jQ, root, textbox, editable) {
       // mousedown-ed will receive focus
       // http://bugs.jquery.com/ticket/10345
 
-    cursor.blink = $.noop;
+    cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
-    anticursor = new MathFragment(cursor.parent, cursor.prev, cursor.next);
+    anticursor = {parent: cursor.parent, prev: cursor.prev, next: cursor.next};
 
     if (!editable) jQ.prepend(textareaSpan);
 
@@ -115,6 +110,7 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   if (!editable) {
+    var textareaManager = manageTextarea(textarea, { container: jQ });
     jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
@@ -126,6 +122,39 @@ function createRoot(jQ, root, textbox, editable) {
     }
     return;
   }
+
+  var textareaManager = manageTextarea(textarea, {
+    container: jQ,
+    key: function(key, evt) {
+      cursor.parent.bubble('onKey', key, evt);
+    },
+    text: function(text) {
+      cursor.parent.bubble('onText', text);
+    },
+    cut: function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          cursor.prepareEdit();
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    },
+    paste: function(text) {
+      // FIXME HACK the parser in RootTextBlock needs to be moved to
+      // Cursor::writeLatex or something so this'll work with
+      // MathQuill textboxes
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{' + text + '}';
+      }
+
+      cursor.writeLatex(text).show();
+    }
+  });
 
   jQ.prepend(textareaSpan);
 
@@ -141,7 +170,7 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
-      setTimeout(root.selectionChanged); //select textarea after focus
+      setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
     }
     else
       cursor.show();
@@ -156,351 +185,288 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).blur();
-
-  //clipboard event handling
-  jQ.bind('cut', function(e) {
-    setTextareaSelection();
-
-    if (cursor.selection) {
-      setTimeout(function() {
-        cursor.deleteSelection();
-        cursor.redraw();
-      });
-    }
-
-    e.stopPropagation();
-  })
-  .bind('copy', function(e) {
-    setTextareaSelection();
-    e.stopPropagation();
-  })
-  .bind('paste', function(e) {
-    pasting = true;
-    setTimeout(paste);
-    e.stopPropagation();
-  });
-
-  function paste() {
-    //FIXME HACK the parser in RootTextBlock needs to be moved to
-    //Cursor::writeLatex or something so this'll work with MathQuill textboxes
-    var latex = textarea.val();
-    if (latex.slice(0,1) === '$' && latex.slice(-1) === '$') {
-      latex = latex.slice(1, -1);
-    }
-    else {
-      latex = '\\text{' + latex + '}';
-    }
-    cursor.writeLatex(latex).show();
-    textarea.val('');
-    pasting = false;
-  }
-
-  //keyboard events and text input, see Wiki page "Keyboard Events"
-  var lastKeydn, lastKeydnHappened, lastKeypressWhich, pasting = false;
-  jQ.bind('keydown.mathquill', function(e) {
-    lastKeydn = e;
-    lastKeydnHappened = true;
-    if (cursor.parent.keydown(e) === false)
-      e.preventDefault();
-  }).bind('keypress.mathquill', function(e) {
-    if (lastKeydnHappened)
-      lastKeydnHappened = false;
-    else {
-      //there's two ways keypress might be triggered without a keydown happening first:
-      if (lastKeypressWhich !== e.which)
-        //all browsers do that if this textarea is given focus during the keydown of
-        //a different focusable element, i.e. by that element's keydown event handler.
-        //No way of knowing original keydown, so ignore this keypress
-        return;
-      else
-        //some browsers do that when auto-repeating key events, replay the keydown
-        cursor.parent.keydown(lastKeydn);
-    }
-    lastKeypressWhich = e.which;
-
-    //make sure setTextareaSelection() doesn't happen before textInput(), where we
-    //check if any text was typed
-    if (textareaSelectionTimeout !== undefined)
-      clearTimeout(textareaSelectionTimeout);
-
-    //after keypress event, trigger virtual textInput event if text was
-    //input to textarea
-    setTimeout(textInput);
-  });
-
-  function textInput() {
-    if (pasting || (
-      'selectionStart' in textarea[0]
-      && textarea[0].selectionStart !== textarea[0].selectionEnd
-    )) return;
-    var text = textarea.val();
-    if (text) {
-      textarea.val('');
-      for (var i = 0; i < text.length; i += 1) {
-        cursor.parent.textInput(text.charAt(i));
-      }
-      textareaSelectionTimeout = undefined;
-    }
-    else {
-      if (textareaSelectionTimeout !== undefined)
-        setTextareaSelection();
-    }
-  }
 }
 
-function RootMathBlock(){}
-_ = RootMathBlock.prototype = new MathBlock;
-_.latex = function() {
-  return MathBlock.prototype.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-};
-_.text = function() {
-  return this.foldChildren('', function(text, child) {
-    return text + child.text();
-  });
-};
-_.renderLatex = function(latex) {
-  var jQ = this.jQ;
-
-  jQ.children().slice(1).remove();
-  this.firstChild = this.lastChild = 0;
-
-  // temporarily take the element out of the displayed DOM
-  // while we add stuff to it.  Grab the next or parent node
-  // so we know where to put it back.
-  // NOTE: careful that it be the next or parent DOM **node** and not
-  // HTML element, lest we skip a text node.
-  var next = jQ[0].nextSibling,
-    parent = jQ[0].parentNode;
-
-  jQ.detach();
-  this.cursor.appendTo(this).writeLatex(latex);
-
-  // Put. the element. back.
-  // if there's no next element, it's at the end of its parent
-  next ? jQ.insertBefore(next) : jQ.appendTo(parent);
-
-  // XXX HACK ALERT
-  this.jQ.mathquill('redraw');
-  this.blur();
-};
-_.keydown = function(e)
-{
-  e.ctrlKey = e.ctrlKey || e.metaKey;
-  switch ((e.originalEvent && e.originalEvent.keyIdentifier) || e.which) {
-  case 8: //backspace
-  case 'Backspace':
-  case 'U+0008':
-    if (e.ctrlKey)
-      while (this.cursor.prev || this.cursor.selection)
-        this.cursor.backspace();
-    else
-      this.cursor.backspace();
-    break;
-  case 27: //may as well be the same as tab until we figure out what to do with it
-  case 'Esc':
-  case 'U+001B':
-  case 9: //tab
-  case 'Tab':
-  case 'U+0009':
-    if (e.ctrlKey) break;
-
-    var parent = this.cursor.parent;
-    if (e.shiftKey) { //shift+Tab = go one block left if it exists, else escape left.
-      if (parent === this.cursor.root) //cursor is in root editable, continue default
-        return this.skipTextInput = true;
-      else if (parent.prev) //go one block left
-        this.cursor.appendTo(parent.prev);
-      else //get out of the block
-        this.cursor.insertBefore(parent.parent);
-    }
-    else { //plain Tab = go one block right if it exists, else escape right.
-      if (parent === this.cursor.root) //cursor is in root editable, continue default
-        return this.skipTextInput = true;
-      else if (parent.next) //go one block right
-        this.cursor.prependTo(parent.next);
-      else //get out of the block
-        this.cursor.insertAfter(parent.parent);
-    }
-
-    this.cursor.clearSelection();
-    break;
-  case 13: //enter
-  case 'Enter':
-    break;
-  case 35: //end
-  case 'End':
-    if (e.shiftKey)
-      while (this.cursor.next || (e.ctrlKey && this.cursor.parent !== this))
-        this.cursor.selectRight();
-    else //move to the end of the root block or the current block.
-      this.cursor.clearSelection().appendTo(e.ctrlKey ? this : this.cursor.parent);
-    break;
-  case 36: //home
-  case 'Home':
-    if (e.shiftKey)
-      while (this.cursor.prev || (e.ctrlKey && this.cursor.parent !== this))
-        this.cursor.selectLeft();
-    else //move to the start of the root block or the current block.
-      this.cursor.clearSelection().prependTo(e.ctrlKey ? this : this.cursor.parent);
-    break;
-  case 37: //left
-  case 'Left':
-    if (e.ctrlKey) break;
-
-    if (e.shiftKey)
-      this.cursor.selectLeft();
-    else
-      this.cursor.moveLeft();
-    break;
-  case 38: //up
-  case 'Up':
-    if (e.ctrlKey) break;
-
-    if (e.shiftKey) {
-      if (this.cursor.prev)
-        while (this.cursor.prev)
-          this.cursor.selectLeft();
-      else
-        this.cursor.selectLeft();
-    }
-    else if (this.cursor.parent.prev)
-      this.cursor.clearSelection().appendTo(this.cursor.parent.prev);
-    else if (this.cursor.prev)
-      this.cursor.clearSelection().prependTo(this.cursor.parent);
-    else if (this.cursor.parent !== this)
-      this.cursor.clearSelection().insertBefore(this.cursor.parent.parent);
-    break;
-  case 39: //right
-  case 'Right':
-    if (e.ctrlKey) break;
-
-    if (e.shiftKey)
-      this.cursor.selectRight();
-    else
-      this.cursor.moveRight();
-    break;
-  case 40: //down
-  case 'Down':
-    if (e.ctrlKey) break;
-
-    if (e.shiftKey) {
-      if (this.cursor.next)
-        while (this.cursor.next)
-          this.cursor.selectRight();
-      else
-        this.cursor.selectRight();
-    }
-    else if (this.cursor.parent.next)
-      this.cursor.clearSelection().prependTo(this.cursor.parent.next);
-    else if (this.cursor.next)
-      this.cursor.clearSelection().appendTo(this.cursor.parent);
-    else if (this.cursor.parent !== this)
-      this.cursor.clearSelection().insertAfter(this.cursor.parent.parent);
-    break;
-  case 46: //delete
-  case 'Del':
-  case 'U+007F':
-    if (e.ctrlKey)
-      while (this.cursor.next || this.cursor.selection)
-        this.cursor.deleteForward();
-    else
-      this.cursor.deleteForward();
-    break;
-  case 65: //the 'A' key, as in Ctrl+A Select All
-  case 'A':
-  case 'U+0041':
-    if (e.ctrlKey && !e.shiftKey && !e.altKey) {
-      if (this !== this.cursor.root) //so not stopPropagation'd at RootMathCommand
-        return this.parent.keydown(e);
-
-      this.cursor.clearSelection().appendTo(this);
-      while (this.cursor.prev)
-        this.cursor.selectLeft();
-      break;
-    }
-  default:
-    this.skipTextInput = false;
-    return true;
-  }
-  this.skipTextInput = true;
-  return false;
-};
-_.textInput = function(ch) {
-  if (!this.skipTextInput)
-    this.cursor.write(ch);
-};
-
-function RootMathCommand(cursor) {
-  this.init('$');
-  this.firstChild.cursor = cursor;
-  this.firstChild.textInput = function(ch) {
-    if (this.skipTextInput) return;
-
-    if (ch !== '$' || cursor.parent !== this)
-      cursor.write(ch);
-    else if (this.isEmpty()) {
-      cursor.insertAfter(this.parent).backspace()
-        .insertNew(new VanillaSymbol('\\$','$')).show();
-    }
-    else if (!cursor.next)
-      cursor.insertAfter(this.parent);
-    else if (!cursor.prev)
-      cursor.insertBefore(this.parent);
-    else
-      cursor.write(ch);
+var RootMathBlock = P(MathBlock, function(_, _super) {
+  _.latex = function() {
+    return _super.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
   };
-}
-_ = RootMathCommand.prototype = new MathCommand;
-_.html_template = ['<span class="mathquill-rendered-math"></span>'];
-_.initBlocks = function() {
-  this.firstChild =
-  this.lastChild =
-  this.jQ.data(jQueryDataKey).block =
-    new RootMathBlock;
+  _.text = function() {
+    return this.foldChildren('', function(text, child) {
+      return text + child.text();
+    });
+  };
+  _.renderLatex = function(latex) {
+    var jQ = this.jQ;
 
-  this.firstChild.parent = this;
-  this.firstChild.jQ = this.jQ;
-};
-_.latex = function() {
-  return '$' + this.firstChild.latex() + '$';
-};
+    jQ.children().slice(1).remove();
+    this.firstChild = this.lastChild = 0;
 
-function RootTextBlock(){}
-_ = RootTextBlock.prototype = new MathBlock;
-_.renderLatex = function(latex) {
-  var self = this, cursor = self.cursor;
-  self.jQ.children().slice(1).remove();
-  self.firstChild = self.lastChild = 0;
-  cursor.show().appendTo(self);
+    this.cursor.appendTo(this).writeLatex(latex);
+  };
+  _.onKey = function(key, e) {
+    switch (key) {
+    case 'Ctrl-Shift-Backspace':
+    case 'Ctrl-Backspace':
+      while (this.cursor.prev || this.cursor.selection) {
+        this.cursor.backspace();
+      }
+      break;
 
-  latex = latex.match(/(?:\\\$|[^$])+|\$(?:\\\$|[^$])*\$|\$(?:\\\$|[^$])*$/g) || '';
-  for (var i = 0; i < latex.length; i += 1) {
-    var chunk = latex[i];
-    if (chunk[0] === '$') {
-      if (chunk[-1+chunk.length] === '$' && chunk[-2+chunk.length] !== '\\')
-        chunk = chunk.slice(1, -1);
+    case 'Shift-Backspace':
+    case 'Backspace':
+      this.cursor.backspace();
+      break;
+
+    // Tab or Esc -> go one block right if it exists, else escape right.
+    case 'Esc':
+    case 'Tab':
+    case 'Spacebar':
+      var parent = this.cursor.parent;
+      // cursor is in root editable, continue default
+      if (parent === this.cursor.root) {
+        if (key === 'Spacebar') e.preventDefault();
+        return;
+      }
+
+      this.cursor.prepareMove();
+      if (parent.next) {
+        // go one block right
+        this.cursor.prependTo(parent.next);
+      } else {
+        // get out of the block
+        this.cursor.insertAfter(parent.parent);
+      }
+      break;
+
+    // Shift-Tab -> go one block left if it exists, else escape left.
+    case 'Shift-Tab':
+    case 'Shift-Esc':
+    case 'Shift-Spacebar':
+      var parent = this.cursor.parent;
+      //cursor is in root editable, continue default
+      if (parent === this.cursor.root) {
+        if (key === 'Shift-Spacebar') e.preventDefault();
+        return;
+      }
+
+      this.cursor.prepareMove();
+      if (parent.prev) {
+        // go one block left
+        this.cursor.appendTo(parent.prev);
+      } else {
+        //get out of the block
+        this.cursor.insertBefore(parent.parent);
+      }
+      break;
+
+    // Prevent newlines from showing up
+    case 'Enter': break;
+
+
+    // End -> move to the end of the current block.
+    case 'End':
+      this.cursor.prepareMove().appendTo(this.cursor.parent);
+      break;
+
+    // Ctrl-End -> move all the way to the end of the root block.
+    case 'Ctrl-End':
+      this.cursor.prepareMove().appendTo(this);
+      break;
+
+    // Shift-End -> select to the end of the current block.
+    case 'Shift-End':
+      while (this.cursor.next) {
+        this.cursor.selectRight();
+      }
+      break;
+
+    // Ctrl-Shift-End -> select to the end of the root block.
+    case 'Ctrl-Shift-End':
+      while (this.cursor.next || this.cursor.parent !== this) {
+        this.cursor.selectRight();
+      }
+      break;
+
+    // Home -> move to the start of the root block or the current block.
+    case 'Home':
+      this.cursor.prepareMove().prependTo(this.cursor.parent);
+      break;
+
+    // Ctrl-Home -> move to the start of the current block.
+    case 'Ctrl-Home':
+      this.cursor.prepareMove().prependTo(this);
+      break;
+
+    // Shift-Home -> select to the start of the current block.
+    case 'Shift-Home':
+      while (this.cursor.prev) {
+        this.cursor.selectLeft();
+      }
+      break;
+
+    // Ctrl-Shift-Home -> move to the start of the root block.
+    case 'Ctrl-Shift-Home':
+      while (this.cursor.prev || this.cursor.parent !== this) {
+        this.cursor.selectLeft();
+      }
+      break;
+
+    case 'Left': this.cursor.moveLeft(); break;
+    case 'Shift-Left': this.cursor.selectLeft(); break;
+    case 'Ctrl-Left': break;
+
+    case 'Right': this.cursor.moveRight(); break;
+    case 'Shift-Right': this.cursor.selectRight(); break;
+    case 'Ctrl-Right': break;
+
+    case 'Up': this.cursor.moveUp(); break;
+    case 'Down': this.cursor.moveDown(); break;
+
+    case 'Shift-Up':
+      if (this.cursor.prev) {
+        while (this.cursor.prev) this.cursor.selectLeft();
+      } else {
+        this.cursor.selectLeft();
+      }
+
+    case 'Shift-Down':
+      if (this.cursor.next) {
+        while (this.cursor.next) this.cursor.selectRight();
+      }
+      else {
+        this.cursor.selectRight();
+      }
+
+    case 'Ctrl-Up': break;
+    case 'Ctrl-Down': break;
+
+    case 'Ctrl-Shift-Del':
+    case 'Ctrl-Del':
+      while (this.cursor.next || this.cursor.selection) {
+        this.cursor.deleteForward();
+      }
+      break;
+
+    case 'Shift-Del':
+    case 'Del':
+      this.cursor.deleteForward();
+      break;
+
+    case 'Meta-A':
+    case 'Ctrl-A':
+      //so not stopPropagation'd at RootMathCommand
+      if (this !== this.cursor.root) return;
+
+      this.cursor.prepareMove().appendTo(this);
+      while (this.cursor.prev) this.cursor.selectLeft();
+      break;
+
+    default:
+      return false;
+    }
+    e.preventDefault();
+    return false;
+  };
+  _.onText = function(ch) {
+    this.cursor.write(ch);
+    return false;
+  };
+});
+
+var RootMathCommand = P(MathCommand, function(_, _super) {
+  _.init = function(cursor) {
+    _super.init.call(this, '$');
+    this.cursor = cursor;
+  };
+  _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
+  _.createBlocks = function() {
+    this.firstChild =
+    this.lastChild =
+      RootMathBlock();
+
+    this.blocks = [ this.firstChild ];
+
+    this.firstChild.parent = this;
+
+    var cursor = this.firstChild.cursor = this.cursor;
+    this.firstChild.onText = function(ch) {
+      if (ch !== '$' || cursor.parent !== this)
+        cursor.write(ch);
+      else if (this.isEmpty()) {
+        cursor.insertAfter(this.parent).backspace()
+          .insertNew(VanillaSymbol('\\$','$')).show();
+      }
+      else if (!cursor.next)
+        cursor.insertAfter(this.parent);
+      else if (!cursor.prev)
+        cursor.insertBefore(this.parent);
       else
-        chunk = chunk.slice(1);
+        cursor.write(ch);
 
-      var root = new RootMathCommand(cursor);
-      cursor.insertNew(root);
-      root.firstChild.renderLatex(chunk);
-      cursor.show().insertAfter(root);
+      return false;
+    };
+  };
+  _.latex = function() {
+    return '$' + this.firstChild.latex() + '$';
+  };
+});
+
+var RootTextBlock = P(MathBlock, function(_) {
+  _.renderLatex = function(latex) {
+    var self = this
+    var cursor = self.cursor;
+    self.jQ.children().slice(1).remove();
+    self.firstChild = self.lastChild = 0;
+    cursor.show().appendTo(self);
+
+    var regex = Parser.regex;
+    var string = Parser.string;
+    var eof = Parser.eof;
+    var all = Parser.all;
+
+    // Parser RootMathCommand
+    var mathMode = string('$').then(latexMathParser)
+      // because TeX is insane, math mode doesn't necessarily
+      // have to end.  So we allow for the case that math mode
+      // continues to the end of the stream.
+      .skip(string('$').or(eof))
+      .map(function(block) {
+        // HACK FIXME: this shouldn't have to have access to cursor
+        var rootMathCommand = RootMathCommand(cursor);
+
+        rootMathCommand.createBlocks();
+        var rootMathBlock = rootMathCommand.firstChild;
+        block.children().adopt(rootMathBlock, 0, 0);
+
+        return rootMathCommand;
+      })
+    ;
+
+    var escapedDollar = string('\\$').result('$');
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var latexText = mathMode.or(textChar).many();
+    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+
+    if (commands) {
+      for (var i = 0; i < commands.length; i += 1) {
+        commands[i].adopt(self, self.lastChild, 0);
+      }
+
+      var html = self.join('html');
+      MathElement.jQize(html).appendTo(self.jQ);
+
+      this.finalizeInsert();
     }
-    else {
-      for (var j = 0; j < chunk.length; j += 1)
-        this.cursor.insertNew(new VanillaSymbol(chunk[j]));
-    }
-  }
-};
-_.keydown = RootMathBlock.prototype.keydown;
-_.textInput = function(ch) {
-  if (this.skipTextInput) return;
+  };
+  _.onKey = RootMathBlock.prototype.onKey;
+  _.onText = function(ch) {
+    this.cursor.prepareEdit();
+    if (ch === '$')
+      this.cursor.insertNew(RootMathCommand(this.cursor));
+    else
+      this.cursor.insertNew(VanillaSymbol(ch));
 
-  this.cursor.deleteSelection();
-  if (ch === '$')
-    this.cursor.insertNew(new RootMathCommand(this.cursor));
-  else
-    this.cursor.insertNew(new VanillaSymbol(ch));
-};
-
+    return false;
+  };
+});
