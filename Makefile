@@ -99,3 +99,42 @@ test: dev $(BUILD_TEST)
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
+
+#
+# -*- site (mathquill.github.com) tasks
+#
+
+.PHONY: site publish site-pull
+
+SITE = mathquill.github.com
+SITE_CLONE_URL = git@github.com:mathquill/mathquill.github.com
+SITE_COMMITMSG = 'updating mathquill to $(VERSION)'
+
+site: $(SITE) $(SITE)/mathquill $(SITE)/demo.html $(SITE)/support
+
+publish: site-pull site
+	cd $(SITE) \
+	&& git add mathquill demo.html support \
+	&& git commit -m $(SITE_COMMITMSG) \
+	&& git push
+
+$(SITE)/mathquill: $(DIST)
+	mkdir -p $@
+	tar -xzf $(DIST) \
+		--directory $@ \
+		--strip-components=2
+
+$(SITE)/demo.html: test/demo.html
+	cat $^ \
+	| sed 's:../build/:mathquill/:' \
+	| sed 's:local test page:live demo:' \
+	> $@
+
+$(SITE)/support: test/support
+	cp -r $^ $@
+
+$(SITE):
+	git clone $(SITE_CLONE_URL) $@
+
+site-pull: $(SITE)
+	cd $(SITE) && git pull
