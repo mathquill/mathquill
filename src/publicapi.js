@@ -71,11 +71,17 @@ $.fn.mathquill = function(cmd, latex) {
         }
       });
   default:
-    var textbox = cmd === 'textbox',
-      editable = textbox || cmd === 'editable',
-      RootBlock = textbox ? RootTextBlock : RootMathBlock;
+    var RootClass;
+    if (cmd === 'textbox') RootClass = RootTextBlock;
+    else if (cmd === 'eqnarray') RootClass = RootEqnArray;
+    else RootClass = RootMathBlock;
+
+    var textbox = cmd === 'textbox';
+    var eqnarray = cmd === 'eqnarray';
+    var editable = textbox || cmd === 'editable';
+
     return this.each(function() {
-      createRoot($(this), RootBlock(), textbox, editable);
+      createRoot($(this), RootClass(), textbox, editable);
     });
   }
 };
@@ -85,6 +91,7 @@ $.fn.mathquill = function(cmd, latex) {
 $(function() {
   $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
   $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
+  $('.mathquill-eqnarray:not(.mathquill-rendered-math)').mathquill('eqnarray');
   $('.mathquill-embedded-latex').mathquill();
 });
 

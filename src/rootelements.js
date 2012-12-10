@@ -352,6 +352,39 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   };
 });
 
+var RootEqnArray = P(RootMathBlock, function(_) {
+  _.renderLatex = function(latex) {
+    var jQ = this.jQ;
+    var cursor = this.cursor;
+
+    jQ.children().slice(1).remove();
+
+    var lines = latex.split('\\\\');
+    var table = $('<table>');
+
+    for (var i = 0, li = lines.length; i < li; i += 1) {
+      var pieces = lines[i].split('&');
+      var tr = $('<tr>');
+
+      for (var j = 0, lj = pieces.length; j < lj; j += 1) {
+        var td = $('<td>');
+
+        var cell = MathBlock();
+        cell.jQ = td;
+        cell.adopt(this, this.ch[R], 0);
+
+        cursor.appendTo(cell).writeLatex(pieces[j]);
+
+        td.appendTo(tr);
+      }
+
+      tr.appendTo(table);
+    }
+
+    table.appendTo(jQ);
+  };
+});
+
 var RootMathCommand = P(MathCommand, function(_, _super) {
   _.init = function(cursor) {
     _super.init.call(this, '$');
