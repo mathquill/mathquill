@@ -360,29 +360,23 @@ var RootEqnArray = P(RootMathBlock, function(_) {
     jQ.children().slice(1).remove();
 
     var lines = latex.split('\\\\');
-    var table = $('<table>');
+    var table = $('<table>').appendTo(jQ);
 
     for (var i = 0, li = lines.length; i < li; i += 1) {
       var pieces = lines[i].replace(/\\&/, '\\amp ').split('&');
 
-      var tr = $('<tr>');
+      var tr = $('<tr>').appendTo(table);
 
       for (var j = 0, lj = pieces.length; j < lj; j += 1) {
-        var td = $('<td>');
+        var td = $('<td>').appendTo(tr);
 
         var cell = MathBlock();
         cell.jQ = td;
         cell.adopt(this, this.ch[R], 0);
 
         cursor.appendTo(cell).writeLatex(pieces[j]);
-
-        td.appendTo(tr);
       }
-
-      tr.appendTo(table);
     }
-
-    table.appendTo(jQ);
   };
 });
 
