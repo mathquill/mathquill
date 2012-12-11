@@ -121,3 +121,4 @@ $(function() {
   $('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
 });
 
+document.write('<style type="text/css">'+INLINE_CSS+'</style>');
