@@ -363,7 +363,8 @@ var RootEqnArray = P(RootMathBlock, function(_) {
     var table = $('<table>');
 
     for (var i = 0, li = lines.length; i < li; i += 1) {
-      var pieces = lines[i].split('&');
+      var pieces = lines[i].replace(/\\&/, '\\amp ').split('&');
+
       var tr = $('<tr>');
 
       for (var j = 0, lj = pieces.length; j < lj; j += 1) {
