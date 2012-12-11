@@ -153,27 +153,40 @@ button {
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
-<h3>eqnarray</h3>
+<h3 id="eqnarray">eqnarray</h3>
 
-Example 1:
+<p>
+<b>Example 1.</b> = signs should be aligned, and the x should be a natural
+distance from the =.
+</p>
 <div class="mathquill-eqnarray">
   x^2 &amp;=&amp; 4 \\
   x   &amp;=&amp; \pm 2
 </div>
 
-Example 2:
+<p>
+<b>Example 2.</b> = signs should be aligned with enough vertical spacing
+for the fraction, and the parens should be the correct size.  There
+should be no gray boxes.
+</p>
 <div class="mathquill-eqnarray">
   a &amp;=&amp; b \div c \\
-    &amp;=&amp; \frac b c
+    &amp;=&amp; \frac b c \\
+    &amp;=&amp; \left ( \frac 1 {\frac c b} \right )
 </div>
 
-Example 3:
+<p>
+<b>Example 3.</b> = signs should be aligned, and the eeee should stick out
+to the left.
+</p>
 <div class="mathquill-eqnarray">
   a &amp;=&amp; b \div c \\
   eeee   &amp;=&amp; \frac b c
 </div>
 
-Example 4:
+<p>
+<b>Example 4.</b>  you should see an ampersand, like !(!A&amp;!B)
+</p>
 <div class="mathquill-eqnarray">
   A | B &amp;\iff&amp; ! (! A \&amp; ! B) \\
         &amp;\iff&amp; ! A \to B
