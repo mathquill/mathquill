@@ -82,6 +82,20 @@ $.fn.mathquill = function(cmd, latex) {
 
     return this.each(function() {
       createRoot($(this), RootClass(), textbox, editable);
+
+      // [Jay]
+      // XXX THIS SHIT IS HACKTASTICK XXX
+      // Eqnarray b0rks when clicking or selecting.
+      //
+      // better things to do with this:
+      // a) implement navigation/selection in eqnarray
+      // b) make createRoot less monolithic, so we can override
+      //    things such that these don't get bound, instead of
+      //    unbinding them here.
+      //
+      // This line should be deleted when either a) or b) is
+      // accomplished.
+      if (cmd === 'eqnarray') $(this).unbind('.mathquill');
     });
   }
 };
