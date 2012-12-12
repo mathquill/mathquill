@@ -78,7 +78,10 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 
 $(INLINE_CSS): $(UGLY_CSS)
 	mkdir -p tmp
-	{ echo -n "var INLINE_CSS = '"; cat $< | sed "s/'/\\\\'/g" | tr -d "\n"; echo "';" ;} > $@
+	{ echo -n "document.write('<style type=\"text/css\">" ;\
+		cat $< | sed "s/'/\\\\'/g" | tr -d "\n" ;\
+		echo "</style>');" ;\
+	} > $@
 
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@

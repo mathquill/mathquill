@@ -120,5 +120,3 @@ $(function() {
   $('.mathquill-editable').each(function() { MathQuill.MathField(this); });
   $('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
 });
-
-document.write('<style type="text/css">'+INLINE_CSS+'</style>');
