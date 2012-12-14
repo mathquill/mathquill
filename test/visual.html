@@ -153,6 +153,16 @@ button {
 
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
+
+<h3>Custom CSS classes</h3>
+<p>The x should be red and the y should be blue.</p>
+<style type="text/css">
+  .red { color: red; }
+  .blue { color: blue; }
+</style>
+<div class="mathquill-embedded-latex">
+  \class[red] x = \class[blue]{y}
+</div>
 </div>
 <script type="text/javascript">
 window.onerror = function() {
