@@ -100,7 +100,7 @@ LatexCmds['class'] = P(MathCommand, function(_, _super) {
     var self = this;
 
     return regex(/^\[\s*/)
-      .then(regex(/^[^\s\]]+/).skip(optWhitespace).many())
+      .then(regex(/^[\w-]+/).skip(optWhitespace).many())
       .skip(string(']'))
       .then(function(classes) {
         self.setClasses(classes);
