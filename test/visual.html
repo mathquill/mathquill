@@ -179,10 +179,13 @@ should be no gray boxes.
 <b>Example 3.</b> = signs should be aligned, and the eeee should stick out
 to the left.
 </p>
-<div class="mathquill-eqnarray">
+<div id="eqnarray-dynamic">
   a &amp;=&amp; b \div c \\
   eeee   &amp;=&amp; \frac b c
 </div>
+<script type="text/javascript">
+  $(function() { $('#eqnarray-dynamic').mathquill('eqnarray'); });
+</script>
 
 <p>
 <b>Example 4.</b>  you should see an ampersand, like !(!A&amp;!B)
