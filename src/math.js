@@ -114,7 +114,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.hide().selection = Selection(this);
   }
 
-  _.expandSelection = function(dir, cursor) {
+  _.extendSelection = function(dir, cursor) {
     placeCursorInDir(this, dir, cursor);
     cursor.selection.ends[dir] = this;
     jQappendDir(dir, this.jQ, cursor.selection.jQ);

@@ -82,7 +82,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   // TODO: make these methods part of a shared mixin or something.
   _.createSelection = MathCommand.prototype.createSelection;
-  _.expandSelection = MathCommand.prototype.expandSelection;
+  _.extendSelection = MathCommand.prototype.extendSelection;
   _.clearSelection = MathCommand.prototype.clearSelection;
   _.retractSelection = MathCommand.prototype.retractSelection;
 
@@ -257,7 +257,7 @@ var TextPiece = P(Node, function(_, _super) {
     cursor.clearSelection();
   };
 
-  _.expandSelection = function(dir, cursor) {
+  _.extendSelection = function(dir, cursor) {
     var selectedPiece = cursor.selection.ends[L];
     var selectChar = endChar(-dir, this.text);
     selectedPiece.appendTextInDir(selectChar, dir);

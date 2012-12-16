@@ -376,7 +376,7 @@ var Cursor = P(Point, function(_) {
         adjacent.createSelection(dir, self);
       }
       else if (selection.ends[dir] === self[-dir]) {
-        adjacent.expandSelection(dir, self);
+        adjacent.extendSelection(dir, self);
       }
       else if (selection.ends[dir] === selection.ends[-dir]) {
         adjacent.clearSelection(dir, self);
