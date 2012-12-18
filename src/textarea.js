@@ -101,31 +101,25 @@ var manageTextarea = (function() {
     var textarea = $(el);
     var target = $(opts.container || textarea);
 
-    // defer() runs fn immediately after the current thread.
-    // flush() will run it even sooner, if possible.
-    // flush always needs to be called before defer, and is called a
-    // few other places besides.
-    var timeout, deferredFn;
-
-    function defer(fn) {
-      timeout = setTimeout(fn);
-      deferredFn = fn;
+    // checkTextareaFor() is called after keypress or paste events to
+    // say "Hey, I think something was just typed" or "pasted" (resp.),
+    // so that at all subsequent opportune times (next event or timeout),
+    // will check for expected typed or pasted text.
+    // Need to check repeatedly because #135: in Safari 5.1 (at least),
+    // after selecting something and then typing, the textarea is
+    // incorrectly reported as selected during the input event (but not
+    // subsequently).
+    var checkTextarea = noop;
+    function checkTextareaFor(checker) {
+      checkTextarea = checker;
+      setTimeout(checker);
     }
-
-    function flush() {
-      if (timeout) {
-        clearTimeout(timeout);
-        timeout = undefined;
-        deferredFn();
-      }
-    }
-
-    target.bind('keydown keypress input keyup focusout paste', flush);
+    target.bind('keydown keypress input keyup focusout paste', function() { checkTextarea(); });
 
 
     // -*- public methods -*- //
     function select(text) {
-      flush();
+      checkTextarea();
 
       textarea.val(text);
       if (text) textarea[0].select();
@@ -170,28 +164,29 @@ var manageTextarea = (function() {
 
       keypress = e;
 
-      defer(function() {
-        // If there is a selection, the contents of the textarea couldn't
-        // possibly have just been typed in.
-        // This happens in browsers like Firefox and Opera that fire
-        // keypress for keystrokes that are not text entry and leave the
-        // selection in the textarea alone, such as Ctrl-C.
-        // Note: we assume that browsers that don't support hasSelection()
-        // also never fire keypress on keystrokes that are not text entry.
-        // This seems reasonably safe because:
-        // - all modern browsers including IE 9+ support hasSelection(),
-        //   making it extremely unlikely any browser besides IE < 9 won't
-        // - as far as we know IE < 9 never fires keypress on keystrokes
-        //   that aren't text entry, which is only as reliable as our
-        //   tests are comprehensive, but the IE < 9 way to do
-        //   hasSelection() is poorly documented and is also only as
-        //   reliable as our tests are comprehensive
-        // If anything like #40 or #71 is reported in IE < 9, see
-        // b1318e5349160b665003e36d4eedd64101ceacd8
-        if (hasSelection()) return;
+      checkTextareaFor(typedText);
+    }
+    function typedText() {
+      // If there is a selection, the contents of the textarea couldn't
+      // possibly have just been typed in.
+      // This happens in browsers like Firefox and Opera that fire
+      // keypress for keystrokes that are not text entry and leave the
+      // selection in the textarea alone, such as Ctrl-C.
+      // Note: we assume that browsers that don't support hasSelection()
+      // also never fire keypress on keystrokes that are not text entry.
+      // This seems reasonably safe because:
+      // - all modern browsers including IE 9+ support hasSelection(),
+      //   making it extremely unlikely any browser besides IE < 9 won't
+      // - as far as we know IE < 9 never fires keypress on keystrokes
+      //   that aren't text entry, which is only as reliable as our
+      //   tests are comprehensive, but the IE < 9 way to do
+      //   hasSelection() is poorly documented and is also only as
+      //   reliable as our tests are comprehensive
+      // If anything like #40 or #71 is reported in IE < 9, see
+      // b1318e5349160b665003e36d4eedd64101ceacd8
+      if (hasSelection()) return;
 
-        popText(textCallback);
-      });
+      popText(textCallback);
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -211,9 +206,10 @@ var manageTextarea = (function() {
       // And by nifty, we mean dumb (but useful sometimes).
       textarea.focus();
 
-      defer(function() {
-        popText(pasteCallback);
-      });
+      checkTextareaFor(pastedText);
+    }
+    function pastedText() {
+      popText(pasteCallback);
     }
 
     // -*- attach event handlers -*- //
