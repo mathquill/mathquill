@@ -348,7 +348,10 @@ var Cursor = P(Point, function(_) {
   };
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
-  _.selectFrom = function(anticursor) {
+  _.select = function() {
+    var anticursor = this.anticursor;
+    if (this[L] === anticursor[L] && this.parent === anticursor.parent) return;
+
     // `this` cursor and the anticursor should be in the same tree, because
     // the mousemove handler attached to the document, unlike the one attached
     // to the root HTML DOM element, doesn't try to get the math tree node of
@@ -393,6 +396,13 @@ var Cursor = P(Point, function(_) {
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
+  _.startSelection = function() {
+    var cursor = this;
+    cursor.anticursor = Point(cursor.parent, cursor[L], cursor[R]);
+  };
+  _.endSelection = function() {
+    delete this.anticursor;
+  };
 
   function clearUpDownCache(self) {
     self.upDownCache = {};

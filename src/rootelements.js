@@ -53,16 +53,10 @@ function createRoot(jQ, root, textbox, editable) {
   });
 
   //drag-to-select event handling
-  var anticursor, blink = cursor.blink;
+  var blink = cursor.blink;
   jQ.bind('mousedown.mathquill', function(e) {
     function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY);
-
-      if (cursor[L] !== anticursor[L]
-          || cursor.parent !== anticursor.parent) {
-        cursor.selectFrom(anticursor);
-      }
-
+      cursor.seek($(e.target), e.pageX, e.pageY).select();
       return false;
     }
 
@@ -80,7 +74,7 @@ function createRoot(jQ, root, textbox, editable) {
     }
 
     function mouseup(e) {
-      anticursor = undefined;
+      cursor.endSelection();
       cursor.blink = blink;
       if (!cursor.selection) {
         if (editable) {
@@ -103,9 +97,7 @@ function createRoot(jQ, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    cursor.seek($(e.target), e.pageX, e.pageY);
-
-    anticursor = Point(cursor.parent, cursor[L], cursor[R]);
+    cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
     if (!editable) jQ.prepend(textareaSpan);
 
