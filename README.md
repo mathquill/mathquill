@@ -14,7 +14,9 @@ are all over the place.
 (Note: Requires [jQuery 1.4.3+](http://jquery.com).
 [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
 
-To use MathQuill on your website you need to serve
+To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
+
+[downloads page]: https://github.com/mathquill/mathquill/downloads
 
 * [the stylesheet](http://mathquill.github.com/mathquill.css)
 * [the fonts](http://mathquill.github.com/fonts.html) in the
