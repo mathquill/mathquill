@@ -8,7 +8,7 @@ INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
 SOURCES = \
-  ./vendor/pjs/src/p.js \
+  ./node_modules/pjs/src/p.js \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
@@ -90,6 +90,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 # -*- Test tasks -*-
 #
+
 .PHONY: test server
 server:
 	./node_modules/.bin/supervisor -e js,less,Makefile .
