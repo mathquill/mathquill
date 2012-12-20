@@ -16,7 +16,7 @@ are all over the place.
 
 To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
 
-[downloads page]: https://github.com/mathquill/mathquill/downloads
+[downloads page]: https://mathquill.com/downloads.html
 
 * [the stylesheet](http://mathquill.github.com/mathquill.css)
 * [the fonts](http://mathquill.github.com/fonts.html) in the
