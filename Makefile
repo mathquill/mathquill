@@ -110,11 +110,15 @@ SITE = mathquill.github.com
 SITE_CLONE_URL = git@github.com:mathquill/mathquill.github.com
 SITE_COMMITMSG = 'updating mathquill to $(VERSION)'
 
-site: $(SITE) $(SITE)/mathquill $(SITE)/demo.html $(SITE)/support
+DOWNLOADS_PAGE = $(SITE)/downloads.html
+DIST_DOWNLOAD = $(SITE)/downloads/$(DIST)
+
+site: $(SITE) $(SITE)/mathquill $(SITE)/demo.html $(SITE)/support $(DOWNLOADS_PAGE)
 
 publish: site-pull site
+	pwd
 	cd $(SITE) \
-	&& git add mathquill demo.html support \
+	&& git add -- mathquill demo.html support downloads downloads.html \
 	&& git commit -m $(SITE_COMMITMSG) \
 	&& git push
 
@@ -124,6 +128,27 @@ $(SITE)/mathquill: $(DIST)
 		--directory $@ \
 		--strip-components=2
 
+$(DIST_DOWNLOAD): $(DIST)
+	mkdir -p $(dir $@)
+	cp $^ $@
+
+$(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
+	@echo -n updating downloads page...
+	@sed -ri $(DOWNLOADS_PAGE) \
+		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g'
+	@mkdir -p tmp
+	@ls $(SITE)/downloads/*.tgz \
+		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
+		| fgrep -v $(VERSION) \
+		| sort --version-sort \
+		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
+		> tmp/versions-list.html
+	@sed -ir $(DOWNLOADS_PAGE) \
+		-e '/<a class="prev"/d' \
+		-e '/<ul id="prev-versions">/ r tmp/versions-list.html'
+	@rm tmp/versions-list.html
+	@echo done.
+
 $(SITE)/demo.html: test/demo.html
 	cat $^ \
 	| sed 's:../build/:mathquill/:' \
@@ -131,6 +156,7 @@ $(SITE)/demo.html: test/demo.html
 	> $@
 
 $(SITE)/support: test/support
+	rm -rf $@
 	cp -r $^ $@
 
 $(SITE):
