@@ -1,6 +1,0 @@
-[submodule "test/support/mocha"]
-	path = test/support/mocha
-	url = https://github.com/visionmedia/mocha
-[submodule "vendor/pjs"]
-	path = vendor/pjs
-	url = https://github.com/jayferd/pjs
