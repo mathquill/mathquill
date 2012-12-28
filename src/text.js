@@ -221,7 +221,7 @@ var TextPiece = P(Node, function(_, _super) {
     else {
       this.remove();
       this.jQ.remove();
-      cursor[dir] = 0;
+      cursor[dir] = this[dir];
     }
   };
 
