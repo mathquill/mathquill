@@ -198,8 +198,9 @@ var Cursor = P(Point, function(_) {
     var node = nodeId ? Node.byId[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    // target could've been selection span, so get node from target before
-    // clearing selection
+    // don't clear selection until after getting node from target, in case
+    // target was selection span, otherwise target will have no parent and will
+    // seek from root, which is less accurate (e.g. fraction)
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
