@@ -175,7 +175,7 @@ var Cursor = P(Point, function(_) {
    */
   _.jumpUpDown = function(from, to) {
     var self = this;
-    self.upDownCache[from.id] = Point(self.parent, self[L], self[R]);
+    self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
       cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
@@ -397,8 +397,7 @@ var Cursor = P(Point, function(_) {
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
   _.startSelection = function() {
-    var cursor = this;
-    cursor.anticursor = Point(cursor.parent, cursor[L], cursor[R]);
+    this.anticursor = Point.copy(this);
   };
   _.endSelection = function() {
     delete this.anticursor;

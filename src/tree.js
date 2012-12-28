@@ -53,6 +53,10 @@ var Point = P(function(_) {
     this[L] = prev;
     this[R] = next;
   };
+
+  this.copy = function(pt) {
+    return Point(pt.parent, pt[L], pt[R]);
+  };
 });
 
 /**
