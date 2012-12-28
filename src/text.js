@@ -278,7 +278,7 @@ var TextPiece = P(Node, function(_, _super) {
       TextPiece(deselectChar).createDir(-dir, cursor);
     }
 
-    this.deleteTowards(dir, cursor);
+    return this.deleteTowards(dir, cursor);
   };
 });
 
