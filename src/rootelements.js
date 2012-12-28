@@ -57,6 +57,8 @@ function createRoot(jQ, root, textbox, editable) {
   jQ.bind('mousedown.mathquill', function(e) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
+      // focus the least-common-ancestor block:
+      if (cursor.selection) cursor.insertAfter(cursor.selection.ends[R]);
       return false;
     }
 

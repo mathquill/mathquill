@@ -136,7 +136,6 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.deleteTowards = _.createSelection;
   _.selectChildren = function(cursor) {
     cursor.selection = Selection(this);
-    cursor.insertAfter(this);
   };
   _.seek = function(pageX, cursor) {
     cursor.insertAfter(this).seekHoriz(pageX, this.parent);
@@ -356,7 +355,6 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.selectChildren = function(cursor, first, last) {
     cursor.selection = Selection(first, last);
-    cursor.insertAfter(last);
   };
   _.seek = function(pageX, cursor) {
     cursor.appendTo(this).seekHoriz(pageX, this);
