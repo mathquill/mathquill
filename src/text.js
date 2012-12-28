@@ -77,6 +77,10 @@ var TextBlock = P(Node, function(_, _super) {
   _.onKey = function(key, e) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return false;
   };
+
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
 
