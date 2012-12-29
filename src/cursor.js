@@ -98,6 +98,7 @@ var Cursor = P(Point, function(_) {
     if (this.parent === this.root) return;
 
     clearUpDownCache(this);
+    this.endSelection();
     this.show().clearSelection();
     this.parent.moveOutOf(dir, this);
   };
@@ -118,6 +119,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     clearUpDownCache(this);
+    this.endSelection();
 
     if (this.selection)  {
       this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
@@ -163,6 +165,7 @@ var Cursor = P(Point, function(_) {
       } while (ancestor !== self.root);
     }
 
+    self.endSelection();
     return self.clearSelection().show();
   }
   /**
@@ -239,6 +242,7 @@ var Cursor = P(Point, function(_) {
   _.writeLatex = function(latex) {
     var self = this;
     clearUpDownCache(self);
+    self.endSelection();
     self.show().deleteSelection();
 
     var all = Parser.all;
@@ -333,6 +337,7 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     clearUpDownCache(this);
+    this.endSelection();
     this.show();
 
     if (this.deleteSelection()); // pass
@@ -351,7 +356,7 @@ var Cursor = P(Point, function(_) {
   _.deleteForward = function() { return this.deleteDir(R); };
   _.select = function() {
     var anticursor = this.anticursor;
-    if (this[L] === anticursor[L] && this.parent === anticursor.parent) return;
+    if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
 
     // `this` cursor and the anticursor should be in the same tree, because
     // the mousemove handler attached to the document, unlike the one attached
@@ -366,34 +371,23 @@ var Cursor = P(Point, function(_) {
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.root.selectionChanged();
+    return true;
   };
   _.selectDir = function(dir) {
     var self = this;
     prayDirection(dir);
     clearUpDownCache(this);
 
-    if (self[dir]) {
-      var adjacent = self[dir],
-          selection = self.selection;
-
-      if (!selection) {
-        adjacent.createSelection(dir, self);
-      }
-      else if (selection.ends[dir] === self[-dir]) {
-        adjacent.extendSelection(dir, self);
-      }
-      else if (selection.ends[dir] === selection.ends[-dir]) {
-        adjacent.clearSelection(dir, self);
-      }
-      else {
-        adjacent.retractSelection(dir, self);
-      }
+    var node = self[dir];
+    if (node) {
+      node.selectTowards(dir, self);
     }
     else if (self.parent !== self.root) {
       self.parent.selectOutOf(dir, self);
     }
 
-    self.root.selectionChanged();
+    self.clearSelection();
+    self.select() || self.show();
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
@@ -410,14 +404,17 @@ var Cursor = P(Point, function(_) {
 
   _.prepareMove = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().clearSelection();
   };
   _.prepareEdit = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().deleteSelection();
   };
   _.prepareWrite = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().replaceSelection();
   };
 

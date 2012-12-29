@@ -85,17 +85,15 @@ var TextBlock = P(Node, function(_, _super) {
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
 
   // TODO: make these methods part of a shared mixin or something.
-  _.createSelection = MathCommand.prototype.createSelection;
-  _.extendSelection = MathCommand.prototype.extendSelection;
-  _.clearSelection = MathCommand.prototype.clearSelection;
-  _.retractSelection = MathCommand.prototype.retractSelection;
+  _.selectTowards = MathCommand.prototype.selectTowards;
+  _.deleteTowards = MathCommand.prototype.deleteTowards;
+  _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
-    var cmd = this;
-    cursor.clearSelection().hide().insertAdjacent(dir, cmd)
-    .selection = Selection(cmd);
+    cursor.insertAdjacent(-dir, this);
+    cursor.startSelection();
+    cursor.insertAdjacent(dir, this);
   };
-  _.deleteTowards = _.createSelection;
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insertAfter(this);
@@ -225,57 +223,28 @@ var TextPiece = P(Node, function(_, _super) {
     }
   };
 
-  // -*- selection methods -*- //
+  _.selectTowards = function(dir, cursor) {
+    prayDirection(dir);
+    var anticursor = cursor.anticursor;
 
-  // there's gotta be a better way to move the cursor...
-  function insertCursorAdjacent(dir, cursor, el) {
-    cursor[-dir] = el;
-    cursor[dir] = el[dir];
-    cursor.hide().show();
-  }
+    var ch = endChar(-dir, this.text)
 
-  _.createSelection = function(dir, cursor) {
-    var selectedPiece = TextPiece(endChar(-dir, this.text));
-    this.deleteTowards(dir, cursor);
-    selectedPiece.createDir(dir, cursor);
-
-    cursor.selection = Selection(selectedPiece);
-
-    insertCursorAdjacent(dir, cursor, selectedPiece);
-  }
-
-  _.clearSelection = function(dir, cursor) {
-    // cursor calls our clearSelection every time because the selection
-    // only every contains one Node.
-    if (this.text.length > 1) return this.retractSelection(dir, cursor);
-
-    var cursorSibling = this;
-
-    if (this[-dir]) {
-      cursorSibling = this[-dir];
-      cursorSibling.combineDir(dir);
-    }
-
-    insertCursorAdjacent(dir, cursor, cursorSibling);
-
-    cursor.clearSelection();
-  };
-
-  _.extendSelection = function(dir, cursor) {
-    var selectedPiece = cursor.selection.ends[L];
-    var selectChar = endChar(-dir, this.text);
-    selectedPiece.appendTextInDir(selectChar, dir);
-    this.deleteTowards(dir, cursor);
-  };
-
-  _.retractSelection = function(dir, cursor) {
-    var deselectChar = endChar(-dir, this.text);
-
-    if (this[-dir]) {
-      this[-dir].appendTextInDir(deselectChar, dir);
+    if (!anticursor) {
+      var newPc = TextPiece(ch).createDir(dir, cursor);
+      cursor.startSelection();
+      cursor.insertAdjacent(dir, newPc);
     }
     else {
-      TextPiece(deselectChar).createDir(-dir, cursor);
+      var from = this[-dir];
+      if (from) from.appendTextInDir(ch, dir);
+      else {
+        var newPc = TextPiece(ch).createDir(-dir, cursor);
+        jQinsertAdjacent(-dir, newPc.jQ, cursor.selection.jQ);
+      }
+
+      if (this.text.length === 1 && anticursor[-dir] === this) {
+        anticursor[-dir] = this[-dir]; // `this` will be removed in deleteTowards
+      }
     }
 
     return this.deleteTowards(dir, cursor);

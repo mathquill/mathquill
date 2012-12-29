@@ -103,37 +103,12 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
-
-  function placeCursorInDir(self, dir, cursor) {
-    cursor[-dir] = self;
-    cursor[dir] = self[dir];
-  }
-
-  _.createSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.hide().selection = Selection(this);
-  }
-
-  _.extendSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.selection.ends[dir] = this;
-    jQappendDir(dir, this.jQ, cursor.selection.jQ);
+  _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
+  _.selectTowards = function(dir, cursor) {
+    if (!cursor.anticursor) cursor.startSelection();
+    cursor[-dir] = this;
+    cursor[dir] = this[dir];
   };
-
-  _.clearSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.clearSelection().show();
-  };
-
-  _.retractSelection = function(dir, cursor) {
-    var self = this, seln = cursor.selection;
-
-    placeCursorInDir(self, dir, cursor);
-    jQinsertAdjacent(-dir, self.jQ, seln.jQ);
-    seln.ends[-dir] = self[dir];
-  };
-
-  _.deleteTowards = _.createSelection;
   _.selectChildren = function(cursor) {
     cursor.selection = Selection(this);
   };
@@ -338,17 +313,9 @@ var MathBlock = P(MathElement, function(_) {
     else cursor.insertAdjacent(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
-    var cmd = this.parent;
-    cursor.insertAdjacent(dir, cmd);
-
-    var seln = cursor.selection;
-    // no selection, create one
-    if (!seln) cursor.hide().selection = Selection(cmd);
-    // else "level up" selection
-    else {
-      seln.ends[L] = seln.ends[R] = cmd;
-      seln.clear().jQwrap(cmd.jQ);
-    }
+    cursor.insertAdjacent(-dir, this.parent);
+    cursor.startSelection();
+    cursor.insertAdjacent(dir, this.parent);
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
