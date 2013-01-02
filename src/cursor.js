@@ -374,13 +374,21 @@ var Cursor = P(Point, function(_) {
     return true;
   };
   _.selectDir = function(dir) {
-    var self = this;
+    var self = this, seln = self.selection;
     prayDirection(dir);
     clearUpDownCache(this);
 
+    if (!self.anticursor) self.startSelection();
+
     var node = self[dir];
     if (node) {
-      node.selectTowards(dir, self);
+      // "if node we're selecting towards is inside selection (hence retracting)
+      // and is on the *far side* of the selection (hence is only node selected)
+      // and the anticursor is *inside* that node, not just on the other side"
+      if (seln && seln.ends[dir] === node && self.anticursor[-dir] !== node) {
+        node.unselectInto(dir, self);
+      }
+      else node.selectTowards(dir, self);
     }
     else if (self.parent !== self.root) {
       self.parent.selectOutOf(dir, self);

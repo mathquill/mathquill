@@ -83,6 +83,7 @@ var TextBlock = P(Node, function(_, _super) {
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
+  _.unselectInto = _.moveTowards;
 
   // TODO: make these methods part of a shared mixin or something.
   _.selectTowards = MathCommand.prototype.selectTowards;
@@ -90,8 +91,6 @@ var TextBlock = P(Node, function(_, _super) {
   _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(-dir, this);
-    cursor.startSelection();
     cursor.insertAdjacent(dir, this);
   };
   _.deleteOutOf = function(dir, cursor) {
