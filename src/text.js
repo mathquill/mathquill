@@ -123,21 +123,24 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
-  _.seek = function() {
-    consolidateChildren(this);
+  _.seek = function(pageX, cursor) {
+    consolidateChildren(this, cursor);
     MathBlock.prototype.seek.apply(this, arguments);
   };
 
-  _.blur = function() {
+  _.blur = function(cursor) {
     MathBlock.prototype.blur.call(this);
-    consolidateChildren(this);
+    consolidateChildren(this, cursor);
   };
 
-  function consolidateChildren(self) {
+  function consolidateChildren(self, cursor) {
     var firstChild = self.ch[L];
+    cursor = cursor || 0;
+    var anticursor = cursor.anticursor || 0;
 
     while (firstChild[R]) {
-      firstChild.combineDir(R);
+      if (anticursor[L] === firstChild || cursor[L] === firstChild) firstChild = firstChild[R];
+      else firstChild.combineDir(R, cursor, anticursor);
     }
   }
 
@@ -187,18 +190,29 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    var from = this[-dir];
-    if (from) from.appendTextInDir(ch, dir);
-    else TextPiece(ch).createDir(-dir, cursor);
+      var from = this[-dir];
+    if (from && (!cursor.anticursor || cursor.anticursor[-dir] !== from))
+      from.appendTextInDir(ch, dir);
+    else {
+      var newPc = TextPiece(ch).createDir(-dir, cursor);
+      var anticursor = cursor.anticursor;
+      if (anticursor) {
+        if (anticursor[dir] === this) anticursor[dir] = newPc;
+      }
+    }
 
     return this.deleteTowards(dir, cursor);
   };
 
-  _.combineDir = function(dir) {
+  _.combineDir = function(dir, cursor, anticursor) {
     var toCombine = this[dir];
 
     this.appendTextInDir(toCombine.text, dir);
     toCombine.remove();
+    if (cursor[dir] === toCombine) cursor[dir] = toCombine[dir];
+    if (cursor[-dir] === toCombine) cursor[-dir] = toCombine[-dir];
+    if (anticursor[dir] === toCombine) anticursor[dir] = toCombine[dir];
+    if (anticursor[-dir] === toCombine) anticursor[-dir] = toCombine[-dir];
   };
 
   _.latex = function() { return this.text; };
@@ -220,6 +234,11 @@ var TextPiece = P(Node, function(_, _super) {
       this.remove();
       this.jQ.remove();
       cursor[dir] = this[dir];
+      var anticursor = cursor.anticursor;
+      if (anticursor) {
+        if (anticursor[dir] === this) anticursor[dir] = this[dir];
+        if (anticursor[-dir] === this) anticursor[-dir] = this[-dir];
+      }
     }
   };
 
@@ -229,10 +248,9 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    if (!anticursor) {
-      var newPc = TextPiece(ch).createDir(dir, cursor);
-      cursor.startSelection();
-      cursor.insertAdjacent(dir, newPc);
+    // if cursor and anticursor in the same place, i.e. no selection
+    if (anticursor[dir] === this) { // then create a TextPiece to be selected
+      anticursor[dir] = TextPiece(ch).createDir(-dir, cursor);
     }
     else {
       var from = this[-dir];
