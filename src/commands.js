@@ -82,6 +82,31 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
 
+var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
+  _.htmlTemplate = '<span class="mq-textcolor">&0</span>';
+  _.jQadd = function() {
+    _super.jQadd.apply(this, arguments);
+console.log('setting color to', this.color);
+    this.jQ.css('color', this.color);
+  };
+
+  _.parser = function() {
+    var self = this;
+    var optWhitespace = Parser.optWhitespace;
+    var string = Parser.string;
+    var regex = Parser.regex;
+
+    return string('{')
+      .then(regex(/^[^{}]*/))
+      .skip(string('}'))
+      .then(function(color) {
+        self.color = color;
+        return _super.parser.call(self);
+      })
+    ;
+  };
+});
+
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
