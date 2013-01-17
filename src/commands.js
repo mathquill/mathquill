@@ -218,19 +218,25 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
   _.createBefore = function(cursor) {
     if (!this.replacedFragment) {
       var prev = cursor.prev;
-      while (prev &&
-        !(
-          prev instanceof BinaryOperator ||
-          prev instanceof TextBlock ||
-          prev instanceof BigSymbol
-        ) //lookbehind for operator
-      )
+      if (prev instanceof TextBlock || prev instanceof Fraction) {
         prev = prev.prev;
+      }
+      else {
+        while (prev &&
+          !(
+            prev instanceof BinaryOperator ||
+            prev instanceof TextBlock ||
+            prev instanceof BigSymbol ||
+            prev instanceof Fraction
+          ) //lookbehind for operator
+        )
+          prev = prev.prev;
 
-      if (prev instanceof BigSymbol && prev.next instanceof SupSub) {
-        prev = prev.next;
-        if (prev.next instanceof SupSub && prev.next.ctrlSeq != prev.ctrlSeq)
+        if (prev instanceof BigSymbol && prev.next instanceof SupSub) {
           prev = prev.next;
+          if (prev.next instanceof SupSub && prev.next.ctrlSeq != prev.ctrlSeq)
+            prev = prev.next;
+        }
       }
 
       if (prev !== cursor.prev) {
