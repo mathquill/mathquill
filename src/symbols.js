@@ -22,6 +22,8 @@ var Variable = P(Symbol, function(_, _super) {
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
+    if(ch === '<') html = '&lt;';
+    else if(ch === '>') html = '&gt;';
     _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
   };
 });
