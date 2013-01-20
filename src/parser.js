@@ -60,7 +60,7 @@ var Parser = P(function(_, _super, Parser) {
 
     return Parser(function(stream, onSuccess, onFailure) {
       var xs = [];
-      while (self._(stream, success, failure));
+      while (self._(stream, success, failure)) {};
       return onSuccess(stream, xs);
 
       function success(newStream, x) {

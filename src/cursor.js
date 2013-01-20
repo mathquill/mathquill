@@ -377,7 +377,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
     this.show();
 
-    if (this.deleteSelection()); // pass
+    if (this.deleteSelection()) {}; // pass
     else if (this.prev) {
       if (this.prev.isEmpty())
         this.prev = this.prev.remove().prev;
@@ -403,7 +403,7 @@ var Cursor = P(function(_) {
     clearUpDownCache(this);
     this.show();
 
-    if (this.deleteSelection()); // pass
+    if (this.deleteSelection()) {}; // pass
     else if (this.next) {
       if (this.next.isEmpty())
         this.next = this.next.remove().next;
