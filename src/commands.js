@@ -475,7 +475,10 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
         this.write(this.replacedText.charAt(i));
   };
   _.write = function(ch) {
-    this.cursor.insertNew(VanillaSymbol(ch));
+    var html;
+    if (ch === '<') html = '&lt;';
+    else if (ch === '>') html = '&gt;';
+    this.cursor.insertNew(VanillaSymbol(ch, html));
   };
   _.onKey = function(key, e) {
     //backspace and delete and ends of block don't unwrap
