@@ -86,7 +86,6 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
   _.htmlTemplate = '<span class="mq-textcolor">&0</span>';
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
-console.log('setting color to', this.color);
     this.jQ.css('color', this.color);
   };
 
