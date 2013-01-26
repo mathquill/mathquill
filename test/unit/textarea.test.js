@@ -173,7 +173,8 @@ suite('key', function() {
         }
       });
 
-      // somebody presses Ctrl-V
+      // Ctrl-V in Firefox or Opera, according to unixpapa.com/js/key.html
+      // without an `input` event
       el.trigger('keydown', { which: 86, ctrlKey: true });
       el.trigger('keypress', { which: 118, ctrlKey: true });
       el.trigger('paste');
