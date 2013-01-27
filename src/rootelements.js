@@ -464,8 +464,12 @@ var RootTextBlock = P(MathBlock, function(_) {
     this.cursor.prepareEdit();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
-    else
-      this.cursor.insertNew(VanillaSymbol(ch));
+    else {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      this.cursor.insertNew(VanillaSymbol(ch, html));
+    }
 
     return false;
   };
