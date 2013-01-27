@@ -102,7 +102,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
     var string = Parser.string;
     var regex = Parser.regex;
 
-    return string('{')
+    return optWhitespace
+      .then(string('{'))
       .then(regex(/^[^{}]*/))
       .skip(string('}'))
       .then(function(color) {
