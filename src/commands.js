@@ -82,6 +82,13 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
 
+// `\textcolor{color}{math}` will apply a color to the given math content, where
+// `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
+// [Mozilla docs][], or [W3C spec][]).
+//
+// [SitePoint docs]: http://reference.sitepoint.com/css/colorvalues
+// [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
+// [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
 var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
   _.htmlTemplate = '<span class="mq-textcolor">&0</span>';
   _.jQadd = function() {
