@@ -68,8 +68,8 @@ $.fn.mathquill = function(cmd, latex) {
           if (/^\\[a-z]+$/i.test(latex)) {
             var selection = cursor.selection;
             if (selection) {
-              cursor[L] = selection.ends[L][L];
-              cursor[R] = selection.ends[R][R];
+              cursor[L] = selection.end[L][L];
+              cursor[R] = selection.end[R][R];
               delete cursor.selection;
             }
             cursor.insertCmd(latex.slice(1), selection);
