@@ -20,8 +20,8 @@ suite('up/down', function() {
 
   test('up/down in out of exponent', function() {
     rootBlock.renderLatex('x^{nm}');
-    var exp = rootBlock.ch[R],
-      expBlock = exp.ch[L];
+    var exp = rootBlock.endChild[R],
+      expBlock = exp.endChild[L];
     assert.equal(exp.latex(), '^{nm}', 'last el is exponent');
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], exp, 'cursor is at the end of root block');
@@ -54,8 +54,8 @@ suite('up/down', function() {
   // literally just swapped up and down, exponent with subscript, nm with 12
   test('up/down in out of subscript', function() {
     rootBlock.renderLatex('a_{12}');
-    var sub = rootBlock.ch[R],
-      subBlock = sub.ch[L];
+    var sub = rootBlock.endChild[R],
+      subBlock = sub.endChild[L];
     assert.equal(sub.latex(), '_{12}', 'last el is subscript');
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], sub, 'cursor is at the end of root block');
@@ -87,11 +87,11 @@ suite('up/down', function() {
 
   test('up/down into and within fraction', function() {
     rootBlock.renderLatex('\\frac{12}{34}');
-    var frac = rootBlock.ch[L],
-      numer = frac.ch[L],
-      denom = frac.ch[R];
+    var frac = rootBlock.endChild[L],
+      numer = frac.endChild[L],
+      denom = frac.endChild[R];
     assert.equal(frac.latex(), '\\frac{12}{34}', 'fraction is in root block');
-    assert.equal(frac, rootBlock.ch[R], 'fraction is sole child of root block');
+    assert.equal(frac, rootBlock.endChild[R], 'fraction is sole child of root block');
     assert.equal(numer.latex(), '12', 'numerator is first child of fraction');
     assert.equal(denom.latex(), '34', 'denominator is last child of fraction');
 
@@ -126,11 +126,11 @@ suite('up/down', function() {
 
   test('nested subscripts and fractions', function() {
     rootBlock.renderLatex('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
-    var exp = rootBlock.ch[R],
-      expBlock = exp.ch[L],
-      half = expBlock.ch[L],
-      halfNumer = half.ch[L],
-      halfDenom = half.ch[R];
+    var exp = rootBlock.endChild[R],
+      expBlock = exp.endChild[L],
+      half = expBlock.endChild[L],
+      halfNumer = half.endChild[L],
+      halfDenom = half.endChild[R];
 
     move('Left');
     assert.equal(cursor.parent, expBlock, 'cursor left goes into exponent');
@@ -142,14 +142,14 @@ suite('up/down', function() {
     assert.equal(cursor.parent, rootBlock, 'down again puts cursor back in root block');
     assert.equal(cursor[L], exp, 'down from end of half puts cursor after exponent');
 
-    var derivative = rootBlock.ch[L],
-      dBlock = derivative.ch[L],
-      dxBlock = derivative.ch[R],
-      sub = dxBlock.ch[R],
-      subBlock = sub.ch[L],
-      subFrac = subBlock.ch[L],
-      subFracNumer = subFrac.ch[L],
-      subFracDenom = subFrac.ch[R];
+    var derivative = rootBlock.endChild[L],
+      dBlock = derivative.endChild[L],
+      dxBlock = derivative.endChild[R],
+      sub = dxBlock.endChild[R],
+      subBlock = sub.endChild[L],
+      subFrac = subBlock.endChild[L],
+      subFracNumer = subFrac.endChild[L],
+      subFracDenom = subFrac.endChild[R];
 
     cursor.prependTo(rootBlock);
     move('Down Right Right Down');

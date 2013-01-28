@@ -122,7 +122,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.ch[R], 0);
+        blocks[i].adopt(self, self.endChild[R], 0);
       }
 
       return self;
@@ -137,8 +137,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.createBlocks();
     MathElement.jQize(cmd.html());
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.ch[L], 0, 0);
-      replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
+      replacedFragment.adopt(cmd.endChild[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.endChild[L].jQ);
     }
 
     cursor.jQ.before(cmd.jQ);
@@ -155,13 +155,13 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.ch[R], 0);
+      newBlock.adopt(cmd, cmd.endChild[R], 0);
     }
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {
+    cursor.appendTo(this.foldChildren(this.endChild[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
   };
@@ -338,13 +338,13 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.ch[L] === this.ch[R] ?
-      this.ch[L].text() :
+    return this.endChild[L] === this.endChild[R] ?
+      this.endChild[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.ch[L] === 0 && this.ch[R] === 0;
+    return this.endChild[L] === 0 && this.endChild[R] === 0;
   };
   _.focus = function() {
     this.jQ.addClass('hasCursor');

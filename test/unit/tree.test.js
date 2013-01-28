@@ -9,8 +9,8 @@ suite('tree', function() {
       assert.equal(two[L], one, 'two[L] is one');
       assert.ok(!two[R], 'two has no next');
 
-      assert.equal(parent.ch[L], one, 'parent.ch[L] is one');
-      assert.equal(parent.ch[R], two, 'parent.ch[R] is two');
+      assert.equal(parent.endChild[L], one, 'parent.endChild[L] is one');
+      assert.equal(parent.endChild[R], two, 'parent.endChild[R] is two');
     }
 
     test('the empty case', function() {
@@ -23,8 +23,8 @@ suite('tree', function() {
       assert.ok(!child[R], 'child has no next');
       assert.ok(!child[L], 'child has no prev');
 
-      assert.equal(parent.ch[L], child, 'child is parent.ch[L]');
-      assert.equal(parent.ch[R], child, 'child is parent.ch[R]');
+      assert.equal(parent.endChild[L], child, 'child is parent.endChild[L]');
+      assert.equal(parent.endChild[R], child, 'child is parent.endChild[R]');
     });
 
     test('with two children from the left', function() {
@@ -66,15 +66,15 @@ suite('tree', function() {
       assert.equal(prev[R], middle, 'prev[R] is middle');
       assert.equal(next[L], middle, 'next[L] is middle');
 
-      assert.equal(parent.ch[L], prev, 'parent.ch[L] is prev');
-      assert.equal(parent.ch[R], next, 'parent.ch[R] is next');
+      assert.equal(parent.endChild[L], prev, 'parent.endChild[L] is prev');
+      assert.equal(parent.endChild[R], next, 'parent.endChild[R] is next');
     });
   });
 
   suite('disown', function() {
     function assertSingleChild(parent, child) {
-      assert.equal(parent.ch[L], child, 'parent.ch[L] is child');
-      assert.equal(parent.ch[R], child, 'parent.ch[R] is child');
+      assert.equal(parent.endChild[L], child, 'parent.endChild[L] is child');
+      assert.equal(parent.endChild[R], child, 'parent.endChild[R] is child');
       assert.ok(!child[L], 'child has no prev');
       assert.ok(!child[R], 'child has no next');
     }
@@ -86,8 +86,8 @@ suite('tree', function() {
       child.adopt(parent, 0, 0);
       child.disown();
 
-      assert.ok(!parent.ch[L], 'parent has no firstChild');
-      assert.ok(!parent.ch[R], 'parent has no lastChild');
+      assert.ok(!parent.endChild[L], 'parent has no firstChild');
+      assert.ok(!parent.endChild[R], 'parent has no lastChild');
     });
 
     test('disowning the last child', function() {
@@ -142,8 +142,8 @@ suite('tree', function() {
 
       assert.equal(prev[R], next, 'prev[R] is next');
       assert.equal(next[L], prev, 'next[L] is prev');
-      assert.equal(parent.ch[L], prev, 'parent.ch[L] is prev');
-      assert.equal(parent.ch[R], next, 'parent.ch[R] is next');
+      assert.equal(parent.endChild[L], prev, 'parent.endChild[L] is prev');
+      assert.equal(parent.endChild[R], next, 'parent.endChild[R] is next');
 
       assert.equal(middle.parent, parent, 'middle retains its parent');
       assert.equal(middle[R], next, 'middle retains its next');

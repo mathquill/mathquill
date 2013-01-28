@@ -200,7 +200,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.ch[L] = this.ch[R] = 0;
+    this.endChild[L] = this.endChild[R] = 0;
 
     this.cursor.appendTo(this).writeLatex(latex);
   };
@@ -381,16 +381,16 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    this.ch[L] =
-    this.ch[R] =
+    this.endChild[L] =
+    this.endChild[R] =
       RootMathBlock();
 
-    this.blocks = [ this.ch[L] ];
+    this.blocks = [ this.endChild[L] ];
 
-    this.ch[L].parent = this;
+    this.endChild[L].parent = this;
 
-    var cursor = this.ch[L].cursor = this.cursor;
-    this.ch[L].onText = function(ch) {
+    var cursor = this.endChild[L].cursor = this.cursor;
+    this.endChild[L].onText = function(ch) {
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
@@ -408,7 +408,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     };
   };
   _.latex = function() {
-    return '$' + this.ch[L].latex() + '$';
+    return '$' + this.endChild[L].latex() + '$';
   };
 });
 
@@ -417,7 +417,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var self = this
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.ch[L] = self.ch[R] = 0;
+    self.endChild[L] = self.endChild[R] = 0;
     cursor.show().appendTo(self);
 
     var regex = Parser.regex;
@@ -436,7 +436,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         var rootMathCommand = RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ch[L];
+        var rootMathBlock = rootMathCommand.endChild[L];
         block.children().adopt(rootMathBlock, 0, 0);
 
         return rootMathCommand;
@@ -450,7 +450,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.ch[R], 0);
+        commands[i].adopt(self, self.endChild[R], 0);
       }
 
       var html = self.join('html');

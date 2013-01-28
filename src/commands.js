@@ -90,12 +90,12 @@ var SupSub = P(MathCommand, function(_, _super) {
     );
 
     if (this.ctrlSeq === '_') {
-      this.down = this.ch[L];
-      this.ch[L].up = insertBeforeUnlessAtEnd;
+      this.down = this.endChild[L];
+      this.endChild[L].up = insertBeforeUnlessAtEnd;
     }
     else {
-      this.up = this.ch[L];
-      this.ch[L].down = insertBeforeUnlessAtEnd;
+      this.up = this.endChild[L];
+      this.endChild[L].down = insertBeforeUnlessAtEnd;
     }
     function insertBeforeUnlessAtEnd(cursor) {
       // cursor.insertBefore(cmd), unless cursor at the end of block, and every
@@ -113,7 +113,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
   };
   _.latex = function() {
-    var latex = this.ch[L].latex();
+    var latex = this.endChild[L].latex();
     if (latex.length === 1)
       return this.ctrlSeq + latex;
     else
@@ -204,8 +204,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
-    this.up = this.ch[R].up = this.ch[L];
-    this.down = this.ch[L].down = this.ch[R];
+    this.up = this.endChild[R].up = this.endChild[L];
+    this.down = this.endChild[L].down = this.endChild[R];
   };
 });
 
@@ -231,7 +231,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor[L]) {
-        this.replaces(MathFragment(prev[R] || cursor.parent.ch[L], cursor[L]));
+        this.replaces(MathFragment(prev[R] || cursor.parent.endChild[L], cursor[L]));
         cursor[L] = prev;
       }
     }
@@ -262,7 +262,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
     }).or(_super.parser.call(this));
   };
   _.redraw = function() {
-    var block = this.ch[R].jQ;
+    var block = this.endChild[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
 });
@@ -279,7 +279,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
-    return '\\sqrt['+this.ch[L].latex()+']{'+this.ch[R].latex()+'}';
+    return '\\sqrt['+this.endChild[L].latex()+']{'+this.endChild[R].latex()+'}';
   };
 });
 
@@ -301,10 +301,10 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
-    return this.ctrlSeq + this.ch[L].latex() + this.end;
+    return this.ctrlSeq + this.endChild[L].latex() + this.end;
   };
   _.redraw = function() {
-    var blockjQ = this.ch[L].jQ;
+    var blockjQ = this.endChild[L].jQ;
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
@@ -371,7 +371,7 @@ var CloseBracket = P(Bracket, function(_, _super) {
       _super.createBefore.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
-    this.ch[L].blur();
+    this.endChild[L].blur();
     cursor.insertAfter(this);
   };
 });
@@ -440,10 +440,10 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       .map(function(text) {
         var cmd = TextBlock();
         cmd.createBlocks();
-        var block = cmd.ch[L];
+        var block = cmd.endChild[L];
         for (var i = 0; i < text.length; i += 1) {
           var ch = VanillaSymbol(text.charAt(i));
-          ch.adopt(block, block.ch[R], 0);
+          ch.adopt(block, block.endChild[R], 0);
         }
         return cmd;
       })
@@ -451,13 +451,13 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   };
   _.createBlocks = function() {
     //FIXME: another possible Law of Demeter violation, but this seems much cleaner, like it was supposed to be done this way
-    this.ch[L] =
-    this.ch[R] =
+    this.endChild[L] =
+    this.endChild[R] =
       InnerTextBlock();
 
-    this.blocks = [ this.ch[L] ];
+    this.blocks = [ this.endChild[L] ];
 
-    this.ch[L].parent = this;
+    this.endChild[L].parent = this;
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
@@ -494,17 +494,17 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     else if (!this.cursor[L])
       this.cursor.insertBefore(this);
     else { //split apart
-      var next = TextBlock(MathFragment(this.cursor[R], this.ch[L].ch[R]));
+      var next = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
       next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
         this[L] = 0;
         delete this.placeCursor;
         this.placeCursor(cursor);
       };
-      next.ch[L].focus = function(){ return this; };
+      next.endChild[L].focus = function(){ return this; };
       this.cursor.insertAfter(this).insertNew(next);
       next[L] = this;
       this.cursor.insertBefore(next);
-      delete next.ch[L].focus;
+      delete next.endChild[L].focus;
     }
     return false;
   };
@@ -537,20 +537,20 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     if (textblock[R].ctrlSeq === textblock.ctrlSeq) { //TODO: seems like there should be a better way to move MathElements around
       var innerblock = this,
         cursor = textblock.cursor,
-        next = textblock[R].ch[L];
+        next = textblock[R].endChild[L];
 
       next.eachChild(function(child){
         child.parent = innerblock;
         child.jQ.appendTo(innerblock.jQ);
       });
 
-      if (this.ch[R])
-        this.ch[R][R] = next.ch[L];
+      if (this.endChild[R])
+        this.endChild[R][R] = next.endChild[L];
       else
-        this.ch[L] = next.ch[L];
+        this.endChild[L] = next.endChild[L];
 
-      next.ch[L][L] = this.ch[R];
-      this.ch[R] = next.ch[R];
+      next.endChild[L][L] = this.endChild[R];
+      this.endChild[R] = next.endChild[R];
 
       next.parent.remove();
 
@@ -564,9 +564,9 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     else if (textblock[L].ctrlSeq === textblock.ctrlSeq) {
       var cursor = textblock.cursor;
       if (cursor[L])
-        textblock[L].ch[L].focus();
+        textblock[L].endChild[L].focus();
       else
-        cursor.appendTo(textblock[L].ch[L]);
+        cursor.appendTo(textblock[L].endChild[L]);
     }
     return this;
   };
@@ -608,14 +608,14 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
-    this.ch[L].focus = function() {
+    this.endChild[L].focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('empty');
 
       return this;
     };
-    this.ch[L].blur = function() {
+    this.endChild[L].blur = function() {
       this.parent.jQ.removeClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('empty');
@@ -625,7 +625,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
-    this.cursor = cursor.appendTo(this.ch[L]);
+    this.cursor = cursor.appendTo(this.endChild[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -639,7 +639,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
   };
   _.latex = function() {
-    return '\\' + this.ch[L].latex() + ' ';
+    return '\\' + this.endChild[L].latex() + ' ';
   };
   _.onKey = function(key, e) {
     if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
@@ -655,7 +655,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return false;
     }
     this.renderCommand();
-    if (ch === '\\' && this.ch[L].isEmpty())
+    if (ch === '\\' && this.endChild[L].isEmpty())
       return false;
   };
   _.renderCommand = function() {
@@ -667,7 +667,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       this.cursor.appendTo(this.parent);
     }
 
-    var latex = this.ch[L].latex(), cmd;
+    var latex = this.endChild[L].latex(), cmd;
     if (!latex) latex = 'backslash';
     this.cursor.insertCmd(latex, this._replacedFragment);
   };
@@ -735,7 +735,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         if (currentBlock[R])
           currentBlock[R][L] = newBlock;
         else
-          this.ch[R] = newBlock;
+          this.endChild[R] = newBlock;
 
         newBlock[R] = currentBlock[R];
         currentBlock[R] = newBlock;
@@ -750,7 +750,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
           if (currentBlock[L]) {
             this.cursor.insertAfter(this);
             delete currentBlock[L][R];
-            this.ch[R] = currentBlock[L];
+            this.endChild[R] = currentBlock[L];
             currentBlock.jQ.remove();
             this.bubble('redraw');
 
@@ -764,7 +764,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>').attr(mqBlockId, newBlock.id).appendTo(this.jQ);
-        this.ch[R] = newBlock;
+        this.endChild[R] = newBlock;
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
         this.bubble('redraw').cursor.appendTo(newBlock);
@@ -780,13 +780,13 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
           }
           else {
             this.cursor.insertBefore(this);
-            this.ch[L] = currentBlock[R];
+            this.endChild[L] = currentBlock[R];
           }
 
           if (currentBlock[R])
             currentBlock[R][L] = currentBlock[L];
           else
-            this.ch[R] = currentBlock[L];
+            this.endChild[R] = currentBlock[L];
 
           currentBlock.jQ.remove();
           if (this.isEmpty())
@@ -817,26 +817,26 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     // having to call createBlocks, and createRoot expecting to
     // render the contents' LaTeX. Both need to be refactored.
     _super.jQadd.apply(self, arguments);
-    var block = self.ch[L].disown();
+    var block = self.endChild[L].disown();
     var blockjQ = self.jQ.children().detach();
 
-    self.ch[L] =
-    self.ch[R] =
+    self.endChild[L] =
+    self.endChild[R] =
       RootMathBlock();
 
-    self.blocks = [ self.ch[L] ];
+    self.blocks = [ self.endChild[L] ];
 
-    self.ch[L].parent = self;
+    self.endChild[L].parent = self;
 
-    createRoot(self.jQ, self.ch[L], false, true);
-    self.cursor = self.ch[L].cursor;
+    createRoot(self.jQ, self.endChild[L], false, true);
+    self.cursor = self.endChild[L].cursor;
 
-    block.children().adopt(self.ch[L], 0, 0);
-    blockjQ.appendTo(self.ch[L].jQ);
+    block.children().adopt(self.endChild[L], 0, 0);
+    blockjQ.appendTo(self.endChild[L].jQ);
 
-    self.ch[L].cursor.appendTo(self.ch[L]);
+    self.endChild[L].cursor.appendTo(self.endChild[L]);
   };
 
-  _.latex = function(){ return this.ch[L].latex(); };
-  _.text = function(){ return this.ch[L].text(); };
+  _.latex = function(){ return this.endChild[L].latex(); };
+  _.text = function(){ return this.endChild[L].text(); };
 });

@@ -64,13 +64,13 @@ var Node = P(function(_) {
   _.parent = 0;
 
   _.init = function() {
-    this.ch = {};
-    this.ch[L] = 0;
-    this.ch[R] = 0;
+    this.endChild = {};
+    this.endChild[L] = 0;
+    this.endChild[R] = 0;
   };
 
   _.children = function() {
-    return Fragment(this.ch[L], this.ch[R]);
+    return Fragment(this.endChild[L], this.endChild[R]);
   };
 
   _.eachChild = function(fn) {
@@ -125,7 +125,7 @@ var Fragment = P(function(_) {
     pray('a parent is always present', parent);
     pray('prev is properly set up', (function() {
       // either it's empty and next is the first child (possibly empty)
-      if (!prev) return parent.ch[L] === next;
+      if (!prev) return parent.endChild[L] === next;
 
       // or it's there and its next and parent are properly set up
       return prev[R] === next && prev.parent === parent;
@@ -133,7 +133,7 @@ var Fragment = P(function(_) {
 
     pray('next is properly set up', (function() {
       // either it's empty and prev is the last child (possibly empty)
-      if (!next) return parent.ch[R] === prev;
+      if (!next) return parent.endChild[R] === prev;
 
       // or it's there and its next and parent are properly set up
       return next[L] === prev && next.parent === parent;
@@ -155,13 +155,13 @@ var Fragment = P(function(_) {
       // NB: this is handled in the ::each() block
       // prev[R] = first
     } else {
-      parent.ch[L] = first;
+      parent.endChild[L] = first;
     }
 
     if (next) {
       next[L] = last;
     } else {
-      parent.ch[R] = last;
+      parent.endChild[R] = last;
     }
 
     self.ends[R][R] = next;
@@ -195,13 +195,13 @@ var Fragment = P(function(_) {
     if (first[L]) {
       first[L][R] = last[R];
     } else {
-      parent.ch[L] = last[R];
+      parent.endChild[L] = last[R];
     }
 
     if (last[R]) {
       last[R][L] = first[L];
     } else {
-      parent.ch[R] = first[L];
+      parent.endChild[R] = first[L];
     }
 
     return self;

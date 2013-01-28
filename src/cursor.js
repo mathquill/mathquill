@@ -67,7 +67,7 @@ var Cursor = P(Point, function(_) {
 
   _.appendDir = function(dir, el) {
     prayDirection(dir);
-    this.withDirInsertAt(dir, el, 0, el.ch[dir]);
+    this.withDirInsertAt(dir, el, 0, el.endChild[dir]);
 
     // never insert before textarea
     if (dir === L && el.textarea) {
@@ -99,7 +99,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     if (this[dir]) {
-      if (this[dir].ch[-dir]) this.appendDir(-dir, this[dir].ch[-dir]);
+      if (this[dir].endChild[-dir]) this.appendDir(-dir, this[dir].endChild[-dir]);
       else this.hopDir(dir);
     }
     else {
@@ -263,7 +263,7 @@ var Cursor = P(Point, function(_) {
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
       MathElement.jQize(block.join('html')).insertBefore(self.jQ);
-      self[L] = block.ch[R];
+      self[L] = block.endChild[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
     }
@@ -306,7 +306,7 @@ var Cursor = P(Point, function(_) {
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
-      cmd.ch[L].focus = function(){ delete this.focus; return this; };
+      cmd.endChild[L].focus = function(){ delete this.focus; return this; };
       this.insertNew(cmd).insertAfter(cmd);
       if (replacedFragment)
         replacedFragment.remove();
@@ -330,7 +330,7 @@ var Cursor = P(Point, function(_) {
         })
       ;
 
-      prev = uncle.ch[R];
+      prev = uncle.endChild[R];
     });
 
     if (!this[R]) { //then find something to be next to insertBefore
@@ -340,7 +340,7 @@ var Cursor = P(Point, function(_) {
         while (!this[R]) {
           this.parent = this.parent[R];
           if (this.parent)
-            this[R] = this.parent.ch[L];
+            this[R] = this.parent.endChild[L];
           else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -428,8 +428,8 @@ var Cursor = P(Point, function(_) {
         left = leftRight;
       }
     }
-    this.hide().selection = Selection(left[L][R] || left.parent.ch[L], right[R][L] || right.parent.ch[R]);
-    this.insertAfter(right[R][L] || right.parent.ch[R]);
+    this.hide().selection = Selection(left[L][R] || left.parent.endChild[L], right[R][L] || right.parent.endChild[R]);
+    this.insertAfter(right[R][L] || right.parent.endChild[R]);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
