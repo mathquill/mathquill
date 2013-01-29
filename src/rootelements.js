@@ -229,14 +229,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Tab':
     case 'Spacebar':
       this.cursor.escapeDir(R, key, e);
-      break;
+      return;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
       this.cursor.escapeDir(L, key, e);
-      break;
+      return;
 
     // Prevent newlines from showing up
     case 'Enter': break;

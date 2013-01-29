@@ -14,13 +14,15 @@ are all over the place.
 (Note: Requires [jQuery 1.4.3+](http://jquery.com).
 [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
 
-To use MathQuill on your website you need to serve
+To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
+
+[downloads page]: http://mathquill.com/downloads.html
 
 * [the stylesheet](http://mathquill.github.com/mathquill.css)
 * [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
-* [the script](http://mathquill.github.com/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill.js))
+* [the script](http://mathquill.github.com/mathquill/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill/mathquill.js))
 
 then on your webpages include the stylesheet
 

@@ -1,0 +1,19 @@
+To build mathquill, you will need a node.js installation.
+We recommend https://github.com/visionmedia/n for installing node,
+otherwise, you can get it from http://nodejs.org/ .
+
+You will then need to update the dependencies with `npm`, like so:
+
+    % npm install
+
+If this installs properly, you should simply be able to run `make`,
+and mathquill will be built in the `build/` directory.  Alternatively,
+for development, you can run `make server`, which will automatically
+re-make, and also serve the demo, the unit tests, and the visual tests.
+
+            demo -> http://localhost:9292/test/demo.html
+      unit tests -> http://localhost:9292/test/unit.html
+    visual tests -> http://localhost:9292/test/visual.html
+
+If any of this does not work, please let us know!  We want to make
+hacking on mathquill as easy as possible.
