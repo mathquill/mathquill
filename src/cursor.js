@@ -236,20 +236,52 @@ var Cursor = P(function(_) {
   _.seekHoriz = function(pageX, block) {
     //move cursor to position closest to click
     var cursor = this;
-    var dist = offset(cursor).left - pageX;
+    //FIXME HACK optimization: to avoid doing repeated
+    //DOM manipulation by moving the cursor around,
+    //move around a "ghost cursor" in the edit tree
+    //and guesstimate the coords of the cursor if it
+    //were inserted where the ghost cursor is
+    var ghost = {parent: cursor.parent, prev: cursor.prev, next: cursor.next,
+      left: offset(cursor).left};
+    var dist = ghost.left - pageX;
     var prevDist;
 
     do {
-      cursor.moveLeftWithin(block);
+      //ghost.moveLeftWithin(block);
+      if (ghost.prev) {
+        // FIXME HACK: when moving right to left, want to go into NthRoot's body,
+        // which is its lastChild.
+        if (ghost.prev instanceof NthRoot) ghost = appendGhostTo(ghost.prev.lastChild);
+        else if (ghost.prev.up instanceof MathBlock) ghost = appendGhostTo(ghost.prev.up);
+        else if (ghost.prev.firstChild) ghost = appendGhostTo(ghost.prev.firstChild)
+        else ghost = insertGhostBefore(ghost.prev);
+      }
+      else {
+        // unless we're at the beginning of the containing block, escape left
+        if (ghost.parent !== block) ghost = insertGhostBefore(ghost.parent.parent);
+      }
       prevDist = dist;
-      dist = offset(cursor).left - pageX;
+      dist = ghost.left - pageX;
     }
-    while (dist > 0 && (cursor.prev || cursor.parent !== block));
+    while (dist > 0 && (ghost.prev || ghost.parent !== block));
+
+    if (ghost.next) cursor.insertBefore(ghost.next);
+    else cursor.appendTo(ghost.parent);
 
     if (-dist > prevDist) cursor.moveRightWithin(block);
 
     return cursor;
   };
+  function insertGhostBefore(cmd) {
+    return {parent: cmd.parent, prev: cmd.prev, next: cmd,
+      left: cmd.jQ.offset().left };
+  }
+  function appendGhostTo(block) {
+    return {parent: block, prev: block.lastChild, next: 0,
+      left: block.isEmpty()
+        ? block.jQ.offset().left + block.jQ.outerWidth()/2
+        : block.lastChild.jQ.offset().left + block.lastChild.jQ.outerWidth()};
+  }
   function offset(self) {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
