@@ -319,7 +319,6 @@ LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
     var regex = Parser.regex;
     var string = Parser.string;
-    var regex = Parser.regex;
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
