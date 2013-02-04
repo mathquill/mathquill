@@ -167,7 +167,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // remove()
   _.remove = function() {
-    this.disown()
+    this.disown();
     this.jQ.remove();
 
     this.postOrder(function(el) { delete MathElement[el.id]; });

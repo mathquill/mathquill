@@ -16,7 +16,7 @@ var Cursor = P(function(_) {
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); }
+    this.blink = function(){ jQ.toggleClass('blink'); };
 
     this.upDownCache = {};
   };
@@ -60,7 +60,7 @@ var Cursor = P(function(_) {
     old_parent.blur(); //blur may need to know cursor's destination
   };
   _.insertBefore = function(el) {
-    this.insertAt(el.parent, el.prev, el)
+    this.insertAt(el.parent, el.prev, el);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insertBefore(el.jQ.first());
     return this;
@@ -100,7 +100,7 @@ var Cursor = P(function(_) {
   };
   _.moveLeftWithin = function(block) {
     if (this.prev) {
-      if (this.prev.lastChild) this.appendTo(this.prev.lastChild)
+      if (this.prev.lastChild) this.appendTo(this.prev.lastChild);
       else this.hopLeft();
     }
     else {
@@ -542,7 +542,7 @@ var Cursor = P(function(_) {
   _.prepareEdit = function() {
     clearUpDownCache(this);
     return this.show().deleteSelection();
-  }
+  };
 
   _.clearSelection = function() {
     if (this.selection) {
