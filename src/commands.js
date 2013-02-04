@@ -319,9 +319,7 @@ LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
     var regex = Parser.regex;
     var string = Parser.string;
-    var regex = Parser.regex;
     var succeed = Parser.succeed;
-    var block = latexMathParser.block;
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
@@ -412,7 +410,7 @@ LatexCmds.rpipe =
 CharCmds['|'] = P(Paren, function(_, _super) {
   _.init = function() {
     _super.init.call(this, '|', '|');
-  }
+  };
 
   _.createBefore = CloseBracket.prototype.createBefore;
 });
@@ -678,7 +676,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       this.cursor.appendTo(this.parent);
     }
 
-    var latex = this.firstChild.latex(), cmd;
+    var latex = this.firstChild.latex();
     if (!latex) latex = 'backslash';
     this.cursor.insertCmd(latex, this._replacedFragment);
   };
@@ -729,7 +727,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       text.push(child.text());
       return text;
     }).join() + ']';
-  }
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
   };
@@ -786,7 +784,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (e.which === 8) { //backspace
         if (currentBlock.isEmpty()) {
           if (currentBlock.prev) {
-            this.cursor.appendTo(currentBlock.prev)
+            this.cursor.appendTo(currentBlock.prev);
             currentBlock.prev.next = currentBlock.next;
           }
           else {

@@ -414,7 +414,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this
+    var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.firstChild = self.lastChild = 0;
