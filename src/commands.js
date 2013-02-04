@@ -321,7 +321,6 @@ LatexCmds.left = P(MathCommand, function(_) {
     var string = Parser.string;
     var regex = Parser.regex;
     var succeed = Parser.succeed;
-    var block = latexMathParser.block;
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
@@ -678,7 +677,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       this.cursor.appendTo(this.parent);
     }
 
-    var latex = this.firstChild.latex(), cmd;
+    var latex = this.firstChild.latex();
     if (!latex) latex = 'backslash';
     this.cursor.insertCmd(latex, this._replacedFragment);
   };
