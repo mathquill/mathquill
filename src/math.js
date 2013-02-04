@@ -40,7 +40,7 @@ var MathElement = P(Node, function(_) {
     if (typeof fn === 'string') {
       var methodName = fn;
       fn = function(el) {
-        if (methodName in el) el[methodName].apply(el, arguments);
+        if (methodName in el) el[methodName].apply(el, args);
       };
     }
 
