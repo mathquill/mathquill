@@ -158,8 +158,6 @@ throughout MathQuill, plus some globals and opening boilerplate.
 `tree.js` defines the abstract classes for the JS objects that make up the edit tree.
 
 * A `Node` is a node in the tree.
-* A `Point` is a position between two nodes, or at the beginning or end
-  of a parent node.  This is used, for example, for the cursor.
 * A `Fragment` is a range of siblings in the tree.  This is used, for
   example, for selections.
 
