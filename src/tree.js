@@ -105,26 +105,26 @@ var Node = P(function(_) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.init = function(first, last) {
-    pray('no half-empty fragments', !first === !last);
+  _.init = function(leftEnd, rightEnd) {
+    pray('no half-empty fragments', !leftEnd === !rightEnd);
 
     this.end = {};
 
-    if (!first) return;
+    if (!leftEnd) return;
 
-    pray('first node is passed to Fragment', first instanceof Node);
-    pray('last node is passed to Fragment', last instanceof Node);
-    pray('first and last have the same parent',
-         first.parent === last.parent);
+    pray('left end node is passed to Fragment', leftEnd instanceof Node);
+    pray('right end node is passed to Fragment', rightEnd instanceof Node);
+    pray('leftEnd and rightEnd have the same parent',
+         leftEnd.parent === rightEnd.parent);
 
-    this.end[L] = first;
-    this.end[R] = last;
+    this.end[L] = leftEnd;
+    this.end[R] = rightEnd;
   };
 
   function prayWellFormed(parent, prev, next) {
     pray('a parent is always present', parent);
     pray('prev is properly set up', (function() {
-      // either it's empty and next is the first child (possibly empty)
+      // either it's empty and next is the left end child (possibly empty)
       if (!prev) return parent.endChild[L] === next;
 
       // or it's there and its next and parent are properly set up
@@ -132,7 +132,7 @@ var Fragment = P(function(_) {
     })());
 
     pray('next is properly set up', (function() {
-      // either it's empty and prev is the last child (possibly empty)
+      // either it's empty and prev is the right end child (possibly empty)
       if (!next) return parent.endChild[R] === prev;
 
       // or it's there and its next and parent are properly set up
@@ -146,22 +146,22 @@ var Fragment = P(function(_) {
     var self = this;
     self.disowned = false;
 
-    var first = self.end[L];
-    if (!first) return this;
+    var leftEnd = self.end[L];
+    if (!leftEnd) return this;
 
-    var last = self.end[R];
+    var rightEnd = self.end[R];
 
     if (prev) {
       // NB: this is handled in the ::each() block
-      // prev[R] = first
+      // prev[R] = leftEnd
     } else {
-      parent.endChild[L] = first;
+      parent.endChild[L] = leftEnd;
     }
 
     if (next) {
-      next[L] = last;
+      next[L] = rightEnd;
     } else {
-      parent.endChild[R] = last;
+      parent.endChild[R] = rightEnd;
     }
 
     self.end[R][R] = next;
@@ -179,29 +179,29 @@ var Fragment = P(function(_) {
 
   _.disown = function() {
     var self = this;
-    var first = self.end[L];
+    var leftEnd = self.end[L];
 
     // guard for empty and already-disowned fragments
-    if (!first || self.disowned) return self;
+    if (!leftEnd || self.disowned) return self;
 
     self.disowned = true;
 
-    var last = self.end[R]
-    var parent = first.parent;
+    var rightEnd = self.end[R]
+    var parent = leftEnd.parent;
 
-    prayWellFormed(parent, first[L], first);
-    prayWellFormed(parent, last, last[R]);
+    prayWellFormed(parent, leftEnd[L], leftEnd);
+    prayWellFormed(parent, rightEnd, rightEnd[R]);
 
-    if (first[L]) {
-      first[L][R] = last[R];
+    if (leftEnd[L]) {
+      leftEnd[L][R] = rightEnd[R];
     } else {
-      parent.endChild[L] = last[R];
+      parent.endChild[L] = rightEnd[R];
     }
 
-    if (last[R]) {
-      last[R][L] = first[L];
+    if (rightEnd[R]) {
+      rightEnd[R][L] = leftEnd[L];
     } else {
-      parent.endChild[R] = first[L];
+      parent.endChild[R] = leftEnd[L];
     }
 
     return self;

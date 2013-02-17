@@ -22,7 +22,7 @@ suite('up/down', function() {
     rootBlock.renderLatex('x^{nm}');
     var exp = rootBlock.endChild[R],
       expBlock = exp.endChild[L];
-    assert.equal(exp.latex(), '^{nm}', 'last el is exponent');
+    assert.equal(exp.latex(), '^{nm}', 'right end el is exponent');
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], exp, 'cursor is at the end of root block');
 
@@ -56,7 +56,7 @@ suite('up/down', function() {
     rootBlock.renderLatex('a_{12}');
     var sub = rootBlock.endChild[R],
       subBlock = sub.endChild[L];
-    assert.equal(sub.latex(), '_{12}', 'last el is subscript');
+    assert.equal(sub.latex(), '_{12}', 'right end el is subscript');
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], sub, 'cursor is at the end of root block');
 
@@ -92,8 +92,8 @@ suite('up/down', function() {
       denom = frac.endChild[R];
     assert.equal(frac.latex(), '\\frac{12}{34}', 'fraction is in root block');
     assert.equal(frac, rootBlock.endChild[R], 'fraction is sole child of root block');
-    assert.equal(numer.latex(), '12', 'numerator is first child of fraction');
-    assert.equal(denom.latex(), '34', 'denominator is last child of fraction');
+    assert.equal(numer.latex(), '12', 'numerator is left end child of fraction');
+    assert.equal(denom.latex(), '34', 'denominator is right end child of fraction');
 
     move('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
@@ -166,18 +166,18 @@ suite('up/down', function() {
     assert.equal(cursor.parent, subFracDenom, 'cursor in subscript fraction denominator');
 
     move('Up Up');
-    assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not last goes out of subscript');
-    assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not last goes before subscript');
+    assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not at right end goes out of subscript');
+    assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not at right end goes before subscript');
 
     cursor.appendTo(subBlock).backspace();
-    assert.equal(subFrac[R], 0, 'subscript fraction is last');
+    assert.equal(subFrac[R], 0, 'subscript fraction is at right end');
     assert.equal(cursor[L], subFrac, 'cursor after subscript fraction');
 
     move('Down');
     assert.equal(cursor.parent, subFracDenom, 'cursor in subscript fraction denominator');
 
     move('Up Up');
-    assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is last goes out of subscript');
-    assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is last goes after subscript');
+    assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is at right end goes out of subscript');
+    assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is at right end goes after subscript');
   });
 });

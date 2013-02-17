@@ -90,7 +90,7 @@ suite('tree', function() {
       assert.ok(!parent.endChild[R], 'parent has no lastChild');
     });
 
-    test('disowning the last child', function() {
+    test('disowning the right end child', function() {
       var parent = Node();
       var one = Node();
       var two = Node();
@@ -109,7 +109,7 @@ suite('tree', function() {
                     'disown fails on a malformed tree');
     });
 
-    test('disowning the first child', function() {
+    test('disowning the left end child', function() {
       var parent = Node();
       var one = Node();
       var two = Node();

@@ -160,7 +160,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
-    //append the cursor to the first empty child, or if none empty, the last one
+    //append the cursor to the leftmost empty child, or if none empty, the right end child
     cursor.appendTo(this.foldChildren(this.endChild[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
@@ -366,9 +366,9 @@ var MathBlock = P(MathElement, function(_) {
  * Some math-tree-specific extensions to Fragment.
  */
 var MathFragment = P(Fragment, function(_, _super) {
-  _.init = function(first, last) {
+  _.init = function(leftEnd, rightEnd) {
     // just select one thing if only one argument
-    _super.init.call(this, first, last || first);
+    _super.init.call(this, leftEnd, rightEnd || leftEnd);
     this.jQ = this.fold($(), function(jQ, child){ return child.jQ.add(jQ); });
   };
   _.latex = function() {
