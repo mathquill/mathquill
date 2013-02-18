@@ -55,15 +55,15 @@ var Cursor = P(Point, function(_) {
     this[-dir] = oppDir;
     oldParent.blur();
   };
-  _.insertAdjacent = function(dir, el) {
+  _.insDirOf = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
     return this;
   };
-  _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
-  _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
+  _.insertBefore = function(el) { return this.insDirOf(L, el); };
+  _.insertAfter = function(el) { return this.insDirOf(R, el); };
 
   _.appendDir = function(dir, el) {
     prayDirection(dir);
@@ -71,7 +71,7 @@ var Cursor = P(Point, function(_) {
 
     // never insert before textarea
     if (dir === L && el.textarea) {
-      jQinsertAdjacent(-dir, this.jQ, el.textarea);
+      jQinsDirOf(-dir, this.jQ, el.textarea);
     }
     else {
       jQappendDir(dir, this.jQ, el.jQ);
@@ -87,7 +87,7 @@ var Cursor = P(Point, function(_) {
   _.hopDir = function(dir) {
     prayDirection(dir);
 
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
+    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
     this[-dir] = this[dir];
     this[dir] = this[dir][dir];
     return this;
@@ -107,7 +107,7 @@ var Cursor = P(Point, function(_) {
       if (this.parent === block) return;
 
       if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
-      else this.insertAdjacent(dir, this.parent.parent);
+      else this.insDirOf(dir, this.parent.parent);
     }
   };
   _.moveLeftWithin = function(block) {
@@ -122,7 +122,7 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
 
     if (this.selection)  {
-      this.insertAdjacent(dir, this.selection.end[dir]).clearSelection();
+      this.insDirOf(dir, this.selection.end[dir]).clearSelection();
     }
     else {
       this.moveDirWithin(dir, this.root);
@@ -375,7 +375,7 @@ var Cursor = P(Point, function(_) {
     }
     else if (this.parent !== this.root) {
       if (this.parent.parent.isEmpty())
-        return this.insertAdjacent(-dir, this.parent.parent).deleteDir(dir);
+        return this.insDirOf(-dir, this.parent.parent).deleteDir(dir);
       else
         this.unwrapGramp();
     }
@@ -443,7 +443,7 @@ var Cursor = P(Point, function(_) {
         if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
         // else level up if possible
         else if (this.parent !== this.root) {
-          this.insertAdjacent(dir, this.parent.parent).selection.levelUp();
+          this.insDirOf(dir, this.parent.parent).selection.levelUp();
         }
       }
       // else cursor is at the (-dir) edge of selection, retract if possible
@@ -466,7 +466,7 @@ var Cursor = P(Point, function(_) {
       else {
         if (this.parent === this.root) return;
 
-        this.insertAdjacent(dir, this.parent.parent);
+        this.insDirOf(dir, this.parent.parent);
       }
 
       this.hide().selection = Selection(this[-dir]);
@@ -546,7 +546,7 @@ var Selection = P(MathFragment, function(_, _super) {
 
   _.retractDir = function(dir) {
     prayDirection(dir);
-    jQinsertAdjacent(-dir, this.end[-dir].jQ, this.jQ);
+    jQinsDirOf(-dir, this.end[-dir].jQ, this.jQ);
     this.end[-dir] = this.end[-dir][dir];
   };
   _.retractRight = function() { return this.retractDir(R); };
