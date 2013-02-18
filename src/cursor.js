@@ -65,7 +65,7 @@ var Cursor = P(Point, function(_) {
   _.insertBefore = function(el) { return this.insDirOf(L, el); };
   _.insertAfter = function(el) { return this.insDirOf(R, el); };
 
-  _.appendDir = function(dir, el) {
+  _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el, 0, el.endChild[dir]);
 
@@ -74,15 +74,15 @@ var Cursor = P(Point, function(_) {
       jQinsDirOf(-dir, this.jQ, el.textarea);
     }
     else {
-      jQappendDir(dir, this.jQ, el.jQ);
+      jQinsAtDirEnd(dir, this.jQ, el.jQ);
     }
 
     el.focus();
 
     return this;
   };
-  _.prependTo = function(el) { return this.appendDir(L, el); };
-  _.appendTo = function(el) { return this.appendDir(R, el); };
+  _.prependTo = function(el) { return this.insAtDirEnd(L, el); };
+  _.appendTo = function(el) { return this.insAtDirEnd(R, el); };
 
   _.hopDir = function(dir) {
     prayDirection(dir);
@@ -99,14 +99,14 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     if (this[dir]) {
-      if (this[dir].endChild[-dir]) this.appendDir(-dir, this[dir].endChild[-dir]);
+      if (this[dir].endChild[-dir]) this.insAtDirEnd(-dir, this[dir].endChild[-dir]);
       else this.hopDir(dir);
     }
     else {
       // we're at the beginning/end of the containing block, so do nothing
       if (this.parent === block) return;
 
-      if (this.parent[dir]) this.appendDir(-dir, this.parent[dir]);
+      if (this.parent[dir]) this.insAtDirEnd(-dir, this.parent[dir]);
       else this.insDirOf(dir, this.parent.parent);
     }
   };
@@ -538,7 +538,7 @@ var Selection = P(MathFragment, function(_, _super) {
   _.extendDir = function(dir) {
     prayDirection(dir);
     this.end[dir] = this.end[dir][dir];
-    jQappendDir(dir, this.end[dir].jQ, this.jQ);
+    jQinsAtDirEnd(dir, this.end[dir].jQ, this.jQ);
     return this;
   };
   _.extendLeft = function() { return this.extendDir(L); };
