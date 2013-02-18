@@ -97,15 +97,15 @@ suite('up/down', function() {
 
     move('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
-    assert.equal(cursor[R], 0, 'cursor up from right of fraction appends to numerator');
+    assert.equal(cursor[R], 0, 'cursor up from right of fraction inserts at right end of numerator');
 
     move('Down');
     assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
-    assert.equal(cursor[L], 0, 'cursor down from numerator prepends to denominator');
+    assert.equal(cursor[L], 0, 'cursor down from numerator inserts at left end of denominator');
 
     move('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
-    assert.equal(cursor[R], 0, 'cursor up from denominator appends to numerator');
+    assert.equal(cursor[R], 0, 'cursor up from denominator inserts at right end of numerator');
 
     move('Left Left Left');
     assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
@@ -113,7 +113,7 @@ suite('up/down', function() {
 
     move('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
-    assert.equal(cursor[L], 0, 'cursor up from left of fraction prepends to numerator');
+    assert.equal(cursor[L], 0, 'cursor up from left of fraction inserts at left end of numerator');
 
     move('Left');
     assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
@@ -121,7 +121,7 @@ suite('up/down', function() {
 
     move('Down');
     assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
-    assert.equal(cursor[L], 0, 'cursor down from left of fraction prepends to denominator');
+    assert.equal(cursor[L], 0, 'cursor down from left of fraction inserts at left end of denominator');
   });
 
   test('nested subscripts and fractions', function() {

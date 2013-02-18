@@ -160,7 +160,8 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
-    //append the cursor to the leftmost empty child, or if none empty, the right end child
+    //insert the cursor at the right end of the first empty child, searching
+    //left-to-right, or if none empty, the right end child
     cursor.insAtRightEnd(this.foldChildren(this.endChild[L], function(leftward, child) {
       return leftward.isEmpty() ? leftward : child;
     }));
