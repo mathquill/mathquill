@@ -91,24 +91,24 @@ var SupSub = P(MathCommand, function(_, _super) {
 
     if (this.ctrlSeq === '_') {
       this.down = this.endChild[L];
-      this.endChild[L].up = insertBeforeUnlessAtEnd;
+      this.endChild[L].up = insLeftOfMeUnlessAtEnd;
     }
     else {
       this.up = this.endChild[L];
-      this.endChild[L].down = insertBeforeUnlessAtEnd;
+      this.endChild[L].down = insLeftOfMeUnlessAtEnd;
     }
-    function insertBeforeUnlessAtEnd(cursor) {
-      // cursor.insertBefore(cmd), unless cursor at the end of block, and every
+    function insLeftOfMeUnlessAtEnd(cursor) {
+      // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
       // ancestor cmd is at the end of every ancestor block
       var cmd = this.parent, ancestorCmd = cursor;
       do {
         if (ancestorCmd[R]) {
-          cursor.insertBefore(cmd);
+          cursor.insLeftOf(cmd);
           return false;
         }
         ancestorCmd = ancestorCmd.parent.parent;
       } while (ancestorCmd !== cmd);
-      cursor.insertAfter(cmd);
+      cursor.insRightOf(cmd);
       return false;
     }
   };
@@ -366,13 +366,13 @@ var CloseBracket = P(Bracket, function(_, _super) {
     // and I am not replacing a selection fragment, don't create me,
     // just put cursor after my parent
     if (!cursor[R] && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
-      cursor.insertAfter(cursor.parent.parent);
+      cursor.insRightOf(cursor.parent.parent);
     else
       _super.createBefore.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
     this.endChild[L].blur();
-    cursor.insertAfter(this);
+    cursor.insRightOf(this);
   };
 });
 
@@ -478,7 +478,7 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
       )
     ) {
       if (this.isEmpty())
-        this.cursor.insertAfter(this);
+        this.cursor.insRightOf(this);
 
       return false;
     }
@@ -488,11 +488,11 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     if (ch !== '$')
       this.write(ch);
     else if (this.isEmpty())
-      this.cursor.insertAfter(this).backspace().insertNew(VanillaSymbol('\\$','$'));
+      this.cursor.insRightOf(this).backspace().insertNew(VanillaSymbol('\\$','$'));
     else if (!this.cursor[R])
-      this.cursor.insertAfter(this);
+      this.cursor.insRightOf(this);
     else if (!this.cursor[L])
-      this.cursor.insertBefore(this);
+      this.cursor.insLeftOf(this);
     else { //split apart
       var rightward = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
       rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
@@ -501,9 +501,9 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
         this.placeCursor(cursor);
       };
       rightward.endChild[L].focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(rightward);
+      this.cursor.insRightOf(this).insertNew(rightward);
       rightward[L] = this;
-      this.cursor.insertBefore(rightward);
+      this.cursor.insLeftOf(rightward);
       delete rightward.endChild[L].focus;
     }
     return false;
@@ -555,7 +555,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
       rightward.parent.remove();
 
       if (cursor[L])
-        cursor.insertAfter(cursor[L]);
+        cursor.insRightOf(cursor[L]);
       else
         cursor.prependTo(this);
 
@@ -662,7 +662,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     this.jQ = this.jQ.last();
     this.remove();
     if (this[R]) {
-      this.cursor.insertBefore(this[R]);
+      this.cursor.insLeftOf(this[R]);
     } else {
       this.cursor.appendTo(this.parent);
     }
@@ -748,7 +748,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (key === 'Tab' && !currentBlock[R]) {
         if (currentBlock.isEmpty()) {
           if (currentBlock[L]) {
-            this.cursor.insertAfter(this);
+            this.cursor.insRightOf(this);
             delete currentBlock[L][R];
             this.endChild[R] = currentBlock[L];
             currentBlock.jQ.remove();
@@ -779,7 +779,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
             currentBlock[L][R] = currentBlock[R];
           }
           else {
-            this.cursor.insertBefore(this);
+            this.cursor.insLeftOf(this);
             this.endChild[L] = currentBlock[R];
           }
 

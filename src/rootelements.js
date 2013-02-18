@@ -235,7 +235,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         this.cursor.prependTo(parent[R]);
       } else {
         // get out of the block
-        this.cursor.insertAfter(parent.parent);
+        this.cursor.insRightOf(parent.parent);
       }
       break;
 
@@ -256,7 +256,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
         this.cursor.appendTo(parent[L]);
       } else {
         //get out of the block
-        this.cursor.insertBefore(parent.parent);
+        this.cursor.insLeftOf(parent.parent);
       }
       break;
 
@@ -394,13 +394,13 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
       if (ch !== '$' || cursor.parent !== this)
         cursor.write(ch);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace()
+        cursor.insRightOf(this.parent).backspace()
           .insertNew(VanillaSymbol('\\$','$')).show();
       }
       else if (!cursor[R])
-        cursor.insertAfter(this.parent);
+        cursor.insRightOf(this.parent);
       else if (!cursor[L])
-        cursor.insertBefore(this.parent);
+        cursor.insLeftOf(this.parent);
       else
         cursor.write(ch);
 

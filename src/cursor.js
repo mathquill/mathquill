@@ -62,8 +62,8 @@ var Cursor = P(Point, function(_) {
     jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
     return this;
   };
-  _.insertBefore = function(el) { return this.insDirOf(L, el); };
-  _.insertAfter = function(el) { return this.insDirOf(R, el); };
+  _.insLeftOf = function(el) { return this.insDirOf(L, el); };
+  _.insRightOf = function(el) { return this.insDirOf(R, el); };
 
   _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
@@ -165,7 +165,7 @@ var Cursor = P(Point, function(_) {
 
               if (cached) {
                 if (cached[R]) {
-                  self.insertBefore(cached[R]);
+                  self.insLeftOf(cached[R]);
                 } else {
                   self.appendTo(cached.parent);
                 }
@@ -196,9 +196,9 @@ var Cursor = P(Point, function(_) {
     cmd = MathElement[target.attr(mqCmdId)];
     if (cmd instanceof Symbol) { //insert at whichever side is closer
       if (target.outerWidth() > 2*(pageX - target.offset().left))
-        cursor.insertBefore(cmd);
+        cursor.insLeftOf(cmd);
       else
-        cursor.insertAfter(cmd);
+        cursor.insRightOf(cmd);
 
       return cursor;
     }
@@ -215,7 +215,7 @@ var Cursor = P(Point, function(_) {
     }
 
     if (cmd)
-      cursor.insertAfter(cmd);
+      cursor.insRightOf(cmd);
     else
       cursor.appendTo(block);
 
@@ -307,7 +307,7 @@ var Cursor = P(Point, function(_) {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
       cmd.endChild[L].focus = function(){ delete this.focus; return this; };
-      this.insertNew(cmd).insertAfter(cmd);
+      this.insertNew(cmd).insRightOf(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
@@ -333,7 +333,7 @@ var Cursor = P(Point, function(_) {
       leftward = uncle.endChild[R];
     });
 
-    if (!this[R]) { //then find something to be rightward to insertBefore
+    if (!this[R]) { //then find something to be rightward to insLeftOf
       if (this[L])
         this[R] = this[L][R];
       else {
@@ -350,7 +350,7 @@ var Cursor = P(Point, function(_) {
       }
     }
     if (this[R])
-      this.insertBefore(this[R]);
+      this.insLeftOf(this[R]);
     else
       this.appendTo(greatgramp);
 
@@ -429,7 +429,7 @@ var Cursor = P(Point, function(_) {
       }
     }
     this.hide().selection = Selection(left[L][R] || left.parent.endChild[L], right[R][L] || right.parent.endChild[R]);
-    this.insertAfter(right[R][L] || right.parent.endChild[R]);
+    this.insRightOf(right[R][L] || right.parent.endChild[R]);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {
