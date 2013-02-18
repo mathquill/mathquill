@@ -557,7 +557,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
       if (cursor[L])
         cursor.insRightOf(cursor[L]);
       else
-        cursor.prependTo(this);
+        cursor.insAtLeftEnd(this);
 
       cursor.parent.bubble('redraw');
     }
@@ -566,7 +566,7 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
       if (cursor[L])
         textblock[L].endChild[L].focus();
       else
-        cursor.appendTo(textblock[L].endChild[L]);
+        cursor.insAtRightEnd(textblock[L].endChild[L]);
     }
     return this;
   };
@@ -625,7 +625,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
-    this.cursor = cursor.appendTo(this.endChild[L]);
+    this.cursor = cursor.insAtRightEnd(this.endChild[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -664,7 +664,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     if (this[R]) {
       this.cursor.insLeftOf(this[R]);
     } else {
-      this.cursor.appendTo(this.parent);
+      this.cursor.insAtRightEnd(this.parent);
     }
 
     var latex = this.endChild[L].latex(), cmd;
@@ -740,7 +740,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         newBlock[R] = currentBlock[R];
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
-        this.bubble('redraw').cursor.appendTo(newBlock);
+        this.bubble('redraw').cursor.insAtRightEnd(newBlock);
 
         e.preventDefault();
         return false;
@@ -767,7 +767,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         this.endChild[R] = newBlock;
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
-        this.bubble('redraw').cursor.appendTo(newBlock);
+        this.bubble('redraw').cursor.insAtRightEnd(newBlock);
 
         e.preventDefault();
         return false;
@@ -775,7 +775,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (e.which === 8) { //backspace
         if (currentBlock.isEmpty()) {
           if (currentBlock[L]) {
-            this.cursor.appendTo(currentBlock[L])
+            this.cursor.insAtRightEnd(currentBlock[L])
             currentBlock[L][R] = currentBlock[R];
           }
           else {
@@ -834,7 +834,7 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     block.children().adopt(self.endChild[L], 0, 0);
     blockjQ.appendTo(self.endChild[L].jQ);
 
-    self.endChild[L].cursor.appendTo(self.endChild[L]);
+    self.endChild[L].cursor.insAtRightEnd(self.endChild[L]);
   };
 
   _.latex = function(){ return this.endChild[L].latex(); };

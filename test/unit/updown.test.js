@@ -151,7 +151,7 @@ suite('up/down', function() {
       subFracNumer = subFrac.endChild[L],
       subFracDenom = subFrac.endChild[R];
 
-    cursor.prependTo(rootBlock);
+    cursor.insAtLeftEnd(rootBlock);
     move('Down Right Right Down');
     assert.equal(cursor.parent, subBlock, 'cursor in subscript');
 
@@ -169,7 +169,7 @@ suite('up/down', function() {
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not at right end goes out of subscript');
     assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not at right end goes before subscript');
 
-    cursor.appendTo(subBlock).backspace();
+    cursor.insAtRightEnd(subBlock).backspace();
     assert.equal(subFrac[R], 0, 'subscript fraction is at right end');
     assert.equal(cursor[L], subFrac, 'cursor after subscript fraction');
 

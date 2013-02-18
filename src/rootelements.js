@@ -166,7 +166,7 @@ function createRoot(jQ, root, textbox, editable) {
   //focus and blur handling
   textarea.focus(function(e) {
     if (!cursor.parent)
-      cursor.appendTo(root);
+      cursor.insAtRightEnd(root);
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
@@ -202,7 +202,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.endChild[L] = this.endChild[R] = 0;
 
-    this.cursor.appendTo(this).writeLatex(latex);
+    this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
   _.onKey = function(key, e) {
     switch (key) {
@@ -232,7 +232,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       this.cursor.prepareMove();
       if (parent[R]) {
         // go one block right
-        this.cursor.prependTo(parent[R]);
+        this.cursor.insAtLeftEnd(parent[R]);
       } else {
         // get out of the block
         this.cursor.insRightOf(parent.parent);
@@ -253,7 +253,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       this.cursor.prepareMove();
       if (parent[L]) {
         // go one block left
-        this.cursor.appendTo(parent[L]);
+        this.cursor.insAtRightEnd(parent[L]);
       } else {
         //get out of the block
         this.cursor.insLeftOf(parent.parent);
@@ -266,12 +266,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // End -> move to the end of the current block.
     case 'End':
-      this.cursor.prepareMove().appendTo(this.cursor.parent);
+      this.cursor.prepareMove().insAtRightEnd(this.cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      this.cursor.prepareMove().appendTo(this);
+      this.cursor.prepareMove().insAtRightEnd(this);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -290,12 +290,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      this.cursor.prepareMove().prependTo(this.cursor.parent);
+      this.cursor.prepareMove().insAtLeftEnd(this.cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      this.cursor.prepareMove().prependTo(this);
+      this.cursor.prepareMove().insAtLeftEnd(this);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -358,7 +358,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
-      this.cursor.prepareMove().appendTo(this);
+      this.cursor.prepareMove().insAtRightEnd(this);
       while (this.cursor[L]) this.cursor.selectLeft();
       break;
 
@@ -418,7 +418,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.endChild[L] = self.endChild[R] = 0;
-    cursor.show().appendTo(self);
+    cursor.show().insAtRightEnd(self);
 
     var regex = Parser.regex;
     var string = Parser.string;

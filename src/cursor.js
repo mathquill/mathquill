@@ -81,8 +81,8 @@ var Cursor = P(Point, function(_) {
 
     return this;
   };
-  _.prependTo = function(el) { return this.insAtDirEnd(L, el); };
-  _.appendTo = function(el) { return this.insAtDirEnd(R, el); };
+  _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
+  _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
   _.hopDir = function(dir) {
     prayDirection(dir);
@@ -135,22 +135,22 @@ var Cursor = P(Point, function(_) {
 
   /**
    * moveUp and moveDown have almost identical algorithms:
-   * - first check left and right, if so prepend/appendTo them
+   * - first check left and right, if so insAtLeft/RightEnd of them
    * - else check the parent's 'up'/'down' property - if it's a function,
    *   call it with the cursor as the sole argument and use the return value.
    *
    *   Given undefined, will bubble up to the next ancestor block.
    *   Given false, will stop bubbling.
    *   Given a MathBlock,
-   *     + moveUp will appendTo it
-   *     + moveDown will prependTo it
+   *     + moveUp will insAtRightEnd of it
+   *     + moveDown will insAtLeftEnd of it
    *
    */
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    if (self[R][dir]) self.prependTo(self[R][dir]);
-    else if (self[L][dir]) self.appendTo(self[L][dir]);
+    if (self[R][dir]) self.insAtLeftEnd(self[R][dir]);
+    else if (self[L][dir]) self.insAtRightEnd(self[L][dir]);
     else {
       var ancestorBlock = self.parent;
       do {
@@ -167,11 +167,11 @@ var Cursor = P(Point, function(_) {
                 if (cached[R]) {
                   self.insLeftOf(cached[R]);
                 } else {
-                  self.appendTo(cached.parent);
+                  self.insAtRightEnd(cached.parent);
                 }
               } else {
                 var pageX = offset(self).left;
-                self.appendTo(prop);
+                self.insAtRightEnd(prop);
                 self.seekHoriz(pageX, prop);
               }
             }
@@ -189,7 +189,7 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
     var cmd, block, cursor = this.clearSelection().show();
     if (target.hasClass('empty')) {
-      cursor.prependTo(MathElement[target.attr(mqBlockId)]);
+      cursor.insAtLeftEnd(MathElement[target.attr(mqBlockId)]);
       return cursor;
     }
 
@@ -217,7 +217,7 @@ var Cursor = P(Point, function(_) {
     if (cmd)
       cursor.insRightOf(cmd);
     else
-      cursor.appendTo(block);
+      cursor.insAtRightEnd(block);
 
     return cursor.seekHoriz(pageX, cursor.root);
   };
@@ -352,7 +352,7 @@ var Cursor = P(Point, function(_) {
     if (this[R])
       this.insLeftOf(this[R]);
     else
-      this.appendTo(greatgramp);
+      this.insAtRightEnd(greatgramp);
 
     gramp.jQ.remove();
 
