@@ -123,10 +123,10 @@ var SupSub = P(MathCommand, function(_, _super) {
     if (this[L])
       this[L].respace();
     //SupSub::respace recursively calls respace on all the following SupSubs
-    //so if prev is a SupSub, no need to call respace on this or following nodes
+    //so if leftward is a SupSub, no need to call respace on this or following nodes
     if (!(this[L] instanceof SupSub)) {
       this.respace();
-      //and if next is a SupSub, then this.respace() will have already called
+      //and if rightward is a SupSub, then this.respace() will have already called
       //this[R].respace()
       if (this[R] && !(this[R] instanceof SupSub))
         this[R].respace();
@@ -154,11 +154,11 @@ var SupSub = P(MathCommand, function(_, _super) {
     this.respaced = this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq && !this[L].respaced;
     if (this.respaced) {
       var fontSize = +this.jQ.css('fontSize').slice(0,-2),
-        prevWidth = this[L].jQ.outerWidth(),
+        leftWidth = this[L].jQ.outerWidth(),
         thisWidth = this.jQ.outerWidth();
       this.jQ.css({
-        left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
-        marginRight: .1 - min(thisWidth, prevWidth)/fontSize + 'em'
+        left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - leftWidth/fontSize + 'em',
+        marginRight: .1 - min(thisWidth, leftWidth)/fontSize + 'em'
           //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
       });
     }
@@ -214,25 +214,25 @@ LatexCmds.over =
 CharCmds['/'] = P(Fraction, function(_, _super) {
   _.createBefore = function(cursor) {
     if (!this.replacedFragment) {
-      var prev = cursor[L];
-      while (prev &&
+      var leftward = cursor[L];
+      while (leftward &&
         !(
-          prev instanceof BinaryOperator ||
-          prev instanceof TextBlock ||
-          prev instanceof BigSymbol
+          leftward instanceof BinaryOperator ||
+          leftward instanceof TextBlock ||
+          leftward instanceof BigSymbol
         ) //lookbehind for operator
       )
-        prev = prev[L];
+        leftward = leftward[L];
 
-      if (prev instanceof BigSymbol && prev[R] instanceof SupSub) {
-        prev = prev[R];
-        if (prev[R] instanceof SupSub && prev[R].ctrlSeq != prev.ctrlSeq)
-          prev = prev[R];
+      if (leftward instanceof BigSymbol && leftward[R] instanceof SupSub) {
+        leftward = leftward[R];
+        if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
+          leftward = leftward[R];
       }
 
-      if (prev !== cursor[L]) {
-        this.replaces(MathFragment(prev[R] || cursor.parent.endChild[L], cursor[L]));
-        cursor[L] = prev;
+      if (leftward !== cursor[L]) {
+        this.replaces(MathFragment(leftward[R] || cursor.parent.endChild[L], cursor[L]));
+        cursor[L] = leftward;
       }
     }
     _super.createBefore.call(this, cursor);
@@ -494,17 +494,17 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     else if (!this.cursor[L])
       this.cursor.insertBefore(this);
     else { //split apart
-      var next = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
-      next.placeCursor = function(cursor) { //FIXME HACK: pretend no prev so they don't get merged
+      var rightward = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
+      rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
         this[L] = 0;
         delete this.placeCursor;
         this.placeCursor(cursor);
       };
-      next.endChild[L].focus = function(){ return this; };
-      this.cursor.insertAfter(this).insertNew(next);
-      next[L] = this;
-      this.cursor.insertBefore(next);
-      delete next.endChild[L].focus;
+      rightward.endChild[L].focus = function(){ return this; };
+      this.cursor.insertAfter(this).insertNew(rightward);
+      rightward[L] = this;
+      this.cursor.insertBefore(rightward);
+      delete rightward.endChild[L].focus;
     }
     return false;
   };
@@ -537,22 +537,22 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
     if (textblock[R].ctrlSeq === textblock.ctrlSeq) { //TODO: seems like there should be a better way to move MathElements around
       var innerblock = this,
         cursor = textblock.cursor,
-        next = textblock[R].endChild[L];
+        rightward = textblock[R].endChild[L];
 
-      next.eachChild(function(child){
+      rightward.eachChild(function(child){
         child.parent = innerblock;
         child.jQ.appendTo(innerblock.jQ);
       });
 
       if (this.endChild[R])
-        this.endChild[R][R] = next.endChild[L];
+        this.endChild[R][R] = rightward.endChild[L];
       else
-        this.endChild[L] = next.endChild[L];
+        this.endChild[L] = rightward.endChild[L];
 
-      next.endChild[L][L] = this.endChild[R];
-      this.endChild[R] = next.endChild[R];
+      rightward.endChild[L][L] = this.endChild[R];
+      this.endChild[R] = rightward.endChild[R];
 
-      next.parent.remove();
+      rightward.parent.remove();
 
       if (cursor[L])
         cursor.insertAfter(cursor[L]);

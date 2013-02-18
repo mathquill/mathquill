@@ -135,7 +135,7 @@ var Cursor = P(Point, function(_) {
 
   /**
    * moveUp and moveDown have almost identical algorithms:
-   * - first check next and prev, if so prepend/appendTo them
+   * - first check left and right, if so prepend/appendTo them
    * - else check the parent's 'up'/'down' property - if it's a function,
    *   call it with the cursor as the sole argument and use the return value.
    *
@@ -225,16 +225,16 @@ var Cursor = P(Point, function(_) {
     //move cursor to position closest to click
     var cursor = this;
     var dist = offset(cursor).left - pageX;
-    var prevDist;
+    var leftDist;
 
     do {
       cursor.moveLeftWithin(block);
-      prevDist = dist;
+      leftDist = dist;
       dist = offset(cursor).left - pageX;
     }
     while (dist > 0 && (cursor[L] || cursor.parent !== block));
 
-    if (-dist > prevDist) cursor.moveRightWithin(block);
+    if (-dist > leftDist) cursor.moveRightWithin(block);
 
     return cursor;
   };
@@ -316,24 +316,24 @@ var Cursor = P(Point, function(_) {
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
-    var next = gramp[R];
+    var rightward = gramp[R];
     var cursor = this;
 
-    var prev = gramp[L];
+    var leftward = gramp[L];
     gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
       uncle.children()
-        .adopt(greatgramp, prev, next)
+        .adopt(greatgramp, leftward, rightward)
         .each(function(cousin) {
           cousin.jQ.insertBefore(gramp.jQ.first());
         })
       ;
 
-      prev = uncle.endChild[R];
+      leftward = uncle.endChild[R];
     });
 
-    if (!this[R]) { //then find something to be next to insertBefore
+    if (!this[R]) { //then find something to be rightward to insertBefore
       if (this[L])
         this[R] = this[L][R];
       else {
@@ -413,11 +413,11 @@ var Cursor = P(Point, function(_) {
       if (otherA.parent.parent)
         otherA = otherA.parent.parent;
     }
-    //figure out which is left/prev and which is right/next
+    //figure out which is leftward and which is rightward
     var left, right, leftRight;
     if (left[R] !== right) {
-      for (var next = left; next; next = next[R]) {
-        if (next === right[L]) {
+      for (var rightward = left; rightward; rightward = rightward[R]) {
+        if (rightward === right[L]) {
           leftRight = true;
           break;
         }
