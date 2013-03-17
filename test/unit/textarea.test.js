@@ -173,11 +173,30 @@ suite('key', function() {
         }
       });
 
-      // somebody presses Ctrl-V
+      // Ctrl-V in Firefox or Opera, according to unixpapa.com/js/key.html
+      // without an `input` event
       el.trigger('keydown', { which: 86, ctrlKey: true });
       el.trigger('keypress', { which: 118, ctrlKey: true });
       el.trigger('paste');
       el.val('foobar');
+    });
+
+    test('paste after keydown/keypress/input', function(done) {
+      manageTextarea(el, {
+        text: shouldNotBeCalled,
+        paste: function(text) {
+          assert.equal(text, 'foobar');
+          done();
+        }
+      });
+
+      // Ctrl-V in Firefox or Opera, according to unixpapa.com/js/key.html
+      // with an `input` event
+      el.trigger('keydown', { which: 86, ctrlKey: true });
+      el.trigger('keypress', { which: 118, ctrlKey: true });
+      el.trigger('paste');
+      el.val('foobar');
+      el.trigger('input');
     });
 
     test('keypress timeout happening before paste timeout', function(done) {

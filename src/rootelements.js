@@ -87,7 +87,7 @@ function createRoot(jQ, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       jQ.unbind('mousemove', mousemove);
-      $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
     setTimeout(function() { textarea.focus(); });
@@ -104,7 +104,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (!editable) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
-    $(document).mousemove(docmousemove).mouseup(mouseup);
+    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
     return false;
   });
@@ -414,7 +414,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this
+    var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.endChild[L] = self.endChild[R] = 0;
@@ -464,8 +464,12 @@ var RootTextBlock = P(MathBlock, function(_) {
     this.cursor.prepareEdit();
     if (ch === '$')
       this.cursor.insertNew(RootMathCommand(this.cursor));
-    else
-      this.cursor.insertNew(VanillaSymbol(ch));
+    else {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      this.cursor.insertNew(VanillaSymbol(ch, html));
+    }
 
     return false;
   };

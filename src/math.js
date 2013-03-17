@@ -41,7 +41,7 @@ var MathElement = P(Node, function(_, _super) {
     if (typeof fn === 'string') {
       var methodName = fn;
       fn = function(el) {
-        if (methodName in el) el[methodName].apply(el, arguments);
+        if (methodName in el) el[methodName].apply(el, args);
       };
     }
 
@@ -169,7 +169,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // remove()
   _.remove = function() {
-    this.disown()
+    this.disown();
     this.jQ.remove();
 
     this.postOrder(function(el) { delete MathElement[el.id]; });

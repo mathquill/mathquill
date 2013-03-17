@@ -8,7 +8,7 @@ INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
 SOURCES = \
-  ./vendor/pjs/src/p.js \
+  ./node_modules/pjs/src/p.js \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
@@ -90,6 +90,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 # -*- Test tasks -*-
 #
+
 .PHONY: test server
 server:
 	./node_modules/.bin/supervisor -e js,less,Makefile .
@@ -99,3 +100,68 @@ test: dev $(BUILD_TEST)
 
 $(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
 	cat $^ > $@
+
+#
+# -*- site (mathquill.github.com) tasks
+#
+
+.PHONY: site publish site-pull
+
+SITE = mathquill.github.com
+SITE_CLONE_URL = git@github.com:mathquill/mathquill.github.com
+SITE_COMMITMSG = 'updating mathquill to $(VERSION)'
+
+DOWNLOADS_PAGE = $(SITE)/downloads.html
+DIST_DOWNLOAD = $(SITE)/downloads/$(DIST)
+
+site: $(SITE) $(SITE)/mathquill $(SITE)/demo.html $(SITE)/support $(DOWNLOADS_PAGE)
+
+publish: site-pull site
+	pwd
+	cd $(SITE) \
+	&& git add -- mathquill demo.html support downloads downloads.html \
+	&& git commit -m $(SITE_COMMITMSG) \
+	&& git push
+
+$(SITE)/mathquill: $(DIST)
+	mkdir -p $@
+	tar -xzf $(DIST) \
+		--directory $@ \
+		--strip-components=2
+
+$(DIST_DOWNLOAD): $(DIST)
+	mkdir -p $(dir $@)
+	cp $^ $@
+
+$(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
+	@echo -n updating downloads page...
+	@sed -ri $(DOWNLOADS_PAGE) \
+		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g'
+	@mkdir -p tmp
+	@ls $(SITE)/downloads/*.tgz \
+		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
+		| fgrep -v $(VERSION) \
+		| sort --version-sort \
+		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
+		> tmp/versions-list.html
+	@sed -ir $(DOWNLOADS_PAGE) \
+		-e '/<a class="prev"/d' \
+		-e '/<ul id="prev-versions">/ r tmp/versions-list.html'
+	@rm tmp/versions-list.html
+	@echo done.
+
+$(SITE)/demo.html: test/demo.html
+	cat $^ \
+	| sed 's:../build/:mathquill/:' \
+	| sed 's:local test page:live demo:' \
+	> $@
+
+$(SITE)/support: test/support
+	rm -rf $@
+	cp -r $^ $@
+
+$(SITE):
+	git clone $(SITE_CLONE_URL) $@
+
+site-pull: $(SITE)
+	cd $(SITE) && git pull

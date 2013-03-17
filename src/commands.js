@@ -40,14 +40,17 @@ else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.co
   forceIERedraw = function(el){ el.className = el.className; };
   scale = function(jQ, x, y) { //NOTE: assumes y > x
     x /= (1+(y-1)/2);
-    jQ.addClass('matrixed').css({
-      fontSize: y + 'em',
-      marginTop: '-.1em',
-      filter: 'progid:DXImageTransform.Microsoft'
+    jQ.css('fontSize', y + 'em');
+    if (!jQ.hasClass('matrixed-container')) {
+      jQ.addClass('matrixed-container')
+      .wrapInner('<span class="matrixed"></span>');
+    }
+    var innerjQ = jQ.children()
+    .css('filter', 'progid:DXImageTransform.Microsoft'
         + '.Matrix(M11=' + x + ",SizingMethod='auto expand')"
-    });
+    );
     function calculateMarginRight() {
-      jQ.css('marginRight', (1+jQ.width())*(x-1)/x + 'px');
+      jQ.css('marginRight', (innerjQ.width()-1)*(x-1)/x + 'px');
     }
     calculateMarginRight();
     var intervalId = setInterval(calculateMarginRight);
@@ -244,9 +247,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="sqrt">'
-    +   '<span class="non-leaf sqrt-prefix">&radic;</span>'
-    +   '<span class="sqrt-stem">&0</span>'
+      '<span class="non-leaf">'
+    +   '<span class="scaled sqrt-prefix">&radic;</span>'
+    +   '<span class="non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -272,8 +275,8 @@ var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.htmlTemplate =
       '<sup class="nthroot non-leaf">&0</sup>'
-    + '<span class="non-leaf">'
-    +   '<span class="sqrt-prefix non-leaf">&radic;</span>'
+    + '<span class="scaled">'
+    +   '<span class="sqrt-prefix scaled">&radic;</span>'
     +   '<span class="sqrt-stem non-leaf">&1</span>'
     + '</span>'
   ;
@@ -288,9 +291,9 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="non-leaf">'
-      +   '<span class="non-leaf paren">'+open+'</span>'
+      +   '<span class="scaled paren">'+open+'</span>'
       +   '<span class="non-leaf">&0</span>'
-      +   '<span class="non-leaf paren">'+close+'</span>'
+      +   '<span class="scaled paren">'+close+'</span>'
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
@@ -316,9 +319,7 @@ LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
     var regex = Parser.regex;
     var string = Parser.string;
-    var regex = Parser.regex;
     var succeed = Parser.succeed;
-    var block = latexMathParser.block;
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
@@ -409,7 +410,7 @@ LatexCmds.rpipe =
 CharCmds['|'] = P(Paren, function(_, _super) {
   _.init = function() {
     _super.init.call(this, '|', '|');
-  }
+  };
 
   _.createBefore = CloseBracket.prototype.createBefore;
 });
@@ -459,6 +460,11 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     this.endChild[L].parent = this;
   };
+  _.finalizeInsert = function() {
+    //FIXME HACK blur removes the TextBlock
+    this.firstChild.blur = function() { delete this.blur; return this; };
+    _super.finalizeInsert.call(this);
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
 
@@ -467,7 +473,10 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
         this.write(this.replacedText.charAt(i));
   };
   _.write = function(ch) {
-    this.cursor.insertNew(VanillaSymbol(ch));
+    var html;
+    if (ch === '<') html = '&lt;';
+    else if (ch === '>') html = '&gt;';
+    this.cursor.insertNew(VanillaSymbol(ch, html));
   };
   _.onKey = function(key, e) {
     //backspace and delete and ends of block don't unwrap
@@ -678,14 +687,14 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="paren non-leaf">(</span>'
+      '<span class="paren scaled">(</span>'
     + '<span class="non-leaf">'
     +   '<span class="array non-leaf">'
     +     '<span>&0</span>'
     +     '<span>&1</span>'
     +   '</span>'
     + '</span>'
-    + '<span class="paren non-leaf">)</span>'
+    + '<span class="paren scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
   _.redraw = function() {
@@ -718,7 +727,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       text.push(child.text());
       return text;
     }).join() + ']';
-  }
+  };
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, this.cursor = cursor);
   };
