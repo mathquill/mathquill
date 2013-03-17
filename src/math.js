@@ -304,7 +304,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.createBlocks = noop;
 
   _.moveTowards = function(dir, cursor) {
-    jQinsDirOf(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
+    cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };

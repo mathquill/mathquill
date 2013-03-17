@@ -98,8 +98,8 @@ var manageTextarea = (function() {
     var pasteCallback = opts.paste || noop;
     var onCut = opts.cut || noop;
 
-    var textarea = $(el);
-    var target = $(opts.container || textarea);
+    var textarea = jQuery(el);
+    var target = jQuery(opts.container || textarea);
 
     // checkTextareaFor() is called after keypress or paste events to
     // say "Hey, I think something was just typed" or "pasted" (resp.),

@@ -279,7 +279,7 @@ var TextPiece = P(Node, function(_, _super) {
       if (from) from.insTextAtDirEnd(ch, dir);
       else {
         var newPc = TextPiece(ch).createDir(-dir, cursor);
-        jQinsDirOf(-dir, newPc.jQ, cursor.selection.jQ);
+        newPc.jQ.insDirOf(-dir, cursor.selection.jQ);
       }
 
       if (this.text.length === 1 && anticursor[-dir] === this) {

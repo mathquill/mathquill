@@ -58,7 +58,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
-    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    this.jQ.insDirOf(dir, el.jQ);
     return this;
   };
   _.insLeftOf = function(el) { return this.insDirOf(L, el); };
@@ -70,10 +70,10 @@ var Cursor = P(Point, function(_) {
 
     // never insert before textarea
     if (dir === L && el.textarea) {
-      jQinsDirOf(-dir, this.jQ, el.textarea);
+      this.jQ.insDirOf(-dir, el.textarea);
     }
     else {
-      jQinsAtDirEnd(dir, this.jQ, el.jQ);
+      this.jQ.insAtDirEnd(dir, el.jQ);
     }
 
     el.focus();
