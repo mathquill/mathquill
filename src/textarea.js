@@ -98,8 +98,8 @@ var manageTextarea = (function() {
     var pasteCallback = opts.paste || noop;
     var onCut = opts.cut || noop;
 
-    var textarea = $(el);
-    var target = $(opts.container || textarea);
+    var textarea = jQuery(el);
+    var target = jQuery(opts.container || textarea);
 
     // defer() runs fn immediately after the current thread.
     // flush() will run it even sooner, if possible.

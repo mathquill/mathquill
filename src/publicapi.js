@@ -4,7 +4,7 @@
 
 //The publicy exposed method of jQuery.prototype, available (and meant to be
 //called) on jQuery-wrapped HTML DOM elements.
-$.fn.mathquill = function(cmd, latex) {
+jQuery.fn.mathquill = function(cmd, latex) {
   switch (cmd) {
   case 'redraw':
     return this.each(function() {
@@ -91,9 +91,9 @@ $.fn.mathquill = function(cmd, latex) {
 
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
-$(function() {
-  $('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
-  $('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
-  $('.mathquill-embedded-latex').mathquill();
+jQuery(function() {
+  jQuery('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
+  jQuery('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
+  jQuery('.mathquill-embedded-latex').mathquill();
 });
 

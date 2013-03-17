@@ -59,7 +59,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
-    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    this.jQ.insDirOf(dir, el.jQ);
     return this;
   };
   _.insLeftOf = function(el) { return this.insDirOf(L, el); };
@@ -71,10 +71,10 @@ var Cursor = P(Point, function(_) {
 
     // never insert before textarea
     if (dir === L && el.textarea) {
-      jQinsDirOf(-dir, this.jQ, el.textarea);
+      this.jQ.insDirOf(-dir, el.textarea);
     }
     else {
-      jQinsAtDirEnd(dir, this.jQ, el.jQ);
+      this.jQ.insAtDirEnd(dir, el.jQ);
     }
 
     el.focus();
@@ -87,7 +87,7 @@ var Cursor = P(Point, function(_) {
   _.hopDir = function(dir) {
     prayDirection(dir);
 
-    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, this[dir].jQ));
+    this.jQ.insDirOf(dir, this[dir].jQ);
     this[-dir] = this[dir];
     this[dir] = this[dir][dir];
     return this;
@@ -538,7 +538,7 @@ var Selection = P(MathFragment, function(_, _super) {
   _.extendDir = function(dir) {
     prayDirection(dir);
     this.end[dir] = this.end[dir][dir];
-    jQinsAtDirEnd(dir, this.end[dir].jQ, this.jQ);
+    this.end[dir].jQ.insAtDirEnd(dir, this.jQ);
     return this;
   };
   _.extendLeft = function() { return this.extendDir(L); };
@@ -546,7 +546,7 @@ var Selection = P(MathFragment, function(_, _super) {
 
   _.retractDir = function(dir) {
     prayDirection(dir);
-    jQinsDirOf(-dir, this.end[-dir].jQ, this.jQ);
+    this.end[-dir].jQ.insDirOf(-dir, this.jQ);
     this.end[-dir] = this.end[-dir][dir];
   };
   _.retractRight = function() { return this.retractDir(R); };

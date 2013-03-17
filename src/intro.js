@@ -7,7 +7,7 @@
 
 (function() {
 
-var $ = jQuery,
+var jQuery = window.jQuery,
   undefined,
   _, //temp variable of prototypes
   mqCmdId = 'mathquill-command-id',

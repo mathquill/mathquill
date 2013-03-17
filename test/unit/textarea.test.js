@@ -1,6 +1,6 @@
 suite('key', function() {
   var el;
-  var Event = $.Event
+  var Event = jQuery.Event
 
   function shouldNotBeCalled() {
     assert.ok(false, 'this function should not be called');
