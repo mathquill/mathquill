@@ -293,7 +293,7 @@ var Cursor = P(Point, function(_) {
     return this.insertNew(cmd);
   };
   _.insertNew = function(cmd) {
-    cmd.createBefore(this);
+    cmd.createLeftOf(this);
     return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {

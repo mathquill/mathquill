@@ -129,8 +129,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
-  // createBefore(cursor) and the methods it calls
-  _.createBefore = function(cursor) {
+  // createLeftOf(cursor) and the methods it calls
+  _.createLeftOf = function(cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
