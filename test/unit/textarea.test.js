@@ -147,6 +147,94 @@ suite('key', function() {
 
       assert.equal(el.val(), 'foobar', 'it still has content');
     });
+
+    suite('selected text after keypress or paste doesn\'t get mistaken' +
+         ' for inputted text', function() {
+      test('select() immediately after paste', function() {
+        var pastedText;
+        var onPaste = function(text) { pastedText = text; };
+        var manager = manageTextarea(el, {
+          paste: function(text) { onPaste(text); }
+        });
+
+        el.trigger('paste').val('$x^2+1$');
+
+        manager.select('$\\frac{x^2+1}{2}$');
+        assert.equal(pastedText, '$x^2+1$');
+        assert.equal(el.val(), '$\\frac{x^2+1}{2}$');
+
+        onPaste = shouldNotBeCalled;
+
+        manager.select('$2$');
+        assert.equal(el.val(), '$2$');
+      });
+
+      test('select() after paste/input', function() {
+        var pastedText;
+        var onPaste = function(text) { pastedText = text; };
+        var manager = manageTextarea(el, {
+          paste: function(text) { onPaste(text); }
+        });
+
+        el.trigger('paste').val('$x^2+1$');
+
+        el.trigger('input');
+        assert.equal(pastedText, '$x^2+1$');
+        assert.equal(el.val(), '');
+
+        onPaste = shouldNotBeCalled;
+
+        manager.select('$\\frac{x^2+1}{2}$');
+        assert.equal(el.val(), '$\\frac{x^2+1}{2}$');
+
+        manager.select('$2$');
+        assert.equal(el.val(), '$2$');
+      });
+
+      test('select() immediately after keydown/keypress', function() {
+        var typedText;
+        var onText = function(text) { typedText = text; };
+        var manager = manageTextarea(el, {
+          text: function(text) { onText(text); }
+        });
+
+        el.trigger(Event('keydown', { which: 97 }));
+        el.trigger(Event('keypress', { which: 97 }));
+        el.val('a');
+
+        manager.select('$\\frac{a}{2}$');
+        assert.equal(typedText, 'a');
+        assert.equal(el.val(), '$\\frac{a}{2}$');
+
+        onText = shouldNotBeCalled;
+
+        manager.select('$2$');
+        assert.equal(el.val(), '$2$');
+      });
+
+      test('select() after keydown/keypress/input', function() {
+        var typedText;
+        var onText = function(text) { typedText = text; };
+        var manager = manageTextarea(el, {
+          text: function(text) { onText(text); }
+        });
+
+        el.trigger(Event('keydown', { which: 97 }));
+        el.trigger(Event('keypress', { which: 97 }));
+        el.val('a');
+
+        el.trigger('input');
+        assert.equal(typedText, 'a');
+
+        onText = shouldNotBeCalled;
+
+        manager.select('$\\frac{a}{2}$');
+        assert.equal(el.val(), '$\\frac{a}{2}$');
+
+        manager.select('$2$');
+        assert.equal(el.val(), '$2$');
+      });
+    });
   });
 
   suite('paste', function() {
