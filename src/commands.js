@@ -223,11 +223,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           prev instanceof BinaryOperator ||
           prev instanceof TextBlock ||
           prev instanceof BigSymbol ||
-          (prev instanceof VanillaSymbol && ({
-            ',': 1,
-            ';': 1,
-            ':': 1
-          })[prev.ctrlSeq])
+          ',;:'.split('').indexOf(prev.ctrlSeq) > -1
         ) //lookbehind for operator
       ) prev = prev[L];
 
