@@ -347,6 +347,19 @@ var MathBlock = P(MathElement, function(_) {
   _.isEmpty = function() {
     return this.endChild[L] === 0 && this.endChild[R] === 0;
   };
+  _.write = function(cursor, ch, replacedFragment) {
+    var cmd;
+    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+      cmd = Variable(ch);
+    else if (cmd = CharCmds[ch] || LatexCmds[ch])
+      cmd = cmd(ch);
+    else
+      cmd = VanillaSymbol(ch);
+
+    if (replacedFragment) cmd.replaces(replacedFragment);
+
+    cmd.createLeftOf(cursor);
+  };
   _.focus = function() {
     this.jQ.addClass('hasCursor');
     this.jQ.removeClass('empty');
