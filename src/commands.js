@@ -432,6 +432,8 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
   };
   _.textTemplate = ['"', '"'];
   _.parser = function() {
+    var self = this;
+
     // TODO: correctly parse text mode
     var string = Parser.string;
     var regex = Parser.regex;
@@ -439,14 +441,13 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
     return optWhitespace
       .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
       .map(function(text) {
-        var cmd = TextBlock();
-        cmd.createBlocks();
-        var block = cmd.endChild[L];
+        self.createBlocks();
+        var block = self.endChild[L];
         for (var i = 0; i < text.length; i += 1) {
           var ch = VanillaSymbol(text.charAt(i));
           ch.adopt(block, block.endChild[R], 0);
         }
-        return cmd;
+        return self;
       })
     ;
   };
@@ -470,56 +471,48 @@ LatexCmds.textmd = P(MathCommand, function(_, _super) {
 
     if (this.replacedText)
       for (var i = 0; i < this.replacedText.length; i += 1)
-        this.write(this.replacedText.charAt(i));
+        this.endChild[L].write(cursor, this.replacedText.charAt(i));
   };
-  _.write = function(ch) {
-    var html;
-    if (ch === '<') html = '&lt;';
-    else if (ch === '>') html = '&gt;';
-    this.cursor.insertNew(VanillaSymbol(ch, html));
-  };
-  _.onKey = function(key, e) {
-    //backspace and delete and ends of block don't unwrap
-    if (!this.cursor.selection &&
-      (
-        (key === 'Backspace' && !this.cursor[L]) ||
-        (key === 'Del' && !this.cursor[R])
-      )
-    ) {
-      if (this.isEmpty())
-        this.cursor.insRightOf(this);
+});
 
-      return false;
-    }
+var InnerTextBlock = P(MathBlock, function(_, _super) {
+  // backspace and delete at ends of block don't unwrap
+  _.deleteOutOf = function(dir, cursor) {
+    if (this.isEmpty()) cursor.insRightOf(this.parent);
   };
-  _.onText = function(ch) {
-    this.cursor.prepareEdit();
-    if (ch !== '$')
-      this.write(ch);
-    else if (this.isEmpty())
-      this.cursor.insRightOf(this).backspace().insertNew(VanillaSymbol('\\$','$'));
-    else if (!this.cursor[R])
-      this.cursor.insRightOf(this);
-    else if (!this.cursor[L])
-      this.cursor.insLeftOf(this);
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
+
+    if (ch !== '$') {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      VanillaSymbol(ch, html).createLeftOf(cursor);
+    }
+    else if (this.isEmpty()) {
+      cursor.insRightOf(this).backspace();
+      VanillaSymbol('\\$','$').createLeftOf(cursor);
+    }
+    else if (!cursor[R])
+      cursor.insRightOf(this);
+    else if (!cursor[L])
+      cursor.insLeftOf(this);
     else { //split apart
-      var rightward = TextBlock(MathFragment(this.cursor[R], this.endChild[L].endChild[R]));
+      var rightward = TextBlock(MathFragment(cursor[R], this.endChild[R]));
       rightward.placeCursor = function(cursor) { //FIXME HACK: pretend nothing leftward so they don't get merged
         this[L] = 0;
         delete this.placeCursor;
         this.placeCursor(cursor);
       };
       rightward.endChild[L].focus = function(){ return this; };
-      this.cursor.insRightOf(this).insertNew(rightward);
-      rightward[L] = this;
-      this.cursor.insLeftOf(rightward);
+      cursor.insRightOf(this.parent);
+      rightward.createLeftOf(cursor);
+      rightward[L] = this.parent;
+      cursor.insLeftOf(rightward);
       delete rightward.endChild[L].focus;
     }
     return false;
   };
-});
-
-var InnerTextBlock = P(MathBlock, function(_, _super) {
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty()) {
@@ -634,6 +627,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.createLeftOf = function(cursor) {
     _super.createLeftOf.call(this, cursor);
+
     this.cursor = cursor.insAtRightEnd(this.endChild[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -646,6 +640,16 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
+
+    this.endChild[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
   };
   _.latex = function() {
     return '\\' + this.endChild[L].latex() + ' ';
@@ -656,16 +660,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       e.preventDefault();
       return false;
     }
-  };
-  _.onText = function(ch) {
-    if (ch.match(/[a-z]/i)) {
-      this.cursor.prepareEdit();
-      this.cursor.insertNew(VanillaSymbol(ch));
-      return false;
-    }
-    this.renderCommand();
-    if (ch === '\\' && this.endChild[L].isEmpty())
-      return false;
   };
   _.renderCommand = function() {
     this.jQ = this.jQ.last();
