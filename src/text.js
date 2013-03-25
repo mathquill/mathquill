@@ -20,7 +20,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.jQadd = function(jQ) {
     _super.jQadd.call(this, jQ);
-    if (this.ch[L]) this.ch[L].jQize(this.jQ[0].firstChild);
+    if (this.ch[L]) this.ch[L].jQadd(this.jQ[0].firstChild);
   };
 
   _.createBefore = function(cursor) {
@@ -157,12 +157,12 @@ var TextPiece = P(Node, function(_, _super) {
     _super.init.call(this);
     this.text = text;
   };
-  // overriding .jQize because neither jQuery nor our html parsing
-  // format like text nodes.
-  _.jQize = function(dom) {
-    if (!dom) dom = document.createTextNode(this.text);
+  _.jQadd = function(dom) {
     this.dom = dom;
-    return this.jQ = $(this.dom);
+    return _super.jQadd.call(this, dom);
+  };
+  _.jQize = function() {
+    return this.jQadd(document.createTextNode(this.text));
   };
   _.appendText = function(text) {
     this.text += text;
