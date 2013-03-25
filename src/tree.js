@@ -85,7 +85,7 @@ var Node = P(function(_) {
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
   _.jQ = $();
-  _.jQadd = function(jQ) { this.jQ = this.jQ.add(jQ); };
+  _.jQadd = function(jQ) { return this.jQ = this.jQ.add(jQ); };
   _.jQize = function() {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ = $(this.html());
