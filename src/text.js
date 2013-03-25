@@ -20,7 +20,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.jQadd = function(jQ) {
     _super.jQadd.call(this, jQ);
-    this.ch[L].jQize(this.jQ[0].firstChild);
+    if (this.ch[L]) this.ch[L].jQize(this.jQ[0].firstChild);
   };
 
   _.createBefore = function(cursor) {
