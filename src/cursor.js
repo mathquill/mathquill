@@ -49,11 +49,10 @@ var Cursor = P(Point, function(_) {
   };
 
   _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
-    var oldParent = this.parent;
+    if (parent !== this.parent) this.parent.blur();
     this.parent = parent;
     this[dir] = withDir;
     this[-dir] = oppDir;
-    oldParent.blur();
   };
   _.insertAdjacent = function(dir, el) {
     prayDirection(dir);
