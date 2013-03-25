@@ -229,7 +229,7 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    if (!anticursor) {
+    if (!anticursor || anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
       cursor.startSelection();
       cursor.insertAdjacent(dir, newPc);
