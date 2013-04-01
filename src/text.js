@@ -123,9 +123,31 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
-  _.seek = function() {
+  _.seek = function(pageX, cursor) {
     consolidateChildren(this);
     MathBlock.prototype.seek.apply(this, arguments);
+    if (!cursor.anticursor) {
+      // about to start mouse-selecting, the anticursor is gonna get put here
+      this.anticursorPosition = cursor[L] && cursor[L].text.length;
+      // ^ get it? 'cos if there's no cursor[L], it's 0... I'm a terrible person.
+    }
+    else if (cursor.anticursor.parent === this) {
+      // mouse-selecting within this TextBlock, re-insert the anticursor
+      var cursorPosition = cursor[L] && cursor[L].text.length;;
+      if (this.anticursorPosition === cursorPosition) {
+        cursor.anticursor = Point.copy(cursor);
+      }
+      else {
+        if (this.anticursorPosition < cursorPosition) {
+          var newTextPc = cursor[L].splitRight(this.anticursorPosition);
+          cursor[L] = newTextPc;
+        }
+        else {
+          var newTextPc = cursor[R].splitRight(this.anticursorPosition - cursorPosition);
+        }
+        cursor.anticursor = Point(this, newTextPc[L], newTextPc);
+      }
+    }
   };
 
   _.blur = function() {
@@ -176,6 +198,12 @@ var TextPiece = P(Node, function(_, _super) {
     prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
+  };
+  _.splitRight = function(offset) {
+    var newPc = TextPiece(this.text.slice(offset)).adopt(this.parent, this, this[R]);
+    newPc.jQadd(this.dom.splitText(offset));
+    this.text = this.text.slice(0, offset);
+    return newPc;
   };
 
   function endChar(dir, text) {
