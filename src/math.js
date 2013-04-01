@@ -147,6 +147,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.finalizeInsert(cursor);
 
     cmd.placeCursor(cursor);
+
+    cmd.checkMathText(cursor);
   };
   _.createBlocks = function() {
     var cmd = this,
@@ -156,6 +158,69 @@ var MathCommand = P(MathElement, function(_, _super) {
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
       newBlock.adopt(cmd, cmd.endChild[R], 0);
+    }
+  };
+  _.constructTextBuffer = function() {
+    var buffer = "";
+    var currentPoint = this;
+    
+    // this is a complex item, not text: we have no buffer
+    if(this.textTemplate && this.textTemplate.length > 1) return null;
+
+    buffer = this.textTemplate[0];
+    // assemble backwards
+    while(
+      (currentPoint = currentPoint[-1]) &&
+      currentPoint.textTemplate &&
+      currentPoint.textTemplate.length === 1 &&
+      currentPoint.textTemplate[0].length === 1) {
+      buffer = currentPoint.textTemplate[0] + buffer;
+    }
+    // we want to know how far back we went, so we know how far
+    // to drop back to place our cursor properly
+    var rev_offset = buffer.length;
+    // assemble forwards
+    currentPoint = this;
+    while(
+      (currentPoint = currentPoint[1]) &&
+      currentPoint.textTemplate &&
+      currentPoint.textTemplate.length === 1 &&
+      currentPoint.textTemplate[0].length === 1
+    ) {
+      buffer += currentPoint.textTemplate[0];
+    }
+
+    return { text : buffer, offset : rev_offset };
+  };
+  var mathwords = {
+    'sin' : '\\sin',
+    'cos' : '\\cos',
+    'tan' : '\\tan',
+    'ln' : '\\ln',
+    'log' : '\\log'
+  };
+  var mathwordsRegexp = new RegExp('(' + Object.keys(mathwords).join('|') + ')');
+  _.checkMathText = function(cursor) {
+    var buffer = this.constructTextBuffer();
+    if(buffer === null) return;
+    var match = buffer.text.match(mathwordsRegexp);
+    if(match) {
+      var i;
+      var pos = match.index;
+      var len = match[0].length;
+      // ok, so now we have where & how long... we need to select them...
+      
+      // back off to the start of our match...
+      for (i = buffer.offset; i > pos; --i) {
+        cursor.moveLeft();
+      }
+
+      // select forward
+      for (i = 0; i < len; ++i) {
+        cursor.selectRight();
+      }
+
+      cursor.writeLatex(mathwords[match[0]]);
     }
   };
   _.respace = noop; //placeholder for context-sensitive spacing
