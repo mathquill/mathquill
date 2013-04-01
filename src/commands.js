@@ -663,7 +663,9 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   };
   _.onKey = function(key, e) {
     if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-      this.renderCommand();
+      if (this.cursor.allowLatex) {
+        this.renderCommand();
+      }
       e.preventDefault();
       return false;
     }
