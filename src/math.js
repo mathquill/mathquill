@@ -113,7 +113,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
   };
   _.seek = function(pageX, cursor) {
-    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
+    cursor.insertAfter(this).seekHorizDir(L, pageX, this.parent);
   };
 
   // methods involved in creating and cross-linking with HTML DOM nodes
@@ -324,7 +324,7 @@ var MathBlock = P(MathElement, function(_) {
     cursor.selection = Selection(first, last);
   };
   _.seek = function(pageX, cursor) {
-    cursor.appendTo(this).seekHoriz(pageX, this);
+    cursor.appendTo(this).seekHorizDir(L, pageX, this);
   };
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;

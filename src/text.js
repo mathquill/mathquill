@@ -123,9 +123,25 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
-  _.seek = function() {
+  _.seek = function(pageX, cursor) {
+    var anticursor = cursor.anticursor;
+    if (anticursor && anticursor.parent === this) {
+      var displacement = pageX - this.anticursorOffsetLeft;
+      console.log(displacement);
+      if (displacement) {
+        var dir = displacement < 0 ? L : R;
+        cursor.appendDir(dir, this);
+        cursor.seekHorizDir(-dir, pageX, this);
+      }
+      else {
+        if (anticursor[R]) cursor.insertBefore(anticursor[R]);
+        else cursor.appendTo(this);
+      }
+      return;
+    }
     consolidateChildren(this);
     MathBlock.prototype.seek.apply(this, arguments);
+    this.anticursorOffsetLeft = cursor.offset().left;
   };
 
   _.blur = function() {
