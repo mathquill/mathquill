@@ -47,6 +47,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
       .replace(/<span class="?cursor( blink)?"?><\/span>/i, '')
       .replace(/<span class="?textarea"?><textarea><\/textarea><\/span>/i, '');
   case 'write':
+  case 'writeIn':
     if (arguments.length > 1)
       return this.each(function() {
         var blockId = $(this).attr(mqBlockId),
@@ -55,6 +56,13 @@ jQuery.fn.mathquill = function(cmd, latex) {
 
         if (cursor)
           cursor.writeLatex(latex).parent.blur();
+        if (cmd === 'writeIn') {
+          cursor.hopLeft().moveRight();
+          // this is a really complicated way of getting at the
+          // textarea that drives the interactivity so we can
+          // re-enable text input
+          cursor.root.textarea.children()[0].focus();
+        }
       });
   case 'cmd':
     if (arguments.length > 1)
