@@ -82,10 +82,10 @@ $(FONT_TARGET): $(FONT_SOURCE)
 	cp -r $< $@
 
 $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
-	tar -czf $(DIST) \
-		--xform 's:^\./build:$(DISTDIR):' \
-		--exclude='\.gitkeep' \
-		./build/
+	rm -rf $(DISTDIR)
+	cp -r $(BUILD_DIR) $(DISTDIR)
+	tar -czf $(DIST) --exclude='\.gitkeep' $(DISTDIR)
+	rm -r $(DISTDIR)
 
 #
 # -*- Test tasks -*-
@@ -121,7 +121,7 @@ publish: site-pull site
 	cd $(SITE) \
 	&& git add -- mathquill demo.html support downloads downloads.html \
 	&& git commit -m $(SITE_COMMITMSG) \
-	&& git push
+	&& echo git push not really
 
 $(SITE)/mathquill: $(DIST)
 	mkdir -p $@
@@ -133,27 +133,40 @@ $(DIST_DOWNLOAD): $(DIST)
 	mkdir -p $(dir $@)
 	cp $^ $@
 
+# freaking bsd, i swear
+# adapted from https://developer.apple.com/library/mac/documentation/opensource/Conceptual/ShellScripting/PortingScriptstoMacOSX/PortingScriptstoMacOSX.html#//apple_ref/doc/uid/TP40004268-TP40003517-SW21
+ifeq (x, $(shell echo xy | sed -r 's/(x)y/\1/' 2>/dev/null))
+  SED_EXT_FLAG = '-r'
+else
+  SED_EXT_FLAG = '-E'
+endif
+
+SED = sed $(SED_EXT_FLAG)
+
 $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
+	@echo Using $(SED)
 	@echo -n updating downloads page...
-	@sed -ri $(DOWNLOADS_PAGE) \
-		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g'
+	@$(SED) -i '' \
+		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g' \
+		$(DOWNLOADS_PAGE)
 	@mkdir -p tmp
 	@ls $(SITE)/downloads/*.tgz \
 		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
 		| fgrep -v $(VERSION) \
-		| sort --version-sort \
+		| sort -rn -t. -k 1,1 -k 2,2 -k 3,3 \
 		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
 		> tmp/versions-list.html
-	@sed -ir $(DOWNLOADS_PAGE) \
+	@$(SED) -i '' \
 		-e '/<a class="prev"/d' \
-		-e '/<ul id="prev-versions">/ r tmp/versions-list.html'
-	@rm tmp/versions-list.html
+		-e '/<ul id="prev-versions">/ r tmp/versions-list.html' \
+		$(DOWNLOADS_PAGE)
+	@# rm tmp/versions-list.html
 	@echo done.
 
 $(SITE)/demo.html: test/demo.html
 	cat $^ \
-	| sed 's:../build/:mathquill/:' \
-	| sed 's:local test page:live demo:' \
+	| $(SED) 's:../build/:mathquill/:' \
+	| $(SED) 's:local test page:live demo:' \
 	> $@
 
 $(SITE)/support: test/support
