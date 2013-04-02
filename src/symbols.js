@@ -569,6 +569,7 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
+LatexCmds.textcent = LatexCmds.cent = bind(VanillaSymbol,'\\textcent ','&cent;');
 
 var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.init = function(fn) {
