@@ -136,17 +136,19 @@ $(DIST_DOWNLOAD): $(DIST)
 # freaking bsd, i swear
 # adapted from https://developer.apple.com/library/mac/documentation/opensource/Conceptual/ShellScripting/PortingScriptstoMacOSX/PortingScriptstoMacOSX.html#//apple_ref/doc/uid/TP40004268-TP40003517-SW21
 ifeq (x, $(shell echo xy | sed -r 's/(x)y/\1/' 2>/dev/null))
-  SED_EXT_FLAG = '-r'
+  # gnu
+  SED = sed -r
+  SED_I = $(SED) -i
 else
-  SED_EXT_FLAG = '-E'
+  # bsd
+  SED = sed -E
+  SED_I = $(SED) -i ''
 endif
-
-SED = sed $(SED_EXT_FLAG)
 
 $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
 	@echo Using $(SED)
 	@echo -n updating downloads page...
-	@$(SED) -i '' \
+	@$(SED_I) \
 		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g' \
 		$(DOWNLOADS_PAGE)
 	@mkdir -p tmp
@@ -156,7 +158,7 @@ $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
 		| sort -rn -t. -k 1,1 -k 2,2 -k 3,3 \
 		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
 		> tmp/versions-list.html
-	@$(SED) -i '' \
+	@$(SED_I) \
 		-e '/<a class="prev"/d' \
 		-e '/<ul id="prev-versions">/ r tmp/versions-list.html' \
 		$(DOWNLOADS_PAGE)
