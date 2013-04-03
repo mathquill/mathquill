@@ -24,6 +24,14 @@ var MathElement = P(Node, function(_, _super) {
     return '[MathElement '+this.id+']';
   };
 
+/**
+ * r = Recurse children
+ * nr = Don't count children, count node differently
+ * c = Recurse children, count node differently
+ * e = Exclude don't count node
+ */
+  _.charCountBehavior = 'r';
+
   _.bubble = function(event /*, args... */) {
     var args = __slice.call(arguments, 1);
 
@@ -87,6 +95,23 @@ var MathElement = P(Node, function(_, _super) {
     self.postOrder('redraw');
     self.bubble('redraw');
   };
+
+  _.charCount = function() {
+    countCharForChildren = function(charCount, child) {
+      if (child.charCountBehavior === 'r') {
+        charCount = child.foldChildren(charCount, countCharForChildren);
+        return ++charCount;
+      } else if (child.charCountBehavior === 'nr') {
+        return charCount + child.charCount();
+      } else if (child.charCountBehavior === 'c') {
+        charCount = child.foldChildren(charCount, countCharForChildren);
+        return charCount + child.charCount();
+      }
+      charCount = child.foldChildren(charCount, countCharForChildren);
+      return charCount;
+    };
+    return this.foldChildren(0, countCharForChildren);
+  }
 });
 
 /**
@@ -373,6 +398,7 @@ var MathBlock = P(MathElement, function(_) {
 
     return this;
   };
+  _.charCountBehavior = 'e';
 });
 
 /**

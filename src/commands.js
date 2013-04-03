@@ -86,6 +86,7 @@ var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
   };
+  _.charCountBehavior = 'e';
   _.finalizeTree = function() {
     //TODO: use inheritance
     pray('SupSub is only _ and ^',
@@ -206,9 +207,19 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
     + '</span>'
   ;
   _.textTemplate = ['(', '/', ')'];
+  _.charCountBehavior = 'nr';
   _.finalizeTree = function() {
     this.up = this.endChild[R].up = this.endChild[L];
     this.down = this.endChild[L].down = this.endChild[R];
+  };
+  _.charCount = function() {
+    var numerator = this.endChild[L].charCount();
+    var denominator = this.endChild[R].charCount();
+    if (numerator > denominator) {
+      return numerator;
+    } else {
+      return denominator;
+    }
   };
 });
 
@@ -281,8 +292,13 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
+  _.charCountBehavior = 'nr';
   _.latex = function() {
     return '\\sqrt['+this.endChild[L].latex()+']{'+this.endChild[R].latex()+'}';
+  };
+  _.charCount = function() {
+    var radicand = this.endChild[R].charCount();
+    return ++radicand;
   };
 });
 
@@ -298,6 +314,7 @@ var Bracket = P(MathCommand, function(_, _super) {
       [open, close]);
     this.end = '\\right'+end;
   };
+  _.charCountBehavior = 'c';
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
     var jQ = this.jQ;
@@ -313,6 +330,9 @@ var Bracket = P(MathCommand, function(_, _super) {
 
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
+  _.charCount = function() {
+    return 2;
+  }
 });
 
 LatexCmds.left = P(MathCommand, function(_) {
