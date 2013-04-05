@@ -125,7 +125,18 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.seek = function(pageX, cursor) {
     consolidateChildren(this);
-    MathBlock.prototype.seek.apply(this, arguments);
+
+    cursor.appendTo(this);
+    var dist = cursor.offset().left - pageX;
+    var prevDist;
+    do {
+      cursor[L].moveTowards(L, cursor);
+      prevDist = dist;
+      dist = cursor.offset().left - pageX;
+    }
+    while (dist > 0 && cursor[L]);
+    if (-dist > prevDist) cursor[R].moveTowards(R, cursor);
+
     if (!cursor.anticursor) {
       // about to start mouse-selecting, the anticursor is gonna get put here
       this.anticursorPosition = cursor[L] && cursor[L].text.length;

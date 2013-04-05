@@ -184,7 +184,7 @@ var Cursor = P(Point, function(_) {
     }
     else {
       var pageX = self.offset().left;
-      self.appendTo(to).seekHoriz(pageX, to);
+      to.seek(pageX, self);
     }
   };
 
@@ -206,23 +206,6 @@ var Cursor = P(Point, function(_) {
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
-
-    return cursor;
-  };
-  _.seekHoriz = function(pageX, block) {
-    //move cursor to position closest to click
-    var cursor = this;
-    var dist = cursor.offset().left - pageX;
-    var prevDist;
-
-    do {
-      cursor.moveLeftWithin(block);
-      prevDist = dist;
-      dist = cursor.offset().left - pageX;
-    }
-    while (dist > 0 && (cursor[L] || cursor.parent !== block));
-
-    if (-dist > prevDist) cursor.moveRightWithin(block);
 
     return cursor;
   };

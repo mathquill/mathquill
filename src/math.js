@@ -113,7 +113,39 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
   };
   _.seek = function(pageX, cursor) {
-    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
+    var cmd = this;
+
+    var leftDispl = pageX - cmd.jQ.offset().left;
+    if (leftDispl < 0) return cursor.insertBefore(cmd);
+
+    var rightDispl = cmd.jQ.outerWidth() - leftDispl;
+    if (rightDispl < 0) return cursor.insertAfter(cmd);
+
+    var prevBlockDispl = leftDispl;
+    cmd.eachChild(function(block) {
+      var blockLeftDispl = pageX - block.jQ.offset().left;
+      if (blockLeftDispl < 0) {
+        if (prevBlockDispl < -blockLeftDispl) {
+          if (!block[L]) cursor.insertBefore(cmd);
+          else cursor.appendTo(block[L]);
+        }
+        else cursor.prependTo(block);
+        return false;
+      }
+      var blockRightDispl = block.jQ.outerWidth() - blockLeftDispl;
+      if (blockRightDispl >= 0) {
+        block.seek(pageX, cursor);
+        return false;
+      }
+      prevBlockDispl = blockRightDispl;
+    });
+
+    var rightmostBlockDispl = prevBlockDispl;
+    if (rightmostBlockDispl < 0) {
+      if (rightDispl < -rightmostBlockDispl) cursor.insertAfter(cmd);
+      else cursor.appendTo(cmd.ch[R]);
+      return;
+    }
   };
 
   // methods involved in creating and cross-linking with HTML DOM nodes
@@ -324,7 +356,13 @@ var MathBlock = P(MathElement, function(_) {
     cursor.selection = Selection(first, last);
   };
   _.seek = function(pageX, cursor) {
-    cursor.appendTo(this).seekHoriz(pageX, this);
+    var node = this.ch[R];
+    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
+      return cursor.appendTo(this);
+    }
+    if (pageX < this.ch[L].jQ.offset().left) return cursor.prependTo(this);
+    while (pageX < node.jQ.offset().left) node = node[L];
+    return node.seek(pageX, cursor);
   };
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;
