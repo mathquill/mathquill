@@ -223,7 +223,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
           leftward instanceof BigSymbol ||
-          ',;:'.split('').indexOf(leftward) > -1
+          ',;:'.split('').indexOf(leftward.ctrlSeq) > -1
         ) //lookbehind for operator
       )
         leftward = leftward[L];
