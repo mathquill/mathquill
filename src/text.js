@@ -125,7 +125,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.seek = function(pageX, cursor) {
     cursor.hide();
-    var textPc = consolidateChildren(this);
+    var textPc = fuseChildren(this);
 
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.jQ.width()/this.text.length;
@@ -172,10 +172,10 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.blur = function() {
     MathBlock.prototype.blur.call(this);
-    consolidateChildren(this);
+    fuseChildren(this);
   };
 
-  function consolidateChildren(self) {
+  function fuseChildren(self) {
     self.jQ[0].normalize();
 
     var textPcDom = self.jQ[0].firstChild;
