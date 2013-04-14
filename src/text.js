@@ -124,6 +124,7 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   _.seek = function(pageX, cursor) {
+    cursor.hide();
     var textPc = consolidateChildren(this);
 
     // insert cursor at approx position in DOMTextNode
@@ -134,7 +135,7 @@ var TextBlock = P(Node, function(_, _super) {
     else cursor.insertBefore(textPc.splitRight(approxPosition));
 
     // move towards mousedown (pageX)
-    var displ = pageX - cursor.offset().left; // displacement
+    var displ = pageX - cursor.show().offset().left; // displacement
     var dir = displ && displ < 0 ? L : R;
     var prevDispl = dir;
     // displ * prevDispl > 0 iff displacement direction === previous direction
@@ -175,13 +176,14 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   function consolidateChildren(self) {
-    var firstChild = self.ch[L];
+    self.jQ[0].normalize();
 
-    while (firstChild[R]) {
-      firstChild.combineDir(R);
-    }
+    var textPcDom = self.jQ[0].firstChild;
+    var textPc = TextPiece(textPcDom.data);
+    textPc.jQadd(textPcDom);
 
-    return firstChild;
+    self.children().disown();
+    return textPc.adopt(self, 0, 0);
   }
 
   _.focus = MathBlock.prototype.focus;
@@ -241,13 +243,6 @@ var TextPiece = P(Node, function(_, _super) {
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
-  };
-
-  _.combineDir = function(dir) {
-    var toCombine = this[dir];
-
-    this.appendTextInDir(toCombine.text, dir);
-    toCombine.remove();
   };
 
   _.latex = function() { return this.text; };
