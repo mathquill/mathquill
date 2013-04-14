@@ -124,18 +124,26 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   _.seek = function(pageX, cursor) {
-    consolidateChildren(this);
+    var textPc = consolidateChildren(this);
 
-    cursor.appendTo(this);
-    var dist = cursor.offset().left - pageX;
-    var prevDist;
-    do {
-      cursor[L].moveTowards(L, cursor);
-      prevDist = dist;
-      dist = cursor.offset().left - pageX;
+    // insert cursor at approx position in DOMTextNode
+    var avgChWidth = this.jQ.width()/this.text.length;
+    var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
+    if (approxPosition <= 0) cursor.prependTo(this);
+    else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
+    else cursor.insertBefore(textPc.splitRight(approxPosition));
+
+    // move towards mousedown (pageX)
+    var displ = pageX - cursor.offset().left; // displacement
+    var dir = displ && displ < 0 ? L : R;
+    var prevDispl = dir;
+    // displ * prevDispl > 0 iff displacement direction === previous direction
+    while (cursor[dir] && displ * prevDispl > 0) {
+      cursor[dir].moveTowards(dir, cursor);
+      prevDispl = displ;
+      displ = pageX - cursor.offset().left;
     }
-    while (dist > 0 && cursor[L]);
-    if (-dist > prevDist) cursor[R].moveTowards(R, cursor);
+    if (dir*displ < -dir*prevDispl) cursor[-dir].moveTowards(-dir, cursor);
 
     if (!cursor.anticursor) {
       // about to start mouse-selecting, the anticursor is gonna get put here
@@ -172,6 +180,8 @@ var TextBlock = P(Node, function(_, _super) {
     while (firstChild[R]) {
       firstChild.combineDir(R);
     }
+
+    return firstChild;
   }
 
   _.focus = MathBlock.prototype.focus;
