@@ -113,40 +113,47 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
   };
   _.seek = function(pageX, cursor) {
+    function getBounds(node) {
+      var bounds = {}
+      bounds[L] = node.jQ.offset().left;
+      bounds[R] = bounds[L] + node.jQ.outerWidth();
+      return bounds;
+    }
+
     var cmd = this;
+    var cmdBounds = getBounds(cmd);
 
-    var leftDispl = pageX - cmd.jQ.offset().left;
-    if (leftDispl < 0) return cursor.insertBefore(cmd);
+    if (pageX < cmdBounds[L]) return cursor.insertBefore(cmd);
+    if (pageX > cmdBounds[R]) return cursor.insertAfter(cmd);
 
-    var rightDispl = cmd.jQ.outerWidth() - leftDispl;
-    if (rightDispl < 0) return cursor.insertAfter(cmd);
-
-    var prevBlockDispl = leftDispl;
+    var leftLeftBound = cmdBounds[L];
     cmd.eachChild(function(block) {
-      var blockLeftDispl = pageX - block.jQ.offset().left;
-      if (blockLeftDispl < 0) {
-        if (prevBlockDispl < -blockLeftDispl) {
-          if (!block[L]) cursor.insertBefore(cmd);
-          else cursor.appendTo(block[L]);
+      var blockBounds = getBounds(block);
+      if (pageX < blockBounds[L]) {
+        // closer to this block's left bound, or the bound left of that?
+        if (pageX - leftLeftBound < blockBounds[L] - pageX) {
+          if (block[L]) cursor.appendTo(block[L]);
+          else cursor.insertBefore(cmd);
         }
         else cursor.prependTo(block);
         return false;
       }
-      var blockRightDispl = block.jQ.outerWidth() - blockLeftDispl;
-      if (blockRightDispl >= 0) {
+      else if (pageX > blockBounds[R]) {
+        if (block[R]) leftLeftBound = blockBounds[R]; // continue to next block
+        else { // last (rightmost) block
+          // closer to this block's right bound, or the cmd's right bound?
+          if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
+            cursor.insertAfter(cmd);
+          }
+          else cursor.appendTo(block);
+        }
+      }
+      else {
         block.seek(pageX, cursor);
         return false;
       }
-      prevBlockDispl = blockRightDispl;
     });
-
-    var rightmostBlockDispl = prevBlockDispl;
-    if (rightmostBlockDispl < 0) {
-      if (rightDispl < -rightmostBlockDispl) cursor.insertAfter(cmd);
-      else cursor.appendTo(cmd.ch[R]);
-      return;
-    }
-  };
+  }
 
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
