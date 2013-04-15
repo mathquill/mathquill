@@ -109,10 +109,11 @@ var manageTextarea = (function() {
     // after selecting something and then typing, the textarea is
     // incorrectly reported as selected during the input event (but not
     // subsequently).
-    var checkTextarea = noop;
+    var checkTextarea = noop, timeoutId;
     function checkTextareaFor(checker) {
       checkTextarea = checker;
-      setTimeout(checker);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(checker);
     }
     target.bind('keydown keypress input keyup focusout paste', function() { checkTextarea(); });
 

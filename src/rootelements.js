@@ -390,7 +390,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this
+    var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.ch[L] = self.ch[R] = 0;
@@ -443,7 +443,11 @@ var RootTextBlock = P(MathBlock, function(_) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
       RootMathCommand(cursor).createBefore(cursor);
-    else
-      VanillaSymbol(ch).createBefore(cursor);
+    else {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      VanillaSymbol(ch, html).createBefore(cursor);
+    }
   };
 });

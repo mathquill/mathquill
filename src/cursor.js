@@ -16,7 +16,7 @@ var Cursor = P(Point, function(_) {
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); }
+    this.blink = function(){ jQ.toggleClass('blink'); };
 
     this.upDownCache = {};
   };

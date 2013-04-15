@@ -7,7 +7,7 @@ LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="di
 var Variable = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
     _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
-  }
+  };
   _.text = function() {
     var text = this.ctrlSeq;
     if (this[L] && !(this[L] instanceof Variable)
