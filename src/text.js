@@ -202,10 +202,7 @@ var TextPiece = P(Node, function(_, _super) {
     _super.init.call(this);
     this.text = text;
   };
-  _.jQadd = function(dom) {
-    this.dom = dom;
-    return _super.jQadd.call(this, dom);
-  };
+  _.jQadd = function(dom) { this.dom = dom; this.jQ = $(dom); };
   _.jQize = function() {
     return this.jQadd(document.createTextNode(this.text));
   };

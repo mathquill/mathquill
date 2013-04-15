@@ -9,7 +9,6 @@
 
 var $ = jQuery,
   undefined,
-  _, //temp variable of prototypes
   mqCmdId = 'mathquill-command-id',
   mqBlockId = 'mathquill-block-id',
   min = Math.min,
