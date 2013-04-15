@@ -103,44 +103,57 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
-
-  function placeCursorInDir(self, dir, cursor) {
-    cursor[-dir] = self;
-    cursor[dir] = self[dir];
-  }
-
-  _.createSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.hide().selection = Selection(this);
-  }
-
-  _.expandSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.selection.ends[dir] = this;
-    jQappendDir(dir, this.jQ, cursor.selection.jQ);
+  _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
+  _.selectTowards = function(dir, cursor) {
+    if (!cursor.anticursor) cursor.startSelection();
+    cursor[-dir] = this;
+    cursor[dir] = this[dir];
   };
-
-  _.clearSelection = function(dir, cursor) {
-    placeCursorInDir(this, dir, cursor);
-    cursor.clearSelection().show();
-  };
-
-  _.retractSelection = function(dir, cursor) {
-    var self = this, seln = cursor.selection;
-
-    placeCursorInDir(self, dir, cursor);
-    jQinsertAdjacent(-dir, self.jQ, seln.jQ);
-    seln.ends[-dir] = self[dir];
-  };
-
-  _.deleteTowards = _.createSelection;
   _.selectChildren = function(cursor) {
     cursor.selection = Selection(this);
-    cursor.insertAfter(this);
   };
   _.seek = function(pageX, cursor) {
-    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
-  };
+    function getBounds(node) {
+      var bounds = {}
+      bounds[L] = node.jQ.offset().left;
+      bounds[R] = bounds[L] + node.jQ.outerWidth();
+      return bounds;
+    }
+
+    var cmd = this;
+    var cmdBounds = getBounds(cmd);
+
+    if (pageX < cmdBounds[L]) return cursor.insertBefore(cmd);
+    if (pageX > cmdBounds[R]) return cursor.insertAfter(cmd);
+
+    var leftLeftBound = cmdBounds[L];
+    cmd.eachChild(function(block) {
+      var blockBounds = getBounds(block);
+      if (pageX < blockBounds[L]) {
+        // closer to this block's left bound, or the bound left of that?
+        if (pageX - leftLeftBound < blockBounds[L] - pageX) {
+          if (block[L]) cursor.appendTo(block[L]);
+          else cursor.insertBefore(cmd);
+        }
+        else cursor.prependTo(block);
+        return false;
+      }
+      else if (pageX > blockBounds[R]) {
+        if (block[R]) leftLeftBound = blockBounds[R]; // continue to next block
+        else { // last (rightmost) block
+          // closer to this block's right bound, or the cmd's right bound?
+          if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
+            cursor.insertAfter(cmd);
+          }
+          else cursor.appendTo(block);
+        }
+      }
+      else {
+        block.seek(pageX, cursor);
+        return false;
+      }
+    });
+  }
 
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
@@ -339,27 +352,24 @@ var MathBlock = P(MathElement, function(_) {
     else cursor.insertAdjacent(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
-    var cmd = this.parent;
-    cursor.insertAdjacent(dir, cmd);
-
-    var seln = cursor.selection;
-    // no selection, create one
-    if (!seln) cursor.hide().selection = Selection(cmd);
-    // else "level up" selection
-    else {
-      seln.ends[L] = seln.ends[R] = cmd;
-      seln.clear().jQwrap(cmd.jQ);
-    }
+    cursor.insertAdjacent(-dir, this.parent);
+    cursor.startSelection();
+    cursor.insertAdjacent(dir, this.parent);
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
   };
   _.selectChildren = function(cursor, first, last) {
     cursor.selection = Selection(first, last);
-    cursor.insertAfter(last);
   };
   _.seek = function(pageX, cursor) {
-    cursor.appendTo(this).seekHoriz(pageX, this);
+    var node = this.ch[R];
+    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
+      return cursor.appendTo(this);
+    }
+    if (pageX < this.ch[L].jQ.offset().left) return cursor.prependTo(this);
+    while (pageX < node.jQ.offset().left) node = node[L];
+    return node.seek(pageX, cursor);
   };
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;
