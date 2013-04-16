@@ -49,11 +49,10 @@ var Cursor = P(Point, function(_) {
   };
 
   _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
-    var oldParent = this.parent;
+    if (parent !== this.parent) this.parent.blur();
     this.parent = parent;
     this[dir] = withDir;
     this[-dir] = oppDir;
-    oldParent.blur();
   };
   _.insertAdjacent = function(dir, el) {
     prayDirection(dir);
@@ -98,6 +97,7 @@ var Cursor = P(Point, function(_) {
     if (this.parent === this.root) return;
 
     clearUpDownCache(this);
+    this.endSelection();
     this.show().clearSelection();
     this.parent.moveOutOf(dir, this);
   };
@@ -118,6 +118,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     clearUpDownCache(this);
+    this.endSelection();
 
     if (this.selection)  {
       this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
@@ -163,6 +164,7 @@ var Cursor = P(Point, function(_) {
       } while (ancestor !== self.root);
     }
 
+    self.endSelection();
     return self.clearSelection().show();
   }
   /**
@@ -175,14 +177,14 @@ var Cursor = P(Point, function(_) {
    */
   _.jumpUpDown = function(from, to) {
     var self = this;
-    self.upDownCache[from.id] = Point(self.parent, self[L], self[R]);
+    self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
       cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
     }
     else {
-      var pageX = offset(self).left;
-      self.appendTo(to).seekHoriz(pageX, to);
+      var pageX = self.offset().left;
+      to.seek(pageX, self);
     }
   };
 
@@ -198,32 +200,16 @@ var Cursor = P(Point, function(_) {
     var node = nodeId ? Node.byId[nodeId] : cursor.root;
     pray('nodeId is the id of some Node that exists', node);
 
-    // target could've been selection span, so get node from target before
-    // clearing selection
+    // don't clear selection until after getting node from target, in case
+    // target was selection span, otherwise target will have no parent and will
+    // seek from root, which is less accurate (e.g. fraction)
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
 
     return cursor;
   };
-  _.seekHoriz = function(pageX, block) {
-    //move cursor to position closest to click
-    var cursor = this;
-    var dist = offset(cursor).left - pageX;
-    var prevDist;
-
-    do {
-      cursor.moveLeftWithin(block);
-      prevDist = dist;
-      dist = offset(cursor).left - pageX;
-    }
-    while (dist > 0 && (cursor[L] || cursor.parent !== block));
-
-    if (-dist > prevDist) cursor.moveRightWithin(block);
-
-    return cursor;
-  };
-  function offset(self) {
+  _.offset = function() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -231,13 +217,14 @@ var Cursor = P(Point, function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var offset = self.jQ.removeClass('cursor').offset();
+    var self = this, offset = self.jQ.removeClass('cursor').offset();
     self.jQ.addClass('cursor');
     return offset;
   }
   _.writeLatex = function(latex) {
     var self = this;
     clearUpDownCache(self);
+    self.endSelection();
     self.show().deleteSelection();
 
     var all = Parser.all;
@@ -332,6 +319,7 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     clearUpDownCache(this);
+    this.endSelection();
     this.show();
 
     if (this.deleteSelection()); // pass
@@ -348,7 +336,10 @@ var Cursor = P(Point, function(_) {
   };
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
-  _.selectFrom = function(anticursor) {
+  _.select = function() {
+    var anticursor = this.anticursor;
+    if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
+
     // `this` cursor and the anticursor should be in the same tree, because
     // the mousemove handler attached to the document, unlike the one attached
     // to the root HTML DOM element, doesn't try to get the math tree node of
@@ -362,37 +353,32 @@ var Cursor = P(Point, function(_) {
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.root.selectionChanged();
+    return true;
   };
   _.selectDir = function(dir) {
     var self = this;
     prayDirection(dir);
     clearUpDownCache(this);
 
-    if (self[dir]) {
-      var adjacent = self[dir],
-          selection = self.selection;
-
-      if (!selection) {
-        adjacent.createSelection(dir, self);
-      }
-      else if (selection.ends[dir] === self[-dir]) {
-        adjacent.expandSelection(dir, self);
-      }
-      else if (selection.ends[dir] === selection.ends[-dir]) {
-        adjacent.clearSelection(dir, self);
-      }
-      else {
-        adjacent.retractSelection(dir, self);
-      }
+    var node = self[dir];
+    if (node) {
+      node.selectTowards(dir, self);
     }
     else if (self.parent !== self.root) {
       self.parent.selectOutOf(dir, self);
     }
 
-    self.root.selectionChanged();
+    self.clearSelection();
+    self.select() || self.show();
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
+  _.startSelection = function() {
+    this.anticursor = Point.copy(this);
+  };
+  _.endSelection = function() {
+    delete this.anticursor;
+  };
 
   function clearUpDownCache(self) {
     self.upDownCache = {};
@@ -400,14 +386,17 @@ var Cursor = P(Point, function(_) {
 
   _.prepareMove = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().clearSelection();
   };
   _.prepareEdit = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().deleteSelection();
   };
   _.prepareWrite = function() {
     clearUpDownCache(this);
+    this.endSelection();
     return this.show().replaceSelection();
   };
 

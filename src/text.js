@@ -77,21 +77,23 @@ var TextBlock = P(Node, function(_, _super) {
   _.onKey = function(key, e) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return false;
   };
+
+  // editability methods: called by the cursor for editing, cursor movements,
+  // and selection of the MathQuill tree, these all take in a direction and
+  // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
 
   // TODO: make these methods part of a shared mixin or something.
-  _.createSelection = MathCommand.prototype.createSelection;
-  _.expandSelection = MathCommand.prototype.expandSelection;
-  _.clearSelection = MathCommand.prototype.clearSelection;
-  _.retractSelection = MathCommand.prototype.retractSelection;
+  _.selectTowards = MathCommand.prototype.selectTowards;
+  _.deleteTowards = MathCommand.prototype.deleteTowards;
+  _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
-    var cmd = this;
-    cursor.clearSelection().hide().insertAdjacent(dir, cmd)
-    .selection = Selection(cmd);
+    cursor.insertAdjacent(-dir, this);
+    cursor.startSelection();
+    cursor.insertAdjacent(dir, this);
   };
-  _.deleteTowards = _.createSelection;
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insertAfter(this);
@@ -121,22 +123,67 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
-  _.seek = function() {
-    consolidateChildren(this);
-    MathBlock.prototype.seek.apply(this, arguments);
+  _.seek = function(pageX, cursor) {
+    cursor.hide();
+    var textPc = fuseChildren(this);
+
+    // insert cursor at approx position in DOMTextNode
+    var avgChWidth = this.jQ.width()/this.text.length;
+    var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
+    if (approxPosition <= 0) cursor.prependTo(this);
+    else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
+    else cursor.insertBefore(textPc.splitRight(approxPosition));
+
+    // move towards mousedown (pageX)
+    var displ = pageX - cursor.show().offset().left; // displacement
+    var dir = displ && displ < 0 ? L : R;
+    var prevDispl = dir;
+    // displ * prevDispl > 0 iff displacement direction === previous direction
+    while (cursor[dir] && displ * prevDispl > 0) {
+      cursor[dir].moveTowards(dir, cursor);
+      prevDispl = displ;
+      displ = pageX - cursor.offset().left;
+    }
+    if (dir*displ < -dir*prevDispl) cursor[-dir].moveTowards(-dir, cursor);
+
+    if (!cursor.anticursor) {
+      // about to start mouse-selecting, the anticursor is gonna get put here
+      this.anticursorPosition = cursor[L] && cursor[L].text.length;
+      // ^ get it? 'cos if there's no cursor[L], it's 0... I'm a terrible person.
+    }
+    else if (cursor.anticursor.parent === this) {
+      // mouse-selecting within this TextBlock, re-insert the anticursor
+      var cursorPosition = cursor[L] && cursor[L].text.length;;
+      if (this.anticursorPosition === cursorPosition) {
+        cursor.anticursor = Point.copy(cursor);
+      }
+      else {
+        if (this.anticursorPosition < cursorPosition) {
+          var newTextPc = cursor[L].splitRight(this.anticursorPosition);
+          cursor[L] = newTextPc;
+        }
+        else {
+          var newTextPc = cursor[R].splitRight(this.anticursorPosition - cursorPosition);
+        }
+        cursor.anticursor = Point(this, newTextPc[L], newTextPc);
+      }
+    }
   };
 
   _.blur = function() {
     MathBlock.prototype.blur.call(this);
-    consolidateChildren(this);
+    fuseChildren(this);
   };
 
-  function consolidateChildren(self) {
-    var firstChild = self.ch[L];
+  function fuseChildren(self) {
+    self.jQ[0].normalize();
 
-    while (firstChild[R]) {
-      firstChild.combineDir(R);
-    }
+    var textPcDom = self.jQ[0].firstChild;
+    var textPc = TextPiece(textPcDom.data);
+    textPc.jQadd(textPcDom);
+
+    self.children().disown();
+    return textPc.adopt(self, 0, 0);
   }
 
   _.focus = MathBlock.prototype.focus;
@@ -172,6 +219,12 @@ var TextPiece = P(Node, function(_, _super) {
     if (dir === R) this.appendText(text);
     else this.prependText(text);
   };
+  _.splitRight = function(offset) {
+    var newPc = TextPiece(this.text.slice(offset)).adopt(this.parent, this, this[R]);
+    newPc.jQadd(this.dom.splitText(offset));
+    this.text = this.text.slice(0, offset);
+    return newPc;
+  };
 
   function endChar(dir, text) {
     return text.charAt(dir === L ? 0 : -1 + text.length);
@@ -187,13 +240,6 @@ var TextPiece = P(Node, function(_, _super) {
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
-  };
-
-  _.combineDir = function(dir) {
-    var toCombine = this[dir];
-
-    this.appendTextInDir(toCombine.text, dir);
-    toCombine.remove();
   };
 
   _.latex = function() { return this.text; };
@@ -214,64 +260,35 @@ var TextPiece = P(Node, function(_, _super) {
     else {
       this.remove();
       this.jQ.remove();
-      cursor[dir] = 0;
+      cursor[dir] = this[dir];
     }
   };
 
-  // -*- selection methods -*- //
+  _.selectTowards = function(dir, cursor) {
+    prayDirection(dir);
+    var anticursor = cursor.anticursor;
 
-  // there's gotta be a better way to move the cursor...
-  function insertCursorAdjacent(dir, cursor, el) {
-    cursor[-dir] = el;
-    cursor[dir] = el[dir];
-    cursor.hide().show();
-  }
+    var ch = endChar(-dir, this.text)
 
-  _.createSelection = function(dir, cursor) {
-    var selectedPiece = TextPiece(endChar(-dir, this.text));
-    this.deleteTowards(dir, cursor);
-    selectedPiece.createDir(dir, cursor);
-
-    cursor.selection = Selection(selectedPiece);
-
-    insertCursorAdjacent(dir, cursor, selectedPiece);
-  }
-
-  _.clearSelection = function(dir, cursor) {
-    // cursor calls our clearSelection every time because the selection
-    // only every contains one Node.
-    if (this.text.length > 1) return this.retractSelection(dir, cursor);
-
-    var cursorSibling = this;
-
-    if (this[-dir]) {
-      cursorSibling = this[-dir];
-      cursorSibling.combineDir(dir);
-    }
-
-    insertCursorAdjacent(dir, cursor, cursorSibling);
-
-    cursor.clearSelection();
-  };
-
-  _.expandSelection = function(dir, cursor) {
-    var selectedPiece = cursor.selection.ends[L];
-    var selectChar = endChar(-dir, this.text);
-    selectedPiece.appendTextInDir(selectChar, dir);
-    this.deleteTowards(dir, cursor);
-  };
-
-  _.retractSelection = function(dir, cursor) {
-    var deselectChar = endChar(-dir, this.text);
-
-    if (this[-dir]) {
-      this[-dir].appendTextInDir(deselectChar, dir);
+    if (!anticursor || anticursor[dir] === this) {
+      var newPc = TextPiece(ch).createDir(dir, cursor);
+      cursor.startSelection();
+      cursor.insertAdjacent(dir, newPc);
     }
     else {
-      TextPiece(deselectChar).createDir(-dir, cursor);
+      var from = this[-dir];
+      if (from) from.appendTextInDir(ch, dir);
+      else {
+        var newPc = TextPiece(ch).createDir(-dir, cursor);
+        jQinsertAdjacent(-dir, newPc.jQ, cursor.selection.jQ);
+      }
+
+      if (this.text.length === 1 && anticursor[-dir] === this) {
+        anticursor[-dir] = this[-dir]; // `this` will be removed in deleteTowards
+      }
     }
 
-    this.deleteTowards(dir, cursor);
+    return this.deleteTowards(dir, cursor);
   };
 });
 
