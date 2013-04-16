@@ -155,7 +155,7 @@ $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
 	@ls $(SITE)/downloads/*.tgz \
 		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
 		| fgrep -v $(VERSION) \
-		| sort --version-sort \
+		| sort -rn -t. -k 1,1 -k 2,2 -k 3,3 \
 		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
 		> tmp/versions-list.html
 	@$(SED_I) \
