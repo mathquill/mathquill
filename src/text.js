@@ -36,7 +36,7 @@ var TextBlock = P(Node, function(_, _super) {
 
     if (textBlock.replacedText)
       for (var i = 0; i < textBlock.replacedText.length; i += 1)
-        textBlock.ch[L].write(cursor, textBlock.replacedText.charAt(i));
+        textBlock.write(cursor, textBlock.replacedText.charAt(i));
   };
 
   _.parser = function() {
