@@ -89,7 +89,7 @@ function createRoot(jQ, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       jQ.unbind('mousemove', mousemove);
-      $(document).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
     setTimeout(function() { textarea.focus(); });
@@ -104,7 +104,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (!editable) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
-    $(document).mousemove(docmousemove).mouseup(mouseup);
+    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
     return false;
   });
@@ -223,14 +223,14 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Tab':
     case 'Spacebar':
       this.cursor.escapeDir(R, key, e);
-      break;
+      return;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
       this.cursor.escapeDir(L, key, e);
-      break;
+      return;
 
     // Prevent newlines from showing up
     case 'Enter': break;
@@ -384,7 +384,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 
 var RootTextBlock = P(MathBlock, function(_) {
   _.renderLatex = function(latex) {
-    var self = this
+    var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.ch[L] = self.ch[R] = 0;
@@ -437,7 +437,11 @@ var RootTextBlock = P(MathBlock, function(_) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
       RootMathCommand(cursor).createBefore(cursor);
-    else
-      VanillaSymbol(ch).createBefore(cursor);
+    else {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      VanillaSymbol(ch, html).createBefore(cursor);
+    }
   };
 });

@@ -16,7 +16,7 @@ var Cursor = P(Point, function(_) {
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); }
+    this.blink = function(){ jQ.toggleClass('blink'); };
 
     this.upDownCache = {};
   };
@@ -49,11 +49,10 @@ var Cursor = P(Point, function(_) {
   };
 
   _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
-    var oldParent = this.parent;
+    if (parent !== this.parent) this.parent.blur();
     this.parent = parent;
     this[dir] = withDir;
     this[-dir] = oppDir;
-    oldParent.blur();
   };
   _.insertAdjacent = function(dir, el) {
     prayDirection(dir);
@@ -184,8 +183,8 @@ var Cursor = P(Point, function(_) {
       cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
     }
     else {
-      var pageX = offset(self).left;
-      self.appendTo(to).seekHoriz(pageX, to);
+      var pageX = self.offset().left;
+      to.seek(pageX, self);
     }
   };
 
@@ -210,24 +209,7 @@ var Cursor = P(Point, function(_) {
 
     return cursor;
   };
-  _.seekHoriz = function(pageX, block) {
-    //move cursor to position closest to click
-    var cursor = this;
-    var dist = offset(cursor).left - pageX;
-    var prevDist;
-
-    do {
-      cursor.moveLeftWithin(block);
-      prevDist = dist;
-      dist = offset(cursor).left - pageX;
-    }
-    while (dist > 0 && (cursor[L] || cursor.parent !== block));
-
-    if (-dist > prevDist) cursor.moveRightWithin(block);
-
-    return cursor;
-  };
-  function offset(self) {
+  _.offset = function() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -235,7 +217,7 @@ var Cursor = P(Point, function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var offset = self.jQ.removeClass('cursor').offset();
+    var self = this, offset = self.jQ.removeClass('cursor').offset();
     self.jQ.addClass('cursor');
     return offset;
   }

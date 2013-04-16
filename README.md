@@ -14,13 +14,15 @@ are all over the place.
 (Note: Requires [jQuery 1.4.3+](http://jquery.com).
 [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
 
-To use MathQuill on your website you need to serve
+To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
+
+[downloads page]: http://mathquill.com/downloads.html
 
 * [the stylesheet](http://mathquill.github.com/mathquill.css)
 * [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
-* [the script](http://mathquill.github.com/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill.js))
+* [the script](http://mathquill.github.com/mathquill/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill/mathquill.js))
 
 then on your webpages include the stylesheet
 
@@ -50,20 +52,6 @@ it is visible MathQuill will need to recalculate:
 
     $('<span>\sqrt{2}</span>').mathquill().appendTo('body').mathquill('redraw')
 
-If you want to give a MathQuill editable a background color other than
-white, support IE8, and support square roots, parentheses, square
-brackets, or curly braces, you will need to also set all descendants of
-the MathQuill editable element with class `matrixed` to also have that
-background color, like `#my-math-input .matrixed { background:
-#lightblue; }`. (Almost all math rendered by MathQuill has
-`background:transparent`; the exception is, IE8 doesn't support CSS
-transforms, so MathQuill uses a matrix filter to stretch parens etc,
-which won't anti-alias correctly without a opaque background, so
-MathQuill defaults to white. For more details, see
-[Transforms](http://github.com/laughinghan/mathquill/wiki/Transforms).)
-If your background color is dark, you may also want to make the cursor
-white with `#my-math-input .cursor { border-color: white; }` or the like.
-
 Any element that has been MathQuill-ified can be reverted:
 
     $('.mathquill-embedded-latex').mathquill('revert');
@@ -86,6 +74,42 @@ Currently, MathQuill only supports a limited scripting API:
 * To insert a LaTeX command at the current cursor position or with the current selection:
 
         someMathQuillifiedElement.mathquill('cmd','\\sqrt')
+
+**A Note On Changing Colors:**
+
+To change the foreground color, don't just set the `color`, also set
+the `border-color`, because the cursor, fraction bar, and square root
+overline are all borders, not text. (Example below.)
+
+Due to technical limitations of IE8, if you support it, and want to give
+a MathQuill editable a background color other than white, and support
+square roots, parentheses, square brackets, or curly braces, you will
+need to, in addition to of course setting the background color on the
+editable itself, set it on elements with class `matrixed`, and then set
+a Chroma filter on elements with class `matrixed-container`.
+
+For example, to style as white-on-black instead of black-on-white:
+
+    #my-math-input {
+      color: white;
+      border-color: white;
+      background: black;
+    }
+    #my-math-input .matrixed {
+      background: black;
+    }
+    #my-math-input .matrixed-container {
+      filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
+    }
+
+(This is because almost all math rendered by MathQuill has a transparent
+background, so for them it's sufficient to set the background color on
+the editable itself. The exception is, IE8 doesn't support CSS
+transforms, so MathQuill uses a matrix filter to stretch parens etc,
+which [anti-aliases wrongly without an opaque background][Transforms],
+so MathQuill defaults to white.)
+
+[Transforms]: http://github.com/laughinghan/mathquill/wiki/Transforms
 
 ## Building and Testing
 
@@ -126,40 +150,34 @@ In comments and internal documentation, `::` means `.prototype.`.
 `intro.js` defines some simple sugar for the idiomatic JS classes used
 throughout MathQuill, plus some globals and opening boilerplate.
 
-* By convention, when assigning or accessing many properties of an object,
-  you can use the `_` variable to save having to type the object's name every
-  time.
-    - DO NOT use `with`, see
-      [`with` considered harmful](http://crockford.com/with.html).
-* The sugar saves typing when creating idiomatic prototypal JS classes,
-  including setting `_` so you can assign methods and fields to the prototype.
+* Classes are defined using [Pjs][], and the variable `_` is used by convention
+  as the prototype.
 
-`math.js` defines abstract base classes for the JS objects that make up the
-virtual math DOM tree:
+[pjs]: https://github.com/jayferd/pjs
 
-* The math DOM has two kinds of nodes: commands and blocks
+`tree.js` defines the abstract classes for the JS objects that make up the edit tree.
+
+* A `Node` is a node in the tree.
+* A `Fragment` is a range of siblings in the tree.  This is used, for
+  example, for selections.
+
+* The edit tree has two kinds of nodes: commands and blocks
     - blocks, like the root block, can contain any number of commands
     - commands, like `x`, `1`, `+`, `\frac`, `\sqrt` (clearly siblings in the
       tree) contain a fixed number of blocks
         + symbols like `x`, `y`, `1`, `2`, `+`, `-` are commands with 0 blocks
-* All math DOM nodes are instances of `MathElement`
+* All edit tree nodes are instances of `MathElement`
     - blocks are instances of `MathBlock`
     - commands are instances of `MathCommand`
         + symbols are instances of `Symbol`
-* `MathFragment`s are basically 'subblocks' that encapsulate a "view" of
-  multiple commands. Like a pointer to a particular command, they have access
-  to nodes in the tree but aren't part of the tree.
-    - `prev` and `next` seemed like a good idea at the time, they match
-      `Cursor`, but `first` and `last` instead are under consideration
 
 `cursor.js` defines the "singleton" classes for the visible blinking
-cursor and highlighted selection. They are not part of the tree but have
-access and point to elements in it to keep track of their location:
+cursor and highlighted selection.
 
-* The methods of `Cursor.prototype` pretty much do what they say on the tin.
+* The methods on `Cursor` pretty much do what they say on the tin.
   They're how the tree is supposed to traversed and modified.
 
-`rootelements.js` defines the math DOM tree root elements, and a function
+`rootelements.js` defines the edit tree root elements, and a function
 `createRoot()` that attaches event handlers to the jQuery-wrapped HTML elements:
 
 * Some root elements can actually be in others, so rather than attaching
@@ -169,15 +187,15 @@ access and point to elements in it to keep track of their location:
 * Event delegation is used in 2 ways:
   - in the HTML DOM, the root `span` element of each MathQuill thing is
     delegated all the events in it's own MathQuill thing
-    + keyboard events usually end up triggering their analogue in the virtual
-      DOM on the virtual cursor, which then bubble upwards
-  - in the virtual math DOM, the root MathElement is delegated most of these
+    + keyboard events usually end up triggering their analogue in the edit tree
+      on the cursor, which then bubble upwards
+  - in the edit tree, the root MathElement is delegated most of these
     virtual keyboard events
     + for example, `RootMathBlock::keydown()`
     + some special commands do intercept these events, though
-* Keyboard events are very inconsistent between browsers, so `rootelements.js`
-  has some complicated but very effective logic documented in the Wiki page
-  "Keyboard Events".
+
+`textarea.js` handles all the HTML DOM events necessary to emulate a textarea, using
+a hidden textarea.
 
 `symbols.js` defines classes for all the symbols like `&` and `\partial`, and
 adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
@@ -197,4 +215,4 @@ the current active development discussion.
 
 [GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
 
-Copyleft 2010-2011 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+Copyleft 2010-2012 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)

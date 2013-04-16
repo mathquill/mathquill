@@ -116,8 +116,47 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.appendDir(-dir, this.selectedOutOf);
   };
   _.seek = function(pageX, cursor) {
-    cursor.insertAfter(this).seekHoriz(pageX, this.parent);
-  };
+    function getBounds(node) {
+      var bounds = {}
+      bounds[L] = node.jQ.offset().left;
+      bounds[R] = bounds[L] + node.jQ.outerWidth();
+      return bounds;
+    }
+
+    var cmd = this;
+    var cmdBounds = getBounds(cmd);
+
+    if (pageX < cmdBounds[L]) return cursor.insertBefore(cmd);
+    if (pageX > cmdBounds[R]) return cursor.insertAfter(cmd);
+
+    var leftLeftBound = cmdBounds[L];
+    cmd.eachChild(function(block) {
+      var blockBounds = getBounds(block);
+      if (pageX < blockBounds[L]) {
+        // closer to this block's left bound, or the bound left of that?
+        if (pageX - leftLeftBound < blockBounds[L] - pageX) {
+          if (block[L]) cursor.appendTo(block[L]);
+          else cursor.insertBefore(cmd);
+        }
+        else cursor.prependTo(block);
+        return false;
+      }
+      else if (pageX > blockBounds[R]) {
+        if (block[R]) leftLeftBound = blockBounds[R]; // continue to next block
+        else { // last (rightmost) block
+          // closer to this block's right bound, or the cmd's right bound?
+          if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
+            cursor.insertAfter(cmd);
+          }
+          else cursor.appendTo(block);
+        }
+      }
+      else {
+        block.seek(pageX, cursor);
+        return false;
+      }
+    });
+  }
 
   // methods involved in creating and cross-linking with HTML DOM nodes
   /*
@@ -326,7 +365,13 @@ var MathBlock = P(MathElement, function(_) {
     cursor.selection = Selection(first, last);
   };
   _.seek = function(pageX, cursor) {
-    cursor.appendTo(this).seekHoriz(pageX, this);
+    var node = this.ch[R];
+    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
+      return cursor.appendTo(this);
+    }
+    if (pageX < this.ch[L].jQ.offset().left) return cursor.prependTo(this);
+    while (pageX < node.jQ.offset().left) node = node[L];
+    return node.seek(pageX, cursor);
   };
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;

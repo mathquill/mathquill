@@ -20,7 +20,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.jQadd = function(jQ) {
     _super.jQadd.call(this, jQ);
-    this.ch[L].jQize(this.jQ[0].firstChild);
+    if (this.ch[L]) this.ch[L].jQadd(this.jQ[0].firstChild);
   };
 
   _.createBefore = function(cursor) {
@@ -122,22 +122,67 @@ var TextBlock = P(Node, function(_, _super) {
     return false;
   };
 
-  _.seek = function() {
-    consolidateChildren(this);
-    MathBlock.prototype.seek.apply(this, arguments);
+  _.seek = function(pageX, cursor) {
+    cursor.hide();
+    var textPc = fuseChildren(this);
+
+    // insert cursor at approx position in DOMTextNode
+    var avgChWidth = this.jQ.width()/this.text.length;
+    var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
+    if (approxPosition <= 0) cursor.prependTo(this);
+    else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
+    else cursor.insertBefore(textPc.splitRight(approxPosition));
+
+    // move towards mousedown (pageX)
+    var displ = pageX - cursor.show().offset().left; // displacement
+    var dir = displ && displ < 0 ? L : R;
+    var prevDispl = dir;
+    // displ * prevDispl > 0 iff displacement direction === previous direction
+    while (cursor[dir] && displ * prevDispl > 0) {
+      cursor[dir].moveTowards(dir, cursor);
+      prevDispl = displ;
+      displ = pageX - cursor.offset().left;
+    }
+    if (dir*displ < -dir*prevDispl) cursor[-dir].moveTowards(-dir, cursor);
+
+    if (!cursor.anticursor) {
+      // about to start mouse-selecting, the anticursor is gonna get put here
+      this.anticursorPosition = cursor[L] && cursor[L].text.length;
+      // ^ get it? 'cos if there's no cursor[L], it's 0... I'm a terrible person.
+    }
+    else if (cursor.anticursor.parent === this) {
+      // mouse-selecting within this TextBlock, re-insert the anticursor
+      var cursorPosition = cursor[L] && cursor[L].text.length;;
+      if (this.anticursorPosition === cursorPosition) {
+        cursor.anticursor = Point.copy(cursor);
+      }
+      else {
+        if (this.anticursorPosition < cursorPosition) {
+          var newTextPc = cursor[L].splitRight(this.anticursorPosition);
+          cursor[L] = newTextPc;
+        }
+        else {
+          var newTextPc = cursor[R].splitRight(this.anticursorPosition - cursorPosition);
+        }
+        cursor.anticursor = Point(this, newTextPc[L], newTextPc);
+      }
+    }
   };
 
   _.blur = function() {
     MathBlock.prototype.blur.call(this);
-    consolidateChildren(this);
+    fuseChildren(this);
   };
 
-  function consolidateChildren(self) {
-    var firstChild = self.ch[L];
+  function fuseChildren(self) {
+    self.jQ[0].normalize();
 
-    while (firstChild[R]) {
-      firstChild.combineDir(R);
-    }
+    var textPcDom = self.jQ[0].firstChild;
+    var textPc = TextPiece(textPcDom.data);
+    textPc.jQadd(textPcDom);
+
+    self.children().disown();
+    return textPc.adopt(self, 0, 0);
   }
 
   _.focus = MathBlock.prototype.focus;
@@ -156,12 +201,9 @@ var TextPiece = P(Node, function(_, _super) {
     _super.init.call(this);
     this.text = text;
   };
-  // overriding .jQize because neither jQuery nor our html parsing
-  // format like text nodes.
-  _.jQize = function(dom) {
-    if (!dom) dom = document.createTextNode(this.text);
-    this.dom = dom;
-    return this.jQ = $(this.dom);
+  _.jQadd = function(dom) { this.dom = dom; this.jQ = $(dom); };
+  _.jQize = function() {
+    return this.jQadd(document.createTextNode(this.text));
   };
   _.appendText = function(text) {
     this.text += text;
@@ -175,6 +217,12 @@ var TextPiece = P(Node, function(_, _super) {
     prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
+  };
+  _.splitRight = function(offset) {
+    var newPc = TextPiece(this.text.slice(offset)).adopt(this.parent, this, this[R]);
+    newPc.jQadd(this.dom.splitText(offset));
+    this.text = this.text.slice(0, offset);
+    return newPc;
   };
 
   function endChar(dir, text) {
@@ -191,13 +239,6 @@ var TextPiece = P(Node, function(_, _super) {
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
-  };
-
-  _.combineDir = function(dir) {
-    var toCombine = this[dir];
-
-    this.appendTextInDir(toCombine.text, dir);
-    toCombine.remove();
   };
 
   _.latex = function() { return this.text; };
@@ -228,7 +269,7 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    if (!anticursor) {
+    if (!anticursor || anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
       cursor.startSelection();
       cursor.insertAdjacent(dir, newPc);
