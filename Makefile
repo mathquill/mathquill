@@ -133,10 +133,24 @@ $(DIST_DOWNLOAD): $(DIST)
 	mkdir -p $(dir $@)
 	cp $^ $@
 
+# freaking bsd, i swear
+# adapted from https://developer.apple.com/library/mac/documentation/opensource/Conceptual/ShellScripting/PortingScriptstoMacOSX/PortingScriptstoMacOSX.html#//apple_ref/doc/uid/TP40004268-TP40003517-SW21
+ifeq (x, $(shell echo xy | sed -r 's/(x)y/\1/' 2>/dev/null))
+  # gnu
+  SED = sed -r
+  SED_I = $(SED) -i
+else
+  # bsd
+  SED = sed -E
+  SED_I = $(SED) -i ''
+endif
+
 $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
+	@echo Using $(SED)
 	@echo -n updating downloads page...
-	@sed -ri $(DOWNLOADS_PAGE) \
-		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g'
+	@$(SED_I) \
+		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g' \
+		$(DOWNLOADS_PAGE)
 	@mkdir -p tmp
 	@ls $(SITE)/downloads/*.tgz \
 		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
@@ -144,16 +158,17 @@ $(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
 		| sort --version-sort \
 		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
 		> tmp/versions-list.html
-	@sed -ir $(DOWNLOADS_PAGE) \
+	@$(SED_I) \
 		-e '/<a class="prev"/d' \
-		-e '/<ul id="prev-versions">/ r tmp/versions-list.html'
+		-e '/<ul id="prev-versions">/ r tmp/versions-list.html' \
+		$(DOWNLOADS_PAGE)
 	@rm tmp/versions-list.html
 	@echo done.
 
 $(SITE)/demo.html: test/demo.html
 	cat $^ \
-	| sed 's:../build/:mathquill/:' \
-	| sed 's:local test page:live demo:' \
+	| $(SED) 's:../build/:mathquill/:' \
+	| $(SED) 's:local test page:live demo:' \
 	> $@
 
 $(SITE)/support: test/support
