@@ -7,8 +7,11 @@ SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
+INLINE_CSS = tmp/inline_css.js
+
 SOURCES = \
   ./vendor/pjs/src/p.js \
+  $(INLINE_CSS) \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
@@ -38,6 +41,7 @@ BUILD_JS = $(BUILD_DIR)/mathquill.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
+UGLY_CSS = $(BUILD_DIR)/mathquill.min.css
 CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
@@ -63,7 +67,7 @@ all: font css uglify
 dev: font css js
 js: $(BUILD_JS)
 uglify: $(UGLY_JS)
-css: $(BUILD_CSS)
+css: $(BUILD_CSS) $(UGLY_CSS)
 font: $(FONT_TARGET)
 dist: $(DIST)
 clean:
@@ -72,17 +76,27 @@ clean:
 $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 	cat $^ > $@
 
+$(INLINE_CSS): $(UGLY_CSS)
+	mkdir -p tmp
+	{ echo -n "document.write('<style type=\"text/css\">" ;\
+		cat $< | sed "s/'/\\\\'/g" | tr -d "\n" ;\
+		echo "</style>');" ;\
+	} > $@
+
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BUILD_CSS): $(CSS_SOURCES)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
+$(UGLY_CSS): $(CSS_SOURCES)
+	$(LESSC) --yui-compress $(LESS_OPTS) $(CSS_MAIN) > $@
+
 $(FONT_TARGET): $(FONT_SOURCE)
 	rm -rf $@
 	cp -r $< $@
 
-$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
+$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(UGLY_CSS) $(FONT_TARGET)
 	tar -czf $(DIST) \
 		--xform 's:^\./build:$(DISTDIR):' \
 		--exclude='\.gitkeep' \
