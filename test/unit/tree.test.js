@@ -86,8 +86,8 @@ suite('tree', function() {
       child.adopt(parent, 0, 0);
       child.disown();
 
-      assert.ok(!parent.ends[L], 'parent has no firstChild');
-      assert.ok(!parent.ends[R], 'parent has no lastChild');
+      assert.ok(!parent.ends[L], 'parent has no left end child');
+      assert.ok(!parent.ends[R], 'parent has no right end child');
     });
 
     test('disowning the right end child', function() {
