@@ -102,7 +102,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ends[-dir]); };
+  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this.ends[-dir]); };
   _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
   _.selectTowards = function(dir, cursor) {
     if (!cursor.anticursor) cursor.startSelection();
@@ -113,7 +113,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
   };
   _.unselectInto = function(dir, cursor) {
-    cursor.appendDir(-dir, this.selectedOutOf);
+    cursor.insAtDirEnd(-dir, this.selectedOutOf);
   };
   _.seek = function(pageX, cursor) {
     function getBounds(node) {
@@ -351,7 +351,7 @@ var MathBlock = P(MathElement, function(_) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveOutOf = function(dir, cursor) {
-    if (this[dir]) cursor.appendDir(-dir, this[dir]);
+    if (this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
     else cursor.insDirOf(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {

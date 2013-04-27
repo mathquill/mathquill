@@ -27,7 +27,7 @@ function jQinsDirOf(dir, el, target) {
   );
 }
 
-function jQappendDir(dir, el, target) {
+function jQinsAtDirEnd(dir, el, target) {
   return (
     dir === L ?
     el.prependTo(target) :

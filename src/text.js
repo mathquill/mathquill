@@ -81,7 +81,7 @@ var TextBlock = P(Node, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
+  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this); };
   _.moveOutOf = function(dir, cursor) { cursor.insDirOf(dir, this); };
   _.unselectInto = _.moveTowards;
 

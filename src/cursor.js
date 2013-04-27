@@ -64,7 +64,7 @@ var Cursor = P(Point, function(_) {
   _.insertBefore = function(el) { return this.insDirOf(L, el); };
   _.insertAfter = function(el) { return this.insDirOf(R, el); };
 
-  _.appendDir = function(dir, el) {
+  _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el, 0, el.ends[dir]);
 
@@ -73,15 +73,15 @@ var Cursor = P(Point, function(_) {
       jQinsDirOf(-dir, this.jQ, el.textarea);
     }
     else {
-      jQappendDir(dir, this.jQ, el.jQ);
+      jQinsAtDirEnd(dir, this.jQ, el.jQ);
     }
 
     el.focus();
 
     return this;
   };
-  _.prependTo = function(el) { return this.appendDir(L, el); };
-  _.appendTo = function(el) { return this.appendDir(R, el); };
+  _.prependTo = function(el) { return this.insAtDirEnd(L, el); };
+  _.appendTo = function(el) { return this.insAtDirEnd(R, el); };
 
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
