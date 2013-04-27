@@ -125,12 +125,12 @@ var SupSub = P(MathCommand, function(_, _super) {
     );
 
     if (this.ctrlSeq === '_') {
-      this.downInto = this.ch[L];
-      this.ch[L].upOutOf = insertBeforeUnlessAtEnd;
+      this.downInto = this.ends[L];
+      this.ends[L].upOutOf = insertBeforeUnlessAtEnd;
     }
     else {
-      this.upInto = this.ch[L];
-      this.ch[L].downOutOf = insertBeforeUnlessAtEnd;
+      this.upInto = this.ends[L];
+      this.ends[L].downOutOf = insertBeforeUnlessAtEnd;
     }
     function insertBeforeUnlessAtEnd(cursor) {
       // cursor.insertBefore(cmd), unless cursor at the end of block, and every
@@ -148,7 +148,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
   };
   _.latex = function() {
-    var latex = this.ch[L].latex();
+    var latex = this.ends[L].latex();
     if (latex.length === 1)
       return this.ctrlSeq + latex;
     else
@@ -239,8 +239,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
-    this.upInto = this.ch[R].upOutOf = this.ch[L];
-    this.downInto = this.ch[L].downOutOf = this.ch[R];
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
   };
 });
 
@@ -266,7 +266,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       }
 
       if (prev !== cursor[L]) {
-        this.replaces(Fragment(prev[R] || cursor.parent.ch[L], cursor[L]));
+        this.replaces(Fragment(prev[R] || cursor.parent.ends[L], cursor[L]));
         cursor[L] = prev;
       }
     }
@@ -297,7 +297,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
     }).or(_super.parser.call(this));
   };
   _.redraw = function() {
-    var block = this.ch[R].jQ;
+    var block = this.ends[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
 });
@@ -314,7 +314,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
-    return '\\sqrt['+this.ch[L].latex()+']{'+this.ch[R].latex()+'}';
+    return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
 });
 
@@ -336,10 +336,10 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
-    return this.ctrlSeq + this.ch[L].latex() + this.end;
+    return this.ctrlSeq + this.ends[L].latex() + this.end;
   };
   _.redraw = function() {
-    var blockjQ = this.ch[L].jQ;
+    var blockjQ = this.ends[L].jQ;
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
@@ -404,7 +404,7 @@ var CloseBracket = P(Bracket, function(_, _super) {
       _super.createBefore.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
-    this.ch[L].blur();
+    this.ends[L].blur();
     cursor.insertAfter(this);
   };
 });
@@ -459,14 +459,14 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     _super.createBlocks.call(this);
-    this.ch[L].focus = function() {
+    this.ends[L].focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('empty');
 
       return this;
     };
-    this.ch[L].blur = function() {
+    this.ends[L].blur = function() {
       this.parent.jQ.removeClass('hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('empty');
@@ -477,7 +477,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
 
-    this.cursor = cursor.appendTo(this.ch[L]);
+    this.cursor = cursor.appendTo(this.ends[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -490,7 +490,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
         ).insertBefore(this.jQ).add(this.jQ);
     }
 
-    this.ch[L].write = function(cursor, ch, replacedFragment) {
+    this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (replacedFragment) replacedFragment.remove();
 
       if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createBefore(cursor);
@@ -501,7 +501,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     };
   };
   _.latex = function() {
-    return '\\' + this.ch[L].latex() + ' ';
+    return '\\' + this.ends[L].latex() + ' ';
   };
   _.onKey = function(key, e) {
     if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
@@ -519,7 +519,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       this.cursor.appendTo(this.parent);
     }
 
-    var latex = this.ch[L].latex();
+    var latex = this.ends[L].latex();
     if (!latex) latex = 'backslash';
     this.cursor.insertCmd(latex, this._replacedFragment);
   };
@@ -587,7 +587,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         if (currentBlock[R])
           currentBlock[R][L] = newBlock;
         else
-          this.ch[R] = newBlock;
+          this.ends[R] = newBlock;
 
         newBlock[R] = currentBlock[R];
         currentBlock[R] = newBlock;
@@ -602,7 +602,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
           if (currentBlock[L]) {
             this.cursor.insertAfter(this);
             delete currentBlock[L][R];
-            this.ch[R] = currentBlock[L];
+            this.ends[R] = currentBlock[L];
             currentBlock.jQ.remove();
             this.bubble('redraw');
 
@@ -616,7 +616,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         var newBlock = MathBlock();
         newBlock.parent = this;
         newBlock.jQ = $('<span></span>').attr(mqBlockId, newBlock.id).appendTo(this.jQ);
-        this.ch[R] = newBlock;
+        this.ends[R] = newBlock;
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
         this.bubble('redraw').cursor.appendTo(newBlock);
@@ -632,13 +632,13 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
           }
           else {
             this.cursor.insertBefore(this);
-            this.ch[L] = currentBlock[R];
+            this.ends[L] = currentBlock[R];
           }
 
           if (currentBlock[R])
             currentBlock[R][L] = currentBlock[L];
           else
-            this.ch[R] = currentBlock[L];
+            this.ends[R] = currentBlock[L];
 
           currentBlock.jQ.remove();
           if (this.isEmpty())
@@ -669,26 +669,26 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     // having to call createBlocks, and createRoot expecting to
     // render the contents' LaTeX. Both need to be refactored.
     _super.jQadd.apply(self, arguments);
-    var block = self.ch[L].disown();
+    var block = self.ends[L].disown();
     var blockjQ = self.jQ.children().detach();
 
-    self.ch[L] =
-    self.ch[R] =
+    self.ends[L] =
+    self.ends[R] =
       RootMathBlock();
 
-    self.blocks = [ self.ch[L] ];
+    self.blocks = [ self.ends[L] ];
 
-    self.ch[L].parent = self;
+    self.ends[L].parent = self;
 
-    createRoot(self.jQ, self.ch[L], false, true);
-    self.cursor = self.ch[L].cursor;
+    createRoot(self.jQ, self.ends[L], false, true);
+    self.cursor = self.ends[L].cursor;
 
-    block.children().adopt(self.ch[L], 0, 0);
-    blockjQ.appendTo(self.ch[L].jQ);
+    block.children().adopt(self.ends[L], 0, 0);
+    blockjQ.appendTo(self.ends[L].jQ);
 
-    self.ch[L].cursor.appendTo(self.ch[L]);
+    self.ends[L].cursor.appendTo(self.ends[L]);
   };
 
-  _.latex = function(){ return this.ch[L].latex(); };
-  _.text = function(){ return this.ch[L].text(); };
+  _.latex = function(){ return this.ends[L].latex(); };
+  _.text = function(){ return this.ends[L].text(); };
 });

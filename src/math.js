@@ -61,7 +61,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.ch[R], 0);
+        blocks[i].adopt(self, self.ends[R], 0);
       }
 
       return self;
@@ -76,8 +76,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.createBlocks();
     _super.createBefore.call(cmd, cursor);
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.ch[L], 0, 0);
-      replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
+      replacedFragment.adopt(cmd.ends[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
     cmd.finalizeInsert(cursor);
     cmd.placeCursor(cursor);
@@ -89,12 +89,12 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.ch[R], 0);
+      newBlock.adopt(cmd, cmd.ends[R], 0);
     }
   };
   _.placeCursor = function(cursor) {
     //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {
+    cursor.appendTo(this.foldChildren(this.ends[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
   };
@@ -102,7 +102,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
+  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ends[-dir]); };
   _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
   _.selectTowards = function(dir, cursor) {
     if (!cursor.anticursor) cursor.startSelection();
@@ -338,13 +338,13 @@ var MathBlock = P(MathElement, function(_) {
   _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.ch[L] === this.ch[R] ?
-      this.ch[L].text() :
+    return this.ends[L] === this.ends[R] ?
+      this.ends[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.ch[L] === 0 && this.ch[R] === 0;
+    return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
   // editability methods: called by the cursor for editing, cursor movements,
@@ -365,11 +365,11 @@ var MathBlock = P(MathElement, function(_) {
     cursor.selection = Selection(first, last);
   };
   _.seek = function(pageX, cursor) {
-    var node = this.ch[R];
+    var node = this.ends[R];
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
       return cursor.appendTo(this);
     }
-    if (pageX < this.ch[L].jQ.offset().left) return cursor.prependTo(this);
+    if (pageX < this.ends[L].jQ.offset().left) return cursor.prependTo(this);
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };

@@ -20,7 +20,7 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.jQadd = function(jQ) {
     _super.jQadd.call(this, jQ);
-    if (this.ch[L]) this.ch[L].jQadd(this.jQ[0].firstChild);
+    if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
   _.createBefore = function(cursor) {
@@ -112,7 +112,7 @@ var TextBlock = P(Node, function(_, _super) {
     else if (!cursor[L]) cursor.insertBefore(this);
     else { // split apart
       var prevBlock = TextBlock();
-      var prevPc = this.ch[L];
+      var prevPc = this.ends[L];
       prevPc.disown();
       prevPc.adopt(prevBlock, 0, 0);
 
