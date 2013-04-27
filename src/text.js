@@ -23,9 +23,9 @@ var TextBlock = P(Node, function(_, _super) {
     if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
-  _.createBefore = function(cursor) {
+  _.createLeftOf = function(cursor) {
     var textBlock = this;
-    _super.createBefore.call(this, cursor);
+    _super.createLeftOf.call(this, cursor);
 
     if (textBlock[R].respace) textBlock[R].respace();
     if (textBlock[L].respace) textBlock[L].respace();
@@ -101,12 +101,12 @@ var TextBlock = P(Node, function(_, _super) {
     if (replacedFragment) replacedFragment.remove();
 
     if (ch !== '$') {
-      if (!cursor[L]) TextPiece(ch).createBefore(cursor);
+      if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
       else cursor[L].appendText(ch);
     }
     else if (this.isEmpty()) {
       cursor.insRightOf(this);
-      VanillaSymbol('\\$','$').createBefore(cursor);
+      VanillaSymbol('\\$','$').createLeftOf(cursor);
     }
     else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
@@ -117,7 +117,7 @@ var TextBlock = P(Node, function(_, _super) {
       leftPc.adopt(leftBlock, 0, 0);
 
       cursor.insLeftOf(this);
-      _super.createBefore.call(leftBlock, cursor);
+      _super.createLeftOf.call(leftBlock, cursor);
     }
     return false;
   };

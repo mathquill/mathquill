@@ -367,7 +367,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent).backspace().show();
-        VanillaSymbol('\\$','$').createBefore(cursor);
+        VanillaSymbol('\\$','$').createLeftOf(cursor);
       }
       else if (!cursor[R])
         cursor.insRightOf(this.parent);
@@ -436,12 +436,12 @@ var RootTextBlock = P(MathBlock, function(_) {
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      RootMathCommand(cursor).createBefore(cursor);
+      RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
       if (ch === '<') html = '&lt;';
       else if (ch === '>') html = '&gt;';
-      VanillaSymbol(ch, html).createBefore(cursor);
+      VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   };
 });

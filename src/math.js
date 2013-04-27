@@ -68,13 +68,13 @@ var MathCommand = P(MathElement, function(_, _super) {
     });
   };
 
-  // createBefore(cursor) and the methods it calls
-  _.createBefore = function(cursor) {
+  // createLeftOf(cursor) and the methods it calls
+  _.createLeftOf = function(cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    _super.createBefore.call(cmd, cursor);
+    _super.createLeftOf.call(cmd, cursor);
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
@@ -385,7 +385,7 @@ var MathBlock = P(MathElement, function(_) {
 
     if (replacedFragment) cmd.replaces(replacedFragment);
 
-    cmd.createBefore(cursor);
+    cmd.createLeftOf(cursor);
   };
 
   _.focus = function() {

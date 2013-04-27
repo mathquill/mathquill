@@ -122,7 +122,7 @@ var Node = P(function(_) {
     cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };
-  _.createBefore = function(el) { return this.createDir(L, el); };
+  _.createLeftOf = function(el) { return this.createDir(L, el); };
 
   _.respace = noop;
 

@@ -247,7 +247,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
 var LiveFraction =
 LatexCmds.over =
 CharCmds['/'] = P(Fraction, function(_, _super) {
-  _.createBefore = function(cursor) {
+  _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) {
       var leftward = cursor[L];
       while (leftward &&
@@ -270,7 +270,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
         cursor[L] = leftward;
       }
     }
-    _super.createBefore.call(this, cursor);
+    _super.createLeftOf.call(this, cursor);
   };
 });
 
@@ -394,14 +394,14 @@ LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
 
 // Closing bracket matching opening bracket above
 var CloseBracket = P(Bracket, function(_, _super) {
-  _.createBefore = function(cursor) {
+  _.createLeftOf = function(cursor) {
     // if I'm at the end of my parent who is a matching open-paren,
     // and I am not replacing a selection fragment, don't create me,
     // just put cursor after my parent
     if (!cursor[R] && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
       cursor.insRightOf(cursor.parent.parent);
     else
-      _super.createBefore.call(this, cursor);
+      _super.createLeftOf.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
     this.ends[L].blur();
@@ -444,7 +444,7 @@ CharCmds['|'] = P(Paren, function(_, _super) {
     _super.init.call(this, '|', '|');
   };
 
-  _.createBefore = CloseBracket.prototype.createBefore;
+  _.createLeftOf = CloseBracket.prototype.createLeftOf;
 });
 
 // input box to type a variety of LaTeX commands beginning with a backslash
@@ -474,8 +474,8 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       return this;
     };
   };
-  _.createBefore = function(cursor) {
-    _super.createBefore.call(this, cursor);
+  _.createLeftOf = function(cursor) {
+    _super.createLeftOf.call(this, cursor);
 
     this.cursor = cursor.insAtRightEnd(this.ends[L]);
     if (this._replacedFragment) {
@@ -493,7 +493,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (replacedFragment) replacedFragment.remove();
 
-      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createBefore(cursor);
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
       else {
         this.parent.renderCommand();
         if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
@@ -552,7 +552,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
 
 var Choose =
 LatexCmds.choose = P(Binomial, function(_) {
-  _.createBefore = LiveFraction.prototype.createBefore;
+  _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
 var Vector =
@@ -571,8 +571,8 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       return text;
     }).join() + ']';
   };
-  _.createBefore = function(cursor) {
-    _super.createBefore.call(this, this.cursor = cursor);
+  _.createLeftOf = function(cursor) {
+    _super.createLeftOf.call(this, this.cursor = cursor);
   };
   _.onKey = function(key, e) {
     var currentBlock = this.cursor.parent;

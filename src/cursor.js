@@ -255,13 +255,13 @@ var Cursor = P(Point, function(_) {
     if (cmd) {
       cmd = cmd(latexCmd);
       if (replacedFragment) cmd.replaces(replacedFragment);
-      cmd.createBefore(this);
+      cmd.createLeftOf(this);
     }
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
       cmd.ends[L].focus = function(){ delete this.focus; return this; };
-      cmd.createBefore(this);
+      cmd.createLeftOf(this);
       this.insRightOf(cmd);
       if (replacedFragment)
         replacedFragment.remove();
