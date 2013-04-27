@@ -123,7 +123,7 @@ var Fragment = P(function(_) {
   _.init = function(leftEnd, rightEnd) {
     pray('no half-empty fragments', !leftEnd === !rightEnd);
 
-    this.end = {};
+    this.ends = {};
 
     if (!leftEnd) return;
 
@@ -132,8 +132,8 @@ var Fragment = P(function(_) {
     pray('leftEnd and rightEnd have the same parent',
          leftEnd.parent === rightEnd.parent);
 
-    this.end[L] = leftEnd;
-    this.end[R] = rightEnd;
+    this.ends[L] = leftEnd;
+    this.ends[R] = rightEnd;
   };
 
   function prayWellFormed(parent, leftward, rightward) {
@@ -161,10 +161,10 @@ var Fragment = P(function(_) {
     var self = this;
     self.disowned = false;
 
-    var leftEnd = self.end[L];
+    var leftEnd = self.ends[L];
     if (!leftEnd) return this;
 
-    var rightEnd = self.end[R];
+    var rightEnd = self.ends[R];
 
     if (leftward) {
       // NB: this is handled in the ::each() block
@@ -179,7 +179,7 @@ var Fragment = P(function(_) {
       parent.endChild[R] = rightEnd;
     }
 
-    self.end[R][R] = rightward;
+    self.ends[R][R] = rightward;
 
     self.each(function(el) {
       el[L] = leftward;
@@ -194,14 +194,14 @@ var Fragment = P(function(_) {
 
   _.disown = function() {
     var self = this;
-    var leftEnd = self.end[L];
+    var leftEnd = self.ends[L];
 
     // guard for empty and already-disowned fragments
     if (!leftEnd || self.disowned) return self;
 
     self.disowned = true;
 
-    var rightEnd = self.end[R]
+    var rightEnd = self.ends[R]
     var parent = leftEnd.parent;
 
     prayWellFormed(parent, leftEnd[L], leftEnd);
@@ -224,10 +224,10 @@ var Fragment = P(function(_) {
 
   _.each = function(fn) {
     var self = this;
-    var el = self.end[L];
+    var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.end[R][R]; el = el[R]) {
+    for (;el !== self.ends[R][R]; el = el[R]) {
       if (fn.call(self, el) === false) break;
     }
 

@@ -27,7 +27,7 @@ var Cursor = P(Point, function(_) {
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
-        if (this.selection && this.selection.end[L][L] === this[L])
+        if (this.selection && this.selection.ends[L][L] === this[L])
           this.jQ.insertBefore(this.selection.jQ);
         else
           this.jQ.insertBefore(this[R].jQ.first());
@@ -122,7 +122,7 @@ var Cursor = P(Point, function(_) {
     clearUpDownCache(this);
 
     if (this.selection)  {
-      this.insDirOf(dir, this.selection.end[dir]).clearSelection();
+      this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
     }
     else {
       this.moveDirWithin(dir, this.root);
@@ -421,7 +421,7 @@ var Cursor = P(Point, function(_) {
 
     if (this.selection) {
       // if cursor is at the (dir) edge of selection
-      if (this.selection.end[dir] === this[-dir]) {
+      if (this.selection.ends[dir] === this[-dir]) {
         // then extend (dir) if possible
         if (this[dir]) this.hopDir(dir).selection.extendDir(dir);
         // else level up if possible
@@ -434,7 +434,7 @@ var Cursor = P(Point, function(_) {
         this.hopDir(dir);
 
         // clear the selection if we only have one thing selected
-        if (this.selection.end[dir] === this.selection.end[-dir]) {
+        if (this.selection.ends[dir] === this.selection.ends[-dir]) {
           this.clearSelection().show();
           return;
         }
@@ -488,8 +488,8 @@ var Cursor = P(Point, function(_) {
   _.deleteSelection = function() {
     if (!this.selection) return false;
 
-    this[L] = this.selection.end[L][L];
-    this[R] = this.selection.end[R][R];
+    this[L] = this.selection.ends[L][L];
+    this[R] = this.selection.ends[R][R];
     this.selection.remove();
     this.root.selectionChanged();
     return delete this.selection;
@@ -497,8 +497,8 @@ var Cursor = P(Point, function(_) {
   _.replaceSelection = function() {
     var seln = this.selection;
     if (seln) {
-      this[L] = seln.end[L][L];
-      this[R] = seln.end[R][R];
+      this[L] = seln.ends[L][L];
+      this[R] = seln.ends[R][R];
       delete this.selection;
     }
     return seln;
@@ -526,14 +526,14 @@ var Selection = P(MathFragment, function(_, _super) {
   };
   _.levelUp = function() {
     var seln = this,
-      gramp = seln.end[L] = seln.end[R] = seln.end[R].parent.parent;
+      gramp = seln.ends[L] = seln.ends[R] = seln.ends[R].parent.parent;
     seln.clear().jQwrap(gramp.jQ);
     return seln;
   };
   _.extendDir = function(dir) {
     prayDirection(dir);
-    this.end[dir] = this.end[dir][dir];
-    this.end[dir].jQ.insAtDirEnd(dir, this.jQ);
+    this.ends[dir] = this.ends[dir][dir];
+    this.ends[dir].jQ.insAtDirEnd(dir, this.jQ);
     return this;
   };
   _.extendLeft = function() { return this.extendDir(L); };
@@ -541,8 +541,8 @@ var Selection = P(MathFragment, function(_, _super) {
 
   _.retractDir = function(dir) {
     prayDirection(dir);
-    this.end[-dir].jQ.insDirOf(-dir, this.jQ);
-    this.end[-dir] = this.end[-dir][dir];
+    this.ends[-dir].jQ.insDirOf(-dir, this.jQ);
+    this.ends[-dir] = this.ends[-dir][dir];
   };
   _.retractRight = function() { return this.retractDir(R); };
   _.retractLeft = function() { return this.retractDir(L); };
