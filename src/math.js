@@ -122,7 +122,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.endChild[R], 0);
+        blocks[i].adopt(self, self.ends[R], 0);
       }
 
       return self;
@@ -137,8 +137,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     cmd.createBlocks();
     MathElement.jQize(cmd.html());
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.endChild[L], 0, 0);
-      replacedFragment.jQ.appendTo(cmd.endChild[L].jQ);
+      replacedFragment.adopt(cmd.ends[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
 
     cursor.jQ.before(cmd.jQ);
@@ -155,14 +155,14 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.endChild[R], 0);
+      newBlock.adopt(cmd, cmd.ends[R], 0);
     }
   };
   _.respace = noop; //placeholder for context-sensitive spacing
   _.placeCursor = function(cursor) {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
-    cursor.insAtRightEnd(this.foldChildren(this.endChild[L], function(leftward, child) {
+    cursor.insAtRightEnd(this.foldChildren(this.ends[L], function(leftward, child) {
       return leftward.isEmpty() ? leftward : child;
     }));
   };
@@ -339,13 +339,13 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.endChild[L] === this.endChild[R] ?
-      this.endChild[L].text() :
+    return this.ends[L] === this.ends[R] ?
+      this.ends[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.endChild[L] === 0 && this.endChild[R] === 0;
+    return this.ends[L] === 0 && this.ends[R] === 0;
   };
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;

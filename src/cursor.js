@@ -67,7 +67,7 @@ var Cursor = P(Point, function(_) {
 
   _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
-    this.withDirInsertAt(dir, el, 0, el.endChild[dir]);
+    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
 
     // never insert before textarea
     if (dir === L && el.textarea) {
@@ -99,7 +99,7 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     if (this[dir]) {
-      if (this[dir].endChild[-dir]) this.insAtDirEnd(-dir, this[dir].endChild[-dir]);
+      if (this[dir].ends[-dir]) this.insAtDirEnd(-dir, this[dir].ends[-dir]);
       else this.hopDir(dir);
     }
     else {
@@ -263,7 +263,7 @@ var Cursor = P(Point, function(_) {
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
       MathElement.jQize(block.join('html')).insertBefore(self.jQ);
-      self[L] = block.endChild[R];
+      self[L] = block.ends[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
     }
@@ -288,7 +288,7 @@ var Cursor = P(Point, function(_) {
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
-      cmd.endChild[L].focus = function(){ delete this.focus; return this; };
+      cmd.ends[L].focus = function(){ delete this.focus; return this; };
       cmd.createLeftOf(this);
       this.insRightOf(cmd);
       if (replacedFragment)
@@ -313,7 +313,7 @@ var Cursor = P(Point, function(_) {
         })
       ;
 
-      leftward = uncle.endChild[R];
+      leftward = uncle.ends[R];
     });
 
     if (!this[R]) { //then find something to be rightward to insLeftOf
@@ -323,7 +323,7 @@ var Cursor = P(Point, function(_) {
         while (!this[R]) {
           this.parent = this.parent[R];
           if (this.parent)
-            this[R] = this.parent.endChild[L];
+            this[R] = this.parent.ends[L];
           else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -411,8 +411,8 @@ var Cursor = P(Point, function(_) {
         left = leftRight;
       }
     }
-    this.hide().selection = Selection(left[L][R] || left.parent.endChild[L], right[R][L] || right.parent.endChild[R]);
-    this.insRightOf(right[R][L] || right.parent.endChild[R]);
+    this.hide().selection = Selection(left[L][R] || left.parent.ends[L], right[R][L] || right.parent.ends[R]);
+    this.insRightOf(right[R][L] || right.parent.ends[R]);
     this.root.selectionChanged();
   };
   _.selectDir = function(dir) {

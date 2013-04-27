@@ -200,7 +200,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.endChild[L] = this.endChild[R] = 0;
+    this.ends[L] = this.ends[R] = 0;
 
     this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
@@ -381,16 +381,16 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    this.endChild[L] =
-    this.endChild[R] =
+    this.ends[L] =
+    this.ends[R] =
       RootMathBlock();
 
-    this.blocks = [ this.endChild[L] ];
+    this.blocks = [ this.ends[L] ];
 
-    this.endChild[L].parent = this;
+    this.ends[L].parent = this;
 
-    this.endChild[L].cursor = this.cursor;
-    this.endChild[L].write = function(cursor, ch, replacedFragment) {
+    this.ends[L].cursor = this.cursor;
+    this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (ch !== '$')
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
@@ -406,7 +406,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
     };
   };
   _.latex = function() {
-    return '$' + this.endChild[L].latex() + '$';
+    return '$' + this.ends[L].latex() + '$';
   };
 });
 
@@ -415,7 +415,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.endChild[L] = self.endChild[R] = 0;
+    self.ends[L] = self.ends[R] = 0;
     cursor.show().insAtRightEnd(self);
 
     var regex = Parser.regex;
@@ -434,7 +434,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         var rootMathCommand = RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.endChild[L];
+        var rootMathBlock = rootMathCommand.ends[L];
         block.children().adopt(rootMathBlock, 0, 0);
 
         return rootMathCommand;
@@ -448,7 +448,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.endChild[R], 0);
+        commands[i].adopt(self, self.ends[R], 0);
       }
 
       var html = self.join('html');

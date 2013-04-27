@@ -79,13 +79,13 @@ var Node = P(function(_) {
   _.parent = 0;
 
   _.init = function() {
-    this.endChild = {};
-    this.endChild[L] = 0;
-    this.endChild[R] = 0;
+    this.ends = {};
+    this.ends[L] = 0;
+    this.ends[R] = 0;
   };
 
   _.children = function() {
-    return Fragment(this.endChild[L], this.endChild[R]);
+    return Fragment(this.ends[L], this.ends[R]);
   };
 
   _.eachChild = function(fn) {
@@ -140,7 +140,7 @@ var Fragment = P(function(_) {
     pray('a parent is always present', parent);
     pray('leftward is properly set up', (function() {
       // either it's empty and rightward is the left end child (possibly empty)
-      if (!leftward) return parent.endChild[L] === rightward;
+      if (!leftward) return parent.ends[L] === rightward;
 
       // or it's there and its [R] and .parent are properly set up
       return leftward[R] === rightward && leftward.parent === parent;
@@ -148,7 +148,7 @@ var Fragment = P(function(_) {
 
     pray('rightward is properly set up', (function() {
       // either it's empty and leftward is the right end child (possibly empty)
-      if (!rightward) return parent.endChild[R] === leftward;
+      if (!rightward) return parent.ends[R] === leftward;
 
       // or it's there and its [L] and .parent are properly set up
       return rightward[L] === leftward && rightward.parent === parent;
@@ -170,13 +170,13 @@ var Fragment = P(function(_) {
       // NB: this is handled in the ::each() block
       // leftward[R] = leftEnd
     } else {
-      parent.endChild[L] = leftEnd;
+      parent.ends[L] = leftEnd;
     }
 
     if (rightward) {
       rightward[L] = rightEnd;
     } else {
-      parent.endChild[R] = rightEnd;
+      parent.ends[R] = rightEnd;
     }
 
     self.ends[R][R] = rightward;
@@ -210,13 +210,13 @@ var Fragment = P(function(_) {
     if (leftEnd[L]) {
       leftEnd[L][R] = rightEnd[R];
     } else {
-      parent.endChild[L] = rightEnd[R];
+      parent.ends[L] = rightEnd[R];
     }
 
     if (rightEnd[R]) {
       rightEnd[R][L] = leftEnd[L];
     } else {
-      parent.endChild[R] = leftEnd[L];
+      parent.ends[R] = leftEnd[L];
     }
 
     return self;
