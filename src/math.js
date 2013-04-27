@@ -93,7 +93,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     }
   };
   _.placeCursor = function(cursor) {
-    //append the cursor to the first empty child, or if none empty, the last one
+    //append the cursor to the leftmost empty child, or if none empty, the right end child
     cursor.appendTo(this.foldChildren(this.ends[L], function(prev, child) {
       return prev.isEmpty() ? prev : child;
     }));
@@ -361,8 +361,8 @@ var MathBlock = P(MathElement, function(_) {
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
   };
-  _.selectChildren = function(cursor, first, last) {
-    cursor.selection = Selection(first, last);
+  _.selectChildren = function(cursor, leftEnd, rightEnd) {
+    cursor.selection = Selection(leftEnd, rightEnd);
   };
   _.seek = function(pageX, cursor) {
     var node = this.ends[R];

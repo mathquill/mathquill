@@ -437,11 +437,11 @@ var Cursor = P(Point, function(_) {
 });
 
 var Selection = P(Fragment, function(_, _super) {
-  _.init = function(first, last) {
+  _.init = function(leftEnd, rightEnd) {
     var seln = this;
 
     // just select one thing if only one argument
-    _super.init.call(seln, first, last || first);
+    _super.init.call(seln, leftEnd, rightEnd || leftEnd);
 
     seln.jQwrap(seln.jQ);
   };

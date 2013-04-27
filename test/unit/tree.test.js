@@ -90,7 +90,7 @@ suite('tree', function() {
       assert.ok(!parent.ends[R], 'parent has no lastChild');
     });
 
-    test('disowning the last child', function() {
+    test('disowning the right end child', function() {
       var parent = Node();
       var one = Node();
       var two = Node();
@@ -109,7 +109,7 @@ suite('tree', function() {
                     'disown fails on a malformed tree');
     });
 
-    test('disowning the first child', function() {
+    test('disowning the left end child', function() {
       var parent = Node();
       var one = Node();
       var two = Node();
@@ -185,14 +185,14 @@ suite('tree', function() {
     });
 
     suite('Fragment.between()', function() {
-      function assertFragmentBetween(A, B, first, last) {
-        last = last || first;
+      function assertFragmentBetween(A, B, leftEnd, rightEnd) {
+        rightEnd = rightEnd || leftEnd;
 
         (function eitherOrder(A, B) {
 
           var frag = Fragment.between(A, B);
-          assert.equal(frag.ends[L], first);
-          assert.equal(frag.ends[R], last);
+          assert.equal(frag.ends[L], leftEnd);
+          assert.equal(frag.ends[R], rightEnd);
 
           return eitherOrder;
         }(A, B)(B, A));
