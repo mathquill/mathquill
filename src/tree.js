@@ -19,7 +19,7 @@ function prayDirection(dir) {
 }
 
 // directionalizable versions of common jQuery traversals
-function jQinsertAdjacent(dir, el, target) {
+function jQinsDirOf(dir, el, target) {
   return (
     dir === L ?
     el.insertBefore(target) :
@@ -103,7 +103,7 @@ var Node = P(function(_) {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    jQinsertAdjacent(dir, node.jQ, cursor.jQ);
+    jQinsDirOf(dir, node.jQ, cursor.jQ);
     cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };

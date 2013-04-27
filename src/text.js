@@ -82,7 +82,7 @@ var TextBlock = P(Node, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
-  _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
+  _.moveOutOf = function(dir, cursor) { cursor.insDirOf(dir, this); };
   _.unselectInto = _.moveTowards;
 
   // TODO: make these methods part of a shared mixin or something.
@@ -91,7 +91,7 @@ var TextBlock = P(Node, function(_, _super) {
   _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(dir, this);
+    cursor.insDirOf(dir, this);
   };
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
@@ -272,14 +272,14 @@ var TextPiece = P(Node, function(_, _super) {
     if (!anticursor || anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
       cursor.startSelection();
-      cursor.insertAdjacent(dir, newPc);
+      cursor.insDirOf(dir, newPc);
     }
     else {
       var from = this[-dir];
       if (from) from.appendTextInDir(ch, dir);
       else {
         var newPc = TextPiece(ch).createDir(-dir, cursor);
-        jQinsertAdjacent(-dir, newPc.jQ, cursor.selection.jQ);
+        jQinsDirOf(-dir, newPc.jQ, cursor.selection.jQ);
       }
 
       if (this.text.length === 1 && anticursor[-dir] === this) {

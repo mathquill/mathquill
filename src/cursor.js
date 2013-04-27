@@ -54,15 +54,15 @@ var Cursor = P(Point, function(_) {
     this[dir] = withDir;
     this[-dir] = oppDir;
   };
-  _.insertAdjacent = function(dir, el) {
+  _.insDirOf = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
     return this;
   };
-  _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
-  _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
+  _.insertBefore = function(el) { return this.insDirOf(L, el); };
+  _.insertAfter = function(el) { return this.insDirOf(R, el); };
 
   _.appendDir = function(dir, el) {
     prayDirection(dir);
@@ -70,7 +70,7 @@ var Cursor = P(Point, function(_) {
 
     // never insert before textarea
     if (dir === L && el.textarea) {
-      jQinsertAdjacent(-dir, this.jQ, el.textarea);
+      jQinsDirOf(-dir, this.jQ, el.textarea);
     }
     else {
       jQappendDir(dir, this.jQ, el.jQ);
@@ -121,7 +121,7 @@ var Cursor = P(Point, function(_) {
     this.endSelection();
 
     if (this.selection)  {
-      this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
+      this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
     }
     else {
       this.moveDirWithin(dir, this.root);

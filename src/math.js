@@ -303,7 +303,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.createBlocks = noop;
 
   _.moveTowards = function(dir, cursor) {
-    jQinsertAdjacent(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
+    jQinsDirOf(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
@@ -352,10 +352,10 @@ var MathBlock = P(MathElement, function(_) {
   // the cursor
   _.moveOutOf = function(dir, cursor) {
     if (this[dir]) cursor.appendDir(-dir, this[dir]);
-    else cursor.insertAdjacent(dir, this.parent);
+    else cursor.insDirOf(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(dir, this.parent);
+    cursor.insDirOf(dir, this.parent);
     this.parent.selectedOutOf = this;
   };
   _.deleteOutOf = function(dir, cursor) {
