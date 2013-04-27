@@ -94,8 +94,8 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.placeCursor = function(cursor) {
     //append the cursor to the leftmost empty child, or if none empty, the right end child
-    cursor.appendTo(this.foldChildren(this.ends[L], function(prev, child) {
-      return prev.isEmpty() ? prev : child;
+    cursor.appendTo(this.foldChildren(this.ends[L], function(leftward, child) {
+      return leftward.isEmpty() ? leftward : child;
     }));
   };
 

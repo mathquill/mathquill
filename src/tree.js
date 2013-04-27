@@ -48,10 +48,10 @@ var Point = P(function(_) {
   _[L] = 0;
   _[R] = 0;
 
-  _.init = function(parent, prev, next) {
+  _.init = function(parent, leftward, rightward) {
     this.parent = parent;
-    this[L] = prev;
-    this[R] = next;
+    this[L] = leftward;
+    this[R] = rightward;
   };
 
   this.copy = function(pt) {
@@ -143,8 +143,8 @@ var Node = P(function(_) {
     return this.children().fold(fold, fn);
   };
 
-  _.adopt = function(parent, prev, next) {
-    Fragment(this, this).adopt(parent, prev, next);
+  _.adopt = function(parent, leftward, rightward) {
+    Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
   };
 
@@ -192,27 +192,27 @@ var Fragment = P(function(_) {
   };
   _.jQ = $();
 
-  function prayWellFormed(parent, prev, next) {
+  function prayWellFormed(parent, leftward, rightward) {
     pray('a parent is always present', parent);
-    pray('prev is properly set up', (function() {
-      // either it's empty and next is the left end child (possibly empty)
-      if (!prev) return parent.ends[L] === next;
+    pray('leftward is properly set up', (function() {
+      // either it's empty and `rightward` is the left end child (possibly empty)
+      if (!leftward) return parent.ends[L] === rightward;
 
-      // or it's there and its next and parent are properly set up
-      return prev[R] === next && prev.parent === parent;
+      // or it's there and its [R] and parent are properly set up
+      return leftward[R] === rightward && leftward.parent === parent;
     })());
 
-    pray('next is properly set up', (function() {
-      // either it's empty and prev is the right end child (possibly empty)
-      if (!next) return parent.ends[R] === prev;
+    pray('rightward is properly set up', (function() {
+      // either it's empty and `leftward` is the right end child (possibly empty)
+      if (!rightward) return parent.ends[R] === leftward;
 
-      // or it's there and its next and parent are properly set up
-      return next[L] === prev && next.parent === parent;
+      // or it's there and its [L] and parent are properly set up
+      return rightward[L] === leftward && rightward.parent === parent;
     })());
   }
 
-  _.adopt = function(parent, prev, next) {
-    prayWellFormed(parent, prev, next);
+  _.adopt = function(parent, leftward, rightward) {
+    prayWellFormed(parent, leftward, rightward);
 
     var self = this;
     self.disowned = false;
@@ -222,27 +222,27 @@ var Fragment = P(function(_) {
 
     var rightEnd = self.ends[R];
 
-    if (prev) {
+    if (leftward) {
       // NB: this is handled in the ::each() block
-      // prev[R] = leftEnd
+      // leftward[R] = leftEnd
     } else {
       parent.ends[L] = leftEnd;
     }
 
-    if (next) {
-      next[L] = rightEnd;
+    if (rightward) {
+      rightward[L] = rightEnd;
     } else {
       parent.ends[R] = rightEnd;
     }
 
-    self.ends[R][R] = next;
+    self.ends[R][R] = rightward;
 
     self.each(function(el) {
-      el[L] = prev;
+      el[L] = leftward;
       el.parent = parent;
-      if (prev) prev[R] = el;
+      if (leftward) leftward[R] = el;
 
-      prev = el;
+      leftward = el;
     });
 
     return self;
@@ -363,11 +363,11 @@ var Fragment = P(function(_) {
     // - both Nodes
     // - ancA a Point and ancB a Node
     // - ancA a Node and ancB a Point
-    // ancB[R] === next[R] for some next that is ancA or to its right if and
-    // only if anticursorA is to the right of cursorA.
+    // ancB[R] === rightward[R] for some rightward that is ancA or to its
+    // right if and only if anticursorA is to the right of cursorA.
     if (ancA[L] !== ancB) {
-      for (var next = ancA; next; next = next[R]) {
-        if (next[R] === ancB[R]) {
+      for (var rightward = ancA; rightward; rightward = rightward[R]) {
+        if (rightward[R] === ancB[R]) {
           left = ancA;
           right = ancB;
           break;

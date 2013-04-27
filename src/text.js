@@ -111,13 +111,13 @@ var TextBlock = P(Node, function(_, _super) {
     else if (!cursor[R]) cursor.insertAfter(this);
     else if (!cursor[L]) cursor.insertBefore(this);
     else { // split apart
-      var prevBlock = TextBlock();
-      var prevPc = this.ends[L];
-      prevPc.disown();
-      prevPc.adopt(prevBlock, 0, 0);
+      var leftBlock = TextBlock();
+      var leftPc = this.ends[L];
+      leftPc.disown();
+      leftPc.adopt(leftBlock, 0, 0);
 
       cursor.insertBefore(this);
-      _super.createBefore.call(prevBlock, cursor);
+      _super.createBefore.call(leftBlock, cursor);
     }
     return false;
   };

@@ -134,7 +134,7 @@ var Cursor = P(Point, function(_) {
 
   /**
    * moveUp and moveDown have almost identical algorithms:
-   * - first check next and prev, if so prepend/appendTo them
+   * - first check left and right, if so prepend/appendTo them
    * - else check the parent's 'upOutOf'/'downOutOf' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
@@ -271,24 +271,24 @@ var Cursor = P(Point, function(_) {
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
-    var next = gramp[R];
+    var rightward = gramp[R];
     var cursor = this;
 
-    var prev = gramp[L];
+    var leftward = gramp[L];
     gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
       uncle.children()
-        .adopt(greatgramp, prev, next)
+        .adopt(greatgramp, leftward, rightward)
         .each(function(cousin) {
           cousin.jQ.insertBefore(gramp.jQ.first());
         })
       ;
 
-      prev = uncle.ends[R];
+      leftward = uncle.ends[R];
     });
 
-    if (!this[R]) { //then find something to be next to insertBefore
+    if (!this[R]) { //then find something to be rightward to insertBefore
       if (this[L])
         this[R] = this[L][R];
       else {

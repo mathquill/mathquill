@@ -158,10 +158,10 @@ var SupSub = P(MathCommand, function(_, _super) {
     if (this[L])
       this[L].respace();
     //SupSub::respace recursively calls respace on all the following SupSubs
-    //so if prev is a SupSub, no need to call respace on this or following nodes
+    //so if leftward is a SupSub, no need to call respace on this or following nodes
     if (!(this[L] instanceof SupSub)) {
       this.respace();
-      //and if next is a SupSub, then this.respace() will have already called
+      //and if rightward is a SupSub, then this.respace() will have already called
       //this[R].respace()
       if (this[R] && !(this[R] instanceof SupSub))
         this[R].respace();
@@ -189,11 +189,11 @@ var SupSub = P(MathCommand, function(_, _super) {
     this.respaced = this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq && !this[L].respaced;
     if (this.respaced) {
       var fontSize = +this.jQ.css('fontSize').slice(0,-2),
-        prevWidth = this[L].jQ.outerWidth(),
+        leftWidth = this[L].jQ.outerWidth(),
         thisWidth = this.jQ.outerWidth();
       this.jQ.css({
-        left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - prevWidth/fontSize + 'em',
-        marginRight: .1 - min(thisWidth, prevWidth)/fontSize + 'em'
+        left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - leftWidth/fontSize + 'em',
+        marginRight: .1 - min(thisWidth, leftWidth)/fontSize + 'em'
           //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
       });
     }
@@ -249,25 +249,25 @@ LatexCmds.over =
 CharCmds['/'] = P(Fraction, function(_, _super) {
   _.createBefore = function(cursor) {
     if (!this.replacedFragment) {
-      var prev = cursor[L];
-      while (prev &&
+      var leftward = cursor[L];
+      while (leftward &&
         !(
-          prev instanceof BinaryOperator ||
-          prev instanceof TextBlock ||
-          prev instanceof BigSymbol ||
-          ',;:'.split('').indexOf(prev.ctrlSeq) > -1
+          leftward instanceof BinaryOperator ||
+          leftward instanceof TextBlock ||
+          leftward instanceof BigSymbol ||
+          ',;:'.split('').indexOf(leftward.ctrlSeq) > -1
         ) //lookbehind for operator
-      ) prev = prev[L];
+      ) leftward = leftward[L];
 
-      if (prev instanceof BigSymbol && prev[R] instanceof SupSub) {
-        prev = prev[R];
-        if (prev[R] instanceof SupSub && prev[R].ctrlSeq != prev.ctrlSeq)
-          prev = prev[R];
+      if (leftward instanceof BigSymbol && leftward[R] instanceof SupSub) {
+        leftward = leftward[R];
+        if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
+          leftward = leftward[R];
       }
 
-      if (prev !== cursor[L]) {
-        this.replaces(Fragment(prev[R] || cursor.parent.ends[L], cursor[L]));
-        cursor[L] = prev;
+      if (leftward !== cursor[L]) {
+        this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
+        cursor[L] = leftward;
       }
     }
     _super.createBefore.call(this, cursor);
