@@ -112,6 +112,9 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.selectChildren = function(cursor) {
     cursor.selection = Selection(this);
   };
+  _.unselectInto = function(dir, cursor) {
+    cursor.appendDir(-dir, this.selectedOutOf);
+  };
   _.seek = function(pageX, cursor) {
     function getBounds(node) {
       var bounds = {}
@@ -352,9 +355,8 @@ var MathBlock = P(MathElement, function(_) {
     else cursor.insertAdjacent(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(-dir, this.parent);
-    cursor.startSelection();
     cursor.insertAdjacent(dir, this.parent);
+    this.parent.selectedOutOf = this;
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
