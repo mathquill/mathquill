@@ -94,7 +94,7 @@ var MathCommand = P(MathElement, function(_, _super) {
   };
   _.placeCursor = function(cursor) {
     //append the cursor to the leftmost empty child, or if none empty, the right end child
-    cursor.appendTo(this.foldChildren(this.ends[L], function(leftward, child) {
+    cursor.insAtRightEnd(this.foldChildren(this.ends[L], function(leftward, child) {
       return leftward.isEmpty() ? leftward : child;
     }));
   };
@@ -135,10 +135,10 @@ var MathCommand = P(MathElement, function(_, _super) {
       if (pageX < blockBounds[L]) {
         // closer to this block's left bound, or the bound left of that?
         if (pageX - leftLeftBound < blockBounds[L] - pageX) {
-          if (block[L]) cursor.appendTo(block[L]);
+          if (block[L]) cursor.insAtRightEnd(block[L]);
           else cursor.insLeftOf(cmd);
         }
-        else cursor.prependTo(block);
+        else cursor.insAtLeftEnd(block);
         return false;
       }
       else if (pageX > blockBounds[R]) {
@@ -148,7 +148,7 @@ var MathCommand = P(MathElement, function(_, _super) {
           if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
             cursor.insRightOf(cmd);
           }
-          else cursor.appendTo(block);
+          else cursor.insAtRightEnd(block);
         }
       }
       else {
@@ -367,9 +367,9 @@ var MathBlock = P(MathElement, function(_) {
   _.seek = function(pageX, cursor) {
     var node = this.ends[R];
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
-      return cursor.appendTo(this);
+      return cursor.insAtRightEnd(this);
     }
-    if (pageX < this.ends[L].jQ.offset().left) return cursor.prependTo(this);
+    if (pageX < this.ends[L].jQ.offset().left) return cursor.insAtLeftEnd(this);
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };

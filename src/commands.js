@@ -477,7 +477,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.createBefore = function(cursor) {
     _super.createBefore.call(this, cursor);
 
-    this.cursor = cursor.appendTo(this.ends[L]);
+    this.cursor = cursor.insAtRightEnd(this.ends[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -516,7 +516,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     if (this[R]) {
       this.cursor.insLeftOf(this[R]);
     } else {
-      this.cursor.appendTo(this.parent);
+      this.cursor.insAtRightEnd(this.parent);
     }
 
     var latex = this.ends[L].latex();
@@ -592,7 +592,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         newBlock[R] = currentBlock[R];
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
-        this.bubble('redraw').cursor.appendTo(newBlock);
+        this.bubble('redraw').cursor.insAtRightEnd(newBlock);
 
         e.preventDefault();
         return false;
@@ -619,7 +619,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
         this.ends[R] = newBlock;
         currentBlock[R] = newBlock;
         newBlock[L] = currentBlock;
-        this.bubble('redraw').cursor.appendTo(newBlock);
+        this.bubble('redraw').cursor.insAtRightEnd(newBlock);
 
         e.preventDefault();
         return false;
@@ -627,7 +627,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (e.which === 8) { //backspace
         if (currentBlock.isEmpty()) {
           if (currentBlock[L]) {
-            this.cursor.appendTo(currentBlock[L]);
+            this.cursor.insAtRightEnd(currentBlock[L]);
             currentBlock[L][R] = currentBlock[R];
           }
           else {
@@ -686,7 +686,7 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     block.children().adopt(self.ends[L], 0, 0);
     blockjQ.appendTo(self.ends[L].jQ);
 
-    self.ends[L].cursor.appendTo(self.ends[L]);
+    self.ends[L].cursor.insAtRightEnd(self.ends[L]);
   };
 
   _.latex = function(){ return this.ends[L].latex(); };

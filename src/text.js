@@ -32,7 +32,7 @@ var TextBlock = P(Node, function(_, _super) {
 
     textBlock.bubble('redraw');
 
-    cursor.appendTo(textBlock);
+    cursor.insAtRightEnd(textBlock);
 
     if (textBlock.replacedText)
       for (var i = 0; i < textBlock.replacedText.length; i += 1)
@@ -129,8 +129,8 @@ var TextBlock = P(Node, function(_, _super) {
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.jQ.width()/this.text.length;
     var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
-    if (approxPosition <= 0) cursor.prependTo(this);
-    else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
+    if (approxPosition <= 0) cursor.insAtLeftEnd(this);
+    else if (approxPosition >= textPc.text.length) cursor.insAtRightEnd(this);
     else cursor.insLeftOf(textPc.splitRight(approxPosition));
 
     // move towards mousedown (pageX)

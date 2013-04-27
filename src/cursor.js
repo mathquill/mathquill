@@ -80,8 +80,8 @@ var Cursor = P(Point, function(_) {
 
     return this;
   };
-  _.prependTo = function(el) { return this.insAtDirEnd(L, el); };
-  _.appendTo = function(el) { return this.insAtDirEnd(R, el); };
+  _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
+  _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
@@ -134,7 +134,7 @@ var Cursor = P(Point, function(_) {
 
   /**
    * moveUp and moveDown have almost identical algorithms:
-   * - first check left and right, if so prepend/appendTo them
+   * - first check left and right, if so insAtLeft/RightEnd of them
    * - else check the parent's 'upOutOf'/'downOutOf' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
@@ -146,8 +146,8 @@ var Cursor = P(Point, function(_) {
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (self[R][dirInto]) self.prependTo(self[R][dirInto]);
-    else if (self[L][dirInto]) self.appendTo(self[L][dirInto]);
+    if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
+    else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
     else {
       var ancestor = self.parent;
       do {
@@ -180,7 +180,7 @@ var Cursor = P(Point, function(_) {
     self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
-      cached[R] ? self.insLeftOf(cached[R]) : self.appendTo(cached.parent);
+      cached[R] ? self.insLeftOf(cached[R]) : self.insAtRightEnd(cached.parent);
     }
     else {
       var pageX = self.offset().left;
@@ -307,7 +307,7 @@ var Cursor = P(Point, function(_) {
     if (this[R])
       this.insLeftOf(this[R]);
     else
-      this.appendTo(greatgramp);
+      this.insAtRightEnd(greatgramp);
 
     gramp.jQ.remove();
 
