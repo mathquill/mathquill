@@ -213,7 +213,7 @@ var TextPiece = P(Node, function(_, _super) {
     this.text = text + this.text;
     this.dom.insertData(0, text);
   };
-  _.appendTextInDir = function(text, dir) {
+  _.insTextAtDirEnd = function(text, dir) {
     prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
@@ -235,7 +235,7 @@ var TextPiece = P(Node, function(_, _super) {
     var ch = endChar(-dir, this.text)
 
     var from = this[-dir];
-    if (from) from.appendTextInDir(ch, dir);
+    if (from) from.insTextAtDirEnd(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
@@ -276,7 +276,7 @@ var TextPiece = P(Node, function(_, _super) {
     }
     else {
       var from = this[-dir];
-      if (from) from.appendTextInDir(ch, dir);
+      if (from) from.insTextAtDirEnd(ch, dir);
       else {
         var newPc = TextPiece(ch).createDir(-dir, cursor);
         jQinsDirOf(-dir, newPc.jQ, cursor.selection.jQ);
