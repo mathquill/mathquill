@@ -126,8 +126,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     var cmd = this;
     var cmdBounds = getBounds(cmd);
 
-    if (pageX < cmdBounds[L]) return cursor.insertBefore(cmd);
-    if (pageX > cmdBounds[R]) return cursor.insertAfter(cmd);
+    if (pageX < cmdBounds[L]) return cursor.insLeftOf(cmd);
+    if (pageX > cmdBounds[R]) return cursor.insRightOf(cmd);
 
     var leftLeftBound = cmdBounds[L];
     cmd.eachChild(function(block) {
@@ -136,7 +136,7 @@ var MathCommand = P(MathElement, function(_, _super) {
         // closer to this block's left bound, or the bound left of that?
         if (pageX - leftLeftBound < blockBounds[L] - pageX) {
           if (block[L]) cursor.appendTo(block[L]);
-          else cursor.insertBefore(cmd);
+          else cursor.insLeftOf(cmd);
         }
         else cursor.prependTo(block);
         return false;
@@ -146,7 +146,7 @@ var MathCommand = P(MathElement, function(_, _super) {
         else { // last (rightmost) block
           // closer to this block's right bound, or the cmd's right bound?
           if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
-            cursor.insertAfter(cmd);
+            cursor.insRightOf(cmd);
           }
           else cursor.appendTo(block);
         }
@@ -313,9 +313,9 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.seek = function(pageX, cursor) {
     // insert at whichever side the click was closer to
     if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
-      cursor.insertBefore(this);
+      cursor.insLeftOf(this);
     else
-      cursor.insertAfter(this);
+      cursor.insRightOf(this);
   };
 
   _.latex = function(){ return this.ctrlSeq; };

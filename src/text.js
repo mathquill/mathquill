@@ -95,7 +95,7 @@ var TextBlock = P(Node, function(_, _super) {
   };
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
-    if (this.isEmpty()) cursor.insertAfter(this);
+    if (this.isEmpty()) cursor.insRightOf(this);
   };
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
@@ -105,18 +105,18 @@ var TextBlock = P(Node, function(_, _super) {
       else cursor[L].appendText(ch);
     }
     else if (this.isEmpty()) {
-      cursor.insertAfter(this);
+      cursor.insRightOf(this);
       VanillaSymbol('\\$','$').createBefore(cursor);
     }
-    else if (!cursor[R]) cursor.insertAfter(this);
-    else if (!cursor[L]) cursor.insertBefore(this);
+    else if (!cursor[R]) cursor.insRightOf(this);
+    else if (!cursor[L]) cursor.insLeftOf(this);
     else { // split apart
       var leftBlock = TextBlock();
       var leftPc = this.ends[L];
       leftPc.disown();
       leftPc.adopt(leftBlock, 0, 0);
 
-      cursor.insertBefore(this);
+      cursor.insLeftOf(this);
       _super.createBefore.call(leftBlock, cursor);
     }
     return false;
@@ -131,7 +131,7 @@ var TextBlock = P(Node, function(_, _super) {
     var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
     if (approxPosition <= 0) cursor.prependTo(this);
     else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
-    else cursor.insertBefore(textPc.splitRight(approxPosition));
+    else cursor.insLeftOf(textPc.splitRight(approxPosition));
 
     // move towards mousedown (pageX)
     var displ = pageX - cursor.show().offset().left; // displacement

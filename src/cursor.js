@@ -61,8 +61,8 @@ var Cursor = P(Point, function(_) {
     jQinsDirOf(dir, this.jQ, jQgetExtreme(dir, el.jQ));
     return this;
   };
-  _.insertBefore = function(el) { return this.insDirOf(L, el); };
-  _.insertAfter = function(el) { return this.insDirOf(R, el); };
+  _.insLeftOf = function(el) { return this.insDirOf(L, el); };
+  _.insRightOf = function(el) { return this.insDirOf(R, el); };
 
   _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
@@ -180,7 +180,7 @@ var Cursor = P(Point, function(_) {
     self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
-      cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
+      cached[R] ? self.insLeftOf(cached[R]) : self.appendTo(cached.parent);
     }
     else {
       var pageX = self.offset().left;
@@ -262,7 +262,7 @@ var Cursor = P(Point, function(_) {
       cmd.replaces(latexCmd);
       cmd.ends[L].focus = function(){ delete this.focus; return this; };
       cmd.createBefore(this);
-      this.insertAfter(cmd);
+      this.insRightOf(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
@@ -288,7 +288,7 @@ var Cursor = P(Point, function(_) {
       leftward = uncle.ends[R];
     });
 
-    if (!this[R]) { //then find something to be rightward to insertBefore
+    if (!this[R]) { //then find something to be rightward to insLeftOf
       if (this[L])
         this[R] = this[L][R];
       else {
@@ -305,7 +305,7 @@ var Cursor = P(Point, function(_) {
       }
     }
     if (this[R])
-      this.insertBefore(this[R]);
+      this.insLeftOf(this[R]);
     else
       this.appendTo(greatgramp);
 

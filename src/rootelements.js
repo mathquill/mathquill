@@ -58,7 +58,7 @@ function createRoot(jQ, root, textbox, editable) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
       // focus the least-common-ancestor block:
-      if (cursor.selection) cursor.insertAfter(cursor.selection.ends[R]);
+      if (cursor.selection) cursor.insRightOf(cursor.selection.ends[R]);
       return false;
     }
 
@@ -366,13 +366,13 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
       if (ch !== '$')
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace().show();
+        cursor.insRightOf(this.parent).backspace().show();
         VanillaSymbol('\\$','$').createBefore(cursor);
       }
       else if (!cursor[R])
-        cursor.insertAfter(this.parent);
+        cursor.insRightOf(this.parent);
       else if (!cursor[L])
-        cursor.insertBefore(this.parent);
+        cursor.insLeftOf(this.parent);
       else
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
