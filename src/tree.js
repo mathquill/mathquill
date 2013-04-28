@@ -139,7 +139,7 @@ var Fragment = P(function(_) {
   function prayWellFormed(parent, leftward, rightward) {
     pray('a parent is always present', parent);
     pray('leftward is properly set up', (function() {
-      // either it's empty and rightward is the left end child (possibly empty)
+      // either it's empty and `rightward` is the left end child (possibly empty)
       if (!leftward) return parent.ends[L] === rightward;
 
       // or it's there and its [R] and .parent are properly set up
@@ -147,7 +147,7 @@ var Fragment = P(function(_) {
     })());
 
     pray('rightward is properly set up', (function() {
-      // either it's empty and leftward is the right end child (possibly empty)
+      // either it's empty and `leftward` is the right end child (possibly empty)
       if (!rightward) return parent.ends[R] === leftward;
 
       // or it's there and its [L] and .parent are properly set up
