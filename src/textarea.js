@@ -120,7 +120,12 @@ var manageTextarea = (function() {
 
     // -*- public methods -*- //
     function select(text) {
+      // check textarea at least once/one last time before munging (so
+      // no race condition if selection happens after keypress/paste but
+      // before checkTextarea), then never again ('cos it's been munged)
       checkTextarea();
+      checkTextarea = noop;
+      clearTimeout(timeoutId);
 
       textarea.val(text);
       if (text) textarea[0].select();

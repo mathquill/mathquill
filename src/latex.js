@@ -28,7 +28,7 @@ var latexMathParser = (function() {
   var symbol = regex(/^[^${}\\_^]/).map(VanillaSymbol);
 
   var controlSequence =
-    regex(/^[^\\]/)
+    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
     .or(string('\\').then(
       regex(/^[a-z]+/i)
       .or(regex(/^\s+/).result(' '))
