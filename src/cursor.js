@@ -54,34 +54,34 @@ var Cursor = P(Point, function(_) {
     this[dir] = withDir;
     this[-dir] = oppDir;
   };
-  _.insertAdjacent = function(dir, el) {
+  _.insDirOf = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
-    jQinsertAdjacent(dir, this.jQ, jQgetExtreme(dir, el.jQ));
+    this.jQ.insDirOf(dir, el.jQ);
     return this;
   };
-  _.insertBefore = function(el) { return this.insertAdjacent(L, el); };
-  _.insertAfter = function(el) { return this.insertAdjacent(R, el); };
+  _.insLeftOf = function(el) { return this.insDirOf(L, el); };
+  _.insRightOf = function(el) { return this.insDirOf(R, el); };
 
-  _.appendDir = function(dir, el) {
+  _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
-    this.withDirInsertAt(dir, el, 0, el.ch[dir]);
+    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
 
     // never insert before textarea
     if (dir === L && el.textarea) {
-      jQinsertAdjacent(-dir, this.jQ, el.textarea);
+      this.jQ.insDirOf(-dir, el.textarea);
     }
     else {
-      jQappendDir(dir, this.jQ, el.jQ);
+      this.jQ.insAtDirEnd(dir, el.jQ);
     }
 
     el.focus();
 
     return this;
   };
-  _.prependTo = function(el) { return this.appendDir(L, el); };
-  _.appendTo = function(el) { return this.appendDir(R, el); };
+  _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
+  _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
@@ -121,7 +121,7 @@ var Cursor = P(Point, function(_) {
     this.endSelection();
 
     if (this.selection)  {
-      this.insertAdjacent(dir, this.selection.ends[dir]).clearSelection();
+      this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
     }
     else {
       this.moveDirWithin(dir, this.root);
@@ -134,7 +134,7 @@ var Cursor = P(Point, function(_) {
 
   /**
    * moveUp and moveDown have almost identical algorithms:
-   * - first check next and prev, if so prepend/appendTo them
+   * - first check left and right, if so insAtLeft/RightEnd of them
    * - else check the parent's 'upOutOf'/'downOutOf' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
@@ -146,8 +146,8 @@ var Cursor = P(Point, function(_) {
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (self[R][dirInto]) self.prependTo(self[R][dirInto]);
-    else if (self[L][dirInto]) self.appendTo(self[L][dirInto]);
+    if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
+    else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
     else {
       var ancestor = self.parent;
       do {
@@ -180,7 +180,7 @@ var Cursor = P(Point, function(_) {
     self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
-      cached[R] ? self.insertBefore(cached[R]) : self.appendTo(cached.parent);
+      cached[R] ? self.insLeftOf(cached[R]) : self.insAtRightEnd(cached.parent);
     }
     else {
       var pageX = self.offset().left;
@@ -235,7 +235,7 @@ var Cursor = P(Point, function(_) {
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
       block.jQize().insertBefore(self.jQ);
-      self[L] = block.ch[R];
+      self[L] = block.ends[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
     }
@@ -255,14 +255,14 @@ var Cursor = P(Point, function(_) {
     if (cmd) {
       cmd = cmd(latexCmd);
       if (replacedFragment) cmd.replaces(replacedFragment);
-      cmd.createBefore(this);
+      cmd.createLeftOf(this);
     }
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
-      cmd.ch[L].focus = function(){ delete this.focus; return this; };
-      cmd.createBefore(this);
-      this.insertAfter(cmd);
+      cmd.ends[L].focus = function(){ delete this.focus; return this; };
+      cmd.createLeftOf(this);
+      this.insRightOf(cmd);
       if (replacedFragment)
         replacedFragment.remove();
     }
@@ -271,31 +271,31 @@ var Cursor = P(Point, function(_) {
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
-    var next = gramp[R];
+    var rightward = gramp[R];
     var cursor = this;
 
-    var prev = gramp[L];
+    var leftward = gramp[L];
     gramp.disown().eachChild(function(uncle) {
       if (uncle.isEmpty()) return;
 
       uncle.children()
-        .adopt(greatgramp, prev, next)
+        .adopt(greatgramp, leftward, rightward)
         .each(function(cousin) {
           cousin.jQ.insertBefore(gramp.jQ.first());
         })
       ;
 
-      prev = uncle.ch[R];
+      leftward = uncle.ends[R];
     });
 
-    if (!this[R]) { //then find something to be next to insertBefore
+    if (!this[R]) { //then find something to be rightward to insLeftOf
       if (this[L])
         this[R] = this[L][R];
       else {
         while (!this[R]) {
           this.parent = this.parent[R];
           if (this.parent)
-            this[R] = this.parent.ch[L];
+            this[R] = this.parent.ends[L];
           else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -305,9 +305,9 @@ var Cursor = P(Point, function(_) {
       }
     }
     if (this[R])
-      this.insertBefore(this[R]);
+      this.insLeftOf(this[R]);
     else
-      this.appendTo(greatgramp);
+      this.insAtRightEnd(greatgramp);
 
     gramp.jQ.remove();
 
@@ -437,11 +437,11 @@ var Cursor = P(Point, function(_) {
 });
 
 var Selection = P(Fragment, function(_, _super) {
-  _.init = function(first, last) {
+  _.init = function(leftEnd, rightEnd) {
     var seln = this;
 
     // just select one thing if only one argument
-    _super.init.call(seln, first, last || first);
+    _super.init.call(seln, leftEnd, rightEnd || leftEnd);
 
     seln.jQwrap(seln.jQ);
   };

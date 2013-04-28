@@ -147,7 +147,7 @@ LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
 // Fragment. Creates the Fragment from a LaTeX string
 var LatexFragment = P(MathCommand, function(_) {
   _.init = function(latex) { this.latex = latex; };
-  _.createBefore = function(cursor) { cursor.writeLatex(this.latex); };
+  _.createLeftOf = function(cursor) { cursor.writeLatex(this.latex); };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();
     return Parser.succeed(frag);

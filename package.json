@@ -2,7 +2,7 @@
   "name": "mathquill",
   "version": "0.9.1",
   "dependencies": {
-    "pjs": "2.0.0"
+    "pjs": "3.x"
   },
   "devDependencies": {
     "mocha": "*",

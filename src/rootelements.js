@@ -58,7 +58,7 @@ function createRoot(jQ, root, textbox, editable) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
       // focus the least-common-ancestor block:
-      if (cursor.selection) cursor.insertAfter(cursor.selection.ends[R]);
+      if (cursor.selection) cursor.insRightOf(cursor.selection.ends[R]);
       return false;
     }
 
@@ -166,7 +166,7 @@ function createRoot(jQ, root, textbox, editable) {
   //focus and blur handling
   textarea.focus(function(e) {
     if (!cursor.parent)
-      cursor.appendTo(root);
+      cursor.insAtRightEnd(root);
     cursor.parent.jQ.addClass('hasCursor');
     if (cursor.selection) {
       cursor.selection.jQ.removeClass('blur');
@@ -200,9 +200,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.ch[L] = this.ch[R] = 0;
+    this.ends[L] = this.ends[R] = 0;
 
-    this.cursor.appendTo(this).writeLatex(latex);
+    this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
   _.onKey = function(key, e) {
     switch (key) {
@@ -238,12 +238,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // End -> move to the end of the current block.
     case 'End':
-      this.cursor.prepareMove().appendTo(this.cursor.parent);
+      this.cursor.prepareMove().insAtRightEnd(this.cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      this.cursor.prepareMove().appendTo(this);
+      this.cursor.prepareMove().insAtRightEnd(this);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -262,12 +262,12 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      this.cursor.prepareMove().prependTo(this.cursor.parent);
+      this.cursor.prepareMove().insAtLeftEnd(this.cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      this.cursor.prepareMove().prependTo(this);
+      this.cursor.prepareMove().insAtLeftEnd(this);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -330,7 +330,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       //so not stopPropagation'd at RootMathCommand
       if (this !== this.cursor.root) return;
 
-      this.cursor.prepareMove().appendTo(this);
+      this.cursor.prepareMove().insAtRightEnd(this);
       while (this.cursor[L]) this.cursor.selectLeft();
       break;
 
@@ -353,32 +353,32 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    this.ch[L] =
-    this.ch[R] =
+    this.ends[L] =
+    this.ends[R] =
       RootMathBlock();
 
-    this.blocks = [ this.ch[L] ];
+    this.blocks = [ this.ends[L] ];
 
-    this.ch[L].parent = this;
+    this.ends[L].parent = this;
 
-    this.ch[L].cursor = this.cursor;
-    this.ch[L].write = function(cursor, ch, replacedFragment) {
+    this.ends[L].cursor = this.cursor;
+    this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (ch !== '$')
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insertAfter(this.parent).backspace().show();
-        VanillaSymbol('\\$','$').createBefore(cursor);
+        cursor.insRightOf(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createLeftOf(cursor);
       }
       else if (!cursor[R])
-        cursor.insertAfter(this.parent);
+        cursor.insRightOf(this.parent);
       else if (!cursor[L])
-        cursor.insertBefore(this.parent);
+        cursor.insLeftOf(this.parent);
       else
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
     };
   };
   _.latex = function() {
-    return '$' + this.ch[L].latex() + '$';
+    return '$' + this.ends[L].latex() + '$';
   };
 });
 
@@ -387,8 +387,8 @@ var RootTextBlock = P(MathBlock, function(_) {
     var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.ch[L] = self.ch[R] = 0;
-    cursor.show().appendTo(self);
+    self.ends[L] = self.ends[R] = 0;
+    cursor.show().insAtRightEnd(self);
 
     var regex = Parser.regex;
     var string = Parser.string;
@@ -406,7 +406,7 @@ var RootTextBlock = P(MathBlock, function(_) {
         var rootMathCommand = RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ch[L];
+        var rootMathBlock = rootMathCommand.ends[L];
         block.children().adopt(rootMathBlock, 0, 0);
 
         return rootMathCommand;
@@ -420,7 +420,7 @@ var RootTextBlock = P(MathBlock, function(_) {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.ch[R], 0);
+        commands[i].adopt(self, self.ends[R], 0);
       }
 
       self.jQize().appendTo(self.jQ);
@@ -436,12 +436,12 @@ var RootTextBlock = P(MathBlock, function(_) {
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
-      RootMathCommand(cursor).createBefore(cursor);
+      RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
       if (ch === '<') html = '&lt;';
       else if (ch === '>') html = '&gt;';
-      VanillaSymbol(ch, html).createBefore(cursor);
+      VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   };
 });

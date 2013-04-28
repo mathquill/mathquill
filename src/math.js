@@ -61,23 +61,23 @@ var MathCommand = P(MathElement, function(_, _super) {
       self.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(self, self.ch[R], 0);
+        blocks[i].adopt(self, self.ends[R], 0);
       }
 
       return self;
     });
   };
 
-  // createBefore(cursor) and the methods it calls
-  _.createBefore = function(cursor) {
+  // createLeftOf(cursor) and the methods it calls
+  _.createLeftOf = function(cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    _super.createBefore.call(cmd, cursor);
+    _super.createLeftOf.call(cmd, cursor);
     if (replacedFragment) {
-      replacedFragment.adopt(cmd.ch[L], 0, 0);
-      replacedFragment.jQ.appendTo(cmd.ch[L].jQ);
+      replacedFragment.adopt(cmd.ends[L], 0, 0);
+      replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
     cmd.finalizeInsert(cursor);
     cmd.placeCursor(cursor);
@@ -89,20 +89,21 @@ var MathCommand = P(MathElement, function(_, _super) {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = blocks[i] = MathBlock();
-      newBlock.adopt(cmd, cmd.ch[R], 0);
+      newBlock.adopt(cmd, cmd.ends[R], 0);
     }
   };
   _.placeCursor = function(cursor) {
-    //append the cursor to the first empty child, or if none empty, the last one
-    cursor.appendTo(this.foldChildren(this.ch[L], function(prev, child) {
-      return prev.isEmpty() ? prev : child;
+    //insert the cursor at the right end of the first empty child, searching
+    //left-to-right, or if none empty, the right end child
+    cursor.insAtRightEnd(this.foldChildren(this.ends[L], function(leftward, child) {
+      return leftward.isEmpty() ? leftward : child;
     }));
   };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this.ch[-dir]); };
+  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this.ends[-dir]); };
   _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
   _.selectTowards = function(dir, cursor) {
     if (!cursor.anticursor) cursor.startSelection();
@@ -113,7 +114,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.selection = Selection(this);
   };
   _.unselectInto = function(dir, cursor) {
-    cursor.appendDir(-dir, this.selectedOutOf);
+    cursor.insAtDirEnd(-dir, this.selectedOutOf);
   };
   _.seek = function(pageX, cursor) {
     function getBounds(node) {
@@ -126,8 +127,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     var cmd = this;
     var cmdBounds = getBounds(cmd);
 
-    if (pageX < cmdBounds[L]) return cursor.insertBefore(cmd);
-    if (pageX > cmdBounds[R]) return cursor.insertAfter(cmd);
+    if (pageX < cmdBounds[L]) return cursor.insLeftOf(cmd);
+    if (pageX > cmdBounds[R]) return cursor.insRightOf(cmd);
 
     var leftLeftBound = cmdBounds[L];
     cmd.eachChild(function(block) {
@@ -135,10 +136,10 @@ var MathCommand = P(MathElement, function(_, _super) {
       if (pageX < blockBounds[L]) {
         // closer to this block's left bound, or the bound left of that?
         if (pageX - leftLeftBound < blockBounds[L] - pageX) {
-          if (block[L]) cursor.appendTo(block[L]);
-          else cursor.insertBefore(cmd);
+          if (block[L]) cursor.insAtRightEnd(block[L]);
+          else cursor.insLeftOf(cmd);
         }
-        else cursor.prependTo(block);
+        else cursor.insAtLeftEnd(block);
         return false;
       }
       else if (pageX > blockBounds[R]) {
@@ -146,9 +147,9 @@ var MathCommand = P(MathElement, function(_, _super) {
         else { // last (rightmost) block
           // closer to this block's right bound, or the cmd's right bound?
           if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
-            cursor.insertAfter(cmd);
+            cursor.insRightOf(cmd);
           }
-          else cursor.appendTo(block);
+          else cursor.insAtRightEnd(block);
         }
       }
       else {
@@ -303,7 +304,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.createBlocks = noop;
 
   _.moveTowards = function(dir, cursor) {
-    jQinsertAdjacent(dir, cursor.jQ, jQgetExtreme(dir, this.jQ));
+    cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
@@ -313,9 +314,9 @@ var Symbol = P(MathCommand, function(_, _super) {
   _.seek = function(pageX, cursor) {
     // insert at whichever side the click was closer to
     if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
-      cursor.insertBefore(this);
+      cursor.insLeftOf(this);
     else
-      cursor.insertAfter(this);
+      cursor.insRightOf(this);
   };
 
   _.latex = function(){ return this.ctrlSeq; };
@@ -338,38 +339,38 @@ var MathBlock = P(MathElement, function(_) {
   _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.ch[L] === this.ch[R] ?
-      this.ch[L].text() :
+    return this.ends[L] === this.ends[R] ?
+      this.ends[L].text() :
       '(' + this.join('text') + ')'
     ;
   };
   _.isEmpty = function() {
-    return this.ch[L] === 0 && this.ch[R] === 0;
+    return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveOutOf = function(dir, cursor) {
-    if (this[dir]) cursor.appendDir(-dir, this[dir]);
-    else cursor.insertAdjacent(dir, this.parent);
+    if (this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
+    else cursor.insDirOf(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(dir, this.parent);
+    cursor.insDirOf(dir, this.parent);
     this.parent.selectedOutOf = this;
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
   };
-  _.selectChildren = function(cursor, first, last) {
-    cursor.selection = Selection(first, last);
+  _.selectChildren = function(cursor, leftEnd, rightEnd) {
+    cursor.selection = Selection(leftEnd, rightEnd);
   };
   _.seek = function(pageX, cursor) {
-    var node = this.ch[R];
+    var node = this.ends[R];
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
-      return cursor.appendTo(this);
+      return cursor.insAtRightEnd(this);
     }
-    if (pageX < this.ch[L].jQ.offset().left) return cursor.prependTo(this);
+    if (pageX < this.ends[L].jQ.offset().left) return cursor.insAtLeftEnd(this);
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };
@@ -384,7 +385,7 @@ var MathBlock = P(MathElement, function(_) {
 
     if (replacedFragment) cmd.replaces(replacedFragment);
 
-    cmd.createBefore(cursor);
+    cmd.createLeftOf(cursor);
   };
 
   _.focus = function() {

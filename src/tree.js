@@ -18,40 +18,55 @@ function prayDirection(dir) {
   pray('a direction was passed', dir === L || dir === R);
 }
 
-// directionalizable versions of common jQuery traversals
-function jQinsertAdjacent(dir, el, target) {
-  return (
-    dir === L ?
-    el.insertBefore(target) :
-    el.insertAfter(target)
-  );
-}
-
-function jQappendDir(dir, el, target) {
-  return (
-    dir === L ?
-    el.prependTo(target) :
-    el.appendTo(target)
-  );
-}
-
-function jQgetExtreme(dir, el) {
-  return (
-    dir === L ?
-    el.first() :
-    el.last()
-  )
-}
+/**
+ * Tiny extension of jQuery adding directionalized DOM manipulation methods.
+ *
+ * Funny how Pjs v3 almost just works with `jQuery.fn.init`.
+ *
+ * jQuery features that don't work on $:
+ *   - jQuery.*, like jQuery.ajax, obviously (Pjs doesn't and shouldn't
+ *                                            copy constructor properties)
+ *
+ *   - jQuery(function), the shortcut for `jQuery(document).ready(function)`,
+ *     because `jQuery.fn.init` is idiosyncratic and Pjs doing, essentially,
+ *     `jQuery.fn.init.apply(this, arguments)` isn't quite right, you need:
+ *
+ *       _.init = function(s, c) { jQuery.fn.init.call(this, s, c, $(document)); };
+ *
+ *     if you actually give a shit (really, don't bother),
+ *     see https://github.com/jquery/jquery/blob/1.7.2/src/core.js#L889
+ *
+ *   - jQuery(selector), because jQuery translates that to
+ *     `jQuery(document).find(selector)`, but Pjs doesn't (should it?) let
+ *     you override the result of a constructor call
+ *       + note that because of the jQuery(document) shortcut-ness, there's also
+ *         the 3rd-argument-needs-to-be-`$(document)` thing above, but the fix
+ *         for that (as can be seen above) is really easy. This problem requires
+ *         a way more intrusive fix
+ *
+ * And that's it! Everything else just magically works because jQuery internally
+ * uses `this.constructor()` everywhere (hence calling `$`), but never ever does
+ * `this.constructor.find` or anything like that, always doing `jQuery.find`.
+ */
+var $ = P(jQuery, function(_) {
+  _.insDirOf = function(dir, el) {
+    return dir === L ?
+      this.insertBefore(el.first()) : this.insertAfter(el.last());
+  };
+  _.insAtDirEnd = function(dir, el) {
+    return dir === L ? this.prependTo(el) : this.appendTo(el);
+  };
+});
 
 var Point = P(function(_) {
   _.parent = 0;
   _[L] = 0;
   _[R] = 0;
 
-  _.init = function(parent, prev, next) {
+  _.init = function(parent, leftward, rightward) {
     this.parent = parent;
-    this[L] = prev;
-    this[R] = next;
+    this[L] = leftward;
+    this[R] = rightward;
   };
 
   this.copy = function(pt) {
@@ -75,9 +90,9 @@ var Node = P(function(_) {
     this.id = uniqueNodeId();
     Node.byId[this.id] = this;
 
-    this.ch = {};
-    this.ch[L] = 0;
-    this.ch[R] = 0;
+    this.ends = {};
+    this.ends[L] = 0;
+    this.ends[R] = 0;
   };
 
   _.dispose = function() { delete Node.byId[this.id]; };
@@ -103,11 +118,11 @@ var Node = P(function(_) {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    jQinsertAdjacent(dir, node.jQ, cursor.jQ);
+    node.jQ.insDirOf(dir, cursor.jQ);
     cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };
-  _.createBefore = function(el) { return this.createDir(L, el); };
+  _.createLeftOf = function(el) { return this.createDir(L, el); };
 
   _.respace = noop;
 
@@ -130,7 +145,7 @@ var Node = P(function(_) {
   });
 
   _.children = function() {
-    return Fragment(this.ch[L], this.ch[R]);
+    return Fragment(this.ends[L], this.ends[R]);
   };
 
   _.eachChild = function() {
@@ -143,8 +158,8 @@ var Node = P(function(_) {
     return this.children().fold(fold, fn);
   };
 
-  _.adopt = function(parent, prev, next) {
-    Fragment(this, this).adopt(parent, prev, next);
+  _.adopt = function(parent, leftward, rightward) {
+    Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
   };
 
@@ -173,76 +188,76 @@ var Node = P(function(_) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.init = function(first, last) {
-    pray('no half-empty fragments', !first === !last);
+  _.init = function(leftEnd, rightEnd) {
+    pray('no half-empty fragments', !leftEnd === !rightEnd);
 
     this.ends = {};
 
-    if (!first) return;
+    if (!leftEnd) return;
 
-    pray('first node is passed to Fragment', first instanceof Node);
-    pray('last node is passed to Fragment', last instanceof Node);
-    pray('first and last have the same parent',
-         first.parent === last.parent);
+    pray('left end node is passed to Fragment', leftEnd instanceof Node);
+    pray('right end node is passed to Fragment', rightEnd instanceof Node);
+    pray('leftEnd and rightEnd have the same parent',
+         leftEnd.parent === rightEnd.parent);
 
-    this.ends[L] = first;
-    this.ends[R] = last;
+    this.ends[L] = leftEnd;
+    this.ends[R] = rightEnd;
 
     this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
   _.jQ = $();
 
-  function prayWellFormed(parent, prev, next) {
+  function prayWellFormed(parent, leftward, rightward) {
     pray('a parent is always present', parent);
-    pray('prev is properly set up', (function() {
-      // either it's empty and next is the first child (possibly empty)
-      if (!prev) return parent.ch[L] === next;
+    pray('leftward is properly set up', (function() {
+      // either it's empty and `rightward` is the left end child (possibly empty)
+      if (!leftward) return parent.ends[L] === rightward;
 
-      // or it's there and its next and parent are properly set up
-      return prev[R] === next && prev.parent === parent;
+      // or it's there and its [R] and parent are properly set up
+      return leftward[R] === rightward && leftward.parent === parent;
     })());
 
-    pray('next is properly set up', (function() {
-      // either it's empty and prev is the last child (possibly empty)
-      if (!next) return parent.ch[R] === prev;
+    pray('rightward is properly set up', (function() {
+      // either it's empty and `leftward` is the right end child (possibly empty)
+      if (!rightward) return parent.ends[R] === leftward;
 
-      // or it's there and its next and parent are properly set up
-      return next[L] === prev && next.parent === parent;
+      // or it's there and its [L] and parent are properly set up
+      return rightward[L] === leftward && rightward.parent === parent;
     })());
   }
 
-  _.adopt = function(parent, prev, next) {
-    prayWellFormed(parent, prev, next);
+  _.adopt = function(parent, leftward, rightward) {
+    prayWellFormed(parent, leftward, rightward);
 
     var self = this;
     self.disowned = false;
 
-    var first = self.ends[L];
-    if (!first) return this;
+    var leftEnd = self.ends[L];
+    if (!leftEnd) return this;
 
-    var last = self.ends[R];
+    var rightEnd = self.ends[R];
 
-    if (prev) {
+    if (leftward) {
       // NB: this is handled in the ::each() block
-      // prev[R] = first
+      // leftward[R] = leftEnd
     } else {
-      parent.ch[L] = first;
+      parent.ends[L] = leftEnd;
     }
 
-    if (next) {
-      next[L] = last;
+    if (rightward) {
+      rightward[L] = rightEnd;
     } else {
-      parent.ch[R] = last;
+      parent.ends[R] = rightEnd;
     }
 
-    self.ends[R][R] = next;
+    self.ends[R][R] = rightward;
 
     self.each(function(el) {
-      el[L] = prev;
+      el[L] = leftward;
       el.parent = parent;
-      if (prev) prev[R] = el;
+      if (leftward) leftward[R] = el;
 
-      prev = el;
+      leftward = el;
     });
 
     return self;
@@ -250,29 +265,29 @@ var Fragment = P(function(_) {
 
   _.disown = function() {
     var self = this;
-    var first = self.ends[L];
+    var leftEnd = self.ends[L];
 
     // guard for empty and already-disowned fragments
-    if (!first || self.disowned) return self;
+    if (!leftEnd || self.disowned) return self;
 
     self.disowned = true;
 
-    var last = self.ends[R]
-    var parent = first.parent;
+    var rightEnd = self.ends[R]
+    var parent = leftEnd.parent;
 
-    prayWellFormed(parent, first[L], first);
-    prayWellFormed(parent, last, last[R]);
+    prayWellFormed(parent, leftEnd[L], leftEnd);
+    prayWellFormed(parent, rightEnd, rightEnd[R]);
 
-    if (first[L]) {
-      first[L][R] = last[R];
+    if (leftEnd[L]) {
+      leftEnd[L][R] = rightEnd[R];
     } else {
-      parent.ch[L] = last[R];
+      parent.ends[L] = rightEnd[R];
     }
 
-    if (last[R]) {
-      last[R][L] = first[L];
+    if (rightEnd[R]) {
+      rightEnd[R][L] = leftEnd[L];
     } else {
-      parent.ch[R] = first[L];
+      parent.ends[R] = leftEnd[L];
     }
 
     return self;
@@ -363,11 +378,11 @@ var Fragment = P(function(_) {
     // - both Nodes
     // - ancA a Point and ancB a Node
     // - ancA a Node and ancB a Point
-    // ancB[R] === next[R] for some next that is ancA or to its right if and
-    // only if anticursorA is to the right of cursorA.
+    // ancB[R] === rightward[R] for some rightward that is ancA or to its
+    // right if and only if anticursorA is to the right of cursorA.
     if (ancA[L] !== ancB) {
-      for (var next = ancA; next; next = next[R]) {
-        if (next[R] === ancB[R]) {
+      for (var rightward = ancA; rightward; rightward = rightward[R]) {
+        if (rightward[R] === ancB[R]) {
           left = ancA;
           right = ancB;
           break;

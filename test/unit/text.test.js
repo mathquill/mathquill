@@ -30,7 +30,7 @@ suite('text', function() {
 
   test('changes the text nodes as the cursor moves around', function() {
     var block = fromLatex('\\text{abc}');
-    var cursor = Cursor(block).appendTo(block);
+    var cursor = Cursor(block).insAtRightEnd(block);
 
     cursor.moveLeft();
     assertSplit(cursor.jQ, 'abc', null);

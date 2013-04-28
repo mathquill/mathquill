@@ -20,19 +20,19 @@ var TextBlock = P(Node, function(_, _super) {
 
   _.jQadd = function(jQ) {
     _super.jQadd.call(this, jQ);
-    if (this.ch[L]) this.ch[L].jQadd(this.jQ[0].firstChild);
+    if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
-  _.createBefore = function(cursor) {
+  _.createLeftOf = function(cursor) {
     var textBlock = this;
-    _super.createBefore.call(this, cursor);
+    _super.createLeftOf.call(this, cursor);
 
     if (textBlock[R].respace) textBlock[R].respace();
     if (textBlock[L].respace) textBlock[L].respace();
 
     textBlock.bubble('redraw');
 
-    cursor.appendTo(textBlock);
+    cursor.insAtRightEnd(textBlock);
 
     if (textBlock.replacedText)
       for (var i = 0; i < textBlock.replacedText.length; i += 1)
@@ -81,8 +81,8 @@ var TextBlock = P(Node, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.appendDir(-dir, this); };
-  _.moveOutOf = function(dir, cursor) { cursor.insertAdjacent(dir, this); };
+  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this); };
+  _.moveOutOf = function(dir, cursor) { cursor.insDirOf(dir, this); };
   _.unselectInto = _.moveTowards;
 
   // TODO: make these methods part of a shared mixin or something.
@@ -91,33 +91,33 @@ var TextBlock = P(Node, function(_, _super) {
   _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
-    cursor.insertAdjacent(dir, this);
+    cursor.insDirOf(dir, this);
   };
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
-    if (this.isEmpty()) cursor.insertAfter(this);
+    if (this.isEmpty()) cursor.insRightOf(this);
   };
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
 
     if (ch !== '$') {
-      if (!cursor[L]) TextPiece(ch).createBefore(cursor);
+      if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
       else cursor[L].appendText(ch);
     }
     else if (this.isEmpty()) {
-      cursor.insertAfter(this);
-      VanillaSymbol('\\$','$').createBefore(cursor);
+      cursor.insRightOf(this);
+      VanillaSymbol('\\$','$').createLeftOf(cursor);
     }
-    else if (!cursor[R]) cursor.insertAfter(this);
-    else if (!cursor[L]) cursor.insertBefore(this);
+    else if (!cursor[R]) cursor.insRightOf(this);
+    else if (!cursor[L]) cursor.insLeftOf(this);
     else { // split apart
-      var prevBlock = TextBlock();
-      var prevPc = this.ch[L];
-      prevPc.disown();
-      prevPc.adopt(prevBlock, 0, 0);
+      var leftBlock = TextBlock();
+      var leftPc = this.ends[L];
+      leftPc.disown();
+      leftPc.adopt(leftBlock, 0, 0);
 
-      cursor.insertBefore(this);
-      _super.createBefore.call(prevBlock, cursor);
+      cursor.insLeftOf(this);
+      _super.createLeftOf.call(leftBlock, cursor);
     }
     return false;
   };
@@ -129,9 +129,9 @@ var TextBlock = P(Node, function(_, _super) {
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.jQ.width()/this.text.length;
     var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
-    if (approxPosition <= 0) cursor.prependTo(this);
-    else if (approxPosition >= textPc.text.length) cursor.appendTo(this);
-    else cursor.insertBefore(textPc.splitRight(approxPosition));
+    if (approxPosition <= 0) cursor.insAtLeftEnd(this);
+    else if (approxPosition >= textPc.text.length) cursor.insAtRightEnd(this);
+    else cursor.insLeftOf(textPc.splitRight(approxPosition));
 
     // move towards mousedown (pageX)
     var displ = pageX - cursor.show().offset().left; // displacement
@@ -213,7 +213,7 @@ var TextPiece = P(Node, function(_, _super) {
     this.text = text + this.text;
     this.dom.insertData(0, text);
   };
-  _.appendTextInDir = function(text, dir) {
+  _.insTextAtDirEnd = function(text, dir) {
     prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
@@ -235,7 +235,7 @@ var TextPiece = P(Node, function(_, _super) {
     var ch = endChar(-dir, this.text)
 
     var from = this[-dir];
-    if (from) from.appendTextInDir(ch, dir);
+    if (from) from.insTextAtDirEnd(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
 
     return this.deleteTowards(dir, cursor);
@@ -272,14 +272,14 @@ var TextPiece = P(Node, function(_, _super) {
     if (!anticursor || anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
       cursor.startSelection();
-      cursor.insertAdjacent(dir, newPc);
+      cursor.insDirOf(dir, newPc);
     }
     else {
       var from = this[-dir];
-      if (from) from.appendTextInDir(ch, dir);
+      if (from) from.insTextAtDirEnd(ch, dir);
       else {
         var newPc = TextPiece(ch).createDir(-dir, cursor);
-        jQinsertAdjacent(-dir, newPc.jQ, cursor.selection.jQ);
+        newPc.jQ.insDirOf(-dir, cursor.selection.jQ);
       }
 
       if (this.text.length === 1 && anticursor[-dir] === this) {

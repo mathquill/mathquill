@@ -9,7 +9,7 @@ var latexMathParser = (function() {
     var firstBlock = blocks[0] || MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.ch[R], 0);
+      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
     }
 
     return firstBlock;
