@@ -102,30 +102,17 @@ var Cursor = P(Point, function(_) {
     this.parent.moveOutOf(dir, this);
   };
 
-  _.moveDirWithin = function(dir, block) {
-    prayDirection(dir);
-
-    if (this[dir]) this[dir].moveTowards(dir, this);
-    else if (this.parent !== block) this.parent.moveOutOf(dir, this);
-  };
-  _.moveLeftWithin = function(block) {
-    return this.moveDirWithin(L, block);
-  };
-  _.moveRightWithin = function(block) {
-    return this.moveDirWithin(R, block);
-  };
   _.moveDir = function(dir) {
     prayDirection(dir);
 
     clearUpDownCache(this);
     this.endSelection();
 
-    if (this.selection)  {
+    if (this.selection) {
       this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
     }
-    else {
-      this.moveDirWithin(dir, this.root);
-    }
+    else if (this[dir]) this[dir].moveTowards(dir, this);
+    else if (this.parent !== this.root) this.parent.moveOutOf(dir, this);
 
     return this.show();
   };
