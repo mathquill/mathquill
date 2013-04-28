@@ -3,7 +3,6 @@ suite('text', function() {
   function fromLatex(latex) {
     var block = latexMathParser.parse(latex);
     block.jQize();
-    block.finalizeInsert();
 
     return block;
   }
