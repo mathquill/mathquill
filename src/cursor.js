@@ -19,6 +19,7 @@ var Cursor = P(Point, function(_) {
     this.blink = function(){ jQ.toggleClass('blink'); };
 
     this.upDownCache = {};
+    this.allowLatex = true;    
   };
 
   _.show = function() {
