@@ -4,7 +4,7 @@
 
 var CharCmds = {}, LatexCmds = {}; //single character commands, LaTeX commands
 
-var scale, // = function(jQ, x, y) { ... }
+var scale, scaleX, // = function(jQ, x, y) { ... }
 //will use a CSS 2D transform to scale the jQuery-wrapped HTML elements,
 //or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
 //increasing the fontSize to match the vertical Y scaling factor.
@@ -34,6 +34,9 @@ for (var prop in transformPropNames) {
 if (transformPropName) {
   scale = function(jQ, x, y) {
     jQ.css(transformPropName, 'scale('+x+','+y+')');
+  };
+  scaleX = function(jQ, x) {
+    jQ.css(transformPropName, 'scaleX('+x+')');
   };
 }
 else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.com/laughinghan/mathquill/wiki/Transforms
@@ -283,6 +286,83 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   _.textTemplate = ['sqrt[', '](', ')'];
   _.latex = function() {
     return '\\sqrt['+this.endChild[L].latex()+']{'+this.endChild[R].latex()+'}';
+  };
+});
+
+var HatCommand = P(MathCommand, function(_, _super) {
+  _.redraw = function() {
+    var hat = this.jQ.find('.hatcmd-hat');
+    var scale = Math.max(Math.round(this.endChild[R].jQ.width() / hat.width()), 1);
+    scaleX(hat, scale);
+  };
+});
+
+var WideHat =
+LatexCmds.widehat = P(HatCommand, function(_, _super) {
+  _.ctrlSeq = '\\widehat';
+  _.htmlTemplate =
+      '<span class="non-leaf">'
+    +   '<span class="non-leaf widehat-arc hatcmd-hat">&#x2312</span>'
+    +   '<span class="non-leaf widehat-over">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['widehat(', ')'];
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var widehat = WideHat();
+        widehat.blocks = [ optBlock, block ];
+        optBlock.adopt(widehat, 0, 0);
+        block.adopt(widehat, optBlock, 0);
+        return widehat;
+      });
+    }).or(_super.parser.call(this));
+  };
+});
+
+var VectorHat =
+LatexCmds.vec = P(HatCommand, function(_, _super) {
+  _.ctrlSeq = '\\vec';
+  _.htmlTemplate =
+      '<span class="non-leaf">'
+    +   '<span class="non-leaf vec-hat hatcmd-hat">&rarr;</span>'
+    +   '<span class="non-leaf vec-over">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['vec(', ')'];
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var vechat = VectorHat();
+        vechat.blocks = [ optBlock, block ];
+        optBlock.adopt(vechat, 0, 0);
+        block.adopt(vechat, optBlock, 0);
+        return vechat;
+      });
+    }).or(_super.parser.call(this));
+  };
+});
+
+var OverLeftRightArrow =
+LatexCmds.overleftrightarrow = P(HatCommand, function(_, _super) {
+  _.ctrlSeq = '\\overleftrightarrow';
+  _.htmlTemplate =
+      '<span class="non-leaf">'
+    +   '<span class="non-leaf line-hat hatcmd-hat">&harr;</span>'
+    +   '<span class="non-leaf line-over">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['line(', ')'];
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var line = OverLeftRightArrow();
+        line.blocks = [ optBlock, block ];
+        optBlock.adopt(line, 0, 0);
+        block.adopt(line, optBlock, 0);
+        return line;
+      });
+    }).or(_super.parser.call(this));
   };
 });
 
