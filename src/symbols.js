@@ -583,6 +583,13 @@ var NonItalicizedFunction = P(Symbol, function(_, _super) {
   };
 });
 
+var NonItalicizedMultiCharFunction = P(NonItalicizedFunction, function(_, _super) {
+  _.charCountBehavior = 'c';
+  _.charCount = function() {
+    return this.ctrlSeq.replace('\\', '').replace(' ', '').length;
+  }
+});
+
 LatexCmds.ln =
 LatexCmds.lg =
 LatexCmds.log =
@@ -597,7 +604,7 @@ LatexCmds.lcm =
 LatexCmds.gcd =
 LatexCmds.gcf =
 LatexCmds.hcf =
-LatexCmds.lim = NonItalicizedFunction;
+LatexCmds.lim = NonItalicizedMultiCharFunction;
 
 (function() {
   var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
@@ -606,7 +613,7 @@ LatexCmds.lim = NonItalicizedFunction;
     LatexCmds[trig[i]+'h'] =
     LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
     LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
-      NonItalicizedFunction;
+      NonItalicizedMultiCharFunction;
   }
 }());
 

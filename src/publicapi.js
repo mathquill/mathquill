@@ -78,6 +78,11 @@ jQuery.fn.mathquill = function(cmd, latex) {
           cursor.hide().parent.blur();
         }
       });
+  case 'charCount':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    return block.charCount();
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
