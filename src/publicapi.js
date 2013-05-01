@@ -83,6 +83,15 @@ jQuery.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId],
       cursor = block && block.cursor;
     return block.charCount();
+  case 'allowLatex':
+    if (arguments.length > 1)
+      return this.each(function() {
+        var blockId = $(this).attr(mqBlockId),
+          block = blockId && MathElement[blockId],
+          cursor = block && block.cursor;
+        if (cursor)
+          cursor.allowLatex = latex;
+      });
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
