@@ -92,6 +92,15 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (cursor)
           cursor.allowLatex = latex;
       });
+  case 'allowSpace':
+    if (arguments.length > 1)
+      return this.each(function() {
+        var blockId = $(this).attr(mqBlockId),
+          block = blockId && MathElement[blockId],
+          cursor = block && block.cursor;
+        if (cursor)
+          cursor.allowSpace = latex;
+      });
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',

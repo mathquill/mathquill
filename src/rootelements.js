@@ -222,6 +222,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     case 'Esc':
     case 'Tab':
     case 'Spacebar':
+      if(this.cursor.allowSpace) return;
       var parent = this.cursor.parent;
       // cursor is in root editable, continue default
       if (parent === this.cursor.root) {
