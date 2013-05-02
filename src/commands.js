@@ -404,7 +404,6 @@ var CloseBracket = P(Bracket, function(_, _super) {
       _super.createLeftOf.call(this, cursor);
   };
   _.placeCursor = function(cursor) {
-    this.ends[L].blur();
     cursor.insRightOf(this);
   };
 });
