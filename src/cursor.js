@@ -247,7 +247,6 @@ var Cursor = P(Point, function(_) {
     else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
-      cmd.ends[L].focus = function(){ delete this.focus; return this; };
       cmd.createLeftOf(this);
       this.insRightOf(cmd);
       if (replacedFragment)
