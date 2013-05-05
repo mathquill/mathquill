@@ -89,6 +89,7 @@ var Cursor = P(Point, function(_) {
     for (var i = 0; i < notifyees.length; i += 1) {
       notifyees[i].apply(this, arguments);
     }
+    return this;
   };
 
   _.escapeDir = function(dir, key, e) {
@@ -104,9 +105,8 @@ var Cursor = P(Point, function(_) {
     // default browser action if so)
     if (this.parent === this.root) return;
 
-    this.notify('move');
     this.parent.moveOutOf(dir, this);
-    return this;
+    return this.notify('move');
   };
 
   _.moveDir = function(dir) {
@@ -118,8 +118,7 @@ var Cursor = P(Point, function(_) {
     else if (this[dir]) this[dir].moveTowards(dir, this);
     else if (this.parent !== this.root) this.parent.moveOutOf(dir, this);
 
-    this.notify('move');
-    return this;
+    return this.notify('move');
   };
   _.moveLeft = function() { return this.moveDir(L); };
   _.moveRight = function() { return this.moveDir(R); };
@@ -156,8 +155,7 @@ var Cursor = P(Point, function(_) {
       } while (ancestor !== self.root);
     }
 
-    self.notify('upDown');
-    return self;
+    return self.notify('upDown');
   }
   onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**
@@ -182,8 +180,7 @@ var Cursor = P(Point, function(_) {
   };
 
   _.seek = function(target, pageX, pageY) {
-    var cursor = this;
-    this.notify('select');
+    var cursor = this.notify('select');
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -215,8 +212,7 @@ var Cursor = P(Point, function(_) {
     return offset;
   }
   _.writeLatex = function(latex) {
-    var self = this;
-    this.notify('edit');
+    var self = this.notify('edit');
 
     var all = Parser.all;
     var eof = Parser.eof;
@@ -345,9 +341,8 @@ var Cursor = P(Point, function(_) {
     return true;
   };
   _.selectDir = function(dir) {
-    var cursor = this, seln = cursor.selection;
+    var cursor = this.notify('select'), seln = cursor.selection;
     prayDirection(dir);
-    this.notify('select');
 
     if (!cursor.anticursor) cursor.startSelection();
 
@@ -382,17 +377,10 @@ var Cursor = P(Point, function(_) {
     if (e === 'move' || e === 'upDown') this.show().clearSelection();
   });
   onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-  _.prepareMove = function() {
-    this.notify('move');
-    return this;
-  };
-  _.prepareEdit = function() {
-    this.notify('edit');
-    return this;
-  };
+  _.prepareMove = function() { return this.notify('move'); };
+  _.prepareEdit = function() { return this.notify('edit'); };
   _.prepareWrite = function() {
-    this.notify();
-    return this.show().replaceSelection();
+    return this.notify().show().replaceSelection();
   };
 
   _.clearSelection = function() {
