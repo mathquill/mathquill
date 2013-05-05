@@ -105,7 +105,6 @@ var Cursor = P(Point, function(_) {
     if (this.parent === this.root) return;
 
     this.notify();
-    this.endSelection();
     this.show().clearSelection();
     this.parent.moveOutOf(dir, this);
   };
@@ -114,7 +113,6 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     this.notify();
-    this.endSelection();
 
     if (this.selection) {
       this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
@@ -160,7 +158,6 @@ var Cursor = P(Point, function(_) {
     }
 
     self.notify('upDown');
-    self.endSelection();
     return self.clearSelection().show();
   }
   onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
@@ -187,7 +184,7 @@ var Cursor = P(Point, function(_) {
 
   _.seek = function(target, pageX, pageY) {
     var cursor = this;
-    this.notify();
+    this.notify('select');
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -221,7 +218,6 @@ var Cursor = P(Point, function(_) {
   _.writeLatex = function(latex) {
     var self = this;
     this.notify();
-    self.endSelection();
     self.show().deleteSelection();
 
     var all = Parser.all;
@@ -315,7 +311,6 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     this.notify();
-    this.endSelection();
     this.show();
 
     if (this.deleteSelection()); // pass
@@ -354,7 +349,7 @@ var Cursor = P(Point, function(_) {
   _.selectDir = function(dir) {
     var cursor = this, seln = cursor.selection;
     prayDirection(dir);
-    this.notify();
+    this.notify('select');
 
     if (!cursor.anticursor) cursor.startSelection();
 
@@ -383,20 +378,18 @@ var Cursor = P(Point, function(_) {
   _.endSelection = function() {
     delete this.anticursor;
   };
+  onNotify(function(e) { if (e !== 'select') this.endSelection(); });
 
   _.prepareMove = function() {
     this.notify();
-    this.endSelection();
     return this.show().clearSelection();
   };
   _.prepareEdit = function() {
     this.notify();
-    this.endSelection();
     return this.show().deleteSelection();
   };
   _.prepareWrite = function() {
     this.notify();
-    this.endSelection();
     return this.show().replaceSelection();
   };
 
