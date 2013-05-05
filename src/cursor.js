@@ -104,23 +104,21 @@ var Cursor = P(Point, function(_) {
     // default browser action if so)
     if (this.parent === this.root) return;
 
-    this.notify();
-    this.show().clearSelection();
+    this.notify('move');
     this.parent.moveOutOf(dir, this);
   };
 
   _.moveDir = function(dir) {
     prayDirection(dir);
 
-    this.notify();
-
     if (this.selection) {
-      this.insDirOf(dir, this.selection.ends[dir]).clearSelection();
+      this.insDirOf(dir, this.selection.ends[dir]);
     }
     else if (this[dir]) this[dir].moveTowards(dir, this);
     else if (this.parent !== this.root) this.parent.moveOutOf(dir, this);
 
-    return this.show();
+    this.notify('move');
+    return this;
   };
   _.moveLeft = function() { return this.moveDir(L); };
   _.moveRight = function() { return this.moveDir(R); };
@@ -158,7 +156,7 @@ var Cursor = P(Point, function(_) {
     }
 
     self.notify('upDown');
-    return self.clearSelection().show();
+    return self;
   }
   onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**
@@ -380,9 +378,12 @@ var Cursor = P(Point, function(_) {
   };
   onNotify(function(e) { if (e !== 'select') this.endSelection(); });
 
+  onNotify(function(e) {
+    if (e === 'move' || e === 'upDown') this.show().clearSelection();
+  });
   _.prepareMove = function() {
-    this.notify();
-    return this.show().clearSelection();
+    this.notify('move');
+    return this;
   };
   _.prepareEdit = function() {
     this.notify();
