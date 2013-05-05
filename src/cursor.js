@@ -83,6 +83,14 @@ var Cursor = P(Point, function(_) {
   _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
   _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
+  var notifyees = [];
+  function onNotify(f) { notifyees.push(f); };
+  _.notify = function() {
+    for (var i = 0; i < notifyees.length; i += 1) {
+      notifyees[i].apply(this, arguments);
+    }
+  };
+
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
 
@@ -96,6 +104,7 @@ var Cursor = P(Point, function(_) {
     // default browser action if so)
     if (this.parent === this.root) return;
 
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
     this.show().clearSelection();
@@ -105,6 +114,7 @@ var Cursor = P(Point, function(_) {
   _.moveDir = function(dir) {
     prayDirection(dir);
 
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
 
@@ -151,6 +161,7 @@ var Cursor = P(Point, function(_) {
       } while (ancestor !== self.root);
     }
 
+    self.notify();
     self.endSelection();
     return self.clearSelection().show();
   }
@@ -177,6 +188,7 @@ var Cursor = P(Point, function(_) {
 
   _.seek = function(target, pageX, pageY) {
     var cursor = this;
+    this.notify();
     clearUpDownCache(cursor);
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
@@ -210,6 +222,7 @@ var Cursor = P(Point, function(_) {
   }
   _.writeLatex = function(latex) {
     var self = this;
+    this.notify();
     clearUpDownCache(self);
     self.endSelection();
     self.show().deleteSelection();
@@ -304,6 +317,7 @@ var Cursor = P(Point, function(_) {
   };
   _.deleteDir = function(dir) {
     prayDirection(dir);
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
     this.show();
@@ -344,6 +358,7 @@ var Cursor = P(Point, function(_) {
   _.selectDir = function(dir) {
     var cursor = this, seln = cursor.selection;
     prayDirection(dir);
+    this.notify();
     clearUpDownCache(cursor);
 
     if (!cursor.anticursor) cursor.startSelection();
@@ -379,16 +394,19 @@ var Cursor = P(Point, function(_) {
   }
 
   _.prepareMove = function() {
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
     return this.show().clearSelection();
   };
   _.prepareEdit = function() {
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
     return this.show().deleteSelection();
   };
   _.prepareWrite = function() {
+    this.notify();
     clearUpDownCache(this);
     this.endSelection();
     return this.show().replaceSelection();
