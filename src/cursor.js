@@ -106,6 +106,7 @@ var Cursor = P(Point, function(_) {
 
     this.notify('move');
     this.parent.moveOutOf(dir, this);
+    return this;
   };
 
   _.moveDir = function(dir) {
