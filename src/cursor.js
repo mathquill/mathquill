@@ -105,7 +105,6 @@ var Cursor = P(Point, function(_) {
     if (this.parent === this.root) return;
 
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
     this.show().clearSelection();
     this.parent.moveOutOf(dir, this);
@@ -115,7 +114,6 @@ var Cursor = P(Point, function(_) {
     prayDirection(dir);
 
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
 
     if (this.selection) {
@@ -161,10 +159,11 @@ var Cursor = P(Point, function(_) {
       } while (ancestor !== self.root);
     }
 
-    self.notify();
+    self.notify('upDown');
     self.endSelection();
     return self.clearSelection().show();
   }
+  onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**
    * jump up or down from one block Node to another:
    * - cache the current Point in the node we're jumping from
@@ -189,7 +188,6 @@ var Cursor = P(Point, function(_) {
   _.seek = function(target, pageX, pageY) {
     var cursor = this;
     this.notify();
-    clearUpDownCache(cursor);
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -223,7 +221,6 @@ var Cursor = P(Point, function(_) {
   _.writeLatex = function(latex) {
     var self = this;
     this.notify();
-    clearUpDownCache(self);
     self.endSelection();
     self.show().deleteSelection();
 
@@ -318,7 +315,6 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
     this.show();
 
@@ -359,7 +355,6 @@ var Cursor = P(Point, function(_) {
     var cursor = this, seln = cursor.selection;
     prayDirection(dir);
     this.notify();
-    clearUpDownCache(cursor);
 
     if (!cursor.anticursor) cursor.startSelection();
 
@@ -389,25 +384,18 @@ var Cursor = P(Point, function(_) {
     delete this.anticursor;
   };
 
-  function clearUpDownCache(self) {
-    self.upDownCache = {};
-  }
-
   _.prepareMove = function() {
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
     return this.show().clearSelection();
   };
   _.prepareEdit = function() {
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
     return this.show().deleteSelection();
   };
   _.prepareWrite = function() {
     this.notify();
-    clearUpDownCache(this);
     this.endSelection();
     return this.show().replaceSelection();
   };
