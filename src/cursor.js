@@ -136,8 +136,9 @@ var Cursor = P(Point, function(_) {
     if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
     else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
     else {
-      var ancestor = self.parent;
+      var ancestor = self;
       do {
+        ancestor = ancestor.parent;
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
@@ -147,7 +148,6 @@ var Cursor = P(Point, function(_) {
             break;
           }
         }
-        ancestor = ancestor.parent;
       } while (ancestor !== self.root);
     }
 
