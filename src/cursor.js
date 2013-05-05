@@ -215,8 +215,7 @@ var Cursor = P(Point, function(_) {
   }
   _.writeLatex = function(latex) {
     var self = this;
-    this.notify();
-    self.show().deleteSelection();
+    this.notify('edit');
 
     var all = Parser.all;
     var eof = Parser.eof;
@@ -308,12 +307,12 @@ var Cursor = P(Point, function(_) {
   };
   _.deleteDir = function(dir) {
     prayDirection(dir);
-    this.notify();
-    this.show();
 
-    if (this.deleteSelection()); // pass
+    if (this.selection); // pass; .notify('edit') will delete selection
     else if (this[dir]) this[dir].deleteTowards(dir, this);
     else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
+
+    this.notify('edit');
 
     if (this[L])
       this[L].respace();
@@ -381,13 +380,14 @@ var Cursor = P(Point, function(_) {
   onNotify(function(e) {
     if (e === 'move' || e === 'upDown') this.show().clearSelection();
   });
+  onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.prepareMove = function() {
     this.notify('move');
     return this;
   };
   _.prepareEdit = function() {
-    this.notify();
-    return this.show().deleteSelection();
+    this.notify('edit');
+    return this;
   };
   _.prepareWrite = function() {
     this.notify();
