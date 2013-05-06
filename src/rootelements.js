@@ -60,6 +60,12 @@ function createRoot(jQ, root, textbox, editable) {
       return false;
     }
 
+    var iOS = false,
+    p = navigator.platform;
+    if (p === 'iPad' || p === 'iPhone' || p === 'iPod') {
+      iOS = true;
+    }
+
     // docmousemove is attached to the document, so that
     // selection still works when the mouse leaves the window.
     function docmousemove(e) {
@@ -90,7 +96,10 @@ function createRoot(jQ, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { textarea.focus(); });
+    if (iOS)
+      textarea.focus();
+    else
+      setTimeout(function() { textarea.focus(); });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
