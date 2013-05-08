@@ -6,7 +6,7 @@ LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="di
 
 var Variable = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+    _super.init.call(this, ch, '<var class="mq-var-' + ch + '">'+(html || ch)+'</var>');
   };
   _.text = function() {
     var text = this.ctrlSeq;
@@ -22,7 +22,8 @@ var Variable = P(Symbol, function(_, _super) {
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+    var cssFrag = ch.slice(1).trimRight();
+    _super.init.call(this, ch, '<span class="mq-vs-' + cssFrag + '">'+(html || ch)+'</span>');
   };
 });
 
