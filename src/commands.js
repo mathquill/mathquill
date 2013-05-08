@@ -476,7 +476,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.createLeftOf = function(cursor) {
     _super.createLeftOf.call(this, cursor);
 
-    this.cursor = cursor.insAtRightEnd(this.ends[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -502,25 +501,25 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.latex = function() {
     return '\\' + this.ends[L].latex() + ' ';
   };
-  _.onKey = function(key, e) {
+  _.onKey = function(key, e, cursor) {
     if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-      this.renderCommand();
+      this.renderCommand(cursor);
       e.preventDefault();
       return false;
     }
   };
-  _.renderCommand = function() {
+  _.renderCommand = function(cursor) {
     this.jQ = this.jQ.last();
     this.remove();
     if (this[R]) {
-      this.cursor.insLeftOf(this[R]);
+      cursor.insLeftOf(this[R]);
     } else {
-      this.cursor.insAtRightEnd(this.parent);
+      cursor.insAtRightEnd(this.parent);
     }
 
     var latex = this.ends[L].latex();
     if (!latex) latex = 'backslash';
-    this.cursor.insertCmd(latex, this._replacedFragment);
+    cursor.insertCmd(latex, this._replacedFragment);
   };
 });
 
@@ -570,11 +569,8 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       return text;
     }).join() + ']';
   };
-  _.createLeftOf = function(cursor) {
-    _super.createLeftOf.call(this, this.cursor = cursor);
-  };
-  _.onKey = function(key, e) {
-    var currentBlock = this.cursor.parent;
+  _.onKey = function(key, e, cursor) {
+    var currentBlock = cursor.parent;
 
     if (currentBlock.parent === this) {
       if (key === 'Enter') { //enter
@@ -599,7 +595,7 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (key === 'Tab' && !currentBlock[R]) {
         if (currentBlock.isEmpty()) {
           if (currentBlock[L]) {
-            this.cursor.insRightOf(this);
+            cursor.insRightOf(this);
             delete currentBlock[L][R];
             this.ends[R] = currentBlock[L];
             currentBlock.jQ.remove();
@@ -626,11 +622,11 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
       else if (e.which === 8) { //backspace
         if (currentBlock.isEmpty()) {
           if (currentBlock[L]) {
-            this.cursor.insAtRightEnd(currentBlock[L]);
+            cursor.insAtRightEnd(currentBlock[L]);
             currentBlock[L][R] = currentBlock[R];
           }
           else {
-            this.cursor.insLeftOf(this);
+            cursor.insLeftOf(this);
             this.ends[L] = currentBlock[R];
           }
 
@@ -641,14 +637,14 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
 
           currentBlock.jQ.remove();
           if (this.isEmpty())
-            this.cursor.deleteForward();
+            cursor.deleteForward();
           else
             this.bubble('redraw');
 
           e.preventDefault();
           return false;
         }
-        else if (!this.cursor[L]) {
+        else if (!cursor[L]) {
           e.preventDefault();
           return false;
         }

@@ -126,7 +126,7 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaManager = manageTextarea(textarea, {
     container: jQ,
     key: function(key, evt) {
-      cursor.parent.bubble('onKey', key, evt);
+      cursor.parent.bubble('onKey', key, evt, cursor);
     },
     text: function(ch) {
       cursor.write(ch);
@@ -204,32 +204,32 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
-  _.onKey = function(key, e) {
+  _.onKey = function(key, e, cursor) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
-      while (this.cursor[L] || this.cursor.selection) {
-        this.cursor.backspace();
+      while (cursor[L] || cursor.selection) {
+        cursor.backspace();
       }
       break;
 
     case 'Shift-Backspace':
     case 'Backspace':
-      this.cursor.backspace();
+      cursor.backspace();
       break;
 
     // Tab or Esc -> go one block right if it exists, else escape right.
     case 'Esc':
     case 'Tab':
     case 'Spacebar':
-      this.cursor.escapeDir(R, key, e);
+      cursor.escapeDir(R, key, e);
       return;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
     case 'Shift-Spacebar':
-      this.cursor.escapeDir(L, key, e);
+      cursor.escapeDir(L, key, e);
       return;
 
     // Prevent newlines from showing up
@@ -238,76 +238,76 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // End -> move to the end of the current block.
     case 'End':
-      this.cursor.prepareMove().insAtRightEnd(this.cursor.parent);
+      cursor.prepareMove().insAtRightEnd(cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      this.cursor.prepareMove().insAtRightEnd(this);
+      cursor.prepareMove().insAtRightEnd(this);
       break;
 
     // Shift-End -> select to the end of the current block.
     case 'Shift-End':
-      while (this.cursor[R]) {
-        this.cursor.selectRight();
+      while (cursor[R]) {
+        cursor.selectRight();
       }
       break;
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
-      while (this.cursor[R] || this.cursor.parent !== this) {
-        this.cursor.selectRight();
+      while (cursor[R] || cursor.parent !== this) {
+        cursor.selectRight();
       }
       break;
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      this.cursor.prepareMove().insAtLeftEnd(this.cursor.parent);
+      cursor.prepareMove().insAtLeftEnd(cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      this.cursor.prepareMove().insAtLeftEnd(this);
+      cursor.prepareMove().insAtLeftEnd(this);
       break;
 
     // Shift-Home -> select to the start of the current block.
     case 'Shift-Home':
-      while (this.cursor[L]) {
-        this.cursor.selectLeft();
+      while (cursor[L]) {
+        cursor.selectLeft();
       }
       break;
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
-      while (this.cursor[L] || this.cursor.parent !== this) {
-        this.cursor.selectLeft();
+      while (cursor[L] || cursor.parent !== this) {
+        cursor.selectLeft();
       }
       break;
 
-    case 'Left': this.cursor.moveLeft(); break;
-    case 'Shift-Left': this.cursor.selectLeft(); break;
+    case 'Left': cursor.moveLeft(); break;
+    case 'Shift-Left': cursor.selectLeft(); break;
     case 'Ctrl-Left': break;
 
-    case 'Right': this.cursor.moveRight(); break;
-    case 'Shift-Right': this.cursor.selectRight(); break;
+    case 'Right': cursor.moveRight(); break;
+    case 'Shift-Right': cursor.selectRight(); break;
     case 'Ctrl-Right': break;
 
-    case 'Up': this.cursor.moveUp(); break;
-    case 'Down': this.cursor.moveDown(); break;
+    case 'Up': cursor.moveUp(); break;
+    case 'Down': cursor.moveDown(); break;
 
     case 'Shift-Up':
-      if (this.cursor[L]) {
-        while (this.cursor[L]) this.cursor.selectLeft();
+      if (cursor[L]) {
+        while (cursor[L]) cursor.selectLeft();
       } else {
-        this.cursor.selectLeft();
+        cursor.selectLeft();
       }
 
     case 'Shift-Down':
-      if (this.cursor[R]) {
-        while (this.cursor[R]) this.cursor.selectRight();
+      if (cursor[R]) {
+        while (cursor[R]) cursor.selectRight();
       }
       else {
-        this.cursor.selectRight();
+        cursor.selectRight();
       }
 
     case 'Ctrl-Up': break;
@@ -315,23 +315,23 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
-      while (this.cursor[R] || this.cursor.selection) {
-        this.cursor.deleteForward();
+      while (cursor[R] || cursor.selection) {
+        cursor.deleteForward();
       }
       break;
 
     case 'Shift-Del':
     case 'Del':
-      this.cursor.deleteForward();
+      cursor.deleteForward();
       break;
 
     case 'Meta-A':
     case 'Ctrl-A':
       //so not stopPropagation'd at RootMathCommand
-      if (this !== this.cursor.root) return;
+      if (this !== cursor.root) return;
 
-      this.cursor.prepareMove().insAtRightEnd(this);
-      while (this.cursor[L]) this.cursor.selectLeft();
+      cursor.prepareMove().insAtRightEnd(this);
+      while (cursor[L]) cursor.selectLeft();
       break;
 
     default:
