@@ -128,8 +128,8 @@ function createRoot(jQ, root, textbox, editable) {
     key: function(key, evt) {
       cursor.parent.bubble('onKey', key, evt);
     },
-    text: function(text) {
-      cursor.parent.bubble('onText', text);
+    text: function(ch) {
+      cursor.write(ch);
     },
     cut: function(e) {
       if (cursor.selection) {
@@ -340,10 +340,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     e.preventDefault();
     return false;
   };
-  _.onText = function(ch) {
-    this.cursor.write(ch);
-    return false;
-  };
 });
 
 var RootMathCommand = P(MathCommand, function(_, _super) {
@@ -432,7 +428,6 @@ var RootTextBlock = P(MathBlock, function(_) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
     RootMathBlock.prototype.onKey.apply(this, arguments);
   };
-  _.onText = RootMathBlock.prototype.onText;
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
