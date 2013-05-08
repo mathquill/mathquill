@@ -330,7 +330,7 @@ var Symbol = P(MathCommand, function(_, _super) {
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-var MathBlock = P(MathElement, function(_) {
+var MathBlock = P(MathElement, function(_, _super) {
   _.join = function(methodName) {
     return this.foldChildren('', function(fold, child) {
       return fold + child[methodName]();
@@ -346,6 +346,15 @@ var MathBlock = P(MathElement, function(_) {
   };
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
+  };
+
+  _.keystroke = function(key, e, cursor) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') {
+      e.preventDefault();
+      cursor.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
+      return;
+    }
+    return _super.keystroke.apply(this, arguments);
   };
 
   // editability methods: called by the cursor for editing, cursor movements,

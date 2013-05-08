@@ -74,11 +74,6 @@ var TextBlock = P(Node, function(_, _super) {
     );
   };
 
-  _.keystroke = function(key) {
-    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
-    return _super.keystroke.apply(this, arguments);
-  };
-
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
