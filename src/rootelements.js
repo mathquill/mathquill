@@ -243,7 +243,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      cursor.prepareMove().insAtRightEnd(this);
+      cursor.prepareMove().insAtRightEnd(cursor.root);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -255,7 +255,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
-      while (cursor[R] || cursor.parent !== this) {
+      while (cursor[R] || cursor.parent !== cursor.root) {
         cursor.selectRight();
       }
       break;
@@ -267,7 +267,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      cursor.prepareMove().insAtLeftEnd(this);
+      cursor.prepareMove().insAtLeftEnd(cursor.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -279,7 +279,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
-      while (cursor[L] || cursor.parent !== this) {
+      while (cursor[L] || cursor.parent !== cursor.root) {
         cursor.selectLeft();
       }
       break;
@@ -327,10 +327,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Meta-A':
     case 'Ctrl-A':
-      //so not stopPropagation'd at RootMathCommand
-      if (this !== cursor.root) return;
-
-      cursor.prepareMove().insAtRightEnd(this);
+      cursor.prepareMove().insAtRightEnd(cursor.root);
       while (cursor[L]) cursor.selectLeft();
       break;
 
