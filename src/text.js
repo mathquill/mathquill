@@ -74,8 +74,9 @@ var TextBlock = P(Node, function(_, _super) {
     );
   };
 
-  _.onKey = function(key, e) {
-    if (key === 'Spacebar' || key === 'Shift-Spacebar') return false;
+  _.keystroke = function(key) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
+    return _super.keystroke.apply(this, arguments);
   };
 
   // editability methods: called by the cursor for editing, cursor movements,

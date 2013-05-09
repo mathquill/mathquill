@@ -19,6 +19,7 @@ SOURCES = \
   $(SRC_DIR)/text.js \
   $(SRC_DIR)/latex.js \
   $(SRC_DIR)/cursor.js \
+  $(SRC_DIR)/interaction.js \
   $(SRC_DIR)/publicapi.js
 
 CSS_DIR = $(SRC_DIR)/css

@@ -497,16 +497,17 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
         if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
       }
     };
+    this.ends[L].keystroke = function(key, e, cursor) {
+      if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
+        this.parent.renderCommand(cursor);
+        e.preventDefault();
+        return;
+      }
+      return _super.keystroke.apply(this, arguments);
+    };
   };
   _.latex = function() {
     return '\\' + this.ends[L].latex() + ' ';
-  };
-  _.onKey = function(key, e, cursor) {
-    if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-      this.renderCommand(cursor);
-      e.preventDefault();
-      return false;
-    }
   };
   _.renderCommand = function(cursor) {
     this.jQ = this.jQ.last();
