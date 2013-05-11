@@ -572,6 +572,8 @@ LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 LatexCmds.textcent = LatexCmds.cent = bind(VanillaSymbol,'\\textcent ','&cent;');
 
+LatexCmds.square = bind(VanillaSymbol,'\\square ','&#9633;');
+
 var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.init = function(fn) {
     _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
