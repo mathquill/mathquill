@@ -5,15 +5,8 @@ var app = connect()
   .use(connect.static(__dirname))
 ;
 
-var terminal = require('child_process').spawn('make', ['dev', 'test']);
-
-terminal.stdout.pipe(process.stdout);
-terminal.stderr.pipe(process.stderr);
-
 var port = +(process.env.PORT || 9292)
 var host = process.env.HOST || '0.0.0.0';
 
-terminal.on('exit', function() {
-  console.log('listening on '+host+':'+port);
-  app.listen(port, host);
-});
+console.log('listening on '+host+':'+port);
+app.listen(port, host);
