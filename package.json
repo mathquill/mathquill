@@ -8,7 +8,6 @@
     "mocha": "*",
     "uglify-js": "*",
     "less": "git://github.com/cloudhead/less.js",
-    "supervisor": "*",
-    "connect": "*"
+    "supervisor": "*"
   }
 }

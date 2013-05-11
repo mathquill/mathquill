@@ -95,7 +95,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 server:
 	./node_modules/.bin/supervisor -e js,less,Makefile -x make run-server
 run-server: test
-	node .
+	node script/test_server.js
 test: dev $(BUILD_TEST)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
