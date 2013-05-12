@@ -202,6 +202,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     jQ.children().slice(1).remove();
     this.ends[L] = this.ends[R] = 0;
 
+    delete this.cursor.selection;
     this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
   _.onKey = function(key, e) {
@@ -416,6 +417,7 @@ var RootTextBlock = P(MathBlock, function(_) {
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
     self.ends[L] = self.ends[R] = 0;
+    delete cursor.selection;
     cursor.show().insAtRightEnd(self);
 
     var regex = Parser.regex;
