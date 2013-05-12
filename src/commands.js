@@ -472,22 +472,6 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
       return this;
     };
-  };
-  _.createLeftOf = function(cursor) {
-    _super.createLeftOf.call(this, cursor);
-
-    if (this._replacedFragment) {
-      var el = this.jQ[0];
-      this.jQ =
-        this._replacedFragment.jQ.addClass('blur').bind(
-          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
-          function(e) {
-            $(e.target = el).trigger(e);
-            return false;
-          }
-        ).insertBefore(this.jQ).add(this.jQ);
-    }
-
     this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (replacedFragment) replacedFragment.remove();
 
@@ -505,6 +489,21 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
       }
       return _super.keystroke.apply(this, arguments);
     };
+  };
+  _.createLeftOf = function(cursor) {
+    _super.createLeftOf.call(this, cursor);
+
+    if (this._replacedFragment) {
+      var el = this.jQ[0];
+      this.jQ =
+        this._replacedFragment.jQ.addClass('blur').bind(
+          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+          function(e) {
+            $(e.target = el).trigger(e);
+            return false;
+          }
+        ).insertBefore(this.jQ).add(this.jQ);
+    }
   };
   _.latex = function() {
     return '\\' + this.ends[L].latex() + ' ';
