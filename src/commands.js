@@ -494,13 +494,13 @@ var InnerTextBlock = P(MathBlock, function(_, _super) {
       VanillaSymbol(ch, html).createLeftOf(cursor);
     }
     else if (this.isEmpty()) {
-      cursor.insRightOf(this).backspace();
+      cursor.insRightOf(this.parent).backspace();
       VanillaSymbol('\\$','$').createLeftOf(cursor);
     }
     else if (!cursor[R])
-      cursor.insRightOf(this);
+      cursor.insRightOf(this.parent);
     else if (!cursor[L])
-      cursor.insLeftOf(this);
+      cursor.insLeftOf(this.parent);
     else { //split apart
       var rightward = TextBlock();
       rightward.replaces(MathFragment(cursor[R], this.ends[R]));
