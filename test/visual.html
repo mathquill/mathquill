@@ -167,6 +167,16 @@ e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
 </span>
 </p>
 
+<h3>Adding CSS class</h3>
+<style type="text/css">
+  .testclass { background-color: #5A8; border-radius: 5px; padding: 4px; font-weight:bold;color:gold;}
+</style>
+<p>Second term should be styled like <span class='testclass'>this</span>:
+  <span class="mathquill-embedded-latex">
+x+\cssclass{testclass}{y}+z
+</span>
+</p>
+
 </div>
 <script type="text/javascript">
 window.onerror = function() {

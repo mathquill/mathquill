@@ -114,6 +114,33 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
   };
 });
 
+// Very similar to the \textcolor command, but will add the given CSS class.
+// Usage: \cssclass{classname}{math}
+var CssClass = LatexCmds.cssclass = P(MathCommand, function(_, _super) {
+  _.htmlTemplate = '<span>&0</span>';
+  _.jQadd = function() {
+    _super.jQadd.apply(this, arguments);
+    this.jQ.addClass(this.cssClass);
+  };
+
+  _.parser = function() {
+    var self = this;
+    var optWhitespace = Parser.optWhitespace;
+    var string = Parser.string;
+    var regex = Parser.regex;
+
+    return optWhitespace
+      .then(string('{'))
+      .then(regex(/^[^{}]*/))
+      .skip(string('}'))
+      .then(function(cssClass) {
+        self.cssClass = cssClass;
+        return _super.parser.call(self);
+      })
+    ;
+  };
+});
+
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
