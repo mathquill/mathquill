@@ -115,8 +115,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 });
 
 // Very similar to the \textcolor command, but will add the given CSS class.
-// Usage: \cssclass{classname}{math}
-var CssClass = LatexCmds.cssclass = P(MathCommand, function(_, _super) {
+// Usage: \class{classname}{math}
+var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
   _.htmlTemplate = '<span>&0</span>';
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
