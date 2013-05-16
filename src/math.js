@@ -97,7 +97,7 @@ var MathElement = P(Node, function(_, _super) {
   };
 
   _.charCount = function() {
-    countCharForChildren = function(charCount, child) {
+    var countCharForChildren = function(charCount, child) {
       if (child.charCountBehavior === 'r') {
         charCount = child.foldChildren(charCount, countCharForChildren);
         return ++charCount;
