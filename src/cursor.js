@@ -226,14 +226,6 @@ var Cursor = P(Point, function(_) {
 
     return this.hide();
   };
-  _.write = function(ch) {
-    var seln = this.prepareWrite();
-    return this.insertCh(ch, seln);
-  };
-  _.insertCh = function(ch, replacedFragment) {
-    this.parent.write(this, ch, replacedFragment);
-    return this;
-  };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {

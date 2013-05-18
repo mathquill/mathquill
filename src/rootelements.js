@@ -129,7 +129,7 @@ function createRoot(jQ, root, textbox, editable) {
       cursor.parent.keystroke(key, evt, cursor);
     },
     text: function(ch) {
-      cursor.write(ch);
+      cursor.parent.write(cursor, ch, cursor.prepareWrite());
     },
     cut: function(e) {
       if (cursor.selection) {
