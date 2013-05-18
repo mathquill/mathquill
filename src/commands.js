@@ -472,11 +472,27 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
       return this;
     };
+    this.ends[L].write = function(cursor, ch, replacedFragment) {
+      if (replacedFragment) replacedFragment.remove();
+
+      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
+      else {
+        this.parent.renderCommand();
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+      }
+    };
+    this.ends[L].keystroke = function(key, e, cursor) {
+      if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
+        this.parent.renderCommand(cursor);
+        e.preventDefault();
+        return;
+      }
+      return _super.keystroke.apply(this, arguments);
+    };
   };
   _.createLeftOf = function(cursor) {
     _super.createLeftOf.call(this, cursor);
 
-    this.cursor = cursor.insAtRightEnd(this.ends[L]);
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
@@ -488,39 +504,22 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
-
-    this.ends[L].write = function(cursor, ch, replacedFragment) {
-      if (replacedFragment) replacedFragment.remove();
-
-      if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
-      else {
-        this.parent.renderCommand();
-        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
-      }
-    };
   };
   _.latex = function() {
     return '\\' + this.ends[L].latex() + ' ';
   };
-  _.onKey = function(key, e) {
-    if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-      this.renderCommand();
-      e.preventDefault();
-      return false;
-    }
-  };
-  _.renderCommand = function() {
+  _.renderCommand = function(cursor) {
     this.jQ = this.jQ.last();
     this.remove();
     if (this[R]) {
-      this.cursor.insLeftOf(this[R]);
+      cursor.insLeftOf(this[R]);
     } else {
-      this.cursor.insAtRightEnd(this.parent);
+      cursor.insAtRightEnd(this.parent);
     }
 
     var latex = this.ends[L].latex();
     if (!latex) latex = 'backslash';
-    this.cursor.insertCmd(latex, this._replacedFragment);
+    cursor.insertCmd(latex, this._replacedFragment);
   };
 });
 
