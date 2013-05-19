@@ -95,11 +95,8 @@ var Cursor = P(Point, function(_) {
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
 
-    // always prevent default of Spacebar, but only prevent default of Tab if
-    // not in the root editable
-    if (key === 'Spacebar' || this.parent !== this.root) {
-      e.preventDefault();
-    }
+    // only prevent default of Tab if not in the root editable
+    if (this.parent !== this.root) e.preventDefault();
 
     // want to be a noop if in the root editable (in fact, Tab has an unrelated
     // default browser action if so)
@@ -228,14 +225,6 @@ var Cursor = P(Point, function(_) {
     }
 
     return this.hide();
-  };
-  _.write = function(ch) {
-    var seln = this.prepareWrite();
-    return this.insertCh(ch, seln);
-  };
-  _.insertCh = function(ch, replacedFragment) {
-    this.parent.write(this, ch, replacedFragment);
-    return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];

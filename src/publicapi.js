@@ -66,7 +66,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (cursor) {
           var seln = cursor.prepareWrite();
           if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
-          else cursor.insertCh(latex, seln);
+          else cursor.parent.write(latex, seln);
           cursor.hide().parent.blur();
         }
       });

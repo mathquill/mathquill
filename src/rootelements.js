@@ -126,10 +126,10 @@ function createRoot(jQ, root, textbox, editable) {
   var textareaManager = manageTextarea(textarea, {
     container: jQ,
     key: function(key, evt) {
-      cursor.parent.bubble('onKey', key, evt);
+      cursor.parent.keystroke(key, evt, cursor);
     },
-    text: function(text) {
-      cursor.parent.bubble('onText', text);
+    text: function(ch) {
+      cursor.parent.write(cursor, ch, cursor.prepareWrite());
     },
     cut: function(e) {
       if (cursor.selection) {
@@ -205,146 +205,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     this.cursor.insAtRightEnd(this).writeLatex(latex);
   };
-  _.onKey = function(key, e) {
-    switch (key) {
-    case 'Ctrl-Shift-Backspace':
-    case 'Ctrl-Backspace':
-      while (this.cursor[L] || this.cursor.selection) {
-        this.cursor.backspace();
-      }
-      break;
-
-    case 'Shift-Backspace':
-    case 'Backspace':
-      this.cursor.backspace();
-      break;
-
-    // Tab or Esc -> go one block right if it exists, else escape right.
-    case 'Esc':
-    case 'Tab':
-    case 'Spacebar':
-      this.cursor.escapeDir(R, key, e);
-      return;
-
-    // Shift-Tab -> go one block left if it exists, else escape left.
-    case 'Shift-Tab':
-    case 'Shift-Esc':
-    case 'Shift-Spacebar':
-      this.cursor.escapeDir(L, key, e);
-      return;
-
-    // Prevent newlines from showing up
-    case 'Enter': break;
-
-
-    // End -> move to the end of the current block.
-    case 'End':
-      this.cursor.prepareMove().insAtRightEnd(this.cursor.parent);
-      break;
-
-    // Ctrl-End -> move all the way to the end of the root block.
-    case 'Ctrl-End':
-      this.cursor.prepareMove().insAtRightEnd(this);
-      break;
-
-    // Shift-End -> select to the end of the current block.
-    case 'Shift-End':
-      while (this.cursor[R]) {
-        this.cursor.selectRight();
-      }
-      break;
-
-    // Ctrl-Shift-End -> select to the end of the root block.
-    case 'Ctrl-Shift-End':
-      while (this.cursor[R] || this.cursor.parent !== this) {
-        this.cursor.selectRight();
-      }
-      break;
-
-    // Home -> move to the start of the root block or the current block.
-    case 'Home':
-      this.cursor.prepareMove().insAtLeftEnd(this.cursor.parent);
-      break;
-
-    // Ctrl-Home -> move to the start of the current block.
-    case 'Ctrl-Home':
-      this.cursor.prepareMove().insAtLeftEnd(this);
-      break;
-
-    // Shift-Home -> select to the start of the current block.
-    case 'Shift-Home':
-      while (this.cursor[L]) {
-        this.cursor.selectLeft();
-      }
-      break;
-
-    // Ctrl-Shift-Home -> move to the start of the root block.
-    case 'Ctrl-Shift-Home':
-      while (this.cursor[L] || this.cursor.parent !== this) {
-        this.cursor.selectLeft();
-      }
-      break;
-
-    case 'Left': this.cursor.moveLeft(); break;
-    case 'Shift-Left': this.cursor.selectLeft(); break;
-    case 'Ctrl-Left': break;
-
-    case 'Right': this.cursor.moveRight(); break;
-    case 'Shift-Right': this.cursor.selectRight(); break;
-    case 'Ctrl-Right': break;
-
-    case 'Up': this.cursor.moveUp(); break;
-    case 'Down': this.cursor.moveDown(); break;
-
-    case 'Shift-Up':
-      if (this.cursor[L]) {
-        while (this.cursor[L]) this.cursor.selectLeft();
-      } else {
-        this.cursor.selectLeft();
-      }
-
-    case 'Shift-Down':
-      if (this.cursor[R]) {
-        while (this.cursor[R]) this.cursor.selectRight();
-      }
-      else {
-        this.cursor.selectRight();
-      }
-
-    case 'Ctrl-Up': break;
-    case 'Ctrl-Down': break;
-
-    case 'Ctrl-Shift-Del':
-    case 'Ctrl-Del':
-      while (this.cursor[R] || this.cursor.selection) {
-        this.cursor.deleteForward();
-      }
-      break;
-
-    case 'Shift-Del':
-    case 'Del':
-      this.cursor.deleteForward();
-      break;
-
-    case 'Meta-A':
-    case 'Ctrl-A':
-      //so not stopPropagation'd at RootMathCommand
-      if (this !== this.cursor.root) return;
-
-      this.cursor.prepareMove().insAtRightEnd(this);
-      while (this.cursor[L]) this.cursor.selectLeft();
-      break;
-
-    default:
-      return false;
-    }
-    e.preventDefault();
-    return false;
-  };
-  _.onText = function(ch) {
-    this.cursor.write(ch);
-    return false;
-  };
 });
 
 var RootMathCommand = P(MathCommand, function(_, _super) {
@@ -383,7 +243,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
 });
 
-var RootTextBlock = P(MathBlock, function(_) {
+var RootTextBlock = P(MathBlock, function(_, _super) {
   _.renderLatex = function(latex) {
     var self = this;
     var cursor = self.cursor;
@@ -430,11 +290,10 @@ var RootTextBlock = P(MathBlock, function(_) {
       self.finalizeInsert();
     }
   };
-  _.onKey = function(key) {
+  _.keystroke = function(key) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
-    RootMathBlock.prototype.onKey.apply(this, arguments);
+    return _super.keystroke.apply(this, arguments);
   };
-  _.onText = RootMathBlock.prototype.onText;
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();
     if (ch === '$')
