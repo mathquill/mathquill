@@ -90,10 +90,10 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="n
 // [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
 // [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
 var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
-  _.htmlTemplate = '<span class="mq-textcolor">&0</span>';
-  _.jQadd = function() {
-    _super.jQadd.apply(this, arguments);
-    this.jQ.css('color', this.color);
+  _.setColor = function(color) {
+    this.color = color;
+    this.htmlTemplate =
+      '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
   };
   _.latex = function() {
     return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
@@ -106,10 +106,10 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 
     return optWhitespace
       .then(string('{'))
-      .then(regex(/^[^{}]*/))
+      .then(regex(/^[#\w\s.,()%-]*/))
       .skip(string('}'))
       .then(function(color) {
-        self.color = color;
+        self.setColor(color);
         return _super.parser.call(self);
       })
     ;
