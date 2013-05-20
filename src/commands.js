@@ -95,7 +95,9 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
     _super.jQadd.apply(this, arguments);
     this.jQ.css('color', this.color);
   };
-
+  _.latex = function() {
+    return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
+  };
   _.parser = function() {
     var self = this;
     var optWhitespace = Parser.optWhitespace;
