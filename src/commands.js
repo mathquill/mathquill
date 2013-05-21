@@ -124,7 +124,7 @@ var CssClass = LatexCmds['class'] = P(MathCommand, function(_, _super) {
       .then(regex(/^[^\]]+/))
       .skip(string(']'))
       .then(function(cls) {
-        self.htmlTemplate = '<span class="mq-class '+(self.cls = cls)+'">&0</span>';
+        self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
         return _super.parser.call(self);
       })
     ;
