@@ -115,26 +115,19 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 });
 
 // Very similar to the \textcolor command, but will add the given CSS class.
-// Usage: \cssclass{classname}{math}
+// Usage: \class[classname]{math}
 var CssClass = LatexCmds['class'] = P(MathCommand, function(_, _super) {
-  _.htmlTemplate = '<span>&0</span>';
-  _.jQadd = function() {
-    _super.jQadd.apply(this, arguments);
-    this.jQ.addClass(this.cssClass);
+  _.setClass = function(cls) {
+    this.htmlTemplate = '<span class="mq-class '+(this.cls = cls)+'">&0</span>';
   };
-
   _.parser = function() {
-    var self = this;
-    var optWhitespace = Parser.optWhitespace;
-    var string = Parser.string;
-    var regex = Parser.regex;
-
-    return optWhitespace
-      .then(string('{'))
-      .then(regex(/^[^{}]*/))
-      .skip(string('}'))
-      .then(function(cssClass) {
-        self.cssClass = cssClass;
+    var self = this, string = Parser.string, regex = Parser.regex;
+    return Parser.optWhitespace
+      .then(string('['))
+      .then(regex(/^[^\]]+/))
+      .skip(string(']'))
+      .then(function(cls) {
+        self.setClass(cls);
         return _super.parser.call(self);
       })
     ;
