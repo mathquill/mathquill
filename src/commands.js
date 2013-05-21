@@ -118,12 +118,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 // Usage: \class{classname}{math}
 var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
   _.parser = function() {
-    var self = this;
-    var optWhitespace = Parser.optWhitespace;
-    var string = Parser.string;
-    var regex = Parser.regex;
-
-    return optWhitespace
+    var self = this, string = Parser.string, regex = Parser.regex;
+    return Parser.optWhitespace
       .then(string('{'))
       .then(regex(/^[^{}]*/))
       .skip(string('}'))
