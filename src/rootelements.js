@@ -200,7 +200,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var jQ = this.jQ;
 
     jQ.children().slice(1).remove();
-    this.postOrder('dispose');
+    this.eachChild('postOrder', 'dispose');
     this.ends[L] = this.ends[R] = 0;
 
     this.cursor.insAtRightEnd(this).writeLatex(latex);
@@ -248,7 +248,7 @@ var RootTextBlock = P(MathBlock, function(_, _super) {
     var self = this;
     var cursor = self.cursor;
     self.jQ.children().slice(1).remove();
-    self.postOrder('dispose');
+    self.eachChild('postOrder', 'dispose');
     self.ends[L] = self.ends[R] = 0;
     cursor.show().insAtRightEnd(self);
 
