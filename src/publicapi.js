@@ -87,7 +87,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId],
       cursor = block && block.cursor;
-    return block.hasEmptyCommands();
+    return block.hasEmptyBlocks();
   case 'allowLatex':
     if (arguments.length > 1)
       return this.each(function() {

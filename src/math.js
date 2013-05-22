@@ -113,7 +113,7 @@ var MathElement = P(Node, function(_, _super) {
     return this.foldChildren(0, countCharForChildren);
   };
 
-  _.hasEmptyCommands = function() {
+  _.hasEmptyBlocks = function() {
     var findEmptyMathBlocks = function(isEmpty, child) {
       if (isEmpty)
         return true;
