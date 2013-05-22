@@ -57,7 +57,10 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (cursor)
           cursor.writeLatex(latex).parent.blur();
         if (cmd === 'writeIn') {
-          cursor.hopLeft().moveRight();
+          if (cursor[L] instanceof LatexCmds.nthroot) 
+            cursor.moveLeftWithin(cursor[L]);
+          else
+            cursor.hopLeft().moveRight();
           // this is a really complicated way of getting at the
           // textarea that drives the interactivity so we can
           // re-enable text input
