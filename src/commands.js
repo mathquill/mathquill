@@ -123,7 +123,7 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
     var self = this, string = Parser.string, regex = Parser.regex;
     return Parser.optWhitespace
       .then(string('{'))
-      .then(regex(/^[-\w\s\\\0240-\0377]*/))
+      .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
       .skip(string('}'))
       .then(function(cls) {
         self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
