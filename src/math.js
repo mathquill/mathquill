@@ -111,6 +111,18 @@ var MathElement = P(Node, function(_, _super) {
       return charCount;
     };
     return this.foldChildren(0, countCharForChildren);
+  };
+
+  _.hasEmptyCommands = function() {
+    var findEmptyMathBlocks = function(isEmpty, child) {
+      if (isEmpty)
+        return true;
+      if (child instanceof MathBlock && child.endChild[L] === 0 && child.endChild[R] === 0)
+        return true;
+      isEmpty = child.foldChildren(isEmpty, findEmptyMathBlocks);
+      return isEmpty;
+    };
+    return this.foldChildren(false, findEmptyMathBlocks);
   }
 });
 
