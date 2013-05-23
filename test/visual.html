@@ -24,7 +24,7 @@ h1 {
 td {
   width: 33%;
 }
-button {
+#show-textareas-button {
   float: right;
 }
 .show-textareas .mathquill-textbox {
@@ -61,7 +61,7 @@ button {
 
 <h1><a href="http://mathquill.github.com">MathQuill</a> Tests <small>local test page</small></h1>
 
-<button>Show Textareas</button>
+<button id="show-textareas-button">Show Textareas</button>
 
 <h3>MathQuill Editables</h3>
 
@@ -185,7 +185,7 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-$('button').click(function() {
+$('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
   $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
 });
