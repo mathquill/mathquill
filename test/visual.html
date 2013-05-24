@@ -151,6 +151,10 @@ td {
 <tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
 </table>
 
+<h3>Dynamic rendering performance</h3>
+<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-editable"></span></p>
+<p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-rendered-math"></span></p>
+
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
 <h3>Textcolor</h3>
@@ -233,6 +237,46 @@ $('#dynamic-redraw tr').each(function() {
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
 });
+
+// Dynamic rendering performance
+function Avgs() {
+  return {
+    avgs: {},
+    add: function(k, v) {
+      if (!this.avgs[k]) this.avgs[k] = { n: 0, avg: 0 };
+      var avgObj = this.avgs[k];
+      avgObj.avg = (avgObj.n*avgObj.avg + v) / (avgObj.n + 1);
+      avgObj.n += 1;
+      return avgObj.avg + 'ms (across ' + avgObj.n + ' trials)';
+    }
+  };
+}
+(function() {
+  var textarea = $('#latex-render-perf textarea');
+  var mathquill = $('#latex-render-perf .mathquill-editable');
+  var avgs = Avgs();
+  $('#latex-render-perf button').click(function() {
+    var latex = textarea.val();
+    var before = Date.now();
+    mathquill.mathquill('latex', latex);
+    var duration = Date.now() - before;
+    $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
+    $('#html-render-perf textarea').val(mathquill.mathquill('html'));
+  });
+}());
+(function() {
+  var textarea = $('#html-render-perf textarea');
+  var span = $('#html-render-perf span');
+  var avgs = Avgs();
+  $('#html-render-perf button').click(function() {
+    var html = textarea.val();
+    var before = Date.now();
+    span.html(html);
+    var duration = Date.now() - before;
+    $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
+      .insertAfter('#html-render-perf');
+  });
+}());
 </script>
 </body>
 </html>
