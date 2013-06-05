@@ -271,6 +271,16 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   };
 });
 
+var Vec = LatexCmds.vec = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\vec';
+  _.htmlTemplate =
+      '<span class="non-leaf">'
+    +   '<span class="vector-prefix">&rarr;</span>'
+    +   '<span class="vector-stem">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['vec(', ')'];
+});
 
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
