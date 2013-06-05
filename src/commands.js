@@ -271,9 +271,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   };
 });
 
-var Vec =
-LatexCmds.vec =
-LatexCmds['vec'] = P(MathCommand, function(_, _super) {
+var Vec = LatexCmds.vec = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\vec';
   _.htmlTemplate =
       '<span class="non-leaf">'
@@ -281,7 +279,7 @@ LatexCmds['vec'] = P(MathCommand, function(_, _super) {
     +   '<span class="vector-stem">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = ['vec{', '}'];
+  _.textTemplate = ['vec(', ')'];
 });
 
 var NthRoot =
