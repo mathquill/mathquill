@@ -91,6 +91,11 @@ jQuery.fn.mathquill = function(cmd, latex) {
       block = blockId && MathElement[blockId],
       cursor = block && block.cursor;
     return block.hasEmptyBlocks();
+  case 'maxNestedBlocks':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    return block.getMaxNesting();
   case 'allowLatex':
     if (arguments.length > 1)
       return this.each(function() {

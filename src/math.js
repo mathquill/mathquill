@@ -124,6 +124,20 @@ var MathElement = P(Node, function(_, _super) {
     };
     return this.foldChildren(false, findEmptyMathBlocks);
   }
+
+  _.getMaxNesting = function() {
+    var findMaxMathBlocks = function(child) {
+      var maxDepth = 0;
+      for (var el = child.endChild[L]; el !== 0; el = el[R])
+        maxDepth = Math.max(maxDepth, findMaxMathBlocks(el));
+
+      if (child instanceof MathBlock)
+        return maxDepth + 1;
+      else
+        return maxDepth;
+    };
+    return findMaxMathBlocks(this);
+  }
 });
 
 /**
