@@ -189,19 +189,24 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
+var _prepend = $.fn.prepend;
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
   $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
+  if ($.fn.prepend === _prepend) {
+    //FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
+    $.fn.prepend = function(el) {
+      if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
+        $(el).removeClass('textarea').addClass('shown-textarea');
+      else if ($(el).hasClass('shown-textarea'))
+        $(el).removeClass('shown-textarea').addClass('textarea');
+      return _prepend.apply(this, arguments);
+    };
+  }
+  else {
+    $.fn.prepend = _prepend;
+  }
 });
-//FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
-var _prepend = $.fn.prepend;
-$.fn.prepend = function(el) {
-  if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
-    $(el).removeClass('textarea').addClass('shown-textarea');
-  else if ($(el).hasClass('shown-textarea'))
-    $(el).removeClass('shown-textarea').addClass('textarea');
-  return _prepend.apply(this, arguments);
-};
 
 // test selecting from outside the mathquill editable
 $('.math-container').mousedown(function(e) {
