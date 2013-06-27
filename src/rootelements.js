@@ -199,11 +199,18 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   _.renderLatex = function(latex) {
     var jQ = this.jQ;
 
+    log('got jQ, about to empty except for textarea');
     jQ.children().slice(1).remove();
+    log('emptied jQ, aboout to postOrder dispose');
     this.eachChild('postOrder', 'dispose');
+    log('postOrder-ed dispose, about to delete children from edit tree');
     this.ends[L] = this.ends[R] = 0;
 
-    this.cursor.insAtRightEnd(this).writeLatex(latex);
+    log('inserting cursor at right end');
+    this.cursor.insAtRightEnd(this);
+    log('inserted crsor, this.cursor.writeLatex()');
+    this.cursor.writeLatex(latex);
+    log('wrote the latex');
   };
 });
 

@@ -10,21 +10,32 @@
 var MathElement = P(Node, function(_, _super) {
   _.finalizeInsert = function() {
     var self = this;
+    //log('entered finalizeInsert');
     self.postOrder('finalizeTree');
+    //log('postOrder-ed finalizeTree');
+
+    self.postOrder('nonexistentMethod');
+    //log('postOrder-ed nonexistentMethod');
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly in redraw.
     self.postOrder('blur');
+    //log('postOrder-ed blur');
 
     // adjust context-sensitive spacing
     self.postOrder('respace');
+    //log('postOrder-ed respace');
     if (self[R].respace) self[R].respace();
+    //log('maybe self[R].respaced');
     if (self[L].respace) self[L].respace();
+    //log('maybe self[L].respaced');
 
     self.postOrder('redraw');
+    //log('postOrder-ed redraw');
     self.bubble('redraw');
+    //log('bubble-d redraw');
   };
 });
 

@@ -15,6 +15,7 @@ var jQuery = window.jQuery,
   max = Math.max;
 
 function noop() {}
+var log = noop;
 
 /**
  * A utility higher-order function that makes defining variadic

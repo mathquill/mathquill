@@ -256,15 +256,48 @@ function Avgs() {
     }
   };
 }
+var performance = window.performance || Date;
+window.rawLogs = [];
+function timeAndLog(f) {
+  var currentLog = [];
+  $.fn.mathquill.setLogFn(function(msg) {
+    currentLog.push({ msg: msg, now: performance.now() });
+  });
+  var start = performance.now();
+  f();
+  var duration = performance.now() - start;
+  $.fn.mathquill.setLogFn($.noop);
+
+  var timeline = [], prev = 0;
+  for (var i = 0; i < currentLog.length; i += 1) {
+    var now = Math.round((currentLog[i].now - start)*1000);
+    timeline.push(now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg);
+    prev = now;
+  }
+  timeline = timeline.join('\n');
+
+  rawLogs.push({
+    start: start,
+    duration: duration,
+    log: currentLog,
+    timeline: timeline
+  });
+  if (timeline.length) {
+    // for tablets without a console
+    if (location.hash === '#alert') alert(timeline);
+    else console.log(timeline);
+  }
+  return duration;
+};
 (function() {
   var textarea = $('#latex-render-perf textarea');
   var mathquill = $('#latex-render-perf .mathquill-editable');
   var avgs = Avgs();
   $('#latex-render-perf button').click(function() {
     var latex = textarea.val();
-    var before = Date.now();
-    mathquill.mathquill('latex', latex);
-    var duration = Date.now() - before;
+    var duration = timeAndLog(function() {
+      mathquill.mathquill('latex', latex);
+    });
     $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
     $('#html-render-perf textarea').val(mathquill.mathquill('html'));
   });
@@ -275,9 +308,9 @@ function Avgs() {
   var avgs = Avgs();
   $('#html-render-perf button').click(function() {
     var html = textarea.val();
-    var before = Date.now();
-    span.html(html);
-    var duration = Date.now() - before;
+    var duration = timeAndLog(function() {
+      span.html(html);
+    });
     $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
       .insertAfter('#html-render-perf');
   });

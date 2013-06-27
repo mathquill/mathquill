@@ -138,6 +138,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
   };
   _.finalizeTree = function() {
+    log('entered SupSub::finalizeTree');
     //TODO: use inheritance
     pray('SupSub is only _ and ^',
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
@@ -165,6 +166,7 @@ var SupSub = P(MathCommand, function(_, _super) {
       cursor.insRightOf(cmd);
       return false;
     }
+    log('finished SupSub::finalizeTree');
   };
   _.latex = function() {
     var latex = this.ends[L].latex();
@@ -258,8 +260,10 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   ;
   _.textTemplate = ['(', '/', ')'];
   _.finalizeTree = function() {
+    log('entered Fraction::finalizeTree');
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
+    log('finished Fraction::finalizeTree');
   };
 });
 
