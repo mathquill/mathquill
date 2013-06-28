@@ -27,7 +27,7 @@ var VanillaSymbol = P(Symbol, function(_, _super) {
   };
 });
 
-CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
+LatexCmds[':'] = CharCmds[' '] = bind(VanillaSymbol, '\\:', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
