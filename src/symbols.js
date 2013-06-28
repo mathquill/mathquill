@@ -4,9 +4,23 @@
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
+var okCssChars = /[a-zA-Z0-9-]/;
+
+var cssify = function(classNameFrag) {
+  classNameFrag = classNameFrag.trimRight();
+  if (classNameFrag.substring(0, 1) === '\\')
+    classNameFrag = classNameFrag.slice(1);
+  for (var i=0; i<classNameFrag.length; i++)
+    if (!okCssChars.test(classNameFrag[i])) {
+      classNameFrag = classNameFrag.slice(0, i) + '\\' + classNameFrag.slice(i);
+      i++;
+    }
+  return classNameFrag;
+}
+
 var Variable = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<var class="mq-var-' + ch + '">'+(html || ch)+'</var>');
+    _super.init.call(this, ch, '<var class="mq-var-' + cssify(ch) + '">'+(html || ch)+'</var>');
   };
   _.text = function() {
     var text = this.ctrlSeq;
@@ -22,8 +36,7 @@ var Variable = P(Symbol, function(_, _super) {
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    var cssFrag = ch.slice(1).trimRight();
-    _super.init.call(this, ch, '<span class="mq-vs-' + cssFrag + '">'+(html || ch)+'</span>');
+    _super.init.call(this, ch, '<span class="mq-vs-' + cssify(ch) + '">'+(html || ch)+'</span>');
   };
 });
 
