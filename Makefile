@@ -45,7 +45,7 @@ CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
-UGLIFY_OPTS ?= --lift-vars
+UGLIFY_OPTS ?= --mangle --compress hoist_vars=true
 
 LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=
