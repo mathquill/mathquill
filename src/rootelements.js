@@ -197,20 +197,46 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     });
   };
   _.renderLatex = function(latex) {
-    var jQ = this.jQ;
+    var all = Parser.all;
+    var eof = Parser.eof;
 
-    log('got jQ, about to empty except for textarea');
-    jQ.children().slice(1).remove();
-    log('emptied jQ, aboout to postOrder dispose');
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    log('parsed latex');
+
     this.eachChild('postOrder', 'dispose');
     log('postOrder-ed dispose, about to delete children from edit tree');
     this.ends[L] = this.ends[R] = 0;
+    log('cleared children from edit tree');
 
-    log('inserting cursor at right end');
+    if (block) {
+      block.children().adopt(this, 0, 0);
+      log('adopted into edit tree');
+    }
+
+    var jQ = this.jQ;
+
+    if (this.textarea) this.textarea.detach();
+    log ('detached textarea');
+
+    if (block) {
+      var html = block.join('html');
+      log('generated html');
+      jQ.html(html);
+      log('set innerHTML');
+      this.jQize(jQ.children());
+      log('jQize-d');
+      this.finalizeInsert();
+      log('this.finalizeInsert()');
+    }
+    else {
+      jQ.empty();
+      log('emptied jQ');
+    }
+    if (this.textarea) jQ.prepend(this.textarea);
+    log('prepended textarea');
+
     this.cursor.insAtRightEnd(this);
-    log('inserted crsor, this.cursor.writeLatex()');
-    this.cursor.writeLatex(latex);
-    log('wrote the latex');
+    log('appended cursor');
   };
 });
 

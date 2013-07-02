@@ -101,9 +101,9 @@ var Node = P(function(_) {
 
   _.jQ = $();
   _.jQadd = function(jQ) { return this.jQ = this.jQ.add(jQ); };
-  _.jQize = function() {
+  _.jQize = function(jQ) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ = $(this.html());
+    var jQ = $(jQ || this.html());
     jQ.find('*').andSelf().each(function() {
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
