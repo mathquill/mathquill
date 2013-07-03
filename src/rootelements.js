@@ -9,7 +9,7 @@ function createRoot(jQ, root, textbox, editable) {
     jQ.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = jQ.attr(mqBlockId, root.id);
+  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(jQ.attr(mqBlockId, root.id));
   root.revert = function() {
     jQ.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
@@ -215,9 +215,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     var jQ = this.jQ;
 
-    if (this.textarea) this.textarea.detach();
-    log ('detached textarea');
-
     if (block) {
       var html = block.join('html');
       log('generated html');
@@ -232,8 +229,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       jQ.empty();
       log('emptied jQ');
     }
-    if (this.textarea) jQ.prepend(this.textarea);
-    log('prepended textarea');
 
     this.cursor.parent = this;
     this.cursor[L] = this.ends[R];
