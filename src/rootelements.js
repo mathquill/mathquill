@@ -2,16 +2,16 @@
  * Root math elements with event delegation.
  ********************************************/
 
-function createRoot(jQ, root, textbox, editable) {
-  var contents = jQ.contents().detach();
+function createRoot(container, root, textbox, editable) {
+  var contents = container.contents().detach();
 
   if (!textbox) {
-    jQ.addClass('mathquill-rendered-math');
+    container.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(jQ.attr(mqBlockId, root.id));
+  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(container.attr(mqBlockId, root.id));
   root.revert = function() {
-    jQ.empty().unbind('.mathquill')
+    container.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
       .append(contents);
   };
@@ -32,7 +32,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (textareaSelectionTimeout === undefined) {
       textareaSelectionTimeout = setTimeout(setTextareaSelection);
     }
-    forceIERedraw(jQ[0]);
+    forceIERedraw(container[0]);
   };
   function setTextareaSelection() {
     textareaSelectionTimeout = undefined;
@@ -47,14 +47,14 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   //prevent native selection except textarea
-  jQ.bind('selectstart.mathquill', function(e) {
+  container.bind('selectstart.mathquill', function(e) {
     if (e.target !== textarea[0]) e.preventDefault();
     e.stopPropagation();
   });
 
   //drag-to-select event handling
   var blink = cursor.blink;
-  jQ.bind('mousedown.mathquill', function(e) {
+  container.bind('mousedown.mathquill', function(e) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
       // focus the least-common-ancestor block:
@@ -88,7 +88,7 @@ function createRoot(jQ, root, textbox, editable) {
       }
 
       // delete the mouse handlers now that we're not dragging anymore
-      jQ.unbind('mousemove', mousemove);
+      container.unbind('mousemove', mousemove);
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
@@ -101,17 +101,17 @@ function createRoot(jQ, root, textbox, editable) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!editable) jQ.prepend(textareaSpan);
+    if (!editable) container.prepend(textareaSpan);
 
-    jQ.mousemove(mousemove);
+    container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
 
     return false;
   });
 
   if (!editable) {
-    var textareaManager = manageTextarea(textarea, { container: jQ });
-    jQ.bind('cut paste', false).bind('copy', setTextareaSelection)
+    var textareaManager = manageTextarea(textarea, { container: container });
+    container.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     textarea.blur(function() {
       cursor.clearSelection();
@@ -124,7 +124,7 @@ function createRoot(jQ, root, textbox, editable) {
   }
 
   var textareaManager = manageTextarea(textarea, {
-    container: jQ,
+    container: container,
     key: function(key, evt) {
       cursor.parent.keystroke(key, evt, cursor);
     },
@@ -156,12 +156,12 @@ function createRoot(jQ, root, textbox, editable) {
     }
   });
 
-  jQ.prepend(textareaSpan);
+  container.prepend(textareaSpan);
 
   //root CSS classes
-  jQ.addClass('mathquill-editable');
+  container.addClass('mathquill-editable');
   if (textbox)
-    jQ.addClass('mathquill-textbox');
+    container.addClass('mathquill-textbox');
 
   //focus and blur handling
   textarea.focus(function(e) {
@@ -182,7 +182,7 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
-  jQ.bind('focus.mathquill blur.mathquill', function(e) {
+  container.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
   }).blur();
 }
