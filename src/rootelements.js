@@ -235,7 +235,9 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     if (this.textarea) jQ.prepend(this.textarea);
     log('prepended textarea');
 
-    this.cursor.insAtRightEnd(this);
+    this.cursor.parent = this;
+    this.cursor[L] = this.ends[R];
+    this.cursor[R] = 0;
     log('appended cursor');
   };
 });

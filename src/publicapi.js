@@ -34,8 +34,6 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (block) {
           log('done, there is a block!');
           block.renderLatex(latex);
-          log('did block.renderLatex(latex), about to maybe blur');
-          if (block.blurred) block.cursor.hide().parent.blur();
           log('done');
         }
         else log('done, no block');
