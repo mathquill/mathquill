@@ -109,6 +109,6 @@ function bind(cons /*, args... */) {
  * with the same name, and only call this function by
  * name.
  */
-function pray(message, cond) {
+DEBUG: function pray(message, cond) {
   if (!cond) throw new Error('prayer failed: '+message);
 }

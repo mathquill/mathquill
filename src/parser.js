@@ -27,7 +27,7 @@ var Parser = P(function(_, _super, Parser) {
 
   // -*- primitive combinators -*- //
   _.or = function(alternative) {
-    pray('or is passed a parser', alternative instanceof Parser);
+    DEBUG: pray('or is passed a parser', alternative instanceof Parser);
 
     var self = this;
 
@@ -48,7 +48,7 @@ var Parser = P(function(_, _super, Parser) {
 
       function success(newStream, result) {
         var nextParser = (next instanceof Parser ? next : next(result));
-        pray('a parser is returned', nextParser instanceof Parser);
+        DEBUG: pray('a parser is returned', nextParser instanceof Parser);
         return nextParser._(newStream, onSuccess, onFailure);
       }
     });
@@ -151,7 +151,7 @@ var Parser = P(function(_, _super, Parser) {
   };
 
   var regex = this.regex = function(re) {
-    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
+    DEBUG: pray('regexp parser is anchored', re.toString().charAt(1) === '^');
 
     var expected = 'expected '+re;
 

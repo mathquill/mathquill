@@ -210,7 +210,7 @@ var TextPiece = P(Node, function(_, _super) {
     this.dom.insertData(0, text);
   };
   _.insTextAtDirEnd = function(text, dir) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
   };
@@ -226,7 +226,7 @@ var TextPiece = P(Node, function(_, _super) {
   }
 
   _.moveTowards = function(dir, cursor) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
 
     var ch = endChar(-dir, this.text)
 
@@ -260,7 +260,7 @@ var TextPiece = P(Node, function(_, _super) {
   };
 
   _.selectTowards = function(dir, cursor) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
     var anticursor = cursor.anticursor;
 
     var ch = endChar(-dir, this.text)

@@ -55,7 +55,7 @@ var Cursor = P(Point, function(_) {
     this[-dir] = oppDir;
   };
   _.insDirOf = function(dir, el) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('hasCursor');
     this.jQ.insDirOf(dir, el.jQ);
@@ -65,7 +65,7 @@ var Cursor = P(Point, function(_) {
   _.insRightOf = function(el) { return this.insDirOf(R, el); };
 
   _.insAtDirEnd = function(dir, el) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
     this.withDirInsertAt(dir, el, 0, el.ends[dir]);
 
     // never insert before textarea
@@ -93,7 +93,7 @@ var Cursor = P(Point, function(_) {
   };
 
   _.escapeDir = function(dir, key, e) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
 
     // only prevent default of Tab if not in the root editable
     if (this.parent !== this.root) e.preventDefault();
@@ -107,7 +107,7 @@ var Cursor = P(Point, function(_) {
   };
 
   _.moveDir = function(dir) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
 
     if (this.selection) {
       this.insDirOf(dir, this.selection.ends[dir]);
@@ -185,7 +185,7 @@ var Cursor = P(Point, function(_) {
       nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
     }
     var node = nodeId ? Node.byId[nodeId] : cursor.root;
-    pray('nodeId is the id of some Node that exists', node);
+    DEBUG: pray('nodeId is the id of some Node that exists', node);
 
     // don't clear selection until after getting node from target, in case
     // target was selection span, otherwise target will have no parent and will
@@ -292,7 +292,7 @@ var Cursor = P(Point, function(_) {
       gramp[R].respace();
   };
   _.deleteDir = function(dir) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
 
     if (this.selection); // pass; .notify('edit') will delete selection
     else if (this[dir]) this[dir].deleteTowards(dir, this);
@@ -331,7 +331,7 @@ var Cursor = P(Point, function(_) {
   };
   _.selectDir = function(dir) {
     var cursor = this.notify('select'), seln = cursor.selection;
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
 
     if (!cursor.anticursor) cursor.startSelection();
 

@@ -14,7 +14,7 @@
 var L = -1;
 var R = 1;
 
-function prayDirection(dir) {
+DEBUG: function prayDirection(dir) {
   pray('a direction was passed', dir === L || dir === R);
 }
 
@@ -115,7 +115,7 @@ var Node = P(function(_) {
   };
 
   _.createDir = function(dir, cursor) {
-    prayDirection(dir);
+    DEBUG: prayDirection(dir);
     var node = this;
     node.jQize();
     node.jQ.insDirOf(dir, cursor.jQ);
@@ -189,16 +189,18 @@ var Node = P(function(_) {
  */
 var Fragment = P(function(_) {
   _.init = function(leftEnd, rightEnd) {
-    pray('no half-empty fragments', !leftEnd === !rightEnd);
+    DEBUG: pray('no half-empty fragments', !leftEnd === !rightEnd);
 
     this.ends = {};
 
     if (!leftEnd) return;
 
-    pray('left end node is passed to Fragment', leftEnd instanceof Node);
-    pray('right end node is passed to Fragment', rightEnd instanceof Node);
-    pray('leftEnd and rightEnd have the same parent',
-         leftEnd.parent === rightEnd.parent);
+    DEBUG: {
+      pray('left end node is passed to Fragment', leftEnd instanceof Node);
+      pray('right end node is passed to Fragment', rightEnd instanceof Node);
+      pray('leftEnd and rightEnd have the same parent',
+           leftEnd.parent === rightEnd.parent);
+    }
 
     this.ends[L] = leftEnd;
     this.ends[R] = rightEnd;
@@ -207,7 +209,7 @@ var Fragment = P(function(_) {
   };
   _.jQ = $();
 
-  function prayWellFormed(parent, leftward, rightward) {
+  DEBUG: function prayWellFormed(parent, leftward, rightward) {
     pray('a parent is always present', parent);
     pray('leftward is properly set up', (function() {
       // either it's empty and `rightward` is the left end child (possibly empty)
@@ -227,7 +229,7 @@ var Fragment = P(function(_) {
   }
 
   _.adopt = function(parent, leftward, rightward) {
-    prayWellFormed(parent, leftward, rightward);
+    DEBUG: prayWellFormed(parent, leftward, rightward);
 
     var self = this;
     self.disowned = false;
@@ -275,8 +277,10 @@ var Fragment = P(function(_) {
     var rightEnd = self.ends[R]
     var parent = leftEnd.parent;
 
-    prayWellFormed(parent, leftEnd[L], leftEnd);
-    prayWellFormed(parent, rightEnd, rightEnd[R]);
+    DEBUG: {
+      prayWellFormed(parent, leftEnd[L], leftEnd);
+      prayWellFormed(parent, rightEnd, rightEnd[R]);
+    }
 
     if (leftEnd[L]) {
       leftEnd[L][R] = rightEnd[R];
@@ -327,7 +331,7 @@ var Fragment = P(function(_) {
   // There must exist an LCA, i.e., A and B must be in the same tree, and A
   // and B must not be the same Point.
   this.between = function(A, B) {
-    pray('A and B are not the same Point',
+    DEBUG: pray('A and B are not the same Point',
       A.parent !== B.parent || A[L] !== B[L] || A[R] !== B[R]
     );
 
@@ -363,7 +367,7 @@ var Fragment = P(function(_) {
     // trees, which should be impossible, but infinite loops must never happen,
     // even under error conditions.
 
-    pray('A and B are in the same tree', ancA.parent || ancB.parent);
+    DEBUG: pray('A and B are in the same tree', ancA.parent || ancB.parent);
 
     // Now we have two either Nodes or Points, guaranteed to have a common
     // parent and guaranteed that if both are Points, they are not the same,

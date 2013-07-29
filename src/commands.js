@@ -139,7 +139,7 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
   _.finalizeTree = function() {
     //TODO: use inheritance
-    pray('SupSub is only _ and ^',
+    DEBUG: pray('SupSub is only _ and ^',
       this.ctrlSeq === '^' || this.ctrlSeq === '_'
     );
 

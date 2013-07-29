@@ -230,7 +230,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var cmdId = ' mathquill-command-id=' + cmd.id;
     var tokens = cmd.htmlTemplate.match(/<[^<>]+>|[^<>]+/g);
 
-    pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
+    DEBUG: pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
     // add cmdId to all top-level tags
     for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
@@ -240,7 +240,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       }
       // top-level open tags
       else if (token.charAt(0) === '<') {
-        pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
+        DEBUG: pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
 
         tokens[i] = token.slice(0,-1) + cmdId + '>';
 
@@ -248,7 +248,7 @@ var MathCommand = P(MathElement, function(_, _super) {
         var nesting = 1;
         do {
           i += 1, token = tokens[i];
-          pray('no missing close tags', token);
+          DEBUG: pray('no missing close tags', token);
           // close tags
           if (token.slice(0,2) === '</') {
             nesting -= 1;
