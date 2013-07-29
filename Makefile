@@ -36,6 +36,7 @@ VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
 
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
+DEBUG_JS = $(BUILD_DIR)/mathquill.debug.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
@@ -70,8 +71,11 @@ dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
 
-$(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
+$(DEBUG_JS): $(INTRO) $(SOURCES) $(OUTRO)
 	cat $^ > $@
+
+$(BUILD_JS): $(DEBUG_JS)
+	node ./script/strip-debug.js $< > $@
 
 $(UGLY_JS): $(BUILD_JS)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
