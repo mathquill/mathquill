@@ -83,8 +83,8 @@ var send = variadic(function(method, args) {
 function iterator(generator) {
   return variadic(function(fn, args) {
     if (typeof fn !== 'function') fn = send(fn);
-    var yield = function(obj) { return fn.apply(obj, [ obj ].concat(args)); };
-    return generator.call(this, yield);
+    var yield_ = function(obj) { return fn.apply(obj, [ obj ].concat(args)); };
+    return generator.call(this, yield_);
   });
 }
 

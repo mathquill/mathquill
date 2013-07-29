@@ -126,19 +126,19 @@ var Node = P(function(_) {
 
   _.respace = noop;
 
-  _.bubble = iterator(function(yield) {
+  _.bubble = iterator(function(yield_) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
-      var result = yield(ancestor);
+      var result = yield_(ancestor);
       if (result === false) break;
     }
 
     return this;
   });
 
-  _.postOrder = iterator(function(yield) {
+  _.postOrder = iterator(function(yield_) {
     (function recurse(descendant) {
       descendant.eachChild(recurse);
-      yield(descendant);
+      yield_(descendant);
     })(this);
 
     return this;
@@ -299,13 +299,13 @@ var Fragment = P(function(_) {
     return this.disown();
   };
 
-  _.each = iterator(function(yield) {
+  _.each = iterator(function(yield_) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
     for (; el !== self.ends[R][R]; el = el[R]) {
-      var result = yield(el);
+      var result = yield_(el);
       if (result === false) break;
     }
 
