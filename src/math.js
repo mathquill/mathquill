@@ -292,14 +292,14 @@ var MathCommand = P(MathElement, function(_, _super) {
   _.textTemplate = [''];
   _.text = function() {
     var i = 0;
-    return this.foldChildren(this.textTemplate[i], function(text, child) {
+    return this.foldChildren(this.textTemplate[i], jQuery.proxy(function(text, child) {
       i += 1;
       var child_text = child.text();
       if (text && this.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
         return text + child_text.slice(1, -1) + this.textTemplate[i];
       return text + child.text() + (this.textTemplate[i] || '');
-    });
+    }, this));
   };
 });
 
