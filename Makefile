@@ -7,8 +7,10 @@ SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
+PJS_SRC = ./node_modules/pjs/src/p.js
+
 SOURCES = \
-  ./node_modules/pjs/src/p.js \
+  $(PJS_SRC) \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
@@ -50,6 +52,13 @@ UGLIFY_OPTS ?= --lift-vars
 LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=
 
+# Empty target files whose Last Modified timestamps are used to record when
+# something like `npm install` last happened (which, for example, would then be
+# compared with its dependency, package.json, so if package.json has been
+# modified since the last `npm install`, Make will `npm install` again).
+# http://www.gnu.org/software/make/manual/html_node/Empty-Targets.html#Empty-Targets
+NODE_MODULES_INSTALLED = ./node_modules/.installed--used_by_Makefile
+
 # environment constants
 
 #
@@ -68,14 +77,20 @@ dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
 
+$(PJS_SRC): $(NODE_MODULES_INSTALLED)
+
 $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
 	cat $^ > $@
 
-$(UGLY_JS): $(BUILD_JS)
+$(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(BUILD_CSS): $(CSS_SOURCES)
+$(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+
+$(NODE_MODULES_INSTALLED): package.json
+	npm install
+	touch $(NODE_MODULES_INSTALLED)
 
 $(FONT_TARGET): $(FONT_SOURCE)
 	rm -rf $@
