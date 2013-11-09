@@ -58,6 +58,7 @@ LESS_OPTS ?=
 # modified since the last `npm install`, Make will `npm install` again).
 # http://www.gnu.org/software/make/manual/html_node/Empty-Targets.html#Empty-Targets
 NODE_MODULES_INSTALLED = ./node_modules/.installed--used_by_Makefile
+BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 
 # environment constants
 
@@ -79,20 +80,24 @@ clean:
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
-$(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO)
+$(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED)
+$(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
 
 $(NODE_MODULES_INSTALLED): package.json
 	npm install
 	touch $(NODE_MODULES_INSTALLED)
 
-$(FONT_TARGET): $(FONT_SOURCE)
+$(BUILD_DIR_EXISTS):
+	test -d $(BUILD_DIR) || mkdir $(BUILD_DIR)
+	touch $(BUILD_DIR_EXISTS)
+
+$(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 	rm -rf $@
 	cp -r $< $@
 
@@ -107,7 +112,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 
 .PHONY: test server run-server
-server:
+server: $(NODE_MODULES_INSTALLED)
 	./node_modules/.bin/supervisor -e js,less,Makefile -x make run-server
 run-server: test
 	node script/test_server.js
@@ -115,7 +120,7 @@ test: dev $(BUILD_TEST)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO)
+$(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 #
