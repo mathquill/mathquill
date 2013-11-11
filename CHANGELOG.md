@@ -1,3 +1,22 @@
+## v0.9.3: 2013-11-11
+
+**new features:**
+- (#185) add `\vec`
+
+**bugfixes:**
+- (#164) displaying `NZQRC` as `\mathbb{NZQRC}` (double-struck)
+- (#180) can't type >1 spaces in `RootTextBlock`s
+- (#190) `$` at the end of a `TextBlock` causes errors later
+- (#152) when "Select All"-ed, `.mathquill('latex')` throws
+
+**internal refactors:**
+- rename `.end` and `.endChild` both to `.ends`
+
+**build system changes:**
+- fix `make publish` to work on BSD
+- (#189) replace Connect with tiny handwritten static server
+- upgrade to uglifyjs2
+
 ## v0.9.2: 2013-04-02
 
 NOTE: The hotfix for typing over selections in Safari 5.1 (#135) from
