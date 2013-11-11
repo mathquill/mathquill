@@ -1,4 +1,4 @@
-## version 0.9.2: 2012-04-2
+## version 0.9.2: 2013-04-2
 
   NOTES: the #135 hotfix from v0.9.1 had a huge bug.  This was fixed
   as #166.
