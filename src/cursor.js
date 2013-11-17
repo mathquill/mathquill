@@ -149,6 +149,7 @@ var Cursor = P(Point, function(_) {
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
+    self.clearSelection().show();
     if (self[R][dir]) self.insAtLeftEnd(self[R][dir]);
     else if (self[L][dir]) self.insAtRightEnd(self[L][dir]);
     else {
@@ -181,8 +182,7 @@ var Cursor = P(Point, function(_) {
         ancestorBlock = ancestorBlock.parent.parent;
       } while (ancestorBlock);
     }
-
-    return self.clearSelection().show();
+    return self;
   }
 
   _.seek = function(target, pageX, pageY) {
