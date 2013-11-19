@@ -20,12 +20,14 @@ var __slice = [].slice,
         if (typeof arr.indexOf === 'function') {
           return arr.indexOf(find, i);
         } else {
-          if (i===undefined) i= 0;
-          if (i<0) i+= arr.length;
-          if (i<0) i= 0;
-          for (var n= arr.length; i<n; i++)
-              if (i in arr && arr[i]===find)
+          if (i === undefined) i = 0;
+          if (i < 0) i += arr.length;
+          if (i < 0) i = 0;
+          for (var n = arr.length; i < n; i++) {
+              if (i in arr && arr[i] === find) {
                   return i;
+              }
+          }
           return -1;
         }
     };
