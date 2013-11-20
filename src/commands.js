@@ -584,8 +584,8 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-LatexCmds.editable = P(MathCommand, function(_, _super) {
-  _.ctrlSeq = '\\editable';
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
       '<span class="mathquill-editable">'
     +   '<span class="mathquill-root-block">&0</span>'
