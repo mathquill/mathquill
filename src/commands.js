@@ -598,21 +598,27 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     var block = self.ends[L].disown();
     var blockjQ = self.jQ.children().detach();
 
+    var root =
     self.ends[L] =
     self.ends[R] =
       RootMathBlock();
 
-    self.blocks = [ self.ends[L] ];
+    self.blocks = [ root ];
 
-    self.ends[L].parent = self;
+    root.parent = self;
 
-    createRoot(self.jQ, self.ends[L], false, true);
-    self.cursor = self.ends[L].cursor;
+    var container = self.jQ;
+    createRoot(container, root, false, true);
+    var cursor = self.cursor = root.cursor;
+    var textarea = setupTextarea(true, container, root, cursor);
+    mouseEvents(true, container, root, cursor, textarea, root.textarea);
+    rootCSSClasses(container, false);
+    focusBlurEvents(root, cursor, textarea);
 
-    block.children().adopt(self.ends[L], 0, 0);
-    blockjQ.appendTo(self.ends[L].jQ);
+    block.children().adopt(root, 0, 0);
+    blockjQ.appendTo(root.jQ);
 
-    self.ends[L].cursor.insAtRightEnd(self.ends[L]);
+    root.cursor.insAtRightEnd(root);
   };
 
   _.latex = function(){ return this.ends[L].latex(); };

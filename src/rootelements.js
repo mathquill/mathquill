@@ -16,11 +16,12 @@ function createRoot(container, root, textbox, editable) {
       .append(contents);
   };
 
-  var cursor = root.cursor = Cursor(root);
+  root.cursor = Cursor(root);
 
   root.renderLatex(contents.text());
+}
 
-  //textarea stuff
+function setupTextarea(editable, container, root, cursor) {
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
@@ -52,6 +53,12 @@ function createRoot(container, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
+
+  return textarea;
+}
+
+function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) {
   //drag-to-select event handling
   var blink = cursor.blink;
   container.bind('mousedown.mathquill', function(e) {
@@ -105,10 +112,11 @@ function createRoot(container, root, textbox, editable) {
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-
     return false;
   });
+}
 
+function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
@@ -121,7 +129,7 @@ function createRoot(container, root, textbox, editable) {
       textareaSpan.detach();
       textarea.focused = false;
     }
-    return;
+    return textareaManager;
   }
 
   var textareaManager = manageTextarea(textarea, {
@@ -158,13 +166,16 @@ function createRoot(container, root, textbox, editable) {
   });
 
   container.prepend(textareaSpan);
+  return textareaManager;
+}
 
-  //root CSS classes
+function rootCSSClasses(container, textbox) {
   container.addClass('mathquill-editable');
   if (textbox)
     container.addClass('mathquill-textbox');
+}
 
-  //focus and blur handling
+function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     textarea.focused = true;
     if (!cursor.parent)
