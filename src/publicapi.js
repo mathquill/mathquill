@@ -65,7 +65,8 @@ jQuery.fn.mathquill = function(cmd, latex) {
       createRoot(container, root, textbox, editable);
       var cursor = root.cursor;
       var textarea = setupTextarea(editable, container, root, cursor);
-      mouseEvents(editable, container, root, cursor, textarea, root.textarea);
+      root.editable = editable;
+      mouseEvents(root.jQ);
       if (!editable) return;
       rootCSSClasses(container, textbox);
       focusBlurEvents(root, cursor, textarea);

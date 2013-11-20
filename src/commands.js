@@ -584,41 +584,23 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-LatexCmds.editable = P(RootMathCommand, function(_, _super) {
-  _.init = function() {
-    MathCommand.prototype.init.call(this, '\\editable');
-  };
-
-  _.jQadd = function() {
-    var self = this;
-    // FIXME: this entire method is a giant hack to get around
-    // having to call createBlocks, and createRoot expecting to
-    // render the contents' LaTeX. Both need to be refactored.
-    _super.jQadd.apply(self, arguments);
-    var block = self.ends[L].disown();
-    var blockjQ = self.jQ.children().detach();
-
-    var root =
-    self.ends[L] =
-    self.ends[R] =
-      RootMathBlock();
-
-    self.blocks = [ root ];
-
-    root.parent = self;
-
-    var container = self.jQ;
-    createRoot(container, root, false, true);
-    var cursor = self.cursor = root.cursor;
+LatexCmds.editable = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\editable';
+  _.htmlTemplate =
+      '<span class="mathquill-editable">'
+    +   '<span class="mathquill-root-block">&0</span>'
+    + '</span>'
+  ;
+  _.finalizeTree = function() {
+    // set up block like RootMathBlock after .mathquill('editable')
+    var self = this, root = self.ends[L], container = self.jQ;
+    root.latex = RootMathBlock.prototype.latex;
+    root.text = RootMathBlock.prototype.text;
+    root.renderLatex = RootMathBlock.prototype.renderLatex;
+    root.editable = true;
+    var cursor = root.cursor = Cursor(root).insAtRightEnd(root);
     var textarea = setupTextarea(true, container, root, cursor);
-    mouseEvents(true, container, root, cursor, textarea, root.textarea);
-    rootCSSClasses(container, false);
     focusBlurEvents(root, cursor, textarea);
-
-    block.children().adopt(root, 0, 0);
-    blockjQ.appendTo(root.jQ);
-
-    root.cursor.insAtRightEnd(root);
   };
 
   _.latex = function(){ return this.ends[L].latex(); };

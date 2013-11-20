@@ -59,10 +59,14 @@ function setupTextarea(editable, container, root, cursor) {
   return textarea;
 }
 
-function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) {
+function mouseEvents(ultimateRootjQ) {
   //drag-to-select event handling
-  var blink = cursor.blink;
-  container.bind('mousedown.mathquill', function(e) {
+  ultimateRootjQ.bind('mousedown.mathquill', function(e) {
+    var rootjQ = $(e.target).closest('.mathquill-root-block');
+    var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+    var cursor = root.cursor, blink = cursor.blink;
+    var textareaSpan = root.textarea, textarea = textareaSpan.children();
+
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
       // focus the least-common-ancestor block:
@@ -87,7 +91,7 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
       cursor.endSelection();
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (editable) {
+        if (root.editable) {
           cursor.show();
         }
         else {
@@ -96,7 +100,7 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
       }
 
       // delete the mouse handlers now that we're not dragging anymore
-      container.unbind('mousemove', mousemove);
+      rootjQ.unbind('mousemove', mousemove);
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
@@ -109,9 +113,9 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!editable && root.blurred) container.prepend(textareaSpan);
+    if (!root.editable && root.blurred) rootjQ.prepend(textareaSpan);
 
-    container.mousemove(mousemove);
+    rootjQ.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
     return false;
   });
