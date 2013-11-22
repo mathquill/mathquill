@@ -7,6 +7,13 @@
 
 (function() {
 
+if (!document.compatMode || document.compatMode === 'BackCompat') {
+  var msg = 'This document appears to be in Quirks Mode. Elements styled by '
+          +  'MathQuill may look wrong.';
+  if (window.console && console.warn) console.warn(msg);
+  else setTimeout(function() { throw msg; });
+}
+
 var jQuery = window.jQuery,
   undefined,
   _, //temp variable of prototypes

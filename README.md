@@ -11,8 +11,13 @@ are all over the place.
 
 ## Usage
 
-(Note: Requires [jQuery 1.4.3+](http://jquery.com).
-[Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
+(Requires:
+* Standards Mode DOCTYPE and not [Quirks Mode][], `<!DOCTYPE html>` recommended
+* [jQuery 1.4.3+][jquery], [Google CDN-hosted copy][jquery cdn] recommended.)
+
+[Quirks Mode]: http://hsivonen.fi/doctype/
+[jquery]: http://jquery.com
+[jquery cdn]: http://code.google.com/apis/libraries/devguide.html#jquery
 
 To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
 
