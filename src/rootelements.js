@@ -124,10 +124,11 @@ function mouseEvents(ultimateRootjQ) {
 function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
-    container.bind('cut paste', false).bind('copy', setTextareaSelection)
+    container.bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
     root.blurred = true;
-    textarea.focus(function() { root.blurred = false; }).blur(function() {
+    textarea.bind('cut paste', false)
+    .focus(function() { root.blurred = false; }).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
