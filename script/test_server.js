@@ -2,6 +2,7 @@ var http = require('http');
 var path = require('path');
 var url = require('url');
 var fs = require('fs');
+var child_process = require('child_process');
 
 var PORT = +process.env.PORT || 9292;
 var HOST = process.env.HOST || '0.0.0.0';
@@ -9,9 +10,14 @@ var HOST = process.env.HOST || '0.0.0.0';
 http.createServer(onRequest).listen(PORT, HOST);
 console.log('listening on '+HOST+':'+PORT);
 
+var q;
 function onRequest(req, res) {
   var reqTime = new Date;
+  if (q) q.push(function() { readFile(req, res, reqTime); });
+  else readFile(req, res, reqTime);
+}
 
+function readFile(req, res, reqTime) {
   var filepath = path.normalize(url.parse(req.url).pathname).slice(1);
   fs.readFile(filepath, function(err, data) {
     if (err) {
@@ -34,3 +40,21 @@ function onRequest(req, res) {
       (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
   });
 }
+
+'src test Makefile package.json'.split(' ').forEach(function(filename) {
+  fs.watch(filename, onFileChange);
+});
+function onFileChange() {
+  if (q) return;
+  q = [];
+  console.log('[%s]\nmake test', (new Date).toISOString());
+  var make_test = child_process.exec('make test', { env: process.env });
+  make_test.stdout.pipe(process.stdout, { end: false });
+  make_test.stderr.pipe(process.stderr, { end: false });
+  make_test.on('exit', function(code) {
+    if (code) console.error('Exit Code ' + code);
+    for (var i = 0; i < q.length; i += 1) q[i]();
+    q = undefined;
+  });
+}
+onFileChange();
