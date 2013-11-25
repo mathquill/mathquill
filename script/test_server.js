@@ -1,10 +1,10 @@
-var PORT = +process.env.PORT || 9292;
-var HOST = process.env.HOST || '0.0.0.0';
-
 var http = require('http');
 var path = require('path');
 var url = require('url');
 var fs = require('fs');
+
+var PORT = +process.env.PORT || 9292;
+var HOST = process.env.HOST || '0.0.0.0';
 
 http.createServer(onRequest).listen(PORT, HOST);
 console.log('listening on '+HOST+':'+PORT);
