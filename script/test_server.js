@@ -6,7 +6,10 @@ var path = require('path');
 var url = require('url');
 var fs = require('fs');
 
-http.createServer(function(req, res) {
+http.createServer(onRequest).listen(PORT, HOST);
+console.log('listening on '+HOST+':'+PORT);
+
+function onRequest(req, res) {
   var reqTime = new Date;
 
   var filepath = path.normalize(url.parse(req.url).pathname).slice(1);
@@ -30,6 +33,4 @@ http.createServer(function(req, res) {
       reqTime.toISOString(), res.statusCode, req.method, filepath,
       (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
   });
-}).listen(PORT, HOST);
-
-console.log('listening on '+HOST+':'+PORT);
+}
