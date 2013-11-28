@@ -10,11 +10,9 @@ var HOST = process.env.HOST || '0.0.0.0';
 http.createServer(onRequest).listen(PORT, HOST);
 console.log('listening on '+HOST+':'+PORT);
 
-var q;
 function onRequest(req, res) {
   var reqTime = new Date;
-  if (q) q.push(function() { readFile(req, res, reqTime); });
-  else readFile(req, res, reqTime);
+  enqueueOrDo(function() { readFile(req, res, reqTime); });
 }
 
 function readFile(req, res, reqTime) {
@@ -44,6 +42,8 @@ function readFile(req, res, reqTime) {
 'src test Makefile package.json'.split(' ').forEach(function(filename) {
   fs.watch(filename, onFileChange);
 });
+var q;
+function enqueueOrDo(cb) { q ? q.push(cb) : cb(); }
 function onFileChange() {
   if (q) return;
   q = [];
