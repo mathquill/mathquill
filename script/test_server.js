@@ -20,30 +20,28 @@ run_make_test();
 // functions
 function serveRequest(req, res) {
   var reqTime = new Date;
-  enqueueOrDo(function() { readFile(req, res, reqTime); });
-}
-
-function readFile(req, res, reqTime) {
-  var filepath = path.normalize(url.parse(req.url).pathname).slice(1);
-  fs.readFile(filepath, function(err, data) {
-    if (err) {
-      if (err.code === 'ENOENT' || err.code === 'EISDIR') {
-        res.statusCode = 404;
-        res.end('404 Not Found: /' + filepath + '\n');
+  enqueueOrDo(function() {
+    var filepath = path.normalize(url.parse(req.url).pathname).slice(1);
+    fs.readFile(filepath, function(err, data) {
+      if (err) {
+        if (err.code === 'ENOENT' || err.code === 'EISDIR') {
+          res.statusCode = 404;
+          res.end('404 Not Found: /' + filepath + '\n');
+        }
+        else {
+          console.log(err);
+          res.statusCode = 500;
+          res.end('500 Internal Server Error: ' + err.code + '\n');
+        }
       }
       else {
-        console.log(err);
-        res.statusCode = 500;
-        res.end('500 Internal Server Error: ' + err.code + '\n');
+        res.end(data);
       }
-    }
-    else {
-      res.end(data);
-    }
 
-    console.log('[%s] %s %s /%s - %s%sms',
-      reqTime.toISOString(), res.statusCode, req.method, filepath,
-      (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
+      console.log('[%s] %s %s /%s - %s%sms',
+        reqTime.toISOString(), res.statusCode, req.method, filepath,
+        (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
+    });
   });
 }
 
