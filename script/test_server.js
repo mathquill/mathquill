@@ -1,15 +1,23 @@
+// requires
 var http = require('http');
 var path = require('path');
 var url = require('url');
 var fs = require('fs');
 var child_process = require('child_process');
 
+// constants
 var PORT = +process.env.PORT || 9292;
 var HOST = process.env.HOST || '0.0.0.0';
 
+// main
 http.createServer(serveRequest).listen(PORT, HOST);
 console.log('listening on '+HOST+':'+PORT);
+run_make_test();
+'src test Makefile package.json'.split(' ').forEach(function(filename) {
+  fs.watch(filename, run_make_test);
+});
 
+// functions
 function serveRequest(req, res) {
   var reqTime = new Date;
   enqueueOrDo(function() { readFile(req, res, reqTime); });
@@ -39,9 +47,6 @@ function readFile(req, res, reqTime) {
   });
 }
 
-'src test Makefile package.json'.split(' ').forEach(function(filename) {
-  fs.watch(filename, run_make_test);
-});
 var q;
 function enqueueOrDo(cb) { q ? q.push(cb) : cb(); }
 function run_make_test() {
@@ -57,4 +62,3 @@ function run_make_test() {
     q = undefined;
   });
 }
-run_make_test();
