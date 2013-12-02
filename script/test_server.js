@@ -7,10 +7,10 @@ var child_process = require('child_process');
 var PORT = +process.env.PORT || 9292;
 var HOST = process.env.HOST || '0.0.0.0';
 
-http.createServer(onRequest).listen(PORT, HOST);
+http.createServer(serveRequest).listen(PORT, HOST);
 console.log('listening on '+HOST+':'+PORT);
 
-function onRequest(req, res) {
+function serveRequest(req, res) {
   var reqTime = new Date;
   enqueueOrDo(function() { readFile(req, res, reqTime); });
 }
@@ -40,11 +40,11 @@ function readFile(req, res, reqTime) {
 }
 
 'src test Makefile package.json'.split(' ').forEach(function(filename) {
-  fs.watch(filename, onFileChange);
+  fs.watch(filename, run_make_test);
 });
 var q;
 function enqueueOrDo(cb) { q ? q.push(cb) : cb(); }
-function onFileChange() {
+function run_make_test() {
   if (q) return;
   q = [];
   console.log('[%s]\nmake test', (new Date).toISOString());
@@ -57,4 +57,4 @@ function onFileChange() {
     q = undefined;
   });
 }
-onFileChange();
+run_make_test();
