@@ -112,9 +112,7 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 #
 
 .PHONY: test server run-server
-server: $(NODE_MODULES_INSTALLED)
-	./node_modules/.bin/supervisor -e js,less,Makefile -x make run-server
-run-server: test
+server:
 	node script/test_server.js
 test: dev $(BUILD_TEST)
 	@echo
