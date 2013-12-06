@@ -94,7 +94,7 @@ $(NODE_MODULES_INSTALLED): package.json
 	touch $(NODE_MODULES_INSTALLED)
 
 $(BUILD_DIR_EXISTS):
-	test -d $(BUILD_DIR) || mkdir $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 	touch $(BUILD_DIR_EXISTS)
 
 $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
