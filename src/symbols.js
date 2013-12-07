@@ -4,18 +4,11 @@
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
-var okCssChars = /[a-zA-Z0-9-]/;
+var notOkCssChars = /[^a-zA-Z0-9-]/g;
 
 var cssify = function(classNameFrag) {
   classNameFrag = classNameFrag.trimRight();
-  if (classNameFrag.substring(0, 1) === '\\')
-    classNameFrag = classNameFrag.slice(1);
-  for (var i=0; i<classNameFrag.length; i++)
-    if (!okCssChars.test(classNameFrag[i])) {
-      classNameFrag = classNameFrag.slice(0, i) + '\\' + classNameFrag.slice(i);
-      i++;
-    }
-  return classNameFrag;
+  return classNameFrag.replace(notOkCssChars, '');
 }
 
 var Variable = P(Symbol, function(_, _super) {
