@@ -75,12 +75,26 @@ var Style = P(MathCommand, function(_, _super) {
   };
 });
 
+var EmptyNullBlock = P(MathCommand, function(_, _super) {
+  _.init = function() {
+    _super.init.call(this, '', '<span>&0</span>');
+  };
+  _.latex = function() {
+    return this.foldChildren(this.ctrlSeq, function(latex, child) {
+      return child.latex() || ' ';
+    });
+  };
+});
+
 //fonts
 LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman font"');
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="font"');
 LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="font"');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif font"');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
+
+LatexCmds.mathnull = bind(EmptyNullBlock);
+
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
