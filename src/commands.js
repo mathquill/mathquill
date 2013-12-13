@@ -84,6 +84,7 @@ var EmptyNullBlock = P(MathCommand, function(_, _super) {
       return child.latex() || ' ';
     });
   };
+  _.charCountBehavior = 'e';
 });
 
 //fonts
