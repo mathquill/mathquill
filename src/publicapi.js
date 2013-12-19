@@ -59,6 +59,9 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (cmd === 'writeIn') {
           if (cursor[L] instanceof LatexCmds.nthroot) 
             cursor.moveLeftWithin(cursor[L]);
+          else if (cursor[L] instanceof SupSub && cursor[L][L] instanceof EmptyNullBlock)
+            for (var i=0; i<3; i++) 
+              cursor.moveLeft(); // EmptyNullBlock confuses the cursor
           else
             cursor.hopLeft().moveRight();
           // this is a really complicated way of getting at the
