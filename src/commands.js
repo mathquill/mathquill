@@ -427,7 +427,6 @@ CharCmds['|'] = P(Paren, function(_, _super) {
 });
 
 var TextBlock =
-CharCmds.$ =
 LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
