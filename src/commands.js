@@ -118,6 +118,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 
 // Very similar to the \textcolor command, but will add the given CSS class.
 // Usage: \class{classname}{math}
+// Note regex that whitelists valid CSS classname characters:
+// https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
 var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
   _.parser = function() {
     var self = this, string = Parser.string, regex = Parser.regex;
