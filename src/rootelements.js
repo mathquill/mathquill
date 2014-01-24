@@ -92,7 +92,7 @@ function createRoot(container, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { textarea.focus(); });
+    setTimeout(function() { textarea.focus(); textarea.focused = true; });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -101,7 +101,7 @@ function createRoot(container, root, textbox, editable) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!editable) container.prepend(textareaSpan);
+    if (!editable && !textarea.focused) container.prepend(textareaSpan);
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
@@ -119,6 +119,7 @@ function createRoot(container, root, textbox, editable) {
     });
     function detach() {
       textareaSpan.detach();
+      textarea.focused = false;
     }
     return;
   }

@@ -30,16 +30,12 @@ td {
 .show-textareas .mathquill-textbox {
   overflow: visible;
 }
-.shown-textarea {
-  position: relative;
-  display: inline;
-}
-.shown-textarea textarea {
-  position: absolute;
+.show-textareas .textarea textarea {
+  clip: auto !important;
+  resize: auto !important;
+  height: auto !important;
+  width: auto !important;
   top: -45px;
-  user-select: text;
-  -moz-user-select: text;
-  -webkit-user-select: text;
 }
 
 /* Non-white background test */
@@ -189,23 +185,8 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-var _prepend = $.fn.prepend;
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
-  $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
-  if ($.fn.prepend === _prepend) {
-    //FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
-    $.fn.prepend = function(el) {
-      if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
-        $(el).removeClass('textarea').addClass('shown-textarea');
-      else if ($(el).hasClass('shown-textarea'))
-        $(el).removeClass('shown-textarea').addClass('textarea');
-      return _prepend.apply(this, arguments);
-    };
-  }
-  else {
-    $.fn.prepend = _prepend;
-  }
 });
 
 // test selecting from outside the mathquill editable
