@@ -101,16 +101,23 @@ var Node = P(function(_) {
 
   _.jQ = $();
   _.jQadd = function(jQ) { return this.jQ = this.jQ.add(jQ); };
-  _.jQize = function() {
+  _.jQize = function(jQ) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ = $(this.html());
-    jQ.find('*').andSelf().each(function() {
-      var jQ = $(this),
-        cmdId = jQ.attr('mathquill-command-id'),
-        blockId = jQ.attr('mathquill-block-id');
-      if (cmdId) Node.byId[cmdId].jQadd(jQ);
-      if (blockId) Node.byId[blockId].jQadd(jQ);
-    });
+    var jQ = $(jQ || this.html());
+
+    function jQadd(el) {
+      if (el.getAttribute) {
+        var cmdId = el.getAttribute('mathquill-command-id');
+        var blockId = el.getAttribute('mathquill-block-id');
+        if (cmdId) Node.byId[cmdId].jQadd(el);
+        if (blockId) Node.byId[blockId].jQadd(el);
+      }
+      for (el = el.firstChild; el; el = el.nextSibling) {
+        jQadd(el);
+      }
+    }
+
+    for (var i = 0; i < jQ.length; i += 1) jQadd(jQ[i]);
     return jQ;
   };
 

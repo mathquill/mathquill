@@ -24,7 +24,7 @@ h1 {
 td {
   width: 33%;
 }
-button {
+#show-textareas-button {
   float: right;
 }
 .show-textareas .mathquill-textbox {
@@ -61,7 +61,7 @@ button {
 
 <h1><a href="http://mathquill.github.com">MathQuill</a> Tests <small>local test page</small></h1>
 
-<button>Show Textareas</button>
+<button id="show-textareas-button">Show Textareas</button>
 
 <h3>MathQuill Editables</h3>
 
@@ -151,6 +151,10 @@ button {
 <tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
 </table>
 
+<h3>Dynamic rendering performance</h3>
+<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-editable"></span></p>
+<p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-rendered-math"></span></p>
+
 <p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
 
 <h3>Textcolor</h3>
@@ -185,19 +189,24 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-$('button').click(function() {
+var _prepend = $.fn.prepend;
+$('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
   $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
+  if ($.fn.prepend === _prepend) {
+    //FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
+    $.fn.prepend = function(el) {
+      if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
+        $(el).removeClass('textarea').addClass('shown-textarea');
+      else if ($(el).hasClass('shown-textarea'))
+        $(el).removeClass('shown-textarea').addClass('textarea');
+      return _prepend.apply(this, arguments);
+    };
+  }
+  else {
+    $.fn.prepend = _prepend;
+  }
 });
-//FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
-var _prepend = $.fn.prepend;
-$.fn.prepend = function(el) {
-  if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
-    $(el).removeClass('textarea').addClass('shown-textarea');
-  else if ($(el).hasClass('shown-textarea'))
-    $(el).removeClass('shown-textarea').addClass('textarea');
-  return _prepend.apply(this, arguments);
-};
 
 // test selecting from outside the mathquill editable
 $('.math-container').mousedown(function(e) {
@@ -233,6 +242,79 @@ $('#dynamic-redraw tr').each(function() {
   td = math.eq(2).parent();
   math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
 });
+
+// Dynamic rendering performance
+function Avgs() {
+  return {
+    avgs: {},
+    add: function(k, v) {
+      if (!this.avgs[k]) this.avgs[k] = { n: 0, avg: 0 };
+      var avgObj = this.avgs[k];
+      avgObj.avg = (avgObj.n*avgObj.avg + v) / (avgObj.n + 1);
+      avgObj.n += 1;
+      return avgObj.avg + 'ms (across ' + avgObj.n + ' trials)';
+    }
+  };
+}
+var performance = window.performance || Date;
+window.rawLogs = [];
+function timeAndLog(f) {
+  var currentLog = [];
+  $.fn.mathquill.setLogFn(function(msg) {
+    currentLog.push({ msg: msg, now: performance.now() });
+  });
+  var start = performance.now();
+  f();
+  var duration = performance.now() - start;
+  $.fn.mathquill.setLogFn($.noop);
+
+  var timeline = [], prev = 0;
+  for (var i = 0; i < currentLog.length; i += 1) {
+    var now = Math.round((currentLog[i].now - start)*1000);
+    timeline.push(now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg);
+    prev = now;
+  }
+  timeline = timeline.join('\n');
+
+  rawLogs.push({
+    start: start,
+    duration: duration,
+    log: currentLog,
+    timeline: timeline
+  });
+  if (timeline.length) {
+    // for tablets without a console
+    if (location.hash === '#alert') alert(timeline);
+    else console.log(timeline);
+  }
+  return duration;
+};
+(function() {
+  var textarea = $('#latex-render-perf textarea');
+  var mathquill = $('#latex-render-perf .mathquill-editable');
+  var avgs = Avgs();
+  $('#latex-render-perf button').click(function() {
+    var latex = textarea.val();
+    var duration = timeAndLog(function() {
+      mathquill.mathquill('latex', latex);
+    });
+    $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
+    $('#html-render-perf textarea').val(mathquill.mathquill('html'));
+  });
+}());
+(function() {
+  var textarea = $('#html-render-perf textarea');
+  var span = $('#html-render-perf span');
+  var avgs = Avgs();
+  $('#html-render-perf button').click(function() {
+    var html = textarea.val();
+    var duration = timeAndLog(function() {
+      span.html(html);
+    });
+    $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
+      .insertAfter('#html-render-perf');
+  });
+}());
 </script>
 </body>
 </html>

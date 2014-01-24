@@ -67,17 +67,8 @@ var Cursor = P(Point, function(_) {
   _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el, 0, el.ends[dir]);
-
-    // never insert before textarea
-    if (dir === L && el.textarea) {
-      this.jQ.insDirOf(-dir, el.textarea);
-    }
-    else {
-      this.jQ.insAtDirEnd(dir, el.jQ);
-    }
-
+    this.jQ.insAtDirEnd(dir, el.jQ);
     el.focus();
-
     return this;
   };
   _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
@@ -221,7 +212,8 @@ var Cursor = P(Point, function(_) {
 
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
-      block.jQize().insertBefore(self.jQ);
+      var jQ = block.jQize();
+      jQ.insertBefore(self.jQ);
       self[L] = block.ends[R];
       block.finalizeInsert();
       self.parent.bubble('redraw');
