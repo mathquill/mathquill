@@ -24,22 +24,18 @@ h1 {
 td {
   width: 33%;
 }
-button {
+#show-textareas-button {
   float: right;
 }
 .show-textareas .mathquill-textbox {
   overflow: visible;
 }
-.shown-textarea {
-  position: relative;
-  display: inline;
-}
-.shown-textarea textarea {
-  position: absolute;
+.show-textareas .textarea textarea {
+  clip: auto !important;
+  resize: auto !important;
+  height: auto !important;
+  width: auto !important;
   top: -45px;
-  user-select: text;
-  -moz-user-select: text;
-  -webkit-user-select: text;
 }
 
 /* Non-white background test */
@@ -61,7 +57,7 @@ button {
 
 <h1><a href="http://mathquill.github.com">MathQuill</a> Tests <small>local test page</small></h1>
 
-<button>Show Textareas</button>
+<button id="show-textareas-button">Show Textareas</button>
 
 <h3>MathQuill Editables</h3>
 
@@ -161,19 +157,9 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-$('button').click(function() {
+$('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
-  $('.textarea,.shown-textarea').toggleClass('textarea shown-textarea');
 });
-//FUGLY HACK: monkey-patch jQuery to show/hide static math textareas when prepended
-var _prepend = $.fn.prepend;
-$.fn.prepend = function(el) {
-  if ($(el).hasClass('textarea') && $(document.body).hasClass('show-textareas'))
-    $(el).removeClass('textarea').addClass('shown-textarea');
-  else if ($(el).hasClass('shown-textarea'))
-    $(el).removeClass('shown-textarea').addClass('textarea');
-  return _prepend.apply(this, arguments);
-};
 
 // test selecting from outside the mathquill editable
 $('.math-container').mousedown(function(e) {
