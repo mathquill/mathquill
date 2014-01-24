@@ -205,6 +205,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     this.eachChild('postOrder', 'dispose');
     this.ends[L] = this.ends[R] = 0;
 
+    //delete this.cursor.selection;
     if (block) {
       block.children().adopt(this, 0, 0);
     }
@@ -270,6 +271,7 @@ var RootTextBlock = P(MathBlock, function(_, _super) {
     self.jQ.children().slice(1).remove();
     self.eachChild('postOrder', 'dispose');
     self.ends[L] = self.ends[R] = 0;
+    delete cursor.selection;
     cursor.show().insAtRightEnd(self);
 
     var regex = Parser.regex;

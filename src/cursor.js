@@ -119,11 +119,15 @@ var Cursor = P(Point, function(_) {
    *     use the return value as if it were the value of the property
    *   + if it's undefined, bubble up to the next ancestor.
    *   + if it's false, stop bubbling.
-   *   + if it's a Node, jump up or down to it
+   *   + if it's a Node, jump up or down into it:
+   *     - if there is a cached Point in the block, insert there
+   *     - else, seekHoriz within the block to the current x-coordinate (to be
+   *       as close to directly above/below the current position as possible)
    */
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
+    self.notify('upDown');
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
     if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
     else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
@@ -142,8 +146,7 @@ var Cursor = P(Point, function(_) {
         }
       } while (ancestor !== self.root);
     }
-
-    return self.notify('upDown');
+    return self;
   }
   onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**

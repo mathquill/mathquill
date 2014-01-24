@@ -12,6 +12,10 @@ suite('latex', function() {
     assertParsesLatex('xyz');
   });
 
+  test('variables that can be mathbb', function() {
+    assertParsesLatex('PNZQRCH');
+  });
+
   test('simple exponent', function() {
     assertParsesLatex('x^n');
   });

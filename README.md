@@ -113,21 +113,16 @@ so MathQuill defaults to white.)
 
 ## Building and Testing
 
-If you hack on MathQuill, you're gonna want to build and test the source files
+To hack on MathQuill, you're gonna want to build and test the source files
 you edit. In addition to `make`, MathQuill uses some build tools written on
-[Node][]. With the [Node Package Manager][npm] that comes with recent versions
-of it, just run
+[Node][http://nodejs.org/#download], so you will need to install that before
+running `make`. (Once it's installed, `make` automatically does `npm install`,
+installing the necessary build tools.)
 
-    npm install
-
-from the root directory of the repo and `make` will start working.
 - `make` builds `build/mathquill.{css,js,min.js}`
 - `make dev` won't try to minify MathQuill (which can be take nonzero time)
 - `make test` also doesn't minify MathQuill, but it also builds
   `mathquill.test.js`, which is used in `test/unit.html`
-
-[Node]: http://nodejs.org/#download
-[npm]: http://npmjs.org
 
 ## Understanding The Source Code
 
@@ -207,9 +202,6 @@ adds the constructors to `CharCmds` or `LatexCmds`.
 ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
 
 `outro.js` is just closing boilerplate to match that in `intro.js`.
-
-See [the EtherPad for MathQuill on sync.in](http://sync.in/mathquill) for
-the current active development discussion.
 
 ## Open-Source License
 
