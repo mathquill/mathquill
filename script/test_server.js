@@ -59,6 +59,7 @@ function recursivelyWatch(watchee, cb) {
           // filesNew - files = new files or dirs to watch
           filesNew.filter(function(file) { return files.indexOf(file) < 0; })
           .forEach(recurse);
+          files = filesNew;
         });
         cb();
       });
