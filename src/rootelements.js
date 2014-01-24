@@ -201,39 +201,29 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-    log('parsed latex');
 
     this.eachChild('postOrder', 'dispose');
-    log('postOrder-ed dispose, about to delete children from edit tree');
     this.ends[L] = this.ends[R] = 0;
-    log('cleared children from edit tree');
 
     if (block) {
       block.children().adopt(this, 0, 0);
-      log('adopted into edit tree');
     }
 
     var jQ = this.jQ;
 
     if (block) {
       var html = block.join('html');
-      log('generated html');
       jQ.html(html);
-      log('set innerHTML');
       this.jQize(jQ.children());
-      log('jQize-d');
       this.finalizeInsert();
-      log('this.finalizeInsert()');
     }
     else {
       jQ.empty();
-      log('emptied jQ');
     }
 
     this.cursor.parent = this;
     this.cursor[L] = this.ends[R];
     this.cursor[R] = 0;
-    log('appended cursor');
   };
 });
 

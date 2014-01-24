@@ -201,26 +201,19 @@ var Cursor = P(Point, function(_) {
   }
   _.writeLatex = function(latex) {
     var self = this.notify('edit');
-    log('notified \'edit\'');
 
     var all = Parser.all;
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-    log('parsed latex');
 
     if (block) {
       block.children().adopt(self.parent, self[L], self[R]);
-      log('adopted into edit tree');
       var jQ = block.jQize();
-      log('jQize-d');
       jQ.insertBefore(self.jQ);
-      log('inserted before cursor jQ');
       self[L] = block.ends[R];
       block.finalizeInsert();
-      log('block.finalizeInsert()');
       self.parent.bubble('redraw');
-      log('bubbled redraw');
     }
 
     return this.hide();

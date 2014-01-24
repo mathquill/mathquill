@@ -26,17 +26,12 @@ jQuery.fn.mathquill = function(cmd, latex) {
     });
   case 'latex':
     if (arguments.length > 1) {
-      log('about to do this.each (jQuery.fn.each)');
       return this.each(function() {
-        log('entered this.each, about to do .attr and MathElement[] lookup');
         var blockId = $(this).attr(mqBlockId),
           block = blockId && Node.byId[blockId];
         if (block) {
-          log('done, there is a block!');
           block.renderLatex(latex);
-          log('done');
         }
-        else log('done, no block');
       });
     }
 
@@ -85,7 +80,6 @@ jQuery.fn.mathquill = function(cmd, latex) {
   }
 };
 
-jQuery.fn.mathquill.setLogFn = function(fn) { log = fn; };
 
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
