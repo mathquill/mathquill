@@ -92,7 +92,7 @@ function createRoot(container, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { textarea.focus(); textarea.focused = true; });
+    setTimeout(function() { if (!textarea.focused) textarea.focus(); });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -113,7 +113,7 @@ function createRoot(container, root, textbox, editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
-    textarea.blur(function() {
+    textarea.focus(function() { textarea.focused = true; }).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
@@ -166,6 +166,7 @@ function createRoot(container, root, textbox, editable) {
 
   //focus and blur handling
   textarea.focus(function(e) {
+    textarea.focused = true;
     if (!cursor.parent)
       cursor.insAtRightEnd(root);
     cursor.parent.jQ.addClass('hasCursor');
@@ -175,16 +176,11 @@ function createRoot(container, root, textbox, editable) {
     }
     else
       cursor.show();
-    e.stopPropagation();
   }).blur(function(e) {
+    textarea.focused = false;
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
-    e.stopPropagation();
-  });
-
-  container.bind('focus.mathquill blur.mathquill', function(e) {
-    textarea.trigger(e);
   }).blur();
 }
 

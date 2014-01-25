@@ -219,7 +219,7 @@ var Cursor = P(Point, function(_) {
       self.parent.bubble('redraw');
     }
 
-    return this.hide();
+    return this;
   };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
