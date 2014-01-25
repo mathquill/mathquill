@@ -9,7 +9,8 @@ function createRoot(container, root, textbox, editable) {
     container.addClass('mathquill-rendered-math');
   }
 
-  root.jQ = $('<span class="mathquill-root-block"/>').appendTo(container.attr(mqBlockId, root.id));
+  root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
+  .appendTo(container);
   root.revert = function() {
     container.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
