@@ -377,13 +377,13 @@ var Cursor = P(Point, function(_) {
     return this;
   };
   _.deleteSelection = function() {
-    if (!this.selection) return false;
+    if (!this.selection) return;
 
     this[L] = this.selection.ends[L][L];
     this[R] = this.selection.ends[R][R];
     this.selection.remove();
     this.root.selectionChanged();
-    return delete this.selection;
+    delete this.selection;
   };
   _.replaceSelection = function() {
     var seln = this.selection;
