@@ -289,11 +289,12 @@ var Cursor = P(Point, function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
 
-    if (this.selection); // pass; .notify('edit') will delete selection
-    else if (this[dir]) this[dir].deleteTowards(dir, this);
-    else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
-
-    this.notify('edit');
+    var hadSelection = this.selection;
+    this.notify('edit'); // deletes selection if present
+    if (!hadSelection) {
+      if (this[dir]) this[dir].deleteTowards(dir, this);
+      else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
+    }
 
     if (this[L])
       this[L].respace();
