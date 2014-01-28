@@ -100,7 +100,7 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { if (!textarea.focused) textarea.focus(); });
+    setTimeout(function() { if (root.blurred) textarea.focus(); });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -109,7 +109,7 @@ function mouseEvents(editable, container, root, cursor, textarea, textareaSpan) 
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!editable && !textarea.focused) container.prepend(textareaSpan);
+    if (!editable && root.blurred) container.prepend(textareaSpan);
 
     container.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
@@ -122,13 +122,14 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('cut paste', false).bind('copy', setTextareaSelection)
       .prepend('<span class="selectable">$'+root.latex()+'$</span>');
-    textarea.focus(function() { textarea.focused = true; }).blur(function() {
+    root.blurred = true;
+    textarea.focus(function() { root.blurred = false; }).blur(function() {
       cursor.clearSelection();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
     function detach() {
       textareaSpan.detach();
-      textarea.focused = false;
+      root.blurred = true;
     }
     return textareaManager;
   }
@@ -178,7 +179,7 @@ function rootCSSClasses(container, textbox) {
 
 function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
-    textarea.focused = true;
+    root.blurred = false;
     if (!cursor.parent)
       cursor.insAtRightEnd(root);
     cursor.parent.jQ.addClass('hasCursor');
@@ -189,7 +190,7 @@ function focusBlurEvents(root, cursor, textarea) {
     else
       cursor.show();
   }).blur(function(e) {
-    textarea.focused = false;
+    root.blurred = true;
     cursor.hide().parent.blur();
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
