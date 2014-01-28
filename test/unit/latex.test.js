@@ -110,6 +110,41 @@ suite('latex', function() {
     });
   });
 
+  suite('\\MathQuillMathField', function() {
+    var outer, inner1, inner2;
+    setup(function() {
+      outer = $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
+        .appendTo('#mock').mathquill();
+      inner1 = outer.find('.mathquill-editable:first');
+      inner2 = outer.find('.mathquill-editable:last');
+    });
+    teardown(function() {
+      outer.remove();
+    });
+
+    test('initial latex', function() {
+      assert.equal(inner1.mathquill('latex'), 'x_0+x_1+x_2');
+      assert.equal(inner2.mathquill('latex'), '3');
+      assert.equal(outer.mathquill('latex'), '\\frac{x_0+x_1+x_2}{3}');
+    });
+
+    test('setting latex', function() {
+      inner1.mathquill('latex', '\\sum_{i=0}^N x_i');
+      inner2.mathquill('latex', 'N');
+      assert.equal(inner1.mathquill('latex'), '\\sum_{i=0}^Nx_i');
+      assert.equal(inner2.mathquill('latex'), 'N');
+      assert.equal(outer.mathquill('latex'), '\\frac{\\sum_{i=0}^Nx_i}{N}');
+    });
+
+    test('writing latex', function() {
+      inner1.mathquill('write', '+ x_3');
+      inner2.mathquill('write', '+ 1');
+      assert.equal(inner1.mathquill('latex'), 'x_0+x_1+x_2+x_3');
+      assert.equal(inner2.mathquill('latex'), '3+1');
+      assert.equal(outer.mathquill('latex'), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+    });
+  });
+
   suite('error handling', function() {
     var el;
     setup(function() {

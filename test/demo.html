@@ -55,7 +55,7 @@ code span {
 
 <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-textbox">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
 
-<p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\editable{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span></p>
+<p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
 
 <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').mathquill('focus'); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').mathquill(\'focus\')').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').mathquill('focus')</button>
 <span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
