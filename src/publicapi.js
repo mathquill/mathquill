@@ -64,13 +64,12 @@ jQuery.fn.mathquill = function(cmd, latex) {
       var container = $(this), root = RootBlock();
       createRoot(container, root, textbox, editable);
       var cursor = root.cursor;
-      var textarea = setupTextarea(editable, container, root, cursor);
+      setupTextarea(editable, container, root, cursor);
       root.editable = editable;
       mouseEvents(root.jQ);
       if (!editable) return;
       container.addClass('mathquill-editable');
       if (textbox) container.addClass('mathquill-textbox');
-      focusBlurEvents(root, cursor, textarea);
     });
   }
 };

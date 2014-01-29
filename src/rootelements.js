@@ -106,10 +106,6 @@ function setupTextarea(editable, container, root, cursor) {
 
   container.prepend(textareaSpan);
 
-  return textarea;
-}
-
-function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     root.blurred = false;
     if (!cursor.parent)
