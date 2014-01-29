@@ -152,9 +152,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
       jQ.empty();
     }
 
-    this.cursor.parent = this;
-    this.cursor[L] = this.ends[R];
-    this.cursor[R] = 0;
+    this.cursor.insAtRightEnd(this);
   };
 });
 
