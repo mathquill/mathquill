@@ -26,6 +26,12 @@ function setupTextarea(editable, container, root, cursor) {
   var textareaSpan = root.textareaSpan = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
+  //prevent native selection except textarea
+  container.bind('selectstart.mathquill', function(e) {
+    if (e.target !== textarea[0]) e.preventDefault();
+    e.stopPropagation();
+  });
+
   // throttle calls to setTextareaSelection(), because setting textarea.value
   // and/or calling textarea.select() can have anomalously bad performance:
   // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
@@ -49,12 +55,6 @@ function setupTextarea(editable, container, root, cursor) {
   }
   container.bind('copy', setTextareaSelection);
 
-
-  //prevent native selection except textarea
-  container.bind('selectstart.mathquill', function(e) {
-    if (e.target !== textarea[0]) e.preventDefault();
-    e.stopPropagation();
-  });
 
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
