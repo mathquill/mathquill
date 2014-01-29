@@ -22,15 +22,19 @@ function createRoot(container, root, textbox, editable) {
   root.renderLatex(contents.text());
 }
 
-function setupTextarea(editable, container, root, cursor) {
+function createTextarea(container, root) {
   var textareaSpan = root.textareaSpan = $('<span class="textarea"><textarea></textarea></span>'),
-    textarea = textareaSpan.children();
+    textarea = root.textarea = textareaSpan.children();
 
   //prevent native selection except textarea
   container.bind('selectstart.mathquill', function(e) {
     if (e.target !== textarea[0]) e.preventDefault();
     e.stopPropagation();
   });
+}
+
+function setRootSelectionChangedFn(container, root, textareaManager) {
+  var cursor = root.cursor;
 
   // throttle calls to setTextareaSelection(), because setting textarea.value
   // and/or calling textarea.select() can have anomalously bad performance:
@@ -54,23 +58,30 @@ function setupTextarea(editable, container, root, cursor) {
     textareaManager.select(latex);
   }
   container.bind('copy', setTextareaSelection);
+}
 
+function staticMathTextareaEvents(container, root) {
+  var cursor = root.cursor, textarea = root.textarea,
+    textareaSpan = root.textareaSpan;
 
-  if (!editable) {
-    var textareaManager = manageTextarea(textarea, { container: container });
-    container.prepend('<span class="selectable">$'+root.latex()+'$</span>');
+  var textareaManager = manageTextarea(textarea, { container: container });
+  container.prepend('<span class="selectable">$'+root.latex()+'$</span>');
+  root.blurred = true;
+  textarea.bind('cut paste', false)
+  .focus(function() { root.blurred = false; }).blur(function() {
+    cursor.clearSelection();
+    setTimeout(detach); //detaching during blur explodes in WebKit
+  });
+  function detach() {
+    textareaSpan.detach();
     root.blurred = true;
-    textarea.bind('cut paste', false)
-    .focus(function() { root.blurred = false; }).blur(function() {
-      cursor.clearSelection();
-      setTimeout(detach); //detaching during blur explodes in WebKit
-    });
-    function detach() {
-      textareaSpan.detach();
-      root.blurred = true;
-    }
-    return;
   }
+  return textareaManager;
+}
+
+function editablesTextareaEvents(container, root) {
+  var cursor = root.cursor, textarea = root.textarea,
+    textareaSpan = root.textareaSpan;
 
   var textareaManager = manageTextarea(textarea, {
     container: container,
@@ -124,6 +135,8 @@ function setupTextarea(editable, container, root, cursor) {
     if (cursor.selection)
       cursor.selection.jQ.addClass('blur');
   }).blur();
+
+  return textareaManager;
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
