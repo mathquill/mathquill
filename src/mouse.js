@@ -8,7 +8,7 @@ function mouseEvents(ultimateRootjQ) {
     var rootjQ = $(e.target).closest('.mathquill-root-block');
     var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
     var cursor = root.cursor, blink = cursor.blink;
-    var textareaSpan = root.textarea, textarea = textareaSpan.children();
+    var textareaSpan = root.textareaSpan, textarea = textareaSpan.children();
 
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();

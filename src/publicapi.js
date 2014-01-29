@@ -9,7 +9,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
   case 'focus':
   case 'blur':
     return this.children('.mathquill-root-block').each(function() {
-      Node.byId[$(this).attr(mqBlockId)].textarea.children().trigger(cmd);
+      Node.byId[$(this).attr(mqBlockId)].textareaSpan.children().trigger(cmd);
     }).end();
   case 'redraw':
     return this.children('.mathquill-root-block').each(function() {

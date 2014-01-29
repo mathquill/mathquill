@@ -23,7 +23,7 @@ function createRoot(container, root, textbox, editable) {
 }
 
 function setupTextarea(editable, container, root, cursor) {
-  var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
+  var textareaSpan = root.textareaSpan = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
   /******
