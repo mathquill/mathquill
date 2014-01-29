@@ -68,7 +68,8 @@ jQuery.fn.mathquill = function(cmd, latex) {
       root.editable = editable;
       mouseEvents(root.jQ);
       if (!editable) return;
-      rootCSSClasses(container, textbox);
+      container.addClass('mathquill-editable');
+      if (textbox) container.addClass('mathquill-textbox');
       focusBlurEvents(root, cursor, textarea);
     });
   }

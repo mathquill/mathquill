@@ -109,12 +109,6 @@ function setupTextarea(editable, container, root, cursor) {
   return textarea;
 }
 
-function rootCSSClasses(container, textbox) {
-  container.addClass('mathquill-editable');
-  if (textbox)
-    container.addClass('mathquill-textbox');
-}
-
 function focusBlurEvents(root, cursor, textarea) {
   textarea.focus(function(e) {
     root.blurred = false;
