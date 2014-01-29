@@ -26,9 +26,9 @@ function setupTextarea(editable, container, root, cursor) {
   var textareaSpan = root.textareaSpan = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = textareaSpan.children();
 
-  /******
-   * TODO [Han]: Document this
-   */
+  // throttle calls to setTextareaSelection(), because setting textarea.value
+  // and/or calling textarea.select() can have anomalously bad performance:
+  // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
   var textareaSelectionTimeout;
   root.selectionChanged = function() {
     if (textareaSelectionTimeout === undefined) {
