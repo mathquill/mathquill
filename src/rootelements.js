@@ -54,12 +54,6 @@ function setupTextarea(editable, container, root, cursor) {
     e.stopPropagation();
   });
 
-  var textareaManager = hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection);
-
-  return textarea;
-}
-
-function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpan, setTextareaSelection) {
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
     container.bind('copy', setTextareaSelection)
@@ -74,7 +68,7 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
       textareaSpan.detach();
       root.blurred = true;
     }
-    return textareaManager;
+    return;
   }
 
   var textareaManager = manageTextarea(textarea, {
@@ -111,7 +105,8 @@ function hookUpTextarea(editable, container, root, cursor, textarea, textareaSpa
   });
 
   container.prepend(textareaSpan);
-  return textareaManager;
+
+  return textarea;
 }
 
 function rootCSSClasses(container, textbox) {
