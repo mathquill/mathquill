@@ -47,6 +47,8 @@ function setupTextarea(editable, container, root, cursor) {
     }
     textareaManager.select(latex);
   }
+  container.bind('copy', setTextareaSelection);
+
 
   //prevent native selection except textarea
   container.bind('selectstart.mathquill', function(e) {
@@ -56,8 +58,7 @@ function setupTextarea(editable, container, root, cursor) {
 
   if (!editable) {
     var textareaManager = manageTextarea(textarea, { container: container });
-    container.bind('copy', setTextareaSelection)
-      .prepend('<span class="selectable">$'+root.latex()+'$</span>');
+    container.prepend('<span class="selectable">$'+root.latex()+'$</span>');
     root.blurred = true;
     textarea.bind('cut paste', false)
     .focus(function() { root.blurred = false; }).blur(function() {
