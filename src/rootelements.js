@@ -135,7 +135,6 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     this.eachChild('postOrder', 'dispose');
     this.ends[L] = this.ends[R] = 0;
 
-    //delete this.cursor.selection;
     if (block) {
       block.children().adopt(this, 0, 0);
     }
