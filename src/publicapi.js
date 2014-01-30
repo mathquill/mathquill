@@ -80,7 +80,6 @@ jQuery.fn.mathquill = function(cmd, latex) {
       root.cursor = Cursor(root);
 
       root.renderLatex(contents.text());
-      var cursor = root.cursor;
       root.editable = editable;
       mouseEvents(root.jQ);
       createTextarea(container, root);
