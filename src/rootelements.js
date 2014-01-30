@@ -68,7 +68,7 @@ function staticMathTextareaEvents(container, root) {
   root.blurred = true;
   textarea.bind('cut paste', false)
   .focus(function() { root.blurred = false; }).blur(function() {
-    cursor.clearSelection();
+    if (cursor.selection) cursor.selection.clear();
     setTimeout(detach); //detaching during blur explodes in WebKit
   });
   function detach() {
