@@ -62,19 +62,20 @@ jQuery.fn.mathquill = function(cmd, latex) {
       RootBlock = textbox ? RootTextBlock : RootMathBlock;
     return this.each(function() {
       var container = $(this), root = RootBlock();
-      var contents = container.contents().detach();
 
       if (!textbox) {
         container.addClass('mathquill-rendered-math');
       }
 
-      root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
-      .appendTo(container);
+      var contents = container.contents().detach();
       root.revert = function() {
         container.empty().unbind('.mathquill')
           .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
           .append(contents);
       };
+
+      root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
+      .appendTo(container);
 
       root.cursor = Cursor(root);
 
