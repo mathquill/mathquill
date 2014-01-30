@@ -71,11 +71,17 @@ jQuery.fn.mathquill = function(cmd, latex) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
         var textareaManager = editablesTextareaEvents(container, root);
+        setRootSelectionChangedFn(container, root, function(text) {
+          textareaManager.select(text);
+        });
       }
       else {
-        var textareaManager = staticMathTextareaEvents(container, root);
+        staticMathTextareaEvents(container, root);
+        setRootSelectionChangedFn(container, root, function(text) {
+          root.textarea.val(text);
+          if (text) root.textarea.select();
+        });
       }
-      setRootSelectionChangedFn(container, root, textareaManager);
     });
   }
 };

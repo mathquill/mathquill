@@ -33,7 +33,7 @@ function createTextarea(container, root) {
   });
 }
 
-function setRootSelectionChangedFn(container, root, textareaManager) {
+function setRootSelectionChangedFn(container, root, selectFn) {
   var cursor = root.cursor;
 
   // throttle calls to setTextareaSelection(), because setting textarea.value
@@ -55,7 +55,7 @@ function setRootSelectionChangedFn(container, root, textareaManager) {
       });
       latex = '$' + latex + '$';
     }
-    textareaManager.select(latex);
+    selectFn(latex);
   }
   container.bind('copy', setTextareaSelection);
 }
@@ -64,7 +64,6 @@ function staticMathTextareaEvents(container, root) {
   var cursor = root.cursor, textarea = root.textarea,
     textareaSpan = root.textareaSpan;
 
-  var textareaManager = manageTextarea(textarea, { container: container });
   container.prepend('<span class="selectable">$'+root.latex()+'$</span>');
   root.blurred = true;
   textarea.bind('cut paste', false)
@@ -76,7 +75,6 @@ function staticMathTextareaEvents(container, root) {
     textareaSpan.detach();
     root.blurred = true;
   }
-  return textareaManager;
 }
 
 function editablesTextareaEvents(container, root) {
