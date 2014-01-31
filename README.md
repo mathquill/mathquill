@@ -184,10 +184,8 @@ cursor and highlighted selection.
     delegated all the events in it's own MathQuill thing
     + keyboard events usually end up triggering their analogue in the edit tree
       on the cursor, which then bubble upwards
-  - in the edit tree, the root MathElement is delegated most of these
-    virtual keyboard events
-    + for example, `RootMathBlock::keydown()`
-    + some special commands do intercept these events, though
+  - in the edit tree, `.keystroke()` is called with each virtual keyboard event
+    + unless overridden, defaults to calling `Node::keystroke`
 
 `textarea.js` handles all the HTML DOM events necessary to emulate a textarea, using
 a hidden textarea.

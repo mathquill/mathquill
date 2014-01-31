@@ -124,9 +124,6 @@ function editablesTextareaEvents(container, root) {
   return textareaManager;
 }
 
-var RootMathBlock = P(MathBlock, function(_, _super) {
-});
-
 var RootMathCommand = P(MathCommand, function(_, _super) {
   _.init = function(cursor) {
     _super.init.call(this, '$');
@@ -134,13 +131,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    this.ends[L] =
-    this.ends[R] =
-      RootMathBlock();
-
-    this.blocks = [ this.ends[L] ];
-
-    this.ends[L].parent = this;
+    _super.createBlocks.call(this);
 
     this.ends[L].cursor = this.cursor;
     this.ends[L].write = function(cursor, ch, replacedFragment) {

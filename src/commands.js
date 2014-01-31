@@ -592,7 +592,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     + '</span>'
   ;
   _.finalizeTree = function() {
-    // set up block like RootMathBlock after .mathquill('editable')
+    // set up root block like .mathquill('editable')
     var self = this, root = self.ends[L], container = self.jQ;
     root.editable = true;
     var ctlr = root.controller = Controller(root);

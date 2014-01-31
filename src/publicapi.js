@@ -60,7 +60,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
-      RootBlock = textbox ? RootTextBlock : RootMathBlock;
+      RootBlock = textbox ? RootTextBlock : MathBlock;
     return this.each(function() {
       var container = $(this), root = RootBlock();
       root.textbox = textbox;
