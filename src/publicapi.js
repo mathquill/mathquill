@@ -77,7 +77,8 @@ jQuery.fn.mathquill = function(cmd, latex) {
       root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(container);
 
-      root.cursor = Cursor(root);
+      var ctlr = root.controller = Controller(root);
+      root.cursor = ctlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
       root.renderLatex(contents.text());
       root.editable = editable;

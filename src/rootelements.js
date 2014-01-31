@@ -2,6 +2,13 @@
  * Root math elements with event delegation.
  ********************************************/
 
+var Controller = P(function(_) {
+  _.init = function(root) {
+    this.root = root;
+    this.cursor = Cursor(root);
+  };
+});
+
 function createTextarea(container, root) {
   var textareaSpan = root.textareaSpan = $('<span class="textarea"><textarea></textarea></span>'),
     textarea = root.textarea = textareaSpan.children();
