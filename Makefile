@@ -21,6 +21,7 @@ SOURCES = \
   $(SRC_DIR)/symbols.js \
   $(SRC_DIR)/text.js \
   $(SRC_DIR)/latex.js \
+  $(SRC_DIR)/exportText.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/interaction.js \
   $(SRC_DIR)/publicapi.js

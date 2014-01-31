@@ -36,7 +36,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
     return blockId && Node.byId[blockId].controller.exportLatex();
   case 'text':
     var blockId = this.children('.mathquill-root-block').attr(mqBlockId);
-    return blockId && Node.byId[blockId].text();
+    return blockId && Node.byId[blockId].controller.exportText();
   case 'html':
     return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
       .replace(/ class=(""|(?= |>))/g, '')

@@ -125,11 +125,6 @@ function editablesTextareaEvents(container, root) {
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
-  _.text = function() {
-    return this.foldChildren('', function(text, child) {
-      return text + child.text();
-    });
-  };
 });
 
 var RootMathCommand = P(MathCommand, function(_, _super) {
