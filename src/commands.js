@@ -596,7 +596,6 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     var self = this, root = self.ends[L], container = self.jQ;
     root.latex = RootMathBlock.prototype.latex;
     root.text = RootMathBlock.prototype.text;
-    root.renderLatex = RootMathBlock.prototype.renderLatex;
     root.editable = true;
     var ctlr = root.controller = Controller(root);
     root.cursor = ctlr.cursor.insAtRightEnd(root);

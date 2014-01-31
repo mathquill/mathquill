@@ -51,7 +51,7 @@ function staticMathTextareaEvents(container, root) {
   var cursor = root.cursor, textarea = root.textarea,
     textareaSpan = root.textareaSpan;
 
-  container.prepend('<span class="selectable">$'+root.latex()+'$</span>');
+  container.prepend('<span class="selectable">$'+root.controller.exportLatex()+'$</span>');
   root.blurred = true;
   textarea.bind('cut paste', false)
   .focus(function() { root.blurred = false; }).blur(function() {
@@ -125,40 +125,10 @@ function editablesTextareaEvents(container, root) {
 }
 
 var RootMathBlock = P(MathBlock, function(_, _super) {
-  _.latex = function() {
-    return _super.latex.call(this).replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
-  };
   _.text = function() {
     return this.foldChildren('', function(text, child) {
       return text + child.text();
     });
-  };
-  _.renderLatex = function(latex) {
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    this.eachChild('postOrder', 'dispose');
-    this.ends[L] = this.ends[R] = 0;
-
-    if (block) {
-      block.children().adopt(this, 0, 0);
-    }
-
-    var jQ = this.jQ;
-
-    if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      this.jQize(jQ.children());
-      this.finalizeInsert();
-    }
-    else {
-      jQ.empty();
-    }
-
-    this.cursor.insAtRightEnd(this);
   };
 });
 
@@ -199,53 +169,6 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
 });
 
 var RootTextBlock = P(MathBlock, function(_, _super) {
-  _.renderLatex = function(latex) {
-    var self = this;
-    var cursor = self.cursor;
-    self.jQ.children().slice(1).remove();
-    self.eachChild('postOrder', 'dispose');
-    self.ends[L] = self.ends[R] = 0;
-    delete cursor.selection;
-    cursor.show().insAtRightEnd(self);
-
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var eof = Parser.eof;
-    var all = Parser.all;
-
-    // Parser RootMathCommand
-    var mathMode = string('$').then(latexMathParser)
-      // because TeX is insane, math mode doesn't necessarily
-      // have to end.  So we allow for the case that math mode
-      // continues to the end of the stream.
-      .skip(string('$').or(eof))
-      .map(function(block) {
-        // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
-
-        rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
-
-        return rootMathCommand;
-      })
-    ;
-
-    var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
-
-    if (commands) {
-      for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(self, self.ends[R], 0);
-      }
-
-      self.jQize().appendTo(self.jQ);
-
-      self.finalizeInsert();
-    }
-  };
   _.keystroke = function(key) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
     return _super.keystroke.apply(this, arguments);

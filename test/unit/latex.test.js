@@ -88,7 +88,7 @@ suite('latex', function() {
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
-  suite('RootMathBlock::renderLatex', function() {
+  suite('.mathquill(\'latex\', ...)', function() {
     var el;
     setup(function() {
       el = $('<span></span>').appendTo('#mock').mathquill('editable');

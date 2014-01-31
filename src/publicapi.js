@@ -26,13 +26,14 @@ jQuery.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1) {
       return this.children('.mathquill-root-block').each(function() {
         var block = Node.byId[$(this).attr(mqBlockId)];
-        block.renderLatex(latex);
+        if (block.textbox) block.controller.renderLatexText(latex);
+        else block.controller.renderLatexMath(latex);
         if (block.blurred) block.cursor.hide().parent.blur();
       }).end();
     }
 
     var blockId = this.children('.mathquill-root-block').attr(mqBlockId);
-    return blockId && Node.byId[blockId].latex();
+    return blockId && Node.byId[blockId].controller.exportLatex();
   case 'text':
     var blockId = this.children('.mathquill-root-block').attr(mqBlockId);
     return blockId && Node.byId[blockId].text();
@@ -62,6 +63,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
       RootBlock = textbox ? RootTextBlock : RootMathBlock;
     return this.each(function() {
       var container = $(this), root = RootBlock();
+      root.textbox = textbox;
 
       if (!textbox) {
         container.addClass('mathquill-rendered-math');
@@ -80,7 +82,9 @@ jQuery.fn.mathquill = function(cmd, latex) {
       var ctlr = root.controller = Controller(root);
       root.cursor = ctlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
-      root.renderLatex(contents.text());
+      if (textbox) ctlr.renderLatexText(contents.text());
+      else ctlr.renderLatexMath(contents.text());
+
       root.editable = editable;
       mouseEvents(root.jQ);
       createTextarea(container, root);
