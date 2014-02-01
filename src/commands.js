@@ -597,9 +597,9 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     root.editable = true;
     var ctlr = root.controller = Controller(root);
     root.cursor = ctlr.cursor.insAtRightEnd(root);
-    createTextarea(container, root);
-    var keyboardEventsShim = editablesTextareaEvents(container, root);
-    setRootSelectionChangedFn(container, root, function(text) {
+    ctlr.createTextarea(container);
+    var keyboardEventsShim = ctlr.editablesTextareaEvents(container);
+    ctlr.setRootSelectionChangedFn(container, function(text) {
       keyboardEventsShim.select(text);
     });
   };

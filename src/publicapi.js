@@ -87,20 +87,20 @@ jQuery.fn.mathquill = function(cmd, latex) {
 
       root.editable = editable;
       mouseEvents(root.jQ);
-      createTextarea(container, root);
+      ctlr.createTextarea(container);
       if (editable) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
-        var keyboardEventsShim = editablesTextareaEvents(container, root);
-        setRootSelectionChangedFn(container, root, function(text) {
+        var keyboardEventsShim = ctlr.editablesTextareaEvents(container);
+        ctlr.setRootSelectionChangedFn(container, function(text) {
           keyboardEventsShim.select(text);
         });
       }
       else {
-        staticMathTextareaEvents(container, root);
-        setRootSelectionChangedFn(container, root, function(text) {
-          root.textarea.val(text);
-          if (text) root.textarea.select();
+        ctlr.staticMathTextareaEvents(container);
+        ctlr.setRootSelectionChangedFn(container, function(text) {
+          ctlr.textarea.val(text);
+          if (text) ctlr.textarea.select();
         });
       }
     });
