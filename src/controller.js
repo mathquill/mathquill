@@ -1,5 +1,7 @@
 /*********************************************
- * Root math elements with event delegation.
+ * Controller for a MathQuill instance,
+ * on which services are registered with
+ * Controller.open(function(_) { ... });
  ********************************************/
 
 var Controller = P(function(_) {
