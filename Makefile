@@ -15,7 +15,7 @@ SOURCES = \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/math.js \
-  $(SRC_DIR)/rootelements.js \
+  $(SRC_DIR)/controller.js \
   $(SRC_DIR)/textarea.js \
   $(SRC_DIR)/mouse.js \
   $(SRC_DIR)/commands.js \
