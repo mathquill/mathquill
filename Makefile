@@ -11,7 +11,7 @@ PJS_SRC = ./node_modules/pjs/src/p.js
 
 SOURCES = \
   $(PJS_SRC) \
-  $(SRC_DIR)/textarea.js \
+  $(SRC_DIR)/saneKeyboardEvents.js \
   $(SRC_DIR)/parser.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/math.js \
