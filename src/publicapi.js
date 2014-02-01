@@ -91,9 +91,9 @@ jQuery.fn.mathquill = function(cmd, latex) {
       if (editable) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
-        var textareaManager = editablesTextareaEvents(container, root);
+        var keyboardEventsShim = editablesTextareaEvents(container, root);
         setRootSelectionChangedFn(container, root, function(text) {
-          textareaManager.select(text);
+          keyboardEventsShim.select(text);
         });
       }
       else {

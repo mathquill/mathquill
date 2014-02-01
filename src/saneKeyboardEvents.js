@@ -1,5 +1,5 @@
 /*************************************************
- * Textarea Manager
+ * Sane Keyboard Events Shim
  *
  * An abstraction layer wrapping the textarea in
  * an object with methods to manipulate and listen
@@ -15,13 +15,13 @@
  *
  * Organization:
  * - key values map and stringify()
- * - manageTextarea()
+ * - saneKeyboardEvents()
  *    + defer() and flush()
  *    + event handler logic
  *    + attach event handlers and export methods
  ************************************************/
 
-var manageTextarea = (function() {
+var saneKeyboardEvents = (function() {
   // The following [key values][1] map was compiled from the
   // [DOM3 Events appendix section on key codes][2] and
   // [a widely cited report on cross-browser tests of key codes][3],
@@ -86,9 +86,9 @@ var manageTextarea = (function() {
     return modifiers.join('-');
   }
 
-  // create a textarea manager that calls callbacks at useful times
+  // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function manageTextarea(el, opts) {
+  return function saneKeyboardEvents(el, opts) {
     var keydown = null;
     var keypress = null;
 

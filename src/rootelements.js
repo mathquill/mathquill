@@ -68,7 +68,7 @@ function editablesTextareaEvents(container, root) {
   var cursor = root.cursor, textarea = root.textarea,
     textareaSpan = root.textareaSpan;
 
-  var textareaManager = manageTextarea(textarea, {
+  var keyboardEventsShim = saneKeyboardEvents(textarea, {
     container: container,
     key: function(key, evt) {
       cursor.parent.keystroke(key, evt, cursor);
@@ -121,5 +121,5 @@ function editablesTextareaEvents(container, root) {
       cursor.selection.jQ.addClass('blur');
   }).blur();
 
-  return textareaManager;
+  return keyboardEventsShim;
 }
