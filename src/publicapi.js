@@ -25,10 +25,10 @@ jQuery.fn.mathquill = function(cmd, latex) {
   case 'latex':
     if (arguments.length > 1) {
       return this.children('.mathquill-root-block').each(function() {
-        var block = Node.byId[$(this).attr(mqBlockId)];
-        if (block.controller.textbox) block.controller.renderLatexText(latex);
-        else block.controller.renderLatexMath(latex);
-        if (block.controller.blurred) block.cursor.hide().parent.blur();
+        var controller = Node.byId[$(this).attr(mqBlockId)].controller;
+        if (controller.textbox) controller.renderLatexText(latex);
+        else controller.renderLatexMath(latex);
+        if (controller.blurred) controller.cursor.hide().parent.blur();
       }).end();
     }
 
@@ -44,18 +44,18 @@ jQuery.fn.mathquill = function(cmd, latex) {
   case 'write':
     if (arguments.length > 1)
       return this.children('.mathquill-root-block').each(function() {
-        var block = Node.byId[$(this).attr(mqBlockId)];
-        block.cursor.writeLatex(latex)
-        if (block.controller.blurred) block.cursor.hide().parent.blur();
+        var controller = Node.byId[$(this).attr(mqBlockId)].controller;
+        controller.cursor.writeLatex(latex)
+        if (controller.blurred) controller.cursor.hide().parent.blur();
       }).end();
   case 'cmd':
     if (arguments.length > 1)
       return this.children('.mathquill-root-block').each(function() {
-        var block = Node.byId[$(this).attr(mqBlockId)], cursor = block.cursor;
-        var seln = cursor.prepareWrite();
+        var controller = Node.byId[$(this).attr(mqBlockId)].controller,
+          cursor = controller.cursor, seln = cursor.prepareWrite();
         if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
         else cursor.parent.write(latex, seln);
-        if (block.controller.blurred) cursor.hide().parent.blur();
+        if (controller.blurred) cursor.hide().parent.blur();
       }).end();
   default:
     var textbox = cmd === 'textbox',
