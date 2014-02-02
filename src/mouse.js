@@ -7,8 +7,8 @@ function mouseEvents(ultimateRootjQ) {
   ultimateRootjQ.bind('mousedown.mathquill', function(e) {
     var rootjQ = $(e.target).closest('.mathquill-root-block');
     var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
-    var cursor = root.cursor, blink = cursor.blink;
-    var textareaSpan = root.textareaSpan, textarea = textareaSpan.children();
+    var ctlr = root.controller, cursor = ctlr.cursor, blink = cursor.blink;
+    var textareaSpan = ctlr.textareaSpan, textarea = ctlr.textarea;
 
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY).select();
@@ -47,7 +47,7 @@ function mouseEvents(ultimateRootjQ) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { if (root.blurred) textarea.focus(); });
+    setTimeout(function() { if (ctlr.blurred) textarea.focus(); });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -56,7 +56,7 @@ function mouseEvents(ultimateRootjQ) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!root.editable && root.blurred) rootjQ.prepend(textareaSpan);
+    if (!root.editable && ctlr.blurred) rootjQ.prepend(textareaSpan);
 
     rootjQ.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);

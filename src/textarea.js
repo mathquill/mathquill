@@ -47,15 +47,15 @@ Controller.open(function(_) {
       textarea = ctlr.textarea, textareaSpan = ctlr.textareaSpan;
 
     container.prepend('<span class="selectable">$'+ctlr.exportLatex()+'$</span>');
-    root.blurred = true;
+    ctlr.blurred = true;
     textarea.bind('cut paste', false)
-    .focus(function() { root.blurred = false; }).blur(function() {
+    .focus(function() { ctlr.blurred = false; }).blur(function() {
       if (cursor.selection) cursor.selection.clear();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
     function detach() {
       textareaSpan.detach();
-      root.blurred = true;
+      ctlr.blurred = true;
     }
   };
   _.editablesTextareaEvents = function(container) {
@@ -98,7 +98,7 @@ Controller.open(function(_) {
     container.prepend(textareaSpan);
 
     textarea.focus(function(e) {
-      root.blurred = false;
+      ctlr.blurred = false;
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
       cursor.parent.jQ.addClass('hasCursor');
@@ -109,7 +109,7 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function(e) {
-      root.blurred = true;
+      ctlr.blurred = true;
       cursor.hide().parent.blur();
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');

@@ -28,7 +28,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
         var block = Node.byId[$(this).attr(mqBlockId)];
         if (block.textbox) block.controller.renderLatexText(latex);
         else block.controller.renderLatexMath(latex);
-        if (block.blurred) block.cursor.hide().parent.blur();
+        if (block.controller.blurred) block.cursor.hide().parent.blur();
       }).end();
     }
 
@@ -46,7 +46,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
       return this.children('.mathquill-root-block').each(function() {
         var block = Node.byId[$(this).attr(mqBlockId)];
         block.cursor.writeLatex(latex)
-        if (block.blurred) block.cursor.hide().parent.blur();
+        if (block.controller.blurred) block.cursor.hide().parent.blur();
       }).end();
   case 'cmd':
     if (arguments.length > 1)
@@ -55,7 +55,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
         var seln = cursor.prepareWrite();
         if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
         else cursor.parent.write(latex, seln);
-        if (block.blurred) cursor.hide().parent.blur();
+        if (block.controller.blurred) cursor.hide().parent.blur();
       }).end();
   default:
     var textbox = cmd === 'textbox',
