@@ -34,7 +34,7 @@ function mouseEvents(ultimateRootjQ) {
       cursor.endSelection();
       cursor.blink = blink;
       if (!cursor.selection) {
-        if (root.editable) {
+        if (ctlr.editable) {
           cursor.show();
         }
         else {

@@ -594,8 +594,8 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
   _.finalizeTree = function() {
     // set up root block like .mathquill('editable')
     var self = this, root = self.ends[L], container = self.jQ;
-    root.editable = true;
     var ctlr = root.controller = Controller(root);
+    ctlr.editable = true;
     root.cursor = ctlr.cursor.insAtRightEnd(root);
     ctlr.createTextarea(container);
     var keyboardEventsShim = ctlr.editablesTextareaEvents(container);
