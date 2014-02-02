@@ -56,7 +56,7 @@ function mouseEvents(ultimateRootjQ) {
     cursor.blink = noop;
     cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
 
-    if (!root.editable && ctlr.blurred) rootjQ.prepend(textareaSpan);
+    if (!ctlr.editable && ctlr.blurred) rootjQ.prepend(textareaSpan);
 
     rootjQ.mousemove(mousemove);
     $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
