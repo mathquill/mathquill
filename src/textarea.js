@@ -16,14 +16,14 @@ Controller.open(function(_) {
       e.stopPropagation();
     });
   };
-  _.setRootSelectionChangedFn = function(selectFn) {
-    var root = this.root, cursor = this.cursor, container = this.container;
+  _.setSelectionChangedFn = function(selectFn) {
+    var ctrlr = this, cursor = ctrlr.cursor, container = ctrlr.container;
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
     // and/or calling textarea.select() can have anomalously bad performance:
     // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
     var textareaSelectionTimeout;
-    root.selectionChanged = function() {
+    ctrlr.selectionChanged = function() {
       if (textareaSelectionTimeout === undefined) {
         textareaSelectionTimeout = setTimeout(setTextareaSelection);
       }
@@ -102,7 +102,7 @@ Controller.open(function(_) {
       cursor.parent.jQ.addClass('hasCursor');
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('blur');
-        setTimeout(root.selectionChanged); //re-select textarea contents after tabbing away and back
+        setTimeout(ctrlr.selectionChanged); //re-select textarea contents after tabbing away and back
       }
       else
         cursor.show();

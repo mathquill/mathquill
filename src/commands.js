@@ -599,7 +599,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     root.cursor = ctrlr.cursor.insAtRightEnd(root);
     ctrlr.createTextarea();
     var keyboardEventsShim = ctrlr.editablesTextareaEvents();
-    ctrlr.setRootSelectionChangedFn(function(text) {
+    ctrlr.setSelectionChangedFn(function(text) {
       keyboardEventsShim.select(text);
     });
   };
