@@ -43,10 +43,10 @@ Controller.open(function(_) {
     container.bind('copy', setTextareaSelection);
   };
   _.staticMathTextareaEvents = function(container) {
-    var root = this.root, cursor = this.cursor, textarea = this.textarea,
-      textareaSpan = this.textareaSpan;
+    var ctlr = this, root = ctlr.root, cursor = ctlr.cursor,
+      textarea = ctlr.textarea, textareaSpan = ctlr.textareaSpan;
 
-    container.prepend('<span class="selectable">$'+this.exportLatex()+'$</span>');
+    container.prepend('<span class="selectable">$'+ctlr.exportLatex()+'$</span>');
     root.blurred = true;
     textarea.bind('cut paste', false)
     .focus(function() { root.blurred = false; }).blur(function() {
@@ -59,8 +59,8 @@ Controller.open(function(_) {
     }
   };
   _.editablesTextareaEvents = function(container) {
-    var root = this.root, cursor = this.cursor, textarea = this.textarea,
-      textareaSpan = this.textareaSpan;
+    var ctlr = this, root = ctlr.root, cursor = ctlr.cursor,
+      textarea = ctlr.textarea, textareaSpan = ctlr.textareaSpan;
 
     var keyboardEventsShim = saneKeyboardEvents(textarea, {
       container: container,
