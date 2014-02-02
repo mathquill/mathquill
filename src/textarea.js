@@ -46,7 +46,7 @@ Controller.open(function(_) {
     var root = this.root, cursor = this.cursor, textarea = this.textarea,
       textareaSpan = this.textareaSpan;
 
-    container.prepend('<span class="selectable">$'+root.controller.exportLatex()+'$</span>');
+    container.prepend('<span class="selectable">$'+this.exportLatex()+'$</span>');
     root.blurred = true;
     textarea.bind('cut paste', false)
     .focus(function() { root.blurred = false; }).blur(function() {
