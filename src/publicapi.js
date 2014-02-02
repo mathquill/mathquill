@@ -26,7 +26,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1) {
       return this.children('.mathquill-root-block').each(function() {
         var block = Node.byId[$(this).attr(mqBlockId)];
-        if (block.textbox) block.controller.renderLatexText(latex);
+        if (block.controller.textbox) block.controller.renderLatexText(latex);
         else block.controller.renderLatexMath(latex);
         if (block.controller.blurred) block.cursor.hide().parent.blur();
       }).end();
@@ -63,7 +63,6 @@ jQuery.fn.mathquill = function(cmd, latex) {
       RootBlock = textbox ? RootTextBlock : MathBlock;
     return this.each(function() {
       var container = $(this), root = RootBlock();
-      root.textbox = textbox;
 
       if (!textbox) {
         container.addClass('mathquill-rendered-math');
@@ -85,6 +84,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
       if (textbox) ctlr.renderLatexText(contents.text());
       else ctlr.renderLatexMath(contents.text());
 
+      ctlr.textbox = textbox;
       ctlr.editable = editable;
       mouseEvents(root.jQ);
       ctlr.createTextarea(container);
