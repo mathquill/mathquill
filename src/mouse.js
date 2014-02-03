@@ -2,9 +2,10 @@
  * Deals with mouse events for clicking, drag-to-select
  *******************************************************/
 
-function mouseEvents(ultimateRootjQ) {
+function mouseEvents(ultimateContainer) {
+  var ultimateRootjQ = ultimateContainer.children('.mathquill-root-block');
   //drag-to-select event handling
-  ultimateRootjQ.bind('mousedown.mathquill', function(e) {
+  ultimateContainer.bind('mousedown.mathquill', function(e) {
     var rootjQ = $(e.target).closest('.mathquill-root-block');
     var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
     var ctlr = root.controller, cursor = ctlr.cursor, blink = cursor.blink;
