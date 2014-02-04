@@ -4,7 +4,9 @@
  ****************************************/
 
 Node.open(function(_) {
-  _.keystroke = function(key, e, cursor) {
+  _.keystroke = function(key, e, ctrlr) {
+    var cursor = ctrlr.cursor;
+
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':

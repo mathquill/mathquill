@@ -65,7 +65,7 @@ Controller.open(function(_) {
     var keyboardEventsShim = saneKeyboardEvents(textarea, {
       container: container,
       key: function(key, evt) {
-        cursor.parent.keystroke(key, evt, cursor);
+        cursor.parent.keystroke(key, evt, ctrlr);
       },
       text: function(ch) {
         cursor.parent.write(cursor, ch, cursor.prepareWrite());

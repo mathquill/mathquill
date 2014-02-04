@@ -348,10 +348,10 @@ var MathBlock = P(MathElement, function(_, _super) {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
-  _.keystroke = function(key, e, cursor) {
+  _.keystroke = function(key, e, ctrlr) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') {
       e.preventDefault();
-      cursor.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
+      ctrlr.cursor.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
     return _super.keystroke.apply(this, arguments);
