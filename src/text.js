@@ -332,8 +332,9 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
       if (ch !== '$')
         MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
       else if (this.isEmpty()) {
-        cursor.insRightOf(this.parent).backspace().show();
-        VanillaSymbol('\\$','$').createLeftOf(cursor);
+        cursor.insRightOf(this.parent);
+        this.parent.deleteTowards(dir, cursor);
+        VanillaSymbol('\\$','$').createLeftOf(cursor.show());
       }
       else if (!cursor[R])
         cursor.insRightOf(this.parent);

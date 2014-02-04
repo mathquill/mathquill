@@ -221,26 +221,6 @@ var Cursor = P(Point, function(_) {
     if (gramp[R])
       gramp[R].respace();
   };
-  _.deleteDir = function(dir) {
-    prayDirection(dir);
-
-    var hadSelection = this.selection;
-    this.notify('edit'); // deletes selection if present
-    if (!hadSelection) {
-      if (this[dir]) this[dir].deleteTowards(dir, this);
-      else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
-    }
-
-    if (this[L])
-      this[L].respace();
-    if (this[R])
-      this[R].respace();
-    this.parent.bubble('redraw');
-
-    return this;
-  };
-  _.backspace = function() { return this.deleteDir(L); };
-  _.deleteForward = function() { return this.deleteDir(R); };
   _.select = function() {
     var anticursor = this.anticursor;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;

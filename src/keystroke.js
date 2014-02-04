@@ -11,13 +11,13 @@ Node.open(function(_) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
       while (cursor[L] || cursor.selection) {
-        cursor.backspace();
+        ctrlr.backspace();
       }
       break;
 
     case 'Shift-Backspace':
     case 'Backspace':
-      cursor.backspace();
+      ctrlr.backspace();
       break;
 
     // Tab or Esc -> go one block right if it exists, else escape right.
@@ -116,13 +116,13 @@ Node.open(function(_) {
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
       while (cursor[R] || cursor.selection) {
-        cursor.deleteForward();
+        ctrlr.deleteForward();
       }
       break;
 
     case 'Shift-Del':
     case 'Del':
-      cursor.deleteForward();
+      ctrlr.deleteForward();
       break;
 
     case 'Meta-A':
@@ -140,6 +140,8 @@ Node.open(function(_) {
 
   _.moveOutOf = // called by Controller::escapeDir, moveDir
   _.moveTowards = // called by Controller::moveDir
+  _.deleteOutOf = // called by Controller::deleteDir
+  _.deleteTowards = // called by Controller::deleteDir
     function() { pray('overridden or never called on this node'); };
 });
 
@@ -214,4 +216,26 @@ Controller.open(function(_) {
     return self;
   }
   Cursor.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
+
+  _.deleteDir = function(dir) {
+    prayDirection(dir);
+    var cursor = this.cursor;
+
+    var hadSelection = cursor.selection;
+    cursor.notify('edit'); // deletes selection if present
+    if (!hadSelection) {
+      if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
+      else if (cursor.parent !== this.root) cursor.parent.deleteOutOf(dir, cursor);
+    }
+
+    if (cursor[L])
+      cursor[L].respace();
+    if (cursor[R])
+      cursor[R].respace();
+    cursor.parent.bubble('redraw');
+
+    return this;
+  };
+  _.backspace = function() { return this.deleteDir(L); };
+  _.deleteForward = function() { return this.deleteDir(R); };
 });
