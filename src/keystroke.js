@@ -137,6 +137,9 @@ Node.open(function(_) {
     e.preventDefault();
     return false;
   };
+
+  _.moveOutOf = // called by Controller::escapeDir
+    function() { pray('overridden or never called on this node'); };
 });
 
 Controller.open(function(_) {
