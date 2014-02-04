@@ -152,6 +152,7 @@ Controller.open(function(_) {
     if (cursor.parent === this.root) return;
 
     cursor.parent.moveOutOf(dir, cursor);
-    return cursor.notify('move');
+    cursor.notify('move');
+    return this;
   };
 });
