@@ -83,20 +83,6 @@ var Cursor = P(Point, function(_) {
     return this;
   };
 
-  _.moveDir = function(dir) {
-    prayDirection(dir);
-
-    if (this.selection) {
-      this.insDirOf(dir, this.selection.ends[dir]);
-    }
-    else if (this[dir]) this[dir].moveTowards(dir, this);
-    else if (this.parent !== this.root) this.parent.moveOutOf(dir, this);
-
-    return this.notify('move');
-  };
-  _.moveLeft = function() { return this.moveDir(L); };
-  _.moveRight = function() { return this.moveDir(R); };
-
   /**
    * moveUp and moveDown have almost identical algorithms:
    * - first check left and right, if so insAtLeft/RightEnd of them

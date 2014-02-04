@@ -84,11 +84,11 @@ Node.open(function(_) {
       }
       break;
 
-    case 'Left': cursor.moveLeft(); break;
+    case 'Left': ctrlr.moveLeft(); break;
     case 'Shift-Left': cursor.selectLeft(); break;
     case 'Ctrl-Left': break;
 
-    case 'Right': cursor.moveRight(); break;
+    case 'Right': ctrlr.moveRight(); break;
     case 'Shift-Right': cursor.selectRight(); break;
     case 'Ctrl-Right': break;
 
@@ -138,7 +138,8 @@ Node.open(function(_) {
     return false;
   };
 
-  _.moveOutOf = // called by Controller::escapeDir
+  _.moveOutOf = // called by Controller::escapeDir, moveDir
+  _.moveTowards = // called by Controller::moveDir
     function() { pray('overridden or never called on this node'); };
 });
 
@@ -158,4 +159,20 @@ Controller.open(function(_) {
     cursor.notify('move');
     return this;
   };
+
+  _.moveDir = function(dir) {
+    prayDirection(dir);
+    var cursor = this.cursor;
+
+    if (cursor.selection) {
+      cursor.insDirOf(dir, cursor.selection.ends[dir]);
+    }
+    else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor);
+    else if (cursor.parent !== this.root) cursor.parent.moveOutOf(dir, cursor);
+
+    cursor.notify('move');
+    return this;
+  };
+  _.moveLeft = function() { return this.moveDir(L); };
+  _.moveRight = function() { return this.moveDir(R); };
 });
