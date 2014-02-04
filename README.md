@@ -137,18 +137,51 @@ all that.
 
 ### Overview of how things fit together:
 
-(Just skim the logic, but do read the starred comments, definitions and method
-signatures.)
+Terminology:
+- The **edit tree** is a tree data structure to represent math and text,
+  analogous to [the HTML DOM][]. (Old docs referred to this variously as the
+  "math tree", the "fake DOM", or some combination thereof, like the
+  "math DOM".)
+- A **control sequence** (as used by Knuth; in the LaTeX community, commonly
+  called a "macro" or "command") is a token in TeX consisting of a backslash
+  and then any single character or string of letters. Does stuff, e.g.
+  `\forall` prints &forall;, and `\sqrt 2` prints a radical sign connected to
+  an overline over the 2.
+- A **feature** is a unit or module of externally-facing functionality, exposed
+  by the API or interacted with by typists. There are 2 disjoint categories of
+  features:
+    + A **command** is a class of node objects in the tree linked to visible
+      HTML DOM nodes, like `Fraction` or `SquareRoot` or the "for all" symbol,
+      &forall;. Unlike loose usage in the LaTeX community, where `\ne` and
+      `\neq` (which print the same symbol, &ne;) might or might not be
+      considered the same command, in the context of MathQuill they are
+      considered to be different control sequences for the same command.
+    + A **service** is a feature that applies to all or many commands, like
+      typing, moving the cursor around, LaTeX exporting, LaTeX parsing. Note
+      that each of these varies by command (you do slightly different things
+      depending on the command you're typing, moving the cursor into/out of,
+      or exporting as LaTeX, etc), cue polymorphism.
+
+[the HTML DOM]: http://www.w3.org/TR/html5-author/introduction.html#a-quick-introduction-to-html
 
 In comments and internal documentation, `::` means `.prototype.`.
+
+Utils:
 
 `intro.js` defines some simple sugar for the idiomatic JS classes used
 throughout MathQuill, plus some globals and opening boilerplate.
 
-* Classes are defined using [Pjs][], and the variable `_` is used by convention
-  as the prototype.
+Classes are defined using [Pjs][], and the variable `_` is used by convention as
+the prototype.
 
 [pjs]: https://github.com/jayferd/pjs
+
+`saneKeyboardEvents.js` normalizes cross-browser inconsistencies in keyboard
+events on a textarea.
+
+`parser.js` is the predecessor for https://github.com/jayferd/parsimmon .
+
+Core framework:
 
 `tree.js` defines the abstract classes for the JS objects that make up the edit tree.
 
@@ -172,25 +205,23 @@ cursor and highlighted selection.
 * The methods on `Cursor` pretty much do what they say on the tin.
   They're how the tree is supposed to traversed and modified.
 
-`rootelements.js` defines the edit tree root elements, and a function
-`createRoot()` that attaches event handlers to the jQuery-wrapped HTML elements:
+`controller.js` defines the Controller on which services are registered.
 
-* Some root elements can actually be in others, so rather than attaching
-  handlers in the constructor, `createRoot()` is called on the actual root
-  element. Except `\editable{}`s need text input event handlers that aren't
-  attached to the static math containing them...it's a little messy.
-* Event delegation is used in 2 ways:
-  - in the HTML DOM, the root `span` element of each MathQuill thing is
-    delegated all the events in it's own MathQuill thing
-    + keyboard events usually end up triggering their analogue in the edit tree
-      on the cursor, which then bubble upwards
-  - in the edit tree, the root MathElement is delegated most of these
-    virtual keyboard events
-    + for example, `RootMathBlock::keydown()`
-    + some special commands do intercept these events, though
+Services:
 
-`textarea.js` handles all the HTML DOM events necessary to emulate a textarea, using
-a hidden textarea.
+`textarea.js` creates and listens for events on a controller/MathQuill
+instance's textarea.
+
+`mouse.js` handles mouse clicking seeking where to put the cursor, mouse
+selection.
+
+`latex.js` handles latex parsing and exporting.
+
+`exportText.js` handles exporting math in a human-readable text format.
+
+Commands:
+
+`math.js` defines abstract base classes for math blocks and commands.
 
 `symbols.js` defines classes for all the symbols like `&` and `\partial`, and
 adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
@@ -198,8 +229,10 @@ adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
 `commands.js` defines classes for all the  commands like `\frac` and `/`, and
 adds the constructors to `CharCmds` or `LatexCmds`.
 
-`publicapi.js` defines the public `jQuery::mathquill()` method and on document
-ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
+Finally, putting all the above code to use is `publicapi.js`, which defines the
+public `jQuery::mathquill()` method and on document ready, finds and
+mathquill-ifies `.mathquill-editable` and so on elements, by creating a
+Controller and calling its methods to initialize MathQuill instances.
 
 `outro.js` is just closing boilerplate to match that in `intro.js`.
 

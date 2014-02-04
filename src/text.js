@@ -316,3 +316,52 @@ LatexCmds.uppercase =
   makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="text"');
 LatexCmds.lowercase =
   makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
+
+
+var RootMathCommand = P(MathCommand, function(_, _super) {
+  _.init = function(cursor) {
+    _super.init.call(this, '$');
+    this.cursor = cursor;
+  };
+  _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
+  _.createBlocks = function() {
+    _super.createBlocks.call(this);
+
+    this.ends[L].cursor = this.cursor;
+    this.ends[L].write = function(cursor, ch, replacedFragment) {
+      if (ch !== '$')
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
+      else if (this.isEmpty()) {
+        cursor.insRightOf(this.parent).backspace().show();
+        VanillaSymbol('\\$','$').createLeftOf(cursor);
+      }
+      else if (!cursor[R])
+        cursor.insRightOf(this.parent);
+      else if (!cursor[L])
+        cursor.insLeftOf(this.parent);
+      else
+        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
+    };
+  };
+  _.latex = function() {
+    return '$' + this.ends[L].latex() + '$';
+  };
+});
+
+var RootTextBlock = P(MathBlock, function(_, _super) {
+  _.keystroke = function(key) {
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
+    return _super.keystroke.apply(this, arguments);
+  };
+  _.write = function(cursor, ch, replacedFragment) {
+    if (replacedFragment) replacedFragment.remove();
+    if (ch === '$')
+      RootMathCommand(cursor).createLeftOf(cursor);
+    else {
+      var html;
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
+      VanillaSymbol(ch, html).createLeftOf(cursor);
+    }
+  };
+});

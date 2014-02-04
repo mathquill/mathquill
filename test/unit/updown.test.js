@@ -1,9 +1,10 @@
 suite('up/down', function() {
-  var el, rootBlock, cursor;
+  var el, rootBlock, controller, cursor;
   setup(function() {
     el = $('<span></span>').appendTo('#mock').mathquill();
-    rootBlock = Node.byId[el.attr(mqBlockId)];
-    cursor = rootBlock.cursor;
+    rootBlock = Node.byId[el.children('.mathquill-root-block').attr(mqBlockId)];
+    controller = rootBlock.controller;
+    cursor = controller.cursor;
   });
   teardown(function() {
     el.remove();
@@ -19,7 +20,7 @@ suite('up/down', function() {
   }
 
   test('up/down in out of exponent', function() {
-    rootBlock.renderLatex('x^{nm}');
+    controller.renderLatexMath('x^{nm}');
     var exp = rootBlock.ends[R],
       expBlock = exp.ends[L];
     assert.equal(exp.latex(), '^{nm}', 'right end el is exponent');
@@ -53,7 +54,7 @@ suite('up/down', function() {
 
   // literally just swapped up and down, exponent with subscript, nm with 12
   test('up/down in out of subscript', function() {
-    rootBlock.renderLatex('a_{12}');
+    controller.renderLatexMath('a_{12}');
     var sub = rootBlock.ends[R],
       subBlock = sub.ends[L];
     assert.equal(sub.latex(), '_{12}', 'right end el is subscript');
@@ -86,7 +87,7 @@ suite('up/down', function() {
   });
 
   test('up/down into and within fraction', function() {
-    rootBlock.renderLatex('\\frac{12}{34}');
+    controller.renderLatexMath('\\frac{12}{34}');
     var frac = rootBlock.ends[L],
       numer = frac.ends[L],
       denom = frac.ends[R];
@@ -125,7 +126,7 @@ suite('up/down', function() {
   });
 
   test('nested subscripts and fractions', function() {
-    rootBlock.renderLatex('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
+    controller.renderLatexMath('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
     var exp = rootBlock.ends[R],
       expBlock = exp.ends[L],
       half = expBlock.ends[L],

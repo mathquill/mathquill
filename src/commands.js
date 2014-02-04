@@ -584,35 +584,24 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-LatexCmds.editable = P(RootMathCommand, function(_, _super) {
-  _.init = function() {
-    MathCommand.prototype.init.call(this, '\\editable');
-  };
-
-  _.jQadd = function() {
-    var self = this;
-    // FIXME: this entire method is a giant hack to get around
-    // having to call createBlocks, and createRoot expecting to
-    // render the contents' LaTeX. Both need to be refactored.
-    _super.jQadd.apply(self, arguments);
-    var block = self.ends[L].disown();
-    var blockjQ = self.jQ.children().detach();
-
-    self.ends[L] =
-    self.ends[R] =
-      RootMathBlock();
-
-    self.blocks = [ self.ends[L] ];
-
-    self.ends[L].parent = self;
-
-    createRoot(self.jQ, self.ends[L], false, true);
-    self.cursor = self.ends[L].cursor;
-
-    block.children().adopt(self.ends[L], 0, 0);
-    blockjQ.appendTo(self.ends[L].jQ);
-
-    self.ends[L].cursor.insAtRightEnd(self.ends[L]);
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
+  _.ctrlSeq = '\\MathQuillMathField';
+  _.htmlTemplate =
+      '<span class="mathquill-editable">'
+    +   '<span class="mathquill-root-block">&0</span>'
+    + '</span>'
+  ;
+  _.finalizeTree = function() {
+    // set up root block like .mathquill('editable')
+    var self = this, root = self.ends[L], container = self.jQ;
+    var ctlr = root.controller = Controller(root);
+    ctlr.editable = true;
+    root.cursor = ctlr.cursor.insAtRightEnd(root);
+    ctlr.createTextarea(container);
+    var keyboardEventsShim = ctlr.editablesTextareaEvents(container);
+    ctlr.setRootSelectionChangedFn(container, function(text) {
+      keyboardEventsShim.select(text);
+    });
   };
 
   _.latex = function(){ return this.ends[L].latex(); };
