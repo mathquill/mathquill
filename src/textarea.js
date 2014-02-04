@@ -43,24 +43,24 @@ Controller.open(function(_) {
     container.bind('copy', setTextareaSelection);
   };
   _.staticMathTextareaEvents = function(container) {
-    var ctlr = this, root = ctlr.root, cursor = ctlr.cursor,
-      textarea = ctlr.textarea, textareaSpan = ctlr.textareaSpan;
+    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    container.prepend('<span class="selectable">$'+ctlr.exportLatex()+'$</span>');
-    ctlr.blurred = true;
+    container.prepend('<span class="selectable">$'+ctrlr.exportLatex()+'$</span>');
+    ctrlr.blurred = true;
     textarea.bind('cut paste', false)
-    .focus(function() { ctlr.blurred = false; }).blur(function() {
+    .focus(function() { ctrlr.blurred = false; }).blur(function() {
       if (cursor.selection) cursor.selection.clear();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });
     function detach() {
       textareaSpan.detach();
-      ctlr.blurred = true;
+      ctrlr.blurred = true;
     }
   };
   _.editablesTextareaEvents = function(container) {
-    var ctlr = this, root = ctlr.root, cursor = ctlr.cursor,
-      textarea = ctlr.textarea, textareaSpan = ctlr.textareaSpan;
+    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     var keyboardEventsShim = saneKeyboardEvents(textarea, {
       container: container,
@@ -98,7 +98,7 @@ Controller.open(function(_) {
     container.prepend(textareaSpan);
 
     textarea.focus(function(e) {
-      ctlr.blurred = false;
+      ctrlr.blurred = false;
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
       cursor.parent.jQ.addClass('hasCursor');
@@ -109,7 +109,7 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function(e) {
-      ctlr.blurred = true;
+      ctrlr.blurred = true;
       cursor.hide().parent.blur();
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');

@@ -78,29 +78,29 @@ jQuery.fn.mathquill = function(cmd, latex) {
       root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(container);
 
-      var ctlr = root.controller = Controller(root);
-      root.cursor = ctlr.cursor; // TODO: stop depending on root.cursor, and rm it
+      var ctrlr = root.controller = Controller(root);
+      root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
-      if (textbox) ctlr.renderLatexText(contents.text());
-      else ctlr.renderLatexMath(contents.text());
+      if (textbox) ctrlr.renderLatexText(contents.text());
+      else ctrlr.renderLatexMath(contents.text());
 
-      ctlr.textbox = textbox;
-      ctlr.editable = editable;
+      ctrlr.textbox = textbox;
+      ctrlr.editable = editable;
       mouseEvents(container);
-      ctlr.createTextarea(container);
+      ctrlr.createTextarea(container);
       if (editable) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
-        var keyboardEventsShim = ctlr.editablesTextareaEvents(container);
-        ctlr.setRootSelectionChangedFn(container, function(text) {
+        var keyboardEventsShim = ctrlr.editablesTextareaEvents(container);
+        ctrlr.setRootSelectionChangedFn(container, function(text) {
           keyboardEventsShim.select(text);
         });
       }
       else {
-        ctlr.staticMathTextareaEvents(container);
-        ctlr.setRootSelectionChangedFn(container, function(text) {
-          ctlr.textarea.val(text);
-          if (text) ctlr.textarea.select();
+        ctrlr.staticMathTextareaEvents(container);
+        ctrlr.setRootSelectionChangedFn(container, function(text) {
+          ctrlr.textarea.val(text);
+          if (text) ctrlr.textarea.select();
         });
       }
     });
