@@ -83,20 +83,6 @@ var Cursor = P(Point, function(_) {
     return this;
   };
 
-  _.escapeDir = function(dir, key, e) {
-    prayDirection(dir);
-
-    // only prevent default of Tab if not in the root editable
-    if (this.parent !== this.root) e.preventDefault();
-
-    // want to be a noop if in the root editable (in fact, Tab has an unrelated
-    // default browser action if so)
-    if (this.parent === this.root) return;
-
-    this.parent.moveOutOf(dir, this);
-    return this.notify('move');
-  };
-
   _.moveDir = function(dir) {
     prayDirection(dir);
 

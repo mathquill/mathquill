@@ -23,13 +23,13 @@ Node.open(function(_) {
     // Tab or Esc -> go one block right if it exists, else escape right.
     case 'Esc':
     case 'Tab':
-      cursor.escapeDir(R, key, e);
+      ctrlr.escapeDir(R, key, e);
       return;
 
     // Shift-Tab -> go one block left if it exists, else escape left.
     case 'Shift-Tab':
     case 'Shift-Esc':
-      cursor.escapeDir(L, key, e);
+      ctrlr.escapeDir(L, key, e);
       return;
 
     // Prevent newlines from showing up
@@ -136,5 +136,22 @@ Node.open(function(_) {
     }
     e.preventDefault();
     return false;
+  };
+});
+
+Controller.open(function(_) {
+  _.escapeDir = function(dir, key, e) {
+    prayDirection(dir);
+    var cursor = this.cursor;
+
+    // only prevent default of Tab if not in the root editable
+    if (cursor.parent !== this.root) e.preventDefault();
+
+    // want to be a noop if in the root editable (in fact, Tab has an unrelated
+    // default browser action if so)
+    if (cursor.parent === this.root) return;
+
+    cursor.parent.moveOutOf(dir, cursor);
+    return cursor.notify('move');
   };
 });

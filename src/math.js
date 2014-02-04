@@ -351,7 +351,7 @@ var MathBlock = P(MathElement, function(_, _super) {
   _.keystroke = function(key, e, ctrlr) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') {
       e.preventDefault();
-      ctrlr.cursor.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
+      ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
     return _super.keystroke.apply(this, arguments);
