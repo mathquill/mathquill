@@ -24,7 +24,7 @@ SOURCES = \
   $(SRC_DIR)/latex.js \
   $(SRC_DIR)/exportText.js \
   $(SRC_DIR)/cursor.js \
-  $(SRC_DIR)/interaction.js \
+  $(SRC_DIR)/keystroke.js \
   $(SRC_DIR)/publicapi.js
 
 CSS_DIR = $(SRC_DIR)/css
