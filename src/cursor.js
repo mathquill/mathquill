@@ -76,6 +76,7 @@ var Cursor = P(Point, function(_) {
 
   var notifyees = [];
   function onNotify(f) { notifyees.push(f); };
+  this.onNotify = onNotify;
   _.notify = function() {
     for (var i = 0; i < notifyees.length; i += 1) {
       notifyees[i].apply(this, arguments);
@@ -83,44 +84,6 @@ var Cursor = P(Point, function(_) {
     return this;
   };
 
-  /**
-   * moveUp and moveDown have almost identical algorithms:
-   * - first check left and right, if so insAtLeft/RightEnd of them
-   * - else check the parent's 'upOutOf'/'downOutOf' property:
-   *   + if it's a function, call it with the cursor as the sole argument and
-   *     use the return value as if it were the value of the property
-   *   + if it's undefined, bubble up to the next ancestor.
-   *   + if it's false, stop bubbling.
-   *   + if it's a Node, jump up or down into it:
-   *     - if there is a cached Point in the block, insert there
-   *     - else, seekHoriz within the block to the current x-coordinate (to be
-   *       as close to directly above/below the current position as possible)
-   */
-  _.moveUp = function() { return moveUpDown(this, 'up'); };
-  _.moveDown = function() { return moveUpDown(this, 'down'); };
-  function moveUpDown(self, dir) {
-    self.notify('upDown');
-    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
-    else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
-    else {
-      var ancestor = self;
-      do {
-        ancestor = ancestor.parent;
-        var prop = ancestor[dirOutOf];
-        if (prop) {
-          if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
-          if (prop === false) break;
-          if (prop instanceof Node) {
-            self.jumpUpDown(ancestor, prop);
-            break;
-          }
-        }
-      } while (ancestor !== self.root);
-    }
-    return self;
-  }
-  onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**
    * jump up or down from one block Node to another:
    * - cache the current Point in the node we're jumping from

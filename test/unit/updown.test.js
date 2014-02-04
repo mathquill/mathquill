@@ -15,7 +15,7 @@ suite('up/down', function() {
     dirs = dirs.split(' ');
     for (var i in dirs) {
       var dir = dirs[i];
-      controller['move'+dir] ? controller['move'+dir]() : cursor['move'+dir]();
+      controller['move'+dir]();
     }
   }
 

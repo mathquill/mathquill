@@ -92,8 +92,8 @@ Node.open(function(_) {
     case 'Shift-Right': cursor.selectRight(); break;
     case 'Ctrl-Right': break;
 
-    case 'Up': cursor.moveUp(); break;
-    case 'Down': cursor.moveDown(); break;
+    case 'Up': ctrlr.moveUp(); break;
+    case 'Down': ctrlr.moveDown(); break;
 
     case 'Shift-Up':
       if (cursor[L]) {
@@ -175,4 +175,43 @@ Controller.open(function(_) {
   };
   _.moveLeft = function() { return this.moveDir(L); };
   _.moveRight = function() { return this.moveDir(R); };
+
+  /**
+   * moveUp and moveDown have almost identical algorithms:
+   * - first check left and right, if so insAtLeft/RightEnd of them
+   * - else check the parent's 'upOutOf'/'downOutOf' property:
+   *   + if it's a function, call it with the cursor as the sole argument and
+   *     use the return value as if it were the value of the property
+   *   + if it's undefined, bubble up to the next ancestor.
+   *   + if it's false, stop bubbling.
+   *   + if it's a Node, jump up or down into it:
+   *     - if there is a cached Point in the block, insert there
+   *     - else, seekHoriz within the block to the current x-coordinate (to be
+   *       as close to directly above/below the current position as possible)
+   */
+  _.moveUp = function() { return moveUpDown(this, 'up'); };
+  _.moveDown = function() { return moveUpDown(this, 'down'); };
+  function moveUpDown(self, dir) {
+    var cursor = self.cursor.notify('upDown');
+    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
+    if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
+    else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
+    else {
+      var ancestor = cursor;
+      do {
+        ancestor = ancestor.parent;
+        var prop = ancestor[dirOutOf];
+        if (prop) {
+          if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
+          if (prop === false) break;
+          if (prop instanceof Node) {
+            cursor.jumpUpDown(ancestor, prop);
+            break;
+          }
+        }
+      } while (ancestor !== self.root);
+    }
+    return self;
+  }
+  Cursor.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
 });
