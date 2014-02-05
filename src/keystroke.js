@@ -38,12 +38,12 @@ Node.open(function(_) {
 
     // End -> move to the end of the current block.
     case 'End':
-      cursor.prepareMove().insAtRightEnd(cursor.parent);
+      cursor.notify('move').insAtRightEnd(cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      cursor.prepareMove().insAtRightEnd(cursor.root);
+      cursor.notify('move').insAtRightEnd(cursor.root);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -62,12 +62,12 @@ Node.open(function(_) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      cursor.prepareMove().insAtLeftEnd(cursor.parent);
+      cursor.notify('move').insAtLeftEnd(cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      cursor.prepareMove().insAtLeftEnd(cursor.root);
+      cursor.notify('move').insAtLeftEnd(cursor.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -127,7 +127,7 @@ Node.open(function(_) {
 
     case 'Meta-A':
     case 'Ctrl-A':
-      cursor.prepareMove().insAtRightEnd(cursor.root);
+      cursor.notify('move').insAtRightEnd(cursor.root);
       while (cursor[L]) ctrlr.selectLeft();
       break;
 

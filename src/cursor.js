@@ -251,7 +251,6 @@ var Cursor = P(Point, function(_) {
     if (e === 'move' || e === 'upDown') this.show().clearSelection();
   });
   onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-  _.prepareMove = function() { return this.notify('move'); };
   _.prepareEdit = function() { return this.notify('edit'); };
   _.prepareWrite = function() {
     return this.notify().show().replaceSelection();
