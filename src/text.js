@@ -214,10 +214,10 @@ var TextPiece = P(Node, function(_, _super) {
     if (dir === R) this.appendText(text);
     else this.prependText(text);
   };
-  _.splitRight = function(offset) {
-    var newPc = TextPiece(this.text.slice(offset)).adopt(this.parent, this, this[R]);
-    newPc.jQadd(this.dom.splitText(offset));
-    this.text = this.text.slice(0, offset);
+  _.splitRight = function(i) {
+    var newPc = TextPiece(this.text.slice(i)).adopt(this.parent, this, this[R]);
+    newPc.jQadd(this.dom.splitText(i));
+    this.text = this.text.slice(0, i);
     return newPc;
   };
 
