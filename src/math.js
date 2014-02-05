@@ -104,7 +104,11 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this.ends[-dir]); };
-  _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
+  _.deleteTowards = function(dir, cursor) {
+    cursor.startSelection();
+    this.selectTowards(dir, cursor);
+    cursor.select();
+  };
   _.selectTowards = function(dir, cursor) {
     if (!cursor.anticursor) cursor.startSelection();
     cursor[-dir] = this;
@@ -348,10 +352,10 @@ var MathBlock = P(MathElement, function(_, _super) {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
-  _.keystroke = function(key, e, cursor) {
+  _.keystroke = function(key, e, ctrlr) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') {
       e.preventDefault();
-      cursor.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
+      ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
     return _super.keystroke.apply(this, arguments);

@@ -15,7 +15,7 @@ suite('up/down', function() {
     dirs = dirs.split(' ');
     for (var i in dirs) {
       var dir = dirs[i];
-      cursor['move'+dir]();
+      controller['move'+dir]();
     }
   }
 
@@ -170,7 +170,8 @@ suite('up/down', function() {
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not at right end goes out of subscript');
     assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not at right end goes before subscript');
 
-    cursor.insAtRightEnd(subBlock).backspace();
+    cursor.insAtRightEnd(subBlock);
+    controller.backspace();
     assert.equal(subFrac[R], 0, 'subscript fraction is at right end');
     assert.equal(cursor[L], subFrac, 'cursor after subscript fraction');
 

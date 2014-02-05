@@ -512,9 +512,9 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
         if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
       }
     };
-    this.ends[L].keystroke = function(key, e, cursor) {
+    this.ends[L].keystroke = function(key, e, ctrlr) {
       if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-        this.parent.renderCommand(cursor);
+        this.parent.renderCommand(ctrlr.cursor);
         e.preventDefault();
         return;
       }

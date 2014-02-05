@@ -51,8 +51,8 @@ jQuery.fn.mathquill = function(cmd, latex) {
   case 'cmd':
     if (arguments.length > 1)
       return this.children('.mathquill-root-block').each(function() {
-        var controller = Node.byId[$(this).attr(mqBlockId)].controller,
-          cursor = controller.cursor, seln = cursor.prepareWrite();
+        var controller = Node.byId[$(this).attr(mqBlockId)].controller.notify(),
+          cursor = controller.cursor.show(), seln = cursor.replaceSelection();
         if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
         else cursor.parent.write(latex, seln);
         if (controller.blurred) cursor.hide().parent.blur();

@@ -74,81 +74,6 @@ var Cursor = P(Point, function(_) {
   _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
   _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
-  var notifyees = [];
-  function onNotify(f) { notifyees.push(f); };
-  _.notify = function() {
-    for (var i = 0; i < notifyees.length; i += 1) {
-      notifyees[i].apply(this, arguments);
-    }
-    return this;
-  };
-
-  _.escapeDir = function(dir, key, e) {
-    prayDirection(dir);
-
-    // only prevent default of Tab if not in the root editable
-    if (this.parent !== this.root) e.preventDefault();
-
-    // want to be a noop if in the root editable (in fact, Tab has an unrelated
-    // default browser action if so)
-    if (this.parent === this.root) return;
-
-    this.parent.moveOutOf(dir, this);
-    return this.notify('move');
-  };
-
-  _.moveDir = function(dir) {
-    prayDirection(dir);
-
-    if (this.selection) {
-      this.insDirOf(dir, this.selection.ends[dir]);
-    }
-    else if (this[dir]) this[dir].moveTowards(dir, this);
-    else if (this.parent !== this.root) this.parent.moveOutOf(dir, this);
-
-    return this.notify('move');
-  };
-  _.moveLeft = function() { return this.moveDir(L); };
-  _.moveRight = function() { return this.moveDir(R); };
-
-  /**
-   * moveUp and moveDown have almost identical algorithms:
-   * - first check left and right, if so insAtLeft/RightEnd of them
-   * - else check the parent's 'upOutOf'/'downOutOf' property:
-   *   + if it's a function, call it with the cursor as the sole argument and
-   *     use the return value as if it were the value of the property
-   *   + if it's undefined, bubble up to the next ancestor.
-   *   + if it's false, stop bubbling.
-   *   + if it's a Node, jump up or down into it:
-   *     - if there is a cached Point in the block, insert there
-   *     - else, seekHoriz within the block to the current x-coordinate (to be
-   *       as close to directly above/below the current position as possible)
-   */
-  _.moveUp = function() { return moveUpDown(this, 'up'); };
-  _.moveDown = function() { return moveUpDown(this, 'down'); };
-  function moveUpDown(self, dir) {
-    self.notify('upDown');
-    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (self[R][dirInto]) self.insAtLeftEnd(self[R][dirInto]);
-    else if (self[L][dirInto]) self.insAtRightEnd(self[L][dirInto]);
-    else {
-      var ancestor = self;
-      do {
-        ancestor = ancestor.parent;
-        var prop = ancestor[dirOutOf];
-        if (prop) {
-          if (typeof prop === 'function') prop = ancestor[dirOutOf](self);
-          if (prop === false) break;
-          if (prop instanceof Node) {
-            self.jumpUpDown(ancestor, prop);
-            break;
-          }
-        }
-      } while (ancestor !== self.root);
-    }
-    return self;
-  }
-  onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
   /**
    * jump up or down from one block Node to another:
    * - cache the current Point in the node we're jumping from
@@ -171,7 +96,8 @@ var Cursor = P(Point, function(_) {
   };
 
   _.seek = function(target, pageX, pageY) {
-    var cursor = this.notify('select');
+    var cursor = this;
+    cursor.root.controller.notify('select');
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -203,7 +129,8 @@ var Cursor = P(Point, function(_) {
     return offset;
   }
   _.writeLatex = function(latex) {
-    var self = this.notify('edit');
+    var self = this;
+    self.root.controller.notify('edit');
 
     var all = Parser.all;
     var eof = Parser.eof;
@@ -286,26 +213,6 @@ var Cursor = P(Point, function(_) {
     if (gramp[R])
       gramp[R].respace();
   };
-  _.deleteDir = function(dir) {
-    prayDirection(dir);
-
-    var hadSelection = this.selection;
-    this.notify('edit'); // deletes selection if present
-    if (!hadSelection) {
-      if (this[dir]) this[dir].deleteTowards(dir, this);
-      else if (this.parent !== this.root) this.parent.deleteOutOf(dir, this);
-    }
-
-    if (this[L])
-      this[L].respace();
-    if (this[R])
-      this[R].respace();
-    this.parent.bubble('redraw');
-
-    return this;
-  };
-  _.backspace = function() { return this.deleteDir(L); };
-  _.deleteForward = function() { return this.deleteDir(R); };
   _.select = function() {
     var anticursor = this.anticursor;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
@@ -325,47 +232,11 @@ var Cursor = P(Point, function(_) {
     this.root.selectionChanged();
     return true;
   };
-  _.selectDir = function(dir) {
-    var cursor = this.notify('select'), seln = cursor.selection;
-    prayDirection(dir);
-
-    if (!cursor.anticursor) cursor.startSelection();
-
-    var node = cursor[dir];
-    if (node) {
-      // "if node we're selecting towards is inside selection (hence retracting)
-      // and is on the *far side* of the selection (hence is only node selected)
-      // and the anticursor is *inside* that node, not just on the other side"
-      if (seln && seln.ends[dir] === node && cursor.anticursor[-dir] !== node) {
-        node.unselectInto(dir, cursor);
-      }
-      else node.selectTowards(dir, cursor);
-    }
-    else if (cursor.parent !== cursor.root) {
-      cursor.parent.selectOutOf(dir, cursor);
-    }
-
-    cursor.clearSelection();
-    cursor.select() || cursor.show();
-  };
-  _.selectLeft = function() { return this.selectDir(L); };
-  _.selectRight = function() { return this.selectDir(R); };
   _.startSelection = function() {
     this.anticursor = Point.copy(this);
   };
   _.endSelection = function() {
     delete this.anticursor;
-  };
-  onNotify(function(e) { if (e !== 'select') this.endSelection(); });
-
-  onNotify(function(e) {
-    if (e === 'move' || e === 'upDown') this.show().clearSelection();
-  });
-  onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-  _.prepareMove = function() { return this.notify('move'); };
-  _.prepareEdit = function() { return this.notify('edit'); };
-  _.prepareWrite = function() {
-    return this.notify().show().replaceSelection();
   };
 
   _.clearSelection = function() {

@@ -29,27 +29,27 @@ suite('text', function() {
 
   test('changes the text nodes as the cursor moves around', function() {
     var block = fromLatex('\\text{abc}');
-    var cursor = Cursor(block).insAtRightEnd(block);
+    var ctrlr = Controller(block), cursor = ctrlr.cursor.insAtRightEnd(block);
 
-    cursor.moveLeft();
+    ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'abc', null);
 
-    cursor.moveLeft();
+    ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'ab', 'c');
 
-    cursor.moveLeft();
+    ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'a', 'bc');
 
-    cursor.moveLeft();
+    ctrlr.moveLeft();
     assertSplit(cursor.jQ, null, 'abc');
 
-    cursor.moveRight();
+    ctrlr.moveRight();
     assertSplit(cursor.jQ, 'a', 'bc');
 
-    cursor.moveRight();
+    ctrlr.moveRight();
     assertSplit(cursor.jQ, 'ab', 'c');
 
-    cursor.moveRight();
+    ctrlr.moveRight();
     assertSplit(cursor.jQ, 'abc', null);
   });
 });
