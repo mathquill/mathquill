@@ -73,7 +73,7 @@ Controller.open(function(_) {
       cut: function(e) {
         if (cursor.selection) {
           setTimeout(function() {
-            cursor.prepareEdit();
+            cursor.notify('edit'); // deletes selection if present
             cursor.parent.bubble('redraw');
           });
         }
