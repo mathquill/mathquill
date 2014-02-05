@@ -104,7 +104,11 @@ var MathCommand = P(MathElement, function(_, _super) {
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
   _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this.ends[-dir]); };
-  _.deleteTowards = function(dir, cursor) { cursor.selectDir(dir); };
+  _.deleteTowards = function(dir, cursor) {
+    cursor.startSelection();
+    this.selectTowards(dir, cursor);
+    cursor.select();
+  };
   _.selectTowards = function(dir, cursor) {
     if (!cursor.anticursor) cursor.startSelection();
     cursor[-dir] = this;

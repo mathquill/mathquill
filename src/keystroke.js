@@ -49,14 +49,14 @@ Node.open(function(_) {
     // Shift-End -> select to the end of the current block.
     case 'Shift-End':
       while (cursor[R]) {
-        cursor.selectRight();
+        ctrlr.selectRight();
       }
       break;
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
       while (cursor[R] || cursor.parent !== cursor.root) {
-        cursor.selectRight();
+        ctrlr.selectRight();
       }
       break;
 
@@ -73,23 +73,23 @@ Node.open(function(_) {
     // Shift-Home -> select to the start of the current block.
     case 'Shift-Home':
       while (cursor[L]) {
-        cursor.selectLeft();
+        ctrlr.selectLeft();
       }
       break;
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
       while (cursor[L] || cursor.parent !== cursor.root) {
-        cursor.selectLeft();
+        ctrlr.selectLeft();
       }
       break;
 
     case 'Left': ctrlr.moveLeft(); break;
-    case 'Shift-Left': cursor.selectLeft(); break;
+    case 'Shift-Left': ctrlr.selectLeft(); break;
     case 'Ctrl-Left': break;
 
     case 'Right': ctrlr.moveRight(); break;
-    case 'Shift-Right': cursor.selectRight(); break;
+    case 'Shift-Right': ctrlr.selectRight(); break;
     case 'Ctrl-Right': break;
 
     case 'Up': ctrlr.moveUp(); break;
@@ -97,17 +97,17 @@ Node.open(function(_) {
 
     case 'Shift-Up':
       if (cursor[L]) {
-        while (cursor[L]) cursor.selectLeft();
+        while (cursor[L]) ctrlr.selectLeft();
       } else {
-        cursor.selectLeft();
+        ctrlr.selectLeft();
       }
 
     case 'Shift-Down':
       if (cursor[R]) {
-        while (cursor[R]) cursor.selectRight();
+        while (cursor[R]) ctrlr.selectRight();
       }
       else {
-        cursor.selectRight();
+        ctrlr.selectRight();
       }
 
     case 'Ctrl-Up': break;
@@ -128,7 +128,7 @@ Node.open(function(_) {
     case 'Meta-A':
     case 'Ctrl-A':
       cursor.prepareMove().insAtRightEnd(cursor.root);
-      while (cursor[L]) cursor.selectLeft();
+      while (cursor[L]) ctrlr.selectLeft();
       break;
 
     default:
@@ -142,6 +142,9 @@ Node.open(function(_) {
   _.moveTowards = // called by Controller::moveDir
   _.deleteOutOf = // called by Controller::deleteDir
   _.deleteTowards = // called by Controller::deleteDir
+  _.unselectInto = // called by Controller::selectDir
+  _.selectOutOf = // called by Controller::selectDir
+  _.selectTowards = // called by Controller::selectDir
     function() { pray('overridden or never called on this node'); };
 });
 
@@ -238,4 +241,31 @@ Controller.open(function(_) {
   };
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
+
+  Cursor.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+  _.selectDir = function(dir) {
+    var cursor = this.cursor.notify('select'), seln = cursor.selection;
+    prayDirection(dir);
+
+    if (!cursor.anticursor) cursor.startSelection();
+
+    var node = cursor[dir];
+    if (node) {
+      // "if node we're selecting towards is inside selection (hence retracting)
+      // and is on the *far side* of the selection (hence is only node selected)
+      // and the anticursor is *inside* that node, not just on the other side"
+      if (seln && seln.ends[dir] === node && cursor.anticursor[-dir] !== node) {
+        node.unselectInto(dir, cursor);
+      }
+      else node.selectTowards(dir, cursor);
+    }
+    else if (cursor.parent !== cursor.root) {
+      cursor.parent.selectOutOf(dir, cursor);
+    }
+
+    cursor.clearSelection();
+    cursor.select() || cursor.show();
+  };
+  _.selectLeft = function() { return this.selectDir(L); };
+  _.selectRight = function() { return this.selectDir(R); };
 });
