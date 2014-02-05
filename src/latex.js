@@ -76,6 +76,25 @@ Controller.open(function(_, _super) {
   _.exportLatex = function() {
     return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
   };
+  _.writeLatex = function(latex) {
+    var cursor = this.notify('edit').cursor;
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    if (block) {
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert();
+      cursor.parent.bubble('redraw');
+    }
+
+    return this;
+  };
   _.renderLatexMath = function(latex) {
     var root = this.root, cursor = this.cursor;
 

@@ -106,26 +106,6 @@ var Cursor = P(Point, function(_) {
     self.jQ.addClass('cursor');
     return offset;
   }
-  _.writeLatex = function(latex) {
-    var self = this;
-    self.root.controller.notify('edit');
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    if (block) {
-      block.children().adopt(self.parent, self[L], self[R]);
-      var jQ = block.jQize();
-      jQ.insertBefore(self.jQ);
-      self[L] = block.ends[R];
-      block.finalizeInsert();
-      self.parent.bubble('redraw');
-    }
-
-    return this;
-  };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
