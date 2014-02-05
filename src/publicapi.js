@@ -86,7 +86,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
 
       ctrlr.textbox = textbox;
       ctrlr.editable = editable;
-      mouseEvents(container);
+      ctrlr.delegateMouseEvents();
       ctrlr.createTextarea();
       if (editable) {
         container.addClass('mathquill-editable');
