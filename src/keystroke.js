@@ -149,6 +149,9 @@ Node.open(function(_) {
 });
 
 Controller.open(function(_) {
+  onNotify(function(e) {
+    if (e === 'move' || e === 'upDown') this.show().clearSelection();
+  });
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
     var cursor = this.cursor;

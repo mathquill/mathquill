@@ -247,9 +247,6 @@ var Cursor = P(Point, function(_) {
     delete this.anticursor;
   };
 
-  onNotify(function(e) {
-    if (e === 'move' || e === 'upDown') this.show().clearSelection();
-  });
   onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.prepareEdit = function() { return this.notify('edit'); };
   _.prepareWrite = function() {
