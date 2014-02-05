@@ -223,6 +223,7 @@ Controller.open(function(_) {
   }
   Cursor.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
 
+  Cursor.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
