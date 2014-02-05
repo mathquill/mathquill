@@ -9,4 +9,13 @@ var Controller = P(function(_) {
     this.root = root;
     this.cursor = Cursor(root);
   };
+
+  var notifyees = [];
+  function onNotify(f) { notifyees.push(f); };
+  _.notify = function() {
+    for (var i = 0; i < notifyees.length; i += 1) {
+      notifyees[i].apply(this.cursor, arguments);
+    }
+    return this;
+  };
 });

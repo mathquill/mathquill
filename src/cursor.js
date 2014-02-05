@@ -74,16 +74,6 @@ var Cursor = P(Point, function(_) {
   _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
   _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
 
-  var notifyees = [];
-  function onNotify(f) { notifyees.push(f); };
-  this.onNotify = onNotify;
-  _.notify = function() {
-    for (var i = 0; i < notifyees.length; i += 1) {
-      notifyees[i].apply(this, arguments);
-    }
-    return this;
-  };
-
   /**
    * jump up or down from one block Node to another:
    * - cache the current Point in the node we're jumping from
@@ -106,7 +96,8 @@ var Cursor = P(Point, function(_) {
   };
 
   _.seek = function(target, pageX, pageY) {
-    var cursor = this.notify('select');
+    var cursor = this;
+    cursor.root.controller.notify('select');
 
     var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
     if (!nodeId) {
@@ -138,7 +129,8 @@ var Cursor = P(Point, function(_) {
     return offset;
   }
   _.writeLatex = function(latex) {
-    var self = this.notify('edit');
+    var self = this;
+    self.root.controller.notify('edit');
 
     var all = Parser.all;
     var eof = Parser.eof;
