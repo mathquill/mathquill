@@ -45,7 +45,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
     if (arguments.length > 1)
       return this.children('.mathquill-root-block').each(function() {
         var controller = Node.byId[$(this).attr(mqBlockId)].controller;
-        controller.cursor.writeLatex(latex)
+        controller.writeLatex(latex)
         if (controller.blurred) controller.cursor.hide().parent.blur();
       }).end();
   case 'cmd':

@@ -81,9 +81,7 @@ Controller.open(function(_) {
         e.stopPropagation();
       },
       paste: function(text) {
-        // FIXME HACK the parser in RootTextBlock needs to be moved to
-        // Cursor::writeLatex or something so this'll work with
-        // MathQuill textboxes
+        // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
         if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
           text = text.slice(1, -1);
         }
@@ -91,7 +89,7 @@ Controller.open(function(_) {
           text = '\\text{' + text + '}';
         }
 
-        cursor.writeLatex(text).show();
+        ctrlr.writeLatex(text).cursor.show();
       }
     });
 

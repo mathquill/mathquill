@@ -94,28 +94,6 @@ var Cursor = P(Point, function(_) {
       to.seek(pageX, self);
     }
   };
-
-  _.seek = function(target, pageX, pageY) {
-    var cursor = this;
-    cursor.root.controller.notify('select');
-
-    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
-    if (!nodeId) {
-      var targetParent = target.parent();
-      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
-    }
-    var node = nodeId ? Node.byId[nodeId] : cursor.root;
-    pray('nodeId is the id of some Node that exists', node);
-
-    // don't clear selection until after getting node from target, in case
-    // target was selection span, otherwise target will have no parent and will
-    // seek from root, which is less accurate (e.g. fraction)
-    cursor.clearSelection().show();
-
-    node.seek(pageX, cursor);
-
-    return cursor;
-  };
   _.offset = function() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
@@ -128,26 +106,6 @@ var Cursor = P(Point, function(_) {
     self.jQ.addClass('cursor');
     return offset;
   }
-  _.writeLatex = function(latex) {
-    var self = this;
-    self.root.controller.notify('edit');
-
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    if (block) {
-      block.children().adopt(self.parent, self[L], self[R]);
-      var jQ = block.jQize();
-      jQ.insertBefore(self.jQ);
-      self[L] = block.ends[R];
-      block.finalizeInsert();
-      self.parent.bubble('redraw');
-    }
-
-    return this;
-  };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {

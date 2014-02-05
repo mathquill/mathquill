@@ -149,16 +149,7 @@ Node.open(function(_) {
 });
 
 Controller.open(function(_) {
-  var notifyees = [];
-  function onNotify(f) { notifyees.push(f); };
-  _.notify = function() {
-    for (var i = 0; i < notifyees.length; i += 1) {
-      notifyees[i].apply(this.cursor, arguments);
-    }
-    return this;
-  };
-
-  onNotify(function(e) {
+  this.onNotify(function(e) {
     if (e === 'move' || e === 'upDown') this.show().clearSelection();
   });
   _.escapeDir = function(dir, key, e) {
@@ -228,9 +219,9 @@ Controller.open(function(_) {
     }
     return self;
   }
-  onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
+  this.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
 
-  onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
+  this.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
@@ -253,7 +244,7 @@ Controller.open(function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
 
-  onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+  this.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
   _.selectDir = function(dir) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
