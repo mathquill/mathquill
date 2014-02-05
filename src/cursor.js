@@ -247,10 +247,6 @@ var Cursor = P(Point, function(_) {
     delete this.anticursor;
   };
 
-  _.prepareWrite = function() {
-    return this.notify().show().replaceSelection();
-  };
-
   _.clearSelection = function() {
     if (this.selection) {
       this.selection.clear();

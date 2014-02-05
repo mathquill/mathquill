@@ -68,7 +68,7 @@ Controller.open(function(_) {
         cursor.parent.keystroke(key, evt, ctrlr);
       },
       text: function(ch) {
-        cursor.parent.write(cursor, ch, cursor.prepareWrite());
+        cursor.parent.write(cursor, ch, cursor.notify().show().replaceSelection());
       },
       cut: function(e) {
         if (cursor.selection) {
