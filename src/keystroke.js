@@ -38,12 +38,12 @@ Node.open(function(_) {
 
     // End -> move to the end of the current block.
     case 'End':
-      cursor.notify('move').insAtRightEnd(cursor.parent);
+      ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      cursor.notify('move').insAtRightEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtRightEnd(cursor.root);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -62,12 +62,12 @@ Node.open(function(_) {
 
     // Home -> move to the start of the root block or the current block.
     case 'Home':
-      cursor.notify('move').insAtLeftEnd(cursor.parent);
+      ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
       break;
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      cursor.notify('move').insAtLeftEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtLeftEnd(cursor.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -127,7 +127,7 @@ Node.open(function(_) {
 
     case 'Meta-A':
     case 'Ctrl-A':
-      cursor.notify('move').insAtRightEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtRightEnd(cursor.root);
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
@@ -149,6 +149,18 @@ Node.open(function(_) {
 });
 
 Controller.open(function(_) {
+  var notifyees = [];
+  function onNotify(f) { notifyees.push(f); };
+  _.notify = function() {
+    for (var i = 0; i < notifyees.length; i += 1) {
+      notifyees[i].apply(this.cursor, arguments);
+    }
+    return this;
+  };
+
+  onNotify(function(e) {
+    if (e === 'move' || e === 'upDown') this.show().clearSelection();
+  });
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
     var cursor = this.cursor;
@@ -161,8 +173,7 @@ Controller.open(function(_) {
     if (cursor.parent === this.root) return;
 
     cursor.parent.moveOutOf(dir, cursor);
-    cursor.notify('move');
-    return this;
+    return this.notify('move');
   };
 
   _.moveDir = function(dir) {
@@ -175,8 +186,7 @@ Controller.open(function(_) {
     else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor);
     else if (cursor.parent !== this.root) cursor.parent.moveOutOf(dir, cursor);
 
-    cursor.notify('move');
-    return this;
+    return this.notify('move');
   };
   _.moveLeft = function() { return this.moveDir(L); };
   _.moveRight = function() { return this.moveDir(R); };
@@ -197,7 +207,7 @@ Controller.open(function(_) {
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
   function moveUpDown(self, dir) {
-    var cursor = self.cursor.notify('upDown');
+    var cursor = self.notify('upDown').cursor;
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
     if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
     else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
@@ -218,14 +228,15 @@ Controller.open(function(_) {
     }
     return self;
   }
-  Cursor.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
+  onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
 
+  onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
 
     var hadSelection = cursor.selection;
-    cursor.notify('edit'); // deletes selection if present
+    this.notify('edit'); // deletes selection if present
     if (!hadSelection) {
       if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
       else if (cursor.parent !== this.root) cursor.parent.deleteOutOf(dir, cursor);
@@ -242,9 +253,9 @@ Controller.open(function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
 
-  Cursor.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+  onNotify(function(e) { if (e !== 'select') this.endSelection(); });
   _.selectDir = function(dir) {
-    var cursor = this.cursor.notify('select'), seln = cursor.selection;
+    var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
 
     if (!cursor.anticursor) cursor.startSelection();

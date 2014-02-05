@@ -68,12 +68,12 @@ Controller.open(function(_) {
         cursor.parent.keystroke(key, evt, ctrlr);
       },
       text: function(ch) {
-        cursor.parent.write(cursor, ch, cursor.prepareWrite());
+        cursor.parent.write(cursor, ch, ctrlr.notify().cursor.show().replaceSelection());
       },
       cut: function(e) {
         if (cursor.selection) {
           setTimeout(function() {
-            cursor.prepareEdit();
+            ctrlr.notify('edit'); // deletes selection if present
             cursor.parent.bubble('redraw');
           });
         }
