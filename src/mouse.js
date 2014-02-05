@@ -12,7 +12,7 @@ function mouseEvents(ultimateContainer) {
     var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
     function mousemove(e) {
-      cursor.seek($(e.target), e.pageX, e.pageY).select();
+      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
       // focus the least-common-ancestor block:
       if (cursor.selection) cursor.insRightOf(cursor.selection.ends[R]);
       return false;
@@ -55,7 +55,7 @@ function mouseEvents(ultimateContainer) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    cursor.seek($(e.target), e.pageX, e.pageY).startSelection();
+    ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
     if (!ctrlr.editable && ctrlr.blurred) rootjQ.prepend(textareaSpan);
 
@@ -64,3 +64,26 @@ function mouseEvents(ultimateContainer) {
     return false;
   });
 }
+
+Controller.open(function(_) {
+  _.seek = function(target, pageX, pageY) {
+    var cursor = this.notify('select').cursor;
+
+    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
+    if (!nodeId) {
+      var targetParent = target.parent();
+      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
+    }
+    var node = nodeId ? Node.byId[nodeId] : cursor.root;
+    pray('nodeId is the id of some Node that exists', node);
+
+    // don't clear selection until after getting node from target, in case
+    // target was selection span, otherwise target will have no parent and will
+    // seek from root, which is less accurate (e.g. fraction)
+    cursor.clearSelection().show();
+
+    node.seek(pageX, cursor);
+
+    return this;
+  };
+});
