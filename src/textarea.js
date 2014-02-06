@@ -17,6 +17,7 @@ Controller.open(function(_) {
     });
 
     var ctrlr = this;
+    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
     ctrlr.container.bind('copy', function() { ctrlr.setTextareaSelection(); });
   };
   _.selectionChanged = function() {

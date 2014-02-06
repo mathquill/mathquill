@@ -187,7 +187,7 @@ var Cursor = P(Point, function(_) {
     var lca = leftEnd.parent;
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
-    this.root.controller.selectionChanged();
+    this.selectionChanged();
     return true;
   };
   _.startSelection = function() {
@@ -201,7 +201,7 @@ var Cursor = P(Point, function(_) {
     if (this.selection) {
       this.selection.clear();
       delete this.selection;
-      this.root.controller.selectionChanged();
+      this.selectionChanged();
     }
     return this;
   };
@@ -211,7 +211,7 @@ var Cursor = P(Point, function(_) {
     this[L] = this.selection.ends[L][L];
     this[R] = this.selection.ends[R][R];
     this.selection.remove();
-    this.root.controller.selectionChanged();
+    this.selectionChanged();
     delete this.selection;
   };
   _.replaceSelection = function() {
