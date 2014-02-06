@@ -11,8 +11,8 @@ JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 var Cursor = P(Point, function(_) {
-  _.init = function(root) {
-    this.parent = this.root = root;
+  _.init = function(initParent) {
+    this.parent = initParent;
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
     //closured for setInterval
