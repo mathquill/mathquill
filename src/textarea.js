@@ -4,20 +4,20 @@
  ********************************************/
 
 Controller.open(function(_) {
-  _.createTextarea = function(container) {
+  _.createTextarea = function() {
     // TODO: everywhere else stop depending on root.textareaSpan, and rm it
     var textareaSpan = this.textareaSpan = this.root.textareaSpan =
         $('<span class="textarea"><textarea></textarea></span>'),
       textarea = this.textarea = textareaSpan.children();
 
     //prevent native selection except textarea
-    container.bind('selectstart.mathquill', function(e) {
+    this.container.bind('selectstart.mathquill', function(e) {
       if (e.target !== textarea[0]) e.preventDefault();
       e.stopPropagation();
     });
   };
-  _.setRootSelectionChangedFn = function(container, selectFn) {
-    var root = this.root, cursor = this.cursor;
+  _.setRootSelectionChangedFn = function(selectFn) {
+    var root = this.root, cursor = this.cursor, container = this.container;
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
     // and/or calling textarea.select() can have anomalously bad performance:
@@ -42,11 +42,11 @@ Controller.open(function(_) {
     }
     container.bind('copy', setTextareaSelection);
   };
-  _.staticMathTextareaEvents = function(container) {
+  _.staticMathTextareaEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    container.prepend('<span class="selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.container.prepend('<span class="selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
     textarea.bind('cut paste', false)
     .focus(function() { ctrlr.blurred = false; }).blur(function() {
@@ -58,12 +58,12 @@ Controller.open(function(_) {
       ctrlr.blurred = true;
     }
   };
-  _.editablesTextareaEvents = function(container) {
+  _.editablesTextareaEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     var keyboardEventsShim = saneKeyboardEvents(textarea, {
-      container: container,
+      container: this.container,
       key: function(key, evt) {
         cursor.parent.keystroke(key, evt, ctrlr);
       },
@@ -93,7 +93,7 @@ Controller.open(function(_) {
       }
     });
 
-    container.prepend(textareaSpan);
+    this.container.prepend(textareaSpan);
 
     textarea.focus(function(e) {
       ctrlr.blurred = false;

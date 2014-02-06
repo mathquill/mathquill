@@ -78,7 +78,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
       root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(container);
 
-      var ctrlr = root.controller = Controller(root);
+      var ctrlr = root.controller = Controller(root, container);
       root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
       if (textbox) ctrlr.renderLatexText(contents.text());
@@ -86,19 +86,19 @@ jQuery.fn.mathquill = function(cmd, latex) {
 
       ctrlr.textbox = textbox;
       ctrlr.editable = editable;
-      mouseEvents(container);
-      ctrlr.createTextarea(container);
+      ctrlr.delegateMouseEvents();
+      ctrlr.createTextarea();
       if (editable) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
-        var keyboardEventsShim = ctrlr.editablesTextareaEvents(container);
-        ctrlr.setRootSelectionChangedFn(container, function(text) {
+        var keyboardEventsShim = ctrlr.editablesTextareaEvents();
+        ctrlr.setRootSelectionChangedFn(function(text) {
           keyboardEventsShim.select(text);
         });
       }
       else {
-        ctrlr.staticMathTextareaEvents(container);
-        ctrlr.setRootSelectionChangedFn(container, function(text) {
+        ctrlr.staticMathTextareaEvents();
+        ctrlr.setRootSelectionChangedFn(function(text) {
           ctrlr.textarea.val(text);
           if (text) ctrlr.textarea.select();
         });

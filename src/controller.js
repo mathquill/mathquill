@@ -5,9 +5,10 @@
  ********************************************/
 
 var Controller = P(function(_) {
-  _.init = function(root) {
+  _.init = function(root, container) {
     this.root = root;
     this.cursor = Cursor(root);
+    this.container = container;
   };
 
   var notifyees = [];
