@@ -15,32 +15,33 @@ Controller.open(function(_) {
       if (e.target !== textarea[0]) e.preventDefault();
       e.stopPropagation();
     });
+
+    var ctrlr = this;
+    ctrlr.container.bind('copy', function() { ctrlr.setTextareaSelection(); });
   };
-  _.setSelectionChangedFn = function(selectFn) {
-    var ctrlr = this, cursor = ctrlr.cursor, container = ctrlr.container;
+  _.selectionChanged = function() {
+    var ctrlr = this;
+    forceIERedraw(ctrlr.container[0]);
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
     // and/or calling textarea.select() can have anomalously bad performance:
     // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
-    var textareaSelectionTimeout;
-    ctrlr.selectionChanged = function() {
-      if (textareaSelectionTimeout === undefined) {
-        textareaSelectionTimeout = setTimeout(setTextareaSelection);
-      }
-      forceIERedraw(container[0]);
-    };
-    function setTextareaSelection() {
-      textareaSelectionTimeout = undefined;
-      var latex = '';
-      if (cursor.selection) {
-        latex = cursor.selection.fold('', function(latex, el) {
-          return latex + el.latex();
-        });
-        latex = '$' + latex + '$';
-      }
-      selectFn(latex);
+    if (ctrlr.textareaSelectionTimeout === undefined) {
+      ctrlr.textareaSelectionTimeout = setTimeout(function() {
+        ctrlr.setTextareaSelection();
+      });
     }
-    container.bind('copy', setTextareaSelection);
+  };
+  _.setTextareaSelection = function() {
+    this.textareaSelectionTimeout = undefined;
+    var latex = '';
+    if (this.cursor.selection) {
+      latex = this.cursor.selection.fold('', function(latex, el) {
+        return latex + el.latex();
+      });
+      latex = '$' + latex + '$';
+    }
+    this.selectFn(latex);
   };
   _.staticMathTextareaEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
@@ -57,6 +58,11 @@ Controller.open(function(_) {
       textareaSpan.detach();
       ctrlr.blurred = true;
     }
+
+    ctrlr.selectFn = function(text) {
+      textarea.val(text);
+      if (text) textarea.select();
+    };
   };
   _.editablesTextareaEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
@@ -92,6 +98,7 @@ Controller.open(function(_) {
         ctrlr.writeLatex(text).cursor.show();
       }
     });
+    this.selectFn = function(text) { keyboardEventsShim.select(text); };
 
     this.container.prepend(textareaSpan);
 
@@ -102,7 +109,7 @@ Controller.open(function(_) {
       cursor.parent.jQ.addClass('hasCursor');
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('blur');
-        setTimeout(ctrlr.selectionChanged); //re-select textarea contents after tabbing away and back
+        ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
       }
       else
         cursor.show();
@@ -112,7 +119,5 @@ Controller.open(function(_) {
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');
     }).blur();
-
-    return keyboardEventsShim;
   };
 });
