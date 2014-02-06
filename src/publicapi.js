@@ -91,17 +91,10 @@ jQuery.fn.mathquill = function(cmd, latex) {
       if (editable) {
         container.addClass('mathquill-editable');
         if (textbox) container.addClass('mathquill-textbox');
-        var keyboardEventsShim = ctrlr.editablesTextareaEvents();
-        ctrlr.setRootSelectionChangedFn(function(text) {
-          keyboardEventsShim.select(text);
-        });
+        ctrlr.editablesTextareaEvents();
       }
       else {
         ctrlr.staticMathTextareaEvents();
-        ctrlr.setRootSelectionChangedFn(function(text) {
-          ctrlr.textarea.val(text);
-          if (text) ctrlr.textarea.select();
-        });
       }
     });
   }

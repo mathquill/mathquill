@@ -43,7 +43,7 @@ Node.open(function(_) {
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
-      ctrlr.notify('move').cursor.insAtRightEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -55,7 +55,7 @@ Node.open(function(_) {
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
-      while (cursor[R] || cursor.parent !== cursor.root) {
+      while (cursor[R] || cursor.parent !== ctrlr.root) {
         ctrlr.selectRight();
       }
       break;
@@ -67,7 +67,7 @@ Node.open(function(_) {
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
-      ctrlr.notify('move').cursor.insAtLeftEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -79,7 +79,7 @@ Node.open(function(_) {
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
-      while (cursor[L] || cursor.parent !== cursor.root) {
+      while (cursor[L] || cursor.parent !== ctrlr.root) {
         ctrlr.selectLeft();
       }
       break;
@@ -127,7 +127,7 @@ Node.open(function(_) {
 
     case 'Meta-A':
     case 'Ctrl-A':
-      ctrlr.notify('move').cursor.insAtRightEnd(cursor.root);
+      ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
@@ -261,7 +261,7 @@ Controller.open(function(_) {
       }
       else node.selectTowards(dir, cursor);
     }
-    else if (cursor.parent !== cursor.root) {
+    else if (cursor.parent !== this.root) {
       cursor.parent.selectOutOf(dir, cursor);
     }
 

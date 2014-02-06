@@ -11,8 +11,8 @@ JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 var Cursor = P(Point, function(_) {
-  _.init = function(root) {
-    this.parent = this.root = root;
+  _.init = function(initParent) {
+    this.parent = initParent;
     var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
 
     //closured for setInterval
@@ -187,7 +187,7 @@ var Cursor = P(Point, function(_) {
     var lca = leftEnd.parent;
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
-    this.root.selectionChanged();
+    this.selectionChanged();
     return true;
   };
   _.startSelection = function() {
@@ -201,7 +201,7 @@ var Cursor = P(Point, function(_) {
     if (this.selection) {
       this.selection.clear();
       delete this.selection;
-      this.root.selectionChanged();
+      this.selectionChanged();
     }
     return this;
   };
@@ -211,7 +211,7 @@ var Cursor = P(Point, function(_) {
     this[L] = this.selection.ends[L][L];
     this[R] = this.selection.ends[R][R];
     this.selection.remove();
-    this.root.selectionChanged();
+    this.selectionChanged();
     delete this.selection;
   };
   _.replaceSelection = function() {
