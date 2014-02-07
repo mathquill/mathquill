@@ -1,111 +1,157 @@
 /*********************************************************
- * The actual jQuery plugin and document ready handlers.
+ * The publicly exposed MathQuill API.
  ********************************************************/
 
-//The publicy exposed method of jQuery.prototype, available (and meant to be
-//called) on jQuery-wrapped HTML DOM elements.
-jQuery.fn.mathquill = function(cmd, latex) {
-  switch (cmd) {
-  case 'focus':
-  case 'blur':
-    return this.children('.mathquill-root-block').each(function() {
-      Node.byId[$(this).attr(mqBlockId)].textareaSpan.children().trigger(cmd);
-    }).end();
-  case 'redraw':
-    return this.children('.mathquill-root-block').each(function() {
-      (function postOrderRedraw(el) {
-        el.eachChild(postOrderRedraw);
-        if (el.redraw) el.redraw();
-      }(Node.byId[$(this).attr(mqBlockId)]));
-    }).end();
-  case 'revert':
-    return this.children('.mathquill-root-block').each(function() {
-      Node.byId[$(this).attr(mqBlockId)].revert();
-    }).end();
-  case 'latex':
-    if (arguments.length > 1) {
-      return this.children('.mathquill-root-block').each(function() {
-        var controller = Node.byId[$(this).attr(mqBlockId)].controller;
-        if (controller.textbox) controller.renderLatexText(latex);
-        else controller.renderLatexMath(latex);
-        if (controller.blurred) controller.cursor.hide().parent.blur();
-      }).end();
-    }
-
-    var blockId = this.children('.mathquill-root-block').attr(mqBlockId);
-    return blockId && Node.byId[blockId].controller.exportLatex();
-  case 'text':
-    var blockId = this.children('.mathquill-root-block').attr(mqBlockId);
-    return blockId && Node.byId[blockId].controller.exportText();
-  case 'html':
-    return this.children(':last').html().replace(/ ?hasCursor|hasCursor /, '')
-      .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
-  case 'write':
-    if (arguments.length > 1)
-      return this.children('.mathquill-root-block').each(function() {
-        var controller = Node.byId[$(this).attr(mqBlockId)].controller;
-        controller.writeLatex(latex)
-        if (controller.blurred) controller.cursor.hide().parent.blur();
-      }).end();
-  case 'cmd':
-    if (arguments.length > 1)
-      return this.children('.mathquill-root-block').each(function() {
-        var controller = Node.byId[$(this).attr(mqBlockId)].controller.notify(),
-          cursor = controller.cursor.show(), seln = cursor.replaceSelection();
-        if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
-        else cursor.parent.write(latex, seln);
-        if (controller.blurred) cursor.hide().parent.blur();
-      }).end();
-  default:
-    var textbox = cmd === 'textbox',
-      editable = textbox || cmd === 'editable',
-      RootBlock = textbox ? RootTextBlock : MathBlock;
-    return this.each(function() {
-      var container = $(this), root = RootBlock();
-
-      if (!textbox) {
-        container.addClass('mathquill-rendered-math');
-      }
-
-      var contents = container.contents().detach();
-      root.revert = function() {
-        container.empty().unbind('.mathquill')
-          .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
-          .append(contents);
-      };
-
-      root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
-      .appendTo(container);
-
-      var ctrlr = root.controller = Controller(root, container);
-      root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
-
-      if (textbox) ctrlr.renderLatexText(contents.text());
-      else ctrlr.renderLatexMath(contents.text());
-
-      ctrlr.textbox = textbox;
-      ctrlr.editable = editable;
-      ctrlr.delegateMouseEvents();
-      ctrlr.createTextarea();
-      if (editable) {
-        container.addClass('mathquill-editable');
-        if (textbox) container.addClass('mathquill-textbox');
-        ctrlr.editablesTextareaEvents();
-      }
-      else {
-        ctrlr.staticMathTextareaEvents();
-      }
-    });
-  }
+/**
+ * Global function to test if an HTML element has been MathQuill-ified, and
+ * get the MathQuill object for it if it has.
+ *
+ * Globally exported function that will take a single DOM element that is the
+ * root of a MathQuill static math or math or text field, and returns the API
+ * object for to it, or null if it is not a MathQuill-ified thing.
+ *
+ * Guarantees identity of returned object if called multiple separate times on
+ * the same MathQuill thing, i.e.:
+ *
+ *   var mathfield = MathQuill.MathField(mathFieldSpan);
+ *   assert(MathQuill(mathFieldSpan) === mathfield);
+ *   assert(MathQuill(mathFieldSpan) === MathQuill(mathFieldSpan));
+ *
+ */
+function MathQuill(el) {
+  if (!el.nodeType) return null; // check if `el` is a DOMElement
+  var blockId = $(el).children('.mathquill-root-block').attr(mqBlockId);
+  return blockId ? Node.byId[blockId].controller.API : null;
 };
 
+MathQuill.noConflict = function() {
+  window.MathQuill = origMathQuill;
+  return MathQuill;
+};
+var origMathQuill = window.MathQuill;
+window.MathQuill = MathQuill;
+
+/**
+ * Publicly export functions that will MathQuill-ify an HTML element and return
+ * an API object. If the HTML element has already been MathQuill-ified into the
+ * same kind, return the original API object, elsewise return null.
+ * Note that they always returns an instance of themselves, or null.
+ */
+function setMathQuillDot(name, API) {
+  MathQuill[name] = function(el) {
+    var mq = MathQuill(el);
+    if (mq instanceof API || !el.nodeType) return mq;
+    return API($(el));
+  };
+  MathQuill[name].prototype = API.prototype;
+}
+
+var AbstractMathQuill = P(function(_) {
+  _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
+  _.initRoot = function(root, el) {
+    root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
+      .appendTo(el);
+    var ctrlr = this.controller = root.controller = Controller(root, el);
+    ctrlr.API = this;
+    root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
+    ctrlr.createTextarea();
+  };
+  _.initExtractContents = function(el) {
+    var contents = el.contents().detach();
+    this.revert = function() {
+      el.empty().unbind('.mathquill')
+      .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+      .append(contents);
+    };
+    return contents.text();
+  };
+  _.el = function() { return this.controller.container[0]; };
+  _.text = function() { return this.controller.exportText(); };
+  _.latex = function(latex) {
+    if (arguments.length > 0) {
+      this.controller.renderLatexMath(latex);
+      return this;
+    }
+    return this.controller.exportLatex();
+  };
+  _.html = function() {
+    return this.controller.root.jQ.html()
+      .replace(/ ?hasCursor|hasCursor /, '')
+      .replace(/ class=(""|(?= |>))/g, '')
+      .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
+  };
+  _.redraw = function() {
+    (function postOrderRedraw(el) {
+      el.eachChild(postOrderRedraw);
+      if (el.redraw) el.redraw();
+    }(this.controller.root));
+    return this;
+  };
+});
+MathQuill.prototype = AbstractMathQuill.prototype;
+
+setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_) {
+  _.init = function(el) {
+    var contents = this.initExtractContents(el);
+    this.initRoot(MathBlock(), el.addClass('mathquill-rendered-math'));
+    this.controller.renderLatexMath(contents);
+    this.controller.delegateMouseEvents();
+    this.controller.staticMathTextareaEvents();
+  };
+}));
+
+var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
+  _.initEvents = function() {
+    this.controller.editable = true;
+    this.controller.delegateMouseEvents();
+    this.controller.editablesTextareaEvents();
+  };
+  _.focus = function() { this.controller.textarea.focus(); return this; };
+  _.blur = function() { this.controller.textarea.blur(); return this; };
+  _.write = function(latex) {
+    this.controller.writeLatex(latex);
+    if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
+    return this;
+  };
+  _.cmd = function(cmd) {
+    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show(),
+      seln = cursor.replaceSelection();
+    if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
+    else cursor.parent.write(latex, seln);
+    if (ctrlr.blurred) cursor.hide().parent.blur();
+    return this;
+  };
+});
+
+setMathQuillDot('MathField', P(EditableField, function(_, _super) {
+  _.init = function(el) {
+    el.addClass('mathquill-rendered-math mathquill-editable');
+    var contents = this.initExtractContents(el);
+    this.initRoot(MathBlock(), el);
+    this.controller.renderLatexMath(contents);
+    this.initEvents();
+  };
+}));
+setMathQuillDot('TextField', P(EditableField, function(_) {
+  _.init = function(el) {
+    var contents = this.initExtractContents(el);
+    this.initRoot(RootTextBlock(), el.addClass('mathquill-editable'));
+    this.controller.renderLatexText(contents);
+    this.initEvents();
+  };
+  _.latex = function(latex) {
+    if (arguments.length > 0) {
+      this.controller.renderLatexText(latex);
+      return this;
+    }
+    return this.controller.exportLatex();
+  };
+}));
 
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 jQuery(function() {
-  jQuery('.mathquill-editable:not(.mathquill-rendered-math)').mathquill('editable');
-  jQuery('.mathquill-textbox:not(.mathquill-rendered-math)').mathquill('textbox');
-  jQuery('.mathquill-embedded-latex').mathquill();
+  jQuery('.mathquill-embedded-latex').each(function() { MathQuill.StaticMath(this); });
+  jQuery('.mathquill-editable').each(function() { MathQuill.MathField(this); });
+  jQuery('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
 });
-
