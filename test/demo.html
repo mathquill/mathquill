@@ -57,8 +57,7 @@ code span {
 
 <p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
 
-<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('$(this).next().mathquill(\'revert\')').next().mathquill('editable').mathquill('focus'); var orig = arguments.callee; this.onclick = function(){  $(this).text('$(this).next().mathquill(\'editable\').mathquill(\'focus\')').next().mathquill('revert'); this.onclick = orig;$};">$(this).next().mathquill('editable').mathquill('focus')</button>
-<span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
+<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MathQuill(this.nextSibling).revert()'); MathQuill.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MathQuill.MathField(this.nextSibling)'); MathQuill(this.nextSibling).revert(); this.onclick = orig; };">MathQuill.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
@@ -79,28 +78,29 @@ $('#codecogs').click(function() {
 });
 
 $(function() {
-  latexMath.bind('keydown keypress', function() {
+  var latexMath = MathQuill($('#editable-math')[0]);
+  $(latexMath.el()).bind('keydown keypress', function() {
     setTimeout(function() {
-      var latex = latexMath.mathquill('latex');
+      var latex = latexMath.latex();
       latexSource.val(latex);
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
-      htmlSource.text(printTree(latexMath.mathquill('html')));
+      htmlSource.text(printTree(latexMath.html()));
     });
-  }).keydown().mathquill('focus');
+  }).keydown().focus();
 
   latexSource.bind('keydown keypress', function() {
     var oldtext = latexSource.val();
     setTimeout(function() {
       var newtext = latexSource.val();
       if(newtext !== oldtext) {
-        latexMath.mathquill('latex', newtext);
-        htmlSource.text(printTree(latexMath.mathquill('html')));
+        latexMath.latex('newtext');
+        htmlSource.text(printTree(latexMath.html()));
       }
     });
   });
 
   if(location.hash && location.hash.length > 1)
-    latexMath.mathquill('latex', decodeURIComponent(location.hash.slice(1))).mathquill('focus');
+    latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
 });
 
 //print the HTML source as an indented tree. TODO: syntax highlight

@@ -584,6 +584,16 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
+var InnerMathField = P(MathQuill.MathField, function(_) {
+  _.init = function(root, container) {
+    var ctrlr = this.controller = root.controller = Controller(root, container);
+    ctrlr.API = this;
+    ctrlr.editable = true;
+    root.cursor = ctrlr.cursor.insAtRightEnd(root);
+    ctrlr.createTextarea();
+    ctrlr.editablesTextareaEvents();
+  };
+});
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
@@ -591,16 +601,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
     +   '<span class="mathquill-root-block">&0</span>'
     + '</span>'
   ;
-  _.finalizeTree = function() {
-    // set up root block like .mathquill('editable')
-    var self = this, root = self.ends[L], container = self.jQ;
-    var ctrlr = root.controller = Controller(root, container);
-    ctrlr.editable = true;
-    root.cursor = ctrlr.cursor.insAtRightEnd(root);
-    ctrlr.createTextarea();
-    ctrlr.editablesTextareaEvents();
-  };
-
+  _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
 });

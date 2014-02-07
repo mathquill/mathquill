@@ -88,78 +88,80 @@ suite('latex', function() {
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
-  suite('.mathquill(\'latex\', ...)', function() {
-    var el;
+  suite('.latex(...)', function() {
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
     test('basic rendering', function() {
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+      assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
     });
 
     test('re-rendering', function() {
-      el.mathquill('latex', 'a x^2 + b x + c = 0');
-      assert.equal(el.mathquill('latex'), 'ax^2+bx+c=0');
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      mq.latex('a x^2 + b x + c = 0');
+      assert.equal(mq.latex(), 'ax^2+bx+c=0');
+      mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+      assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
     });
   });
 
   suite('\\MathQuillMathField', function() {
     var outer, inner1, inner2;
     setup(function() {
-      outer = $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
-        .appendTo('#mock').mathquill();
-      inner1 = outer.find('.mathquill-editable:first');
-      inner2 = outer.find('.mathquill-editable:last');
+      outer = MathQuill.StaticMath(
+        $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
+        .appendTo('#mock')[0]
+      );
+      inner1 = MathQuill($(outer.el()).find('.mathquill-editable:first')[0]);
+      inner2 = MathQuill($(outer.el()).find('.mathquill-editable:last')[0]);
     });
     teardown(function() {
-      outer.remove();
+      $(outer.el()).remove();
     });
 
     test('initial latex', function() {
-      assert.equal(inner1.mathquill('latex'), 'x_0+x_1+x_2');
-      assert.equal(inner2.mathquill('latex'), '3');
-      assert.equal(outer.mathquill('latex'), '\\frac{x_0+x_1+x_2}{3}');
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2');
+      assert.equal(inner2.latex(), '3');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2}{3}');
     });
 
     test('setting latex', function() {
-      inner1.mathquill('latex', '\\sum_{i=0}^N x_i');
-      inner2.mathquill('latex', 'N');
-      assert.equal(inner1.mathquill('latex'), '\\sum_{i=0}^Nx_i');
-      assert.equal(inner2.mathquill('latex'), 'N');
-      assert.equal(outer.mathquill('latex'), '\\frac{\\sum_{i=0}^Nx_i}{N}');
+      inner1.latex('\\sum_{i=0}^N x_i');
+      inner2.latex('N');
+      assert.equal(inner1.latex(), '\\sum_{i=0}^Nx_i');
+      assert.equal(inner2.latex(), 'N');
+      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^Nx_i}{N}');
     });
 
     test('writing latex', function() {
-      inner1.mathquill('write', '+ x_3');
-      inner2.mathquill('write', '+ 1');
-      assert.equal(inner1.mathquill('latex'), 'x_0+x_1+x_2+x_3');
-      assert.equal(inner2.mathquill('latex'), '3+1');
-      assert.equal(outer.mathquill('latex'), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+      inner1.write('+ x_3');
+      inner2.write('+ 1');
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2+x_3');
+      assert.equal(inner2.latex(), '3+1');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
     });
   });
 
   suite('error handling', function() {
-    var el;
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
     function testCantParse(title /*, latex...*/) {
       var latex = [].slice.call(arguments, 1);
       test(title, function() {
         for (var i = 0; i < latex.length; i += 1) {
-          el.mathquill('latex', latex[i]);
-          assert.equal(el.mathquill('latex'), '', "shouldn\'t parse '"+latex[i]+"'");
+          mq.latex(latex[i]);
+          assert.equal(mq.latex(), '', "shouldn\'t parse '"+latex[i]+"'");
         }
       });
     }

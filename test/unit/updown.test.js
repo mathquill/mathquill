@@ -1,13 +1,13 @@
 suite('up/down', function() {
-  var el, rootBlock, controller, cursor;
+  var mq, rootBlock, controller, cursor;
   setup(function() {
-    el = $('<span></span>').appendTo('#mock').mathquill();
-    rootBlock = Node.byId[el.children('.mathquill-root-block').attr(mqBlockId)];
-    controller = rootBlock.controller;
+    mq = MathQuill.StaticMath($('<span></span>').appendTo('#mock')[0]);
+    rootBlock = mq.controller.root;
+    controller = mq.controller;
     cursor = controller.cursor;
   });
   teardown(function() {
-    el.remove();
+    $(mq.el()).remove();
   });
 
   function move(dirs) {
