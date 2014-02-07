@@ -26,47 +26,62 @@ To use MathQuill on your website, grab the latest tarball from the [downloads pa
 
 then on your webpages include the stylesheet
 
-    <link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```html
+<link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+```
 
 and after [jQuery](http://jquery.com), the script
 
-    <script src="/path/to/mathquill.min.js"></script>
+```html
+<script src="/path/to/mathquill.min.js"></script>
+```
 
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
-    <span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+```html
+<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+```
 
 or have an editable math field:
 
-    <span class="mathquill-editable">f(x)=?</span>
+```html
+<span class="mathquill-editable">f(x)=?</span>
+```
 
 This is currently done by waiting for the jQuery `ready` event and searching the
 document for elements with those CSS classes, so for dynamically created
 elements that weren't in the document on `ready`, you will need to call our
 API after inserting into the document:
 
-    var el = $('<span>x^2</span>').appendTo('body');
-    var mathField = MathQuill.MathField(el[0]);
-    mathField instanceof MathQuill.MathField // => true
-    mathField instanceof MathQuill.EditableField // => true
-    mathField instanceof MathQuill // => true
+```js
+var el = $('<span>x^2</span>').appendTo('body');
+var mathField = MathQuill.MathField(el[0]);
+mathField instanceof MathQuill.MathField // => true
+mathField instanceof MathQuill.EditableField // => true
+mathField instanceof MathQuill // => true
+```
 
 MathQuill has to perform calculations based on computed CSS values. If you
 mathquill-ify an element before inserting into the visible HTML DOM, then once
 it is visible MathQuill will need to recalculate:
 
-    var mathFieldSpan = $('<span>\\sqrt{2}</span>');
-    var mathField = MathQuill.MathField(mathFieldSpan[0]);
-    mathFieldSpan.appendTo(document.body);
-    mathField.redraw();
+```js
+var mathFieldSpan = $('<span>\\sqrt{2}</span>');
+var mathField = MathQuill.MathField(mathFieldSpan[0]);
+mathFieldSpan.appendTo(document.body);
+mathField.redraw();
+```
 
 Any element that has been MathQuill-ified can be reverted:
 
-    <span id="revert-me" class="mathquill-embedded-latex">
-      some <code>HTML</code>
-    </span>
-
-    MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
+```html
+<span id="revert-me" class="mathquill-embedded-latex">
+  some <code>HTML</code>
+</span>
+```
+```js
+MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
+```
 
 Manipulating the HTML DOM inside MathQuill-ified elements can break our
 rendering and functionality, but we have a public API to manipulate MathQuill
