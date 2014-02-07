@@ -152,7 +152,7 @@ so MathQuill defaults to white.)
 
 To hack on MathQuill, you're gonna want to build and test the source files
 you edit. In addition to `make`, MathQuill uses some build tools written on
-[Node][http://nodejs.org/#download], so you will need to install that before
+[Node](http://nodejs.org/#download), so you will need to install that before
 running `make`. (Once it's installed, `make` automatically does `npm install`,
 installing the necessary build tools.)
 
