@@ -163,9 +163,9 @@ installing the necessary build tools.)
 
 ## Understanding The Source Code
 
-All the CSS is in `mathquill.css`. Most of it's pretty straightforward, the
-choice of font isn't settled, and fractions are somewhat arcane, see the Wiki
-pages ["Fonts"](http://github.com/laughinghan/mathquill/wiki/Fonts) and
+All the CSS is in `src/css`. Most of it's pretty straightforward, the choice of
+font isn't settled, and fractions are somewhat arcane, see the Wiki pages
+["Fonts"](http://github.com/laughinghan/mathquill/wiki/Fonts) and
 ["Fractions"](http://github.com/laughinghan/mathquill/wiki/Fractions).
 
 All the JavaScript that you actually want to read is in `src/`, `build/` is
