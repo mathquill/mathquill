@@ -19,7 +19,8 @@
  *
  */
 function MathQuill(el) {
-  if (!el.nodeType) return null; // check if `el` is a DOMElement
+  if (!el.nodeType) return null; // check that `el` is a DOM element, using the
+    // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mathquill-root-block').attr(mqBlockId);
   return blockId ? Node.byId[blockId].controller.API : null;
 };
