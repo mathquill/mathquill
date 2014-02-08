@@ -157,9 +157,9 @@ running `make`. (Once it's installed, `make` automatically does `npm install`,
 installing the necessary build tools.)
 
 - `make` builds `build/mathquill.{css,js,min.js}`
-- `make dev` won't try to minify MathQuill (which can be take nonzero time)
-- `make test` also doesn't minify MathQuill, but it also builds
-  `mathquill.test.js`, which is used in `test/unit.html`
+- `make dev` won't try to minify MathQuill (which can be annoyingly slow)
+- `make test` builds `mathquill.test.js` (used by `test/unit.html`) and also
+  doesn't minify
 
 ## Understanding The Source Code
 
