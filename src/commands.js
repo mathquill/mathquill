@@ -2,8 +2,6 @@
  * Commands and Operators.
  **************************/
 
-var CharCmds = {}, LatexCmds = {}; //single character commands, LaTeX commands
-
 var scale, // = function(jQ, x, y) { ... }
 //will use a CSS 2D transform to scale the jQuery-wrapped HTML elements,
 //or the filter matrix transform fallback for IE 5.5-8, or gracefully degrade to
