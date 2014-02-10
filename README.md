@@ -169,41 +169,64 @@ font isn't settled, and fractions are somewhat arcane, see the Wiki pages
 ["Fractions"](http://github.com/laughinghan/mathquill/wiki/Fractions).
 
 All the JavaScript that you actually want to read is in `src/`, `build/` is
-created when you run `make` just to contain a cat'ed and minified version of
-all that.
+created by `make` to contain the same JS cat'ed and minified.
 
-### Overview of how things fit together:
+There's a lot of JavaScript but the big picture isn't too complicated, there's 2
+thin layers sandwiching 2 broad but modularized layers:
 
-Terminology:
-- The **edit tree** is a tree data structure to represent math and text,
-  analogous to [the HTML DOM][]. (Old docs referred to this variously as the
-  "math tree", the "fake DOM", or some combination thereof, like the
-  "math DOM".)
-- A **control sequence** (as used by Knuth; in the LaTeX community, commonly
-  called a "macro" or "command") is a token in TeX consisting of a backslash
-  and then any single character or string of letters. Does stuff, e.g.
-  `\forall` prints &forall;, and `\sqrt 2` prints a radical sign connected to
-  an overline over the 2.
-- A **feature** is a unit or module of externally-facing functionality, exposed
-  by the API or interacted with by typists. There are 2 disjoint categories of
-  features:
-    + A **command** is a class of node objects in the tree linked to visible
-      HTML DOM nodes, like `Fraction` or `SquareRoot` or the "for all" symbol,
-      &forall;. Unlike loose usage in the LaTeX community, where `\ne` and
-      `\neq` (which print the same symbol, &ne;) might or might not be
-      considered the same command, in the context of MathQuill they are
-      considered to be different control sequences for the same command.
-    + A **service** is a feature that applies to all or many commands, like
-      typing, moving the cursor around, LaTeX exporting, LaTeX parsing. Note
-      that each of these varies by command (you do slightly different things
-      depending on the command you're typing, moving the cursor into/out of,
-      or exporting as LaTeX, etc), cue polymorphism.
+- At the highest level, the public API is a thin wrapper around calls to:
+- "services" on the "controller", which sets event listeners that call:
+- methods on "commands" in the "edit tree", which call:
+- tree- and cursor-manipulation methods, at the lowest level, to move the
+  cursor or edit the tree or whatever.
+
+More specifically:
+
+(In comments and internal documentation, `::` means `.prototype.`.)
+
+- At the lowest level, the **edit tree** of JS objects represents math and text
+  analogously to how [the HTML DOM][] represents a web page.
+    + (Old docs variously called this the "math tree", the "fake DOM", or some
+      combination thereof, like the "math DOM".)
+    + `tree.js` defines base classes of objects relating to the tree.
+    + `cursor.js` defines objects representing the cursor and a selection of
+      math or text, with associated HTML elements.
+- Interlude: a **feature** is a unit of publicly exposed functionality, either
+  by the API or interacted with by typists. Following are the 2 disjoint
+  categories of features.
+- A **command** is a thing you can type and edit like a fraction, square root,
+  or "for all" symbol, &forall;. They are implemented as a class of node objects
+  in the edit tree, like `Fraction`, `SquareRoot`, or `VanillaSymbol`.
+    + Each command has an associated **control sequence** (as termed by Knuth;
+      in the LaTeX community, commonly called a "macro" or "command"), a token
+      in TeX and LaTeX syntax consisting of a backslash then any single
+      character or string of letters, like `\frac` or <code>\ </code>. Unlike
+      loose usage in the LaTeX community, where `\ne` and `\neq` (which print
+      the same symbol, &ne;) might or might not be considered the same command,
+      in the context of MathQuill they are considered different "control
+      sequences" for the same "command".
+- A **service** is a feature that applies to all or many commands, like typing,
+  moving the cursor around, LaTeX exporting, LaTeX parsing. Note that each of
+  these varies by command (the cursor goes in a different place when moving into
+  a fraction vs into a square root, they export different LaTeX, etc), cue
+  polymorphism: services define methods on the controller that call methods on
+  nodes in the edit tree with certain contracts, such as a controller method
+  called on initialization to set listeners for keyboard events, that when the
+  Left key is pressed, calls `.moveTowards` on the node just left of the cursor,
+  dispatching on what kind of command the node is (`Fraction::moveTowards` and
+  `SquareRoot::moveTowards` can insert the cursor in different places).
+    + `controller.js` defines the base class for the **controller**, which each
+      math field or static math instance has one of, and to which each service
+      adds methods.
+- `publicapi.js` defines the global `MathQuill` function, the
+  `MathQuill.MathField()` etc. constructors, and the API objects returned by
+  them. The constructors, and the API methods on the objects they return, call
+  appropriate controller methods to initialize and manipulate math field and
+  static math instances.
 
 [the HTML DOM]: http://www.w3.org/TR/html5-author/introduction.html#a-quick-introduction-to-html
 
-In comments and internal documentation, `::` means `.prototype.`.
-
-Utils:
+Misc.:
 
 `intro.js` defines some simple sugar for the idiomatic JS classes used
 throughout MathQuill, plus some globals and opening boilerplate.
@@ -213,65 +236,8 @@ the prototype.
 
 [pjs]: https://github.com/jayferd/pjs
 
-`saneKeyboardEvents.js` normalizes cross-browser inconsistencies in keyboard
-events on a textarea.
-
-`parser.js` is the predecessor for https://github.com/jayferd/parsimmon .
-
-Core framework:
-
-`tree.js` defines the abstract classes for the JS objects that make up the edit tree.
-
-* A `Node` is a node in the tree.
-* A `Fragment` is a range of siblings in the tree.  This is used, for
-  example, for selections.
-
-* The edit tree has two kinds of nodes: commands and blocks
-    - blocks, like the root block, can contain any number of commands
-    - commands, like `x`, `1`, `+`, `\frac`, `\sqrt` (clearly siblings in the
-      tree) contain a fixed number of blocks
-        + symbols like `x`, `y`, `1`, `2`, `+`, `-` are commands with 0 blocks
-* All edit tree nodes are instances of `MathElement`
-    - blocks are instances of `MathBlock`
-    - commands are instances of `MathCommand`
-        + symbols are instances of `Symbol`
-
-`cursor.js` defines the "singleton" classes for the visible blinking
-cursor and highlighted selection.
-
-* The methods on `Cursor` pretty much do what they say on the tin.
-  They're how the tree is supposed to traversed and modified.
-
-`controller.js` defines the Controller on which services are registered.
-
-Services:
-
-`textarea.js` creates and listens for events on a controller/MathQuill
-instance's textarea.
-
-`mouse.js` handles mouse clicking seeking where to put the cursor, mouse
-selection.
-
-`latex.js` handles latex parsing and exporting.
-
-`exportText.js` handles exporting math in a human-readable text format.
-
-Commands:
-
-`math.js` defines abstract base classes for math blocks and commands.
-
-`symbols.js` defines classes for all the symbols like `&` and `\partial`, and
-adds the constructors to `CharCmds` or `LatexCmds` as used by `Cursor::write()`.
-
-`commands.js` defines classes for all the  commands like `\frac` and `/`, and
-adds the constructors to `CharCmds` or `LatexCmds`.
-
-Finally, putting all the above code to use is `publicapi.js`, which defines the
-public `jQuery::mathquill()` method and on document ready, finds and
-mathquill-ifies `.mathquill-editable` and so on elements, by creating a
-Controller and calling its methods to initialize MathQuill instances.
-
-`outro.js` is just closing boilerplate to match that in `intro.js`.
+`services/*.util.js` files are unimportant to the overall architecture, you can
+ignore them until you have to deal with code that is using them.
 
 ## Open-Source License
 

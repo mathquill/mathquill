@@ -1,5 +1,5 @@
 /*************************************************
- * Base classes of the MathQuill virtual DOM tree
+ * Base classes of edit tree-related objects
  *
  * Only doing tree node manipulation via these
  * adopt/ disown methods guarantees well-formedness
