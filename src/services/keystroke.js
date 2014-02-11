@@ -3,6 +3,12 @@
  * interaction with the typist.
  ****************************************/
 
+Controller.open(function(_) {
+  _.keystroke = function(key, evt) {
+    this.cursor.parent.keystroke(key, evt, this);
+  };
+});
+
 Node.open(function(_) {
   _.keystroke = function(key, e, ctrlr) {
     var cursor = ctrlr.cursor;

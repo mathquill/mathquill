@@ -88,18 +88,12 @@ var saneKeyboardEvents = (function() {
 
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function saneKeyboardEvents(el, opts) {
+  return function saneKeyboardEvents(el, handlers) {
     var keydown = null;
     var keypress = null;
 
-    if (!opts) opts = {};
-    var textCallback = opts.text || noop;
-    var keyCallback = opts.key || noop;
-    var pasteCallback = opts.paste || noop;
-    var onCut = opts.cut || noop;
-
     var textarea = jQuery(el);
-    var target = jQuery(opts.container || textarea);
+    var target = jQuery(handlers.container || textarea);
 
     // checkTextareaFor() is called after keypress or paste events to
     // say "Hey, I think something was just typed" or "pasted" (resp.),
@@ -150,7 +144,7 @@ var saneKeyboardEvents = (function() {
     }
 
     function handleKey() {
-      keyCallback(stringify(keydown), keydown);
+      handlers.keystroke(stringify(keydown), keydown);
     }
 
     // -*- event handlers -*- //
@@ -192,7 +186,7 @@ var saneKeyboardEvents = (function() {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
-      popText(textCallback);
+      popText(function(text) { handlers.typedText(text); });
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -215,7 +209,7 @@ var saneKeyboardEvents = (function() {
       checkTextareaFor(pastedText);
     }
     function pastedText() {
-      popText(pasteCallback);
+      popText(function(text) { handlers.paste(text); });
     }
 
     // -*- attach event handlers -*- //
@@ -223,7 +217,6 @@ var saneKeyboardEvents = (function() {
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
-      cut: onCut,
       paste: onPaste
     });
 

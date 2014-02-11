@@ -69,39 +69,20 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    var keyboardEventsShim = saneKeyboardEvents(textarea, {
-      container: this.container,
-      key: function(key, evt) {
-        cursor.parent.keystroke(key, evt, ctrlr);
-      },
-      text: function(ch) {
-        cursor.parent.write(cursor, ch, ctrlr.notify().cursor.show().replaceSelection());
-      },
-      cut: function(e) {
-        if (cursor.selection) {
-          setTimeout(function() {
-            ctrlr.notify('edit'); // deletes selection if present
-            cursor.parent.bubble('redraw');
-          });
-        }
-
-        e.stopPropagation();
-      },
-      paste: function(text) {
-        // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
-        if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-          text = text.slice(1, -1);
-        }
-        else {
-          text = '\\text{' + text + '}';
-        }
-
-        ctrlr.writeLatex(text).cursor.show();
-      }
-    });
+    var keyboardEventsShim = saneKeyboardEvents(textarea, this);
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
 
-    this.container.prepend(textareaSpan);
+    this.container.prepend(textareaSpan)
+    .on('cut', function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          ctrlr.notify('edit'); // deletes selection if present
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    });
 
     textarea.focus(function(e) {
       ctrlr.blurred = false;
@@ -120,5 +101,20 @@ Controller.open(function(_) {
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');
     }).blur();
+  };
+  _.typedText = function(ch) {
+    var cursor = this.notify().cursor;
+    cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
+  };
+  _.paste = function(text) {
+    // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
+    if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+      text = text.slice(1, -1);
+    }
+    else {
+      text = '\\text{' + text + '}';
+    }
+
+    this.writeLatex(text).cursor.show();
   };
 });
