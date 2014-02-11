@@ -24,8 +24,8 @@ var latexMathParser = (function() {
   var fail = Parser.fail;
 
   // Parsers yielding MathCommands
-  var variable = letter.map(Variable);
-  var symbol = regex(/^[^${}\\_^]/).map(VanillaSymbol);
+  var variable = letter.map(function(c) { return Variable(c); });
+  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
   var controlSequence =
     regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
