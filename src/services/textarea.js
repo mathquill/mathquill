@@ -77,16 +77,6 @@ Controller.open(function(_) {
       text: function(ch) {
         cursor.parent.write(cursor, ch, ctrlr.notify().cursor.show().replaceSelection());
       },
-      cut: function(e) {
-        if (cursor.selection) {
-          setTimeout(function() {
-            ctrlr.notify('edit'); // deletes selection if present
-            cursor.parent.bubble('redraw');
-          });
-        }
-
-        e.stopPropagation();
-      },
       paste: function(text) {
         // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
         if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
@@ -101,7 +91,17 @@ Controller.open(function(_) {
     });
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
 
-    this.container.prepend(textareaSpan);
+    this.container.prepend(textareaSpan)
+    .on('cut', function(e) {
+      if (cursor.selection) {
+        setTimeout(function() {
+          ctrlr.notify('edit'); // deletes selection if present
+          cursor.parent.bubble('redraw');
+        });
+      }
+
+      e.stopPropagation();
+    });
 
     textarea.focus(function(e) {
       ctrlr.blurred = false;

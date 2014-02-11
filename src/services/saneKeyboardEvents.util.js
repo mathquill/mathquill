@@ -96,7 +96,6 @@ var saneKeyboardEvents = (function() {
     var textCallback = opts.text || noop;
     var keyCallback = opts.key || noop;
     var pasteCallback = opts.paste || noop;
-    var onCut = opts.cut || noop;
 
     var textarea = jQuery(el);
     var target = jQuery(opts.container || textarea);
@@ -223,7 +222,6 @@ var saneKeyboardEvents = (function() {
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
-      cut: onCut,
       paste: onPaste
     });
 
