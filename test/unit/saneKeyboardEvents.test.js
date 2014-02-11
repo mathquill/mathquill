@@ -2,10 +2,6 @@ suite('key', function() {
   var el;
   var Event = jQuery.Event
 
-  function shouldNotBeCalled() {
-    assert.ok(false, 'this function should not be called');
-  }
-
   function supportsSelectionAPI() {
     return 'selectionStart' in el[0];
   }
@@ -21,14 +17,15 @@ suite('key', function() {
   test('normal keys', function(done) {
     var counter = 0;
     saneKeyboardEvents(el, {
-      text: function(text, keydown, keypress) {
+      keystroke: noop,
+      typedText: function(text, keydown, keypress) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is only called once');
         assert.equal(text, 'a', 'text comes back as a');
         assert.equal(el.val(), '', 'the textarea remains empty');
 
         done();
-      },
+      }
     });
 
     el.trigger(Event('keydown', { which: 97 }));
@@ -40,14 +37,13 @@ suite('key', function() {
     var counter = 0;
 
     saneKeyboardEvents(el, {
-      key: function(key, evt) {
+      keystroke: function(key, evt) {
         counter += 1;
         assert.ok(counter <= 1, 'callback is called only once');
         assert.equal(key, 'Backspace', 'key is correctly set');
 
         done();
-      },
-      text: shouldNotBeCalled
+      }
     });
 
     el.trigger(Event('keydown', { which: 8 }));
@@ -57,7 +53,7 @@ suite('key', function() {
     var counter = 0;
 
     saneKeyboardEvents(el, {
-      key: function(key, keydown) {
+      keystroke: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
 
@@ -65,8 +61,7 @@ suite('key', function() {
         assert.equal(key, 'Left');
 
         if (counter === 3) done();
-      },
-      text: shouldNotBeCalled
+      }
     });
 
     el.trigger(Event('keydown', { which: 37 }));
@@ -78,7 +73,7 @@ suite('key', function() {
     var counter = 0;
 
     saneKeyboardEvents(el, {
-      key: function(key, keydown) {
+      keystroke: function(key, keydown) {
         counter += 1;
         assert.ok(counter <= 3, 'callback is called at most 3 times');
 
@@ -86,8 +81,7 @@ suite('key', function() {
         assert.equal(key, 'Backspace');
 
         if (counter === 3) done();
-      },
-      text: shouldNotBeCalled
+      }
     });
 
     el.trigger(Event('keydown', { which: 8 }));
@@ -97,10 +91,8 @@ suite('key', function() {
   });
 
   suite('select', function() {
-    test('select populates the textarea but doesn\'t call text', function() {
-      var shim = saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
-      });
+    test('select populates the textarea but doesn\'t call .typedText()', function() {
+      var shim = saneKeyboardEvents(el, { keystroke: noop });
 
       shim.select('foobar');
 
@@ -119,7 +111,7 @@ suite('key', function() {
     test('select populates the textarea but doesn\'t call text' +
          ' on keydown, even when the selection is not properly' +
          ' detectable', function() {
-      var shim = saneKeyboardEvents(el, { text: shouldNotBeCalled });
+      var shim = saneKeyboardEvents(el, { keystroke: noop });
 
       shim.select('foobar');
       // monkey-patch the dom-level selection so that hasSelection()
@@ -131,9 +123,7 @@ suite('key', function() {
     });
 
     test('blurring', function() {
-      var shim = saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
-      });
+      var shim = saneKeyboardEvents(el, { keystroke: noop });
 
       shim.select('foobar');
       el.trigger('blur');
@@ -163,7 +153,7 @@ suite('key', function() {
         assert.equal(pastedText, '$x^2+1$');
         assert.equal(el.val(), '$\\frac{x^2+1}{2}$');
 
-        onPaste = shouldNotBeCalled;
+        onPaste = null;
 
         shim.select('$2$');
         assert.equal(el.val(), '$2$');
@@ -182,7 +172,7 @@ suite('key', function() {
         assert.equal(pastedText, '$x^2+1$');
         assert.equal(el.val(), '');
 
-        onPaste = shouldNotBeCalled;
+        onPaste = null;
 
         shim.select('$\\frac{x^2+1}{2}$');
         assert.equal(el.val(), '$\\frac{x^2+1}{2}$');
@@ -195,7 +185,8 @@ suite('key', function() {
         var typedText;
         var onText = function(text) { typedText = text; };
         var shim = saneKeyboardEvents(el, {
-          text: function(text) { onText(text); }
+          keystroke: noop,
+          typedText: function(text) { onText(text); }
         });
 
         el.trigger(Event('keydown', { which: 97 }));
@@ -206,7 +197,7 @@ suite('key', function() {
         assert.equal(typedText, 'a');
         assert.equal(el.val(), '$\\frac{a}{2}$');
 
-        onText = shouldNotBeCalled;
+        onText = null;
 
         shim.select('$2$');
         assert.equal(el.val(), '$2$');
@@ -216,7 +207,8 @@ suite('key', function() {
         var typedText;
         var onText = function(text) { typedText = text; };
         var shim = saneKeyboardEvents(el, {
-          text: function(text) { onText(text); }
+          keystroke: noop,
+          typedText: function(text) { onText(text); }
         });
 
         el.trigger(Event('keydown', { which: 97 }));
@@ -226,7 +218,7 @@ suite('key', function() {
         el.trigger('input');
         assert.equal(typedText, 'a');
 
-        onText = shouldNotBeCalled;
+        onText = null;
 
         shim.select('$\\frac{a}{2}$');
         assert.equal(el.val(), '$\\frac{a}{2}$');
@@ -240,7 +232,6 @@ suite('key', function() {
   suite('paste', function() {
     test('paste event only', function(done) {
       saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
         paste: function(text) {
           assert.equal(text, '$x^2+1$');
 
@@ -254,7 +245,7 @@ suite('key', function() {
 
     test('paste after keydown/keypress', function(done) {
       saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
+        keystroke: noop,
         paste: function(text) {
           assert.equal(text, 'foobar');
           done();
@@ -271,7 +262,7 @@ suite('key', function() {
 
     test('paste after keydown/keypress/input', function(done) {
       saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
+        keystroke: noop,
         paste: function(text) {
           assert.equal(text, 'foobar');
           done();
@@ -289,7 +280,7 @@ suite('key', function() {
 
     test('keypress timeout happening before paste timeout', function(done) {
       saneKeyboardEvents(el, {
-        text: shouldNotBeCalled,
+        keystroke: noop,
         paste: function(text) {
           assert.equal(text, 'foobar');
           done();

@@ -71,10 +71,10 @@ Controller.open(function(_) {
 
     var keyboardEventsShim = saneKeyboardEvents(textarea, {
       container: this.container,
-      key: function(key, evt) {
+      keystroke: function(key, evt) {
         cursor.parent.keystroke(key, evt, ctrlr);
       },
-      text: function(ch) {
+      typedText: function(ch) {
         cursor.parent.write(cursor, ch, ctrlr.notify().cursor.show().replaceSelection());
       },
       paste: function(text) {
