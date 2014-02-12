@@ -108,6 +108,10 @@ MathQuill instance:
 * `.html()` returns the contents as static HTML
 * `.latex()` returns the contents as LaTeX
 * `.latex('a_n x^n')` will render the argument as LaTeX
+
+Additionally, descendants of `MathQuill.EditableField` (currently only
+`MathQuill.MathField`) expose:
+
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
   with the current selection
