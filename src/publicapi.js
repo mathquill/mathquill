@@ -39,10 +39,10 @@ window.MathQuill = MathQuill;
  * Note that they always returns an instance of themselves, or null.
  */
 function setMathQuillDot(name, API) {
-  MathQuill[name] = function(el) {
+  MathQuill[name] = function(el, opts) {
     var mq = MathQuill(el);
     if (mq instanceof API || !el.nodeType) return mq;
-    return API($(el));
+    return API($(el), opts);
   };
   MathQuill[name].prototype = API.prototype;
 }
@@ -150,11 +150,36 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   };
 });
 
+function RootBlockMixin(_) {
+  _.handlers = {};
+
+  function setHandler(uniName, leftName, rightName) {
+    _[uniName] = function(dir, cursor) {
+      if (this.handlers[uniName]) this.handlers[uniName](dir);
+      var handlerName = (dir === L ? leftName : rightName);
+      if (this.handlers[handlerName]) this.handlers[handlerName]();
+    };
+  }
+  setHandler('moveOutOf', 'leftOutOf', 'rightOutOf');
+  setHandler('deleteOutOf', 'backspaceOutOf', 'delOutOf');
+  setHandler('selectOutOf', 'selectLeftOutOf', 'selectRightOutOf');
+
+  _.upOutOf = function() {
+    if (this.handlers.upOutOf) this.handlers.upOutOf();
+    return false;
+  };
+  _.downOutOf = function() {
+    if (this.handlers.downOutOf) this.handlers.downOutOf();
+    return false;
+  };
+}
+
 setMathQuillDot('MathField', P(EditableField, function(_, _super) {
-  _.init = function(el) {
+  _.init = function(el, opts) {
     el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);
-    this.initRoot(MathBlock(), el);
+    this.initRoot(RootMathBlock(), el);
+    this.controller.root.handlers = opts && opts.handlers || {};
     this.controller.renderLatexMath(contents);
     this.initEvents();
   };

@@ -181,7 +181,7 @@ Controller.open(function(_) {
       cursor.insDirOf(dir, cursor.selection.ends[dir]);
     }
     else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor);
-    else if (cursor.parent !== this.root) cursor.parent.moveOutOf(dir, cursor);
+    else cursor.parent.moveOutOf(dir, cursor);
 
     return this.notify('move');
   };
@@ -210,7 +210,7 @@ Controller.open(function(_) {
     else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
     else {
       var ancestor = cursor;
-      do {
+      while (true) {
         ancestor = ancestor.parent;
         var prop = ancestor[dirOutOf];
         if (prop) {
@@ -221,7 +221,7 @@ Controller.open(function(_) {
             break;
           }
         }
-      } while (ancestor !== self.root);
+      }
     }
     return self;
   }
@@ -236,7 +236,7 @@ Controller.open(function(_) {
     this.notify('edit'); // deletes selection if present
     if (!hadSelection) {
       if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
-      else if (cursor.parent !== this.root) cursor.parent.deleteOutOf(dir, cursor);
+      else cursor.parent.deleteOutOf(dir, cursor);
     }
 
     if (cursor[L])
@@ -267,9 +267,7 @@ Controller.open(function(_) {
       }
       else node.selectTowards(dir, cursor);
     }
-    else if (cursor.parent !== this.root) {
-      cursor.parent.selectOutOf(dir, cursor);
-    }
+    else cursor.parent.selectOutOf(dir, cursor);
 
     cursor.clearSelection();
     cursor.select() || cursor.show();

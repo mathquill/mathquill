@@ -132,6 +132,33 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
+`MathQuill.MathField()` can also take an options object, currently the only
+supported option is `handlers`:
+```js
+var L = MathQuill.L, R = MathQuill.R;
+var el = $('<span>x^2</span>').appendTo('body');
+var mathField = MathQuill.MathField(el[0], {
+  handlers: {
+    upOutOf: function() { ... },
+    downOutOf: function() { ... },
+    moveOutOf: function(dir) { if (dir === L) ... else ... }
+  }
+});
+```
+Supported handlers:
+- `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with a `dir` argument
+- `leftOutOf`, `rightOutOf`, `backspaceOutOf`, `delOutOf`, `selectLeftOutOf`,
+  `selectRightOutOf`, `upOutOf`, and `downOutOf` are called without arguments
+
+When the cursor is at the left edge, pressing the Left key will cause the
+`moveOutOf` handler (if any) to be called with `MathQuill.L` as the sole
+argument, and `leftOutOf` (if any) to be called with no argument; pressing
+Backspace will cause `deleteOutOf` (if any) to be called with `MathQuill.L` and
+`backspaceOutOf` (if any) to be called with no arguments; etc. Basically, the
+handlers are called when Left/Right/Up/Down/Backspace/Del/Shift-Left/Shift-Right
+is pressed but the cursor is at the left/right/top/bottom edge, so nothing
+happens within the math field.
+
 **A Note On Changing Colors:**
 
 To change the foreground color, don't just set the `color`, also set

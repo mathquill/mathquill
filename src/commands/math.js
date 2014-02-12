@@ -415,3 +415,5 @@ var MathBlock = P(MathElement, function(_, _super) {
     return this;
   };
 });
+
+var RootMathBlock = P(MathBlock, RootBlockMixin);

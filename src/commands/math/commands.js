@@ -584,6 +584,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, container) {
+    RootBlockMixin(root);
     var ctrlr = this.controller = root.controller = Controller(root, container);
     ctrlr.API = this;
     ctrlr.editable = true;

@@ -349,7 +349,7 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
 });
 
-var RootTextBlock = P(MathBlock, function(_, _super) {
+var RootTextBlock = P(RootMathBlock, function(_, _super) {
   _.keystroke = function(key) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
     return _super.keystroke.apply(this, arguments);
