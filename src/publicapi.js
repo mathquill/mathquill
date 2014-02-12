@@ -122,6 +122,32 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };
+  _.select = function() {
+    var ctrlr = this.controller;
+    ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
+    while (cursor[L]) ctrlr.selectLeft();
+    return this;
+  };
+  _.clearSelection = function() {
+    this.controller.cursor.clearSelection();
+    return this;
+  };
+
+  _.moveToDirEnd = function(dir) {
+    this.controller.notify('move').cursor.insAtDirEnd(dir, this.controller.root);
+    return this;
+  };
+  _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
+  _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
+
+  _.keystroke = function(key) {
+    this.controller.keystroke(key, { preventDefault: noop });
+    return this;
+  };
+  _.typedText = function(ch) {
+    this.controller.typedText(ch);
+    return this;
+  };
 });
 
 setMathQuillDot('MathField', P(EditableField, function(_, _super) {

@@ -115,6 +115,22 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
   with the current selection
+* `.select()` selects the contents (just like [on `textarea`s][] and [on
+  `input`s][])
+* `.clearSelection()` clears the current selection
+* `.moveTo{Left,Right,Dir}End()` move the cursor to the left/right end of the
+  editable field, respectively. (The first two are implemented in terms of
+  `.moveToDirEnd(dir)` where `dir` is one of `MathQuill.L` or `MathQuill.R`,
+  constants obeying the contract that `MathQuill.L === -MathQuill.R` and vice
+  versa.)
+* `.keystroke(key)` simulates a keystroke, where `key` is a string like
+  `Home` or `Shift-Right`: [one of these key values][] preceeded optionally by
+  modifier prefixes
+* `.typedText(ch)` simulates typing a single character, `ch`
+
+[on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
+[on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
+[one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
 **A Note On Changing Colors:**
 
