@@ -37,10 +37,7 @@ Controller.open(function(_) {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
-      latex = this.cursor.selection.fold('', function(latex, el) {
-        return latex + el.latex();
-      });
-      latex = '$' + latex + '$';
+      latex = '$' + this.cursor.selection.join('latex') + '$';
     }
     this.selectFn(latex);
   };
