@@ -82,15 +82,8 @@ td {
 <script type="text/javascript">
   $(function() {
     setTimeout(function() {
-      var test = $('#redrawing-test');
-      var textarea = test.find('textarea');
-
-      // focus
-      test.focus();
-
-      // move left into the square root
-      textarea.trigger($.Event('keydown', { which: 37 }));
-
+      MathQuill($('#redrawing-test')[0]).focus().keystroke('Left');
+      var textarea = $('#redrawing-test textarea');
       // paste some stuff that needs resizing
       textarea.trigger('paste');
       textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');

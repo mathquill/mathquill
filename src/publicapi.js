@@ -125,7 +125,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.select = function() {
     var ctrlr = this.controller;
     ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
-    while (cursor[L]) ctrlr.selectLeft();
+    while (ctrlr.cursor[L]) ctrlr.selectLeft();
     return this;
   };
   _.clearSelection = function() {

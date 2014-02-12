@@ -1,7 +1,7 @@
 suite('up/down', function() {
   var mq, rootBlock, controller, cursor;
   setup(function() {
-    mq = MathQuill.StaticMath($('<span></span>').appendTo('#mock')[0]);
+    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     rootBlock = mq.controller.root;
     controller = mq.controller;
     cursor = controller.cursor;
@@ -14,8 +14,7 @@ suite('up/down', function() {
     // like, move('Left Left Left Up')
     dirs = dirs.split(' ');
     for (var i in dirs) {
-      var dir = dirs[i];
-      controller['move'+dir]();
+      mq.keystroke(dirs[i]);
     }
   }
 
