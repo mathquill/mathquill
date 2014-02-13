@@ -38,10 +38,6 @@ Node.open(function(_) {
       ctrlr.escapeDir(L, key, e);
       return;
 
-    // Prevent newlines from showing up
-    case 'Enter': break;
-
-
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);

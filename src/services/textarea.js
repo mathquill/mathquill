@@ -100,6 +100,7 @@ Controller.open(function(_) {
     }).blur();
   };
   _.typedText = function(ch) {
+    if (ch === '\n') return;
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
   };
