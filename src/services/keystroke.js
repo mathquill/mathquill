@@ -239,7 +239,7 @@ Controller.open(function(_) {
       cursor[L].respace();
     if (cursor[R])
       cursor[R].respace();
-    cursor.parent.bubble('redraw');
+    cursor.parent.bubble('edited');
 
     return this;
   };

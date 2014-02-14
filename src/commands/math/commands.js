@@ -173,7 +173,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     else
       return this.ctrlSeq + '{' + (latex || ' ') + '}';
   };
-  _.redraw = function() {
+  _.edited = function() {
     if (this[L])
       this[L].respace();
     //SupSub::respace recursively calls respace on all the following SupSubs
@@ -315,7 +315,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
       });
     }).or(_super.parser.call(this));
   };
-  _.redraw = function() {
+  _.edited = function() {
     var block = this.ends[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
@@ -367,7 +367,7 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.latex = function() {
     return this.ctrlSeq + this.ends[L].latex() + this.end;
   };
-  _.redraw = function() {
+  _.edited = function() {
     var blockjQ = this.ends[L].jQ;
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
@@ -567,7 +567,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     + '<span class="paren scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
-  _.redraw = function() {
+  _.edited = function() {
     var blockjQ = this.jQ.eq(1);
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);

@@ -30,7 +30,7 @@ var TextBlock = P(Node, function(_, _super) {
     if (textBlock[R].respace) textBlock[R].respace();
     if (textBlock[L].respace) textBlock[L].respace();
 
-    textBlock.bubble('redraw');
+    textBlock.bubble('edited');
 
     cursor.insAtRightEnd(textBlock);
 

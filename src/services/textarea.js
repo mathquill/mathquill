@@ -74,7 +74,7 @@ Controller.open(function(_) {
       if (cursor.selection) {
         setTimeout(function() {
           ctrlr.notify('edit'); // deletes selection if present
-          cursor.parent.bubble('redraw');
+          cursor.parent.bubble('edited');
         });
       }
 

@@ -90,7 +90,7 @@ Controller.open(function(_, _super) {
       jQ.insertBefore(cursor.jQ);
       cursor[L] = block.ends[R];
       block.finalizeInsert();
-      cursor.parent.bubble('redraw');
+      cursor.parent.bubble('edited');
     }
 
     return this;
