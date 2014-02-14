@@ -82,10 +82,7 @@ var AbstractMathQuill = P(function(_) {
       .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
   };
   _.redraw = function() {
-    (function postOrderRedraw(el) {
-      el.eachChild(postOrderRedraw);
-      if (el.redraw) el.redraw();
-    }(this.controller.root));
+    this.controller.root.postOrder('redraw');
     return this;
   };
 });
