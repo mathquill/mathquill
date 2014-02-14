@@ -73,7 +73,7 @@ td {
 
 <h3>Redrawing</h3>
 <p>
-  <span id="redrawing-test" class="mathquill-editable">\sqrt{}</span>
+  <span id="redrawing-test">\sqrt{}</span>
   should look the same as
   <span class="mathquill-embedded-latex">
     \sqrt{\pi\sqrt\sqrt\frac12}
@@ -81,13 +81,16 @@ td {
 </p>
 <script type="text/javascript">
   $(function() {
-    setTimeout(function() {
-      MathQuill($('#redrawing-test')[0]).focus().keystroke('Left');
-      var textarea = $('#redrawing-test textarea');
-      // paste some stuff that needs resizing
-      textarea.trigger('paste');
-      textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');
-    });
+    var count = 0;
+    MathQuill.MathField($('#redrawing-test')[0], {
+      handlers: { edited: function() { count += 1; } }, // also test 'edited' hook
+    }).focus().keystroke('Left');
+    var textarea = $('#redrawing-test textarea');
+    var oldcount = count;
+    // paste some stuff that needs resizing
+    textarea.trigger('paste');
+    textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');
+    setTimeout(function() { if (count === oldcount) throw 'edited not called'; });
   });
 </script>
 

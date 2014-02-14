@@ -169,6 +169,8 @@ function RootBlockMixin(_) {
     if (this.handlers.downOutOf) this.handlers.downOutOf();
     return false;
   };
+
+  _.edited = function() { if (this.handlers.edited) this.handlers.edited(); };
 }
 
 setMathQuillDot('MathField', P(EditableField, function(_, _super) {
