@@ -86,14 +86,15 @@ $(function() {
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.html()));
     });
-  }).keydown().focus();
+  }).keydown();
+  latexMath.focus();
 
   latexSource.bind('keydown keypress', function() {
     var oldtext = latexSource.val();
     setTimeout(function() {
       var newtext = latexSource.val();
       if(newtext !== oldtext) {
-        latexMath.latex('newtext');
+        latexMath.latex(newtext);
         htmlSource.text(printTree(latexMath.html()));
       }
     });
