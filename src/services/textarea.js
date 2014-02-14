@@ -101,7 +101,7 @@ Controller.open(function(_) {
   };
   _.typedText = function(ch) {
     if (ch === '\n') {
-      if (this.root.handlers.enter) this.root.handlers.enter();
+      if (this.root.handlers.enter) this.root.handlers.enter(this.API);
       return;
     }
     var cursor = this.notify().cursor;

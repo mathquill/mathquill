@@ -149,12 +149,17 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
 
 function RootBlockMixin(_) {
   _.handlers = {};
+  _.setHandlers = function(handlers, extraArg) {
+    if (!handlers) return;
+    this.handlers = handlers;
+    this.extraArg = extraArg; // extra context arg for handlers
+  };
 
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf edited'.split(' ');
   for (var i = 0; i < names.length; i += 1) (function(name) {
-    _[name] = function(dir) {
-      if (this.handlers[name]) this.handlers[name](dir);
-    };
+    _[name] = (i < 3
+      ? function(dir) { if (this.handlers[name]) this.handlers[name](dir, this.extraArg); }
+      : function() { if (this.handlers[name]) this.handlers[name](this.extraArg); });
   }(names[i]));
 }
 
@@ -163,7 +168,7 @@ setMathQuillDot('MathField', P(EditableField, function(_, _super) {
     el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);
     this.initRoot(RootMathBlock(), el);
-    this.controller.root.handlers = opts && opts.handlers || {};
+    this.controller.root.setHandlers(opts && opts.handlers, this);
     this.controller.renderLatexMath(contents);
     this.initEvents();
   };
