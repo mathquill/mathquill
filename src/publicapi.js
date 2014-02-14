@@ -161,14 +161,8 @@ function RootBlockMixin(_) {
   setHandler('deleteOutOf', 'backspaceOutOf', 'delOutOf');
   setHandler('selectOutOf', 'selectLeftOutOf', 'selectRightOutOf');
 
-  _.upOutOf = function() {
-    if (this.handlers.upOutOf) this.handlers.upOutOf();
-    return false;
-  };
-  _.downOutOf = function() {
-    if (this.handlers.downOutOf) this.handlers.downOutOf();
-    return false;
-  };
+  _.upOutOf = function() { if (this.handlers.upOutOf) this.handlers.upOutOf(); };
+  _.downOutOf = function() { if (this.handlers.downOutOf) this.handlers.downOutOf(); };
 
   _.edited = function() { if (this.handlers.edited) this.handlers.edited(); };
 }

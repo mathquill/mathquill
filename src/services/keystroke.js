@@ -190,12 +190,11 @@ Controller.open(function(_) {
    * - else check the parent's 'upOutOf'/'downOutOf' property:
    *   + if it's a function, call it with the cursor as the sole argument and
    *     use the return value as if it were the value of the property
-   *   + if it's undefined, bubble up to the next ancestor.
-   *   + if it's false, stop bubbling.
    *   + if it's a Node, jump up or down into it:
    *     - if there is a cached Point in the block, insert there
    *     - else, seekHoriz within the block to the current x-coordinate (to be
    *       as close to directly above/below the current position as possible)
+   *   + unless it's exactly `true`, stop bubbling
    */
   _.moveUp = function() { return moveUpDown(this, 'up'); };
   _.moveDown = function() { return moveUpDown(this, 'down'); };
@@ -209,11 +208,8 @@ Controller.open(function(_) {
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
-          if (prop === false) return false;
-          if (prop instanceof Node) {
-            cursor.jumpUpDown(ancestor, prop);
-            return false;
-          }
+          if (prop instanceof Node) cursor.jumpUpDown(ancestor, prop);
+          if (prop !== true) return false;
         }
       });
     }

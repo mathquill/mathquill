@@ -156,14 +156,10 @@ var SupSub = P(MathCommand, function(_, _super) {
       // ancestor cmd is at the end of every ancestor block
       var cmd = this.parent, ancestorCmd = cursor;
       do {
-        if (ancestorCmd[R]) {
-          cursor.insLeftOf(cmd);
-          return false;
-        }
+        if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
         ancestorCmd = ancestorCmd.parent.parent;
       } while (ancestorCmd !== cmd);
       cursor.insRightOf(cmd);
-      return false;
     }
   };
   _.latex = function() {
