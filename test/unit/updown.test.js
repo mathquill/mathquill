@@ -181,4 +181,17 @@ suite('up/down', function() {
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is at right end goes out of subscript');
     assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is at right end goes after subscript');
   });
+
+  test('\\MathQuillMathField{} in a fraction', function() {
+    var outer = MathQuill.MathField(
+      $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
+    );
+    var inner = MathQuill($(outer.el()).find('.mathquill-editable')[0]);
+
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+    inner.keystroke('Down');
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+
+    $(outer.el()).remove();
+  });
 });
