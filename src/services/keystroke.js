@@ -205,19 +205,17 @@ Controller.open(function(_) {
     if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
     else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
     else {
-      var ancestor = cursor;
-      while (true) {
-        ancestor = ancestor.parent;
+      cursor.parent.bubble(function(ancestor) {
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
-          if (prop === false) break;
+          if (prop === false) return false;
           if (prop instanceof Node) {
             cursor.jumpUpDown(ancestor, prop);
-            break;
+            return false;
           }
         }
-      }
+      });
     }
     return self;
   }
