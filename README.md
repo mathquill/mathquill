@@ -147,20 +147,21 @@ var mathField = MathQuill.MathField(el[0], {
 ```
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with a `dir` argument
-- `leftOutOf`, `rightOutOf`, `backspaceOutOf`, `delOutOf`, `selectLeftOutOf`,
-  `selectRightOutOf`, `upOutOf`, `downOutOf`, `enter`, and `edited` are called
-  without arguments
+- `upOutOf`, `downOutOf`, `enter`, and `edited` are called without arguments
 
-When the cursor is at the left edge, pressing the Left key will cause the
-`moveOutOf` handler (if any) to be called with `MathQuill.L` as the sole
-argument, and `leftOutOf` (if any) to be called with no argument; pressing
-Backspace will cause `deleteOutOf` (if any) to be called with `MathQuill.L` and
-`backspaceOutOf` (if any) to be called with no arguments; etc. Basically, the
-handlers are called when Left/Right/Up/Down/Backspace/Del/Shift-Left/Shift-Right
-is pressed but the cursor is at the left/right/top/bottom edge, so nothing
-happens within the math field. The 2 exceptions are `enter`, which is called
-when Enter is pressed, and `edited`, which is called (not necessarily only)
-when the field is edited (stuff is typed in, deleted, written with API, etc).
+The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
+Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom
+edge and so nothing happens within the math field. For example, when the cursor
+is at the left edge, pressing the Left key causes the `moveOutOf` handler (if
+provided) to be called with `MathQuill.L`, and Backspace causes `deleteOutOf`
+(if provided) to be called with `MathQuill.L`, etc.
+
+The `enter` handler is called whenever Enter is pressed.
+
+The `edited` handler is called when the field is edited (stuff is typed in,
+deleted, written with the API, etc), and occasionally for no reason. (That is,
+there's no guarantee the field has changed between calls to `edited`, but it is
+guaranteed `edited` is called whenever the field does change.)
 
 **A Note On Changing Colors:**
 

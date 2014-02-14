@@ -150,21 +150,12 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
 function RootBlockMixin(_) {
   _.handlers = {};
 
-  function setHandler(uniName, leftName, rightName) {
-    _[uniName] = function(dir, cursor) {
-      if (this.handlers[uniName]) this.handlers[uniName](dir);
-      var handlerName = (dir === L ? leftName : rightName);
-      if (this.handlers[handlerName]) this.handlers[handlerName]();
+  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf edited'.split(' ');
+  for (var i = 0; i < names.length; i += 1) (function(name) {
+    _[name] = function(dir) {
+      if (this.handlers[name]) this.handlers[name](dir);
     };
-  }
-  setHandler('moveOutOf', 'leftOutOf', 'rightOutOf');
-  setHandler('deleteOutOf', 'backspaceOutOf', 'delOutOf');
-  setHandler('selectOutOf', 'selectLeftOutOf', 'selectRightOutOf');
-
-  _.upOutOf = function() { if (this.handlers.upOutOf) this.handlers.upOutOf(); };
-  _.downOutOf = function() { if (this.handlers.downOutOf) this.handlers.downOutOf(); };
-
-  _.edited = function() { if (this.handlers.edited) this.handlers.edited(); };
+  }(names[i]));
 }
 
 setMathQuillDot('MathField', P(EditableField, function(_, _super) {

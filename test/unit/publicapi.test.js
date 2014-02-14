@@ -31,13 +31,13 @@ suite('Public API', function() {
   });
 
   test('*OutOf handlers', function() {
-    var upCounter = 0, moveCounter = 0, dir = null, backspaceCounter = 0;
+    var upCounter = 0, moveCounter = 0, dir = null, deleteCounter = 0;
 
     var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0], {
       handlers: {
         upOutOf: function() { upCounter += 1; },
         moveOutOf: function(d) { moveCounter += 1; dir = d; },
-        backspaceOutOf: function() { backspaceCounter += 1; }
+        deleteOutOf: function(d) { deleteCounter += 1; dir = d; }
       }
     });
 
@@ -73,13 +73,15 @@ suite('Public API', function() {
     mq.keystroke('Left'); // stays at left edge
     assert.equal(moveCounter, 3);
     assert.equal(dir, L);
-    assert.equal(backspaceCounter, 0);
+    assert.equal(deleteCounter, 0);
 
     mq.keystroke('Backspace'); // stays at left edge
-    assert.equal(backspaceCounter, 1);
+    assert.equal(deleteCounter, 1);
+    assert.equal(dir, L);
 
     mq.keystroke('Backspace'); // stays at left edge
-    assert.equal(backspaceCounter, 2);
+    assert.equal(deleteCounter, 2);
+    assert.equal(dir, L);
 
     mq.keystroke('Left'); // stays at left edge
     assert.equal(moveCounter, 4);
