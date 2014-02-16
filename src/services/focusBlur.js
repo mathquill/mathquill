@@ -31,7 +31,7 @@ Controller.open(function(_) {
  * outside Controller::focusBlurEvents(), such as .postOrder('blur') on
  * insertion, which if MathBlock::blur becomes Node::blur, would add the
  * 'blur' CSS class to all Symbol's (because .isEmpty() is true for all
- * of them). (Not to mention TextPiece's don't have .isEmpty().)
+ * of them).
  *
  * I'm not even sure there aren't other troublesome calls to .focus() or
  * .blur(), so this is TODO for now.

@@ -182,7 +182,6 @@ var TextBlock = P(Node, function(_, _super) {
   }
 
   _.focus = MathBlock.prototype.focus;
-  _.isEmpty = MathBlock.prototype.isEmpty;
 });
 
 /**
