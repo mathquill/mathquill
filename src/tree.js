@@ -151,6 +151,10 @@ var Node = P(function(_) {
     return this;
   });
 
+  _.isEmpty = function() {
+    return this.ends[L] === 0 && this.ends[R] === 0;
+  };
+
   _.children = function() {
     return Fragment(this.ends[L], this.ends[R]);
   };

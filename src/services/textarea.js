@@ -84,23 +84,7 @@ Controller.open(function(_) {
       e.stopPropagation();
     });
 
-    textarea.focus(function(e) {
-      ctrlr.blurred = false;
-      if (!cursor.parent)
-        cursor.insAtRightEnd(root);
-      cursor.parent.jQ.addClass('hasCursor');
-      if (cursor.selection) {
-        cursor.selection.jQ.removeClass('blur');
-        ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
-      }
-      else
-        cursor.show();
-    }).blur(function(e) {
-      ctrlr.blurred = true;
-      cursor.hide().parent.blur();
-      if (cursor.selection)
-        cursor.selection.jQ.addClass('blur');
-    }).blur();
+    this.focusBlurEvents();
   };
   _.typedText = function(ch) {
     var cursor = this.notify().cursor;

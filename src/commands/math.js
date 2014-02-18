@@ -348,9 +348,6 @@ var MathBlock = P(MathElement, function(_, _super) {
       '(' + this.join('text') + ')'
     ;
   };
-  _.isEmpty = function() {
-    return this.ends[L] === 0 && this.ends[R] === 0;
-  };
 
   _.keystroke = function(key, e, ctrlr) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') {
