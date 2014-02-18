@@ -37,10 +37,7 @@ Controller.open(function(_) {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
-      latex = this.cursor.selection.fold('', function(latex, el) {
-        return latex + el.latex();
-      });
-      latex = '$' + latex + '$';
+      latex = '$' + this.cursor.selection.join('latex') + '$';
     }
     this.selectFn(latex);
   };
@@ -77,7 +74,7 @@ Controller.open(function(_) {
       if (cursor.selection) {
         setTimeout(function() {
           ctrlr.notify('edit'); // deletes selection if present
-          cursor.parent.bubble('redraw');
+          cursor.parent.bubble('edited');
         });
       }
 
@@ -87,6 +84,10 @@ Controller.open(function(_) {
     this.focusBlurEvents();
   };
   _.typedText = function(ch) {
+    if (ch === '\n') {
+      if (this.root.handlers.enter) this.root.handlers.enter(this.API);
+      return;
+    }
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
   };

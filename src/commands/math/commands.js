@@ -156,14 +156,10 @@ var SupSub = P(MathCommand, function(_, _super) {
       // ancestor cmd is at the end of every ancestor block
       var cmd = this.parent, ancestorCmd = cursor;
       do {
-        if (ancestorCmd[R]) {
-          cursor.insLeftOf(cmd);
-          return false;
-        }
+        if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
         ancestorCmd = ancestorCmd.parent.parent;
       } while (ancestorCmd !== cmd);
       cursor.insRightOf(cmd);
-      return false;
     }
   };
   _.latex = function() {
@@ -173,7 +169,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     else
       return this.ctrlSeq + '{' + (latex || ' ') + '}';
   };
-  _.redraw = function() {
+  _.edited = function() {
     if (this[L])
       this[L].respace();
     //SupSub::respace recursively calls respace on all the following SupSubs
@@ -315,7 +311,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
       });
     }).or(_super.parser.call(this));
   };
-  _.redraw = function() {
+  _.edited = function() {
     var block = this.ends[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
@@ -367,7 +363,7 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.latex = function() {
     return this.ctrlSeq + this.ends[L].latex() + this.end;
   };
-  _.redraw = function() {
+  _.edited = function() {
     var blockjQ = this.ends[L].jQ;
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
@@ -567,7 +563,7 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     + '<span class="paren scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
-  _.redraw = function() {
+  _.edited = function() {
     var blockjQ = this.jQ.eq(1);
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
@@ -584,6 +580,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, container) {
+    RootBlockMixin(root);
     var ctrlr = this.controller = root.controller = Controller(root, container);
     ctrlr.API = this;
     ctrlr.editable = true;

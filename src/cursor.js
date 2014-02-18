@@ -248,4 +248,9 @@ var Selection = P(Fragment, function(_, _super) {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
+  _.join = function(methodName) {
+    return this.fold('', function(fold, child) {
+      return fold + child[methodName]();
+    });
+  };
 });

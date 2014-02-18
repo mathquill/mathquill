@@ -153,7 +153,7 @@ var LatexFragment = P(MathCommand, function(_) {
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert();
-    cursor.parent.bubble('redraw');
+    cursor.parent.bubble('edited');
   };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();

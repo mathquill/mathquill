@@ -15,7 +15,7 @@ var MathElement = P(Node, function(_, _super) {
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
-    // correctly in redraw.
+    // correctly by 'edited' handlers.
     self.postOrder('blur');
 
     // adjust context-sensitive spacing
@@ -23,8 +23,8 @@ var MathElement = P(Node, function(_, _super) {
     if (self[R].respace) self[R].respace();
     if (self[L].respace) self[L].respace();
 
-    self.postOrder('redraw');
-    self.bubble('redraw');
+    self.postOrder('edited');
+    self.bubble('edited');
   };
 });
 
@@ -412,3 +412,5 @@ var MathBlock = P(MathElement, function(_, _super) {
     return this;
   };
 });
+
+var RootMathBlock = P(MathBlock, RootBlockMixin);

@@ -108,9 +108,99 @@ MathQuill instance:
 * `.html()` returns the contents as static HTML
 * `.latex()` returns the contents as LaTeX
 * `.latex('a_n x^n')` will render the argument as LaTeX
+
+Additionally, descendants of `MathQuill.EditableField` (currently only
+`MathQuill.MathField`) expose:
+
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
   with the current selection
+* `.select()` selects the contents (just like [on `textarea`s][] and [on
+  `input`s][])
+* `.clearSelection()` clears the current selection
+* `.moveTo{Left,Right,Dir}End()` move the cursor to the left/right end of the
+  editable field, respectively. (The first two are implemented in terms of
+  `.moveToDirEnd(dir)` where `dir` is one of `MathQuill.L` or `MathQuill.R`,
+  constants obeying the contract that `MathQuill.L === -MathQuill.R` and vice
+  versa.)
+* `.keystroke(key)` simulates a keystroke, where `key` is a string like
+  `Home` or `Shift-Right`: [one of these key values][] preceeded optionally by
+  modifier prefixes
+* `.typedText(ch)` simulates typing a single character, `ch`
+
+[on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
+[on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
+[one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+
+#### Handlers
+
+`MathQuill.MathField()` can also take an options object, currently the only
+supported option is `handlers`:
+```js
+var L = MathQuill.L, R = MathQuill.R;
+var el = $('<span>x^2</span>').appendTo('body');
+MathQuill.MathField(el[0], {
+  handlers: {
+    edited: function(mathField) { ... },
+    upOutOf: function(mathField) { ... },
+    moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
+  }
+});
+```
+Supported handlers:
+- `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
+  math field API object as arguments
+- `upOutOf`, `downOutOf`, `enter`, and `edited` are called with just the API
+  object as the argument
+
+The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
+Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom
+edge and so nothing happens within the math field. For example, when the cursor
+is at the left edge, pressing the Left key causes the `moveOutOf` handler (if
+provided) to be called with `MathQuill.L` and the math field API object as
+arguments, and Backspace causes `deleteOutOf` (if provided) to be called with
+`MathQuill.L` and the API object as arguments, etc.
+
+The `enter` handler is called whenever Enter is pressed.
+
+The `edited` handler is called when the field is edited (stuff is typed in,
+deleted, written with the API, etc), and occasionally for no reason. (That is,
+there's no guarantee the field has changed between calls to `edited`, but it is
+guaranteed `edited` is called whenever the field does change.)
+
+Handlers are always called directly on the `handlers` object passed in,
+preserving the `this` value, so you can do stuff like:
+```js
+var MathList = P(function(_) {
+  _.init = function() {
+    this.maths = [];
+    this.el = ...
+  };
+  _.add = function() {
+    var math = MathQuill.MathField($('<span/>')[0], { handlers: this });
+    $(math.el()).appendTo(this.el);
+    math.i = this.maths.length;
+    this.maths.push(math);
+  };
+  _.moveOutOf = function(dir, math) {
+    var adjacentI = (dir === MathQuill.L ? math.i - 1 : math.i + 1);
+    var adjacentMath = this.maths[adjacentI];
+    if (adjacentMath) adjacentMath.focus().moveToDirEnd(-dir);
+  };
+  ...
+});
+```
+Of course you can always ignore the last argument, like when the handlers close
+over the math field:
+```js
+var latex = '';
+var mathField = MathQuill.MathField($('#mathfield')[0], {
+  handlers: {
+    edited: function() { latex = mathField.latex(); },
+    enter: function() { submitLatex(latex); }
+  }
+});
+```
 
 **A Note On Changing Colors:**
 

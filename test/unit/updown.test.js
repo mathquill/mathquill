@@ -1,7 +1,7 @@
 suite('up/down', function() {
   var mq, rootBlock, controller, cursor;
   setup(function() {
-    mq = MathQuill.StaticMath($('<span></span>').appendTo('#mock')[0]);
+    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     rootBlock = mq.controller.root;
     controller = mq.controller;
     cursor = controller.cursor;
@@ -14,8 +14,7 @@ suite('up/down', function() {
     // like, move('Left Left Left Up')
     dirs = dirs.split(' ');
     for (var i in dirs) {
-      var dir = dirs[i];
-      controller['move'+dir]();
+      mq.keystroke(dirs[i]);
     }
   }
 
@@ -181,5 +180,18 @@ suite('up/down', function() {
     move('Up Up');
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is at right end goes out of subscript');
     assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is at right end goes after subscript');
+  });
+
+  test('\\MathQuillMathField{} in a fraction', function() {
+    var outer = MathQuill.MathField(
+      $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
+    );
+    var inner = MathQuill($(outer.el()).find('.mathquill-editable')[0]);
+
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+    inner.keystroke('Down');
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+
+    $(outer.el()).remove();
   });
 });

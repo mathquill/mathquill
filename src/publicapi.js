@@ -39,10 +39,10 @@ window.MathQuill = MathQuill;
  * Note that they always returns an instance of themselves, or null.
  */
 function setMathQuillDot(name, API) {
-  MathQuill[name] = function(el) {
+  MathQuill[name] = function(el, opts) {
     var mq = MathQuill(el);
     if (mq instanceof API || !el.nodeType) return mq;
-    return API($(el));
+    return API($(el), opts);
   };
   MathQuill[name].prototype = API.prototype;
 }
@@ -83,10 +83,7 @@ var AbstractMathQuill = P(function(_) {
       .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
   };
   _.redraw = function() {
-    (function postOrderRedraw(el) {
-      el.eachChild(postOrderRedraw);
-      if (el.redraw) el.redraw();
-    }(this.controller.root));
+    this.controller.root.postOrder('edited');
     return this;
   };
 });
@@ -123,13 +120,56 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };
+  _.select = function() {
+    var ctrlr = this.controller;
+    ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
+    while (ctrlr.cursor[L]) ctrlr.selectLeft();
+    return this;
+  };
+  _.clearSelection = function() {
+    this.controller.cursor.clearSelection();
+    return this;
+  };
+
+  _.moveToDirEnd = function(dir) {
+    this.controller.notify('move').cursor.insAtDirEnd(dir, this.controller.root);
+    return this;
+  };
+  _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
+  _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
+
+  _.keystroke = function(key) {
+    this.controller.keystroke(key, { preventDefault: noop });
+    return this;
+  };
+  _.typedText = function(ch) {
+    this.controller.typedText(ch);
+    return this;
+  };
 });
 
+function RootBlockMixin(_) {
+  _.handlers = {};
+  _.setHandlers = function(handlers, extraArg) {
+    if (!handlers) return;
+    this.handlers = handlers;
+    this.extraArg = extraArg; // extra context arg for handlers
+  };
+
+  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf edited'.split(' ');
+  for (var i = 0; i < names.length; i += 1) (function(name) {
+    _[name] = (i < 3
+      ? function(dir) { if (this.handlers[name]) this.handlers[name](dir, this.extraArg); }
+      : function() { if (this.handlers[name]) this.handlers[name](this.extraArg); });
+  }(names[i]));
+}
+
 setMathQuillDot('MathField', P(EditableField, function(_, _super) {
-  _.init = function(el) {
+  _.init = function(el, opts) {
     el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);
-    this.initRoot(MathBlock(), el);
+    this.initRoot(RootMathBlock(), el);
+    this.controller.root.setHandlers(opts && opts.handlers, this);
     this.controller.renderLatexMath(contents);
     this.initEvents();
   };
