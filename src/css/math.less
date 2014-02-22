@@ -105,9 +105,34 @@
   ////
   // ^, _
   // sup/sub
-  sup, sub {
-    position: relative;
+  .supsub {
     font-size: 90%;
+    vertical-align: -.5em;
+    &.limit {
+      font-size: 80%;
+      vertical-align: -.4em;
+    }
+
+    &.sup-only {
+      vertical-align: .5em;
+
+      .sup {
+        display: inline-block;
+        vertical-align: bottom;
+      }
+    }
+
+    .sup {
+      display: block;
+    }
+
+    .sub {
+      display: block;
+      float: left;
+    }
+    &.limit .sub {
+      margin-left: -.25em;
+    }
 
     .binary-operator {
       padding: 0 .1em;
@@ -115,10 +140,6 @@
 
     .unary-operator {
       padding-left: .1em;
-    }
-
-    &.limit, &.nthroot {
-      font-size: 80%;
     }
 
     // special styles for fractions
@@ -137,25 +158,12 @@
     }
   }
 
-  sup {
-    vertical-align: .5em;
-    &.limit, &.nthroot {
-      vertical-align: 0.8em
-    }
-
-    &.nthroot {
-      margin-right: -.6em;
-      margin-left: .2em;
-      min-width: .5em;
-    }
-  }
-
-  sub {
-    vertical-align: -.4em;
-
-    &.limit {
-      vertical-align: -.6em;
-    }
+  sup.nthroot {
+    font-size: 80%;
+    vertical-align: 0.8em;
+    margin-right: -.6em;
+    margin-left: .2em;
+    min-width: .5em;
   }
 
   ////

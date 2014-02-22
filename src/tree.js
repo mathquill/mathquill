@@ -186,6 +186,26 @@ var Node = P(function(_) {
   };
 });
 
+function prayWellFormed(parent, leftward, rightward) {
+  pray('a parent is always present', parent);
+  pray('leftward is properly set up', (function() {
+    // either it's empty and `rightward` is the left end child (possibly empty)
+    if (!leftward) return parent.ends[L] === rightward;
+
+    // or it's there and its [R] and .parent are properly set up
+    return leftward[R] === rightward && leftward.parent === parent;
+  })());
+
+  pray('rightward is properly set up', (function() {
+    // either it's empty and `leftward` is the right end child (possibly empty)
+    if (!rightward) return parent.ends[R] === leftward;
+
+    // or it's there and its [L] and .parent are properly set up
+    return rightward[L] === leftward && rightward.parent === parent;
+  })());
+}
+
+
 /**
  * An entity outside the virtual tree with one-way pointers (so it's only a
  * "view" of part of the tree, not an actual node/entity in the tree) that
@@ -217,25 +237,6 @@ var Fragment = P(function(_) {
     this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
   _.jQ = $();
-
-  function prayWellFormed(parent, leftward, rightward) {
-    pray('a parent is always present', parent);
-    pray('leftward is properly set up', (function() {
-      // either it's empty and `rightward` is the left end child (possibly empty)
-      if (!leftward) return parent.ends[L] === rightward;
-
-      // or it's there and its [R] and .parent are properly set up
-      return leftward[R] === rightward && leftward.parent === parent;
-    })());
-
-    pray('rightward is properly set up', (function() {
-      // either it's empty and `leftward` is the right end child (possibly empty)
-      if (!rightward) return parent.ends[R] === leftward;
-
-      // or it's there and its [L] and .parent are properly set up
-      return rightward[L] === leftward && rightward.parent === parent;
-    })());
-  }
 
   _.adopt = function(parent, leftward, rightward) {
     prayWellFormed(parent, leftward, rightward);

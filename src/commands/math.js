@@ -11,6 +11,7 @@ var MathElement = P(Node, function(_, _super) {
   _.finalizeInsert = function() {
     var self = this;
     self.postOrder('finalizeTree');
+    self.postOrder('contactWeld');
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
