@@ -45,4 +45,12 @@ suite('SupSub', function() {
       });
     });
   });
+
+  test('render LaTeX with 2 SupSub\'s in a row', function() {
+    mq.latex('x_a_b');
+    assert.equal(mq.latex(), 'x_{ab}');
+
+    mq.latex('x^a^b');
+    assert.equal(mq.latex(), 'x^{ab}');
+  });
 });
