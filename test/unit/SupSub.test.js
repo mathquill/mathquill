@@ -50,7 +50,19 @@ suite('SupSub', function() {
     mq.latex('x_a_b');
     assert.equal(mq.latex(), 'x_{ab}');
 
+    mq.latex('x_a_{}');
+    assert.equal(mq.latex(), 'x_a');
+
+    mq.latex('x_{}_a');
+    assert.equal(mq.latex(), 'x_a');
+
     mq.latex('x^a^b');
     assert.equal(mq.latex(), 'x^{ab}');
+
+    mq.latex('x^a^{}');
+    assert.equal(mq.latex(), 'x^a');
+
+    mq.latex('x^{}^a');
+    assert.equal(mq.latex(), 'x^a');
   });
 });
