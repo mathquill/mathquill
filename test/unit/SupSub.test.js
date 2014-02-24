@@ -77,4 +77,12 @@ suite('SupSub', function() {
     mq.latex('x^{}^a');
     assert.equal(mq.latex(), 'x^a');
   });
+
+  test('render LaTeX with 3 alternating SupSub\'s in a row', function() {
+    mq.latex('x_a^b_c');
+    assert.equal(mq.latex(), 'x_{ac}^b');
+
+    mq.latex('x^a_b^c');
+    assert.equal(mq.latex(), 'x_b^{ac}');
+  });
 });

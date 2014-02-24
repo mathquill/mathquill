@@ -152,7 +152,7 @@ var SupSub = P(MathCommand, function(_, _super) {
         for (var supsub = 'sub'; supsub; supsub = (supsub === 'sub' ? 'sup' : false)) {
           var src = this[supsub], dest = this[dir][supsub];
           if (!src) continue;
-          if (!dest) this[dir].addBlock(src);
+          if (!dest) this[dir].addBlock(src.disown());
           else if (!src.isEmpty()) { // ins src children at -dir end of dest
             src.jQ.children().insAtDirEnd(-dir, dest.jQ);
             var children = src.children().disown();
