@@ -135,7 +135,7 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '_{...}^{...}';
-  _.contactWeld = function() {
+  _.contactWeld = function(cursor) {
     // Look on either side for a SupSub, if one is found compare my
     // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
     // then call .addBlock() on it with my block; if I have one that
@@ -143,6 +143,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     // unless my block has none, in which case insert the cursor into
     // its block (and not mine, I'm about to remove myself) in the case
     // I was just typed.
+    // TODO: simplify
 
     // equiv. to [L, R].forEach(function(dir) { ... });
     for (var dir = L; dir; dir = (dir === L ? R : false)) {
@@ -155,17 +156,22 @@ var SupSub = P(MathCommand, function(_, _super) {
           else if (!src.isEmpty()) { // ins src children at -dir end of dest
             src.jQ.children().insAtDirEnd(-dir, dest.jQ);
             var children = src.children().disown();
+            var pt = Point(dest, children.ends[R], dest.ends[L]);
             if (dir === L) children.adopt(dest, dest.ends[R], 0);
             else children.adopt(dest, 0, dest.ends[L]);
           }
-          else {
-            var closuredDest = dest;
-            this.placeCursor = function(cursor) {
-              cursor.insAtDirEnd(-dir, closuredDest);
-            };
-          }
+          else var pt = Point(dest, 0, dest.ends[L]);
+          this.placeCursor = (function(dest, src) { // TODO: don't monkey-patch
+            return function(cursor) { cursor.insAtDirEnd(-dir, dest || src); };
+          }(dest, src));
         }
         this.remove();
+        if (cursor && cursor[L] === this) {
+          if (dir === R && pt) {
+            pt[L] ? cursor.insRightOf(pt[L]) : cursor.insAtLeftEnd(pt.parent);
+          }
+          else cursor.insRightOf(this[dir]);
+        }
         return;
       }
     }

@@ -88,9 +88,8 @@ Controller.open(function(_, _super) {
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
-      block.finalizeInsert();
-      if (cursor[R]) cursor.insLeftOf(cursor[R]); // note can't trust block.ends[R]
-      else cursor.insAtRightEnd(cursor.parent); // SupSub may merge into cursor[R]
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor);
       cursor.parent.bubble('edited');
     }
 

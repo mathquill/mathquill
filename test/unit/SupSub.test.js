@@ -13,6 +13,10 @@ suite('SupSub', function() {
     'x_{ab} x_{ba}, x_a^b x_a^b; x_{ab} x_{ba}, x_a^b x_a^b; x_a x_a, x_a^{} x_a^{}',
     'x_b^a x_b^a, x^{ab} x^{ba}; x_b^a x_b^a, x^{ab} x^{ba}; x_{}^a x_{}^a, x^a x^a'
   ];
+  var expectedsAfterC = [
+    'x_{abc} x_{bca}, x_a^{bc} x_a^{bc}; x_{ab}c x_{bca}, x_a^bc x_a^bc; x_ac x_{ca}, x_a^{}c x_a^{}c',
+    'x_{bc}^a x_{bc}^a, x^{abc} x^{bca}; x_b^ac x_b^ac, x^{ab}c x^{bca}; x_{}^ac x_{}^ac, x^ac x^{ca}'
+  ];
   'sub super'.split(' ').forEach(function(initSupsub, i) {
     var initialLatex = 'x_a x^a'.split(' ')[i];
 
@@ -33,6 +37,7 @@ suite('SupSub', function() {
           ][l];
 
           var expected = expecteds[i].split('; ')[j].split(', ')[k].split(' ')[l];
+          var expectedAfterC = expectedsAfterC[i].split('; ')[j].split(', ')[k].split(' ')[l];
 
           test('initial '+initSupsub+'script then '+did+' '+supsub+'script '+side, function() {
             mq.latex(initialLatex);
@@ -44,6 +49,9 @@ suite('SupSub', function() {
             assert.equal(mq.latex().replace(/ /g, ''), expected);
 
             prayWellFormedPoint(mq.controller.cursor);
+
+            mq.typedText('c');
+            assert.equal(mq.latex().replace(/ /g, ''), expectedAfterC);
           });
         });
       });
