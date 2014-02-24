@@ -165,8 +165,7 @@ var SupSub = P(MathCommand, function(_, _super) {
             };
           }
         }
-        this.disown();
-        this.jQ.remove();
+        this.remove();
         return;
       }
     }
