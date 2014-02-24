@@ -152,7 +152,7 @@ var LatexFragment = P(MathCommand, function(_) {
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
-    block.finalizeInsert();
+    block.finalizeInsert(cursor);
     cursor.parent.bubble('edited');
   };
   _.parser = function() {

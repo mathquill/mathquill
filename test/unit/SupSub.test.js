@@ -58,6 +58,44 @@ suite('SupSub', function() {
     });
   });
 
+  var expecteds = 'x_a^3 x_a^3, x_a^3 x_a^3; x^{a3} x^{3a}, x^{a3} x^{3a}';
+  var expectedsAfterC = 'x_a^3c x_a^3c, x_a^3c x_a^3c; x^{a3}c x^{3ca}, x^{a3}c x^{3ca}';
+  'sub super'.split(' ').forEach(function(initSupsub, i) {
+    var initialLatex = 'x_a x^a'.split(' ')[i];
+
+    'typed wrote'.split(' ').forEach(function(did, j) {
+      var doTo = [
+        function(mq) { mq.typedText('³'); },
+        function(mq) { mq.write('³'); }
+      ][j];
+
+      'after before'.split(' ').forEach(function(side, k) {
+        var moveToSide = [
+          noop,
+          function(mq) { mq.moveToLeftEnd().keystroke('Right'); }
+        ][k];
+
+        var expected = expecteds.split('; ')[i].split(', ')[j].split(' ')[k];
+        var expectedAfterC = expectedsAfterC.split('; ')[i].split(', ')[j].split(' ')[k];
+
+        test('initial '+initSupsub+'script then '+did+' \'³\' '+side, function() {
+          mq.latex(initialLatex);
+          assert.equal(mq.latex(), initialLatex);
+
+          moveToSide(mq);
+
+          doTo(mq);
+          assert.equal(mq.latex().replace(/ /g, ''), expected);
+
+          prayWellFormedPoint(mq.controller.cursor);
+
+          mq.typedText('c');
+          assert.equal(mq.latex().replace(/ /g, ''), expectedAfterC);
+        });
+      });
+    });
+  });
+
   test('render LaTeX with 2 SupSub\'s in a row', function() {
     mq.latex('x_a_b');
     assert.equal(mq.latex(), 'x_{ab}');
