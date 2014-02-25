@@ -170,6 +170,7 @@ setMathQuillDot('MathField', P(EditableField, function(_, _super) {
     var contents = this.initExtractContents(el);
     this.initRoot(RootMathBlock(), el);
     this.controller.root.setHandlers(opts && opts.handlers, this);
+    this.controller.spaceBehavesLikeTab = (opts && opts.spaceBehavesLikeTab);
     this.controller.renderLatexMath(contents);
     this.initEvents();
   };

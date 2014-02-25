@@ -89,4 +89,49 @@ suite('Public API', function() {
 
     $(mq.el()).remove();
   });
+
+  suite('spaceBehavesLikeTab', function() {
+    var mq, rootBlock, cursor;
+    test('space behaves like tab with default opts', function() {
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      rootBlock = mq.controller.root;
+      cursor = mq.controller.cursor;
+
+      mq.latex('\\sqrt{x}');
+      mq.keystroke('Left');
+
+      mq.keystroke('Spacebar');
+      mq.typedText(' ');
+      assert.equal(cursor[L].ctrlSeq, '\\:', 'left of the cursor is ' + cursor[L].ctrlSeq);
+      assert.equal(cursor[R], 0, 'right of the cursor is ' + cursor[R]);
+      mq.keystroke('Backspace');
+
+      mq.keystroke('Shift-Spacebar');
+      mq.typedText(' ');
+      assert.equal(cursor[L].ctrlSeq, '\\:', 'left of the cursor is ' + cursor[L].ctrlSeq);
+      assert.equal(cursor[R], 0, 'right of the cursor is ' + cursor[R]);
+
+      $(mq.el()).remove();
+    });
+    test('space behaves like tab when spaceBehavesLikeTab is true', function() {
+      var opts = { 'spaceBehavesLikeTab': true };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      rootBlock = mq.controller.root;
+      cursor = mq.controller.cursor;
+
+      mq.latex('\\sqrt{x}');
+
+      mq.keystroke('Left');
+      mq.keystroke('Spacebar');
+      assert.equal(cursor[L].parent, rootBlock, 'parent of the cursor is  ' + cursor[L].ctrlSeq);
+      assert.equal(cursor[R], 0, 'right cursor is ' + cursor[R]);
+
+      mq.keystroke('Left');
+      mq.keystroke('Shift-Spacebar');
+      assert.equal(cursor[L], 0, 'left cursor is ' + cursor[L]);
+      assert.equal(cursor[R], rootBlock.ends[L], 'parent of rootBlock is ' + cursor[R]);
+
+      $(mq.el()).remove();
+    });
+  });
 });
