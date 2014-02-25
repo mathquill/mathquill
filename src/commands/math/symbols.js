@@ -610,8 +610,8 @@ LatexCmds.lim = NonItalicizedFunction;
   for (var i in trig) {
     LatexCmds[trig[i]] =
     LatexCmds[trig[i]+'h'] =
-    LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
-    LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
+    LatexCmds['arc'+trig[i]] =
+    LatexCmds['ar'+trig[i]+'h'] =
       NonItalicizedFunction;
   }
 }());
