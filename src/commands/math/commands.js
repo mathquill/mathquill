@@ -134,61 +134,57 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
 });
 
 var SupSub = P(MathCommand, function(_, _super) {
-  _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
-  };
-  _.finalizeTree = function() {
-    //TODO: use inheritance
-    pray('SupSub is only _ and ^',
-      this.ctrlSeq === '^' || this.ctrlSeq === '_'
-    );
+  _.ctrlSeq = '_{...}^{...}';
+  _.contactWeld = function(cursor) {
+    // Look on either side for a SupSub, if one is found compare my
+    // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
+    // then call .addBlock() on it with my block; if I have one that
+    // it also has, then insert my block's children into its block,
+    // unless my block has none, in which case insert the cursor into
+    // its block (and not mine, I'm about to remove myself) in the case
+    // I was just typed.
+    // TODO: simplify
 
-    if (this.ctrlSeq === '_') {
-      this.downInto = this.ends[L];
-      this.ends[L].upOutOf = insLeftOfMeUnlessAtEnd;
-    }
-    else {
-      this.upInto = this.ends[L];
-      this.ends[L].downOutOf = insLeftOfMeUnlessAtEnd;
-    }
-    function insLeftOfMeUnlessAtEnd(cursor) {
-      // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
-      // ancestor cmd is at the end of every ancestor block
-      var cmd = this.parent, ancestorCmd = cursor;
-      do {
-        if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
-        ancestorCmd = ancestorCmd.parent.parent;
-      } while (ancestorCmd !== cmd);
-      cursor.insRightOf(cmd);
+    // equiv. to [L, R].forEach(function(dir) { ... });
+    for (var dir = L; dir; dir = (dir === L ? R : false)) {
+      if (this[dir] instanceof SupSub) {
+        // equiv. to 'sub sup'.split(' ').forEach(function(supsub) { ... });
+        for (var supsub = 'sub'; supsub; supsub = (supsub === 'sub' ? 'sup' : false)) {
+          var src = this[supsub], dest = this[dir][supsub];
+          if (!src) continue;
+          if (!dest) this[dir].addBlock(src.disown());
+          else if (!src.isEmpty()) { // ins src children at -dir end of dest
+            src.jQ.children().insAtDirEnd(-dir, dest.jQ);
+            var children = src.children().disown();
+            var pt = Point(dest, children.ends[R], dest.ends[L]);
+            if (dir === L) children.adopt(dest, dest.ends[R], 0);
+            else children.adopt(dest, 0, dest.ends[L]);
+          }
+          else var pt = Point(dest, 0, dest.ends[L]);
+          this.placeCursor = (function(dest, src) { // TODO: don't monkey-patch
+            return function(cursor) { cursor.insAtDirEnd(-dir, dest || src); };
+          }(dest, src));
+        }
+        this.remove();
+        if (cursor && cursor[L] === this) {
+          if (dir === R && pt) {
+            pt[L] ? cursor.insRightOf(pt[L]) : cursor.insAtLeftEnd(pt.parent);
+          }
+          else cursor.insRightOf(this[dir]);
+        }
+        return;
+      }
     }
   };
   _.latex = function() {
-    var latex = this.ends[L].latex();
-    if (latex.length === 1)
-      return this.ctrlSeq + latex;
-    else
-      return this.ctrlSeq + '{' + (latex || ' ') + '}';
-  };
-  _.edited = function() {
-    if (this[L])
-      this[L].respace();
-    //SupSub::respace recursively calls respace on all the following SupSubs
-    //so if leftward is a SupSub, no need to call respace on this or following nodes
-    if (!(this[L] instanceof SupSub)) {
-      this.respace();
-      //and if rightward is a SupSub, then this.respace() will have already called
-      //this[R].respace()
-      if (this[R] && !(this[R] instanceof SupSub))
-        this[R].respace();
+    function latex(prefix, block) {
+      var l = block && block.latex();
+      return block ? prefix + (l.length === 1 ? l : '{' + (l || ' ') + '}') : '';
     }
+    return latex('_', this.sub) + latex('^', this.sup);
   };
   _.respace = function() {
-    if (
-      this[L].ctrlSeq === '\\int ' || (
-        this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq
-        && this[L][L] && this[L][L].ctrlSeq === '\\int '
-      )
-    ) {
+    if (this[L].ctrlSeq === '\\int ') {
       if (!this.limit) {
         this.limit = true;
         this.jQ.addClass('limit');
@@ -200,44 +196,87 @@ var SupSub = P(MathCommand, function(_, _super) {
         this.jQ.removeClass('limit');
       }
     }
-
-    this.respaced = this[L] instanceof SupSub && this[L].ctrlSeq != this.ctrlSeq && !this[L].respaced;
-    if (this.respaced) {
-      var fontSize = +this.jQ.css('fontSize').slice(0,-2),
-        leftWidth = this[L].jQ.outerWidth(),
-        thisWidth = this.jQ.outerWidth();
-      this.jQ.css({
-        left: (this.limit && this.ctrlSeq === '_' ? -.25 : 0) - leftWidth/fontSize + 'em',
-        marginRight: .1 - min(thisWidth, leftWidth)/fontSize + 'em'
-          //1px extra so it doesn't wrap in retarded browsers (Firefox 2, I think)
-      });
-    }
-    else if (this.limit && this.ctrlSeq === '_') {
-      this.jQ.css({
-        left: '-.25em',
-        marginRight: ''
-      });
+    return this;
+  };
+  _.addBlock = function(block) {
+    if (this.supsub === 'sub') {
+      this.sup = this.upInto = this.sub.upOutOf = block;
+      block.adopt(this, this.sub, 0).downOutOf = this.sub;
+      block.jQ = $('<span class="sup"/>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).prependTo(this.jQ);
     }
     else {
-      this.jQ.css({
-        left: '',
-        marginRight: ''
-      });
+      this.sub = this.downInto = this.sup.downOutOf = block;
+      block.adopt(this, 0, this.sup).upOutOf = this.sup;
+      block.jQ = $('<span class="sub"></span>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
+      this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
     }
-
-    if (this[R] instanceof SupSub)
-      this[R].respace();
-
-    return this;
+    // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
+    for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
+      cmd[supsub].deleteOutOf = function(dir, cursor) {
+        if (this.isEmpty()) {
+          cmd.supsub = oppositeSupsub;
+          delete cmd[supsub];
+          delete cmd[dir+'Into'];
+          cmd[oppositeSupsub][dir+'OutOf'] = insLeftOfMeUnlessAtEnd;
+          if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+          this.moveOutOf(dir, cursor);
+          this.remove();
+        }
+        else {
+          cursor.insAtDirEnd(-dir, this);
+          cursor.startSelection();
+          cursor.insAtDirEnd(dir, this);
+          cursor.select();
+        }
+      };
+    }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
 });
 
+function insLeftOfMeUnlessAtEnd(cursor) {
+  // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
+  // ancestor cmd is at the end of every ancestor block
+  var cmd = this.parent, ancestorCmd = cursor;
+  do {
+    if (ancestorCmd[R]) return cursor.insLeftOf(cmd);
+    ancestorCmd = ancestorCmd.parent.parent;
+  } while (ancestorCmd !== cmd);
+  cursor.insRightOf(cmd);
+}
+
 LatexCmds.subscript =
-LatexCmds._ = bind(SupSub, '_', 'sub', '_');
+LatexCmds._ = P(SupSub, function(_, _super) {
+  _.supsub = 'sub';
+  _.htmlTemplate =
+      '<span class="supsub non-leaf">'
+    +   '<span class="sub">&0</span>'
+    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    + '</span>'
+  ;
+  _.textTemplate = [ '_' ];
+  _.finalizeTree = function() {
+    this.downInto = this.sub = this.ends[L];
+    this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
+  };
+});
 
 LatexCmds.superscript =
 LatexCmds.supscript =
-LatexCmds['^'] = bind(SupSub, '^', 'sup', '**');
+LatexCmds['^'] = P(SupSub, function(_, _super) {
+  _.supsub = 'sup';
+  _.htmlTemplate =
+      '<span class="supsub non-leaf sup-only">'
+    +   '<span class="sup">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = [ '**' ];
+  _.finalizeTree = function() {
+    this.upInto = this.sup = this.ends[R];
+    this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
+  };
+});
 
 var Fraction =
 LatexCmds.frac =

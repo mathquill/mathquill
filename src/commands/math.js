@@ -8,9 +8,10 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, _super) {
-  _.finalizeInsert = function() {
+  _.finalizeInsert = function(cursor) {
     var self = this;
     self.postOrder('finalizeTree');
+    self.postOrder('contactWeld', cursor);
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
@@ -79,7 +80,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
-    cmd.finalizeInsert(cursor);
+    cmd.finalizeInsert();
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {

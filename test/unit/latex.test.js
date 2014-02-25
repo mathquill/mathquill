@@ -2,7 +2,7 @@ suite('latex', function() {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
-    var result = latexMathParser.parse(str).join('latex');
+    var result = latexMathParser.parse(str).postOrder('finalizeTree').join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );

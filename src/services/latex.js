@@ -89,7 +89,7 @@ Controller.open(function(_, _super) {
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
       cursor[L] = block.ends[R];
-      block.finalizeInsert();
+      block.finalizeInsert(cursor);
       cursor.parent.bubble('edited');
     }
 
