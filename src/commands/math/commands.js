@@ -148,7 +148,7 @@ var SupSub = P(MathCommand, function(_, _super) {
     // equiv. to [L, R].forEach(function(dir) { ... });
     for (var dir = L; dir; dir = (dir === L ? R : false)) {
       if (this[dir] instanceof SupSub) {
-        // equiv. to 'sub sup'.split(' ').forEach(function(dir) { ... });
+        // equiv. to 'sub sup'.split(' ').forEach(function(supsub) { ... });
         for (var supsub = 'sub'; supsub; supsub = (supsub === 'sub' ? 'sup' : false)) {
           var src = this[supsub], dest = this[dir][supsub];
           if (!src) continue;
