@@ -123,4 +123,21 @@ suite('SupSub', function() {
     mq.latex('x^a_b^c');
     assert.equal(mq.latex(), 'x_b^{ac}');
   });
+
+  test('backspace', function() {
+    mq.latex('x_a');
+    assert.equal(mq.latex(), 'x_a');
+
+    mq.write('^b');
+    assert.equal(mq.latex(), 'x_a^b');
+
+    mq.keystroke('Down').keystroke('Backspace');
+    assert.equal(mq.latex(), 'x_{ }^b');
+
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(), 'x^b');
+
+    mq.write('_a');
+    assert.equal(mq.latex(), 'x_a^b');
+  });
 });

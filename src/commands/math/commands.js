@@ -198,6 +198,41 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
     return this;
   };
+  _.addBlock = function(block) {
+    if (this.supsub === 'sub') {
+      this.sup = this.upInto = this.sub.upOutOf = block;
+      block.adopt(this, this.sub, 0).downOutOf = this.sub;
+      block.jQ = $('<span class="sup"/>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).prependTo(this.jQ);
+    }
+    else {
+      this.sub = this.downInto = this.sup.downOutOf = block;
+      block.adopt(this, 0, this.sup).upOutOf = this.sup;
+      block.jQ = $('<span class="sub"></span>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
+      this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
+    }
+    // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
+    for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
+      cmd[supsub].deleteOutOf = function(dir, cursor) {
+        if (this.isEmpty()) {
+          cmd.supsub = oppositeSupsub;
+          delete cmd[supsub];
+          delete cmd[dir+'Into'];
+          cmd[oppositeSupsub][dir+'OutOf'] = insLeftOfMeUnlessAtEnd;
+          if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+          this.moveOutOf(dir, cursor);
+          this.remove();
+        }
+        else {
+          cursor.insAtDirEnd(-dir, this);
+          cursor.startSelection();
+          cursor.insAtDirEnd(dir, this);
+          cursor.select();
+        }
+      };
+    }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
+  };
 });
 
 function insLeftOfMeUnlessAtEnd(cursor) {
@@ -225,12 +260,6 @@ LatexCmds._ = P(SupSub, function(_, _super) {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
   };
-  _.addBlock = function(block) {
-    this.sup = this.upInto = this.sub.upOutOf = block;
-    block.adopt(this, this.sub, 0).downOutOf = this.sub;
-    block.jQ = $('<span class="sup"/>').append(block.jQ.children())
-      .attr(mqBlockId, block.id).prependTo(this.jQ);
-  };
 });
 
 LatexCmds.superscript =
@@ -246,13 +275,6 @@ LatexCmds['^'] = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
-  };
-  _.addBlock = function(block) {
-    this.sub = this.downInto = this.sup.downOutOf = block;
-    block.adopt(this, 0, this.sup).upOutOf = this.sup;
-    block.jQ = $('<span class="sub"></span>').append(block.jQ.children())
-      .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
-    this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
   };
 });
 
