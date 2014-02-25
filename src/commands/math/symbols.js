@@ -234,6 +234,8 @@ var LatexFragment = P(MathCommand, function(_) {
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor);
+    if (block.ends[R][R].respace) block.ends[R][R].respace();
+    if (block.ends[L][L].respace) block.ends[L][L].respace();
     cursor.parent.bubble('edited');
   };
   _.parser = function() {
