@@ -172,9 +172,10 @@ var SupSub = P(MathCommand, function(_, _super) {
           }
           else cursor.insRightOf(this[dir]);
         }
-        return;
+        break;
       }
     }
+    this.respace();
   };
   _.latex = function() {
     function latex(prefix, block) {
@@ -183,7 +184,9 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
-  _.respace = function() {
+  _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
+    if (dir === R) return; // note .contactWeld() calls .respace() w/o dir argument
+
     if (this[L].ctrlSeq === '\\int ') {
       if (!this.limit) {
         this.limit = true;

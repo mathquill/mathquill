@@ -18,9 +18,12 @@ var Variable = P(Symbol, function(_, _super) {
       text += '*';
     return text;
   };
-  _.respace = function() {
-    // TODO: don't do this 3 times when a new letter is typed
-
+  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
+    // note that dir may be L, R, or in the case of .finalizeTree(), undefined
+    if (dir !== L && this[R] instanceof Variable && this[R].ctrlSeq.length === 1) return;
+    this.autoUnItalicize();
+  };
+  _.autoUnItalicize = function() {
     // want longest possible auto-unitalicized command, so join together longest
     // sequence of letters (non-greek Variables)
     var str = this.ctrlSeq;
@@ -234,8 +237,8 @@ var LatexFragment = P(MathCommand, function(_) {
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor);
-    if (block.ends[R][R].respace) block.ends[R][R].respace();
-    if (block.ends[L][L].respace) block.ends[L][L].respace();
+    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
+    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
     cursor.parent.bubble('edited');
   };
   _.parser = function() {
@@ -285,7 +288,7 @@ var BinaryOperator = P(Symbol, function(_, _super) {
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
-  _.respace = function() {
+  _.contactWeld = _.siblingCreated = _.siblingDeleted = function() {
     if (!this[L]) {
       this.jQ[0].className = '';
     }

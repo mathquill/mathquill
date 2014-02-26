@@ -90,8 +90,8 @@ Controller.open(function(_, _super) {
       jQ.insertBefore(cursor.jQ);
       cursor[L] = block.ends[R];
       block.finalizeInsert(cursor);
-      if (block.ends[R][R].respace) block.ends[R][R].respace();
-      if (block.ends[L][L].respace) block.ends[L][L].respace();
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
       cursor.parent.bubble('edited');
     }
 
