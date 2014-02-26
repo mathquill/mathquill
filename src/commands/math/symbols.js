@@ -72,7 +72,7 @@ var Letter = P(Variable, function(_, _super) {
 });
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
 (function() {
-  var fns = 'ln lg log span proj det dim min max mod lcm gcd lim'.split(' ');
+  var fns = 'ln lg log span proj det dim min max mod lcm gcd lim Pr arg exp deg hom inf ker sup'.split(' ');
   for (var i = 0; i < fns.length; i += 1) {
     UnItalicizedCmds[fns[i]] = 1;
   }
