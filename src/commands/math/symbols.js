@@ -18,19 +18,21 @@ var Variable = P(Symbol, function(_, _super) {
       text += '*';
     return text;
   };
+});
+
+var Letter = P(Variable, function(_, _super) {
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // note that dir may be L, R, or in the case of .finalizeTree(), undefined
-    if (dir !== L && this[R] instanceof Variable && this[R].ctrlSeq.length === 1) return;
+    if (dir !== L && this[R] instanceof Letter) return;
     this.autoUnItalicize();
   };
   _.autoUnItalicize = function() {
     // want longest possible auto-unitalicized command, so join together longest
-    // sequence of letters (non-greek Variables)
+    // sequence of letters
     var str = this.ctrlSeq;
-    if (str.length > 1) return;
-    for (var l = this[L]; l instanceof Variable && l.ctrlSeq.length === 1; l = l[L])
+    for (var l = this[L]; l instanceof Letter; l = l[L])
       str = l.ctrlSeq + str;
-    for (var r = this[R]; r instanceof Variable && r.ctrlSeq.length === 1; r = r[R])
+    for (var r = this[R]; r instanceof Letter; r = r[R])
       str += r.ctrlSeq;
 
     // removeClass and delete flags from all letters before figuring out
@@ -88,14 +90,14 @@ var UnItalicized = P(Symbol, function(_, _super) {
   _.createLeftOf = function(cursor) {
     var fn = this.ctrlSeq;
     for (var i = 0; i < fn.length; i += 1) {
-      Variable(fn.charAt(i)).createLeftOf(cursor);
+      Letter(fn.charAt(i)).createLeftOf(cursor);
     }
   };
   _.parser = function() {
     var fn = this.ctrlSeq;
     var block = MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
-      Variable(fn.charAt(i)).adopt(block, block.ends[R], 0);
+      Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
     }
     return Parser.succeed(block.children());
   };

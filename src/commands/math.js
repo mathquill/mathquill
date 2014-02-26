@@ -386,7 +386,7 @@ var MathBlock = P(MathElement, function(_, _super) {
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;
     if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = Variable(ch);
+      cmd = Letter(ch);
     else if (cmd = CharCmds[ch] || LatexCmds[ch])
       cmd = cmd(ch);
     else

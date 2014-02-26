@@ -17,8 +17,8 @@ suite('auto-unitalicized commands', function() {
   test('simple LaTeX parsing, typing', function() {
     function assertUnitalicizedCommandWorks(str, latex) {
       var count = 0;
-      var _autoUnItalicize = Variable.prototype.autoUnItalicize;
-      Variable.prototype.autoUnItalicize = function() {
+      var _autoUnItalicize = Letter.prototype.autoUnItalicize;
+      Letter.prototype.autoUnItalicize = function() {
         count += 1;
         return _autoUnItalicize.apply(this, arguments);
       };
@@ -48,8 +48,8 @@ suite('auto-unitalicized commands', function() {
 
   test('deleting', function() {
     var count = 0;
-    var _autoUnItalicize = Variable.prototype.autoUnItalicize;
-    Variable.prototype.autoUnItalicize = function() {
+    var _autoUnItalicize = Letter.prototype.autoUnItalicize;
+    Letter.prototype.autoUnItalicize = function() {
       count += 1;
       return _autoUnItalicize.apply(this, arguments);
     };

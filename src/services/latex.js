@@ -24,7 +24,7 @@ var latexMathParser = (function() {
   var fail = Parser.fail;
 
   // Parsers yielding MathCommands
-  var variable = letter.map(function(c) { return Variable(c); });
+  var variable = letter.map(function(c) { return Letter(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
   var controlSequence =
