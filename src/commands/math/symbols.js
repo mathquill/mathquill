@@ -70,7 +70,7 @@ var Variable = P(Symbol, function(_, _super) {
 });
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
 (function() {
-  var fns = 'ln lg log span proj det dim min max mod lcm gcd gcf hcf lim'.split(' ');
+  var fns = 'ln lg log span proj det dim min max mod lcm gcd lim'.split(' ');
   for (var i = 0; i < fns.length; i += 1) {
     UnItalicizedCmds[fns[i]] = 1;
   }
