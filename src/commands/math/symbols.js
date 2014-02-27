@@ -72,7 +72,7 @@ var Letter = P(Variable, function(_, _super) {
 });
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
 (function() {
-  var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'.split(' ');
+  var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup inj proj'.split(' ');
   for (var i = 0; i < fns.length; i += 1) {
     UnItalicizedCmds[fns[i]] = 1;
   }
@@ -105,6 +105,10 @@ var UnItalicized = P(Symbol, function(_, _super) {
 for (var fn in UnItalicizedCmds) if (UnItalicizedCmds.hasOwnProperty(fn)) {
   LatexCmds[fn] = UnItalicized;
 }
+LatexCmds.injlim = LatexCmds.projlim = LatexCmds.liminf = LatexCmds.limsup =
+  UnItalicized; // want \injlim etc to work, so want 'injlim' etc in LatexCmds,
+  // but want 'inj' and 'lim' separately in UnItalicizedCmds so they'll render
+  // with a space separating them, like 'inj lim'
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
