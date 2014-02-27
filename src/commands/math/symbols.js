@@ -54,8 +54,7 @@ var Letter = P(Variable, function(_, _super) {
             var last = letter;
           }
           last.isLastLetter = true;
-          if (!(last[R] instanceof SupSub || last[R] instanceof Bracket))
-            last.jQ.addClass('last');
+          if (last[R] instanceof Variable) last.jQ.addClass('last');
           i += len - 1;
           first = last;
           continue outer;
