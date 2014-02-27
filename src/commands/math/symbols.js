@@ -72,6 +72,11 @@ var Letter = P(Variable, function(_, _super) {
 });
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
 (function() {
+  // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // but without the over/under line/arrow \lim variants like \varlimsup,
+  // with extra trig fns like \arsinh, and the individual words from
+  // 2-word operators, \inj and \proj from \injlim and \projlim
+
   var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup inj proj'.split(' ');
   for (var i = 0; i < fns.length; i += 1) {
     UnItalicizedCmds[fns[i]] = 1;
