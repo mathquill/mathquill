@@ -77,8 +77,6 @@ Controller.open(function(_) {
           cursor.parent.bubble('edited');
         });
       }
-
-      e.stopPropagation();
     });
 
     this.focusBlurEvents();
