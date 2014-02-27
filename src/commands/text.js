@@ -115,7 +115,6 @@ var TextBlock = P(Node, function(_, _super) {
       cursor.insLeftOf(this);
       _super.createLeftOf.call(leftBlock, cursor);
     }
-    return false;
   };
 
   _.seek = function(pageX, cursor) {

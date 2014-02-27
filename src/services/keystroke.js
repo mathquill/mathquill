@@ -134,10 +134,9 @@ Node.open(function(_) {
       break;
 
     default:
-      return false;
+      return;
     }
     e.preventDefault();
-    return false;
   };
 
   _.moveOutOf = // called by Controller::escapeDir, moveDir
