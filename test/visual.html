@@ -186,8 +186,9 @@ $('#show-textareas-button').click(function() {
 });
 
 // test selecting from outside the mathquill editable
+var $mq = $('.math-container .mathquill-editable');
 $('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').triggerHandler(e);
+  if (!jQuery.contains($mq[0], e.target)) $mq.triggerHandler(e);
 });
 
 // Selection Tests
