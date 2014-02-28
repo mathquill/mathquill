@@ -1,5 +1,5 @@
 /*************************************************
- * Textarea Manager
+ * Sane Keyboard Events Shim
  *
  * An abstraction layer wrapping the textarea in
  * an object with methods to manipulate and listen
@@ -15,13 +15,13 @@
  *
  * Organization:
  * - key values map and stringify()
- * - manageTextarea()
+ * - saneKeyboardEvents()
  *    + defer() and flush()
  *    + event handler logic
  *    + attach event handlers and export methods
  ************************************************/
 
-var manageTextarea = (function() {
+var saneKeyboardEvents = (function() {
   // The following [key values][1] map was compiled from the
   // [DOM3 Events appendix section on key codes][2] and
   // [a widely cited report on cross-browser tests of key codes][3],
@@ -86,20 +86,14 @@ var manageTextarea = (function() {
     return modifiers.join('-');
   }
 
-  // create a textarea manager that calls callbacks at useful times
+  // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function manageTextarea(el, opts) {
+  return function saneKeyboardEvents(el, handlers) {
     var keydown = null;
     var keypress = null;
 
-    if (!opts) opts = {};
-    var textCallback = opts.text || noop;
-    var keyCallback = opts.key || noop;
-    var pasteCallback = opts.paste || noop;
-    var onCut = opts.cut || noop;
-
     var textarea = jQuery(el);
-    var target = jQuery(opts.container || textarea);
+    var target = jQuery(handlers.container || textarea);
 
     // checkTextareaFor() is called after keypress or paste events to
     // say "Hey, I think something was just typed" or "pasted" (resp.),
@@ -150,7 +144,7 @@ var manageTextarea = (function() {
     }
 
     function handleKey() {
-      keyCallback(stringify(keydown), keydown);
+      handlers.keystroke(stringify(keydown), keydown);
     }
 
     // -*- event handlers -*- //
@@ -192,7 +186,7 @@ var manageTextarea = (function() {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
-      popText(textCallback);
+      popText(function(text) { handlers.typedText(text); });
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -215,7 +209,7 @@ var manageTextarea = (function() {
       checkTextareaFor(pastedText);
     }
     function pastedText() {
-      popText(pasteCallback);
+      popText(function(text) { handlers.paste(text); });
     }
 
     // -*- attach event handlers -*- //
@@ -223,7 +217,6 @@ var manageTextarea = (function() {
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
-      cut: onCut,
       paste: onPaste
     });
 

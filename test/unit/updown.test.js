@@ -1,25 +1,25 @@
 suite('up/down', function() {
-  var el, rootBlock, cursor;
+  var mq, rootBlock, controller, cursor;
   setup(function() {
-    el = $('<span></span>').appendTo('#mock').mathquill();
-    rootBlock = MathElement[el.attr(mqBlockId)];
-    cursor = rootBlock.cursor;
+    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    rootBlock = mq.controller.root;
+    controller = mq.controller;
+    cursor = controller.cursor;
   });
   teardown(function() {
-    el.remove();
+    $(mq.el()).remove();
   });
 
   function move(dirs) {
     // like, move('Left Left Left Up')
     dirs = dirs.split(' ');
     for (var i in dirs) {
-      var dir = dirs[i];
-      cursor['move'+dir]();
+      mq.keystroke(dirs[i]);
     }
   }
 
   test('up/down in out of exponent', function() {
-    rootBlock.renderLatex('x^{nm}');
+    controller.renderLatexMath('x^{nm}');
     var exp = rootBlock.ends[R],
       expBlock = exp.ends[L];
     assert.equal(exp.latex(), '^{nm}', 'right end el is exponent');
@@ -53,7 +53,7 @@ suite('up/down', function() {
 
   // literally just swapped up and down, exponent with subscript, nm with 12
   test('up/down in out of subscript', function() {
-    rootBlock.renderLatex('a_{12}');
+    controller.renderLatexMath('a_{12}');
     var sub = rootBlock.ends[R],
       subBlock = sub.ends[L];
     assert.equal(sub.latex(), '_{12}', 'right end el is subscript');
@@ -86,7 +86,7 @@ suite('up/down', function() {
   });
 
   test('up/down into and within fraction', function() {
-    rootBlock.renderLatex('\\frac{12}{34}');
+    controller.renderLatexMath('\\frac{12}{34}');
     var frac = rootBlock.ends[L],
       numer = frac.ends[L],
       denom = frac.ends[R];
@@ -125,7 +125,7 @@ suite('up/down', function() {
   });
 
   test('nested subscripts and fractions', function() {
-    rootBlock.renderLatex('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
+    controller.renderLatexMath('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
     var exp = rootBlock.ends[R],
       expBlock = exp.ends[L],
       half = expBlock.ends[L],
@@ -169,7 +169,8 @@ suite('up/down', function() {
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not at right end goes out of subscript');
     assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not at right end goes before subscript');
 
-    cursor.insAtRightEnd(subBlock).backspace();
+    cursor.insAtRightEnd(subBlock);
+    controller.backspace();
     assert.equal(subFrac[R], 0, 'subscript fraction is at right end');
     assert.equal(cursor[L], subFrac, 'cursor after subscript fraction');
 
@@ -179,5 +180,18 @@ suite('up/down', function() {
     move('Up Up');
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is at right end goes out of subscript');
     assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is at right end goes after subscript');
+  });
+
+  test('\\MathQuillMathField{} in a fraction', function() {
+    var outer = MathQuill.MathField(
+      $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
+    );
+    var inner = MathQuill($(outer.el()).find('.mathquill-editable')[0]);
+
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+    inner.keystroke('Down');
+    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+
+    $(outer.el()).remove();
   });
 });
