@@ -166,10 +166,8 @@ var Cursor = P(Point, function(_) {
 
     gramp.jQ.remove();
 
-    if (gramp[L])
-      gramp[L].respace();
-    if (gramp[R])
-      gramp[R].respace();
+    if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(R);
+    if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(L);
   };
   _.select = function() {
     var anticursor = this.anticursor;

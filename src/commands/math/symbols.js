@@ -20,6 +20,101 @@ var Variable = P(Symbol, function(_, _super) {
   };
 });
 
+var Letter = P(Variable, function(_, _super) {
+  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
+    // note that dir may be L, R, or in the case of .finalizeTree(), undefined
+    if (dir !== L && this[R] instanceof Letter) return;
+    this.autoUnItalicize();
+  };
+  _.autoUnItalicize = function() {
+    // want longest possible auto-unitalicized command, so join together longest
+    // sequence of letters
+    var str = this.ctrlSeq;
+    for (var l = this[L]; l instanceof Letter; l = l[L])
+      str = l.ctrlSeq + str;
+    for (var r = this[R]; r instanceof Letter; r = r[R])
+      str += r.ctrlSeq;
+
+    // removeClass and delete flags from all letters before figuring out
+    // which are part of an auto-unitalicized command, if any
+    Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
+      el.jQ.removeClass('un-italicized last');
+      delete el.isFirstLetter;
+      delete el.isLastLetter;
+    });
+
+    // check for an auto-unitalicized command, going thru substrings longest to shortest
+    outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
+      for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
+        if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
+          if (first[L] instanceof Variable) first.jQ.addClass('first');
+          first.isFirstLetter = true;
+          for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
+            letter.jQ.addClass('un-italicized');
+            var last = letter;
+          }
+          last.isLastLetter = true;
+          if (last[R] instanceof Variable) last.jQ.addClass('last');
+          i += len - 1;
+          first = last;
+          continue outer;
+        }
+      }
+    }
+  };
+  _.latex = function() {
+    return (
+      this.isFirstLetter ? '\\' + this.ctrlSeq :
+      this.isLastLetter ? this.ctrlSeq + ' ' :
+      this.ctrlSeq
+    );
+  };
+});
+var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
+(function() {
+  // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // but without the over/under line/arrow \lim variants like \varlimsup,
+  // with extra trig fns like \arsinh, and the individual words from
+  // 2-word operators, \inj and \proj from \injlim and \projlim
+
+  var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup inj proj'.split(' ');
+  for (var i = 0; i < fns.length; i += 1) {
+    UnItalicizedCmds[fns[i]] = 1;
+  }
+
+  var trigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
+  for (var i = 0; i < trigs.length; i += 1) {
+    UnItalicizedCmds[trigs[i]] =
+    UnItalicizedCmds['arc'+trigs[i]] =
+    UnItalicizedCmds[trigs[i]+'h'] =
+    UnItalicizedCmds['ar'+trigs[i]+'h'] = 1;
+  }
+}());
+var UnItalicized = P(Symbol, function(_, _super) {
+  _.init = function(fn) { this.ctrlSeq = fn; };
+  _.createLeftOf = function(cursor) {
+    var fn = this.ctrlSeq;
+    for (var i = 0; i < fn.length; i += 1) {
+      Letter(fn.charAt(i)).createLeftOf(cursor);
+    }
+  };
+  _.parser = function() {
+    var fn = this.ctrlSeq;
+    var block = MathBlock();
+    for (var i = 0; i < fn.length; i += 1) {
+      Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
+    }
+    return Parser.succeed(block.children());
+  };
+});
+for (var fn in UnItalicizedCmds) if (UnItalicizedCmds.hasOwnProperty(fn)) {
+  LatexCmds[fn] = UnItalicized;
+}
+LatexCmds.injlim = LatexCmds.projlim = LatexCmds.liminf = LatexCmds.limsup =
+  UnItalicized; // want \injlim etc to work, so want 'injlim' etc in LatexCmds,
+  // but want 'inj' and 'lim' separately in UnItalicizedCmds so they'll render
+  // with a space separating them, like 'inj lim'
+
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
     _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
@@ -153,6 +248,8 @@ var LatexFragment = P(MathCommand, function(_) {
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor);
+    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
+    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
     cursor.parent.bubble('edited');
   };
   _.parser = function() {
@@ -202,7 +299,7 @@ var BinaryOperator = P(Symbol, function(_, _super) {
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
-  _.respace = function() {
+  _.contactWeld = _.siblingCreated = _.siblingDeleted = function() {
     if (!this[L]) {
       this.jQ[0].className = '';
     }
@@ -575,44 +672,3 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
-
-
-var NonItalicizedFunction = P(Symbol, function(_, _super) {
-  _.init = function(fn) {
-    _super.init.call(this, '\\'+fn+' ', '<span>'+fn+'</span>');
-  };
-  _.respace = function()
-  {
-    this.jQ[0].className =
-      (this[R] instanceof SupSub || this[R] instanceof Bracket) ?
-      '' : 'non-italicized-function';
-  };
-});
-
-LatexCmds.ln =
-LatexCmds.lg =
-LatexCmds.log =
-LatexCmds.span =
-LatexCmds.proj =
-LatexCmds.det =
-LatexCmds.dim =
-LatexCmds.min =
-LatexCmds.max =
-LatexCmds.mod =
-LatexCmds.lcm =
-LatexCmds.gcd =
-LatexCmds.gcf =
-LatexCmds.hcf =
-LatexCmds.lim = NonItalicizedFunction;
-
-(function() {
-  var trig = ['sin', 'cos', 'tan', 'sec', 'cosec', 'csc', 'cotan', 'cot'];
-  for (var i in trig) {
-    LatexCmds[trig[i]] =
-    LatexCmds[trig[i]+'h'] =
-    LatexCmds['a'+trig[i]] = LatexCmds['arc'+trig[i]] =
-    LatexCmds['a'+trig[i]+'h'] = LatexCmds['arc'+trig[i]+'h'] =
-      NonItalicizedFunction;
-  }
-}());
-
