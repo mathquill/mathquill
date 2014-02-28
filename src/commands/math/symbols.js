@@ -39,7 +39,7 @@ var Letter = P(Variable, function(_, _super) {
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.jQ.removeClass('un-italicized last');
+      el.jQ.removeClass('un-italicized first last');
       delete el.isFirstLetter;
       delete el.isLastLetter;
     });
