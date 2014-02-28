@@ -22,7 +22,8 @@ var Variable = P(Symbol, function(_, _super) {
 
 var Letter = P(Variable, function(_, _super) {
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
-    // note that dir may be L, R, or in the case of .finalizeTree(), undefined
+    // don't auto-unitalicize if the sibling to my right changed (dir === R or
+    // undefined) and it's now a Letter, it will unitalicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
     this.autoUnItalicize();
   };
