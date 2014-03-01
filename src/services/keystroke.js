@@ -221,15 +221,17 @@ Controller.open(function(_) {
     prayDirection(dir);
     var cursor = this.cursor;
 
-    var hadSelection = cursor.selection;
+    var deletedFrag = cursor.selection;
     this.notify('edit'); // deletes selection if present
-    if (!hadSelection) {
-      if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
-      else cursor.parent.deleteOutOf(dir, cursor);
+    if (!deletedFrag) {
+      deletedFrag = (cursor[dir] ? cursor[dir].deleteTowards(dir, cursor)
+                                 : cursor.parent.deleteOutOf(dir, cursor));
     }
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(L);
+    if (deletedFrag) {
+      if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(R, deletedFrag.ends[L]);
+      if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(L, deletedFrag.ends[R]);
+    }
     cursor.parent.bubble('edited');
 
     return this;

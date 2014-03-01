@@ -46,7 +46,7 @@ suite('auto-unitalicized commands', function() {
     assertUnitalicizedCommandWorks('scscscscscsc', 's\\csc s\\csc s\\csc');
   });
 
-  test('deleting', function() {
+  test('deleting, typing in the middle', function() {
     var count = 0;
     var _autoUnItalicize = Letter.prototype.autoUnItalicize;
     Letter.prototype.autoUnItalicize = function() {
@@ -74,5 +74,26 @@ suite('auto-unitalicized commands', function() {
     mq.keystroke('Backspace');
     assertLatex('deleted plus', '\\csc s\\csc s\\csc sc');
     assert.equal(count, str.length + 5);
+  });
+
+  test('typing on either side', function() {
+    var count = 0;
+    var _autoUnItalicize = Letter.prototype.autoUnItalicize;
+    Letter.prototype.autoUnItalicize = function() {
+      count += 1;
+      return _autoUnItalicize.apply(this, arguments);
+    };
+
+    mq.latex('sin');
+    assertLatex('parsing \'sin\'', '\\sin');
+    assert.equal(count, 1);
+
+    mq.typedText('1');
+    assertLatex('typed \'1\' at the end', '\\sin1');
+    assert.equal(count, 1, 'typing at the end should not run autoUnItalicize');
+
+    mq.moveToLeftEnd().typedText('0');
+    assertLatex('typed \'0\' at the beginning', '0\\sin1');
+    assert.equal(count, 1, 'typing at the beginning should not run autoUnItalicize');
   });
 });

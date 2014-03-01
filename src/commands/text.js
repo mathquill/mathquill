@@ -24,11 +24,12 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   _.createLeftOf = function(cursor) {
+    var origSibs = Point.copy(cursor);
     var textBlock = this;
     _super.createLeftOf.call(this, cursor);
 
-    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
-    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
+    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L, origSibs[L]);
+    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R, origSibs[R]);
     textBlock.bubble('edited');
 
     cursor.insAtRightEnd(textBlock);
@@ -90,7 +91,10 @@ var TextBlock = P(Node, function(_, _super) {
   };
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
-    if (this.isEmpty()) cursor.insRightOf(this);
+    if (this.isEmpty()) {
+      cursor.insRightOf(this);
+      return Fragment(this, this);
+    }
   };
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();

@@ -21,7 +21,11 @@ var Variable = P(Symbol, function(_, _super) {
 });
 
 var Letter = P(Variable, function(_, _super) {
-  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
+  _.siblingDeleted = _.siblingCreated = function(dir, origSibling) {
+    if (!(this[dir] instanceof Letter) && !(origSibling instanceof Letter)) return;
+    this.finalizeTree(dir);
+  };
+  _.finalizeTree = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will unitalicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
@@ -244,13 +248,14 @@ LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
 var LatexFragment = P(MathCommand, function(_) {
   _.init = function(latex) { this.latex = latex; };
   _.createLeftOf = function(cursor) {
+    var sibs = Point.copy(cursor);
     var block = latexMathParser.parse(this.latex);
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
-    block.finalizeInsert(cursor);
-    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
-    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
+    block.finalizeInsert(0, cursor);
+    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L, sibs[L]);
+    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R, sibs[R]);
     cursor.parent.bubble('edited');
   };
   _.parser = function() {

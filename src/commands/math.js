@@ -8,7 +8,7 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, _super) {
-  _.finalizeInsert = function(cursor) {
+  _.finalizeInsert = function(origSiblings, cursor) {
     var self = this;
     self.postOrder('finalizeTree');
     self.postOrder('contactWeld', cursor);
@@ -20,8 +20,8 @@ var MathElement = P(Node, function(_, _super) {
     self.postOrder('blur');
 
     self.postOrder('edited');
-    if (self[R].siblingCreated) self[R].siblingCreated(L);
-    if (self[L].siblingCreated) self[L].siblingCreated(R);
+    if (self[R].siblingCreated) self[R].siblingCreated(L, origSiblings[L]);
+    if (self[L].siblingCreated) self[L].siblingCreated(R, origSiblings[R]);
     self.bubble('edited');
   };
 });
@@ -68,6 +68,7 @@ var MathCommand = P(MathElement, function(_, _super) {
 
   // createLeftOf(cursor) and the methods it calls
   _.createLeftOf = function(cursor) {
+    var origSiblings = Point.copy(cursor);
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
@@ -77,7 +78,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
-    cmd.finalizeInsert();
+    cmd.finalizeInsert(origSiblings);
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {
@@ -312,6 +313,7 @@ var Symbol = P(MathCommand, function(_, _super) {
   };
   _.deleteTowards = function(dir, cursor) {
     cursor[dir] = this.remove()[dir];
+    return Fragment(this, this);
   };
   _.seek = function(pageX, cursor) {
     // insert at whichever side the click was closer to
@@ -370,6 +372,7 @@ var MathBlock = P(MathElement, function(_, _super) {
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
+    return Fragment(this.parent, this.parent);
   };
   _.selectChildren = function(cursor, leftEnd, rightEnd) {
     cursor.selection = Selection(leftEnd, rightEnd);
