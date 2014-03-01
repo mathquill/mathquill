@@ -14,14 +14,18 @@ suite('auto-unitalicized commands', function() {
     );
   }
 
+  function countAutoUnItalicizeCalls(incrementCount) {
+    var _autoUnItalicize = Letter.prototype.autoUnItalicize;
+    Letter.prototype.autoUnItalicize = function() {
+      incrementCount();
+      return _autoUnItalicize.apply(this, arguments);
+    };
+  }
+
   test('simple LaTeX parsing, typing', function() {
     function assertUnitalicizedCommandWorks(str, latex) {
       var count = 0;
-      var _autoUnItalicize = Letter.prototype.autoUnItalicize;
-      Letter.prototype.autoUnItalicize = function() {
-        count += 1;
-        return _autoUnItalicize.apply(this, arguments);
-      };
+      countAutoUnItalicizeCalls(function() { count += 1; });
 
       mq.latex(str);
       assertLatex('parsing \''+str+'\'', latex);
@@ -48,11 +52,7 @@ suite('auto-unitalicized commands', function() {
 
   test('deleting, typing in the middle', function() {
     var count = 0;
-    var _autoUnItalicize = Letter.prototype.autoUnItalicize;
-    Letter.prototype.autoUnItalicize = function() {
-      count += 1;
-      return _autoUnItalicize.apply(this, arguments);
-    };
+    countAutoUnItalicizeCalls(function() { count += 1; });
 
     var str = 'cscscscscscsc';
     for (var i = 0; i < str.length; i += 1) mq.typedText(str.charAt(i));
@@ -78,11 +78,7 @@ suite('auto-unitalicized commands', function() {
 
   test('typing on either side', function() {
     var count = 0;
-    var _autoUnItalicize = Letter.prototype.autoUnItalicize;
-    Letter.prototype.autoUnItalicize = function() {
-      count += 1;
-      return _autoUnItalicize.apply(this, arguments);
-    };
+    countAutoUnItalicizeCalls(function() { count += 1; });
 
     mq.latex('sin');
     assertLatex('parsing \'sin\'', '\\sin');
