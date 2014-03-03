@@ -158,8 +158,7 @@ var Node = P(function(_) {
   };
 
   _.eachChild = function() {
-    var children = this.children();
-    children.each.apply(children, arguments);
+    Fragment.prototype.each.apply(this.children(), arguments);
     return this;
   };
 
