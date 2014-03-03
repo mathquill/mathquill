@@ -140,15 +140,6 @@ var Node = P(function(_) {
     return this;
   });
 
-  _.postOrder = iterator(function(yield) {
-    (function recurse(descendant) {
-      descendant.eachChild(recurse);
-      yield(descendant);
-    })(this);
-
-    return this;
-  });
-
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
@@ -164,6 +155,11 @@ var Node = P(function(_) {
 
   _.foldChildren = function(fold, fn) {
     return this.children().fold(fold, fn);
+  };
+
+  _.postOrder = function() {
+    Fragment.prototype.postOrder.apply(this.children(), arguments);
+    return this;
   };
 
   _.adopt = function(parent, leftward, rightward) {
@@ -304,7 +300,7 @@ var Fragment = P(function(_) {
 
   _.remove = function() {
     this.jQ.remove();
-    this.each('postOrder', 'dispose');
+    this.postOrder('dispose');
     return this.disown();
   };
 
@@ -328,6 +324,13 @@ var Fragment = P(function(_) {
 
     return fold;
   };
+
+  _.postOrder = iterator(function(yield) {
+    return this.each(function recurse(descendant) {
+      descendant.eachChild(recurse);
+      yield(descendant);
+    });
+  });
 
   // create and return the Fragment between Point A and Point B, or if they
   // don't share a parent, between the ancestor of A and the ancestor of B
