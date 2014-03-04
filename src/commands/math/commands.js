@@ -235,7 +235,7 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
 });
 
-var BigSymbol = P(MathCommand, function(_, _super) {
+var SummationNotation = P(MathCommand, function(_, _super) {
   _.init = function(ch, html) {
     var htmlTemplate =
       '<span class="large-operator non-leaf">'
@@ -283,14 +283,14 @@ var BigSymbol = P(MathCommand, function(_, _super) {
 
 LatexCmds['∑'] =
 LatexCmds.sum =
-LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
+LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
 
 LatexCmds['∏'] =
 LatexCmds.prod =
-LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
+LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 
 LatexCmds.coprod =
-LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
+LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
 
 
 
