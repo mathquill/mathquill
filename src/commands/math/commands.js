@@ -246,9 +246,6 @@ var BigSymbol = P(MathCommand, function(_, _super) {
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
   };
-  _.placeCursor = function(cursor) {
-    /// cursor.appendTo(this.ends[L]).writeLatex('n=').show();
-  };
   _.latex = function() {
     function simplify(latex) {
       return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
