@@ -48,14 +48,14 @@ var Letter = P(Variable, function(_, _super) {
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
       for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
         if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
-          if (first[L] instanceof Variable) first.jQ.addClass('first');
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
           first.isFirstLetter = true;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.jQ.addClass('un-italicized');
             var last = letter;
           }
           last.isLastLetter = true;
-          if (last[R] instanceof Variable) last.jQ.addClass('last');
+          if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
           i += len - 1;
           first = last;
           continue outer;
@@ -63,6 +63,9 @@ var Letter = P(Variable, function(_, _super) {
       }
     }
   };
+  function nonOperatorSymbol(node) {
+    return node instanceof Symbol && !(node instanceof BinaryOperator);
+  }
   _.latex = function() {
     return (
       this.isFirstLetter ? '\\' + this.ctrlSeq :
