@@ -2,13 +2,6 @@
  * Abstract classes of math blocks and commands.
  ************************************************/
 
-/**
- * Math tree node base class.
- * Some math-tree-specific extensions to Node.
- * Both MathBlock's and MathCommand's descend from it.
- */
-var MathElement = Node;
-
 // TODO: simplify inserting math
 function finalizeInsertingMath(frag, origSiblings, cursor) {
   frag.postOrder('finalizeTree');
@@ -31,7 +24,7 @@ function finalizeInsertingMath(frag, origSiblings, cursor) {
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
-var MathCommand = P(MathElement, function(_, _super) {
+var MathCommand = P(Node, function(_, _super) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
     var cmd = this;
     _super.init.call(cmd);
@@ -335,7 +328,7 @@ var Symbol = P(MathCommand, function(_, _super) {
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-var MathBlock = P(MathElement, function(_, _super) {
+var MathBlock = P(Node, function(_, _super) {
   _.join = function(methodName) {
     return this.foldChildren('', function(fold, child) {
       return fold + child[methodName]();
