@@ -85,15 +85,12 @@ Controller.open(function(_, _super) {
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
     if (block) {
-      var sibs = Point.copy(cursor);
+      var origSiblings = Point.copy(cursor);
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
       cursor[L] = block.ends[R];
-      block.finalizeInsert(0, cursor);
-      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L, sibs[L]);
-      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R, sibs[R]);
-      cursor.parent.bubble('edited');
+      finalizeInsertingMath(block.children(), origSiblings, cursor);
     }
 
     return this;
@@ -119,7 +116,7 @@ Controller.open(function(_, _super) {
       var html = block.join('html');
       jQ.html(html);
       root.jQize(jQ.children());
-      root.finalizeInsert();
+      finalizeInsertingMath(Fragment(root, root));
     }
     else {
       jQ.empty();
@@ -171,7 +168,7 @@ Controller.open(function(_, _super) {
 
       root.jQize().appendTo(root.jQ);
 
-      root.finalizeInsert();
+      finalizeInsertingMath(Fragment(root, root));
     }
   };
 });

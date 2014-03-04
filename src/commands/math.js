@@ -7,24 +7,25 @@
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(Node, function(_, _super) {
-  _.finalizeInsert = function(origSiblings, cursor) {
-    var self = this;
-    self.postOrder('finalizeTree');
-    self.postOrder('contactWeld', cursor);
+var MathElement = Node;
 
-    // note: this order is important.
-    // empty elements need the empty box provided by blur to
-    // be present in order for their dimensions to be measured
-    // correctly by 'edited' handlers.
-    self.postOrder('blur');
+// TODO: simplify inserting math
+function finalizeInsertingMath(frag, origSiblings, cursor) {
+  frag.postOrder('finalizeTree');
+  frag.postOrder('contactWeld', cursor);
 
-    self.postOrder('edited');
-    if (self[R].siblingCreated) self[R].siblingCreated(L, origSiblings[L]);
-    if (self[L].siblingCreated) self[L].siblingCreated(R, origSiblings[R]);
-    self.bubble('edited');
-  };
-});
+  // note: this order is important.
+  // empty elements need the empty box provided by blur to
+  // be present in order for their dimensions to be measured
+  // correctly by 'edited' handlers.
+  frag.postOrder('blur');
+
+  frag.postOrder('edited');
+  var rightward = frag.ends[R][R], leftward = frag.ends[L][L];
+  if (rightward.siblingCreated) rightward.siblingCreated(L, origSiblings[L]);
+  if (leftward.siblingCreated) leftward.siblingCreated(R, origSiblings[R]);
+  if (frag.ends[L].parent) frag.ends[L].parent.bubble('edited');
+}
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -78,7 +79,7 @@ var MathCommand = P(MathElement, function(_, _super) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
-    cmd.finalizeInsert(origSiblings);
+    finalizeInsertingMath(Fragment(cmd, cmd), origSiblings);
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {

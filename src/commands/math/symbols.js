@@ -248,15 +248,12 @@ LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
 var LatexFragment = P(MathCommand, function(_) {
   _.init = function(latex) { this.latex = latex; };
   _.createLeftOf = function(cursor) {
-    var sibs = Point.copy(cursor);
+    var origSiblings = Point.copy(cursor);
     var block = latexMathParser.parse(this.latex);
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
-    block.finalizeInsert(0, cursor);
-    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L, sibs[L]);
-    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R, sibs[R]);
-    cursor.parent.bubble('edited');
+    finalizeInsertingMath(block.children(), origSiblings, cursor);
   };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();
