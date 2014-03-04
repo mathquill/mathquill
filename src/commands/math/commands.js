@@ -281,13 +281,11 @@ var BigSymbol = P(MathCommand, function(_, _super) {
   };
 });
 
-// LatexCmds['∑'] =
-LatexCmds['\u2211'] =
+LatexCmds['∑'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
 
-// LatexCmds['∏'] =
-LatexCmds['\u220F'] =
+LatexCmds['∏'] =
 LatexCmds.prod =
 LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
 
