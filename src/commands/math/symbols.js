@@ -300,19 +300,10 @@ var BinaryOperator = P(Symbol, function(_, _super) {
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
-  _.contactWeld = _.siblingCreated = _.siblingDeleted = function() {
-    if (!this[L]) {
-      this.jQ[0].className = '';
-    }
-    else if (
-      this[L] instanceof BinaryOperator &&
-      this[R] && !(this[R] instanceof BinaryOperator)
-    ) {
-      this.jQ[0].className = 'unary-operator';
-    }
-    else {
-      this.jQ[0].className = 'binary-operator';
-    }
+  _.contactWeld = _.siblingCreated = _.siblingDeleted = function(dir) {
+    if (dir === R) return; // ignore if sibling only changed on the right
+    this.jQ[0].className =
+      (!this[L] || this[L] instanceof BinaryOperator ? '' : 'binary-operator');
     return this;
   };
 });
