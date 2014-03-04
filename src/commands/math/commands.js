@@ -235,6 +235,76 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
 });
 
+var BigSymbol = P(MathCommand, function(_, _super) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+      '<span class="large-operator non-leaf">'
+    +   '<span class="to"><span>&1</span></span>'
+    +   '<big>'+html+'</big>'
+    +   '<span class="from"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.placeCursor = function(cursor) {
+    /// cursor.appendTo(this.ends[L]).writeLatex('n=').show();
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
+      '^' + simplify(this.ends[R].latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this;
+    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
+    for (var i = 0; i < blocks.length; i += 1) {
+      blocks[i].adopt(self, self.ends[R], 0);
+    }
+
+    return optWhitespace.then(string('_').or(string('^'))).then(function(supOrSub) {
+      var child = blocks[supOrSub === '_' ? 0 : 1];
+      return block.then(function(block) {
+        block.children().adopt(child, child.ends[R], 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L];
+    // this.ends[L].upOutOf = insRightUnlessAtBeginning;
+    this.ends[L].upOutOf = this.ends[R];
+
+    this.upInto = this.ends[R];
+    // this.ends[R].downOutOf = insRightUnlessAtBeginning;
+    this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
+// LatexCmds['∑'] =
+LatexCmds['\u2211'] =
+LatexCmds.sum =
+LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
+
+// LatexCmds['∏'] =
+LatexCmds['\u220F'] =
+LatexCmds.prod =
+LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
+
+LatexCmds.coprod =
+LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
+
+LatexCmds['∫'] =
+LatexCmds['int'] =
+LatexCmds.integral = bind(Symbol,'\\int ','&int;');
+
+
 function insLeftOfMeUnlessAtEnd(cursor) {
   // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
   // ancestor cmd is at the end of every ancestor block
