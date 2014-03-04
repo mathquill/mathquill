@@ -2,6 +2,10 @@
  * Symbols and Special Characters
  *********************************/
 
+LatexCmds['∫'] =
+LatexCmds['int'] =
+LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
+
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
 var Variable = P(Symbol, function(_, _super) {
@@ -414,20 +418,6 @@ LatexCmds.notsupsete = LatexCmds.notsupseteq =
 LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
-
-
-//sum, product, coproduct, integral
-var BigSymbol = P(Symbol, function(_, _super) {
-  _.init = function(ch, html) {
-    _super.init.call(this, ch, '<big>'+html+'</big>');
-  };
-});
-
-LatexCmds['∑'] = LatexCmds.sum = LatexCmds.summation = bind(BigSymbol,'\\sum ','&sum;');
-LatexCmds['∏'] = LatexCmds.prod = LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
-LatexCmds.coprod = LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
-LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = bind(BigSymbol,'\\int ','&int;');
-
 
 
 //the canonical sets of numbers
