@@ -185,21 +185,8 @@ var SupSub = P(MathCommand, function(_, _super) {
     return latex('_', this.sub) + latex('^', this.sup);
   };
   _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
-    if (dir === R) return; // note .contactWeld() calls .respace() w/o dir argument
-
-    if (this[L].ctrlSeq === '\\int ') {
-      if (!this.limit) {
-        this.limit = true;
-        this.jQ.addClass('limit');
-      }
-    }
-    else {
-      if (this.limit) {
-        this.limit = false;
-        this.jQ.removeClass('limit');
-      }
-    }
-    return this;
+    if (dir === R) return; // ignore if sibling only changed on the right
+    this.jQ.toggleClass('limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
