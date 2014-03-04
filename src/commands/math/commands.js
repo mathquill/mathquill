@@ -297,9 +297,6 @@ LatexCmds.product = bind(BigSymbol,'\\prod ','&prod;');
 LatexCmds.coprod =
 LatexCmds.coproduct = bind(BigSymbol,'\\coprod ','&#8720;');
 
-LatexCmds['∫'] =
-LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','&int;');
 
 
 function insLeftOfMeUnlessAtEnd(cursor) {
