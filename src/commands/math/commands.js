@@ -275,11 +275,8 @@ var BigSymbol = P(MathCommand, function(_, _super) {
   };
   _.finalizeTree = function() {
     this.downInto = this.ends[L];
-    // this.ends[L].upOutOf = insRightUnlessAtBeginning;
-    this.ends[L].upOutOf = this.ends[R];
-
     this.upInto = this.ends[R];
-    // this.ends[R].downOutOf = insRightUnlessAtBeginning;
+    this.ends[L].upOutOf = this.ends[R];
     this.ends[R].downOutOf = this.ends[L];
   };
 });
