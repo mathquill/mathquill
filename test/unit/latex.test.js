@@ -119,23 +119,23 @@ suite('latex', function() {
       $(mq.el()).remove();
     });
     test('basic', function() {
-      mq.latex('\\sum_{n=0}^5');
+      mq.write('\\sum_{n=0}^5');
       assert.equal(mq.latex(), '\\sum_{n=0}^5');
-      mq.typedText('x^n');
+      mq.write('x^n');
       assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
     });
 
     test('only lower bound', function() {
-      mq.latex('\\sum_{n=0}');
+      mq.write('\\sum_{n=0}');
       assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
-      mq.typedText('x^n');
+      mq.write('x^n');
       assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
     });
 
     test('only upper bound', function() {
-      mq.latex('\\sum^5');
+      mq.write('\\sum^5');
       assert.equal(mq.latex(), '\\sum_{ }^5');
-      mq.typedText('x^n');
+      mq.write('x^n');
       assert.equal(mq.latex(), '\\sum_{ }^5x^n');
     });
   });
