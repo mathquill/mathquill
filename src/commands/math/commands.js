@@ -311,6 +311,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
       while (leftward &&
         !(
           leftward instanceof BinaryOperator ||
+          leftward instanceof HalfBracket ||
           leftward instanceof TextBlock ||
           leftward instanceof BigSymbol ||
           /^[,;:]$/.test(leftward.ctrlSeq)
@@ -387,7 +388,45 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-var Bracket = P(MathCommand, function(_, _super) {
+//   first typed as HalfBracket's, then if you type a matching one in the
+//   appropriate direction it will create a BracketGroup containing the
+//   stuff between the 2 matching HalfBracket's
+var HalfBracket = P(Symbol, function(_, _super) {
+  _.init = function(side, open, close, ctrlSeq, end) {
+    this.side = side;
+    this.params = Array.prototype.slice.call(arguments, 1);
+    var ch = (side === L ? open : close);
+    _super.init.call(this, ch, '<span class="paren">'+ch+'</span>');
+  };
+  _.replaces = MathCommand.p.replaces;
+  _.createLeftOf = function(cursor) {
+    if (!this.replacedFragment) { // then look for matching half-bracket
+      var dir = -this.side;
+      var node = cursor[dir];
+      while (node
+             && !(node instanceof HalfBracket
+                  && node.open === this.open
+                  && node.side === -this.side)
+      ) node = node[dir];
+      if (node instanceof HalfBracket) { // found a matching half-bracket!
+        if (cursor[dir] !== node) this.replaces(Fragment(cursor[dir], node[-dir], -dir));
+        node.remove();
+        cursor[dir] = node[dir];
+      }
+    }
+    if (this.replacedFragment || node instanceof HalfBracket) {
+      var brack = BracketGroup.apply(null, this.params);
+      if (this.replacedFragment) brack.replaces(this.replacedFragment);
+      brack.createLeftOf(cursor);
+      if (this.side === L) cursor.insAtLeftEnd(brack.ends[L]);
+      else cursor.insRightOf(brack);
+      return;
+    }
+    _super.createLeftOf.call(this, cursor);
+  };
+});
+
+var BracketGroup = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
         '<span class="non-leaf">'
@@ -403,6 +442,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     var jQ = this.jQ;
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
+  _.placeCursor = noop;
   _.latex = function() {
     return this.ctrlSeq + this.ends[L].latex() + this.end;
   };
@@ -415,6 +455,16 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
 });
 
+CharCmds['{'] = bind(HalfBracket, L, '{', '}', '\\{', '\\}');
+CharCmds['}'] = bind(HalfBracket, R, '{', '}', '\\{', '\\}');
+LatexCmds.langle = bind(HalfBracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.rangle = bind(HalfBracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+CharCmds['('] = bind(HalfBracket, L, '(', ')', '(', ')');
+CharCmds[')'] = bind(HalfBracket, R, '(', ')', '(', ')');
+CharCmds['['] = bind(HalfBracket, L, '[', ']', '[', ']');
+CharCmds[']'] = bind(HalfBracket, R, '[', ']', '[', ']');
+CharCmds['|'] = bind(HalfBracket, L, '|', '|', '|', '|');
+
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
     var regex = Parser.regex;
@@ -426,7 +476,7 @@ LatexCmds.left = P(MathCommand, function(_) {
       .then(function(open) {
         if (open.charAt(0) === '\\') open = open.slice(1);
 
-        var cmd = CharCmds[open]();
+        var cmd = BracketGroup.apply(null, CharCmds[open]().params);
 
         return latexMathParser
           .map(function (block) {
@@ -453,65 +503,6 @@ LatexCmds.right = P(MathCommand, function(_) {
   _.parser = function() {
     return Parser.fail('unmatched \\right');
   };
-});
-
-LatexCmds.lbrace =
-CharCmds['{'] = bind(Bracket, '{', '}', '\\{', '\\}');
-LatexCmds.langle =
-LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
-
-// Closing bracket matching opening bracket above
-var CloseBracket = P(Bracket, function(_, _super) {
-  _.createLeftOf = function(cursor) {
-    // if I'm at the end of my parent who is a matching open-paren,
-    // and I am not replacing a selection fragment, don't create me,
-    // just put cursor after my parent
-    if (!cursor[R] && cursor.parent.parent && cursor.parent.parent.end === this.end && !this.replacedFragment)
-      cursor.insRightOf(cursor.parent.parent);
-    else
-      _super.createLeftOf.call(this, cursor);
-  };
-  _.placeCursor = function(cursor) {
-    cursor.insRightOf(this);
-  };
-});
-
-LatexCmds.rbrace =
-CharCmds['}'] = bind(CloseBracket, '{','}','\\{','\\}');
-LatexCmds.rangle =
-LatexCmds.rang = bind(CloseBracket, '&lang;','&rang;','\\langle ','\\rangle ');
-
-var parenMixin = function(_, _super) {
-  _.init = function(open, close) {
-    _super.init.call(this, open, close, open, close);
-  };
-};
-
-var Paren = P(Bracket, parenMixin);
-
-LatexCmds.lparen =
-CharCmds['('] = bind(Paren, '(', ')');
-LatexCmds.lbrack =
-LatexCmds.lbracket =
-CharCmds['['] = bind(Paren, '[', ']');
-
-var CloseParen = P(CloseBracket, parenMixin);
-
-LatexCmds.rparen =
-CharCmds[')'] = bind(CloseParen, '(', ')');
-LatexCmds.rbrack =
-LatexCmds.rbracket =
-CharCmds[']'] = bind(CloseParen, '[', ']');
-
-var Pipes =
-LatexCmds.lpipe =
-LatexCmds.rpipe =
-CharCmds['|'] = P(Paren, function(_, _super) {
-  _.init = function() {
-    _super.init.call(this, '|', '|');
-  };
-
-  _.createLeftOf = CloseBracket.prototype.createLeftOf;
 });
 
 // input box to type a variety of LaTeX commands beginning with a backslash
