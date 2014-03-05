@@ -142,8 +142,8 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     this.controller.keystroke(key, { preventDefault: noop });
     return this;
   };
-  _.typedText = function(ch) {
-    this.controller.typedText(ch);
+  _.typedText = function(text) {
+    for (var i = 0; i < text.length; i += 1) this.controller.typedText(text.charAt(i));
     return this;
   };
 });
