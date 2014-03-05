@@ -217,20 +217,23 @@ function prayWellFormed(parent, leftward, rightward) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.init = function(leftEnd, rightEnd) {
-    pray('no half-empty fragments', !leftEnd === !rightEnd);
+  _.init = function(withDir, oppDir, dir) {
+    if (dir === undefined) dir = L;
+    prayDirection(dir);
+
+    pray('no half-empty fragments', !withDir === !oppDir);
 
     this.ends = {};
 
-    if (!leftEnd) return;
+    if (!withDir) return;
 
-    pray('left end node is passed to Fragment', leftEnd instanceof Node);
-    pray('right end node is passed to Fragment', rightEnd instanceof Node);
-    pray('leftEnd and rightEnd have the same parent',
-         leftEnd.parent === rightEnd.parent);
+    pray('withDir is passed to Fragment', withDir instanceof Node);
+    pray('oppDir is passed to Fragment', oppDir instanceof Node);
+    pray('withDir and oppDir have the same parent',
+         withDir.parent === oppDir.parent);
 
-    this.ends[L] = leftEnd;
-    this.ends[R] = rightEnd;
+    this.ends[dir] = withDir;
+    this.ends[-dir] = oppDir;
 
     this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
   };
