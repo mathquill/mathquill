@@ -367,12 +367,12 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
         !(
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
-          leftward instanceof BigSymbol ||
+          leftward instanceof SummationNotation ||
           /^[,;:]$/.test(leftward.ctrlSeq)
         ) //lookbehind for operator
       ) leftward = leftward[L];
 
-      if (leftward instanceof BigSymbol && leftward[R] instanceof SupSub) {
+      if (leftward instanceof SummationNotation && leftward[R] instanceof SupSub) {
         leftward = leftward[R];
         if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
           leftward = leftward[R];
