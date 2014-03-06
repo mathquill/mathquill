@@ -388,34 +388,32 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 });
 
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
-//   first typed as HalfBracket's, then if you type a matching one in the
-//   appropriate direction it will create a BracketGroup containing the
-//   stuff between the 2 matching HalfBracket's
+//   first typed as HalfBracket's, then if you type an opposing one it
+//   will create a BracketGroup containing the stuff between the two
 var HalfBracket = P(Symbol, function(_, _super) {
-  _.init = function(side, open, close, ctrlSeq, end) {
+  _.init = function(side, ch, ctrlSeq) {
     this.side = side;
-    this.params = Array.prototype.slice.call(arguments, 1);
-    var ch = (side === L ? open : close);
+    this.ch = ch;
+    this.ctrlSeq = ctrlSeq;
     _super.init.call(this, ch, '<span class="paren">'+ch+'</span>');
   };
   _.replaces = MathCommand.p.replaces;
   _.createLeftOf = function(cursor) {
-    if (!this.replacedFragment) { // then look for matching half-bracket
+    if (!this.replacedFragment) { // then look for opposing half-bracket
       var dir = -this.side;
-      var node = cursor[dir];
-      while (node
-             && !(node instanceof HalfBracket
-                  && node.open === this.open
-                  && node.side === -this.side)
-      ) node = node[dir];
-      if (node instanceof HalfBracket) { // found a matching half-bracket!
-        if (cursor[dir] !== node) this.replaces(Fragment(cursor[dir], node[-dir], -dir));
-        node.remove();
-        cursor[dir] = node[dir];
+      for (var opp = cursor[dir]; // TODO: for |...|, search in both dirs
+           opp && !(opp instanceof HalfBracket && opp.side === -this.side);
+           opp = opp[dir]);
+      if (opp instanceof HalfBracket) { // found an opposing half-bracket!
+        if (cursor[dir] !== opp) this.replaces(Fragment(cursor[dir], opp[-dir], -dir));
+        opp.remove();
+        cursor[dir] = opp[dir];
       }
     }
-    if (this.replacedFragment || node instanceof HalfBracket) {
-      var brack = BracketGroup.apply(null, this.params);
+    if (this.replacedFragment || opp instanceof HalfBracket) {
+      var brack = (this.side === L
+        ? BracketGroup(this.ch, opp.ch, this.ctrlSeq, opp.ctrlSeq)
+        : BracketGroup(opp.ch, this.ch, opp.ctrlSeq, this.ctrlSeq));
       if (this.replacedFragment) brack.replaces(this.replacedFragment);
       brack.createLeftOf(cursor);
       if (this.side === L) cursor.insAtLeftEnd(brack.ends[L]);
@@ -436,7 +434,9 @@ var BracketGroup = P(MathCommand, function(_, _super) {
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
-    this.params = Array.prototype.slice.call(arguments);
+    this.sides = {};
+    this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
+    this.sides[R] = { ch: close, ctrlSeq: end };
   };
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
@@ -455,7 +455,7 @@ var BracketGroup = P(MathCommand, function(_, _super) {
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
   _.halve = function(dir, cursor) {
-    HalfBracket.apply(null, [ dir ].concat(this.params))
+    HalfBracket(dir, this.sides[dir].ch, this.sides[dir].ctrlSeq)
       .withDirAdopt(dir, this.parent, this[dir], this).jQize().insDirOf(dir, this.jQ);
     this.ends[L].children().disown()
       .withDirAdopt(dir, this.parent, this[dir], this).jQ.insDirOf(dir, this.jQ);
@@ -474,15 +474,15 @@ var BracketGroup = P(MathCommand, function(_, _super) {
   };
 });
 
-CharCmds['{'] = bind(HalfBracket, L, '{', '}', '\\{', '\\}');
-CharCmds['}'] = bind(HalfBracket, R, '{', '}', '\\{', '\\}');
-LatexCmds.langle = bind(HalfBracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-LatexCmds.rangle = bind(HalfBracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-CharCmds['('] = bind(HalfBracket, L, '(', ')', '(', ')');
-CharCmds[')'] = bind(HalfBracket, R, '(', ')', '(', ')');
-CharCmds['['] = bind(HalfBracket, L, '[', ']', '[', ']');
-CharCmds[']'] = bind(HalfBracket, R, '[', ']', '[', ']');
-CharCmds['|'] = bind(HalfBracket, L, '|', '|', '|', '|');
+CharCmds['{'] = bind(HalfBracket, L, '{', '\\{');
+CharCmds['}'] = bind(HalfBracket, R, '}', '\\}');
+LatexCmds.langle = bind(HalfBracket, L, '&lang;', '\\langle ');
+LatexCmds.rangle = bind(HalfBracket, R, '&rang;', '\\rangle ');
+CharCmds['('] = bind(HalfBracket, L, '(', '(');
+CharCmds[')'] = bind(HalfBracket, R, ')', ')');
+CharCmds['['] = bind(HalfBracket, L, '[', '[');
+CharCmds[']'] = bind(HalfBracket, R, ']', ']');
+CharCmds['|'] = bind(HalfBracket, 0, '|', '|');
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -492,27 +492,19 @@ LatexCmds.left = P(MathCommand, function(_) {
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
-      .then(function(open) {
-        if (open.charAt(0) === '\\') open = open.slice(1);
-
-        var cmd = BracketGroup.apply(null, CharCmds[open]().params);
-
-        return latexMathParser
-          .map(function (block) {
-            cmd.blocks = [ block ];
-            block.adopt(cmd, 0, 0);
-          })
-          .then(string('\\right'))
-          .skip(optWhitespace)
-          .then(regex(/^(?:[\])|]|\\\})/))
-          .then(function(close) {
-            if (close.slice(-1) !== cmd.end.slice(-1)) {
-              return Parser.fail('open doesn\'t match close');
-            }
-
-            return succeed(cmd);
-          })
-        ;
+      .then(function(ctrlSeq) { // TODO: \langle, \rangle
+        var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq : ctrlSeq.slice(1));
+        return latexMathParser.then(function (block) {
+          return string('\\right').skip(optWhitespace)
+            .then(regex(/^(?:[\])|]|\\\})/)).map(function(end) {
+              var close = (end.charAt(0) === '\\' ? end : end.slice(1));
+              var cmd = BracketGroup(open, close, ctrlSeq, end);
+              cmd.blocks = [ block ];
+              block.adopt(cmd, 0, 0);
+              return cmd;
+            })
+          ;
+        });
       })
     ;
   };
