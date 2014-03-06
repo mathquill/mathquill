@@ -39,5 +39,17 @@ suite('typing with auto-replaces', function() {
     mq.typedText(')');
     prayWellFormedPoint(mq.controller.cursor);
     assert.equal(mq.latex(), '\\left(1+2+\\left(3+4\\right)\\right)');
+
+    mq.keystroke('Left').keystroke('Backspace');
+    prayWellFormedPoint(mq.controller.cursor);
+    assert.equal(mq.latex(), '\\left(1+2+(3+4\\right)');
+
+    mq.keystroke('Del');
+    prayWellFormedPoint(mq.controller.cursor);
+    assert.equal(mq.latex(), '(1+2+(3+4');
+
+    mq.latex('1+\\left(\\right)').keystroke('Backspace');
+    prayWellFormedPoint(mq.controller.cursor);
+    assert.equal(mq.latex(), '1+(');
   });
 });

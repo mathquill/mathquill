@@ -436,6 +436,7 @@ var BracketGroup = P(MathCommand, function(_, _super) {
       + '</span>',
       [open, close]);
     this.end = '\\right'+end;
+    this.params = Array.prototype.slice.call(arguments);
   };
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
@@ -452,6 +453,24 @@ var BracketGroup = P(MathCommand, function(_, _super) {
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
 
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
+  };
+  _.halve = function(dir, cursor) {
+    HalfBracket.apply(null, [ dir ].concat(this.params))
+      .withDirAdopt(dir, this.parent, this[dir], this).jQize().insDirOf(dir, this.jQ);
+    this.ends[L].children().disown()
+      .withDirAdopt(dir, this.parent, this[dir], this).jQ.insDirOf(dir, this.jQ);
+    this.remove();
+  };
+  _.deleteTowards = function(dir, cursor) {
+    this.halve(dir, cursor);
+    cursor[dir] = cursor[-dir][dir] || cursor.parent.ends[-dir];
+  };
+  _.finalizeTree = function() {
+    this.ends[L].deleteOutOf = function(dir, cursor) {
+      this.parent.halve(-dir, cursor);
+      this.parent[dir] ? cursor.insDirOf(-dir, this.parent[dir])
+                       : cursor.insAtDirEnd(dir, this.parent.parent);
+    };
   };
 });
 
