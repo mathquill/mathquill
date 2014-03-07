@@ -123,9 +123,8 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
   `.moveToDirEnd(dir)` where `dir` is one of `MathQuill.L` or `MathQuill.R`,
   constants obeying the contract that `MathQuill.L === -MathQuill.R` and vice
   versa.)
-* `.keystroke(key)` simulates a keystroke, where `key` is a string like
-  `Home` or `Shift-Right`: [one of these key values][] preceeded optionally by
-  modifier prefixes
+* `.keystroke(keys)` simulates keystrokes given a string like `"Ctrl-Home Del"`,
+  a whitespace-delimited list of [key values][] with optional prefixes
 * `.typedText(text)` simulates typing text, one character at a time
 
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622

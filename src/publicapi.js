@@ -138,8 +138,11 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
   _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
 
-  _.keystroke = function(key) {
-    this.controller.keystroke(key, { preventDefault: noop });
+  _.keystroke = function(keys) {
+    var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
+    for (var i = 0; i < keys.length; i += 1) {
+      this.controller.keystroke(keys[i], { preventDefault: noop });
+    }
     return this;
   };
   _.typedText = function(text) {

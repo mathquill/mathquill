@@ -10,14 +10,6 @@ suite('up/down', function() {
     $(mq.el()).remove();
   });
 
-  function move(dirs) {
-    // like, move('Left Left Left Up')
-    dirs = dirs.split(' ');
-    for (var i in dirs) {
-      mq.keystroke(dirs[i]);
-    }
-  }
-
   test('up/down in out of exponent', function() {
     controller.renderLatexMath('x^{nm}');
     var exp = rootBlock.ends[R],
@@ -26,27 +18,27 @@ suite('up/down', function() {
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], exp, 'cursor is at the end of root block');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, expBlock, 'cursor up goes into exponent');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, rootBlock, 'cursor down leaves exponent');
     assert.equal(cursor[L], exp, 'down when cursor at end of exponent puts cursor after exponent');
 
-    move('Up Left Left');
+    mq.keystroke('Up Left Left');
     assert.equal(cursor.parent, expBlock, 'cursor up left stays in exponent');
     assert.equal(cursor[L], 0, 'cursor is at the beginning of exponent');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, rootBlock, 'cursor down leaves exponent');
     assert.equal(cursor[R], exp, 'cursor down in beginning of exponent puts cursor before exponent');
 
-    move('Up Right');
+    mq.keystroke('Up Right');
     assert.equal(cursor.parent, expBlock, 'cursor up left stays in exponent');
     assert.equal(cursor[L].latex(), 'n', 'cursor is in the middle of exponent');
     assert.equal(cursor[R].latex(), 'm', 'cursor is in the middle of exponent');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, rootBlock, 'cursor down leaves exponent');
     assert.equal(cursor[R], exp, 'cursor down in middle of exponent puts cursor before exponent');
   });
@@ -60,27 +52,27 @@ suite('up/down', function() {
     assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
     assert.equal(cursor[L], sub, 'cursor is at the end of root block');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, subBlock, 'cursor down goes into subscript');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, rootBlock, 'cursor up leaves subscript');
     assert.equal(cursor[L], sub, 'up when cursor at end of subscript puts cursor after subscript');
 
-    move('Down Left Left');
+    mq.keystroke('Down Left Left');
     assert.equal(cursor.parent, subBlock, 'cursor down left stays in subscript');
     assert.equal(cursor[L], 0, 'cursor is at the beginning of subscript');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, rootBlock, 'cursor up leaves subscript');
     assert.equal(cursor[R], sub, 'cursor up in beginning of subscript puts cursor before subscript');
 
-    move('Down Right');
+    mq.keystroke('Down Right');
     assert.equal(cursor.parent, subBlock, 'cursor down left stays in subscript');
     assert.equal(cursor[L].latex(), '1', 'cursor is in the middle of subscript');
     assert.equal(cursor[R].latex(), '2', 'cursor is in the middle of subscript');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, rootBlock, 'cursor up leaves subscript');
     assert.equal(cursor[R], sub, 'cursor up in middle of subscript puts cursor before subscript');
   });
@@ -95,31 +87,31 @@ suite('up/down', function() {
     assert.equal(numer.latex(), '12', 'numerator is left end child of fraction');
     assert.equal(denom.latex(), '34', 'denominator is right end child of fraction');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
     assert.equal(cursor[R], 0, 'cursor up from right of fraction inserts at right end of numerator');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
     assert.equal(cursor[L], 0, 'cursor down from numerator inserts at left end of denominator');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
     assert.equal(cursor[R], 0, 'cursor up from denominator inserts at right end of numerator');
 
-    move('Left Left Left');
+    mq.keystroke('Left Left Left');
     assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
     assert.equal(cursor[R], frac, 'cursor before fraction');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
     assert.equal(cursor[L], 0, 'cursor up from left of fraction inserts at left end of numerator');
 
-    move('Left');
+    mq.keystroke('Left');
     assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
     assert.equal(cursor[R], frac, 'cursor before fraction');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
     assert.equal(cursor[L], 0, 'cursor down from left of fraction inserts at left end of denominator');
   });
@@ -132,13 +124,13 @@ suite('up/down', function() {
       halfNumer = half.ends[L],
       halfDenom = half.ends[R];
 
-    move('Left');
+    mq.keystroke('Left');
     assert.equal(cursor.parent, expBlock, 'cursor left goes into exponent');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, halfDenom, 'cursor down goes into denominator of half');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, rootBlock, 'down again puts cursor back in root block');
     assert.equal(cursor[L], exp, 'down from end of half puts cursor after exponent');
 
@@ -152,20 +144,20 @@ suite('up/down', function() {
       subFracDenom = subFrac.ends[R];
 
     cursor.insAtLeftEnd(rootBlock);
-    move('Down Right Right Down');
+    mq.keystroke('Down Right Right Down');
     assert.equal(cursor.parent, subBlock, 'cursor in subscript');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, subFracNumer, 'cursor up from beginning of subscript goes into subscript fraction numerator');
 
-    move('Up');
+    mq.keystroke('Up');
     assert.equal(cursor.parent, dxBlock, 'cursor up from subscript fraction numerator goes out of subscript');
     assert.equal(cursor[R], sub, 'cursor up from subscript fraction numerator goes before subscript');
 
-    move('Down Down');
+    mq.keystroke('Down Down');
     assert.equal(cursor.parent, subFracDenom, 'cursor in subscript fraction denominator');
 
-    move('Up Up');
+    mq.keystroke('Up Up');
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that\s not at right end goes out of subscript');
     assert.equal(cursor[R], sub, 'cursor up up from subscript fraction denominator that\s not at right end goes before subscript');
 
@@ -174,10 +166,10 @@ suite('up/down', function() {
     assert.equal(subFrac[R], 0, 'subscript fraction is at right end');
     assert.equal(cursor[L], subFrac, 'cursor after subscript fraction');
 
-    move('Down');
+    mq.keystroke('Down');
     assert.equal(cursor.parent, subFracDenom, 'cursor in subscript fraction denominator');
 
-    move('Up Up');
+    mq.keystroke('Up Up');
     assert.equal(cursor.parent, dxBlock, 'cursor up up from subscript fraction denominator that is at right end goes out of subscript');
     assert.equal(cursor[L], sub, 'cursor up up from subscript fraction denominator that is at right end goes after subscript');
   });
