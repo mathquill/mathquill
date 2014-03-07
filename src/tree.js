@@ -167,6 +167,11 @@ var Node = P(function(_) {
     return this.children().fold(fold, fn);
   };
 
+  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+    Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
+    return this;
+  };
+
   _.adopt = function(parent, leftward, rightward) {
     Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
@@ -239,6 +244,11 @@ var Fragment = P(function(_) {
   };
   _.jQ = $();
 
+  // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
+  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+    return (dir === L ? this.adopt(parent, withDir, oppDir)
+                      : this.adopt(parent, oppDir, withDir));
+  };
   _.adopt = function(parent, leftward, rightward) {
     prayWellFormed(parent, leftward, rightward);
 
