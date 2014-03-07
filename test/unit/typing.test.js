@@ -159,6 +159,46 @@ suite('typing with auto-replaces', function() {
       assertLatex('+4');
     });
 
+    test('rendering paren from LaTeX then backspacing close paren then open paren', function() {
+      mq.latex('1+\\left(2+3\\right)+4');
+      assertLatex('1+\\left(2+3\\right)+4');
+      mq.keystroke('Left Left Backspace');
+      assertLatex('1+\\left(2+3+4\\right)');
+      mq.keystroke('Left Left Left Backspace');
+      assertLatex('1+2+3+4');
+    });
+
+    test('rendering paren from LaTeX then backspacing open paren then close paren', function() {
+      mq.latex('1+\\left(2+3\\right)+4');
+      assertLatex('1+\\left(2+3\\right)+4');
+      mq.keystroke('Left Left Left Left Left Left Backspace');
+      assertLatex('\\left(1+2+3\\right)+4');
+      mq.keystroke('Right Right Right Right Backspace');
+      assertLatex('1+2+3+4');
+    });
+
+    test('wrapping selection in parens then backspacing close paren then open paren', function() {
+      mq.typedText('1+2+3+4');
+      assertLatex('1+2+3+4');
+      mq.keystroke('Left Left Shift-Left Shift-Left Shift-Left').typedText(')');
+      assertLatex('1+\\left(2+3\\right)+4');
+      mq.keystroke('Backspace');
+      assertLatex('1+\\left(2+3+4\\right)');
+      mq.keystroke('Left Left Left Backspace');
+      assertLatex('1+2+3+4');
+    });
+
+    test('wrapping selection in parens then backspacing open paren then close paren', function() {
+      mq.typedText('1+2+3+4');
+      assertLatex('1+2+3+4');
+      mq.keystroke('Left Left Shift-Left Shift-Left Shift-Left').typedText('(');
+      assertLatex('1+\\left(2+3\\right)+4');
+      mq.keystroke('Backspace');
+      assertLatex('\\left(1+2+3\\right)+4');
+      mq.keystroke('Right Right Right Right Backspace');
+      assertLatex('1+2+3+4');
+    });
+
     test('paren stays one-sided after typing after ghost paren', function() {
       mq.typedText('1+(2+3');
       assertLatex('1+\\left(2+3\\right)');

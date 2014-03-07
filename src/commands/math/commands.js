@@ -391,15 +391,24 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 //   far end of current block, until you type an opposing one
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(side, open, close, ctrlSeq, end) {
-    _super.init.call(this, '\\left'+ctrlSeq,
-        '<span class="non-leaf">'
-      +   '<span class="scaled paren'+(side === R ? ' ghost' : '')+'">'+open+'</span>'
-      +   '<span class="non-leaf">&0</span>'
-      +   '<span class="scaled paren'+(side === L ? ' ghost' : '')+'">'+close+'</span>'
-      + '</span>',
-      [open, close]);
+    _super.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
     this.end = '\\right'+end;
-    this.side = side;
+    this.side = side, this.open = open, this.close = close;
+  };
+  _.numBlocks = function() { return 1; };
+  _.html = function() { // wait until now so that .side may
+    this.htmlTemplate = // be set by createLeftOf or parser
+        '<span class="non-leaf">'
+      +   '<span class="scaled paren'+(this.side === R ? ' ghost' : '')+'">'
+      +     this.open
+      +   '</span>'
+      +   '<span class="non-leaf">&0</span>'
+      +   '<span class="scaled paren'+(this.side === L ? ' ghost' : '')+'">'
+      +     this.close
+      +   '</span>'
+      + '</span>'
+    ;
+    return _super.html.call(this);
   };
   _.jQadd = function() {
     _super.jQadd.apply(this, arguments);
@@ -432,7 +441,8 @@ var Bracket = P(MathCommand, function(_, _super) {
     }
     else {
       brack = this;
-      if (!brack.replacedFragment && cursor[-side]) { // auto-expand so ghost is at far end
+      if (brack.replacedFragment) brack.side = 0; // wrapping seln, don't be one-sided
+      else if (cursor[-side]) { // elsewise, auto-expand so ghost is at far end
         brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
         cursor[-side] = 0;
       }
@@ -496,6 +506,7 @@ LatexCmds.left = P(MathCommand, function(_) {
         if (open.charAt(0) === '\\') open = open.slice(1);
 
         var cmd = CharCmds[open]();
+        cmd.side = 0;
 
         return latexMathParser
           .map(function (block) {
