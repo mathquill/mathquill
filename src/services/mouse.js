@@ -84,8 +84,12 @@ Controller.open(function(_) {
     // seek from root, which is less accurate (e.g. fraction)
     cursor.clearSelection().show();
 
-    node.seek(pageX, cursor);
 
+    var dx = this.root.jQ.scrollLeft();
+    node.seek(pageX + dx, cursor);
+
+    this.scrollHoriz(); // before .selectFrom when mouse-selecting, so
+                        // always hits no-selection case in scrollHoriz and scrolls slower
     return this;
   };
 });

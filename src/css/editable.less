@@ -1,10 +1,20 @@
 .mathquill-editable {
   .inline-block;
-  white-space: pre-wrap;
-
+  .mathquill-root-block {
+    .inline-block;
+    width: 100%;
+    white-space: pre;
+    overflow: hidden;
+    vertical-align: middle;
+    // &:after is a fix for
+    // https://bugs.webkit.org/show_bug.cgi?id=35443#c1
+    &:after {
+      content: '';
+    }
+  }
   .cursor {
     border-left: 1px solid black;
-    margin-right: -1px;
+    margin-left: -1px;
     position: relative;
     z-index: 1;
     padding: 0;
