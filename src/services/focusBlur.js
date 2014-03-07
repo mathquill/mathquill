@@ -3,6 +3,7 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     ctrlr.textarea.focus(function() {
       ctrlr.blurred = false;
+      root.jQ.addClass('focused');
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
       cursor.parent.jQ.addClass('hasCursor');
@@ -14,6 +15,7 @@ Controller.open(function(_) {
         cursor.show();
     }).blur(function() {
       ctrlr.blurred = true;
+      root.jQ.removeClass('focused');
       cursor.hide().parent.blur();
       if (cursor.selection)
         cursor.selection.jQ.addClass('blur');
