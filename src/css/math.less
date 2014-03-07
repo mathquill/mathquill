@@ -175,12 +175,15 @@
   // parentheses
   .paren {
     padding: 0 .1em;
-    vertical-align: bottom;
-    -webkit-transform-origin: bottom center;
-    -moz-transform-origin: bottom center;
-    -ms-transform-origin: bottom center;
-    -o-transform-origin: bottom center;
-    transform-origin: bottom center;
+
+    &.scaled {
+      vertical-align: bottom;
+      -webkit-transform-origin: bottom center;
+      -moz-transform-origin: bottom center;
+      -ms-transform-origin: bottom center;
+      -o-transform-origin: bottom center;
+      transform-origin: bottom center;
+    }
   }
 
   .array {

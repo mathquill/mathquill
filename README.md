@@ -126,7 +126,7 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 * `.keystroke(key)` simulates a keystroke, where `key` is a string like
   `Home` or `Shift-Right`: [one of these key values][] preceeded optionally by
   modifier prefixes
-* `.typedText(ch)` simulates typing a single character, `ch`
+* `.typedText(text)` simulates typing text, one character at a time
 
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
