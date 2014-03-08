@@ -392,19 +392,21 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(side, open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
-    this.end = '\\right'+end;
-    this.side = side, this.open = open, this.close = close;
+    this.side = side;
+    this.sides = {};
+    this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
+    this.sides[R] = { ch: close, ctrlSeq: end };
   };
   _.numBlocks = function() { return 1; };
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
         '<span class="non-leaf">'
       +   '<span class="scaled paren'+(this.side === R ? ' ghost' : '')+'">'
-      +     this.open
+      +     this.sides[L].ch
       +   '</span>'
       +   '<span class="non-leaf">&0</span>'
       +   '<span class="scaled paren'+(this.side === L ? ' ghost' : '')+'">'
-      +     this.close
+      +     this.sides[R].ch
       +   '</span>'
       + '</span>'
     ;
@@ -416,7 +418,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
   };
   _.latex = function() {
-    return this.ctrlSeq + this.ends[L].latex() + this.end;
+    return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
   _.edited = function() {
     var blockjQ = this.ends[L].jQ;
@@ -427,11 +429,13 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
   _.createLeftOf = function(cursor) {
     var side = this.side, brack = cursor.parent.parent;
-    if (!this.replacedFragment && brack instanceof Bracket
-        && brack.ctrlSeq === this.ctrlSeq && brack.side === -side
-    ) { // I'm in a matching one-sided bracket, close it!
+    if (!this.replacedFragment
+        && brack instanceof Bracket && brack.side === -side
+    ) { // I'm in a opposing one-sided bracket, close it!
       brack.side = 0;
-      brack.bracketjQs.removeClass('ghost');
+      brack.sides[side] = this.sides[side]; // copy over my info (may be
+      brack.bracketjQs.eq(side === L ? 0 : 1) // mis-matched, like [a, b))
+        .removeClass('ghost').html(this.sides[side].ch);
       if (cursor[side]) { // move everything between me and the ghost outside
         Fragment(cursor[side], cursor.parent.ends[side], -side).disown()
           .withDirAdopt(-side, brack.parent, brack, brack[side])
@@ -454,7 +458,10 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.placeCursor = noop;
   _.oneSideify = function(side) { // become one-sided by deleting one of the
     this.side = side;             // brackets in the matched pair
-    this.bracketjQs.removeClass('ghost').eq(side === L ? 1 : 0).addClass('ghost');
+    this.sides[-side] = { ch: OPP_BRACKS[this.sides[side].ch],
+                          ctrlSeq: OPP_BRACKS[this.sides[side].ctrlSeq] };
+    this.bracketjQs.removeClass('ghost')
+      .eq(side === L ? 1 : 0).addClass('ghost').html(this.sides[-side].ch);
     if (this[-side]) { // auto-expand so ghost is at far end
       Fragment(this[-side], this.parent.ends[-side], side).disown()
         .withDirAdopt(side, this.ends[L], this.ends[L].ends[-side], 0)
@@ -484,15 +491,32 @@ var Bracket = P(MathCommand, function(_, _super) {
   };
 });
 
-CharCmds['{'] = bind(Bracket, L, '{', '}', '\\{', '\\}');
-CharCmds['}'] = bind(Bracket, R, '{', '}', '\\{', '\\}');
+var OPP_BRACKS = {
+  '(': ')',
+  ')': '(',
+  '[': ']',
+  ']': '[',
+  '{': '}',
+  '}': '{',
+  '\\{': '\\}',
+  '\\}': '\\{',
+  '&lang;': '&rang;',
+  '&rang;': '&lang;',
+  '\\langle ': '\\rangle ',
+  '\\rangle ': '\\langle ',
+  '|': '|'
+};
+
+function bindCharBracketPair(open, ctrlSeq) {
+  var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
+  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
+  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+}
+bindCharBracketPair('(');
+bindCharBracketPair('[');
+bindCharBracketPair('{', '\\{');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-CharCmds['('] = bind(Bracket, L, '(', ')', '(', ')');
-CharCmds[')'] = bind(Bracket, R, '(', ')', '(', ')');
-CharCmds['['] = bind(Bracket, L, '[', ']', '[', ']');
-CharCmds[']'] = bind(Bracket, R, '[', ']', '[', ']');
-CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -502,28 +526,19 @@ LatexCmds.left = P(MathCommand, function(_) {
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
-      .then(function(open) {
-        if (open.charAt(0) === '\\') open = open.slice(1);
-
-        var cmd = CharCmds[open]();
-        cmd.side = 0;
-
-        return latexMathParser
-          .map(function (block) {
-            cmd.blocks = [ block ];
-            block.adopt(cmd, 0, 0);
-          })
-          .then(string('\\right'))
-          .skip(optWhitespace)
-          .then(regex(/^(?:[\])|]|\\\})/))
-          .then(function(close) {
-            if (close.slice(-1) !== cmd.end.slice(-1)) {
-              return Parser.fail('open doesn\'t match close');
-            }
-
-            return succeed(cmd);
-          })
-        ;
+      .then(function(ctrlSeq) { // TODO: \langle, \rangle
+        var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
+        return latexMathParser.then(function (block) {
+          return string('\\right').skip(optWhitespace)
+            .then(regex(/^(?:[\])|]|\\\})/)).map(function(end) {
+              var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
+              var cmd = Bracket(0, open, close, ctrlSeq, end);
+              cmd.blocks = [ block ];
+              block.adopt(cmd, 0, 0);
+              return cmd;
+            })
+          ;
+        });
       })
     ;
   };
