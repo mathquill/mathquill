@@ -6,7 +6,6 @@ Controller.open(function(_) {
       root.jQ.addClass('focused');
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
-      cursor.parent.jQ.addClass('hasCursor');
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('blur');
         ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
