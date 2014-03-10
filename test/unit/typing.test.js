@@ -21,52 +21,56 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('auto-expanding parens', function() {
-    test('empty parens', function() {
-      mq.typedText('(');
-      assertLatex('\\left(\\right)');
-      mq.typedText(')');
-      assertLatex('\\left(\\right)');
+    suite('simple', function() {
+      test('empty parens', function() {
+        mq.typedText('(');
+        assertLatex('\\left(\\right)');
+        mq.typedText(')');
+        assertLatex('\\left(\\right)');
+      });
+
+      test('straight typing', function() {
+        mq.typedText('1+(2+3)+4');
+        assertLatex('1+\\left(2+3\\right)+4');
+      });
+
+      test('wrapping things in parens', function() {
+        mq.typedText('1+2+3+4');
+        assertLatex('1+2+3+4');
+        mq.keystroke('Left Left').typedText(')');
+        assertLatex('\\left(1+2+3\\right)+4');
+        mq.keystroke('Left Left Left Left').typedText('(');
+        assertLatex('1+\\left(2+3\\right)+4');
+      });
     });
 
-    test('straight typing', function() {
-      mq.typedText('1+(2+3)+4');
-      assertLatex('1+\\left(2+3\\right)+4');
-    });
+    suite('mis-matched brackets', function() {
+      test('empty mis-matched brackets', function() {
+        mq.typedText('(');
+        assertLatex('\\left(\\right)');
+        mq.typedText(']');
+        assertLatex('\\left(\\right]');
+      });
 
-    test('wrapping things in parens', function() {
-      mq.typedText('1+2+3+4');
-      assertLatex('1+2+3+4');
-      mq.keystroke('Left Left').typedText(')');
-      assertLatex('\\left(1+2+3\\right)+4');
-      mq.keystroke('Left Left Left Left').typedText('(');
-      assertLatex('1+\\left(2+3\\right)+4');
-    });
+      test('typing mis-matched brackets', function() {
+        mq.typedText('1+');
+        assertLatex('1+');
+        mq.typedText('(');
+        assertLatex('1+\\left(\\right)');
+        mq.typedText('2+3');
+        assertLatex('1+\\left(2+3\\right)');
+        mq.typedText(']+4');
+        assertLatex('1+\\left(2+3\\right]+4');
+      });
 
-    test('empty mis-matched brackets', function() {
-      mq.typedText('(');
-      assertLatex('\\left(\\right)');
-      mq.typedText(']');
-      assertLatex('\\left(\\right]');
-    });
-
-    test('typing mis-matched brackets', function() {
-      mq.typedText('1+');
-      assertLatex('1+');
-      mq.typedText('(');
-      assertLatex('1+\\left(\\right)');
-      mq.typedText('2+3');
-      assertLatex('1+\\left(2+3\\right)');
-      mq.typedText(']+4');
-      assertLatex('1+\\left(2+3\\right]+4');
-    });
-
-    test('wrapping things in mis-matched brackets', function() {
-      mq.typedText('1+2+3+4');
-      assertLatex('1+2+3+4');
-      mq.keystroke('Left Left').typedText(']');
-      assertLatex('\\left[1+2+3\\right]+4');
-      mq.keystroke('Left Left Left Left').typedText('(');
-      assertLatex('1+\\left(2+3\\right]+4');
+      test('wrapping things in mis-matched brackets', function() {
+        mq.typedText('1+2+3+4');
+        assertLatex('1+2+3+4');
+        mq.keystroke('Left Left').typedText(']');
+        assertLatex('\\left[1+2+3\\right]+4');
+        mq.keystroke('Left Left Left Left').typedText('(');
+        assertLatex('1+\\left(2+3\\right]+4');
+      });
     });
 
     suite('backspacing', function() {
