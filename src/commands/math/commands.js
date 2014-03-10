@@ -484,9 +484,9 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.ends[L].deleteOutOf = function(dir, cursor) {
       if (dir === this.parent.side) return cursor.unwrapGramp(); // non-ghost side
 
+      if (this.parent[dir]) cursor[dir] = this.parent[dir];
+      else cursor.insDirOf(dir, this.parent);
       this.parent.oneSideify(-dir);
-      cursor[-dir] ? cursor.insDirOf(dir, cursor[-dir])
-                   : cursor.insAtDirEnd(-dir, this);
     };
   };
 });
