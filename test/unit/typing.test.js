@@ -281,13 +281,13 @@ suite('typing with auto-replaces', function() {
       assertLatex('1+\\left[2+3\\right]+4');
     });
 
-    test('paren stays one-sided after typing after ghost paren', function() {
+    test('paren no longer one-sided after typing after ghost paren', function() {
       mq.typedText('1+(2+3');
       assertLatex('1+\\left(2+3\\right)');
       mq.keystroke('Right').typedText('+4');
       assertLatex('1+\\left(2+3\\right)+4');
       mq.keystroke('Left Left Left Left Left Left Backspace');
-      assertLatex('1+2+3+4');
+      assertLatex('\\left(1+2+3\\right)+4');
     });
   });
 });

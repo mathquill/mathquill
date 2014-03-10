@@ -489,6 +489,12 @@ var Bracket = P(MathCommand, function(_, _super) {
       this.parent.oneSideify(-dir);
     };
   };
+  _.siblingCreated = function(dir) {
+    if (dir === -this.side) { // that ghost no longer at far end of its block
+      this.side = 0;
+      this.bracketjQs.eq(dir === L ? 0 : 1).removeClass('ghost');
+    }
+  };
 });
 
 var OPP_BRACKS = {
