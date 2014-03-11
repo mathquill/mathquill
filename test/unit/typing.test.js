@@ -287,13 +287,31 @@ suite('typing with auto-replaces', function() {
       });
     });
 
-    test('paren no longer one-sided after typing after ghost paren', function() {
-      mq.typedText('1+(2+3');
-      assertLatex('1+\\left(2+3\\right)');
-      mq.keystroke('Right').typedText('+4');
-      assertLatex('1+\\left(2+3\\right)+4');
-      mq.keystroke('Left Left Left Left Left Left Backspace');
-      assertLatex('\\left(1+2+3\\right)+4');
+    suite('typing outside ghost paren', function() {
+      test('paren no longer one-sided after typing outside ghost paren', function() {
+        mq.typedText('1+(2+3');
+        assertLatex('1+\\left(2+3\\right)');
+        mq.keystroke('Right').typedText('+4');
+        assertLatex('1+\\left(2+3\\right)+4');
+        mq.keystroke('Left Left Left Left Left Left Backspace');
+        assertLatex('\\left(1+2+3\\right)+4');
+      });
+
+      test('close bracket pair by typing close-bracket outside ghost paren', function() {
+        mq.typedText('(1+2');
+        assertLatex('\\left(1+2\\right)');
+        mq.keystroke('Right').typedText(']');
+        assertLatex('\\left(1+2\\right]');
+      });
+
+      test('close adjacent bracket pair before containing bracket pair', function() {
+        mq.typedText('(1+(2+3');
+        assertLatex('\\left(1+\\left(2+3\\right)\\right)');
+        mq.keystroke('Right').typedText(']');
+        assertLatex('\\left(1+\\left(2+3\\right]\\right)');
+        mq.typedText(']');
+        assertLatex('\\left(1+\\left(2+3\\right]\\right]');
+      });
     });
   });
 });

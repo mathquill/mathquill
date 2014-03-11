@@ -427,18 +427,22 @@ var Bracket = P(MathCommand, function(_, _super) {
 
     scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
+  _.oppBrack = function(node) {
+    return node instanceof Bracket && node.side === -this.side && node;
+  };
   _.createLeftOf = function(cursor) {
-    var side = this.side, brack = cursor.parent.parent;
-    if (!this.replacedFragment
-        && brack instanceof Bracket && brack.side === -side
-    ) { // I'm in a opposing one-sided bracket, close it!
+    var side = this.side; // unless wrapping seln in brackets, check if next to
+    if (!this.replacedFragment) { // or inside an opposing one-sided bracket
+      var brack = this.oppBrack(cursor[-side]) || this.oppBrack(cursor.parent.parent);
+    }
+    if (brack) {
       brack.side = 0;
       brack.sides[side] = this.sides[side]; // copy over my info (may be
       brack.bracketjQs.eq(side === L ? 0 : 1) // mis-matched, like [a, b))
         .removeClass('ghost').html(this.sides[side].ch);
-      if (cursor[side]) { // move everything between me and the ghost outside
-        Fragment(cursor[side], cursor.parent.ends[side], -side).disown()
-          .withDirAdopt(-side, brack.parent, brack, brack[side])
+      if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
+        Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
+          .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
         brack.bubble('edited');
       }
