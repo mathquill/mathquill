@@ -460,37 +460,37 @@ var Bracket = P(MathCommand, function(_, _super) {
     else cursor.insRightOf(brack);
   };
   _.placeCursor = noop;
-  _.oneSideify = function(side) { // become one-sided by deleting one of the
-    this.side = side;             // brackets in the matched pair
-    this.sides[-side] = { ch: OPP_BRACKS[this.sides[side].ch],
-                          ctrlSeq: OPP_BRACKS[this.sides[side].ctrlSeq] };
-    this.bracketjQs.removeClass('ghost')
-      .eq(side === L ? 1 : 0).addClass('ghost').html(this.sides[-side].ch);
-    if (this[-side]) { // auto-expand so ghost is at far end
-      Fragment(this[-side], this.parent.ends[-side], side).disown()
-        .withDirAdopt(side, this.ends[L], this.ends[L].ends[-side], 0)
-        .jQ.insAtDirEnd(-side, this.ends[L].jQ);
+  _.deleteSide = function(side, outward, cursor) {
+    var parent = this.parent, sib = this[side];
+
+    if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
+      this.ends[L].children().disown().adopt(this.parent, this, this[R])
+        .jQ.insertAfter(this.jQ);
+      this.remove();
+      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+    }
+    else { // deleting one of a pair of brackets, become one-sided
+      this.side = -side;
+      this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
+                           ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
+      this.bracketjQs.removeClass('ghost')
+        .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
+      if (sib) { // auto-expand so ghost is at far end
+        Fragment(sib, this.parent.ends[side], -side).disown()
+          .withDirAdopt(-side, this.ends[L], this.ends[L].ends[side], 0)
+          .jQ.insAtDirEnd(side, this.ends[L].jQ);
+        cursor.insDirOf(-side, sib);
+      } // didn't auto-expand, cursor goes just outside or just inside parens
+      else (outward ? cursor.insDirOf(side, this)
+                    : cursor.insAtDirEnd(side, this.ends[L]));
     }
   };
   _.deleteTowards = function(dir, cursor) {
-    if (dir === -this.side) { // deleting non-ghost of one-sided bracket, so
-      this.ends[L].children().disown() // move everything in me outside, and
-        .withDirAdopt(dir, this.parent, this[dir], this).jQ.insDirOf(dir, this.jQ);
-      this.remove(); // remove me
-      cursor[dir] = cursor[-dir] ? cursor[-dir][dir] : cursor.parent.ends[-dir];
-      return;
-    }
-    cursor.insAtDirEnd(-dir, this.ends[L]);
-    cursor[-dir] = this[-dir];
-    this.oneSideify(dir);
+    this.deleteSide(-dir, false, cursor);
   };
   _.finalizeTree = function() {
     this.ends[L].deleteOutOf = function(dir, cursor) {
-      if (dir === this.parent.side) return cursor.unwrapGramp(); // non-ghost side
-
-      if (this.parent[dir]) cursor[dir] = this.parent[dir];
-      else cursor.insDirOf(dir, this.parent);
-      this.parent.oneSideify(-dir);
+      this.parent.deleteSide(dir, true, cursor);
     };
   };
   _.siblingCreated = function(dir) {
