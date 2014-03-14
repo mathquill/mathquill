@@ -430,16 +430,19 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.oppBrack = function(node) {
     return node instanceof Bracket && node.side === -this.side && node;
   };
+  _.closeOpposing = function(brack) {
+    brack.side = 0;
+    brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
+    brack.bracketjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
+      .removeClass('ghost').html(this.sides[this.side].ch);
+  };
   _.createLeftOf = function(cursor) {
     var side = this.side; // unless wrapping seln in brackets, check if next to
     if (!this.replacedFragment) { // or inside an opposing one-sided bracket
       var brack = this.oppBrack(cursor[-side]) || this.oppBrack(cursor.parent.parent);
     }
     if (brack) {
-      brack.side = 0;
-      brack.sides[side] = this.sides[side]; // copy over my info (may be
-      brack.bracketjQs.eq(side === L ? 0 : 1) // mis-matched, like [a, b))
-        .removeClass('ghost').html(this.sides[side].ch);
+      this.closeOpposing(brack);
       if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
         Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
@@ -460,23 +463,40 @@ var Bracket = P(MathCommand, function(_, _super) {
     else cursor.insRightOf(brack);
   };
   _.placeCursor = noop;
+  _.unwrap = function() {
+    this.ends[L].children().disown().adopt(this.parent, this, this[R])
+      .jQ.insertAfter(this.jQ);
+    this.remove();
+  };
   _.deleteSide = function(side, outward, cursor) {
-    var parent = this.parent, sib = this[side];
+    var parent = this.parent, sib = this[side], farEnd = parent.ends[side];
 
     if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
-      this.ends[L].children().disown().adopt(this.parent, this, this[R])
-        .jQ.insertAfter(this.jQ);
-      this.remove();
+      this.unwrap();
+      sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+      return;
+    }
+
+    this.side = -side;
+    // check if like deleting outer close-brace of [(1+2)+3} where inner open-
+    if (this.oppBrack(this.ends[L].ends[this.side])) { // paren is ghost, if
+      this.closeOpposing(this.ends[L].ends[this.side]); // so become [1+2)+3
+      this.unwrap();
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
-    else { // deleting one of a pair of brackets, become one-sided
-      this.side = -side;
-      this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
-                           ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-      this.bracketjQs.removeClass('ghost')
-        .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
+    else { // check if like deleting inner close-brace of ([1+2}+3) where
+      if (this.oppBrack(this.parent.parent)) { // outer open-paren is ghost,
+        this.parent.parent.closeOpposing(this); // if so become [1+2+3)
+        this.parent.parent.unwrap();
+      }
+      else { // deleting one of a pair of brackets, become one-sided
+        this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
+                             ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
+        this.bracketjQs.removeClass('ghost')
+          .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
+      }
       if (sib) { // auto-expand so ghost is at far end
-        Fragment(sib, this.parent.ends[side], -side).disown()
+        Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], this.ends[L].ends[side], 0)
           .jQ.insAtDirEnd(side, this.ends[L].jQ);
         cursor.insDirOf(-side, sib);

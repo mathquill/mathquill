@@ -285,6 +285,33 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+');
         assertLatex('1+\\left[2+3\\right]+4');
       });
+
+      test('backspacing paren containing a one-sided paren', function() {
+        mq.typedText('0+[1+2+3}+4');
+        assertLatex('0+\\left[1+2+3\\right\\}+4');
+        mq.keystroke('Left Left Left Left Left').typedText(')');
+        assertLatex('0+\\left[\\left(1+2\\right)+3\\right\\}+4');
+        mq.keystroke('Right Right Right Backspace');
+        assertLatex('0+\\left[1+2\\right)+3+4');
+      });
+
+      test('backspacing paren inside a one-sided paren', function() {
+        mq.typedText('0+[1+2}+3)+4');
+        assertLatex('\\left(0+\\left[1+2\\right\\}+3\\right)+4');
+        mq.keystroke('Left Left Left Left Left Backspace');
+        assertLatex('0+\\left[1+2+3\\right)+4');
+      });
+
+      test('backspacing paren containing and inside a one-sided paren', function() {
+        mq.typedText('(1+2))');
+        assertLatex('\\left(\\left(1+2\\right)\\right)');
+        mq.keystroke('Left Left').typedText(']');
+        assertLatex('\\left(\\left(\\left[1+2\\right]\\right)\\right)');
+        mq.keystroke('Right Backspace');
+        assertLatex('\\left(\\left(1+2\\right]\\right)');
+        mq.keystroke('Backspace');
+        assertLatex('\\left(1+2\\right)');
+      });
     });
 
     suite('typing outside ghost paren', function() {
