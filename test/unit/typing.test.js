@@ -324,6 +324,19 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Right Right Right Right Del');
         assertLatex('1+\\left(2+3\\right)');
       });
+
+      test('that unwrapping calls .siblingCreated() on new siblings', function() {
+        mq.typedText('(1+2+3+4)+5');
+        assertLatex('\\left(1+2+3+4\\right)+5');
+        mq.keystroke('Home Right Right Right Right').typedText(')');
+        assertLatex('\\left(\\left(1+2\\right)+3+4\\right)+5');
+        mq.keystroke('Right').typedText('(');
+        assertLatex('\\left(\\left(1+2\\right)+\\left(3+4\\right)\\right)+5');
+        mq.keystroke('Right Right Right Right Right Backspace');
+        assertLatex('\\left(1+2\\right)+\\left(3+4\\right)+5');
+        mq.keystroke('Left Left Left Left Backspace');
+        assertLatex('\\left(\\left(1+2\\right)+3+4\\right)+5');
+      });
     });
 
     suite('typing outside ghost paren', function() {

@@ -481,7 +481,9 @@ var Bracket = P(MathCommand, function(_, _super) {
     // check if like deleting outer close-brace of [(1+2)+3} where inner open-
     if (this.oppBrack(this.ends[L].ends[this.side])) { // paren is ghost, if
       this.closeOpposing(this.ends[L].ends[this.side]); // so become [1+2)+3
+      var origEnd = this.ends[L].ends[side];
       this.unwrap();
+      if (origEnd.siblingCreated) origEnd.siblingCreated(side);
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
     else { // check if like deleting inner close-brace of ([1+2}+3) where
