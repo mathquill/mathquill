@@ -496,9 +496,11 @@ var Bracket = P(MathCommand, function(_, _super) {
           .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
       }
       if (sib) { // auto-expand so ghost is at far end
+        var origEnd = this.ends[L].ends[side];
         Fragment(sib, farEnd, -side).disown()
-          .withDirAdopt(-side, this.ends[L], this.ends[L].ends[side], 0)
+          .withDirAdopt(-side, this.ends[L], origEnd, 0)
           .jQ.insAtDirEnd(side, this.ends[L].jQ);
+        if (origEnd.siblingCreated) origEnd.siblingCreated(side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
       else (outward ? cursor.insDirOf(side, this)

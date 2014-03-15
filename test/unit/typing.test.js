@@ -312,6 +312,18 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Backspace');
         assertLatex('\\left(1+2\\right)');
       });
+
+      test('auto-expanding calls .siblingCreated() on new siblings', function() {
+        mq.typedText('1+((2+3))');
+        assertLatex('1+\\left(\\left(2+3\\right)\\right)');
+        mq.keystroke('Left Left Left Left Left Backspace');
+        assertLatex('1+\\left(\\left(2+3\\right)\\right)');
+        mq.keystroke('Backspace');
+        assertLatex('\\left(1+\\left(2+3\\right)\\right)');
+        // now check that the inner open-paren isn't still a ghost
+        mq.keystroke('Right Right Right Right Del');
+        assertLatex('1+\\left(2+3\\right)');
+      });
     });
 
     suite('typing outside ghost paren', function() {
