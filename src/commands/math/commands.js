@@ -516,12 +516,15 @@ var Bracket = P(MathCommand, function(_, _super) {
     this.ends[L].deleteOutOf = function(dir, cursor) {
       this.parent.deleteSide(dir, true, cursor);
     };
-  };
-  _.siblingCreated = function(dir) {
-    if (dir === -this.side) { // that ghost no longer at far end of its block
+    // FIXME HACK: after initial creation/insertion, finalizeTree would only be
+    // called if the paren is selected and replaced, e.g. by LiveFraction
+    this.finalizeTree = function() {
+      this.bracketjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
       this.side = 0;
-      this.bracketjQs.eq(dir === L ? 0 : 1).removeClass('ghost');
-    }
+    };
+  };
+  _.siblingCreated = function(dir) { // if something typed between ghost and far
+    if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
   };
 });
 

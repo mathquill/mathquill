@@ -337,6 +337,13 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Left Left Left Left Backspace');
         assertLatex('\\left(\\left(1+2\\right)+3+4\\right)+5');
       });
+
+      test('selected and replaced by LiveFraction solidifies ghosts', function() {
+        mq.typedText('1+2)/');
+        assertLatex('\\frac{\\left(1+2\\right)}{ }');
+        mq.keystroke('Left Backspace');
+        assertLatex('\\frac{\\left(1+2\\right)}{ }');
+      });
     });
 
     suite('typing outside ghost paren', function() {
