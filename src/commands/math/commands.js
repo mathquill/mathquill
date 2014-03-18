@@ -239,6 +239,65 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
 });
 
+var SummationNotation = P(MathCommand, function(_, _super) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+      '<span class="large-operator non-leaf">'
+    +   '<span class="to"><span>&1</span></span>'
+    +   '<big>'+html+'</big>'
+    +   '<span class="from"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
+      '^' + simplify(this.ends[R].latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this;
+    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
+    for (var i = 0; i < blocks.length; i += 1) {
+      blocks[i].adopt(self, self.ends[R], 0);
+    }
+
+    return optWhitespace.then(string('_').or(string('^'))).then(function(supOrSub) {
+      var child = blocks[supOrSub === '_' ? 0 : 1];
+      return block.then(function(block) {
+        block.children().adopt(child, child.ends[R], 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L];
+    this.upInto = this.ends[R];
+    this.ends[L].upOutOf = this.ends[R];
+    this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
+LatexCmds['∑'] =
+LatexCmds.sum =
+LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
+
+LatexCmds['∏'] =
+LatexCmds.prod =
+LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
+
+LatexCmds.coprod =
+LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
+
+
+
 function insLeftOfMeUnlessAtEnd(cursor) {
   // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
   // ancestor cmd is at the end of every ancestor block
@@ -312,12 +371,12 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
         !(
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
-          leftward instanceof BigSymbol ||
+          leftward instanceof SummationNotation ||
           /^[,;:]$/.test(leftward.ctrlSeq)
         ) //lookbehind for operator
       ) leftward = leftward[L];
 
-      if (leftward instanceof BigSymbol && leftward[R] instanceof SupSub) {
+      if (leftward instanceof SummationNotation && leftward[R] instanceof SupSub) {
         leftward = leftward[R];
         if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)
           leftward = leftward[R];
