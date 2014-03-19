@@ -167,7 +167,7 @@ Controller.open(function(_) {
       var rect = seln.jQ[0].getBoundingClientRect();
       var overLeft = rect.left - (rootRect.left + 20);
       var overRight = rect.right - (rootRect.right - 20);
-      if (seln.first === cursor.next) {
+      if (seln.ends[L] === cursor[R]) {
         if (overLeft < 0) var scrollBy = overLeft;
         else if (overRight > 0) {
           if (rect.left - overRight < rootRect.left + 20) var scrollBy = overLeft;
