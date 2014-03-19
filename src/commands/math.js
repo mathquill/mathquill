@@ -19,12 +19,9 @@ var MathElement = P(Node, function(_, _super) {
     // correctly by 'edited' handlers.
     self.postOrder('blur');
 
-    // adjust context-sensitive spacing
-    self.postOrder('respace');
-    if (self[R].respace) self[R].respace();
-    if (self[L].respace) self[L].respace();
-
     self.postOrder('edited');
+    if (self[R].siblingCreated) self[R].siblingCreated(L);
+    if (self[L].siblingCreated) self[L].siblingCreated(R);
     self.bubble('edited');
   };
 });
@@ -389,7 +386,7 @@ var MathBlock = P(MathElement, function(_, _super) {
   _.write = function(cursor, ch, replacedFragment) {
     var cmd;
     if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
-      cmd = Variable(ch);
+      cmd = Letter(ch);
     else if (cmd = CharCmds[ch] || LatexCmds[ch])
       cmd = cmd(ch);
     else

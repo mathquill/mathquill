@@ -27,9 +27,8 @@ var TextBlock = P(Node, function(_, _super) {
     var textBlock = this;
     _super.createLeftOf.call(this, cursor);
 
-    if (textBlock[R].respace) textBlock[R].respace();
-    if (textBlock[L].respace) textBlock[L].respace();
-
+    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
+    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
     textBlock.bubble('edited');
 
     cursor.insAtRightEnd(textBlock);
@@ -115,7 +114,6 @@ var TextBlock = P(Node, function(_, _super) {
       cursor.insLeftOf(this);
       _super.createLeftOf.call(leftBlock, cursor);
     }
-    return false;
   };
 
   _.seek = function(pageX, cursor) {

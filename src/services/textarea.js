@@ -10,10 +10,10 @@ Controller.open(function(_) {
         $('<span class="textarea"><textarea></textarea></span>'),
       textarea = this.textarea = textareaSpan.children();
 
-    //prevent native selection except textarea
+    //prevent native selection except in textarea
     this.container.bind('selectstart.mathquill', function(e) {
-      if (e.target !== textarea[0]) e.preventDefault();
-      e.stopPropagation();
+      var tagName = e.target.tagName;
+      if (!(tagName && tagName.toLowerCase() === 'textarea')) return false;
     });
 
     var ctrlr = this;
@@ -77,8 +77,6 @@ Controller.open(function(_) {
           cursor.parent.bubble('edited');
         });
       }
-
-      e.stopPropagation();
     });
 
     this.focusBlurEvents();

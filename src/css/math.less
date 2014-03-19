@@ -57,7 +57,7 @@
   }
 
   var, i, i.font {
-    font-syle: italic;
+    font-style: italic;
   }
 
   var.florin {
@@ -193,12 +193,17 @@
   }
 
   ////
-  // non-italicized functions
+  // un-italicized functions
   // like \sin, \cos, \ln, etc.
-  .non-italicized-function {
+  .un-italicized {
     font-family: Symbola, "Times New Roman", serif;
     line-height: .9;
     font-style: normal;
+  }
+  var.un-italicized.first {
+    padding-left: .2em;
+  }
+  var.un-italicized.last {
     padding-right: .2em;
   }
 
@@ -217,12 +222,12 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .fraction, x:-moz-any-link {
+  .fraction, .large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .fraction, x:-moz-any-link, x:default {
+  .fraction, .large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
@@ -269,11 +274,27 @@
     line-height: .25em;
     margin-bottom: -.1em;
     font-size: 0.75em;
-  }	
+  }
 
   .vector-stem {
     display: block;
   }
+
+  .large-operator {
+    text-align: center;
+
+    .from, big, .to  {
+      display: block;
+    }
+    .from, .to  {
+      font-size: 80%;
+    }
+    .from {
+      float: right; /* take out of normal flow to manipulate baseline */
+      width: 100%;
+    }
+  }
+
 
   &, .mathquill-editable {
     cursor: text;

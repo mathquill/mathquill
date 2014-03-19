@@ -32,16 +32,17 @@
     &, .mathquill-embedded-latex & {
       border: 1px solid gray;
       padding: 2px;
+
+      &.focused {
+        .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
+        border-color: #709AC0;
+        border-radius: 1px;
+      }
     }
   }
 // special styles for editables within static math
   .mathquill-embedded-latex & {
     margin: 1px;
-  }
-
-  // TODO: dasherize has-cursor
-  &.hasCursor, .hasCursor {
-    .box-shadow(#68B4DF 0 0 3px 2px);
   }
 
   ////

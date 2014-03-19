@@ -16,7 +16,6 @@ Controller.open(function(_) {
         ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
         // focus the least-common-ancestor block:
         if (cursor.selection) cursor.insRightOf(cursor.selection.ends[R]);
-        return false;
       }
 
       // docmousemove is attached to the document, so that
@@ -62,7 +61,6 @@ Controller.open(function(_) {
 
       rootjQ.mousemove(mousemove);
       $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
-      return false;
     });
   }
 });

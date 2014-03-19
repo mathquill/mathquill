@@ -132,10 +132,11 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
-#### Handlers
+#### Handlers/Options
 
-`MathQuill.MathField()` can also take an options object, currently the only
-supported option is `handlers`:
+`MathQuill.MathField()` can also take an options object. Currently, 
+the only options supported are `handlers` and `spaceBehavesLikeTab`:
+
 ```js
 var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
@@ -144,9 +145,15 @@ MathQuill.MathField(el[0], {
     edited: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
-  }
+  },
+  spaceBehavesLikeTab: true
 });
 ```
+
+If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
+like {Shift-,}Tab escaping from the current block (as opposed to the default
+behavior of inserting a Space character).
+
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
   math field API object as arguments
