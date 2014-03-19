@@ -141,7 +141,6 @@ Node.open(function(_) {
     ctrlr.scrollHoriz();
   };
 
-
   _.moveOutOf = // called by Controller::escapeDir, moveDir
   _.moveTowards = // called by Controller::moveDir
   _.deleteOutOf = // called by Controller::deleteDir
