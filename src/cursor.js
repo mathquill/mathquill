@@ -19,6 +19,35 @@ var Cursor = P(Point, function(_) {
     this.blink = function(){ jQ.toggleClass('blink'); };
 
     this.upDownCache = {};
+
+    var handle = this.handle =
+      $('<span class="handle" style="display:none"></span>')
+      .insertAfter(initParent.jQ);
+    handle.top = handle.left = 0;
+  };
+
+  _.showHandle = function() {
+    if (this.handle.visible) return this;
+    this.handle.visible = true;
+    this.handle.show();
+    return this.repositionHandle();
+  };
+  _.hideHandle = function() {
+    if (!this.handle.visible) return this;
+    delete this.handle.visible;
+    this.handle.hide();
+    return this;
+  };
+  _.repositionHandle = function() {
+    if (!this.handle.visible) return this;
+    var cursorRect = this.jQ[0].getBoundingClientRect();
+    var handle = this.handle;
+    var handleRect = handle[0].getBoundingClientRect();
+    handle.css({
+      top: handle.top += cursorRect.bottom - handleRect.bottom,
+      left: handle.left += cursorRect.left - handleRect.left
+    });
+    return this;
   };
 
   _.show = function() {
@@ -40,6 +69,7 @@ var Cursor = P(Point, function(_) {
     return this;
   };
   _.hide = function() {
+    this.hideHandle();
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;

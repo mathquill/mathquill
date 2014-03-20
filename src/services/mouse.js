@@ -54,7 +54,7 @@ Controller.open(function(_) {
         // mousedown-ed will receive focus
         // http://bugs.jquery.com/ticket/10345
 
-      cursor.blink = noop;
+      cursor.hideHandle().blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
       if (!ctrlr.editable && ctrlr.blurred) rootjQ.prepend(textareaSpan);
@@ -83,6 +83,8 @@ Controller.open(function(_) {
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
+
+    cursor.repositionHandle();
 
     return this;
   };

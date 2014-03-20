@@ -13,6 +13,32 @@
     &.blink { visibility: hidden; }
   }
 
+  .handle {
+    display: inline-block;
+    position: relative;
+    z-index: 1;
+    //-webkit-transform: translate(-.5px); // center exactly under 1px-wide cursor
+    opacity: .5;
+
+    &:before, &:after {
+      content: '';
+      position: absolute;
+      left: -10px;
+    }
+    &:before { // triangular tip
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-bottom: 10px solid black;
+      bottom: -15px;
+    }
+    &:after { // rectangular body
+      width: 20px;
+      height: 15px;
+      background: black;
+      bottom: -30px;
+    }
+  }
+
   .mathquill-root-block {
     .inline-block;
 

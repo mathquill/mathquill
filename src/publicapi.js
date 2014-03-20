@@ -103,6 +103,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.initEvents = function() {
     this.controller.editable = true;
     this.controller.delegateMouseEvents();
+    this.controller.touchEvents();
     this.controller.editablesTextareaEvents();
   };
   _.focus = function() { this.controller.textarea.focus(); return this; };
