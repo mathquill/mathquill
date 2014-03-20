@@ -333,9 +333,56 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
 //semantically should be &sdot;, but &middot; looks better
 
-LatexCmds['='] = bind(BinaryOperator, '=', '=');
-LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
-LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+var Inequality = P(BinaryOperator, function(_, _super) {
+  _.init = function(data, strict) {
+    this.data = data;
+    this.strict = strict;
+    var strictness = (strict ? 'Strict' : '');
+    _super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness], data['text'+strictness]);
+  };
+
+  _.swap = function(strict) {
+    this.strict = strict;
+    var key = (strict ? 'Strict' : '');
+    this.ctrlSeq = this.data['ctrlSeq'+key];
+    this.jQ.html(this.data['html'+key]);
+    this.textTemplate = [ this.data['text'+key] ];
+  };
+
+  _.deleteTowards = function(dir, cursor) {
+    if (dir === L && !this.strict) {
+      this.swap(true);
+    }
+    else {
+      _super.deleteTowards.apply(this, arguments);
+    }
+  };
+});
+
+var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
+             ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
+var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
+             ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
+LatexCmds['<'] = bind(Inequality, less, true);
+LatexCmds['>'] = bind(Inequality, greater, true);
+LatexCmds['≤'] = bind(Inequality, less, false);
+LatexCmds['≥'] = bind(Inequality, greater, false);
+
+var Equality = P(BinaryOperator, function(_, _super) {
+  _.init = function() {
+    _super.init.call(this, '=', '=');
+  };
+// this doesnt work
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof Inequality && cursor[L].strict) {
+      cursor[L].swap(false);
+    }
+    else {
+      _super.createLeftOf.apply(this, arguments);
+    }
+  };
+});
+LatexCmds['='] = Equality;
 
 LatexCmds.notin =
 LatexCmds.sim =
