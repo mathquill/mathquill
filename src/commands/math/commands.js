@@ -577,7 +577,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     };
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
-    this.finalizeTree = function() {
+    this.finalizeTree = this.intentionalBlur = function() {
       this.bracketjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
       this.side = 0;
     };
