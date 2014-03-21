@@ -24,7 +24,46 @@ var Variable = P(Symbol, function(_, _super) {
   };
 });
 
+var AutoCmds = {}, MAX_AUTOCMD_LEN = 0;
+MathQuill.addAutoCommands = function(cmds) {
+  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of only letters';
+  }
+  var cmds = cmds.replace(/^\s+|\s+$/g, '').split(/\s+/);
+  for (var i = 0; i < cmds.length; i += 1) {
+    if (cmds[i].length < 2) {
+      throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
+    }
+    if (UnItalicizedCmds.hasOwnProperty(cmds[i])) {
+      throw '"' + cmds[i] + '" already auto-unitalicized';
+    }
+    AutoCmds[cmds[i]] = 1;
+    MAX_AUTOCMD_LEN = max(cmds[i].length, MAX_AUTOCMD_LEN);
+  }
+};
+
 var Letter = P(Variable, function(_, _super) {
+  _.createLeftOf = function(cursor) {
+    if (MAX_AUTOCMD_LEN > 0) {
+      // want longest possible autocommand, so join together longest
+      // sequence of letters
+      var str = this.ctrlSeq, l = cursor[L], i = 1;
+      while (l instanceof Letter && i < MAX_AUTOCMD_LEN) {
+        str = l.ctrlSeq + str, l = l[L], i += 1;
+      }
+      // check for an autocommand, going thru substrings longest to shortest
+      while (str.length) {
+        if (AutoCmds.hasOwnProperty(str)) {
+          for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
+          Fragment(l, cursor[L]).remove();
+          cursor[L] = l[L];
+          return LatexCmds[str](str).createLeftOf(cursor);
+        }
+        str = str.slice(1);
+      }
+    }
+    _super.createLeftOf.apply(this, arguments);
+  };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will unitalicize everyone
