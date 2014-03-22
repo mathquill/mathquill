@@ -134,7 +134,6 @@ Node.open(function(_) {
       break;
 
     default:
-      ctrlr.scrollHoriz();
       return;
     }
     e.preventDefault();
