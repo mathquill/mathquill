@@ -262,9 +262,9 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    if (!anticursor || anticursor[dir] === this) {
+    if (anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
-      cursor.startSelection();
+      anticursor[dir] = newPc;
       cursor.insDirOf(dir, newPc);
     }
     else {

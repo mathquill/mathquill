@@ -108,7 +108,6 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.select();
   };
   _.selectTowards = function(dir, cursor) {
-    if (!cursor.anticursor) cursor.startSelection();
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
