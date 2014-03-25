@@ -169,6 +169,12 @@ var Cursor = P(Point, function(_) {
     if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(R);
     if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(L);
   };
+  _.startSelection = function() {
+    this.anticursor = Point.copy(this);
+  };
+  _.endSelection = function() {
+    delete this.anticursor;
+  };
   _.select = function() {
     var anticursor = this.anticursor;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
@@ -187,12 +193,6 @@ var Cursor = P(Point, function(_) {
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.selectionChanged();
     return true;
-  };
-  _.startSelection = function() {
-    this.anticursor = Point.copy(this);
-  };
-  _.endSelection = function() {
-    delete this.anticursor;
   };
 
   _.clearSelection = function() {
