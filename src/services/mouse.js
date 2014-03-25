@@ -13,6 +13,7 @@ Controller.open(function(_) {
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
       function mousemove(e) {
+        if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
       }
 
