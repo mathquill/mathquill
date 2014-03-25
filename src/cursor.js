@@ -170,7 +170,13 @@ var Cursor = P(Point, function(_) {
     if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(L);
   };
   _.startSelection = function() {
-    this.anticursor = Point.copy(this);
+    var anticursor = this.anticursor = Point.copy(this);
+    var ancestors = anticursor.ancestors = {}; // a map from each ancestor of
+      // the anticursor, to its child that is also an ancestor; in other words,
+      // the anticursor's ancestor chain in reverse order
+    for (var ancestor = anticursor; ancestor.parent; ancestor = ancestor.parent) {
+      ancestors[ancestor.parent.id] = ancestor;
+    }
   };
   _.endSelection = function() {
     delete this.anticursor;
@@ -179,16 +185,58 @@ var Cursor = P(Point, function(_) {
     var anticursor = this.anticursor;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
 
-    // `this` cursor and the anticursor should be in the same tree, because
-    // the mousemove handler attached to the document, unlike the one attached
-    // to the root HTML DOM element, doesn't try to get the math tree node of
-    // the mousemove target, and Cursor::seek() based solely on coordinates
-    // stays within the tree of `this` cursor's root.
-    var selection = Fragment.between(this, anticursor);
+    // Find the lowest common ancestor (`lca`), and the ancestor of the cursor
+    // whose parent is the LCA (which'll be an end of the selection fragment).
+    for (var ancestor = this; ancestor.parent; ancestor = ancestor.parent) {
+      if (ancestor.parent.id in anticursor.ancestors) {
+        var lca = ancestor.parent;
+        break;
+      }
+    }
+    pray('cursor and anticursor in the same tree', lca);
+    // The cursor and the anticursor should be in the same tree, because the
+    // mousemove handler attached to the document, unlike the one attached to
+    // the root HTML DOM element, doesn't try to get the math tree node of the
+    // mousemove target, and Cursor::seek() based solely on coordinates stays
+    // within the tree of `this` cursor's root.
 
-    var leftEnd = selection.ends[L];
-    var rightEnd = selection.ends[R];
-    var lca = leftEnd.parent;
+    // The other end of the selection fragment, the ancestor of the anticursor
+    // whose parent is the LCA.
+    var antiAncestor = anticursor.ancestors[lca.id];
+
+    // Now we have two either Nodes or Points, guaranteed to have a common
+    // parent and guaranteed that if both are Points, they are not the same,
+    // and we have to figure out which is the left end and which the right end
+    // of the selection.
+    var leftEnd, rightEnd;
+
+    // This is an extremely subtle algorithm.
+    // As a special case, `ancestor` could be a Point and `antiAncestor` a Node
+    // immediately to `ancestor`'s left.
+    // In all other cases,
+    // - both Nodes
+    // - `ancestor` a Point and `antiAncestor` a Node
+    // - `ancestor` a Node and `antiAncestor` a Point
+    // `antiAncestor[R] === rightward[R]` for some `rightward` that is
+    // `ancestor` or to its right, if and only if `antiAncestor` is to
+    // the right of `ancestor`.
+    if (ancestor[L] !== antiAncestor) {
+      for (var rightward = ancestor; rightward; rightward = rightward[R]) {
+        if (rightward[R] === antiAncestor[R]) {
+          leftEnd = ancestor;
+          rightEnd = antiAncestor;
+          break;
+        }
+      }
+    }
+    if (!leftEnd) {
+      leftEnd = antiAncestor;
+      rightEnd = ancestor;
+    }
+
+    // only want to select Nodes up to Points, can't select Points themselves
+    if (leftEnd instanceof Point) leftEnd = leftEnd[R];
+    if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
     this.selectionChanged();
