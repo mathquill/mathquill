@@ -208,7 +208,7 @@ var Cursor = P(Point, function(_) {
     // parent and guaranteed that if both are Points, they are not the same,
     // and we have to figure out which is the left end and which the right end
     // of the selection.
-    var leftEnd, rightEnd;
+    var leftEnd, rightEnd, dir = R;
 
     // This is an extremely subtle algorithm.
     // As a special case, `ancestor` could be a Point and `antiAncestor` a Node
@@ -223,13 +223,14 @@ var Cursor = P(Point, function(_) {
     if (ancestor[L] !== antiAncestor) {
       for (var rightward = ancestor; rightward; rightward = rightward[R]) {
         if (rightward[R] === antiAncestor[R]) {
+          dir = L;
           leftEnd = ancestor;
           rightEnd = antiAncestor;
           break;
         }
       }
     }
-    if (!leftEnd) {
+    if (dir === R) {
       leftEnd = antiAncestor;
       rightEnd = ancestor;
     }
@@ -239,6 +240,7 @@ var Cursor = P(Point, function(_) {
     if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
     lca.selectChildren(this.hide(), leftEnd, rightEnd);
+    this.insDirOf(dir, this.selection.ends[dir]);
     this.selectionChanged();
     return true;
   };
