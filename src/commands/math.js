@@ -348,7 +348,7 @@ var MathBlock = P(MathElement, function(_, _super) {
   };
 
   _.keystroke = function(key, e, ctrlr) {
-    if (ctrlr.spaceBehavesLikeTab
+    if (ctrlr.options.spaceBehavesLikeTab
         && (key === 'Spacebar' || key === 'Shift-Spacebar')) {
       e.preventDefault();
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);

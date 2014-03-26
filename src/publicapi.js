@@ -49,10 +49,10 @@ function setMathQuillDot(name, API) {
 
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
-  _.initRoot = function(root, el) {
+  _.initRoot = function(root, el, opts) {
     root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(el);
-    var ctrlr = this.controller = root.controller = Controller(root, el);
+    var ctrlr = this.controller = root.controller = Controller(root, el, opts);
     ctrlr.API = this;
     root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
     ctrlr.createTextarea();
@@ -171,9 +171,8 @@ setMathQuillDot('MathField', P(EditableField, function(_, _super) {
   _.init = function(el, opts) {
     el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);
-    this.initRoot(RootMathBlock(), el);
+    this.initRoot(RootMathBlock(), el, opts);
     this.controller.root.setHandlers(opts && opts.handlers, this);
-    this.controller.spaceBehavesLikeTab = (opts && opts.spaceBehavesLikeTab);
     this.controller.renderLatexMath(contents);
     this.initEvents();
   };
