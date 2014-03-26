@@ -94,10 +94,9 @@ Controller.open(function(_) {
     if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
       text = text.slice(1, -1);
     }
-    else {
-      text = '\\text{' + text + '}';
+    else if (!this.options.pasteParsedInMathMode) {
+      text = '\\text{'+text+'}';
     }
-
     this.writeLatex(text).cursor.show();
   };
 });
