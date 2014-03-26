@@ -108,6 +108,12 @@ suite('latex', function() {
       mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
       assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
     });
+
+    test('basic rendering', function() {
+      mq.keystroke('Spacebar');
+      mq.typedText(' ');
+      assert.equal(mq.latex(), '\\ ');
+    });
   });
 
   suite('Cursor::writeLatex \\sum', function() {
