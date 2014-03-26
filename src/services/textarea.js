@@ -5,8 +5,7 @@
 
 Controller.open(function(_) {
   _.createTextarea = function() {
-    // TODO: everywhere else stop depending on root.textareaSpan, and rm it
-    var textareaSpan = this.textareaSpan = this.root.textareaSpan =
+    var textareaSpan = this.textareaSpan =
         $('<span class="textarea"><textarea></textarea></span>'),
       textarea = this.textarea = textareaSpan.children();
 
