@@ -134,4 +134,70 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
   });
+
+  suite('Paste Parsed in Math Mode', function() {
+    var mq, rootBlock, cursor;
+    var textarea;
+    test('default mode', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('\\pi').trigger('input');
+      assert.equal(mq.latex() ,'\\text{\\pi}');
+      $(mq.el()).remove();
+    });
+    test('default mode with $\'s', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('$\\pi$').trigger('input');
+      assert.equal(mq.latex() ,'\\pi');
+      $(mq.el()).remove();
+    });
+    test('pasteParsedInMathMode is True', function() {
+      var opts = { 'pasteParsedInMathMode': true };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('\\pi').trigger('input');
+      assert.equal(mq.latex() ,'\\pi');
+      $(mq.el()).remove();
+    });
+    test('default mode with $\'s and pasteParsedInMathMode', function() {
+      var opts = { 'pasteParsedInMathMode': true };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('$\\pi$').trigger('input');
+      assert.equal(mq.latex() ,'\\pi');
+      $(mq.el()).remove();
+    });
+
+    test('default mode with a more complicated expression', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('$\\pi\\sqrt{\\sqrt{\\frac12}}\\int$').trigger('input');
+      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
+      $(mq.el()).remove();
+    });
+    test('default mode with $\'s', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('whatsup\\int').trigger('input');
+      assert.equal(mq.latex() ,'\\text{whatsup\\int}');
+      $(mq.el()).remove();
+    });
+    test('pasteParsedInMathMode is True', function() {
+      var opts = { 'pasteParsedInMathMode': true };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('$\\pi\\sqrt{\\sqrt{\\frac12}}\\int$').trigger('input');
+      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
+      $(mq.el()).remove();
+    });
+    test('default mode with $\'s and pasteParsedInMathMode', function() {
+      var opts = { 'pasteParsedInMathMode': true };
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      textarea = $('#mock').find('textarea');
+      textarea.trigger('paste').val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int').trigger('input');
+      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
+      $(mq.el()).remove();
+    });
+  });
 });
