@@ -174,6 +174,23 @@ suite('tree', function() {
       }, 'half-empty on the left');
     });
 
+    test('directionalized constructor call', function() {
+      var ChNode = P(Node, { init: function(ch) { this.ch = ch; } });
+      var parent = Node();
+      var a = ChNode('a').adopt(parent, parent.ends[R], 0);
+      var b = ChNode('b').adopt(parent, parent.ends[R], 0);
+      var c = ChNode('c').adopt(parent, parent.ends[R], 0);
+      var d = ChNode('d').adopt(parent, parent.ends[R], 0);
+      var e = ChNode('e').adopt(parent, parent.ends[R], 0);
+
+      function cat(str, node) { return str + node.ch; }
+      assert.equal('bcd', Fragment(b, d).fold('', cat));
+      assert.equal('bcd', Fragment(b, d, L).fold('', cat));
+      assert.equal('bcd', Fragment(d, b, R).fold('', cat));
+      assert.throws(function() { Fragment(d, b, L); });
+      assert.throws(function() { Fragment(b, d, R); });
+    });
+
     test('disown is idempotent', function() {
       var parent = Node();
       var one = Node().adopt(parent, 0, 0);
@@ -182,6 +199,84 @@ suite('tree', function() {
       var frag = Fragment(one, two);
       frag.disown();
       frag.disown();
+    });
+
+    suite('Fragment.between()', function() {
+      function assertFragmentBetween(A, B, leftEnd, rightEnd) {
+        rightEnd = rightEnd || leftEnd;
+
+        (function eitherOrder(A, B) {
+
+          var frag = Fragment.between(A, B);
+          assert.equal(frag.ends[L], leftEnd);
+          assert.equal(frag.ends[R], rightEnd);
+
+          return eitherOrder;
+        }(A, B)(B, A));
+      }
+
+      var parent = Node();
+      var child1 = Node().adopt(parent, parent.ends[R], 0);
+      var child2 = Node().adopt(parent, parent.ends[R], 0);
+      var child3 = Node().adopt(parent, parent.ends[R], 0);
+      var A = Point(parent, 0, child1);
+      var B = Point(parent, child1, child2);
+      var C = Point(parent, child2, child3);
+      var D = Point(parent, child3, 0);
+      var pt1 = Point(child1, 0, 0);
+      var pt2 = Point(child2, 0, 0);
+      var pt3 = Point(child3, 0, 0);
+
+      test('same parent, one Node', function() {
+        assertFragmentBetween(A, B, child1);
+        assertFragmentBetween(B, C, child2);
+        assertFragmentBetween(C, D, child3);
+      });
+
+      test('same Parent, many Nodes', function() {
+        assertFragmentBetween(A, C, child1, child2);
+        assertFragmentBetween(A, D, child1, child3);
+        assertFragmentBetween(B, D, child2, child3);
+      });
+
+      test('Point next to parent of other Point', function() {
+        assertFragmentBetween(A, pt1, child1);
+        assertFragmentBetween(B, pt1, child1);
+
+        assertFragmentBetween(B, pt2, child2);
+        assertFragmentBetween(C, pt2, child2);
+
+        assertFragmentBetween(C, pt3, child3);
+        assertFragmentBetween(D, pt3, child3);
+      });
+
+      test('Points\' parents are siblings', function() {
+        assertFragmentBetween(pt1, pt2, child1, child2);
+        assertFragmentBetween(pt2, pt3, child2, child3);
+        assertFragmentBetween(pt1, pt3, child1, child3);
+      });
+
+      test('Point is sibling of parent of other Point', function() {
+        assertFragmentBetween(A, pt2, child1, child2);
+        assertFragmentBetween(A, pt3, child1, child3);
+        assertFragmentBetween(B, pt3, child2, child3);
+        assertFragmentBetween(pt1, D, child1, child3);
+        assertFragmentBetween(pt1, C, child1, child2);
+      });
+
+      test('same Point', function() {
+        assert.throws(function() {
+          var A2 = Point(parent, 0, child1);
+          Fragment.between(A, A2);
+        });
+      });
+
+      test('different trees', function() {
+        var anotherTree = Node();
+        var pt = Point(anotherTree, 0, 0);
+        assert.throws(function() { Fragment.between(pt, A); });
+        assert.throws(function() { Fragment.between(A, pt); });
+      });
     });
   });
 });

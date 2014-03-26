@@ -28,6 +28,9 @@
   // TODO: what's the difference between these?
   .empty {
     background: #ccc;
+    &.mathquill-root-block {
+      background: transparent;
+    }
   }
 
   &.empty {
@@ -102,9 +105,39 @@
   ////
   // ^, _
   // sup/sub
-  sup, sub {
-    position: relative;
+  // TODO: try http://jsbin.com/gabunebe/3/edit instead
+  //   obsoletes the &nbsp; in HTML template, but needs cross-browser
+  //   testing. Should also make the superscript shrink to the size of
+  //   its contents, rather than always being as wide as the subscript.
+  //   See also .fraction
+  .supsub {
     font-size: 90%;
+    vertical-align: -.5em;
+    &.limit {
+      font-size: 80%;
+      vertical-align: -.4em;
+    }
+
+    &.sup-only {
+      vertical-align: .5em;
+
+      .sup {
+        display: inline-block;
+        vertical-align: bottom;
+      }
+    }
+
+    .sup {
+      display: block;
+    }
+
+    .sub {
+      display: block;
+      float: left;
+    }
+    &.limit .sub {
+      margin-left: -.25em;
+    }
 
     .binary-operator {
       padding: 0 .1em;
@@ -112,10 +145,6 @@
 
     .unary-operator {
       padding-left: .1em;
-    }
-
-    &.limit, &.nthroot {
-      font-size: 80%;
     }
 
     // special styles for fractions
@@ -134,25 +163,12 @@
     }
   }
 
-  sup {
-    vertical-align: .5em;
-    &.limit, &.nthroot {
-      vertical-align: 0.8em
-    }
-
-    &.nthroot {
-      margin-right: -.6em;
-      margin-left: .2em;
-      min-width: .5em;
-    }
-  }
-
-  sub {
-    vertical-align: -.4em;
-
-    &.limit {
-      vertical-align: -.6em;
-    }
+  sup.nthroot {
+    font-size: 80%;
+    vertical-align: 0.8em;
+    margin-right: -.6em;
+    margin-left: .2em;
+    min-width: .5em;
   }
 
   ////
@@ -165,6 +181,8 @@
     -ms-transform-origin: bottom center;
     -o-transform-origin: bottom center;
     transform-origin: bottom center;
+
+    &.ghost { color: silver; }
   }
 
   .array {
@@ -177,18 +195,26 @@
   }
 
   ////
-  // non-italicized functions
+  // un-italicized functions
   // like \sin, \cos, \ln, etc.
-  .non-italicized-function {
+  .un-italicized {
     font-family: Symbola, "Times New Roman", serif;
     line-height: .9;
     font-style: normal;
+  }
+  var.un-italicized.first {
+    padding-left: .2em;
+  }
+  var.un-italicized.last {
     padding-right: .2em;
   }
 
   ////
   // \frac
   // fractions
+  // TODO: try http://jsbin.com/gabunebe/4/edit instead
+  //   obsoletes the &nbsp; in HTML template, but needs cross-browser
+  //   testing. See also .supsub
   .fraction {
     font-size: 90%;
     text-align: center;
@@ -198,12 +224,12 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .fraction, x:-moz-any-link {
+  .fraction, .large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .fraction, x:-moz-any-link, x:default {
+  .fraction, .large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
@@ -250,11 +276,27 @@
     line-height: .25em;
     margin-bottom: -.1em;
     font-size: 0.75em;
-  }	
+  }
 
   .vector-stem {
     display: block;
   }
+
+  .large-operator {
+    text-align: center;
+
+    .from, big, .to  {
+      display: block;
+    }
+    .from, .to  {
+      font-size: 80%;
+    }
+    .from {
+      float: right; /* take out of normal flow to manipulate baseline */
+      width: 100%;
+    }
+  }
+
 
   &, .mathquill-editable {
     cursor: text;
