@@ -718,7 +718,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.ends[L].latex();
-    if (!latex) latex = 'backslash';
+    if (!latex) latex = ' ';
     cursor.insertCmd(latex, this._replacedFragment);
   };
 });
