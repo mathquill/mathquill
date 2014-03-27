@@ -86,6 +86,7 @@ suite('latex', function() {
     assertParsesLatex('\\ ', '\\ ');
     assertParsesLatex('\\      ', '\\ ');
     assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+    assertParsesLatex('\\space\\   \\   space  ', '\\ \\ \\ space');
   });
 
   test('\\text', function() {

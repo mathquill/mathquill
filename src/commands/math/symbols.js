@@ -126,7 +126,7 @@ var VanillaSymbol = P(Symbol, function(_, _super) {
   };
 });
 
-LatexCmds[' '] = bind(VanillaSymbol, '\\ ', ' ');
+LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
