@@ -82,6 +82,12 @@ suite('latex', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
 
+  test('escaped whitespace', function() {
+    assertParsesLatex('\\ ', '\\ ');
+    assertParsesLatex('\\      ', '\\ ');
+    assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+  });
+
   test('\\text', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
@@ -107,12 +113,6 @@ suite('latex', function() {
       assert.equal(mq.latex(), 'ax^2+bx+c=0');
       mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
       assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
-    });
-
-    test('basic rendering', function() {
-      mq.keystroke('Spacebar');
-      mq.typedText(' ');
-      assert.equal(mq.latex(), '\\ ');
     });
   });
 
