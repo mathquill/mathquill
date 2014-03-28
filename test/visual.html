@@ -47,6 +47,11 @@ td {
 .different-bgcolor.mathquill-editable .cursor {
   border-color: white;
 }
+
+#overflow-test {
+  width: 8em;
+}
+
 </style>
 
 </head>
@@ -106,6 +111,15 @@ td {
 
 <p>
 &uarr; If you hit down from next to the 1, you should end up inside one of the square roots. If you hit up from the right of the x and then hit down again, you should end up where you were.
+</p>
+
+<h3>Horizontal overflow</h3>
+
+<p>
+<span id="overflow-test" class="mathquill-editable">
+  \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
+</span>
+(for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
 </p>
 
 <h3>Selection Tests</h3>
