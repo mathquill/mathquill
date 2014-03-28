@@ -1,12 +1,13 @@
 Controller.open(function(_) {
   _.focusBlurEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
+    var blurTimeout;
     ctrlr.textarea.focus(function() {
       ctrlr.blurred = false;
+      clearTimeout(blurTimeout);
       root.jQ.addClass('focused');
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
-      cursor.parent.jQ.addClass('hasCursor');
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('blur');
         ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
@@ -15,11 +16,23 @@ Controller.open(function(_) {
         cursor.show();
     }).blur(function() {
       ctrlr.blurred = true;
-      root.jQ.removeClass('focused');
-      cursor.hide().parent.blur();
-      if (cursor.selection)
-        cursor.selection.jQ.addClass('blur');
+      blurTimeout = setTimeout(function() { // wait for blur on window; if
+        root.postOrder('intentionalBlur'); // none, intentional blur: #264
+        cursor.clearSelection();
+        blur();
+      });
+      $(window).on('blur', windowBlur);
     }).blur();
+    function windowBlur() { // blur event also fired on window, just switching
+      clearTimeout(blurTimeout); // tabs/windows, not intentional blur
+      if (cursor.selection) cursor.selection.jQ.addClass('blur');
+      blur();
+    }
+    function blur() { // not directly in the textarea blur handler so as to be
+      cursor.hide().parent.blur(); // synchronous with/in the same frame as
+      root.jQ.removeClass('focused'); // clearing/blurring selection
+      $(window).off('blur', windowBlur);
+    }
   };
 });
 

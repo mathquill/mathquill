@@ -88,6 +88,7 @@ Controller.open(function(_) {
     }
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
+    this.scrollHoriz();
   };
   _.paste = function(text) {
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock

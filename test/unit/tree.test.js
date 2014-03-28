@@ -174,6 +174,23 @@ suite('tree', function() {
       }, 'half-empty on the left');
     });
 
+    test('directionalized constructor call', function() {
+      var ChNode = P(Node, { init: function(ch) { this.ch = ch; } });
+      var parent = Node();
+      var a = ChNode('a').adopt(parent, parent.ends[R], 0);
+      var b = ChNode('b').adopt(parent, parent.ends[R], 0);
+      var c = ChNode('c').adopt(parent, parent.ends[R], 0);
+      var d = ChNode('d').adopt(parent, parent.ends[R], 0);
+      var e = ChNode('e').adopt(parent, parent.ends[R], 0);
+
+      function cat(str, node) { return str + node.ch; }
+      assert.equal('bcd', Fragment(b, d).fold('', cat));
+      assert.equal('bcd', Fragment(b, d, L).fold('', cat));
+      assert.equal('bcd', Fragment(d, b, R).fold('', cat));
+      assert.throws(function() { Fragment(d, b, L); });
+      assert.throws(function() { Fragment(b, d, R); });
+    });
+
     test('disown is idempotent', function() {
       var parent = Node();
       var one = Node().adopt(parent, 0, 0);

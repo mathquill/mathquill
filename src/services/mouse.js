@@ -83,7 +83,8 @@ Controller.open(function(_) {
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
-
+    this.scrollHoriz(); // before .selectFrom when mouse-selecting, so
+                        // always hits no-selection case in scrollHoriz and scrolls slower
     return this;
   };
 });
