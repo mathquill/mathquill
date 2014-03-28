@@ -343,10 +343,10 @@ var Inequality = P(BinaryOperator, function(_, _super) {
 
   _.swap = function(strict) {
     this.strict = strict;
-    var key = (strict ? 'Strict' : '');
-    this.ctrlSeq = this.data['ctrlSeq'+key];
-    this.jQ.html(this.data['html'+key]);
-    this.textTemplate = [ this.data['text'+key] ];
+    var strictness = (strict ? 'Strict' : '');
+    this.ctrlSeq = this.data['ctrlSeq'+strictness];
+    this.jQ.html(this.data['html'+strictness]);
+    this.textTemplate = [ this.data['text'+strictness] ];
   };
 
   _.deleteTowards = function(dir, cursor) {
