@@ -112,7 +112,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor[dir] = this[dir];
   };
   _.selectChildren = function() {
-    return Selection(this);
+    return Selection(this, this);
   };
   _.unselectInto = function(dir, cursor) {
     cursor.insAtDirEnd(-dir, cursor.anticursor.ancestors[this.id]);

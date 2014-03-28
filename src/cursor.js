@@ -274,16 +274,9 @@ var Cursor = P(Point, function(_) {
 });
 
 var Selection = P(Fragment, function(_, _super) {
-  _.init = function(leftEnd, rightEnd) {
-    var seln = this;
-
-    // just select one thing if only one argument
-    _super.init.call(seln, leftEnd, rightEnd || leftEnd);
-
-    seln.jQwrap(seln.jQ);
-  };
-  _.jQwrap = function(children) {
-    this.jQ = children.wrapAll('<span class="selection"></span>').parent();
+  _.init = function() {
+    _super.init.apply(this, arguments);
+    this.jQ = this.jQ.wrapAll('<span class="selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {
