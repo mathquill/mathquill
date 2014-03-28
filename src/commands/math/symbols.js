@@ -338,9 +338,9 @@ var Inequality = P(BinaryOperator, function(_, _super) {
     this.data = data;
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
-    _super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness], data['text'+strictness]);
+    _super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
+                     data['text'+strictness]);
   };
-
   _.swap = function(strict) {
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
@@ -348,7 +348,6 @@ var Inequality = P(BinaryOperator, function(_, _super) {
     this.jQ.html(this.data['html'+strictness]);
     this.textTemplate = [ this.data['text'+strictness] ];
   };
-
   _.deleteTowards = function(dir, cursor) {
     if (dir === L && !this.strict) {
       this.swap(true);
@@ -361,7 +360,7 @@ var Inequality = P(BinaryOperator, function(_, _super) {
 var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
 var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
-             ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
+                ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
 LatexCmds['<'] = bind(Inequality, less, true);
 LatexCmds['>'] = bind(Inequality, greater, true);
 LatexCmds['≤'] = bind(Inequality, less, false);
