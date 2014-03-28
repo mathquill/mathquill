@@ -8,7 +8,7 @@ suite('Cursor::select()', function() {
     (function eitherOrder(A, B) {
 
       var count = 0;
-      lca.selectChildren = function(cursor, leftEnd, rightEnd) {
+      lca.selectChildren = function(leftEnd, rightEnd) {
         count += 1;
         assert.equal(frag.ends[L], leftEnd);
         assert.equal(frag.ends[R], rightEnd);

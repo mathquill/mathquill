@@ -239,7 +239,7 @@ var Cursor = P(Point, function(_) {
     if (leftEnd instanceof Point) leftEnd = leftEnd[R];
     if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
-    lca.selectChildren(this.hide(), leftEnd, rightEnd);
+    this.hide().selection = lca.selectChildren(leftEnd, rightEnd);
     this.insDirOf(dir, this.selection.ends[dir]);
     this.selectionChanged();
     return true;
