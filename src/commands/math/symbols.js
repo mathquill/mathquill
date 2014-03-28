@@ -372,7 +372,6 @@ var Equality = P(BinaryOperator, function(_, _super) {
   _.init = function() {
     _super.init.call(this, '=', '=');
   };
-// this doesnt work
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
       cursor[L].swap(false);
