@@ -12,7 +12,7 @@ suite('Cursor::select()', function() {
         count += 1;
         assert.equal(frag.ends[L], leftEnd);
         assert.equal(frag.ends[R], rightEnd);
-        return MathBlock.p.selectChildren.apply(this, arguments);
+        return Node.p.selectChildren.apply(this, arguments);
       };
 
       Point.p.init.call(cursor, A.parent, A[L], A[R]);

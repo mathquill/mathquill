@@ -369,9 +369,6 @@ var MathBlock = P(MathElement, function(_, _super) {
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
   };
-  _.selectChildren = function(cursor, leftEnd, rightEnd) {
-    cursor.selection = Selection(leftEnd, rightEnd);
-  };
   _.seek = function(pageX, cursor) {
     var node = this.ends[R];
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {

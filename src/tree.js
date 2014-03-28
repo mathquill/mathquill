@@ -131,6 +131,10 @@ var Node = P(function(_) {
   };
   _.createLeftOf = function(el) { return this.createDir(L, el); };
 
+  _.selectChildren = function(cursor, leftEnd, rightEnd) {
+    cursor.selection = Selection(leftEnd, rightEnd);
+  };
+
   _.bubble = iterator(function(yield) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield(ancestor);
