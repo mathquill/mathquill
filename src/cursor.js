@@ -49,7 +49,7 @@ var Cursor = P(Point, function(_) {
   };
 
   _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
-    if (parent !== this.parent) this.parent.blur();
+    if (parent !== this.parent && this.parent.blur) this.parent.blur();
     this.parent = parent;
     this[dir] = withDir;
     this[-dir] = oppDir;
