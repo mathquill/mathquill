@@ -361,10 +361,11 @@ var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
 var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
-LatexCmds['<'] = bind(Inequality, less, true);
-LatexCmds['>'] = bind(Inequality, greater, true);
-LatexCmds['≤'] = bind(Inequality, less, false);
-LatexCmds['≥'] = bind(Inequality, greater, false);
+
+LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
+LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
+LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
+LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
 
 var Equality = P(BinaryOperator, function(_, _super) {
   _.init = function() {
@@ -410,14 +411,6 @@ LatexCmds.because = bind(BinaryOperator,'\\because ','&#8757;');
 LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
 
 LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
-
-LatexCmds.lt = bind(BinaryOperator,'<','&lt;');
-
-LatexCmds.gt = bind(BinaryOperator,'>','&gt;');
-
-LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','&le;');
-
-LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','&ge;');
 
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 

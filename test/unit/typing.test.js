@@ -400,5 +400,31 @@ suite('typing with auto-replaces', function() {
       mq.typedText('<<>>==>><<==');
       assertLatex('<<>\\ge=>><\\le=');
     });
+
+    test('typing ≤ and ≥ chars directly', function() {
+      mq.typedText('≤');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('≥');
+      assertFullyFunctioningInequality('\\ge', '>');
+    });
+
+    suite('rendered from LaTeX', function() {
+      test('control sequences', function() {
+        mq.latex('\\le');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('\\ge');
+        assertFullyFunctioningInequality('\\ge', '>');
+      });
+
+      test('≤ and ≥ chars', function() {
+        mq.latex('≤');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('≥');
+        assertFullyFunctioningInequality('\\ge', '>');
+      });
+    });
   });
 });
