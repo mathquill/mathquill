@@ -373,4 +373,32 @@ suite('typing with auto-replaces', function() {
       });
     });
   });
+
+  suite('inequalities', function() {
+    function assertFullyFunctioningInequality(nonStrict, strict) {
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.typedText('=');
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.keystroke('Backspace');
+      assertLatex('');
+    }
+    test('typing and backspacing <= and >=', function() {
+      mq.typedText('<');
+      assertLatex('<');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('>');
+      assertLatex('>');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\ge', '>');
+
+      mq.typedText('<<>>==>><<==');
+      assertLatex('<<>\\ge=>><\\le=');
+    });
+  });
 });
