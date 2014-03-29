@@ -18,6 +18,8 @@ suite('typing with auto-replaces', function() {
     assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
     mq.latex('').typedText('1+/2');
     assertLatex('1+\\frac{2}{ }');
+    mq.latex('').typedText('1 2/3');
+    assertLatex('1\\ \\frac{2}{3}');
   });
 
   suite('auto-expanding parens', function() {
