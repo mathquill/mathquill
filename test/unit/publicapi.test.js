@@ -28,6 +28,11 @@ suite('Public API', function() {
       assert.equal(mq.latex(), 'bc');
     });
 
+    test('.html() trivial case', function() {
+      mq.latex('x+y');
+      assert.equal(mq.html(), '<var>x</var><span class="binary-operator">+</span><var>y</var>');
+    });
+
     test('.moveToDirEnd(dir)', function() {
       mq.latex('a x^2 + b x + c = 0');
       assert.equal(mq.controller.cursor[L].ctrlSeq, '0');

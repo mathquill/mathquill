@@ -78,9 +78,10 @@ var AbstractMathQuill = P(function(_) {
   };
   _.html = function() {
     return this.controller.root.jQ.html()
-      .replace(/ ?hasCursor|hasCursor /, '')
-      .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
+      .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
+      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '')
+      .replace(/ hasCursor|hasCursor ?/, '')
+      .replace(/ class=(""|(?= |>))/g, '');
   };
   _.redraw = function() {
     this.controller.root.postOrder('edited');
