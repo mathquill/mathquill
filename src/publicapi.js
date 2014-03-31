@@ -115,8 +115,8 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.cmd = function(cmd) {
     var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show(),
       seln = cursor.replaceSelection();
-    if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
-    else cursor.parent.write(latex, seln);
+    if (/^\\[a-z]+$/i.test(cmd)) cursor.insertCmd(cmd.slice(1), seln);
+    else cursor.parent.write(cursor, cmd, seln);
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };

@@ -90,6 +90,29 @@ suite('Public API', function() {
     $(mq.el()).remove();
   });
 
+  suite('.cmd(...)', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('basic', function() {
+      mq.cmd('x');
+      assert.equal(mq.latex(), 'x');
+      mq.cmd('y');
+      assert.equal(mq.latex(), 'xy');
+      mq.cmd('^');
+      assert.equal(mq.latex(), 'xy^{ }');
+      mq.cmd('2');
+      assert.equal(mq.latex(), 'xy^2');
+      mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{xy^2}');
+    });
+  });
+
   suite('spaceBehavesLikeTab', function() {
     var mq, rootBlock, cursor;
     test('space behaves like tab with default opts', function() {
