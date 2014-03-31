@@ -95,7 +95,7 @@ suite('latex', function() {
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
-  suite('.latex(...)', function() {
+  suite('public API', function() {
     var mq;
     setup(function() {
       mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
@@ -104,46 +104,43 @@ suite('latex', function() {
       $(mq.el()).remove();
     });
 
-    test('basic rendering', function() {
-      mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    suite('.latex(...)', function() {
+      test('basic rendering', function() {
+        mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+        assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
+
+      test('re-rendering', function() {
+        mq.latex('a x^2 + b x + c = 0');
+        assert.equal(mq.latex(), 'ax^2+bx+c=0');
+        mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
+        assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
     });
 
-    test('re-rendering', function() {
-      mq.latex('a x^2 + b x + c = 0');
-      assert.equal(mq.latex(), 'ax^2+bx+c=0');
-      mq.latex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(mq.latex(), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
-    });
-  });
+    suite('.write(...)', function() {
+      suite('\\sum', function() {
+        test('basic', function() {
+          mq.write('\\sum_{n=0}^5');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
+        });
 
-  suite('Cursor::writeLatex \\sum', function() {
-    var mq;
-    setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-    });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
-    test('basic', function() {
-      mq.write('\\sum_{n=0}^5');
-      assert.equal(mq.latex(), '\\sum_{n=0}^5');
-      mq.write('x^n');
-      assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
-    });
+        test('only lower bound', function() {
+          mq.write('\\sum_{n=0}');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
+        });
 
-    test('only lower bound', function() {
-      mq.write('\\sum_{n=0}');
-      assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
-      mq.write('x^n');
-      assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
-    });
-
-    test('only upper bound', function() {
-      mq.write('\\sum^5');
-      assert.equal(mq.latex(), '\\sum_{ }^5');
-      mq.write('x^n');
-      assert.equal(mq.latex(), '\\sum_{ }^5x^n');
+        test('only upper bound', function() {
+          mq.write('\\sum^5');
+          assert.equal(mq.latex(), '\\sum_{ }^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{ }^5x^n');
+        });
+      });
     });
   });
 
