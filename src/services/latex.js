@@ -124,6 +124,7 @@ Controller.open(function(_, _super) {
       jQ.empty();
     }
 
+    delete cursor.selection;
     cursor.insAtRightEnd(root);
   };
   _.renderLatexText = function(latex) {
