@@ -575,7 +575,7 @@ LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 
 LatexCmds.textcent = LatexCmds.cent = bind(VanillaSymbol,'\\textcent ','&cent;');
 
-LatexCmds.dollar = bind(VanillaSymbol,'\\dollar ','$');
+LatexCmds.dollar = LatexCmds['$'] = bind(VanillaSymbol,'\\dollar ','$');
 
 LatexCmds.square = bind(VanillaSymbol,'\\square ','&#9633;');
 
