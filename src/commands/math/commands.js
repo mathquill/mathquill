@@ -212,7 +212,7 @@ var SupSub = P(MathCommand, function(_, _super) {
           cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
           delete cmd[oppositeSupsub].deleteOutOf;
           if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
-          this.moveOutOf(dir, cursor);
+          cursor.insDirOf(dir, this.parent);
           this.remove();
         }
         else {
