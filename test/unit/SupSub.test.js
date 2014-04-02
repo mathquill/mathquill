@@ -137,6 +137,12 @@ suite('SupSub', function() {
 
       mq.typedText('_a');
       assert.equal(mq.latex(), 'x_a^b');
+
+      mq.keystroke('Left Backspace');
+      assert.equal(mq.latex(), 'xa^b');
+
+      mq.typedText('c');
+      assert.equal(mq.latex(), 'xca^b');
     });
     test('backspacing out of and then re-typing superscript', function() {
       mq.latex('x_a^b');
@@ -150,6 +156,12 @@ suite('SupSub', function() {
 
       mq.typedText('^b');
       assert.equal(mq.latex(), 'x_a^b');
+
+      mq.keystroke('Left Backspace');
+      assert.equal(mq.latex(), 'xb_a');
+
+      mq.typedText('c');
+      assert.equal(mq.latex(), 'xcb_a');
     });
   });
 });

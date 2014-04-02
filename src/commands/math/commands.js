@@ -205,22 +205,20 @@ var SupSub = P(MathCommand, function(_, _super) {
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
       cmd[supsub].deleteOutOf = function(dir, cursor) {
-        if (this.isEmpty()) {
-          cmd.supsub = oppositeSupsub;
-          delete cmd[supsub];
-          delete cmd[updown+'Into'];
-          cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
-          delete cmd[oppositeSupsub].deleteOutOf;
-          if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
-          cursor.insDirOf(dir, this.parent);
-          this.remove();
+        cursor.insDirOf(dir, this.parent);
+        if (!this.isEmpty()) {
+          cursor[-dir] = this.ends[dir];
+          this.children().disown()
+            .withDirAdopt(dir, cursor.parent, cursor[dir], this.parent)
+            .jQ.insDirOf(dir, this.parent.jQ);
         }
-        else {
-          cursor.insAtDirEnd(-dir, this);
-          cursor.startSelection();
-          cursor.insAtDirEnd(dir, this);
-          cursor.select();
-        }
+        cmd.supsub = oppositeSupsub;
+        delete cmd[supsub];
+        delete cmd[updown+'Into'];
+        cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
+        delete cmd[oppositeSupsub].deleteOutOf;
+        if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+        this.remove();
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
