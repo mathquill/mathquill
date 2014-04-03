@@ -177,6 +177,16 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
     this.respace();
   };
+  var chars = '';
+  MathQuill.addCharsThatBreakOutOfSupSub = function(c) { chars += c; };
+  _.finalizeTree = function() {
+    this.ends[L].write = function(cursor, ch) {
+      if (chars.indexOf(ch) > -1) {
+        cursor.insRightOf(this.parent);
+      }
+      MathBlock.p.write.apply(this, arguments);
+    };
+  };
   _.latex = function() {
     function latex(prefix, block) {
       var l = block && block.latex();
@@ -309,6 +319,7 @@ LatexCmds._ = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
+    _super.finalizeTree.call(this);
   };
 });
 
@@ -325,6 +336,7 @@ LatexCmds['^'] = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
+    _super.finalizeTree.call(this);
   };
 });
 
