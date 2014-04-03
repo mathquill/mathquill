@@ -131,6 +131,16 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
+#### Behavior Options
+
+These methods modify math typing behavior page-wide:
+(TODO: per-field versions of these, if useful)
+
+- `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
+  of LaTeX control words (no backslash, letters only, min length 2), and adds
+  them to the (default empty) set of "auto-commands", commands automatically
+  rendered by just typing the letters outside a `LatexCommandInput`
+
 #### Handlers/Options
 
 `MathQuill.MathField()` can also take an options object. Currently, 
