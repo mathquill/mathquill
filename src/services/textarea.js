@@ -81,7 +81,10 @@ Controller.open(function(_) {
 
     this.focusBlurEvents();
   };
+  var disabledChars = '';
+  MathQuill.disableCharsWithoutOperand = function(c) { disabledChars += c; };
   _.typedText = function(ch) {
+    if (!this.cursor[L] && disabledChars.indexOf(ch) > -1) return;
     if (ch === '\n') {
       if (this.root.handlers.enter) this.root.handlers.enter(this.API);
       return;

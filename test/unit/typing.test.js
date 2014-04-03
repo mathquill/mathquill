@@ -471,5 +471,39 @@ suite('typing with auto-replaces', function() {
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
     });
+    test('disableCharsWithoutOperand', function() {
+      assert.equal(mq.typedText('^').latex(), '^{ }');
+      assert.equal(mq.typedText('2').latex(), '^2');
+      assert.equal(mq.typedText('n').latex(), '^{2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x').latex(), 'x');
+      assert.equal(mq.typedText('^').latex(), 'x^{ }');
+      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('n').latex(), 'x^{2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x').latex(), 'x');
+      assert.equal(mq.typedText('^').latex(), 'x^{ }');
+      assert.equal(mq.typedText('^').latex(), 'x^{^{ }}');
+      assert.equal(mq.typedText('2').latex(), 'x^{^2}');
+      assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
+
+      mq.latex('');
+      MathQuill.disableCharsWithoutOperand('^_');
+
+      assert.equal(mq.typedText('^').latex(), '');
+      assert.equal(mq.typedText('2').latex(), '2');
+      assert.equal(mq.typedText('n').latex(), '2n');
+      mq.latex('');
+      assert.equal(mq.typedText('x').latex(), 'x');
+      assert.equal(mq.typedText('^').latex(), 'x^{ }');
+      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('n').latex(), 'x^{2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x').latex(), 'x');
+      assert.equal(mq.typedText('^').latex(), 'x^{ }');
+      assert.equal(mq.typedText('^').latex(), 'x^{ }');
+      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('n').latex(), 'x^{2n}');
+    });
   });
 });

@@ -148,6 +148,9 @@ These methods modify math typing behavior page-wide:
   the exponent, and type what you expect. Problem is, now you can't just type
   `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the
   paren or something
+- `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
+  chars when there's nothing to the left of the cursor (Desmos, for example,
+  disables `^` and `_`, so that typos like `x^^2` are friendlier)
 
 #### Handlers/Options
 
