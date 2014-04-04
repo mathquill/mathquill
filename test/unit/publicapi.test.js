@@ -135,69 +135,94 @@ suite('Public API', function() {
     });
   });
 
-  suite('Paste Parsed in Math Mode', function() {
-    var mq, rootBlock, cursor;
-    var textarea;
-    test('default mode', function() {
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('\\pi').trigger('input');
-      assert.equal(mq.latex() ,'\\text{\\pi}');
-      $(mq.el()).remove();
-    });
-    test('default mode with $\'s', function() {
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('$\\pi$').trigger('input');
-      assert.equal(mq.latex() ,'\\pi');
-      $(mq.el()).remove();
-    });
-    test('pasteParsedInMathMode is True', function() {
-      var opts = { 'pasteParsedInMathMode': true };
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('\\pi').trigger('input');
-      assert.equal(mq.latex() ,'\\pi');
-      $(mq.el()).remove();
-    });
-    test('default mode with $\'s and pasteParsedInMathMode', function() {
-      var opts = { 'pasteParsedInMathMode': true };
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('$\\pi$').trigger('input');
-      assert.equal(mq.latex() ,'\\pi');
-      $(mq.el()).remove();
-    });
+  suite('statelessClipboard option', function() {
+    suite('default', function() {
+      var mq, textarea;
+      setup(function() {
+        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+        textarea = $(mq.el()).find('textarea');;
+      });
+      teardown(function() {
+        $(mq.el()).remove();
+      });
+      function assertPaste(paste, latex) {
+        if (arguments.length < 2) latex = paste;
+        mq.latex('');
+        textarea.trigger('paste').val(paste).trigger('input');
+        assert.equal(mq.latex(), latex);
+      }
 
-    test('default mode with a more complicated expression', function() {
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('$\\pi\\sqrt{\\sqrt{\\frac12}}\\int$').trigger('input');
-      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
-      $(mq.el()).remove();
+      test('numbers and letters', function() {
+        assertPaste('123xyz');
+      });
+      test('a sentence', function() {
+        assertPaste('Lorem ipsum is a placeholder text commonly used to '
+                    + 'demonstrate the graphical elements of a document or '
+                    + 'visual presentation.',
+                    'Loremipsumisaplaceholdertextcommonlyusedtodemonstrate'
+                    + 'thegraphicalelementsofadocumentorvisualpresentation.');
+      });
+      test('actual LaTeX', function() {
+        assertPaste('a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('\\frac{1}{2\\sqrt{x}}');
+      });
+      test('\\text{...}', function() {
+        assertPaste('\\text{lol}');
+        assertPaste('1+\\text{lol}+2');
+        assertPaste('\\frac{\\text{apples}}{\\text{oranges}}');
+      });
+      test('selection', function(done) {
+        mq.latex('x^2').select();
+        setTimeout(function() {
+          assert.equal(textarea.val(), 'x^2');
+          done();
+        });
+      });
     });
-    test('default mode with $\'s', function() {
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0])
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('whatsup\\int').trigger('input');
-      assert.equal(mq.latex() ,'\\text{whatsup\\int}');
-      $(mq.el()).remove();
-    });
-    test('pasteParsedInMathMode is True', function() {
-      var opts = { 'pasteParsedInMathMode': true };
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('$\\pi\\sqrt{\\sqrt{\\frac12}}\\int$').trigger('input');
-      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
-      $(mq.el()).remove();
-    });
-    test('default mode with $\'s and pasteParsedInMathMode', function() {
-      var opts = { 'pasteParsedInMathMode': true };
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
-      textarea = $('#mock').find('textarea');
-      textarea.trigger('paste').val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int').trigger('input');
-      assert.equal(mq.latex() ,'\\pi\\sqrt{\\sqrt{\\frac{1}{2}}}\\int');
-      $(mq.el()).remove();
+    suite('statelessClipboard set to true', function() {
+      var mq, textarea;
+      setup(function() {
+        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0],
+                                 { statelessClipboard: true });
+        textarea = $(mq.el()).find('textarea');;
+      });
+      teardown(function() {
+        $(mq.el()).remove();
+      });
+      function assertPaste(paste, latex) {
+        if (arguments.length < 2) latex = paste;
+        mq.latex('');
+        textarea.trigger('paste').val(paste).trigger('input');
+        assert.equal(mq.latex(), latex);
+      }
+
+      test('numbers and letters', function() {
+        assertPaste('123xyz', '\\text{123xyz}');
+      });
+      test('a sentence', function() {
+        assertPaste('Lorem ipsum is a placeholder text commonly used to '
+                    + 'demonstrate the graphical elements of a document or '
+                    + 'visual presentation.',
+                    '\\text{Lorem ipsum is a placeholder text commonly used to '
+                    + 'demonstrate the graphical elements of a document or '
+                    + 'visual presentation.}');
+      });
+      test('backslashes', function() {
+        assertPaste('something \\pi something \\asdf',
+                    '\\text{something \\pi something \\asdf}');
+      });
+      // TODO: braces (currently broken)
+      test('actual math LaTeX wrapped in dollar signs', function() {
+        assertPaste('$a_nx^n+a_{n+1}x^{n+1}$', 'a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('$\\frac{1}{2\\sqrt{x}}$', '\\frac{1}{2\\sqrt{x}}');
+      });
+      test('selection', function(done) {
+        mq.latex('x^2').select();
+        setTimeout(function() {
+          assert.equal(textarea.val(), '$x^2$');
+          done();
+        });
+      });
     });
   });
 });

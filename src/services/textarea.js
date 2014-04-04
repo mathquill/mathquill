@@ -37,7 +37,11 @@ Controller.open(function(_) {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
-      latex = '$' + this.cursor.selection.join('latex') + '$';
+      latex = this.cursor.selection.join('latex');
+      if (this.options.statelessClipboard) {
+        // FIXME: like paste, only this works for math fields; should ask parent
+        latex = '$' + latex + '$';
+      }
     }
     this.selectFn(latex);
   };
@@ -90,13 +94,15 @@ Controller.open(function(_) {
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
   };
   _.paste = function(text) {
+    if (this.options.statelessClipboard) { // FIXME: document in README
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{'+text+'}';
+      }
+    }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
-    if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-      text = text.slice(1, -1);
-    }
-    else if (!this.options.pasteParsedInMathMode) {
-      text = '\\text{'+text+'}';
-    }
     this.writeLatex(text).cursor.show();
   };
 });

@@ -89,7 +89,7 @@ td {
     var oldcount = count;
     // paste some stuff that needs resizing
     textarea.trigger('paste');
-    textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}\\int$');
+    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
     setTimeout(function() { if (count === oldcount) throw 'edited not called'; });
   });
 </script>
