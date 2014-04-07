@@ -131,7 +131,7 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
-#### Behavior Options
+#### Global Behavior Options
 
 These methods modify math typing behavior page-wide:
 (TODO: per-field versions of these, if useful)
