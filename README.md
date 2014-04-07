@@ -143,8 +143,7 @@ These methods modify math typing behavior page-wide:
 
 #### Handlers/Options
 
-`MathQuill.MathField()` can also take an options object. Currently, 
-the only options supported are `handlers` and `spaceBehavesLikeTab`:
+`MathQuill.MathField()` can also take an options object:
 
 ```js
 var L = MathQuill.L, R = MathQuill.R;
@@ -155,13 +154,33 @@ MathQuill.MathField(el[0], {
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
   },
-  spaceBehavesLikeTab: true
+  spaceBehavesLikeTab: true,
+  leftRightIntoCmdGoes: 'up'
 });
 ```
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
 like {Shift-,}Tab escaping from the current block (as opposed to the default
 behavior of inserting a Space character).
+
+By default, the Left and Right keys move the cursor through all possible cursor
+positions in a particular order: right into a fraction puts the cursor at the
+left end of the numerator, right out of the numerator puts the cursor at the
+left end of the denominator, right out of the denominator puts the cursor to the
+right of the fraction; symmetrically, left into a fraction puts the cursor at
+the right end of the denominator, etc. Note that right out of the numerator to
+the left end of the denominator is actually leftwards (and downwards, it's
+basically wrapped). If instead you want right to always go right, and left to
+always go left, you can set `leftRightIntoCmdGoes` to `'up'` or `'down'` so that
+left and right go up or down (respectively) into commands, e.g. `'up'` means
+that left into a fraction goes up into the numerator, skipping the denominator;
+symmetrically, right out of the numerator skips the denominator and puts the
+cursor to the right of the fraction, which unlike the default behavior is
+actually rightwards (the drawback is the denominator is always skipped, you
+can't get to it with just Left and Right, you have to press Down); which is
+the same behavior as the Desmos calculator. `'down'` instead means it is the
+numerator that is always skipped, which is the same behavior as the Mac OS X
+built-in app Grapher.
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

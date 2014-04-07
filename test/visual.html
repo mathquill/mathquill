@@ -103,12 +103,13 @@ td {
 
 <h3>Behavior Options</h3>
 
-<p><span id="custom-behavior"></span> Space should behave like Tab</p>
+<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span> Space should behave like Tab, and left and right should go through the upper block</p>
 
 <script>
 $(function() {
   MathQuill.MathField($('#custom-behavior')[0], {
-    spaceBehavesLikeTab: true
+    spaceBehavesLikeTab: true,
+    leftRightIntoCmdGoes: 'up'
   });
 });
 </script>
