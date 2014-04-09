@@ -433,10 +433,23 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   };
 });
 
+function DelimsMixin(_, _super) {
+  _.jQadd = function() {
+    _super.jQadd.apply(this, arguments);
+    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
+    this.contentjQ = this.jQ.children(':eq(1)');
+  };
+  _.edited = function() {
+    var height = this.contentjQ.outerHeight()
+                 / parseInt(this.contentjQ.css('fontSize'), 10);
+    scale(this.delimjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
+  };
+}
+
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 //   first typed as one-sided bracket with matching "ghost" bracket at
 //   far end of current block, until you type an opposing one
-var Bracket = P(MathCommand, function(_, _super) {
+var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
   _.init = function(side, open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
     this.side = side;
@@ -459,20 +472,8 @@ var Bracket = P(MathCommand, function(_, _super) {
     ;
     return _super.html.call(this);
   };
-  _.jQadd = function() {
-    _super.jQadd.apply(this, arguments);
-    var jQ = this.jQ;
-    this.bracketjQs = jQ.children(':first').add(jQ.children(':last'));
-  };
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
-  };
-  _.edited = function() {
-    var blockjQ = this.ends[L].jQ;
-
-    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
-
-    scale(this.bracketjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
   _.oppBrack = function(node) {
     return node instanceof Bracket && node.side === -this.side && node;
@@ -480,7 +481,7 @@ var Bracket = P(MathCommand, function(_, _super) {
   _.closeOpposing = function(brack) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
-    brack.bracketjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
+    brack.delimjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
       .removeClass('ghost').html(this.sides[this.side].ch);
   };
   _.createLeftOf = function(cursor) {
@@ -541,7 +542,7 @@ var Bracket = P(MathCommand, function(_, _super) {
       else { // deleting one of a pair of brackets, become one-sided
         this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
                              ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-        this.bracketjQs.removeClass('ghost')
+        this.delimjQs.removeClass('ghost')
           .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
       }
       if (sib) { // auto-expand so ghost is at far end
@@ -566,7 +567,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function() {
-      this.bracketjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
+      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
       this.side = 0;
     };
   };
@@ -713,7 +714,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
 var Binomial =
 LatexCmds.binom =
-LatexCmds.binomial = P(MathCommand, function(_, _super) {
+LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="non-leaf">'
@@ -728,12 +729,6 @@ LatexCmds.binomial = P(MathCommand, function(_, _super) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
-  _.edited = function() {
-    var blockjQ = this.jQ.children(':eq(1)');
-    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
-    var parens = this.jQ.children('.paren');
-    scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
-  };
 });
 
 var Choose =
