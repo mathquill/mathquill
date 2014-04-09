@@ -716,22 +716,22 @@ LatexCmds.binom =
 LatexCmds.binomial = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="paren scaled">(</span>'
-    + '<span class="non-leaf">'
-    +   '<span class="array non-leaf">'
-    +     '<span>&0</span>'
-    +     '<span>&1</span>'
+      '<span class="non-leaf">'
+    +   '<span class="paren scaled">(</span>'
+    +   '<span class="non-leaf">'
+    +     '<span class="array non-leaf">'
+    +       '<span>&0</span>'
+    +       '<span>&1</span>'
+    +     '</span>'
     +   '</span>'
+    +   '<span class="paren scaled">)</span>'
     + '</span>'
-    + '<span class="paren scaled">)</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
   _.edited = function() {
-    var blockjQ = this.jQ.eq(1);
-
+    var blockjQ = this.jQ.children(':eq(1)');
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
-
-    var parens = this.jQ.filter('.paren');
+    var parens = this.jQ.children('.paren');
     scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
   };
 });
