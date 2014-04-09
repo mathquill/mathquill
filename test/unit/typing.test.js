@@ -76,7 +76,7 @@ suite('typing with auto-replaces', function() {
     });
 
     suite('backspacing', function() {
-      test('typing then backspacing a paren', function() {
+      test('typing then backspacing a close-paren in the middle of 1+2+3+4', function() {
         mq.typedText('1+2+3+4');
         assertLatex('1+2+3+4');
         mq.keystroke('Left Left').typedText(')');
@@ -85,7 +85,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing close-paren then open-paren', function() {
+      test('backspacing close-paren then open-paren of 1+(2+3)+4', function() {
         mq.typedText('1+(2+3)+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Backspace');
@@ -94,7 +94,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing open-paren then close-paren', function() {
+      test('backspacing open-paren then close-paren of 1+(2+3)+4', function() {
         mq.typedText('1+(2+3)+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -103,7 +103,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing close-bracket then open-paren', function() {
+      test('backspacing close-bracket then open-paren of 1+(2+3]+4', function() {
         mq.typedText('1+(2+3]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Backspace');
@@ -112,7 +112,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing open-paren then close-bracket', function() {
+      test('backspacing open-paren then close-bracket of 1+(2+3]+4', function() {
         mq.typedText('1+(2+3]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -122,7 +122,7 @@ suite('typing with auto-replaces', function() {
       });
 
 
-      test('backspacing close-bracket then open-paren at end', function() {
+      test('backspacing close-bracket then open-paren of 1+(2+3] (nothing after paren group)', function() {
         mq.typedText('1+(2+3]');
         assertLatex('1+\\left(2+3\\right]');
         mq.keystroke('Backspace');
@@ -131,7 +131,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3');
       });
 
-      test('backspacing open-paren then close-bracket at end', function() {
+      test('backspacing open-paren then close-bracket of 1+(2+3] (nothing after paren group)', function() {
         mq.typedText('1+(2+3]');
         assertLatex('1+\\left(2+3\\right]');
         mq.keystroke('Left Left Left Left Backspace');
@@ -140,7 +140,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3');
       });
 
-      test('backspacing close-bracket then open-paren at beginning', function() {
+      test('backspacing close-bracket then open-paren of (2+3]+4 (nothing before paren group)', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Left Left Backspace');
@@ -149,7 +149,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('2+3+4');
       });
 
-      test('backspacing open-paren then close-bracket at beginning', function() {
+      test('backspacing open-paren then close-bracket of (2+3]+4 (nothing before paren group)', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -165,7 +165,7 @@ suite('typing with auto-replaces', function() {
                   'paren block auto-expanded, should no longer be gray');
       }
 
-      test('backspacing close-bracket then open-paren of empty paren group', function() {
+      test('backspacing close-bracket then open-paren of 1+(]+4 (empty paren group)', function() {
         mq.typedText('1+(]+4');
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Backspace');
@@ -175,7 +175,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1++4');
       });
 
-      test('backspacing open-paren then close-bracket of empty paren group', function() {
+      test('backspacing open-paren then close-bracket of 1+(]+4 (empty paren group)', function() {
         mq.typedText('1+(]+4');
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
@@ -185,7 +185,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1++4');
       });
 
-      test('backspacing close-bracket then open-paren at end of empty paren group', function() {
+      test('backspacing close-bracket then open-paren of 1+(] (empty paren group, nothing after)', function() {
         mq.typedText('1+(]');
         assertLatex('1+\\left(\\right]');
         mq.keystroke('Backspace');
@@ -194,7 +194,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+');
       });
 
-      test('backspacing open-paren then close-bracket at end of empty paren group', function() {
+      test('backspacing open-paren then close-bracket of 1+(] (empty paren group, nothing after)', function() {
         mq.typedText('1+(]');
         assertLatex('1+\\left(\\right]');
         mq.keystroke('Left Backspace');
@@ -204,7 +204,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+');
       });
 
-      test('backspacing close-bracket then open-paren at beginning of empty paren group', function() {
+      test('backspacing close-bracket then open-paren of (]+4 (empty paren group, nothing before)', function() {
         mq.typedText('(]+4');
         assertLatex('\\left(\\right]+4');
         mq.keystroke('Left Left Backspace');
@@ -214,7 +214,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('+4');
       });
 
-      test('backspacing open-paren then close-bracket at beginning of empty paren group', function() {
+      test('backspacing open-paren then close-bracket of (]+4 (empty paren group, nothing before)', function() {
         mq.typedText('(]+4');
         assertLatex('\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
@@ -281,7 +281,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing close-bracket at the end then typing', function() {
+      test('backspacing close-bracket of 1+(2+3] (nothing after) then typing', function() {
         mq.typedText('1+(2+3]');
         assertLatex('1+\\left(2+3\\right]');
         mq.keystroke('Backspace');
@@ -290,7 +290,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(2+3+4\\right)');
       });
 
-      test('backspacing open-paren at the beginning then typing', function() {
+      test('backspacing open-paren of (2+3]+4 (nothing before) then typing', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Home Right Backspace');
