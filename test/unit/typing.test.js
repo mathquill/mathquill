@@ -369,14 +369,14 @@ suite('typing with auto-replaces', function() {
         assertLatex('\\left(1+2+3\\right)+4');
       });
 
-      test('close bracket pair by typing close-bracket outside ghost paren', function() {
+      test('close paren group by typing close-bracket outside ghost paren', function() {
         mq.typedText('(1+2');
         assertLatex('\\left(1+2\\right)');
         mq.keystroke('Right').typedText(']');
         assertLatex('\\left(1+2\\right]');
       });
 
-      test('close adjacent bracket pair before containing bracket pair', function() {
+      test('close adjacent paren group before containing paren group', function() {
         mq.typedText('(1+(2+3');
         assertLatex('\\left(1+\\left(2+3\\right)\\right)');
         mq.keystroke('Right').typedText(']');
