@@ -549,7 +549,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
         var origEnd = this.ends[L].ends[side];
         Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
-          .jQ.insAtDirEnd(side, this.ends[L].jQ);
+          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('empty'));
         if (origEnd.siblingCreated) origEnd.siblingCreated(side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens

@@ -158,11 +158,19 @@ suite('typing with auto-replaces', function() {
         assertLatex('2+3+4');
       });
 
+      function assertParenBlockNonEmpty() {
+        var parenBlock = $(mq.el()).find('.paren+span');
+        assert.equal(parenBlock.length, 1, 'exactly 1 paren block');
+        assert.ok(!parenBlock.hasClass('empty'),
+                  'paren block auto-expanded, should no longer be gray');
+      }
+
       test('backspacing close bracket then open paren of empty paren group', function() {
         mq.typedText('1+(]+4');
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Backspace');
         assertLatex('1+\\left(+4\\right)');
+        assertParenBlockNonEmpty();
         mq.keystroke('Backspace');
         assertLatex('1++4');
       });
@@ -172,6 +180,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
         assertLatex('\\left[1+\\right]+4');
+        assertParenBlockNonEmpty();
         mq.keystroke('Right Backspace');
         assertLatex('1++4');
       });
@@ -190,6 +199,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(\\right]');
         mq.keystroke('Left Backspace');
         assertLatex('\\left[1+\\right]');
+        assertParenBlockNonEmpty();
         mq.keystroke('Right Right Backspace');
         assertLatex('1+');
       });
@@ -199,6 +209,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('\\left(\\right]+4');
         mq.keystroke('Left Left Backspace');
         assertLatex('\\left(+4\\right)');
+        assertParenBlockNonEmpty();
         mq.keystroke('Backspace');
         assertLatex('+4');
       });
