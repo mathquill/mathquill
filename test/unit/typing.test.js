@@ -350,23 +350,23 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Left Left Left Left Backspace');
         assertLatex('\\left(\\left(1+2\\right)+3+4\\right)+5');
       });
-
-      test('selected and replaced by LiveFraction solidifies ghosts', function() {
-        mq.typedText('1+2)/');
-        assertLatex('\\frac{\\left(1+2\\right)}{ }');
-        mq.keystroke('Left Backspace');
-        assertLatex('\\frac{\\left(1+2\\right)}{ }');
-      });
     });
 
     suite('typing outside ghost paren', function() {
-      test('paren no longer one-sided after typing outside ghost paren', function() {
+      test('typing outside ghost paren solidifies ghost', function() {
         mq.typedText('1+(2+3');
         assertLatex('1+\\left(2+3\\right)');
         mq.keystroke('Right').typedText('+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
         assertLatex('\\left(1+2+3\\right)+4');
+      });
+
+      test('selected and replaced by LiveFraction solidifies ghosts', function() {
+        mq.typedText('1+2)/');
+        assertLatex('\\frac{\\left(1+2\\right)}{ }');
+        mq.keystroke('Left Backspace');
+        assertLatex('\\frac{\\left(1+2\\right)}{ }');
       });
 
       test('close paren group by typing close-bracket outside ghost paren', function() {
