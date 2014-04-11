@@ -475,8 +475,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
-  _.oppBrack = function(node) {
-    return node instanceof Bracket && node.side === -this.side && node;
+  _.oppBrack = function(node, expectedSide) {
+    // node must be 1-sided bracket of expected side (if any, may be undefined),
+    // and unless I'm a pipe, node and I must be opposite-facing sides
+    return node instanceof Bracket && node.side && node.side !== -expectedSide
+      && (this.sides[this.side].ch === '|' || node.side === -this.side) && node;
   };
   _.closeOpposing = function(brack) {
     brack.side = 0;
@@ -485,11 +488,13 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
       .removeClass('ghost').html(this.sides[this.side].ch);
   };
   _.createLeftOf = function(cursor) {
-    var side = this.side; // unless wrapping seln in brackets, check if next to
-    if (!this.replacedFragment) { // or inside an opposing one-sided bracket
-      var brack = this.oppBrack(cursor[-side]) || this.oppBrack(cursor.parent.parent);
+    if (!this.replacedFragment) { // unless wrapping seln in brackets,
+        // check if next to or inside an opposing one-sided bracket
+      var brack = this.oppBrack(cursor[L], L) || this.oppBrack(cursor[R], R)
+                  || this.oppBrack(cursor.parent.parent);
     }
     if (brack) {
+      var side = this.side = -brack.side; // may be pipe with .side not yet set
       this.closeOpposing(brack);
       if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
         Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
@@ -499,7 +504,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
       }
     }
     else {
-      brack = this;
+      brack = this, side = brack.side;
       if (brack.replacedFragment) brack.side = 0; // wrapping seln, don't be one-sided
       else if (cursor[-side]) { // elsewise, auto-expand so ghost is at far end
         brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
@@ -527,16 +532,16 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
 
     this.side = -side;
     // check if like deleting outer close-brace of [(1+2)+3} where inner open-
-    if (this.oppBrack(this.ends[L].ends[this.side])) { // paren is ghost, if
-      this.closeOpposing(this.ends[L].ends[this.side]); // so become [1+2)+3
+    if (this.oppBrack(this.ends[L].ends[this.side], side)) { // paren is ghost,
+      this.closeOpposing(this.ends[L].ends[this.side]); // if so become [1+2)+3
       var origEnd = this.ends[L].ends[side];
       this.unwrap();
       if (origEnd.siblingCreated) origEnd.siblingCreated(side);
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
     else { // check if like deleting inner close-brace of ([1+2}+3) where
-      if (this.oppBrack(this.parent.parent)) { // outer open-paren is ghost,
-        this.parent.parent.closeOpposing(this); // if so become [1+2+3)
+      if (this.oppBrack(this.parent.parent, side)) { // outer open-paren is
+        this.parent.parent.closeOpposing(this); // ghost, if so become [1+2+3)
         this.parent.parent.unwrap();
       }
       else { // deleting one of a pair of brackets, become one-sided
@@ -602,6 +607,7 @@ bindCharBracketPair('[');
 bindCharBracketPair('{', '\\{');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
