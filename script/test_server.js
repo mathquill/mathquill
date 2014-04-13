@@ -6,7 +6,7 @@ var fs = require('fs');
 var child_process = require('child_process');
 
 // constants
-var PORT = +process.env.PORT || 9292;
+var PORT = +process.env.PORT || 9293;
 var HOST = process.env.HOST || '0.0.0.0';
 
 // main
