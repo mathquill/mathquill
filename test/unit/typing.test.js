@@ -461,4 +461,63 @@ suite('typing with auto-replaces', function() {
       }
     });
   });
+
+  suite('inequalities', function() {
+    // assertFullyFunctioningInequality() checks not only that the inequality
+    // has the right LaTeX and when you backspace it has the right LaTeX,
+    // but also that when you backspace you get the right state such that
+    // you can either type = again to get the non-strict inequality again,
+    // or backspace again and it'll delete correctly.
+    function assertFullyFunctioningInequality(nonStrict, strict) {
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.typedText('=');
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.keystroke('Backspace');
+      assertLatex('');
+    }
+    test('typing and backspacing <= and >=', function() {
+      mq.typedText('<');
+      assertLatex('<');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('>');
+      assertLatex('>');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\ge', '>');
+
+      mq.typedText('<<>>==>><<==');
+      assertLatex('<<>\\ge=>><\\le=');
+    });
+
+    test('typing ≤ and ≥ chars directly', function() {
+      mq.typedText('≤');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('≥');
+      assertFullyFunctioningInequality('\\ge', '>');
+    });
+
+    suite('rendered from LaTeX', function() {
+      test('control sequences', function() {
+        mq.latex('\\le');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('\\ge');
+        assertFullyFunctioningInequality('\\ge', '>');
+      });
+
+      test('≤ and ≥ chars', function() {
+        mq.latex('≤');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('≥');
+        assertFullyFunctioningInequality('\\ge', '>');
+      });
+    });
+  });
 });
