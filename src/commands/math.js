@@ -108,15 +108,14 @@ var MathCommand = P(MathElement, function(_, _super) {
     cursor.select();
   };
   _.selectTowards = function(dir, cursor) {
-    if (!cursor.anticursor) cursor.startSelection();
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
-  _.selectChildren = function(cursor) {
-    cursor.selection = Selection(this);
+  _.selectChildren = function() {
+    return Selection(this, this);
   };
   _.unselectInto = function(dir, cursor) {
-    cursor.insAtDirEnd(-dir, this.selectedOutOf);
+    cursor.insAtDirEnd(-dir, cursor.anticursor.ancestors[this.id]);
   };
   _.seek = function(pageX, cursor) {
     function getBounds(node) {
@@ -366,13 +365,9 @@ var MathBlock = P(MathElement, function(_, _super) {
   };
   _.selectOutOf = function(dir, cursor) {
     cursor.insDirOf(dir, this.parent);
-    this.parent.selectedOutOf = this;
   };
   _.deleteOutOf = function(dir, cursor) {
     cursor.unwrapGramp();
-  };
-  _.selectChildren = function(cursor, leftEnd, rightEnd) {
-    cursor.selection = Selection(leftEnd, rightEnd);
   };
   _.seek = function(pageX, cursor) {
     var node = this.ends[R];
