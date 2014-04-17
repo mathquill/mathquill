@@ -5,10 +5,9 @@
 
 Controller.open(function(_) {
   _.createTextarea = function() {
-    // TODO: everywhere else stop depending on root.textareaSpan, and rm it
-    var textareaSpan = this.textareaSpan = this.root.textareaSpan =
-        $('<span class="textarea"><textarea></textarea></span>'),
-      textarea = this.textarea = textareaSpan.children();
+    var textareaSpan = this.textareaSpan = $('<span class="textarea"></span>'),
+      fn = this.options.substituteTextarea, textarea = this.textarea =
+        $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 
     //prevent native selection except in textarea
     this.container.bind('selectstart.mathquill', function(e) {
