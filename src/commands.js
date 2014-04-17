@@ -251,7 +251,8 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
         !(
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
-          leftward instanceof BigSymbol
+          leftward instanceof BigSymbol ||
+          leftward instanceof NewLine
         ) //lookbehind for operator
       )
         leftward = leftward[L];
