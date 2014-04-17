@@ -24,7 +24,46 @@ var Variable = P(Symbol, function(_, _super) {
   };
 });
 
+var AutoCmds = {}, MAX_AUTOCMD_LEN = 0;
+MathQuill.addAutoCommands = function(cmds) {
+  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of only letters';
+  }
+  var cmds = cmds.replace(/^\s+|\s+$/g, '').split(/\s+/);
+  for (var i = 0; i < cmds.length; i += 1) {
+    if (cmds[i].length < 2) {
+      throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
+    }
+    if (UnItalicizedCmds.hasOwnProperty(cmds[i])) {
+      throw '"' + cmds[i] + '" already auto-unitalicized';
+    }
+    AutoCmds[cmds[i]] = 1;
+    MAX_AUTOCMD_LEN = max(cmds[i].length, MAX_AUTOCMD_LEN);
+  }
+};
+
 var Letter = P(Variable, function(_, _super) {
+  _.createLeftOf = function(cursor) {
+    if (MAX_AUTOCMD_LEN > 0) {
+      // want longest possible autocommand, so join together longest
+      // sequence of letters
+      var str = this.ctrlSeq, l = cursor[L], i = 1;
+      while (l instanceof Letter && i < MAX_AUTOCMD_LEN) {
+        str = l.ctrlSeq + str, l = l[L], i += 1;
+      }
+      // check for an autocommand, going thru substrings longest to shortest
+      while (str.length) {
+        if (AutoCmds.hasOwnProperty(str)) {
+          for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
+          Fragment(l, cursor[L]).remove();
+          cursor[L] = l[L];
+          return LatexCmds[str](str).createLeftOf(cursor);
+        }
+        str = str.slice(1);
+      }
+    }
+    _super.createLeftOf.apply(this, arguments);
+  };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will unitalicize everyone
@@ -327,9 +366,53 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
 //semantically should be &sdot;, but &middot; looks better
 
-LatexCmds['='] = bind(BinaryOperator, '=', '=');
-LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
-LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
+var Inequality = P(BinaryOperator, function(_, _super) {
+  _.init = function(data, strict) {
+    this.data = data;
+    this.strict = strict;
+    var strictness = (strict ? 'Strict' : '');
+    _super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
+                     data['text'+strictness]);
+  };
+  _.swap = function(strict) {
+    this.strict = strict;
+    var strictness = (strict ? 'Strict' : '');
+    this.ctrlSeq = this.data['ctrlSeq'+strictness];
+    this.jQ.html(this.data['html'+strictness]);
+    this.textTemplate = [ this.data['text'+strictness] ];
+  };
+  _.deleteTowards = function(dir, cursor) {
+    if (dir === L && !this.strict) {
+      this.swap(true);
+      return;
+    }
+    _super.deleteTowards.apply(this, arguments);
+  };
+});
+
+var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
+             ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
+var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
+                ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
+
+LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
+LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
+LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
+LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
+
+var Equality = P(BinaryOperator, function(_, _super) {
+  _.init = function() {
+    _super.init.call(this, '=', '=');
+  };
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof Inequality && cursor[L].strict) {
+      cursor[L].swap(false);
+      return;
+    }
+    _super.createLeftOf.apply(this, arguments);
+  };
+});
+LatexCmds['='] = Equality;
 
 LatexCmds.notin =
 LatexCmds.sim =
@@ -361,14 +444,6 @@ LatexCmds.because = bind(BinaryOperator,'\\because ','&#8757;');
 LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
 
 LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
-
-LatexCmds.lt = bind(BinaryOperator,'<','&lt;');
-
-LatexCmds.gt = bind(BinaryOperator,'>','&gt;');
-
-LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(BinaryOperator,'\\le ','&le;');
-
-LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(BinaryOperator,'\\ge ','&ge;');
 
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
