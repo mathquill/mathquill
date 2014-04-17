@@ -78,9 +78,10 @@ var AbstractMathQuill = P(function(_) {
   };
   _.html = function() {
     return this.controller.root.jQ.html()
-      .replace(/ ?hasCursor|hasCursor /, '')
-      .replace(/ class=(""|(?= |>))/g, '')
-      .replace(/<span class="?cursor( blink)?"?><\/span>/i, '');
+      .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
+      .replace(/<span class="?cursor( blink)?"?>.?<\/span>/i, '')
+      .replace(/ hasCursor|hasCursor ?/, '')
+      .replace(/ class=(""|(?= |>))/g, '');
   };
   _.redraw = function() {
     this.controller.root.postOrder('edited');
@@ -115,8 +116,8 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.cmd = function(cmd) {
     var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show(),
       seln = cursor.replaceSelection();
-    if (/^\\[a-z]+$/i.test(latex)) cursor.insertCmd(latex.slice(1), seln);
-    else cursor.parent.write(latex, seln);
+    if (/^\\[a-z]+$/i.test(cmd)) cursor.insertCmd(cmd.slice(1), seln);
+    else cursor.parent.write(cursor, cmd, seln);
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };

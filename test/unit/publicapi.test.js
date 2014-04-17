@@ -17,6 +17,22 @@ suite('Public API', function() {
       assert.ok(!mq.controller.cursor.selection);
     });
 
+    test('latex while there\'s a selection', function() {
+      mq.latex('a');
+      assert.equal(mq.latex(), 'a');
+      mq.select();
+      assert.equal(mq.controller.cursor.selection.join('latex'), 'a');
+      mq.latex('b');
+      assert.equal(mq.latex(), 'b');
+      mq.typedText('c');
+      assert.equal(mq.latex(), 'bc');
+    });
+
+    test('.html() trivial case', function() {
+      mq.latex('x+y');
+      assert.equal(mq.html(), '<var>x</var><span class="binary-operator">+</span><var>y</var>');
+    });
+
     test('.moveToDirEnd(dir)', function() {
       mq.latex('a x^2 + b x + c = 0');
       assert.equal(mq.controller.cursor[L].ctrlSeq, '0');
@@ -88,6 +104,29 @@ suite('Public API', function() {
     assert.equal(dir, L);
 
     $(mq.el()).remove();
+  });
+
+  suite('.cmd(...)', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('basic', function() {
+      mq.cmd('x');
+      assert.equal(mq.latex(), 'x');
+      mq.cmd('y');
+      assert.equal(mq.latex(), 'xy');
+      mq.cmd('^');
+      assert.equal(mq.latex(), 'xy^{ }');
+      mq.cmd('2');
+      assert.equal(mq.latex(), 'xy^2');
+      mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{xy^2}');
+    });
   });
 
   suite('spaceBehavesLikeTab', function() {
