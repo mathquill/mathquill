@@ -13,9 +13,8 @@ Controller.open(function(_) {
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
       function mousemove(e) {
+        if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
-        // focus the least-common-ancestor block:
-        if (cursor.selection) cursor.insRightOf(cursor.selection.ends[R]);
       }
 
       // docmousemove is attached to the document, so that
@@ -32,7 +31,6 @@ Controller.open(function(_) {
       }
 
       function mouseup(e) {
-        cursor.endSelection();
         cursor.blink = blink;
         if (!cursor.selection) {
           if (ctrlr.editable) {
@@ -83,7 +81,8 @@ Controller.open(function(_) {
     cursor.clearSelection().show();
 
     node.seek(pageX, cursor);
-
+    this.scrollHoriz(); // before .selectFrom when mouse-selecting, so
+                        // always hits no-selection case in scrollHoriz and scrolls slower
     return this;
   };
 });

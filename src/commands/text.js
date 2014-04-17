@@ -83,7 +83,6 @@ var TextBlock = P(Node, function(_, _super) {
   // TODO: make these methods part of a shared mixin or something.
   _.selectTowards = MathCommand.prototype.selectTowards;
   _.deleteTowards = MathCommand.prototype.deleteTowards;
-  _.selectChildren = MathBlock.prototype.selectChildren;
 
   _.selectOutOf = function(dir, cursor) {
     cursor.insDirOf(dir, this);
@@ -262,9 +261,9 @@ var TextPiece = P(Node, function(_, _super) {
 
     var ch = endChar(-dir, this.text)
 
-    if (!anticursor || anticursor[dir] === this) {
+    if (anticursor[dir] === this) {
       var newPc = TextPiece(ch).createDir(dir, cursor);
-      cursor.startSelection();
+      anticursor[dir] = newPc;
       cursor.insDirOf(dir, newPc);
     }
     else {

@@ -131,6 +131,16 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
+#### Behavior Options
+
+These methods modify math typing behavior page-wide:
+(TODO: per-field versions of these, if useful)
+
+- `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
+  of LaTeX control words (no backslash, letters only, min length 2), and adds
+  them to the (default empty) set of "auto-commands", commands automatically
+  rendered by just typing the letters outside a `LatexCommandInput`
+
 #### Handlers/Options
 
 `MathQuill.MathField()` can also take an options object. Currently, 
@@ -337,6 +347,8 @@ ignore them until you have to deal with code that is using them.
 
 ## Open-Source License
 
-[GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
+The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
+License, v. 2.0: http://mozilla.org/MPL/2.0/
 
-Copyleft 2010-2012 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+The quick-and-dirty is you can do whatever as long as modifications to MathQuill
+itself are in public GitHub forks.

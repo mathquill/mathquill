@@ -185,21 +185,8 @@ var SupSub = P(MathCommand, function(_, _super) {
     return latex('_', this.sub) + latex('^', this.sup);
   };
   _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
-    if (dir === R) return; // note .contactWeld() calls .respace() w/o dir argument
-
-    if (this[L].ctrlSeq === '\\int ') {
-      if (!this.limit) {
-        this.limit = true;
-        this.jQ.addClass('limit');
-      }
-    }
-    else {
-      if (this.limit) {
-        this.limit = false;
-        this.jQ.removeClass('limit');
-      }
-    }
-    return this;
+    if (dir === R) return; // ignore if sibling only changed on the right
+    this.jQ.toggleClass('limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
@@ -218,22 +205,20 @@ var SupSub = P(MathCommand, function(_, _super) {
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
       cmd[supsub].deleteOutOf = function(dir, cursor) {
-        if (this.isEmpty()) {
-          cmd.supsub = oppositeSupsub;
-          delete cmd[supsub];
-          delete cmd[updown+'Into'];
-          cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
-          delete cmd[oppositeSupsub].deleteOutOf;
-          if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
-          this.moveOutOf(dir, cursor);
-          this.remove();
+        cursor.insDirOf(dir, this.parent);
+        if (!this.isEmpty()) {
+          cursor[-dir] = this.ends[dir];
+          this.children().disown()
+            .withDirAdopt(dir, cursor.parent, cursor[dir], this.parent)
+            .jQ.insDirOf(dir, this.parent.jQ);
         }
-        else {
-          cursor.insAtDirEnd(-dir, this);
-          cursor.startSelection();
-          cursor.insAtDirEnd(dir, this);
-          cursor.select();
-        }
+        cmd.supsub = oppositeSupsub;
+        delete cmd[supsub];
+        delete cmd[updown+'Into'];
+        cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
+        delete cmd[oppositeSupsub].deleteOutOf;
+        if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+        this.remove();
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
@@ -372,6 +357,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
           leftward instanceof SummationNotation ||
+          leftward.ctrlSeq === '\\ ' ||
           /^[,;:]$/.test(leftward.ctrlSeq)
         ) //lookbehind for operator
       ) leftward = leftward[L];
@@ -577,7 +563,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     };
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
-    this.finalizeTree = function() {
+    this.finalizeTree = this.intentionalBlur = function() {
       this.bracketjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
       this.side = 0;
     };
@@ -718,7 +704,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.ends[L].latex();
-    if (!latex) latex = 'backslash';
+    if (!latex) latex = ' ';
     cursor.insertCmd(latex, this._replacedFragment);
   };
 });
