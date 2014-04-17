@@ -579,7 +579,8 @@ LatexCmds.dollar = LatexCmds['$'] = bind(VanillaSymbol,'\\dollar ','$');
 
 LatexCmds.square = bind(VanillaSymbol,'\\square ','&#9633;');
 
-LatexCmds.newline = LatexCmds['\n'] = bind(VanillaSymbol,'\\newline ','\n');
+var NewLine = P(VanillaSymbol, function(_, _super) {});
+LatexCmds.newline = LatexCmds['\n'] = bind(NewLine,'\\newline ','\n');
 
 var NonItalicizedFunction = P(Symbol, function(_, _super) {
   _.init = function(fn) {
