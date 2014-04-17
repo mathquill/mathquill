@@ -169,15 +169,24 @@ Controller.open(function(_) {
     return this.notify('move');
   };
 
+  var init = _.init;
+  _.init = function(root, container, opts) {
+    var updown = opts && opts.leftRightIntoCmdGoes;
+    if (updown && updown !== 'up' && updown !== 'down') {
+      throw '"up" or "down" required for leftRightIntoCmdGoes option, '
+            + 'got "'+updown+'"';
+    }
+    return init.apply(this, arguments);
+  };
   _.moveDir = function(dir) {
     prayDirection(dir);
-    var cursor = this.cursor;
+    var cursor = this.cursor, updown = this.options.leftRightIntoCmdGoes;
 
     if (cursor.selection) {
       cursor.insDirOf(dir, cursor.selection.ends[dir]);
     }
-    else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor);
-    else cursor.parent.moveOutOf(dir, cursor);
+    else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor, updown);
+    else cursor.parent.moveOutOf(dir, cursor, updown);
 
     return this.notify('move');
   };
