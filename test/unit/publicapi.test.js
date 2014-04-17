@@ -102,13 +102,13 @@ suite('Public API', function() {
 
       mq.keystroke('Spacebar');
       mq.typedText(' ');
-      assert.equal(cursor[L].ctrlSeq, '\\:', 'left of the cursor is ' + cursor[L].ctrlSeq);
+      assert.equal(cursor[L].ctrlSeq, '\\ ', 'left of the cursor is ' + cursor[L].ctrlSeq);
       assert.equal(cursor[R], 0, 'right of the cursor is ' + cursor[R]);
       mq.keystroke('Backspace');
 
       mq.keystroke('Shift-Spacebar');
       mq.typedText(' ');
-      assert.equal(cursor[L].ctrlSeq, '\\:', 'left of the cursor is ' + cursor[L].ctrlSeq);
+      assert.equal(cursor[L].ctrlSeq, '\\ ', 'left of the cursor is ' + cursor[L].ctrlSeq);
       assert.equal(cursor[R], 0, 'right of the cursor is ' + cursor[R]);
 
       $(mq.el()).remove();

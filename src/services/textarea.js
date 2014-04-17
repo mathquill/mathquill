@@ -92,6 +92,7 @@ Controller.open(function(_) {
     }
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
+    this.scrollHoriz();
   };
   _.paste = function(text) {
     if (this.options.statelessClipboard) { // FIXME: document in README

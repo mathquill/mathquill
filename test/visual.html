@@ -47,6 +47,11 @@ td {
 .different-bgcolor.mathquill-editable .cursor {
   border-color: white;
 }
+
+#overflow-test {
+  width: 8em;
+}
+
 </style>
 
 </head>
@@ -60,6 +65,8 @@ td {
 <button id="show-textareas-button">Show Textareas</button>
 
 <h3>MathQuill Editables</h3>
+
+<p>In all editable fields, the selection should clear and ghost parens should solidify if you click outside, but not if you switch tabs/windows and switch back to this page.
 
 <table id="editables">
 <tr><th colspan=3>Initial LaTeX
@@ -106,6 +113,15 @@ td {
 &uarr; If you hit down from next to the 1, you should end up inside one of the square roots. If you hit up from the right of the x and then hit down again, you should end up where you were.
 </p>
 
+<h3>Horizontal overflow</h3>
+
+<p>
+<span id="overflow-test" class="mathquill-editable">
+  \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
+</span>
+(for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
+</p>
+
 <h3>Selection Tests</h3>
 
 <p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
@@ -139,6 +155,8 @@ td {
 <tr><td><span class="mathquill-embedded-latex">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
 <tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
 <tr><td><span class="mathquill-embedded-latex">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
+<tr><td><span class="mathquill-embedded-latex">\theta + \sin 2\deg</span><td><span>\theta + \sin 2\deg</span>
+<tr><td><span class="mathquill-embedded-latex">-1 + +-2</span><td><span>-1 + +-2</span>
 <tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span>
 <tr><td><span class="mathquill-embedded-latex">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
 <tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>

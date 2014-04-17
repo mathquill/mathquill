@@ -18,6 +18,8 @@ suite('typing with auto-replaces', function() {
     assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
     mq.latex('').typedText('1+/2');
     assertLatex('1+\\frac{2}{ }');
+    mq.latex('').typedText('1 2/3');
+    assertLatex('1\\ \\frac{2}{3}');
   });
 
   suite('auto-expanding parens', function() {
@@ -370,6 +372,151 @@ suite('typing with auto-replaces', function() {
         assertLatex('\\left(1+\\left(2+3\\right]\\right)');
         mq.typedText(']');
         assertLatex('\\left(1+\\left(2+3\\right]\\right]');
+      });
+    });
+  });
+
+  suite('auto-cmds', function() {
+    MathQuill.addAutoCommands('pi tau phi theta Gamma '
+                              + 'sum prod sqrt nthroot');
+
+    test('individual commands', function(){
+      mq.typedText('sum' + 'n=0');
+      mq.keystroke('Up').typedText('100').keystroke('Right');
+      assertLatex('\\sum_{n=0}^{100}');
+      mq.keystroke('Backspace');
+
+      mq.typedText('prod');
+      mq.typedText('n=0').keystroke('Up').typedText('100').keystroke('Right');
+      assertLatex('\\prod_{n=0}^{100}');
+      mq.keystroke('Backspace');
+
+      mq.typedText('sqrt');
+      mq.typedText('100').keystroke('Right');
+      assertLatex('\\sqrt{100}');
+      mq.keystroke('Backspace').keystroke('Backspace');
+
+      mq.typedText('nthroot');
+      mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
+      assertLatex('\\sqrt[n]{100}');
+      mq.keystroke('Backspace').keystroke('Backspace');
+
+      mq.typedText('pi');
+      assertLatex('\\pi');
+      mq.keystroke('Backspace');
+
+      mq.typedText('tau');
+      assertLatex('\\tau');
+      mq.keystroke('Backspace');
+
+      mq.typedText('phi');
+      assertLatex('\\phi');
+      mq.keystroke('Backspace');
+
+      mq.typedText('theta');
+      assertLatex('\\theta');
+      mq.keystroke('Backspace');
+
+      mq.typedText('Gamma');
+      assertLatex('\\Gamma');
+      mq.keystroke('Backspace');
+    });
+
+    test('sequences of auto-commands and other assorted characters', function() {
+      mq.typedText('sin' + 'pi');
+      assertLatex('\\sin\\pi');
+      mq.keystroke('Left Backspace');
+      assertLatex('si\\pi');
+      mq.keystroke('Left').typedText('p');
+      assertLatex('spi\\pi');
+      mq.typedText('i');
+      assertLatex('s\\pi i\\pi');
+      mq.typedText('p');
+      assertLatex('s\\pi pi\\pi');
+      mq.keystroke('Right').typedText('n');
+      assertLatex('s\\pi pin\\pi');
+      mq.keystroke('Left Left Left').typedText('s');
+      assertLatex('s\\pi spin\\pi');
+      mq.keystroke('Backspace');
+      assertLatex('s\\pi pin\\pi');
+      mq.keystroke('Del').keystroke('Backspace');
+      assertLatex('\\sin\\pi');
+    });
+
+    test('command contains non-letters', function() {
+      assert.throws(function() { MathQuill.addAutoCommands('e1'); });
+    });
+
+    test('command length less than 2', function() {
+      assert.throws(function() { MathQuill.addAutoCommands('e'); });
+    });
+
+    test('command is already unitalicized', function() {
+      var cmds = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max '
+               + 'min sup inj proj sin cos tan sec cosec csc cotan cot ctg';
+      cmds = cmds.split(' ');
+      for (var i = 0; i < cmds.length; i += 1) {
+        assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
+                      'MathQuill.addAutoCommands("'+cmds[i]+'")');
+      }
+    });
+  });
+
+  suite('inequalities', function() {
+    // assertFullyFunctioningInequality() checks not only that the inequality
+    // has the right LaTeX and when you backspace it has the right LaTeX,
+    // but also that when you backspace you get the right state such that
+    // you can either type = again to get the non-strict inequality again,
+    // or backspace again and it'll delete correctly.
+    function assertFullyFunctioningInequality(nonStrict, strict) {
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.typedText('=');
+      assertLatex(nonStrict);
+      mq.keystroke('Backspace');
+      assertLatex(strict);
+      mq.keystroke('Backspace');
+      assertLatex('');
+    }
+    test('typing and backspacing <= and >=', function() {
+      mq.typedText('<');
+      assertLatex('<');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('>');
+      assertLatex('>');
+      mq.typedText('=');
+      assertFullyFunctioningInequality('\\ge', '>');
+
+      mq.typedText('<<>>==>><<==');
+      assertLatex('<<>\\ge=>><\\le=');
+    });
+
+    test('typing ≤ and ≥ chars directly', function() {
+      mq.typedText('≤');
+      assertFullyFunctioningInequality('\\le', '<');
+
+      mq.typedText('≥');
+      assertFullyFunctioningInequality('\\ge', '>');
+    });
+
+    suite('rendered from LaTeX', function() {
+      test('control sequences', function() {
+        mq.latex('\\le');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('\\ge');
+        assertFullyFunctioningInequality('\\ge', '>');
+      });
+
+      test('≤ and ≥ chars', function() {
+        mq.latex('≤');
+        assertFullyFunctioningInequality('\\le', '<');
+
+        mq.latex('≥');
+        assertFullyFunctioningInequality('\\ge', '>');
       });
     });
   });

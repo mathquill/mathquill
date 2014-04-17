@@ -82,6 +82,13 @@ suite('latex', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
 
+  test('escaped whitespace', function() {
+    assertParsesLatex('\\ ', '\\ ');
+    assertParsesLatex('\\      ', '\\ ');
+    assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+    assertParsesLatex('\\space\\   \\   space  ', '\\ \\ \\ space');
+  });
+
   test('\\text', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',

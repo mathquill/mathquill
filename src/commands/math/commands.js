@@ -185,21 +185,8 @@ var SupSub = P(MathCommand, function(_, _super) {
     return latex('_', this.sub) + latex('^', this.sup);
   };
   _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
-    if (dir === R) return; // note .contactWeld() calls .respace() w/o dir argument
-
-    if (this[L].ctrlSeq === '\\int ') {
-      if (!this.limit) {
-        this.limit = true;
-        this.jQ.addClass('limit');
-      }
-    }
-    else {
-      if (this.limit) {
-        this.limit = false;
-        this.jQ.removeClass('limit');
-      }
-    }
-    return this;
+    if (dir === R) return; // ignore if sibling only changed on the right
+    this.jQ.toggleClass('limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
@@ -372,6 +359,7 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
           leftward instanceof BinaryOperator ||
           leftward instanceof TextBlock ||
           leftward instanceof SummationNotation ||
+          leftward.ctrlSeq === '\\ ' ||
           /^[,;:]$/.test(leftward.ctrlSeq)
         ) //lookbehind for operator
       ) leftward = leftward[L];
@@ -577,7 +565,7 @@ var Bracket = P(MathCommand, function(_, _super) {
     };
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
-    this.finalizeTree = function() {
+    this.finalizeTree = this.intentionalBlur = function() {
       this.bracketjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
       this.side = 0;
     };
@@ -718,7 +706,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
     }
 
     var latex = this.ends[L].latex();
-    if (!latex) latex = 'backslash';
+    if (!latex) latex = ' ';
     cursor.insertCmd(latex, this._replacedFragment);
   };
 });
