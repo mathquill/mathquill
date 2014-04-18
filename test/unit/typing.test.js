@@ -36,6 +36,11 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(2+3\\right)+4');
       });
 
+      test('basic command', function () {
+        mq.typedText('\\sin(');
+        assertLatex('\\sin\\left(\\right)');
+      });
+
       test('wrapping things in parens', function() {
         mq.typedText('1+2+3+4');
         assertLatex('1+2+3+4');
