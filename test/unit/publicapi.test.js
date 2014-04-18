@@ -264,4 +264,191 @@ suite('Public API', function() {
       });
     });
   });
+
+  suite('leftRightIntoCmdGoes: "up"/"down"', function() {
+    test('"up" or "down" required', function() {
+      assert.throws(function() {
+        MathQuill.MathField($('<span></span>')[0], { leftRightIntoCmdGoes: 1 });
+      });
+    });
+    suite('default', function() {
+      var mq;
+      setup(function() {
+        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      });
+      teardown(function() {
+        $(mq.el()).remove();
+      });
+
+      test('fractions', function() {
+        mq.latex('\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+        assert.equal(mq.latex(), '\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.moveToLeftEnd().typedText('a');
+        assert.equal(mq.latex(), 'a\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('b');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('c');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('d');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('e');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('f');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('g');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('h');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('i');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{i\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('j');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{i\\frac{j3}{4}}');
+
+        mq.keystroke('Right Right').typedText('k');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{i\\frac{j3}{k4}}');
+
+        mq.keystroke('Right Right').typedText('l');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{i\\frac{j3}{k4}l}');
+
+        mq.keystroke('Right').typedText('m');
+        assert.equal(mq.latex(), 'a\\frac{b1}{cx}d+\\frac{e\\frac{f1}{g2}h}{i\\frac{j3}{k4}l}m');
+      });
+
+      test('supsub', function() {
+        mq.latex('x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+
+        mq.moveToLeftEnd().typedText('1');
+        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('2');
+        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('3');
+        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right Right').typedText('4');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('5');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+
+        mq.keystroke('Right Right Right').typedText('6');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^b+w');
+
+        mq.keystroke('Right Right').typedText('7');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{7b}+w');
+
+        mq.keystroke('Right Right').typedText('8');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{7b}8+w');
+      });
+
+      test('nthroot', function() {
+        mq.latex('\\sqrt[n]{x}');
+        assert.equal(mq.latex(), '\\sqrt[n]{x}');
+
+        mq.moveToLeftEnd().typedText('1');
+        assert.equal(mq.latex(), '1\\sqrt[n]{x}');
+
+        mq.keystroke('Right').typedText('2');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{x}');
+
+        mq.keystroke('Right Right').typedText('3');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{3x}');
+
+        mq.keystroke('Right Right').typedText('4');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{3x}4');
+      });
+    });
+
+    suite('"up"', function() {
+      var mq;
+      setup(function() {
+        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0],
+                                 { leftRightIntoCmdGoes: 'up' });
+      });
+      teardown(function() {
+        $(mq.el()).remove();
+      });
+
+      test('fractions', function() {
+        mq.latex('\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+        assert.equal(mq.latex(), '\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.moveToLeftEnd().typedText('a');
+        assert.equal(mq.latex(), 'a\\frac{1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('b');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('c');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}c+\\frac{\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('d');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}c+\\frac{d\\frac{1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('e');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}c+\\frac{d\\frac{e1}{2}}{\\frac{3}{4}}');
+
+        mq.keystroke('Right Right').typedText('f');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}c+\\frac{d\\frac{e1}{2}f}{\\frac{3}{4}}');
+
+        mq.keystroke('Right').typedText('g');
+        assert.equal(mq.latex(), 'a\\frac{b1}{x}c+\\frac{d\\frac{e1}{2}f}{\\frac{3}{4}}g');
+      });
+
+      test('supsub', function() {
+        mq.latex('x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+
+        mq.moveToLeftEnd().typedText('1');
+        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('2');
+        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('3');
+        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+
+        mq.keystroke('Right Right Right').typedText('4');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+
+        mq.keystroke('Right Right').typedText('5');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+
+        mq.keystroke('Right Right Right').typedText('6');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}+w');
+
+        mq.keystroke('Right Right').typedText('7');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}7+w');
+      });
+
+      test('nthroot', function() {
+        mq.latex('\\sqrt[n]{x}');
+        assert.equal(mq.latex(), '\\sqrt[n]{x}');
+
+        mq.moveToLeftEnd().typedText('1');
+        assert.equal(mq.latex(), '1\\sqrt[n]{x}');
+
+        mq.keystroke('Right').typedText('2');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{x}');
+
+        mq.keystroke('Right Right').typedText('3');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{3x}');
+
+        mq.keystroke('Right Right').typedText('4');
+        assert.equal(mq.latex(), '1\\sqrt[2n]{3x}4');
+      });
+    });
+  });
 });

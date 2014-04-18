@@ -101,7 +101,10 @@ var MathCommand = P(MathElement, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this.ends[-dir]); };
+  _.moveTowards = function(dir, cursor, updown) {
+    var updownInto = updown && this[updown+'Into'];
+    cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
+  };
   _.deleteTowards = function(dir, cursor) {
     cursor.startSelection();
     this.selectTowards(dir, cursor);
@@ -359,8 +362,9 @@ var MathBlock = P(MathElement, function(_, _super) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveOutOf = function(dir, cursor) {
-    if (this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
+  _.moveOutOf = function(dir, cursor, updown) {
+    var updownInto = updown && this.parent[updown+'Into'];
+    if (!updownInto && this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
     else cursor.insDirOf(dir, this.parent);
   };
   _.selectOutOf = function(dir, cursor) {
