@@ -5,10 +5,9 @@
 
 Controller.open(function(_) {
   _.createTextarea = function() {
-    // TODO: everywhere else stop depending on root.textareaSpan, and rm it
-    var textareaSpan = this.textareaSpan = this.root.textareaSpan =
-        $('<span class="textarea"><textarea></textarea></span>'),
-      textarea = this.textarea = textareaSpan.children();
+    var textareaSpan = this.textareaSpan = $('<span class="textarea"></span>'),
+      fn = this.options.substituteTextarea, textarea = this.textarea =
+        $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 
     //prevent native selection except in textarea
     this.container.bind('selectstart.mathquill', function(e) {
@@ -37,7 +36,11 @@ Controller.open(function(_) {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
-      latex = '$' + this.cursor.selection.join('latex') + '$';
+      latex = this.cursor.selection.join('latex');
+      if (this.options.statelessClipboard) {
+        // FIXME: like paste, only this works for math fields; should ask parent
+        latex = '$' + latex + '$';
+      }
     }
     this.selectFn(latex);
   };
@@ -94,14 +97,15 @@ Controller.open(function(_) {
     this.scrollHoriz();
   };
   _.paste = function(text) {
+    if (this.options.statelessClipboard) { // FIXME: document in README
+      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+        text = text.slice(1, -1);
+      }
+      else {
+        text = '\\text{'+text+'}';
+      }
+    }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
-    if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
-      text = text.slice(1, -1);
-    }
-    else {
-      text = '\\text{' + text + '}';
-    }
-
     this.writeLatex(text).cursor.show();
   };
 });

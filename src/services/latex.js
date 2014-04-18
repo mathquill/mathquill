@@ -84,7 +84,7 @@ Controller.open(function(_, _super) {
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    if (block) {
+    if (block && !block.isEmpty()) {
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
@@ -124,6 +124,7 @@ Controller.open(function(_, _super) {
       jQ.empty();
     }
 
+    delete cursor.selection;
     cursor.insAtRightEnd(root);
   };
   _.renderLatexText = function(latex) {

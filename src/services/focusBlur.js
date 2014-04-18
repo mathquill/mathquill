@@ -22,7 +22,7 @@ Controller.open(function(_) {
         blur();
       });
       $(window).on('blur', windowBlur);
-    }).blur();
+    });
     function windowBlur() { // blur event also fired on window, just switching
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
       if (cursor.selection) cursor.selection.jQ.addClass('blur');
@@ -33,6 +33,8 @@ Controller.open(function(_) {
       root.jQ.removeClass('focused'); // clearing/blurring selection
       $(window).off('blur', windowBlur);
     }
+    ctrlr.blurred = true;
+    cursor.hide();
   };
 });
 
