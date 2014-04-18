@@ -85,20 +85,18 @@ MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 
 Manipulating the HTML DOM inside MathQuill-ified elements can break our
 rendering and functionality, but we have a public API to manipulate MathQuill
-things: the global `MathQuill()` function takes one argument, which jQuery must
-resolve to a single HTML element, and will return a MathQuill object if that
-element is a MathQuill thing, or `null` otherwise.
+things: the global `MathQuill()` function takes a DOM element, and will return
+a MathQuill object if that element is a MathQuill thing, or `null` otherwise.
 
 `MathQuill.noConflict()` resets the global `MathQuill` variable to whatever it
 was before, and returns the `MathQuill` function to be used locally or set to
 some other variable, _a la_ [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict).
 
-`MathQuill.StaticMath()` and `MathQuill.MathField()` also take one argument that
-jQuery must resolve to a single HTML element, and additionally the element must
-either be not yet MathQuill-ified or a MathQuill instance of the same type. If
-not yet MathQuill-ified they will MathQuill-ify the element as described above,
-and in either case they will return a MathQuill object for that MathQuill
-instance.
+`MathQuill.StaticMath()` and `MathQuill.MathField()` also take a DOM element
+argument, and additionally the element must either be not yet MathQuill-ified or
+a MathQuill instance of the same type. If not yet MathQuill-ified they will
+MathQuill-ify the element as described above, and in either case they will return
+a MathQuill object for that MathQuill instance.
 
 The MathQuill objects expose the following public methods to manipulate a
 MathQuill instance:
