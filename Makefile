@@ -79,7 +79,7 @@ clean:
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ > $@
+	cat $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
