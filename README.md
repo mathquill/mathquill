@@ -140,6 +140,17 @@ These methods modify math typing behavior page-wide:
   of LaTeX control words (no backslash, letters only, min length 2), and adds
   them to the (default empty) set of "auto-commands", commands automatically
   rendered by just typing the letters outside a `LatexCommandInput`
+- `MathQuill.addCharsThatBreakOutOfSupSub('+-=<>')` sets the chars that when
+  typed, "break out" of super- and subscripts: for example, typing `x^2n+y`
+  normally results in the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or
+  Space if `spaceBehavesLikeTab` is true) to move the cursor out of the exponent
+  and get the LaTeX `x^{2n}+y`; but this option can make `+` "break out" of
+  the exponent, and type what you expect. Problem is, now you can't just type
+  `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the
+  paren or something
+- `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
+  chars when there's nothing to the left of the cursor (Desmos, for example,
+  disables `^` and `_`, so that typos like `x^^2` are friendlier)
 
 #### Handlers/Options
 
@@ -366,6 +377,8 @@ ignore them until you have to deal with code that is using them.
 
 ## Open-Source License
 
-[GNU Lesser General Public License](http://www.gnu.org/licenses/lgpl.html)
+The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
+License, v. 2.0: http://mozilla.org/MPL/2.0/
 
-Copyleft 2010-2012 [Han](http://github.com/laughinghan) and [Jay](http://github.com/jayferd)
+The quick-and-dirty is you can do whatever as long as modifications to MathQuill
+itself are in public GitHub forks.

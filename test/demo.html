@@ -49,7 +49,7 @@ code span {
 <p><a href="javascript:;" id="show-html-source">Show Semantically Meaningful HTML Source</a></p>
 <pre id="html-source"></pre>
 
-<p>You could actually just copy-and-paste this HTML into any element with <code>class="mathquill-rendered-math"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully.</p>
+<p>You could actually just copy-and-paste this HTML into any element with <code>class="mathquill-rendered-math"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully, like this: <span class="mathquill-rendered-math" id="html-transplant-example"></span></p>
 
 <p>Any element with <code>class="mathquill-embedded-latex"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-embedded-latex">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
 
@@ -69,7 +69,7 @@ $('#show-html-source').toggle(function() {
   $(this).html('Show Semantically Meaningful HTML Source').parent().next().hide();
 });
 
-var latexMath = $('#editable-math'), latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink');
+var latexMath = $('#editable-math'), latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink'), htmlTransplantExample = $('#html-transplant-example');
 
 $('#codecogs').click(function() {
   var latex = latexSource.val();
@@ -85,6 +85,7 @@ $(function() {
       latexSource.val(latex);
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.html()));
+      htmlTransplantExample.html(latexMath.html());
     });
   }).keydown();
   latexMath.focus();
@@ -96,6 +97,7 @@ $(function() {
       if(newtext !== oldtext) {
         latexMath.latex(newtext);
         htmlSource.text(printTree(latexMath.html()));
+        htmlTransplantExample.html(latexMath.html());
       }
     });
   });

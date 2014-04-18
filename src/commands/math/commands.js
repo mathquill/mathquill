@@ -177,6 +177,16 @@ var SupSub = P(MathCommand, function(_, _super) {
     }
     this.respace();
   };
+  var chars = '';
+  MathQuill.addCharsThatBreakOutOfSupSub = function(c) { chars += c; };
+  _.finalizeTree = function() {
+    this.ends[L].write = function(cursor, ch) {
+      if (chars.indexOf(ch) > -1) {
+        cursor.insRightOf(this.parent);
+      }
+      MathBlock.p.write.apply(this, arguments);
+    };
+  };
   _.latex = function() {
     function latex(prefix, block) {
       var l = block && block.latex();
@@ -205,22 +215,20 @@ var SupSub = P(MathCommand, function(_, _super) {
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
       cmd[supsub].deleteOutOf = function(dir, cursor) {
-        if (this.isEmpty()) {
-          cmd.supsub = oppositeSupsub;
-          delete cmd[supsub];
-          delete cmd[updown+'Into'];
-          cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
-          delete cmd[oppositeSupsub].deleteOutOf;
-          if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
-          this.moveOutOf(dir, cursor);
-          this.remove();
+        cursor.insDirOf(dir, this.parent);
+        if (!this.isEmpty()) {
+          cursor[-dir] = this.ends[dir];
+          this.children().disown()
+            .withDirAdopt(dir, cursor.parent, cursor[dir], this.parent)
+            .jQ.insDirOf(dir, this.parent.jQ);
         }
-        else {
-          cursor.insAtDirEnd(-dir, this);
-          cursor.startSelection();
-          cursor.insAtDirEnd(dir, this);
-          cursor.select();
-        }
+        cmd.supsub = oppositeSupsub;
+        delete cmd[supsub];
+        delete cmd[updown+'Into'];
+        cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
+        delete cmd[oppositeSupsub].deleteOutOf;
+        if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+        this.remove();
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
@@ -309,6 +317,7 @@ LatexCmds._ = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
+    _super.finalizeTree.call(this);
   };
 });
 
@@ -325,6 +334,7 @@ LatexCmds['^'] = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
+    _super.finalizeTree.call(this);
   };
 });
 
