@@ -132,7 +132,6 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 #### Global Behavior Options
 
 These methods modify math typing behavior page-wide:
-(TODO: per-field versions of these, if useful)
 
 - `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
   of LaTeX control words (no backslash, letters only, min length 2), and adds
@@ -149,6 +148,9 @@ These methods modify math typing behavior page-wide:
 - `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
   chars when there's nothing to the left of the cursor (Desmos, for example,
   disables `^` and `_`, so that typos like `x^^2` are friendlier)
+
+(TODO: methods to remove auto-commands etc, and per-field versions of all these
+methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))
 
 #### Handlers/Options
 
