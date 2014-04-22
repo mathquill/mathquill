@@ -226,6 +226,62 @@ suite('key', function() {
         shim.select('$2$');
         assert.equal(el.val(), '$2$');
       });
+
+      suite('unrecognized keys that move cursor and clear selection', function() {
+        test('without keypress', function() {
+          var shim = saneKeyboardEvents(el, { keystroke: noop });
+
+          shim.select('a');
+          assert.equal(el.val(), 'a');
+
+          if (!supportsSelectionAPI()) return;
+
+          el.trigger(Event('keydown', { which: 37, altKey: true }));
+          el[0].selectionEnd = 0;
+          el.trigger(Event('keyup', { which: 37, altKey: true }));
+          assert.ok(el[0].selectionStart !== el[0].selectionEnd);
+        });
+
+        test('with keypress, many characters selected', function() {
+          var shim = saneKeyboardEvents(el, { keystroke: noop });
+
+          shim.select('many characters');
+          assert.equal(el.val(), 'many characters');
+
+          if (!supportsSelectionAPI()) return;
+
+          el.trigger(Event('keydown', { which: 37, altKey: true }));
+          el.trigger(Event('keypress', { which: 37, altKey: true }));
+          el[0].selectionEnd = 0;
+
+          el.trigger('keyup');
+          assert.ok(el[0].selectionStart !== el[0].selectionEnd);
+        });
+
+        test('with keypress, only 1 character selected', function() {
+          var count = 0;
+          var shim = saneKeyboardEvents(el, {
+            keystroke: noop,
+            typedText: function(ch) {
+              assert.equal(ch, 'a');
+              assert.equal(el.val(), '');
+              count += 1;
+            }
+          });
+
+          shim.select('a');
+          assert.equal(el.val(), 'a');
+
+          if (!supportsSelectionAPI()) return;
+
+          el.trigger(Event('keydown', { which: 37, altKey: true }));
+          el.trigger(Event('keypress', { which: 37, altKey: true }));
+          el[0].selectionEnd = 0;
+
+          el.trigger('keyup');
+          assert.equal(count, 1);
+        });
+      });
     });
   });
 

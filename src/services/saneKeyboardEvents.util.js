@@ -114,16 +114,16 @@ var saneKeyboardEvents = (function() {
 
     // -*- public methods -*- //
     function select(text) {
-      // check textarea at least once/one last time before munging (so
-      // no race condition if selection happens after keypress/paste but
-      // before checkTextarea), then never again ('cos it's been munged)
+      // check textarea at least once/one last time (to prevent race
+      // condition if selection happens after keypress/paste but before
+      // checkTextarea) before overwriting with selection text,
+      // henceforth ensure selection text is always selected
       checkTextarea();
-      checkTextarea = noop;
       clearTimeout(timeoutId);
-
       textarea.val(text);
-      if (text) textarea[0].select();
+      (checkTextarea = text ? unselectedSelection : noop)();
     }
+    function unselectedSelection() { textarea[0].select(); }
 
     // -*- helper subroutines -*- //
 
@@ -135,12 +135,6 @@ var saneKeyboardEvents = (function() {
 
       if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
-    }
-
-    function popText(callback) {
-      var text = textarea.val();
-      textarea.val('');
-      if (text) callback(text);
     }
 
     function handleKey() {
@@ -186,7 +180,13 @@ var saneKeyboardEvents = (function() {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
-      popText(function(text) { handlers.typedText(text); });
+      var text = textarea.val();
+      if (text.length === 1) {
+        textarea.val('');
+        handlers.typedText(text);
+      } // in Firefox, keys that don't type text, just clear seln, fire keypress
+      // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
+      else if (text) textarea[0].select(); // re-select if that's why we're here
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -209,7 +209,9 @@ var saneKeyboardEvents = (function() {
       checkTextareaFor(pastedText);
     }
     function pastedText() {
-      popText(function(text) { handlers.paste(text); });
+      var text = textarea.val();
+      textarea.val('');
+      if (text) handlers.paste(text);
     }
 
     // -*- attach event handlers -*- //
