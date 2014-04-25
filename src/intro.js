@@ -61,7 +61,7 @@ var send = variadic(function(method, args) {
 /**
  * A utility higher-order function that creates "implicit iterators"
  * from "generators": given a function that takes in a sole argument,
- * a "yield" function, that calls "yield" repeatedly with an object as
+ * a "yield_" function, that calls "yield_" repeatedly with an object as
  * a sole argument (presumably objects being iterated over), returns
  * a function that calls it's first argument on each of those objects
  * (if the first argument is a function, it is called repeatedly with
@@ -73,8 +73,8 @@ var send = variadic(function(method, args) {
  *     { method: function(list) { list.push(2); } },
  *     { method: function(list) { list.push(3); } }
  *   ];
- *   a.each = iterator(function(yield) {
- *     for (var i in this) yield(this[i]);
+ *   a.each = iterator(function(yield_) {
+ *     for (var i in this) yield_(this[i]);
  *   });
  *   var list = [];
  *   a.each('method', list);
@@ -86,8 +86,8 @@ var send = variadic(function(method, args) {
 function iterator(generator) {
   return variadic(function(fn, args) {
     if (typeof fn !== 'function') fn = send(fn);
-    var yield = function(obj) { return fn.apply(obj, [ obj ].concat(args)); };
-    return generator.call(this, yield);
+    var yield_ = function(obj) { return fn.apply(obj, [ obj ].concat(args)); };
+    return generator.call(this, yield_);
   });
 }
 
