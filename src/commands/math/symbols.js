@@ -6,7 +6,7 @@ LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
-LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
+LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
 
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
