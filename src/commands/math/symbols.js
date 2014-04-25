@@ -8,9 +8,9 @@ LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
 LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var><span style="display:inline-block;width:0">&nbsp;</span>');
 
-var Variable = P(Symbol, function(_, _super) {
+var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+    super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');
   };
   _.text = function() {
     var text = this.ctrlSeq;
@@ -42,7 +42,7 @@ MathQuill.addAutoCommands = function(cmds) {
   }
 };
 
-var Letter = P(Variable, function(_, _super) {
+var Letter = P(Variable, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (MAX_AUTOCMD_LEN > 0) {
       // want longest possible autocommand, so join together longest
@@ -62,7 +62,7 @@ var Letter = P(Variable, function(_, _super) {
         str = str.slice(1);
       }
     }
-    _super.createLeftOf.apply(this, arguments);
+    super_.createLeftOf.apply(this, arguments);
   };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
@@ -137,7 +137,7 @@ var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
     UnItalicizedCmds['ar'+trigs[i]+'h'] = 1;
   }
 }());
-var UnItalicized = P(Symbol, function(_, _super) {
+var UnItalicized = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };
   _.createLeftOf = function(cursor) {
     var fn = this.ctrlSeq;
@@ -162,9 +162,9 @@ LatexCmds.injlim = LatexCmds.projlim = LatexCmds.liminf = LatexCmds.limsup =
   // but want 'inj' and 'lim' separately in UnItalicizedCmds so they'll render
   // with a space separating them, like 'inj lim'
 
-var VanillaSymbol = P(Symbol, function(_, _super) {
+var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>');
   };
 });
 
@@ -173,9 +173,9 @@ LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
 // does not use Symbola font
-var NonSymbolaSymbol = P(Symbol, function(_, _super) {
+var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+    super_.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
   };
 });
 
@@ -203,9 +203,9 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = P(Variable, function(_, _super) {
+LatexCmds.omega = P(Variable, function(_, super_) {
   _.init = function(latex) {
-    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
+    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
   };
 });
 
@@ -279,9 +279,9 @@ LatexCmds.Sigma =
 LatexCmds.Phi =
 LatexCmds.Psi =
 LatexCmds.Omega =
-LatexCmds.forall = P(VanillaSymbol, function(_, _super) {
+LatexCmds.forall = P(VanillaSymbol, function(_, super_) {
   _.init = function(latex) {
-    _super.init.call(this,'\\'+latex+' ','&'+latex+';');
+    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
   };
 });
 
@@ -324,7 +324,7 @@ var LatexFragment = P(MathCommand, function(_) {
 // browsers and email clients treat the MIME charset of ISO-8859-1
 // as actually Windows-1252, behavior now standard in the HTML5 spec.)
 //
-// [1]: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
+// [1]: http://en.wikipedia.org/wiki/Unicode_subscripts_andsuper_scripts
 // [2]: http://en.wikipedia.org/wiki/Number_Forms
 // [3]: http://en.wikipedia.org/wiki/ISO/IEC_8859-1
 // [4]: http://en.wikipedia.org/wiki/Windows-1252
@@ -335,9 +335,9 @@ LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
 LatexCmds['½'] = bind(LatexFragment, '\\frac12');
 LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 
-var BinaryOperator = P(Symbol, function(_, _super) {
+var BinaryOperator = P(Symbol, function(_, super_) {
   _.init = function(ctrlSeq, html, text) {
-    _super.init.call(this,
+    super_.init.call(this,
       ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
     );
   };
@@ -366,12 +366,12 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
 //semantically should be &sdot;, but &middot; looks better
 
-var Inequality = P(BinaryOperator, function(_, _super) {
+var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {
     this.data = data;
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
-    _super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
+    super_.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
                      data['text'+strictness]);
   };
   _.swap = function(strict) {
@@ -386,7 +386,7 @@ var Inequality = P(BinaryOperator, function(_, _super) {
       this.swap(true);
       return;
     }
-    _super.deleteTowards.apply(this, arguments);
+    super_.deleteTowards.apply(this, arguments);
   };
 });
 
@@ -400,16 +400,16 @@ LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
 LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
 LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
 
-var Equality = P(BinaryOperator, function(_, _super) {
+var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
-    _super.init.call(this, '=', '=');
+    super_.init.call(this, '=', '=');
   };
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
       cursor[L].swap(false);
       return;
     }
-    _super.createLeftOf.apply(this, arguments);
+    super_.createLeftOf.apply(this, arguments);
   };
 });
 LatexCmds['='] = Equality;
@@ -419,9 +419,9 @@ LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = P(BinaryOperator, function(_, _super) {
+LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
   _.init = function(latex) {
-    _super.init.call(this, '\\'+latex+' ', '&'+latex+';');
+    super_.init.call(this, '\\'+latex+' ', '&'+latex+';');
   };
 });
 

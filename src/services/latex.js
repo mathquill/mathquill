@@ -72,7 +72,7 @@ var latexMathParser = (function() {
   return latexMath;
 })();
 
-Controller.open(function(_, _super) {
+Controller.open(function(_, super_) {
   _.exportLatex = function() {
     return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
   };

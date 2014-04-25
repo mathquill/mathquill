@@ -273,15 +273,15 @@ var Cursor = P(Point, function(_) {
   };
 });
 
-var Selection = P(Fragment, function(_, _super) {
+var Selection = P(Fragment, function(_, super_) {
   _.init = function() {
-    _super.init.apply(this, arguments);
+    super_.init.apply(this, arguments);
     this.jQ = this.jQ.wrapAll('<span class="selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {
     this.jQ.replaceWith(this.jQ = this.jQ.children());
-    return _super.adopt.apply(this, arguments);
+    return super_.adopt.apply(this, arguments);
   };
   _.clear = function() {
     // using the browser's native .childNodes property so that we
