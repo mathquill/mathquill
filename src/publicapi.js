@@ -168,7 +168,7 @@ function RootBlockMixin(_) {
   }(names[i]));
 }
 
-setMathQuillDot('MathField', P(EditableField, function(_, _super) {
+setMathQuillDot('MathField', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
     el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);

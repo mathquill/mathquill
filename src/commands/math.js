@@ -7,7 +7,7 @@
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(Node, function(_, _super) {
+var MathElement = P(Node, function(_, super_) {
   _.finalizeInsert = function(cursor) {
     var self = this;
     self.postOrder('finalizeTree');
@@ -30,10 +30,10 @@ var MathElement = P(Node, function(_, _super) {
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
-var MathCommand = P(MathElement, function(_, _super) {
+var MathCommand = P(MathElement, function(_, super_) {
   _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
     var cmd = this;
-    _super.init.call(cmd);
+    super_.init.call(cmd);
 
     if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
@@ -72,7 +72,7 @@ var MathCommand = P(MathElement, function(_, _super) {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    _super.createLeftOf.call(cmd, cursor);
+    super_.createLeftOf.call(cmd, cursor);
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
@@ -292,11 +292,11 @@ var MathCommand = P(MathElement, function(_, _super) {
 /**
  * Lightweight command without blocks or children.
  */
-var Symbol = P(MathCommand, function(_, _super) {
+var Symbol = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, html, text) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
-    _super.init.call(this, ctrlSeq, html, [ text ]);
+    super_.init.call(this, ctrlSeq, html, [ text ]);
   };
 
   _.parser = function() { return Parser.succeed(this); };
@@ -334,7 +334,7 @@ var Symbol = P(MathCommand, function(_, _super) {
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-var MathBlock = P(MathElement, function(_, _super) {
+var MathBlock = P(MathElement, function(_, super_) {
   _.join = function(methodName) {
     return this.foldChildren('', function(fold, child) {
       return fold + child[methodName]();
@@ -356,7 +356,7 @@ var MathBlock = P(MathElement, function(_, _super) {
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
-    return _super.keystroke.apply(this, arguments);
+    return super_.keystroke.apply(this, arguments);
   };
 
   // editability methods: called by the cursor for editing, cursor movements,

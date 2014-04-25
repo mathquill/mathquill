@@ -8,7 +8,7 @@
  * opposed to hierchical, nested, tree-structured math.
  * Wraps a single HTMLSpanElement.
  */
-var TextBlock = P(Node, function(_, _super) {
+var TextBlock = P(Node, function(_, super_) {
   _.ctrlSeq = '\\text';
 
   _.replaces = function(replacedText) {
@@ -19,13 +19,13 @@ var TextBlock = P(Node, function(_, _super) {
   };
 
   _.jQadd = function(jQ) {
-    _super.jQadd.call(this, jQ);
+    super_.jQadd.call(this, jQ);
     if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
   _.createLeftOf = function(cursor) {
     var textBlock = this;
-    _super.createLeftOf.call(this, cursor);
+    super_.createLeftOf.call(this, cursor);
 
     if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
     if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
@@ -111,7 +111,7 @@ var TextBlock = P(Node, function(_, _super) {
       leftPc.adopt(leftBlock, 0, 0);
 
       cursor.insLeftOf(this);
-      _super.createLeftOf.call(leftBlock, cursor);
+      super_.createLeftOf.call(leftBlock, cursor);
     }
   };
 
@@ -188,9 +188,9 @@ var TextBlock = P(Node, function(_, _super) {
  * mirroring the text contents of the DOMTextNode.
  * Text contents must always be nonempty.
  */
-var TextPiece = P(Node, function(_, _super) {
+var TextPiece = P(Node, function(_, super_) {
   _.init = function(text) {
-    _super.init.call(this);
+    super_.init.call(this);
     this.text = text;
   };
   _.jQadd = function(dom) { this.dom = dom; this.jQ = $(dom); };
@@ -314,14 +314,14 @@ LatexCmds.lowercase =
   makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="text"');
 
 
-var RootMathCommand = P(MathCommand, function(_, _super) {
+var RootMathCommand = P(MathCommand, function(_, super_) {
   _.init = function(cursor) {
-    _super.init.call(this, '$');
+    super_.init.call(this, '$');
     this.cursor = cursor;
   };
   _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
   _.createBlocks = function() {
-    _super.createBlocks.call(this);
+    super_.createBlocks.call(this);
 
     this.ends[L].cursor = this.cursor;
     this.ends[L].write = function(cursor, ch, replacedFragment) {
@@ -345,10 +345,10 @@ var RootMathCommand = P(MathCommand, function(_, _super) {
   };
 });
 
-var RootTextBlock = P(RootMathBlock, function(_, _super) {
+var RootTextBlock = P(RootMathBlock, function(_, super_) {
   _.keystroke = function(key) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
-    return _super.keystroke.apply(this, arguments);
+    return super_.keystroke.apply(this, arguments);
   };
   _.write = function(cursor, ch, replacedFragment) {
     if (replacedFragment) replacedFragment.remove();

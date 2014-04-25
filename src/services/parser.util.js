@@ -1,4 +1,4 @@
-var Parser = P(function(_, _super, Parser) {
+var Parser = P(function(_, super_, Parser) {
   // The Parser object is a wrapper for a parser function.
   // Externally, you use one to parse a string by calling
   //   var result = SomeParser.parse('Me Me Me! Parse Me!');

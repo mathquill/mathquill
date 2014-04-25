@@ -64,9 +64,9 @@ else {
   };
 }
 
-var Style = P(MathCommand, function(_, _super) {
+var Style = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, tagName, attrs) {
-    _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
+    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
   };
 });
 
@@ -87,7 +87,7 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="n
 // [SitePoint docs]: http://reference.sitepoint.com/css/colorvalues
 // [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
 // [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
-var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
+var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
   _.setColor = function(color) {
     this.color = color;
     this.htmlTemplate =
@@ -108,7 +108,7 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
       .skip(string('}'))
       .then(function(color) {
         self.setColor(color);
-        return _super.parser.call(self);
+        return super_.parser.call(self);
       })
     ;
   };
@@ -118,7 +118,7 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, _super) {
 // Usage: \class{classname}{math}
 // Note regex that whitelists valid CSS classname characters:
 // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
-var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
+var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
   _.parser = function() {
     var self = this, string = Parser.string, regex = Parser.regex;
     return Parser.optWhitespace
@@ -127,13 +127,13 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, _super) {
       .skip(string('}'))
       .then(function(cls) {
         self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
-        return _super.parser.call(self);
+        return super_.parser.call(self);
       })
     ;
   };
 });
 
-var SupSub = P(MathCommand, function(_, _super) {
+var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.contactWeld = function(cursor) {
     // Look on either side for a SupSub, if one is found compare my
@@ -234,7 +234,7 @@ var SupSub = P(MathCommand, function(_, _super) {
   };
 });
 
-var SummationNotation = P(MathCommand, function(_, _super) {
+var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html) {
     var htmlTemplate =
       '<span class="large-operator non-leaf">'
@@ -305,7 +305,7 @@ function insLeftOfMeUnlessAtEnd(cursor) {
 }
 
 LatexCmds.subscript =
-LatexCmds._ = P(SupSub, function(_, _super) {
+LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
       '<span class="supsub non-leaf">'
@@ -317,13 +317,13 @@ LatexCmds._ = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
-    _super.finalizeTree.call(this);
+    super_.finalizeTree.call(this);
   };
 });
 
 LatexCmds.superscript =
 LatexCmds.supscript =
-LatexCmds['^'] = P(SupSub, function(_, _super) {
+LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
       '<span class="supsub non-leaf sup-only">'
@@ -334,7 +334,7 @@ LatexCmds['^'] = P(SupSub, function(_, _super) {
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
-    _super.finalizeTree.call(this);
+    super_.finalizeTree.call(this);
   };
 });
 
@@ -342,7 +342,7 @@ var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCommand, function(_, _super) {
+LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="fraction non-leaf">'
@@ -360,7 +360,7 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
 
 var LiveFraction =
 LatexCmds.over =
-CharCmds['/'] = P(Fraction, function(_, _super) {
+CharCmds['/'] = P(Fraction, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) {
       var leftward = cursor[L];
@@ -385,13 +385,13 @@ CharCmds['/'] = P(Fraction, function(_, _super) {
         cursor[L] = leftward;
       }
     }
-    _super.createLeftOf.call(this, cursor);
+    super_.createLeftOf.call(this, cursor);
   };
 });
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCommand, function(_, _super) {
+LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="non-leaf">'
@@ -409,7 +409,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
         block.adopt(nthroot, optBlock, 0);
         return nthroot;
       });
-    }).or(_super.parser.call(this));
+    }).or(super_.parser.call(this));
   };
   _.edited = function() {
     var block = this.ends[R].jQ;
@@ -417,7 +417,7 @@ LatexCmds['√'] = P(MathCommand, function(_, _super) {
   };
 });
 
-var Vec = LatexCmds.vec = P(MathCommand, function(_, _super) {
+var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\vec';
   _.htmlTemplate =
       '<span class="non-leaf">'
@@ -429,7 +429,7 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, _super) {
 });
 
 var NthRoot =
-LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
+LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
       '<sup class="nthroot non-leaf">&0</sup>'
     + '<span class="scaled">'
@@ -443,9 +443,9 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
   };
 });
 
-function DelimsMixin(_, _super) {
+function DelimsMixin(_, super_) {
   _.jQadd = function() {
-    _super.jQadd.apply(this, arguments);
+    super_.jQadd.apply(this, arguments);
     this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
     this.contentjQ = this.jQ.children(':eq(1)');
   };
@@ -459,9 +459,9 @@ function DelimsMixin(_, _super) {
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 //   first typed as one-sided bracket with matching "ghost" bracket at
 //   far end of current block, until you type an opposing one
-var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
+var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.init = function(side, open, close, ctrlSeq, end) {
-    _super.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
+    super_.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
     this.side = side;
     this.sides = {};
     this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
@@ -480,7 +480,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
       +   '</span>'
       + '</span>'
     ;
-    return _super.html.call(this);
+    return super_.html.call(this);
   };
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
@@ -520,7 +520,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, _super) {
         brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
         cursor[-side] = 0;
       }
-      _super.createLeftOf.call(brack, cursor);
+      super_.createLeftOf.call(brack, cursor);
     }
     if (side === L) cursor.insAtLeftEnd(brack.ends[L]);
     else cursor.insRightOf(brack);
@@ -653,7 +653,7 @@ LatexCmds.right = P(MathCommand, function(_) {
 
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
-CharCmds['\\'] = P(MathCommand, function(_, _super) {
+CharCmds['\\'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\';
   _.replaces = function(replacedFragment) {
     this._replacedFragment = replacedFragment.disown();
@@ -662,7 +662,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
   _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
-    _super.createBlocks.call(this);
+    super_.createBlocks.call(this);
     this.ends[L].focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
@@ -692,11 +692,11 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
         e.preventDefault();
         return;
       }
-      return _super.keystroke.apply(this, arguments);
+      return super_.keystroke.apply(this, arguments);
     };
   };
   _.createLeftOf = function(cursor) {
-    _super.createLeftOf.call(this, cursor);
+    super_.createLeftOf.call(this, cursor);
 
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -730,7 +730,7 @@ CharCmds['\\'] = P(MathCommand, function(_, _super) {
 
 var Binomial =
 LatexCmds.binom =
-LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, _super) {
+LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="non-leaf">'
@@ -763,7 +763,7 @@ var InnerMathField = P(MathQuill.MathField, function(_) {
     ctrlr.editablesTextareaEvents();
   };
 });
-LatexCmds.MathQuillMathField = P(MathCommand, function(_, _super) {
+LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
       '<span class="mathquill-editable">'
