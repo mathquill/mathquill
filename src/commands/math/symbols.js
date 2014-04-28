@@ -85,18 +85,21 @@ var Letter = P(Variable, function(_, super_) {
       el.ctrlSeq = el.letter;
     });
 
-    // check for an auto-unitalicized command, going thru substrings longest to shortest
+    // check for auto-unitalicized commands: at each position from left to
+    // right, check substrings from longest to shortest
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
       for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
         if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
-          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
-          first.ctrlSeq = '\\' + first.ctrlSeq;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.jQ.addClass('un-italicized');
             var last = letter;
           }
+
+          first.ctrlSeq = '\\' + first.ctrlSeq;
           last.ctrlSeq += ' ';
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
           if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
+
           i += len - 1;
           first = last;
           continue outer;
