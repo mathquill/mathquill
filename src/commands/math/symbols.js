@@ -43,13 +43,14 @@ MathQuill.addAutoCommands = function(cmds) {
 };
 
 var Letter = P(Variable, function(_, super_) {
+  _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.createLeftOf = function(cursor) {
     if (MAX_AUTOCMD_LEN > 0) {
       // want longest possible autocommand, so join together longest
       // sequence of letters
-      var str = this.ctrlSeq, l = cursor[L], i = 1;
+      var str = this.letter, l = cursor[L], i = 1;
       while (l instanceof Letter && i < MAX_AUTOCMD_LEN) {
-        str = l.ctrlSeq + str, l = l[L], i += 1;
+        str = l.letter + str, l = l[L], i += 1;
       }
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
@@ -73,18 +74,15 @@ var Letter = P(Variable, function(_, super_) {
   _.autoUnItalicize = function() {
     // want longest possible auto-unitalicized command, so join together longest
     // sequence of letters
-    var str = this.ctrlSeq;
-    for (var l = this[L]; l instanceof Letter; l = l[L])
-      str = l.ctrlSeq + str;
-    for (var r = this[R]; r instanceof Letter; r = r[R])
-      str += r.ctrlSeq;
+    var str = this.letter;
+    for (var l = this[L]; l instanceof Letter; l = l[L]) str = l.letter + str;
+    for (var r = this[R]; r instanceof Letter; r = r[R]) str += r.letter;
 
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
       el.jQ.removeClass('un-italicized first last');
-      delete el.isFirstLetter;
-      delete el.isLastLetter;
+      el.ctrlSeq = el.letter;
     });
 
     // check for an auto-unitalicized command, going thru substrings longest to shortest
@@ -92,12 +90,12 @@ var Letter = P(Variable, function(_, super_) {
       for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
         if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
           if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
-          first.isFirstLetter = true;
+          first.ctrlSeq = '\\' + first.ctrlSeq;
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.jQ.addClass('un-italicized');
             var last = letter;
           }
-          last.isLastLetter = true;
+          last.ctrlSeq += ' ';
           if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
           i += len - 1;
           first = last;
@@ -109,13 +107,6 @@ var Letter = P(Variable, function(_, super_) {
   function nonOperatorSymbol(node) {
     return node instanceof Symbol && !(node instanceof BinaryOperator);
   }
-  _.latex = function() {
-    return (
-      this.isFirstLetter ? '\\' + this.ctrlSeq :
-      this.isLastLetter ? this.ctrlSeq + ' ' :
-      this.ctrlSeq
-    );
-  };
 });
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
 (function() {
