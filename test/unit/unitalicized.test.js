@@ -38,6 +38,7 @@ suite('auto-unitalicized commands', function() {
     }
 
     assertUnitalicizedCommandWorks('sin', '\\sin');
+    assertUnitalicizedCommandWorks('inf', '\\inf');
     assertUnitalicizedCommandWorks('arcosh', '\\operatorname{arcosh}');
     assertUnitalicizedCommandWorks('acosh', 'a\\cosh');
     assertUnitalicizedCommandWorks('cosine', '\\cos ine');

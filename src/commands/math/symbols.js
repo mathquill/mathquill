@@ -6,8 +6,6 @@ LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
-LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
-
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
     super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');
@@ -65,6 +63,10 @@ var Letter = P(Variable, function(_, super_) {
     }
     super_.createLeftOf.apply(this, arguments);
   };
+  _.italicize = function(bool) {
+    this.jQ.toggleClass('un-italicized', !bool);
+    return this;
+  };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will unitalicize everyone
@@ -81,7 +83,7 @@ var Letter = P(Variable, function(_, super_) {
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.jQ.removeClass('un-italicized first last');
+      el.italicize(true).jQ.removeClass('first last');
       el.ctrlSeq = el.letter;
     });
 
@@ -92,7 +94,7 @@ var Letter = P(Variable, function(_, super_) {
         var word = str.slice(i, i + len);
         if (UnItalicizedCmds.hasOwnProperty(word)) {
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
-            letter.jQ.addClass('un-italicized');
+            letter.italicize(false);
             var last = letter;
           }
 
@@ -164,6 +166,16 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   _.numBlocks = function() { return 1; };
   _.parser = function() {
     return latexMathParser.block.map(function(b) { return b.children(); });
+  };
+});
+
+LatexCmds.f = P(Letter, function(_, super_) {
+  _.init = function() {
+    Symbol.p.init.call(this, this.letter = 'f', '<var class="florin">&fnof;</var>');
+  };
+  _.italicize = function(bool) {
+    this.jQ.html(bool ? '&fnof;' : 'f').toggleClass('florin', bool);
+    return super_.italicize.apply(this, arguments);
   };
 });
 
@@ -708,7 +720,7 @@ LatexCmds.image = LatexCmds.imagin = LatexCmds.imaginary = LatexCmds.Imaginary =
 
 LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;');
 
-LatexCmds.inf = LatexCmds.infin = LatexCmds.infty = LatexCmds.infinity =
+LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bind(VanillaSymbol,'\\infty ','&infin;');
 
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
