@@ -135,7 +135,8 @@ var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
     UnItalicizedCmds[trigs[i]] =
     UnItalicizedCmds['arc'+trigs[i]] =
     UnItalicizedCmds[trigs[i]+'h'] =
-    UnItalicizedCmds['ar'+trigs[i]+'h'] = 1;
+    UnItalicizedCmds['ar'+trigs[i]+'h'] =
+    UnItalicizedCmds['arc'+trigs[i]+'h'] = 1;
   }
 }());
 var UnItalicized = P(Symbol, function(_, super_) {
