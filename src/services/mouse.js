@@ -46,16 +46,15 @@ Controller.open(function(_) {
         $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
       }
 
-      setTimeout(function() { if (ctrlr.blurred) textarea.focus(); });
-        // preventDefault won't prevent focus on mousedown in IE<9
-        // that means immediately after this mousedown, whatever was
-        // mousedown-ed will receive focus
-        // http://bugs.jquery.com/ticket/10345
+      if (ctrlr.blurred) {
+        if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
+        textarea.focus();
+      }
+      e.preventDefault(); // http://bugs.jquery.com/ticket/10345#comment:9
+      e.target.unselectable = true; // for IE<9, see above
 
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
-
-      if (!ctrlr.editable && ctrlr.blurred) rootjQ.prepend(textareaSpan);
 
       rootjQ.mousemove(mousemove);
       $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);

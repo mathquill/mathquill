@@ -89,14 +89,17 @@ var Letter = P(Variable, function(_, super_) {
     // right, check substrings from longest to shortest
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
       for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
-        if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
+        var word = str.slice(i, i + len);
+        if (UnItalicizedCmds.hasOwnProperty(word)) {
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.jQ.addClass('un-italicized');
             var last = letter;
           }
 
-          first.ctrlSeq = '\\' + first.ctrlSeq;
-          last.ctrlSeq += ' ';
+          var isBuiltIn = OperatorNames.hasOwnProperty(word);
+          first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
+          last.ctrlSeq += (isBuiltIn ? ' ' : '}');
+          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('last');
           if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
           if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
 
@@ -111,17 +114,21 @@ var Letter = P(Variable, function(_, super_) {
     return node instanceof Symbol && !(node instanceof BinaryOperator);
   }
 });
-var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
+var OperatorNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // except for over/under line/arrow \lim variants like \varlimsup
+var TwoWordOps = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
+var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
 (function() {
-  // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
-  // but without the over/under line/arrow \lim variants like \varlimsup,
-  // with extra trig fns like \arsinh, and the individual words from
-  // 2-word operators, \inj and \proj from \injlim and \projlim
-
-  var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup inj proj'.split(' ');
-  for (var i = 0; i < fns.length; i += 1) {
-    UnItalicizedCmds[fns[i]] = 1;
+  var mostOps = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+                 + ' limsup liminf injlim projlim Pr').split(' ');
+  for (var i = 0; i < mostOps.length; i += 1) {
+    OperatorNames[mostOps[i]] = UnItalicizedCmds[mostOps[i]] = 1;
   }
+
+  var trigOps = 'sin cos tan arcsin arccos arctan sinh cosh tanh'.split(' ');
+  for (var i = 0; i < trigOps.length; i += 1) OperatorNames[trigOps[i]] = 1;
+  OperatorNames.sec = OperatorNames.csc = OperatorNames.cot =
+  OperatorNames.coth = 1; // why coth but not sech and csch, LaTeX?
 
   var trigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
   for (var i = 0; i < trigs.length; i += 1) {
@@ -148,13 +155,16 @@ var UnItalicized = P(Symbol, function(_, super_) {
     return Parser.succeed(block.children());
   };
 });
-for (var fn in UnItalicizedCmds) if (UnItalicizedCmds.hasOwnProperty(fn)) {
+for (var fn in OperatorNames) if (OperatorNames.hasOwnProperty(fn)) {
   LatexCmds[fn] = UnItalicized;
 }
-LatexCmds.injlim = LatexCmds.projlim = LatexCmds.liminf = LatexCmds.limsup =
-  UnItalicized; // want \injlim etc to work, so want 'injlim' etc in LatexCmds,
-  // but want 'inj' and 'lim' separately in UnItalicizedCmds so they'll render
-  // with a space separating them, like 'inj lim'
+LatexCmds.operatorname = P(MathCommand, function(_) {
+  _.createLeftOf = noop;
+  _.numBlocks = function() { return 1; };
+  _.parser = function() {
+    return latexMathParser.block.map(function(b) { return b.children(); });
+  };
+});
 
 var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {

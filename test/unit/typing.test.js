@@ -858,9 +858,8 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command is already unitalicized', function() {
-      var cmds = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max '
-               + 'min sup inj proj sin cos tan sec cosec csc cotan cot ctg';
-      cmds = cmds.split(' ');
+      var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+                  + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
                       'MathQuill.addAutoCommands("'+cmds[i]+'")');

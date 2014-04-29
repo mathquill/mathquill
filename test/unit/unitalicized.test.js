@@ -38,10 +38,10 @@ suite('auto-unitalicized commands', function() {
     }
 
     assertUnitalicizedCommandWorks('sin', '\\sin');
-    assertUnitalicizedCommandWorks('arcosh', '\\arcosh');
+    assertUnitalicizedCommandWorks('arcosh', '\\operatorname{arcosh}');
     assertUnitalicizedCommandWorks('acosh', 'a\\cosh');
     assertUnitalicizedCommandWorks('cosine', '\\cos ine');
-    assertUnitalicizedCommandWorks('arcosecant', 'ar\\cosec ant');
+    assertUnitalicizedCommandWorks('arcosecant', 'ar\\operatorname{cosec}ant');
     assertUnitalicizedCommandWorks('cscscscscscsc', '\\csc s\\csc s\\csc sc');
     assertUnitalicizedCommandWorks('scscscscscsc', 's\\csc s\\csc s\\csc');
   });

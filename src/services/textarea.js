@@ -9,12 +9,6 @@ Controller.open(function(_) {
       fn = this.options.substituteTextarea, textarea = this.textarea =
         $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 
-    //prevent native selection except in textarea
-    this.container.bind('selectstart.mathquill', function(e) {
-      var tagName = e.target.tagName;
-      if (!(tagName && tagName.toLowerCase() === 'textarea')) return false;
-    });
-
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
     ctrlr.container.bind('copy', function() { ctrlr.setTextareaSelection(); });
