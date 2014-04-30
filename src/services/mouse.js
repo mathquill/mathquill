@@ -50,8 +50,8 @@ Controller.open(function(_) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
         textarea.focus();
       }
-      e.preventDefault(); // http://bugs.jquery.com/ticket/10345#comment:9
-      e.target.unselectable = true; // for IE<9, see above
+      e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
+      e.target.unselectable = true; // http://jsbin.com/yagekiji/1
 
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
