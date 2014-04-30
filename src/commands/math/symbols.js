@@ -27,7 +27,7 @@ MathQuill.addAutoCommands = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  var cmds = cmds.replace(/^\s+|\s+$/g, '').split(/\s+/);
+  cmds = cmds.split(' ');
   for (var i = 0; i < cmds.length; i += 1) {
     if (cmds[i].length < 2) {
       throw 'autocommand "'+cmds[i]+'" not minimum length of 2';

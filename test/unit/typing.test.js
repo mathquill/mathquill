@@ -865,6 +865,20 @@ suite('typing with auto-replaces', function() {
                       'MathQuill.addAutoCommands("'+cmds[i]+'")');
       }
     });
+
+    suite('command list not perfectly space-delimited', function() {
+      test('double space', function() {
+        assert.throws(function() { MathQuill.addAutoCommands('pi  theta'); });
+      });
+
+      test('leading space', function() {
+        assert.throws(function() { MathQuill.addAutoCommands(' pi'); });
+      });
+
+      test('trailing space', function() {
+        assert.throws(function() { MathQuill.addAutoCommands('pi '); });
+      });
+    });
   });
 
   suite('inequalities', function() {
