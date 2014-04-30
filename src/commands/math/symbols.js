@@ -74,6 +74,7 @@ var Letter = P(Variable, function(_, super_) {
     this.autoUnItalicize();
   };
   _.autoUnItalicize = function() {
+    if (MAX_UNITALICIZED_LEN === 0) return;
     // want longest possible auto-unitalicized command, so join together longest
     // sequence of letters
     var str = this.letter;
@@ -141,6 +142,22 @@ var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
     UnItalicizedCmds['arc'+trigs[i]+'h'] = 1;
   }
 }());
+MathQuill.overrideAutoUnitalicized = function(cmds) {
+  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of only letters';
+  }
+  cmds = cmds.split(' ');
+
+  UnItalicizedCmds = {};
+  MAX_UNITALICIZED_LEN = 0;
+  for (var i = 0; i < cmds.length; i += 1) {
+    if (cmds[i].length < 2) {
+      throw '"'+cmds[i]+'" not minimum length of 2';
+    }
+    UnItalicizedCmds[cmds[i]] = 1;
+    MAX_UNITALICIZED_LEN = max(cmds[i].length, MAX_UNITALICIZED_LEN);
+  }
+};
 var UnItalicized = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };
   _.createLeftOf = function(cursor) {

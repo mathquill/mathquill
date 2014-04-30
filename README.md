@@ -137,6 +137,12 @@ These methods modify math typing behavior page-wide:
   of LaTeX control words (no backslash, letters only, min length 2), and adds
   them to the (default empty) set of "auto-commands", commands automatically
   rendered by just typing the letters outside a `LatexCommandInput`
+- `MathQuill.overrideAutoUnitalicized('sin cos etc')` also takes a list of the
+  same form (space-delimited letters-only each length>=2), and overrides the set
+  of operator names that get automatically unitalicized when the letters are
+  typed, like `sin`, `log`, etc. (It defaults to
+  [the LaTeX built-in operator names][Wikia], but with additional trig operators
+  like `sech`, `arcsec`, `arsinh`, etc.)
 - `MathQuill.addCharsThatBreakOutOfSupSub('+-=<>')` sets the chars that when
   typed, "break out" of super- and subscripts: for example, typing `x^2n+y`
   normally results in the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or
@@ -148,6 +154,8 @@ These methods modify math typing behavior page-wide:
 - `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
   chars when there's nothing to the left of the cursor (Desmos, for example,
   disables `^` and `_`, so that typos like `x^^2` are friendlier)
+
+[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
 (TODO: methods to remove auto-commands etc, and per-field versions of all these
 methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))

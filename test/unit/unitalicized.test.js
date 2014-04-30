@@ -76,4 +76,34 @@ suite('auto-unitalicized commands', function() {
     assertLatex('deleted plus', '\\csc s\\csc s\\csc sc');
     assert.equal(count, str.length + 5);
   });
+
+  suite('MathQuill.overrideAutoUnitalicized()', function() {
+    test('basic', function() {
+      MathQuill.overrideAutoUnitalicized('sin lol');
+      mq.typedText('arcsintrololol');
+      assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
+    });
+
+    test('command contains non-letters', function() {
+      assert.throws(function() { MathQuill.overrideAutoUnitalicized('e1'); });
+    });
+
+    test('command length less than 2', function() {
+      assert.throws(function() { MathQuill.overrideAutoUnitalicized('e'); });
+    });
+
+    suite('command list not perfectly space-delimited', function() {
+      test('double space', function() {
+        assert.throws(function() { MathQuill.overrideAutoUnitalicized('pi  theta'); });
+      });
+
+      test('leading space', function() {
+        assert.throws(function() { MathQuill.overrideAutoUnitalicized(' pi'); });
+      });
+
+      test('trailing space', function() {
+        assert.throws(function() { MathQuill.overrideAutoUnitalicized('pi '); });
+      });
+    });
+  });
 });
