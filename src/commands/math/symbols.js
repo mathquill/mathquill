@@ -6,8 +6,6 @@ LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
-LatexCmds.f = bind(Symbol, 'f', '<var class="florin">&fnof;</var>');
-
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
     super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');
@@ -29,7 +27,7 @@ MathQuill.addAutoCommands = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  var cmds = cmds.replace(/^\s+|\s+$/g, '').split(/\s+/);
+  cmds = cmds.split(' ');
   for (var i = 0; i < cmds.length; i += 1) {
     if (cmds[i].length < 2) {
       throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
@@ -43,13 +41,14 @@ MathQuill.addAutoCommands = function(cmds) {
 };
 
 var Letter = P(Variable, function(_, super_) {
+  _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.createLeftOf = function(cursor) {
     if (MAX_AUTOCMD_LEN > 0) {
       // want longest possible autocommand, so join together longest
       // sequence of letters
-      var str = this.ctrlSeq, l = cursor[L], i = 1;
+      var str = this.letter, l = cursor[L], i = 1;
       while (l instanceof Letter && i < MAX_AUTOCMD_LEN) {
-        str = l.ctrlSeq + str, l = l[L], i += 1;
+        str = l.letter + str, l = l[L], i += 1;
       }
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
@@ -64,6 +63,10 @@ var Letter = P(Variable, function(_, super_) {
     }
     super_.createLeftOf.apply(this, arguments);
   };
+  _.italicize = function(bool) {
+    this.jQ.toggleClass('un-italicized', !bool);
+    return this;
+  };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
     // don't auto-unitalicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will unitalicize everyone
@@ -71,34 +74,38 @@ var Letter = P(Variable, function(_, super_) {
     this.autoUnItalicize();
   };
   _.autoUnItalicize = function() {
+    if (MAX_UNITALICIZED_LEN === 0) return;
     // want longest possible auto-unitalicized command, so join together longest
     // sequence of letters
-    var str = this.ctrlSeq;
-    for (var l = this[L]; l instanceof Letter; l = l[L])
-      str = l.ctrlSeq + str;
-    for (var r = this[R]; r instanceof Letter; r = r[R])
-      str += r.ctrlSeq;
+    var str = this.letter;
+    for (var l = this[L]; l instanceof Letter; l = l[L]) str = l.letter + str;
+    for (var r = this[R]; r instanceof Letter; r = r[R]) str += r.letter;
 
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.jQ.removeClass('un-italicized first last');
-      delete el.isFirstLetter;
-      delete el.isLastLetter;
+      el.italicize(true).jQ.removeClass('first last');
+      el.ctrlSeq = el.letter;
     });
 
-    // check for an auto-unitalicized command, going thru substrings longest to shortest
+    // check for auto-unitalicized commands: at each position from left to
+    // right, check substrings from longest to shortest
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
       for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
-        if (UnItalicizedCmds.hasOwnProperty(str.slice(i, i + len))) {
-          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
-          first.isFirstLetter = true;
+        var word = str.slice(i, i + len);
+        if (UnItalicizedCmds.hasOwnProperty(word)) {
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
-            letter.jQ.addClass('un-italicized');
+            letter.italicize(false);
             var last = letter;
           }
-          last.isLastLetter = true;
+
+          var isBuiltIn = OperatorNames.hasOwnProperty(word);
+          first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
+          last.ctrlSeq += (isBuiltIn ? ' ' : '}');
+          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('last');
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
           if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
+
           i += len - 1;
           first = last;
           continue outer;
@@ -109,34 +116,48 @@ var Letter = P(Variable, function(_, super_) {
   function nonOperatorSymbol(node) {
     return node instanceof Symbol && !(node instanceof BinaryOperator);
   }
-  _.latex = function() {
-    return (
-      this.isFirstLetter ? '\\' + this.ctrlSeq :
-      this.isLastLetter ? this.ctrlSeq + ' ' :
-      this.ctrlSeq
-    );
-  };
 });
-var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9;
+var OperatorNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // except for over/under line/arrow \lim variants like \varlimsup
+var TwoWordOps = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
+var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
 (function() {
-  // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
-  // but without the over/under line/arrow \lim variants like \varlimsup,
-  // with extra trig fns like \arsinh, and the individual words from
-  // 2-word operators, \inj and \proj from \injlim and \projlim
-
-  var fns = 'Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup inj proj'.split(' ');
-  for (var i = 0; i < fns.length; i += 1) {
-    UnItalicizedCmds[fns[i]] = 1;
+  var mostOps = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+                 + ' limsup liminf injlim projlim Pr').split(' ');
+  for (var i = 0; i < mostOps.length; i += 1) {
+    OperatorNames[mostOps[i]] = UnItalicizedCmds[mostOps[i]] = 1;
   }
+
+  var trigOps = 'sin cos tan arcsin arccos arctan sinh cosh tanh'.split(' ');
+  for (var i = 0; i < trigOps.length; i += 1) OperatorNames[trigOps[i]] = 1;
+  OperatorNames.sec = OperatorNames.csc = OperatorNames.cot =
+  OperatorNames.coth = 1; // why coth but not sech and csch, LaTeX?
 
   var trigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
   for (var i = 0; i < trigs.length; i += 1) {
     UnItalicizedCmds[trigs[i]] =
     UnItalicizedCmds['arc'+trigs[i]] =
     UnItalicizedCmds[trigs[i]+'h'] =
-    UnItalicizedCmds['ar'+trigs[i]+'h'] = 1;
+    UnItalicizedCmds['ar'+trigs[i]+'h'] =
+    UnItalicizedCmds['arc'+trigs[i]+'h'] = 1;
   }
 }());
+MathQuill.overrideAutoUnitalicized = function(cmds) {
+  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of only letters';
+  }
+  cmds = cmds.split(' ');
+
+  UnItalicizedCmds = {};
+  MAX_UNITALICIZED_LEN = 0;
+  for (var i = 0; i < cmds.length; i += 1) {
+    if (cmds[i].length < 2) {
+      throw '"'+cmds[i]+'" not minimum length of 2';
+    }
+    UnItalicizedCmds[cmds[i]] = 1;
+    MAX_UNITALICIZED_LEN = max(cmds[i].length, MAX_UNITALICIZED_LEN);
+  }
+};
 var UnItalicized = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };
   _.createLeftOf = function(cursor) {
@@ -154,13 +175,26 @@ var UnItalicized = P(Symbol, function(_, super_) {
     return Parser.succeed(block.children());
   };
 });
-for (var fn in UnItalicizedCmds) if (UnItalicizedCmds.hasOwnProperty(fn)) {
+for (var fn in OperatorNames) if (OperatorNames.hasOwnProperty(fn)) {
   LatexCmds[fn] = UnItalicized;
 }
-LatexCmds.injlim = LatexCmds.projlim = LatexCmds.liminf = LatexCmds.limsup =
-  UnItalicized; // want \injlim etc to work, so want 'injlim' etc in LatexCmds,
-  // but want 'inj' and 'lim' separately in UnItalicizedCmds so they'll render
-  // with a space separating them, like 'inj lim'
+LatexCmds.operatorname = P(MathCommand, function(_) {
+  _.createLeftOf = noop;
+  _.numBlocks = function() { return 1; };
+  _.parser = function() {
+    return latexMathParser.block.map(function(b) { return b.children(); });
+  };
+});
+
+LatexCmds.f = P(Letter, function(_, super_) {
+  _.init = function() {
+    Symbol.p.init.call(this, this.letter = 'f', '<var class="florin">&fnof;</var>');
+  };
+  _.italicize = function(bool) {
+    this.jQ.html(bool ? '&fnof;' : 'f').toggleClass('florin', bool);
+    return super_.italicize.apply(this, arguments);
+  };
+});
 
 var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
@@ -703,7 +737,7 @@ LatexCmds.image = LatexCmds.imagin = LatexCmds.imaginary = LatexCmds.Imaginary =
 
 LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;');
 
-LatexCmds.inf = LatexCmds.infin = LatexCmds.infty = LatexCmds.infinity =
+LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bind(VanillaSymbol,'\\infty ','&infin;');
 
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
