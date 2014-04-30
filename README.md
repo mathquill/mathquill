@@ -148,6 +148,8 @@ These methods modify math typing behavior page-wide:
 - `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
   chars when there's nothing to the left of the cursor (Desmos, for example,
   disables `^` and `_`, so that typos like `x^^2` are friendlier)
+- `MathQuill.disableControlSequences()` affects what happens when a user types a `\` character. By default, a backslash is treated as the start of a control sequence. Disabling control sequences causes mathquill to typeset `\` as a literal backslash.
+- `MathQuill.enableControlSequences()` reverts the effects of `MathQuill.disableControlSequences()`.
 
 (TODO: methods to remove auto-commands etc, and per-field versions of all these
 methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))
