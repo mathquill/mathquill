@@ -651,18 +651,6 @@ LatexCmds.right = P(MathCommand, function(_) {
   };
 });
 
-MathQuill.disableControlSequences = function () {
-  delete CharCmds['\\'];
-  LatexCmds['\\'] = VanillaBackslash;
-};
-
-MathQuill.enableControlSequences = function () {
-  delete LatexCmds['\\'];
-  CharCmds['\\'] = LatexCommandInput;
-};
-
-var VanillaBackslash = bind(VanillaSymbol, '\\\\', '\\');
-
 // input box to type a variety of LaTeX commands beginning with a backslash
 var LatexCommandInput =
 CharCmds['\\'] = P(MathCommand, function(_, _super) {

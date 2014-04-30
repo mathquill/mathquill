@@ -786,7 +786,7 @@ suite('typing with auto-replaces', function() {
     test('Control Sequences Disabled', function () {
       MathQuill.disableControlSequences();
       mq.typedText('\\sin');
-      assertLatex('\\\\\\sin');
+      assertLatex('\\backslash\\sin');
     });
 
     test('Control Sequences Enabled', function () {
