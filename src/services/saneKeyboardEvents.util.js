@@ -114,16 +114,18 @@ var saneKeyboardEvents = (function() {
 
     // -*- public methods -*- //
     function select(text) {
-      // check textarea at least once/one last time (to prevent race
-      // condition if selection happens after keypress/paste but before
-      // checkTextarea) before overwriting with selection text,
-      // henceforth ensure selection text is always selected
+      // check textarea at least once/one last time before munging (so
+      // no race condition if selection happens after keypress/paste but
+      // before checkTextarea), then never again ('cos it's been munged)
       checkTextarea();
+      checkTextarea = noop;
       clearTimeout(timeoutId);
+
       textarea.val(text);
-      (checkTextarea = text ? unselectedSelection : noop)();
+      if (text) textarea[0].select();
+      shouldBeSelected = !!text;
     }
-    function unselectedSelection() { textarea[0].select(); }
+    var shouldBeSelected = false;
 
     // -*- helper subroutines -*- //
 
@@ -147,6 +149,11 @@ var saneKeyboardEvents = (function() {
       keypress = null;
 
       handleKey();
+      if (shouldBeSelected) checkTextareaFor(function() {
+        textarea[0].select(); // re-select textarea in case it's an unrecognized
+        checkTextarea = noop; // key that clears the selection, then never
+        clearTimeout(timeoutId); // again, 'cos next thing might be blur
+      });
     }
 
     function onKeypress(e) {

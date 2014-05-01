@@ -138,6 +138,14 @@ suite('key', function() {
       assert.equal(el.val(), 'foobar', 'it still has content');
     });
 
+    test('blur then empty selection', function() {
+      var shim = saneKeyboardEvents(el, { keystroke: noop });
+      shim.select('foobar');
+      el.blur();
+      shim.select('');
+      assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
+    });
+
     suite('selected text after keypress or paste doesn\'t get mistaken' +
          ' for inputted text', function() {
       test('select() immediately after paste', function() {
@@ -240,6 +248,10 @@ suite('key', function() {
           el[0].selectionEnd = 0;
           el.trigger(Event('keyup', { which: 37, altKey: true }));
           assert.ok(el[0].selectionStart !== el[0].selectionEnd);
+
+          el.blur();
+          shim.select('');
+          assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
         });
 
         test('with keypress, many characters selected', function() {
@@ -256,6 +268,10 @@ suite('key', function() {
 
           el.trigger('keyup');
           assert.ok(el[0].selectionStart !== el[0].selectionEnd);
+
+          el.blur();
+          shim.select('');
+          assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
         });
 
         test('with keypress, only 1 character selected', function() {
@@ -280,6 +296,10 @@ suite('key', function() {
 
           el.trigger('keyup');
           assert.equal(count, 1);
+
+          el.blur();
+          shim.select('');
+          assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
         });
       });
     });
