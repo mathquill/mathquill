@@ -1,7 +1,7 @@
 // All these !important's are unfortunately necessary, because
 // pages using MathQuill who change the background color have to
-// have rules setting the background color of .matrixed and
-// .matrixed-container, and we need to guarantee that our rules
+// have rules setting the background color of .mq-matrixed and
+// .mq-matrixed-container, and we need to guarantee that our rules
 // setting the background color of matrixed/containers inside
 // selections have higher specificity.
 
@@ -17,7 +17,7 @@
       border-color: HighlightText;
     }
 
-    .matrixed {
+    .mq-matrixed {
       // The Chroma filter doesn't support the 'Highlight' keyword,
       // but is only used in IE 8 and below anyway, so just use the
       // default Windows highlight color. Even if the highlight color
@@ -43,7 +43,7 @@
     }
 
     &.mq-blur {
-      &, & .mq-non-leaf, & .mq-scaled, & .matrixed {
+      &, & .mq-non-leaf, & .mq-scaled, & .mq-matrixed {
         background: #D4D4D4 !important;
         color: black;
         border-color: black;

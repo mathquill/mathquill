@@ -41,7 +41,7 @@ else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.co
     jQ.css('fontSize', y + 'em');
     if (!jQ.hasClass('mq-matrixed-container')) {
       jQ.addClass('mq-matrixed-container')
-      .wrapInner('<span class="matrixed"></span>');
+      .wrapInner('<span class="mq-matrixed"></span>');
     }
     var innerjQ = jQ.children()
     .css('filter', 'progid:DXImageTransform.Microsoft'
