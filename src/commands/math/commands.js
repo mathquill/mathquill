@@ -471,11 +471,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
         '<span class="mq-non-leaf">'
-      +   '<span class="mq-scaled paren'+(this.side === R ? ' mq-ghost' : '')+'">'
+      +   '<span class="mq-scaled mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
       +     this.sides[L].ch
       +   '</span>'
       +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="mq-scaled paren'+(this.side === L ? ' mq-ghost' : '')+'">'
+      +   '<span class="mq-scaled mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
       +     this.sides[R].ch
       +   '</span>'
       + '</span>'
@@ -734,14 +734,14 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="paren mq-scaled">(</span>'
+    +   '<span class="mq-paren mq-scaled">(</span>'
     +   '<span class="mq-non-leaf">'
     +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
     +   '</span>'
-    +   '<span class="paren mq-scaled">)</span>'
+    +   '<span class="mq-paren mq-scaled">)</span>'
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];

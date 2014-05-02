@@ -229,7 +229,7 @@ suite('typing with auto-replaces', function() {
       });
 
       function assertParenBlockNonEmpty() {
-        var parenBlock = $(mq.el()).find('.paren+span');
+        var parenBlock = $(mq.el()).find('.mq-paren+span');
         assert.equal(parenBlock.length, 1, 'exactly 1 paren block');
         assert.ok(!parenBlock.hasClass('mq-empty'),
                   'paren block auto-expanded, should no longer be gray');
@@ -486,7 +486,7 @@ suite('typing with auto-replaces', function() {
         });
 
         function assertParenBlockNonEmpty() {
-          var parenBlock = $(mq.el()).find('.paren+span');
+          var parenBlock = $(mq.el()).find('.mq-paren+span');
           assert.equal(parenBlock.length, 1, 'exactly 1 paren block');
           assert.ok(!parenBlock.hasClass('mq-empty'),
                     'paren block auto-expanded, should no longer be gray');
