@@ -5,7 +5,7 @@
 
 Controller.open(function(_) {
   _.createTextarea = function() {
-    var textareaSpan = this.textareaSpan = $('<span class="textarea"></span>'),
+    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       fn = this.options.substituteTextarea, textarea = this.textarea =
         $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 

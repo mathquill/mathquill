@@ -1,14 +1,14 @@
 @import "./mixins/css3";
 
 .mathquill-editable, .mathquill-rendered-math {
-  .textarea {
+  .mq-textarea {
     position: relative;
 
     // TODO: why is this here?
     .user-select(text);
   }
 
-  .textarea *, .mq-selectable {
+  .mq-textarea *, .mq-selectable {
     .user-select(text);
     // the only way to hide the textarea
     // *and the blinking insertion point* in IE
