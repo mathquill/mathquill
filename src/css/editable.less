@@ -12,7 +12,7 @@
       content: '';
     }
   }
-  .cursor {
+  .mq-cursor {
     border-left: 1px solid black;
     margin-left: -1px;
     position: relative;
@@ -80,13 +80,13 @@
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .cursor:only-child:after,
-.mathquill-editable .textarea+.cursor:last-child:after {
+.mathquill-editable .mq-cursor:only-child:after,
+.mathquill-editable .textarea+.mq-cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
 
-.mathquill-editable .mq-text .cursor:only-child:after {
+.mathquill-editable .mq-text .mq-cursor:only-child:after {
   content: '';
 }
 
