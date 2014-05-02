@@ -471,11 +471,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
         '<span class="mq-non-leaf">'
-      +   '<span class="mq-scaled paren'+(this.side === R ? ' ghost' : '')+'">'
+      +   '<span class="mq-scaled paren'+(this.side === R ? ' mq-ghost' : '')+'">'
       +     this.sides[L].ch
       +   '</span>'
       +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="mq-scaled paren'+(this.side === L ? ' ghost' : '')+'">'
+      +   '<span class="mq-scaled paren'+(this.side === L ? ' mq-ghost' : '')+'">'
       +     this.sides[R].ch
       +   '</span>'
       + '</span>'
@@ -495,7 +495,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
     brack.delimjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
-      .removeClass('ghost').html(this.sides[this.side].ch);
+      .removeClass('mq-ghost').html(this.sides[this.side].ch);
   };
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
@@ -557,8 +557,8 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       else { // deleting one of a pair of brackets, become one-sided
         this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
                              ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-        this.delimjQs.removeClass('ghost')
-          .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
+        this.delimjQs.removeClass('mq-ghost')
+          .eq(side === L ? 0 : 1).addClass('mq-ghost').html(this.sides[side].ch);
       }
       if (sib) { // auto-expand so ghost is at far end
         var origEnd = this.ends[L].ends[side];
@@ -582,7 +582,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function() {
-      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
+      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
       this.side = 0;
     };
   };
