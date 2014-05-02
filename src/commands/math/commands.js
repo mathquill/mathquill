@@ -664,14 +664,14 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
   _.createBlocks = function() {
     super_.createBlocks.call(this);
     this.ends[L].focus = function() {
-      this.parent.jQ.addClass('hasCursor');
+      this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.ends[L].blur = function() {
-      this.parent.jQ.removeClass('hasCursor');
+      this.parent.jQ.removeClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('mq-empty');
 

@@ -80,7 +80,7 @@ var AbstractMathQuill = P(function(_) {
     return this.controller.root.jQ.html()
       .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
       .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
-      .replace(/ hasCursor|hasCursor ?/, '')
+      .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
       .replace(/ class=(""|(?= |>))/g, '');
   };
   _.redraw = function() {

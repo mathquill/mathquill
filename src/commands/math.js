@@ -397,13 +397,13 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 
   _.focus = function() {
-    this.jQ.addClass('hasCursor');
+    this.jQ.addClass('mq-hasCursor');
     this.jQ.removeClass('mq-empty');
 
     return this;
   };
   _.blur = function() {
-    this.jQ.removeClass('hasCursor');
+    this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty())
       this.jQ.addClass('mq-empty');
 
