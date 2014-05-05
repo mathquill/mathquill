@@ -659,7 +659,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     super_.createBlocks.call(this);
