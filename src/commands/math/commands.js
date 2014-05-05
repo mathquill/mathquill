@@ -346,7 +346,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="mq-fraction mq-non-leaf">'
-    +   '<span class="numerator">&0</span>'
+    +   '<span class="mq-numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
