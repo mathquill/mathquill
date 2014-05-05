@@ -84,7 +84,7 @@ var Letter = P(Variable, function(_, super_) {
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.italicize(true).jQ.removeClass('mq-first last');
+      el.italicize(true).jQ.removeClass('mq-first mq-last');
       el.ctrlSeq = el.letter;
     });
 
@@ -102,9 +102,9 @@ var Letter = P(Variable, function(_, super_) {
           var isBuiltIn = OperatorNames.hasOwnProperty(word);
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
-          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('last');
+          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
           if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
-          if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
+          if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
 
           i += len - 1;
           first = last;
