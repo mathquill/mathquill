@@ -395,7 +395,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="scaled sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-scaled sqrt-prefix">&radic;</span>'
     +   '<span class="mq-non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
@@ -432,8 +432,8 @@ var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
       '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
-    + '<span class="scaled">'
-    +   '<span class="sqrt-prefix scaled">&radic;</span>'
+    + '<span class="mq-scaled">'
+    +   '<span class="sqrt-prefix mq-scaled">&radic;</span>'
     +   '<span class="sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
@@ -471,11 +471,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
         '<span class="mq-non-leaf">'
-      +   '<span class="scaled paren'+(this.side === R ? ' ghost' : '')+'">'
+      +   '<span class="mq-scaled paren'+(this.side === R ? ' ghost' : '')+'">'
       +     this.sides[L].ch
       +   '</span>'
       +   '<span class="mq-non-leaf">&0</span>'
-      +   '<span class="scaled paren'+(this.side === L ? ' ghost' : '')+'">'
+      +   '<span class="mq-scaled paren'+(this.side === L ? ' ghost' : '')+'">'
       +     this.sides[R].ch
       +   '</span>'
       + '</span>'
@@ -734,14 +734,14 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="paren scaled">(</span>'
+    +   '<span class="paren mq-scaled">(</span>'
     +   '<span class="mq-non-leaf">'
     +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
     +   '</span>'
-    +   '<span class="paren scaled">)</span>'
+    +   '<span class="paren mq-scaled">)</span>'
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
