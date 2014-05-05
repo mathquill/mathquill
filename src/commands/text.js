@@ -303,7 +303,7 @@ LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
   makeTextBlock('\\textbf', 'b', 'class="text"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="sans-serif text"');
+  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif text"');
 LatexCmds.tt = LatexCmds.texttt =
   makeTextBlock('\\texttt', 'span', 'class="mq-monospace text"');
 LatexCmds.textsc =
