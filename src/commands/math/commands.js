@@ -209,7 +209,7 @@ var SupSub = P(MathCommand, function(_, super_) {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
+        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
       this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
     }
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
@@ -227,7 +227,7 @@ var SupSub = P(MathCommand, function(_, super_) {
         delete cmd[updown+'Into'];
         cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
         delete cmd[oppositeSupsub].deleteOutOf;
-        if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+        if (supsub === 'sub') $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
         this.remove();
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
@@ -326,7 +326,7 @@ LatexCmds.supscript =
 LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
-      '<span class="supsub mq-non-leaf sup-only">'
+      '<span class="supsub mq-non-leaf mq-sup-only">'
     +   '<span class="sup">&0</span>'
     + '</span>'
   ;
