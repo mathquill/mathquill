@@ -5,7 +5,7 @@
 
 Controller.open(function(_) {
   _.createTextarea = function() {
-    var textareaSpan = this.textareaSpan = $('<span class="textarea"></span>'),
+    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       fn = this.options.substituteTextarea, textarea = this.textarea =
         $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 
@@ -42,7 +42,7 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    this.container.prepend('<span class="selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.container.prepend('<span class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
     textarea.bind('cut paste', false)
     .focus(function() { ctrlr.blurred = false; }).blur(function() {

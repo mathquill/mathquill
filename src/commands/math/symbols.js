@@ -64,7 +64,7 @@ var Letter = P(Variable, function(_, super_) {
     super_.createLeftOf.apply(this, arguments);
   };
   _.italicize = function(bool) {
-    this.jQ.toggleClass('un-italicized', !bool);
+    this.jQ.toggleClass('mq-un-italicized', !bool);
     return this;
   };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
@@ -84,7 +84,7 @@ var Letter = P(Variable, function(_, super_) {
     // removeClass and delete flags from all letters before figuring out
     // which are part of an auto-unitalicized command, if any
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.italicize(true).jQ.removeClass('first last');
+      el.italicize(true).jQ.removeClass('mq-first mq-last');
       el.ctrlSeq = el.letter;
     });
 
@@ -102,9 +102,9 @@ var Letter = P(Variable, function(_, super_) {
           var isBuiltIn = OperatorNames.hasOwnProperty(word);
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
-          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('last');
-          if (nonOperatorSymbol(first[L])) first.jQ.addClass('first');
-          if (nonOperatorSymbol(last[R])) last.jQ.addClass('last');
+          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
+          if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
 
           i += len - 1;
           first = last;
@@ -188,10 +188,10 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
 
 LatexCmds.f = P(Letter, function(_, super_) {
   _.init = function() {
-    Symbol.p.init.call(this, this.letter = 'f', '<var class="florin">&fnof;</var>');
+    Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-florin">&fnof;</var>');
   };
   _.italicize = function(bool) {
-    this.jQ.html(bool ? '&fnof;' : 'f').toggleClass('florin', bool);
+    this.jQ.html(bool ? '&fnof;' : 'f').toggleClass('mq-florin', bool);
     return super_.italicize.apply(this, arguments);
   };
 });
@@ -209,7 +209,7 @@ LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span class="nonSymbola">'+(html || ch)+'</span>');
+    super_.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 });
 
@@ -372,7 +372,7 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 var BinaryOperator = P(Symbol, function(_, super_) {
   _.init = function(ctrlSeq, html, text) {
     super_.init.call(this,
-      ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
     );
   };
 });
@@ -383,7 +383,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className =
-      (!this[L] || this[L] instanceof BinaryOperator ? '' : 'binary-operator');
+      (!this[L] || this[L] instanceof BinaryOperator ? '' : 'mq-binary-operator');
     return this;
   };
 });

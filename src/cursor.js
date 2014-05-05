@@ -13,16 +13,16 @@ JS environment could actually contain many instances. */
 var Cursor = P(Point, function(_) {
   _.init = function(initParent) {
     this.parent = initParent;
-    var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
+    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor">&zwj;</span>');
 
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('blink'); };
+    this.blink = function(){ jQ.toggleClass('mq-blink'); };
 
     this.upDownCache = {};
   };
 
   _.show = function() {
-    this.jQ = this._jQ.removeClass('blink');
+    this.jQ = this._jQ.removeClass('mq-blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
@@ -57,7 +57,7 @@ var Cursor = P(Point, function(_) {
   _.insDirOf = function(dir, el) {
     prayDirection(dir);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
-    this.parent.jQ.addClass('hasCursor');
+    this.parent.jQ.addClass('mq-hasCursor');
     this.jQ.insDirOf(dir, el.jQ);
     return this;
   };
@@ -102,8 +102,8 @@ var Cursor = P(Point, function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var self = this, offset = self.jQ.removeClass('cursor').offset();
-    self.jQ.addClass('cursor');
+    var self = this, offset = self.jQ.removeClass('mq-cursor').offset();
+    self.jQ.addClass('mq-cursor');
     return offset;
   }
   _.insertCmd = function(latexCmd, replacedFragment) {
@@ -276,7 +276,7 @@ var Cursor = P(Point, function(_) {
 var Selection = P(Fragment, function(_, super_) {
   _.init = function() {
     super_.init.apply(this, arguments);
-    this.jQ = this.jQ.wrapAll('<span class="selection"></span>').parent();
+    this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {

@@ -39,9 +39,9 @@ else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.co
   scale = function(jQ, x, y) { //NOTE: assumes y > x
     x /= (1+(y-1)/2);
     jQ.css('fontSize', y + 'em');
-    if (!jQ.hasClass('matrixed-container')) {
-      jQ.addClass('matrixed-container')
-      .wrapInner('<span class="matrixed"></span>');
+    if (!jQ.hasClass('mq-matrixed-container')) {
+      jQ.addClass('mq-matrixed-container')
+      .wrapInner('<span class="mq-matrixed"></span>');
     }
     var innerjQ = jQ.children()
     .css('filter', 'progid:DXImageTransform.Microsoft'
@@ -71,14 +71,14 @@ var Style = P(MathCommand, function(_, super_) {
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman font"');
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="font"');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="font"');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif font"');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
+LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
+LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
+LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
+LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
+LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -196,20 +196,20 @@ var SupSub = P(MathCommand, function(_, super_) {
   };
   _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ.toggleClass('limit', this[L].ctrlSeq === '\\int ');
+    this.jQ.toggleClass('mq-limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
-      block.jQ = $('<span class="sup"/>').append(block.jQ.children())
+      block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children())
         .attr(mqBlockId, block.id).prependTo(this.jQ);
     }
     else {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
-      block.jQ = $('<span class="sub"></span>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
+      block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
+        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
       this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
     }
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
@@ -227,7 +227,7 @@ var SupSub = P(MathCommand, function(_, super_) {
         delete cmd[updown+'Into'];
         cmd[oppositeSupsub][updown+'OutOf'] = insLeftOfMeUnlessAtEnd;
         delete cmd[oppositeSupsub].deleteOutOf;
-        if (supsub === 'sub') $(cmd.jQ.addClass('sup-only')[0].lastChild).remove();
+        if (supsub === 'sub') $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
         this.remove();
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
@@ -237,10 +237,10 @@ var SupSub = P(MathCommand, function(_, super_) {
 var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html) {
     var htmlTemplate =
-      '<span class="large-operator non-leaf">'
-    +   '<span class="to"><span>&1</span></span>'
+      '<span class="mq-large-operator mq-non-leaf">'
+    +   '<span class="mq-to"><span>&1</span></span>'
     +   '<big>'+html+'</big>'
-    +   '<span class="from"><span>&0</span></span>'
+    +   '<span class="mq-from"><span>&0</span></span>'
     + '</span>'
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
@@ -308,8 +308,8 @@ LatexCmds.subscript =
 LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
-      '<span class="supsub non-leaf">'
-    +   '<span class="sub">&0</span>'
+      '<span class="mq-supsub mq-non-leaf">'
+    +   '<span class="mq-sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -326,8 +326,8 @@ LatexCmds.supscript =
 LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
-      '<span class="supsub non-leaf sup-only">'
-    +   '<span class="sup">&0</span>'
+      '<span class="mq-supsub mq-non-leaf mq-sup-only">'
+    +   '<span class="mq-sup">&0</span>'
     + '</span>'
   ;
   _.textTemplate = [ '**' ];
@@ -345,9 +345,9 @@ LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
-      '<span class="fraction non-leaf">'
-    +   '<span class="numerator">&0</span>'
-    +   '<span class="denominator">&1</span>'
+      '<span class="mq-fraction mq-non-leaf">'
+    +   '<span class="mq-numerator">&0</span>'
+    +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -394,9 +394,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="non-leaf">'
-    +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="non-leaf sqrt-stem">&0</span>'
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -420,9 +420,9 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
 var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\vec';
   _.htmlTemplate =
-      '<span class="non-leaf">'
-    +   '<span class="vector-prefix">&rarr;</span>'
-    +   '<span class="vector-stem">&0</span>'
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-vector-prefix">&rarr;</span>'
+    +   '<span class="mq-vector-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['vec(', ')'];
@@ -431,10 +431,10 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
-      '<sup class="nthroot non-leaf">&0</sup>'
-    + '<span class="scaled">'
-    +   '<span class="sqrt-prefix scaled">&radic;</span>'
-    +   '<span class="sqrt-stem non-leaf">&1</span>'
+      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
+    + '<span class="mq-scaled">'
+    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -470,12 +470,12 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.numBlocks = function() { return 1; };
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
-        '<span class="non-leaf">'
-      +   '<span class="scaled paren'+(this.side === R ? ' ghost' : '')+'">'
+        '<span class="mq-non-leaf">'
+      +   '<span class="mq-scaled mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
       +     this.sides[L].ch
       +   '</span>'
-      +   '<span class="non-leaf">&0</span>'
-      +   '<span class="scaled paren'+(this.side === L ? ' ghost' : '')+'">'
+      +   '<span class="mq-non-leaf">&0</span>'
+      +   '<span class="mq-scaled mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
       +     this.sides[R].ch
       +   '</span>'
       + '</span>'
@@ -495,7 +495,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
     brack.delimjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
-      .removeClass('ghost').html(this.sides[this.side].ch);
+      .removeClass('mq-ghost').html(this.sides[this.side].ch);
   };
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
@@ -557,14 +557,14 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       else { // deleting one of a pair of brackets, become one-sided
         this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
                              ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-        this.delimjQs.removeClass('ghost')
-          .eq(side === L ? 0 : 1).addClass('ghost').html(this.sides[side].ch);
+        this.delimjQs.removeClass('mq-ghost')
+          .eq(side === L ? 0 : 1).addClass('mq-ghost').html(this.sides[side].ch);
       }
       if (sib) { // auto-expand so ghost is at far end
         var origEnd = this.ends[L].ends[side];
         Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
-          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('empty'));
+          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
         if (origEnd.siblingCreated) origEnd.siblingCreated(side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
@@ -582,7 +582,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function() {
-      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('ghost');
+      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
       this.side = 0;
     };
   };
@@ -659,21 +659,21 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     super_.createBlocks.call(this);
     this.ends[L].focus = function() {
-      this.parent.jQ.addClass('hasCursor');
+      this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.removeClass('empty');
+        this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.ends[L].blur = function() {
-      this.parent.jQ.removeClass('hasCursor');
+      this.parent.jQ.removeClass('mq-hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.addClass('empty');
+        this.parent.jQ.addClass('mq-empty');
 
       return this;
     };
@@ -701,7 +701,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
-        this._replacedFragment.jQ.addClass('blur').bind(
+        this._replacedFragment.jQ.addClass('mq-blur').bind(
           'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function(e) {
             $(e.target = el).trigger(e);
@@ -733,15 +733,15 @@ LatexCmds.binom =
 LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="non-leaf">'
-    +   '<span class="paren scaled">(</span>'
-    +   '<span class="non-leaf">'
-    +     '<span class="array non-leaf">'
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-paren mq-scaled">(</span>'
+    +   '<span class="mq-non-leaf">'
+    +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
     +   '</span>'
-    +   '<span class="paren scaled">)</span>'
+    +   '<span class="mq-paren mq-scaled">)</span>'
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];

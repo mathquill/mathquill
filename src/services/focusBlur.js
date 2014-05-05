@@ -5,11 +5,11 @@ Controller.open(function(_) {
     ctrlr.textarea.focus(function() {
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
-      root.jQ.addClass('focused');
+      root.jQ.addClass('mq-focused');
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
       if (cursor.selection) {
-        cursor.selection.jQ.removeClass('blur');
+        cursor.selection.jQ.removeClass('mq-blur');
         ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
       }
       else
@@ -25,12 +25,12 @@ Controller.open(function(_) {
     });
     function windowBlur() { // blur event also fired on window, just switching
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
-      if (cursor.selection) cursor.selection.jQ.addClass('blur');
+      if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
       blur();
     }
     function blur() { // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
-      root.jQ.removeClass('focused'); // clearing/blurring selection
+      root.jQ.removeClass('mq-focused'); // clearing/blurring selection
       $(window).off('blur', windowBlur);
     }
     ctrlr.blurred = true;
