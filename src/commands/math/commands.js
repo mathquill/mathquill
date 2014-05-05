@@ -196,7 +196,7 @@ var SupSub = P(MathCommand, function(_, super_) {
   };
   _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ.toggleClass('limit', this[L].ctrlSeq === '\\int ');
+    this.jQ.toggleClass('mq-limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
