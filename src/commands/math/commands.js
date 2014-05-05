@@ -77,7 +77,7 @@ LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf underline"');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
