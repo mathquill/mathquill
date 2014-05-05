@@ -238,7 +238,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html) {
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
-    +   '<span class="to"><span>&1</span></span>'
+    +   '<span class="mq-to"><span>&1</span></span>'
     +   '<big>'+html+'</big>'
     +   '<span class="mq-from"><span>&0</span></span>'
     + '</span>'
