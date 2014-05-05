@@ -2,10 +2,6 @@
  * Symbols and Special Characters
  *********************************/
 
-LatexCmds['∫'] =
-LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
-
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
     super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');
@@ -666,6 +662,10 @@ LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace ', '&#123;');
 LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\closecurlybrace ', '&#125;');
 
 //various symbols
+
+LatexCmds['∫'] =
+LatexCmds['int'] =
+LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
 LatexCmds.caret = bind(VanillaSymbol,'\\caret ','^');
 LatexCmds.underscore = bind(VanillaSymbol,'\\underscore ','_');
