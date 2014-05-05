@@ -200,7 +200,7 @@ var VanillaSymbol = P(Symbol, function(_, super_) {
 
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
-CharCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
+LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
 
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
