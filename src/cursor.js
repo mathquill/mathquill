@@ -276,7 +276,7 @@ var Cursor = P(Point, function(_) {
 var Selection = P(Fragment, function(_, super_) {
   _.init = function() {
     super_.init.apply(this, arguments);
-    this.jQ = this.jQ.wrapAll('<span class="selection"></span>').parent();
+    this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
       //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   };
   _.adopt = function() {
