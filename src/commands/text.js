@@ -305,7 +305,7 @@ LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
 LatexCmds.sf = LatexCmds.textsf =
   makeTextBlock('\\textsf', 'span', 'class="sans-serif text"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="monospace text"');
+  makeTextBlock('\\texttt', 'span', 'class="mq-monospace text"');
 LatexCmds.textsc =
   makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="text"');
 LatexCmds.uppercase =
