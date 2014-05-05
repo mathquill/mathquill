@@ -701,7 +701,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ =
-        this._replacedFragment.jQ.addClass('blur').bind(
+        this._replacedFragment.jQ.addClass('mq-blur').bind(
           'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function(e) {
             $(e.target = el).trigger(e);
