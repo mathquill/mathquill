@@ -208,7 +208,7 @@ var SupSub = P(MathCommand, function(_, super_) {
     else {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
-      block.jQ = $('<span class="sub"></span>').append(block.jQ.children())
+      block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
         .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('sup-only'));
       this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
     }
@@ -309,7 +309,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
       '<span class="supsub mq-non-leaf">'
-    +   '<span class="sub">&0</span>'
+    +   '<span class="mq-sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
