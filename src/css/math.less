@@ -144,7 +144,7 @@
 
     // special styles for fractions
     // within sup/sub.
-    .fraction {
+    .mq-fraction {
       font-size: 70%;
       vertical-align: -0.4em;
     }
@@ -215,7 +215,7 @@
   // TODO: try http://jsbin.com/gabunebe/4/edit instead
   //   obsoletes the &nbsp; in HTML template, but needs cross-browser
   //   testing. See also .supsub
-  .fraction {
+  .mq-fraction {
     font-size: 90%;
     text-align: center;
     vertical-align: -.5em;
@@ -224,12 +224,12 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .fraction, .large-operator, x:-moz-any-link {
+  .mq-fraction, .large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .fraction, .large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
