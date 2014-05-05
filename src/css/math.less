@@ -224,12 +224,12 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .mq-fraction, .large-operator, x:-moz-any-link {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .mq-fraction, .large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
@@ -282,7 +282,7 @@
     display: block;
   }
 
-  .large-operator {
+  .mq-large-operator {
     text-align: center;
 
     .mq-from, big, .to  {
