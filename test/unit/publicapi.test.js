@@ -30,7 +30,7 @@ suite('Public API', function() {
 
     test('.html() trivial case', function() {
       mq.latex('x+y');
-      assert.equal(mq.html(), '<var>x</var><span class="binary-operator">+</span><var>y</var>');
+      assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
     });
 
     test('.moveToDirEnd(dir)', function() {
