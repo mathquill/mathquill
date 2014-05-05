@@ -240,7 +240,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
       '<span class="large-operator non-leaf">'
     +   '<span class="to"><span>&1</span></span>'
     +   '<big>'+html+'</big>'
-    +   '<span class="from"><span>&0</span></span>'
+    +   '<span class="mq-from"><span>&0</span></span>'
     + '</span>'
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
