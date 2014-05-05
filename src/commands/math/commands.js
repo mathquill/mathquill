@@ -736,7 +736,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
       '<span class="non-leaf">'
     +   '<span class="paren scaled">(</span>'
     +   '<span class="non-leaf">'
-    +     '<span class="array non-leaf">'
+    +     '<span class="mq-array non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
