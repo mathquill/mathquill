@@ -57,7 +57,7 @@
     margin-right: 1px;
     margin-left: 2px;
 
-    &.empty {
+    &.mq-empty {
       background: transparent;
     }
 
@@ -71,9 +71,9 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.empty:after,
+.mathquill-editable.mq-empty:after,
 .mathquill-textbox:after,
-.mathquill-rendered-math .empty:after {
+.mathquill-rendered-math .mq-empty:after {
   visibility: hidden;
   content: 'c';
 }

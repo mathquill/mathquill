@@ -564,7 +564,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         var origEnd = this.ends[L].ends[side];
         Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
-          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('empty'));
+          .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
         if (origEnd.siblingCreated) origEnd.siblingCreated(side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
@@ -666,14 +666,14 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     this.ends[L].focus = function() {
       this.parent.jQ.addClass('hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.removeClass('empty');
+        this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     this.ends[L].blur = function() {
       this.parent.jQ.removeClass('hasCursor');
       if (this.isEmpty())
-        this.parent.jQ.addClass('empty');
+        this.parent.jQ.addClass('mq-empty');
 
       return this;
     };

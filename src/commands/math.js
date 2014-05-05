@@ -398,14 +398,14 @@ var MathBlock = P(MathElement, function(_, super_) {
 
   _.focus = function() {
     this.jQ.addClass('hasCursor');
-    this.jQ.removeClass('empty');
+    this.jQ.removeClass('mq-empty');
 
     return this;
   };
   _.blur = function() {
     this.jQ.removeClass('hasCursor');
     if (this.isEmpty())
-      this.jQ.addClass('empty');
+      this.jQ.addClass('mq-empty');
 
     return this;
   };
