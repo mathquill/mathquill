@@ -308,7 +308,7 @@ LatexCmds.subscript =
 LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
-      '<span class="supsub mq-non-leaf">'
+      '<span class="mq-supsub mq-non-leaf">'
     +   '<span class="mq-sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
@@ -326,7 +326,7 @@ LatexCmds.supscript =
 LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
-      '<span class="supsub mq-non-leaf mq-sup-only">'
+      '<span class="mq-supsub mq-non-leaf mq-sup-only">'
     +   '<span class="sup">&0</span>'
     + '</span>'
   ;
