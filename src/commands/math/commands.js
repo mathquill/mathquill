@@ -39,8 +39,8 @@ else if ('filter' in div_style) { //IE 6, 7, & 8 fallback, see https://github.co
   scale = function(jQ, x, y) { //NOTE: assumes y > x
     x /= (1+(y-1)/2);
     jQ.css('fontSize', y + 'em');
-    if (!jQ.hasClass('matrixed-container')) {
-      jQ.addClass('matrixed-container')
+    if (!jQ.hasClass('mq-matrixed-container')) {
+      jQ.addClass('mq-matrixed-container')
       .wrapInner('<span class="matrixed"></span>');
     }
     var innerjQ = jQ.children()
