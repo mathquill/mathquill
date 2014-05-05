@@ -421,7 +421,7 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\vec';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="vector-prefix">&rarr;</span>'
+    +   '<span class="mq-vector-prefix">&rarr;</span>'
     +   '<span class="vector-stem">&0</span>'
     + '</span>'
   ;
