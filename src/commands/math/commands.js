@@ -71,11 +71,11 @@ var Style = P(MathCommand, function(_, super_) {
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman font"');
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="font"');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="font"');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif font"');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
+LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="roman mq-font"');
+LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
+LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
+LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif mq-font"');
+LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace mq-font"');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
