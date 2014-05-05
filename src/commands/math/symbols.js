@@ -64,7 +64,7 @@ var Letter = P(Variable, function(_, super_) {
     super_.createLeftOf.apply(this, arguments);
   };
   _.italicize = function(bool) {
-    this.jQ.toggleClass('un-italicized', !bool);
+    this.jQ.toggleClass('mq-un-italicized', !bool);
     return this;
   };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
