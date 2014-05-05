@@ -77,8 +77,8 @@ LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="sans-serif mq-font"');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
+LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf underline"');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf overline"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -237,7 +237,7 @@ var SupSub = P(MathCommand, function(_, super_) {
 var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html) {
     var htmlTemplate =
-      '<span class="mq-large-operator non-leaf">'
+      '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="to"><span>&1</span></span>'
     +   '<big>'+html+'</big>'
     +   '<span class="mq-from"><span>&0</span></span>'
@@ -308,7 +308,7 @@ LatexCmds.subscript =
 LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
-      '<span class="supsub non-leaf">'
+      '<span class="supsub mq-non-leaf">'
     +   '<span class="sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
@@ -326,7 +326,7 @@ LatexCmds.supscript =
 LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
-      '<span class="supsub non-leaf sup-only">'
+      '<span class="supsub mq-non-leaf sup-only">'
     +   '<span class="sup">&0</span>'
     + '</span>'
   ;
@@ -345,7 +345,7 @@ LatexCmds.cfrac =
 LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
-      '<span class="mq-fraction non-leaf">'
+      '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
@@ -394,9 +394,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="non-leaf">'
+      '<span class="mq-non-leaf">'
     +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="non-leaf sqrt-stem">&0</span>'
+    +   '<span class="mq-non-leaf sqrt-stem">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -420,7 +420,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
 var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\vec';
   _.htmlTemplate =
-      '<span class="non-leaf">'
+      '<span class="mq-non-leaf">'
     +   '<span class="vector-prefix">&rarr;</span>'
     +   '<span class="vector-stem">&0</span>'
     + '</span>'
@@ -431,10 +431,10 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
-      '<sup class="nthroot non-leaf">&0</sup>'
+      '<sup class="nthroot mq-non-leaf">&0</sup>'
     + '<span class="scaled">'
     +   '<span class="sqrt-prefix scaled">&radic;</span>'
-    +   '<span class="sqrt-stem non-leaf">&1</span>'
+    +   '<span class="sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -470,11 +470,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.numBlocks = function() { return 1; };
   _.html = function() { // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
-        '<span class="non-leaf">'
+        '<span class="mq-non-leaf">'
       +   '<span class="scaled paren'+(this.side === R ? ' ghost' : '')+'">'
       +     this.sides[L].ch
       +   '</span>'
-      +   '<span class="non-leaf">&0</span>'
+      +   '<span class="mq-non-leaf">&0</span>'
       +   '<span class="scaled paren'+(this.side === L ? ' ghost' : '')+'">'
       +     this.sides[R].ch
       +   '</span>'
@@ -659,7 +659,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="mq-latex-command-input non-leaf">\\<span>&0</span></span>';
+  _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
   _.textTemplate = ['\\'];
   _.createBlocks = function() {
     super_.createBlocks.call(this);
@@ -733,10 +733,10 @@ LatexCmds.binom =
 LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="non-leaf">'
+      '<span class="mq-non-leaf">'
     +   '<span class="paren scaled">(</span>'
-    +   '<span class="non-leaf">'
-    +     '<span class="mq-array non-leaf">'
+    +   '<span class="mq-non-leaf">'
+    +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
