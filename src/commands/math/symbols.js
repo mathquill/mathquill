@@ -202,6 +202,8 @@ LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
 
+LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
+
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
@@ -444,6 +446,11 @@ var Equality = P(BinaryOperator, function(_, super_) {
 });
 LatexCmds['='] = Equality;
 
+LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
+
+LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
+  bind(BinaryOperator,'\\div ','&divide;', '[/]');
+
 LatexCmds.notin =
 LatexCmds.sim =
 LatexCmds.cong =
@@ -454,11 +461,6 @@ LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
     super_.init.call(this, '\\'+latex+' ', '&'+latex+';');
   };
 });
-
-LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
-
-LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
 
@@ -669,7 +671,6 @@ LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
 LatexCmds.caret = bind(VanillaSymbol,'\\caret ','^');
 LatexCmds.underscore = bind(VanillaSymbol,'\\underscore ','_');
-LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 LatexCmds.vert = bind(VanillaSymbol,'|');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
 LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
