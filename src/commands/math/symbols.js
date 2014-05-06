@@ -204,6 +204,8 @@ LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 
+LatexCmds.$ = bind(VanillaSymbol, '\\$', '$');
+
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
