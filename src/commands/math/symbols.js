@@ -192,12 +192,7 @@ LatexCmds.f = P(Letter, function(_, super_) {
   };
 });
 
-var VanillaSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>');
-  };
-});
-
+// VanillaSymbol's
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
@@ -368,14 +363,6 @@ LatexCmds['³'] = bind(LatexFragment, '^3');
 LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
 LatexCmds['½'] = bind(LatexFragment, '\\frac12');
 LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
-
-var BinaryOperator = P(Symbol, function(_, super_) {
-  _.init = function(ctrlSeq, html, text) {
-    super_.init.call(this,
-      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
-    );
-  };
-});
 
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
