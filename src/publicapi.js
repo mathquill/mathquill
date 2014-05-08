@@ -55,7 +55,7 @@ var AbstractMathQuill = P(function(_) {
   _.initExtractContents = function(el) {
     var contents = el.contents().detach();
     this.revert = function() {
-      el.empty().unbind('.mathquill')
+      return el.empty().unbind('.mathquill')
       .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
       .append(contents);
     };

@@ -8,6 +8,11 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
 
+    test('.revert()', function() {
+      var mq = MathQuill.MathField($('<span>some <code>HTML</code></span>')[0]);
+      assert.equal(mq.revert().html(), 'some <code>HTML</code>');
+    });
+
     test('select, clearSelection', function() {
       mq.latex('n+\\frac{n}{2}');
       assert.ok(!mq.controller.cursor.selection);
