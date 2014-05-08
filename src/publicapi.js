@@ -181,7 +181,7 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
-    this.initRoot(RootTextBlock(), el.addClass('mathquill-editable'));
+    this.initRoot(RootTextBlock(), el.addClass('mathquill-textbox mathquill-editable'));
     this.controller.renderLatexText(contents);
     this.initEvents();
   };
