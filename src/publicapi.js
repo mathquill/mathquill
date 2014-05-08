@@ -13,7 +13,7 @@
  *
  */
 function MathQuill(el) {
-  if (!el.nodeType) return null; // check that `el` is a DOM element, using the
+  if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mathquill-root-block').attr(mqBlockId);
   return blockId ? Node.byId[blockId].controller.API : null;
@@ -36,7 +36,7 @@ window.MathQuill = MathQuill;
 function setMathQuillDot(name, API) {
   MathQuill[name] = function(el, opts) {
     var mq = MathQuill(el);
-    if (mq instanceof API || !el.nodeType) return mq;
+    if (mq instanceof API || !el || !el.nodeType) return mq;
     return API($(el), opts);
   };
   MathQuill[name].prototype = API.prototype;

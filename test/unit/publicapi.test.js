@@ -1,5 +1,31 @@
 suite('Public API', function() {
-  suite('simple', function() {
+  suite('global functions', function() {
+    test('null', function() {
+      assert.equal(MathQuill(), null);
+      assert.equal(MathQuill(0), null);
+      assert.equal(MathQuill('<span/>'), null);
+      assert.equal(MathQuill($('<span/>')[0]), null);
+      assert.equal(MathQuill.MathField(), null);
+      assert.equal(MathQuill.MathField(0), null);
+      assert.equal(MathQuill.MathField('<span/>'), null);
+    });
+
+    test('MathQuill.MathField()', function() {
+      var el = $('<span>x^2</span>').appendTo('#mock');
+      var mathField = MathQuill.MathField(el[0]);
+      assert.ok(mathField instanceof MathQuill.MathField);
+      assert.ok(mathField instanceof MathQuill.EditableField);
+      assert.ok(mathField instanceof MathQuill);
+    });
+
+    test('identity of API object returned by MathQuill()', function() {
+      var mathFieldSpan = $('<span/>')[0];
+      var mathfield = MathQuill.MathField(mathFieldSpan);
+      assert.equal(MathQuill(mathFieldSpan), mathfield);
+      assert.equal(MathQuill(mathFieldSpan), MathQuill(mathFieldSpan));
+    });
+  });
+  suite('basic API methods', function() {
     var mq;
     setup(function() {
       mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
