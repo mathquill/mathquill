@@ -3,15 +3,9 @@
  ********************************************************/
 
 /**
- * Global function to test if an HTML element has been MathQuill-ified, and
- * get the MathQuill object for it if it has.
- *
- * Globally exported function that will take a single DOM element that is the
- * root of a MathQuill static math or math or text field, and returns the API
- * object for to it, or null if it is not a MathQuill-ified thing.
- *
- * Guarantees identity of returned object if called multiple separate times on
- * the same MathQuill thing, i.e.:
+ * Global function that takes an HTML element and, if it's the root HTML element
+ * of a static math or math or text field, returns its API object (if not, null).
+ * Identity of API object guaranteed if called multiple times, i.e.:
  *
  *   var mathfield = MathQuill.MathField(mathFieldSpan);
  *   assert(MathQuill(mathFieldSpan) === mathfield);
@@ -33,10 +27,11 @@ var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
 /**
- * Publicly export functions that will MathQuill-ify an HTML element and return
- * an API object. If the HTML element has already been MathQuill-ified into the
- * same kind, return the original API object, elsewise return null.
- * Note that they always returns an instance of themselves, or null.
+ * Publicly export functions that MathQuill-ify an HTML element and return an
+ * API object. If it had already been MathQuill-ified into the same kind, return
+ * the original API object (if different or not an HTML element, null).
+ *
+ * Always returns either an instance of itself, or null.
  */
 function setMathQuillDot(name, API) {
   MathQuill[name] = function(el, opts) {
