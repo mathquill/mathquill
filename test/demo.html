@@ -51,11 +51,11 @@ code span {
 
 <p>You could actually just copy-and-paste this HTML into any element with <code>class="mathquill-rendered-math"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully, like this: <span class="mathquill-rendered-math" id="html-transplant-example"></span></p>
 
-<p>Any element with <code>class="mathquill-embedded-latex"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-embedded-latex">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
+<p>Any element with <code>class="mathquill-static-math"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
 
 <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-textbox">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
 
-<p>LaTeX math can also have textboxes inside: <span class="mathquill-embedded-latex">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-embedded-latex">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
+<p>LaTeX math can also have textboxes inside: <span class="mathquill-static-math">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
 
 <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MathQuill(this.nextSibling).revert()'); MathQuill.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MathQuill.MathField(this.nextSibling)'); MathQuill(this.nextSibling).revert(); this.onclick = orig; };">MathQuill.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 

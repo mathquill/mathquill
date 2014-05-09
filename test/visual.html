@@ -73,7 +73,7 @@ td {
 <tr>
   <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
   <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
-  <td><span class="mathquill-embedded-latex">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
+  <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
 <p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
@@ -82,7 +82,7 @@ td {
 <p>
   <span id="redrawing-test">\sqrt{_0^1}</span>
   should look the same as
-  <span class="mathquill-embedded-latex">
+  <span class="mathquill-static-math">
     \sqrt{\pi\sqrt\sqrt\frac12\int_0^1}
   </span>
 </p>
@@ -163,37 +163,37 @@ $(function() {
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
 </table>
 
-<h3>Static LaTeX rendering (<code>.mathquill-embedded-latex</code>) tests</h3>
+<h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
 <table>
-<tr><td><span class="mathquill-embedded-latex">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
-<tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
-<tr><td><span class="mathquill-embedded-latex">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
-<tr><td><span class="mathquill-embedded-latex">\theta + \sin 2\deg</span><td><span>\theta + \sin 2\deg</span>
-<tr><td><span class="mathquill-embedded-latex">-1 + +-2</span><td><span>-1 + +-2</span>
-<tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
-<tr><td><span class="mathquill-embedded-latex">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
-<tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\left| a + \left| b \right| \right|</span><td><span>\left| a + \left| b \right| \right|</span>
-<tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span><td><span>\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span>
-<tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
-<tr><td><span class="mathquill-embedded-latex">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
+<tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
+<tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
+<tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
+<tr><td><span class="mathquill-static-math">\theta + \sin 2\deg</span><td><span>\theta + \sin 2\deg</span>
+<tr><td><span class="mathquill-static-math">-1 + +-2</span><td><span>-1 + +-2</span>
+<tr><td><span class="mathquill-static-math">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
+<tr><td><span class="mathquill-static-math">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
+<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left| a + \left| b \right| \right|</span><td><span>\left| a + \left| b \right| \right|</span>
+<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span><td><span>\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span>
+<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
+<tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 </table>
 
 <h3>Dynamic rendering performance</h3>
 <p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-editable"></span></p>
 <p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-rendered-math"></span></p>
 
-<p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
+<p>There should be no space between here <span class="mathquill-static-math">            </span>and here, even in IE8</p>
 
 <h3>Textcolor</h3>
 
 <p>Colors should match their names:
-<span class="mathquill-embedded-latex">
+<span class="mathquill-static-math">
   \textcolor{#0000FF}{blue} + \textcolor{red}{red}
   = \textcolor { rgb(255, -10, 255) } {magenta}
 </span>
 </p>
 <p>Nested <code>\textcolor</code>: the 2 should be red, the "a+" green, the 4 blue, and the "+b" green again.
-<span class="mathquill-embedded-latex">
+<span class="mathquill-static-math">
 e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
 </span>
 </p>
@@ -203,7 +203,7 @@ e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
   .testclass { background-color: #5A8; border-radius: 5px; padding: 4px; font-weight:bold;color:gold;}
 </style>
 <p>Second term should be styled like <span class='testclass'>this</span>:
-  <span class="mathquill-embedded-latex">
+  <span class="mathquill-static-math">
 x+\class{testclass}{y}+z
 </span>
 </p>

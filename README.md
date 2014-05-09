@@ -39,13 +39,13 @@ and after [jQuery](http://jquery.com), the script
 Then wherever you'd like to embed LaTeX math to be rendered in HTML:
 
 ```html
-<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
+<span class="mathquill-static-math">\frac{d}{dx}\sqrt{x}</span>
 ```
 
 or have an editable math field:
 
 ```html
-<span class="mathquill-editable">f(x)=?</span>
+<span class="mathquill-math-field">f(x)=?</span>
 ```
 
 This is currently done by waiting for the jQuery `ready` event and searching the
@@ -75,7 +75,7 @@ mathField.redraw();
 Any element that has been MathQuill-ified can be reverted:
 
 ```html
-<span id="revert-me" class="mathquill-embedded-latex">
+<span id="revert-me" class="mathquill-static-math">
   some <code>HTML</code>
 </span>
 ```

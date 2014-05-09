@@ -193,7 +193,7 @@ setMathQuillDot('TextField', P(EditableField, function(_) {
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 jQuery(function() {
-  jQuery('.mathquill-embedded-latex').each(function() { MathQuill.StaticMath(this); });
+  jQuery('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
   jQuery('.mathquill-editable').each(function() { MathQuill.MathField(this); });
   jQuery('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
 });
