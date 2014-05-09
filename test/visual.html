@@ -72,7 +72,7 @@ td {
 <tr><th colspan=3>Initial LaTeX
 <tr>
   <td><span class="mathquill-math-field">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
-  <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+  <td><span class="mathquill-text-field">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
   <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
@@ -137,7 +137,7 @@ $(function() {
 
 <h3>Selection Tests</h3>
 
-<p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+<p id="selection-tests"><span class="mathquill-text-field different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
 
 <p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
 
@@ -233,7 +233,7 @@ $('.math-container').mousedown(function(e) {
 // Selection Tests
 document.body.onload = function() {
   setTimeout(function() {
-    $('#selection-tests .mathquill-textbox').each(function() {
+    $('#selection-tests .mathquill-text-field').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
       $('#selection-performance').html(new Date - start);

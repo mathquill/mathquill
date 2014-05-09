@@ -195,5 +195,5 @@ setMathQuillDot('TextField', P(EditableField, function(_) {
 jQuery(function() {
   jQuery('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
   jQuery('.mathquill-math-field').each(function() { MathQuill.MathField(this); });
-  jQuery('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
+  jQuery('.mathquill-text-field').each(function() { MathQuill.TextField(this); });
 });
