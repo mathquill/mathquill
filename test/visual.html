@@ -71,12 +71,12 @@ td {
 <table id="editables">
 <tr><th colspan=3>Initial LaTeX
 <tr>
-  <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
+  <td><span class="mathquill-math-field">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
   <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
   <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-math-field">a_2 x^2 + a_1 x + a_0 = 0</span></div>
 
 <h3>Redrawing</h3>
 <p>
@@ -117,7 +117,7 @@ $(function() {
 <h3>Up/Down seeking and caching</h3>
 
 <p>
-  <span id="seek-test" class="mathquill-editable">
+  <span id="seek-test" class="mathquill-math-field">
     \frac{1}{\sqrt \sqrt \sqrt \sqrt \sqrt \sqrt x}
   </span>
 </p>
@@ -129,7 +129,7 @@ $(function() {
 <h3>Horizontal overflow</h3>
 
 <p>
-<span id="overflow-test" class="mathquill-editable">
+<span id="overflow-test" class="mathquill-math-field">
   \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
 </span>
 (for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
@@ -179,7 +179,7 @@ $(function() {
 </table>
 
 <h3>Dynamic rendering performance</h3>
-<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-editable"></span></p>
+<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-math-field"></span></p>
 <p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-rendered-math"></span></p>
 
 <p>There should be no space between here <span class="mathquill-static-math">            </span>and here, even in IE8</p>
@@ -225,7 +225,7 @@ $('#show-textareas-button').click(function() {
 });
 
 // test selecting from outside the mathquill editable
-var $mq = $('.math-container .mathquill-editable');
+var $mq = $('.math-container .mathquill-math-field');
 $('.math-container').mousedown(function(e) {
   if (!jQuery.contains($mq[0], e.target)) $mq.triggerHandler(e);
 });
@@ -323,7 +323,7 @@ function timeAndLog(f) {
 };
 (function() {
   var textarea = $('#latex-render-perf textarea');
-  var mathquill = $('#latex-render-perf .mathquill-editable');
+  var mathquill = $('#latex-render-perf .mathquill-math-field');
   var avgs = Avgs();
   $('#latex-render-perf button').click(function() {
     var latex = textarea.val();
