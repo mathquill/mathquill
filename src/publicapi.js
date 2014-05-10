@@ -15,7 +15,7 @@
 function MathQuill(el) {
   if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-  var blockId = $(el).children('.mathquill-root-block').attr(mqBlockId);
+  var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
   return blockId ? Node.byId[blockId].controller.API : null;
 };
 
@@ -45,7 +45,7 @@ function setMathQuillDot(name, API) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
+    root.jQ = $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(el);
     var ctrlr = this.controller = root.controller = Controller(root, el, opts);
     ctrlr.API = this;
