@@ -31,7 +31,7 @@
     // This is a workaround to override the
     // styles on .mq-editable-field *.
     // TODO: figure out a better way.
-    &, .mathquill-rendered-math & {
+    &, .mq-math-mode & {
       border: 1px solid gray;
       padding: 2px;
 
@@ -43,7 +43,7 @@
     }
   }
 // special styles for editables within static math
-  .mathquill-rendered-math & {
+  .mq-math-mode & {
     margin: 1px;
   }
 
@@ -73,7 +73,7 @@
 // TODO: find a way to unify the three concepts below.
 .mq-editable-field.mq-empty:after,
 .mq-editable-field.mq-text-mode:after,
-.mathquill-rendered-math .mq-empty:after {
+.mq-math-mode .mq-empty:after {
   visibility: hidden;
   content: 'c';
 }

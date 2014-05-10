@@ -56,7 +56,7 @@ var AbstractMathQuill = P(function(_) {
     var contents = el.contents().detach();
     this.revert = function() {
       return el.empty().unbind('.mathquill')
-      .removeClass('mathquill-rendered-math mq-editable-field mq-text-mode')
+      .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
     return contents.text();
@@ -88,7 +88,7 @@ MathQuill.prototype = AbstractMathQuill.prototype;
 setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
-    this.initRoot(MathBlock(), el.addClass('mathquill-rendered-math'));
+    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
     this.controller.renderLatexMath(contents);
     this.controller.delegateMouseEvents();
     this.controller.staticMathTextareaEvents();
@@ -165,8 +165,8 @@ function RootBlockMixin(_) {
 
 setMathQuillDot('MathField', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
-    el.addClass('mathquill-rendered-math mq-editable-field');
     var contents = this.initExtractContents(el);
+    el.addClass('mq-editable-field mq-math-mode');
     this.initRoot(RootMathBlock(), el, opts);
     this.controller.root.setHandlers(opts && opts.handlers, this);
     this.controller.renderLatexMath(contents);
