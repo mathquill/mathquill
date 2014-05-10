@@ -56,7 +56,7 @@ var AbstractMathQuill = P(function(_) {
     var contents = el.contents().detach();
     this.revert = function() {
       return el.empty().unbind('.mathquill')
-      .removeClass('mathquill-rendered-math mq-editable-field mathquill-textbox')
+      .removeClass('mathquill-rendered-math mq-editable-field mq-text-mode')
       .append(contents);
     };
     return contents.text();
@@ -176,7 +176,8 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
-    this.initRoot(RootTextBlock(), el.addClass('mathquill-textbox mq-editable-field'));
+    el.addClass('mq-editable-field mq-text-mode');
+    this.initRoot(RootTextBlock(), el);
     this.controller.renderLatexText(contents);
     this.initEvents();
   };

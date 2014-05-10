@@ -72,7 +72,7 @@
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
 .mq-editable-field.mq-empty:after,
-.mathquill-textbox:after,
+.mq-editable-field.mq-text-mode:after,
 .mathquill-rendered-math .mq-empty:after {
   visibility: hidden;
   content: 'c';
@@ -86,11 +86,11 @@
   content: 'c';
 }
 
-.mq-editable-field .mq-text .mq-cursor:only-child:after {
+.mq-editable-field .mq-text-mode .mq-cursor:only-child:after {
   content: '';
 }
 
-.mathquill-textbox {
+.mq-editable-field.mq-text-mode {
   overflow-x: auto;
 
   // so IE8 won't show a vertical scrollbar
