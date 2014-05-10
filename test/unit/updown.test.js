@@ -178,7 +178,7 @@ suite('up/down', function() {
     var outer = MathQuill.MathField(
       $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
     );
-    var inner = MathQuill($(outer.el()).find('.mathquill-editable')[0]);
+    var inner = MathQuill($(outer.el()).find('.mq-editable-field')[0]);
 
     assert.equal(inner.controller.cursor.parent, inner.controller.root);
     inner.keystroke('Down');

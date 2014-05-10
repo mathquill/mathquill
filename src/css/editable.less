@@ -1,4 +1,4 @@
-.mathquill-editable {
+.mq-editable-field {
   .inline-block;
   .mathquill-root-block {
     .inline-block;
@@ -29,7 +29,7 @@
     .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
 
     // This is a workaround to override the
-    // styles on .mathquill-editable *.
+    // styles on .mq-editable-field *.
     // TODO: figure out a better way.
     &, .mathquill-rendered-math & {
       border: 1px solid gray;
@@ -71,7 +71,7 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.mq-empty:after,
+.mq-editable-field.mq-empty:after,
 .mathquill-textbox:after,
 .mathquill-rendered-math .mq-empty:after {
   visibility: hidden;
@@ -80,13 +80,13 @@
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .mq-cursor:only-child:after,
-.mathquill-editable .mq-textarea+.mq-cursor:last-child:after {
+.mq-editable-field .mq-cursor:only-child:after,
+.mq-editable-field .mq-textarea+.mq-cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
 
-.mathquill-editable .mq-text .mq-cursor:only-child:after {
+.mq-editable-field .mq-text .mq-cursor:only-child:after {
   content: '';
 }
 
