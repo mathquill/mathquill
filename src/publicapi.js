@@ -190,11 +190,3 @@ setMathQuillDot('TextField', P(EditableField, function(_) {
     return this.controller.exportLatex();
   };
 }));
-
-//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
-//elements according to their CSS class.
-jQuery(function() {
-  jQuery('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
-  jQuery('.mathquill-math-field').each(function() { MathQuill.MathField(this); });
-  jQuery('.mathquill-text-field').each(function() { MathQuill.TextField(this); });
-});

@@ -224,6 +224,14 @@ $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
 });
 
+//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
+//elements according to their CSS class.
+$(function() {
+  $('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
+  $('.mathquill-math-field').each(function() { MathQuill.MathField(this); });
+  $('.mathquill-text-field').each(function() { MathQuill.TextField(this); });
+});
+
 // test selecting from outside the mathquill editable
 var $mq = $('.math-container .mathquill-math-field');
 $('.math-container').mousedown(function(e) {
