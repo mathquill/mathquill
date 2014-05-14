@@ -1,6 +1,6 @@
-.mathquill-editable {
+.mq-editable-field {
   .inline-block;
-  .mathquill-root-block {
+  .mq-root-block {
     .inline-block;
     width: 100%;
     white-space: pre;
@@ -23,15 +23,15 @@
     &.mq-blink { visibility: hidden; }
   }
 
-  .mathquill-root-block {
+  .mq-root-block {
     .inline-block;
 
     .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
 
     // This is a workaround to override the
-    // styles on .mathquill-editable *.
+    // styles on .mq-editable-field *.
     // TODO: figure out a better way.
-    &, .mathquill-embedded-latex & {
+    &, .mq-math-mode & {
       border: 1px solid gray;
       padding: 2px;
 
@@ -43,7 +43,7 @@
     }
   }
 // special styles for editables within static math
-  .mathquill-embedded-latex & {
+  .mq-math-mode & {
     margin: 1px;
   }
 
@@ -71,26 +71,26 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.mq-empty:after,
-.mathquill-textbox:after,
-.mathquill-rendered-math .mq-empty:after {
+.mq-editable-field.mq-empty:after,
+.mq-editable-field.mq-text-mode:after,
+.mq-math-mode .mq-empty:after {
   visibility: hidden;
   content: 'c';
 }
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .mq-cursor:only-child:after,
-.mathquill-editable .mq-textarea+.mq-cursor:last-child:after {
+.mq-editable-field .mq-cursor:only-child:after,
+.mq-editable-field .mq-textarea+.mq-cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
 
-.mathquill-editable .mq-text .mq-cursor:only-child:after {
+.mq-editable-field .mq-text-mode .mq-cursor:only-child:after {
   content: '';
 }
 
-.mathquill-textbox {
+.mq-editable-field.mq-text-mode {
   overflow-x: auto;
 
   // so IE8 won't show a vertical scrollbar

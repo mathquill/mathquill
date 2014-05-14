@@ -67,7 +67,7 @@ var TextBlock = P(Node, function(_, super_) {
   _.latex = function() { return '\\text{' + this.textContents() + '}'; };
   _.html = function() {
     return (
-        '<span class="mq-text" mathquill-command-id='+this.id+'>'
+        '<span class="mq-text-mode" mathquill-command-id='+this.id+'>'
       +   this.textContents()
       + '</span>'
     );
@@ -299,19 +299,19 @@ function makeTextBlock(latex, tagName, attrs) {
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
 LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="mq-text"');
+  makeTextBlock('\\textit', 'i', 'class="mq-text-mode"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', 'b', 'class="mq-text"');
+  makeTextBlock('\\textbf', 'b', 'class="mq-text-mode"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif mq-text"');
+  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif mq-text-mode"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="mq-monospace mq-text"');
+  makeTextBlock('\\texttt', 'span', 'class="mq-monospace mq-text-mode"');
 LatexCmds.textsc =
-  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="mq-text"');
+  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="mq-text-mode"');
 LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="mq-text"');
+  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="mq-text-mode"');
 LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text"');
+  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text-mode"');
 
 
 var RootMathCommand = P(MathCommand, function(_, super_) {
@@ -319,7 +319,7 @@ var RootMathCommand = P(MathCommand, function(_, super_) {
     super_.init.call(this, '$');
     this.cursor = cursor;
   };
-  _.htmlTemplate = '<span class="mathquill-rendered-math">&0</span>';
+  _.htmlTemplate = '<span class="mq-math-mode">&0</span>';
   _.createBlocks = function() {
     super_.createBlocks.call(this);
 

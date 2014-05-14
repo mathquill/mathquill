@@ -1,4 +1,4 @@
-.mathquill-rendered-math {
+.mq-math-mode {
   font-variant: normal;
   font-weight: normal;
   font-style: normal;
@@ -11,7 +11,7 @@
   }
 
   // TODO: dasherize non-symbola
-  var, .mq-text, .mq-nonSymbola {
+  var, .mq-text-mode, .mq-nonSymbola {
     font-family: @times;
     line-height: .9;
   }
@@ -28,7 +28,7 @@
   // TODO: what's the difference between these?
   .mq-empty {
     background: #ccc;
-    &.mathquill-root-block {
+    &.mq-root-block {
       background: transparent;
     }
   }
@@ -38,7 +38,7 @@
   }
 
 
-  .mq-text {
+  .mq-text-mode {
     font-size: 87%;
   }
 
@@ -298,7 +298,7 @@
   }
 
 
-  &, .mathquill-editable {
+  &, .mq-editable-field {
     cursor: text;
     font-family: @symbola;
   }

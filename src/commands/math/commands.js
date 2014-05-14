@@ -689,8 +689,8 @@ var InnerMathField = P(MathQuill.MathField, function(_) {
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
-      '<span class="mathquill-editable">'
-    +   '<span class="mathquill-root-block">&0</span>'
+      '<span class="mq-editable-field">'
+    +   '<span class="mq-root-block">&0</span>'
     + '</span>'
   ;
   _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
