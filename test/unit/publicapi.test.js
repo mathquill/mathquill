@@ -24,6 +24,14 @@ suite('Public API', function() {
       assert.equal(MathQuill(mathFieldSpan), mathfield);
       assert.equal(MathQuill(mathFieldSpan), MathQuill(mathFieldSpan));
     });
+
+    test('blurred when created', function() {
+      var el = $('<span/>');
+      MathQuill.MathField(el[0]);
+      var rootBlock = el.find('.mq-root-block');
+      assert.ok(rootBlock.hasClass('mq-empty'));
+      assert.ok(!rootBlock.hasClass('mq-hasCursor'));
+    });
   });
   suite('basic API methods', function() {
     var mq;
