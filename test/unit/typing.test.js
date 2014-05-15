@@ -782,6 +782,20 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('Control Sequences', function () {
+    test('Control Sequences Disabled', function () {
+      MathQuill.disableControlSequences();
+      mq.typedText('\\sin');
+      assertLatex('\\backslash\\sin');
+    });
+
+    test('Control Sequences Enabled', function () {
+      MathQuill.enableControlSequences();
+      mq.typedText('\\sin');
+      assertLatex('\\sin');
+    });
+  });
+
   suite('auto-cmds', function() {
     MathQuill.addAutoCommands('pi tau phi theta Gamma '
                               + 'sum prod sqrt nthroot');

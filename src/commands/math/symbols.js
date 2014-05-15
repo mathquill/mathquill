@@ -206,6 +206,16 @@ LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
 LatexCmds.prime = CharCmds["'"] = bind(VanillaSymbol, "'", '&prime;');
 
+var VanillaBackslash = bind(VanillaSymbol, '\\backslash', '\\');
+
+MathQuill.disableControlSequences = function () {
+  CharCmds['\\'] = VanillaBackslash;
+};
+
+MathQuill.enableControlSequences = function () {
+  CharCmds['\\'] = LatexCommandInput;
+};
+
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
