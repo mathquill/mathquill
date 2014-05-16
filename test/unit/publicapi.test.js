@@ -33,6 +33,32 @@ suite('Public API', function() {
       assert.ok(!rootBlock.hasClass('mq-hasCursor'));
     });
   });
+
+  suite('MathQuillBasic', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('typing \\', function() {
+      mq.typedText('\\');
+      assert.equal(mq.latex(), '\\backslash');
+    });
+
+    test('typing $', function() {
+      mq.typedText('$');
+      assert.equal(mq.latex(), '\\$');
+    });
+
+    test('parsing of advanced symbols', function() {
+      mq.latex('\\oplus');
+      assert.equal(mq.latex(), ''); // TODO: better LaTeX parse error behavior
+    });
+  });
+
   suite('basic API methods', function() {
     var mq;
     setup(function() {

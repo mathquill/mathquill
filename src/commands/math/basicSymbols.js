@@ -198,6 +198,7 @@ LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
+if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
 
 LatexCmds.$ = bind(VanillaSymbol, '\\$', '$');
 
