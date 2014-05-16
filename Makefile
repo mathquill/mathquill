@@ -64,7 +64,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify css font dist clean
+.PHONY: all dev js uglify css font dist clean
 all: font css uglify
 # dev is like all, but without minification
 dev: font css js
