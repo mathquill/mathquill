@@ -11,54 +11,74 @@ are all over the place.
 
 ## Usage
 
-(Note: Requires [jQuery 1.4.3+](http://jquery.com).
-[Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery) recommended.)
-
-To use MathQuill on your website, grab the latest tarball from the [downloads page][], and serve
-
-[downloads page]: http://mathquill.com/downloads.html
-
-* [the stylesheet](http://mathquill.github.com/mathquill.css)
-* [the fonts](http://mathquill.github.com/fonts.html) in the
-`font/` directory relative to `mathquill.css` (or change your copy of
-`mathquill.css` to include from the right directory)
-* [the script](http://mathquill.github.com/mathquill/mathquill.min.js) ([unminified](http://mathquill.github.com/mathquill/mathquill.js))
-
-then on your webpages include the stylesheet
+Just load MathQuill and call our constructors on some HTML element DOM objects,
+for example:
 
 ```html
-<link rel="stylesheet" type="text/css" href="/path/to/mathquill.css">`
+<p>
+  Solve <span class="static-math">ax^2+bx+c=0</span>:
+  <span class="math-field">x=</span>
+</p>
+<link rel="stylesheet" href="/path/to/mathquill.css"/>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="/path/to/mathquill.js"></script>
+<script>
+  $('.static-math').each(function() { MathQuill.StaticMath(this); });
+  $('.math-field').each(function() { MathQuill.MathField(this); });
+</script>
 ```
 
-and after [jQuery](http://jquery.com), the script
+To load MathQuill,
+- [jQuery 1.4.3+](http://jquery.com) has to be loaded before `mathquill.js`
+  ([Google CDN-hosted copy][] recommended)
+- the fonts should be served from the `font/` directory relative to
+  `mathquill.css` (unless you'd rather change where your copy of `mathquill.css`
+  includes them from), which is already the case if you just:
+- unpack and serve [the latest tarball][].
 
-```html
-<script src="/path/to/mathquill.min.js"></script>
-```
+[Google CDN-hosted copy]: http://code.google.com/apis/libraries/devguide.html#jquery
+[the latest tarball]: http://mathquill.com/downloads.html
 
-Then wherever you'd like to embed LaTeX math to be rendered in HTML:
-
-```html
-<span class="mathquill-embedded-latex">\frac{d}{dx}\sqrt{x}</span>
-```
-
-or have an editable math field:
-
-```html
-<span class="mathquill-editable">f(x)=?</span>
-```
-
-This is currently done by waiting for the jQuery `ready` event and searching the
-document for elements with those CSS classes, so for dynamically created
-elements that weren't in the document on `ready`, you will need to call our
-API after inserting into the document:
+Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
+MathQuill-ify an HTML element and return an API object. If it has already been
+MathQuill-ified into the same kind, return the original API object (if different
+or not an HTML element, `null`). Always returns either an instance of itself,
+or `null`.
 
 ```js
-var el = $('<span>x^2</span>').appendTo('body');
-var mathField = MathQuill.MathField(el[0]);
+var staticMath = MathQuill.StaticMath(staticMathSpan);
+mathField instanceof MathQuill.StaticMath // => true
+mathField instanceof MathQuill // => true
+
+var mathField = MathQuill.MathField(mathFieldSpan);
 mathField instanceof MathQuill.MathField // => true
 mathField instanceof MathQuill.EditableField // => true
 mathField instanceof MathQuill // => true
+```
+
+The global `MathQuill()` function takes an HTML element and, if it's the root
+HTML element of a static math or math field, returns its API object (if not,
+`null`). Identity of API object guaranteed if called multiple times, e.g.
+(continuing previous example):
+
+```js
+MathQuill(mathFieldSpan) === mathField // => true
+MathQuill(mathFieldSpan) === MathQuill(mathFieldSpan) // => true
+```
+
+`MathQuill.noConflict()` resets the global `MathQuill` variable to whatever it
+was before, and returns the `MathQuill` function to be used locally or set to
+some other variable, _a la_ [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict).
+
+Any element that has been MathQuill-ified can be reverted:
+
+```html
+<span id="revert-me" class="mathquill-static-math">
+  some <code>HTML</code>
+</span>
+```
+```js
+MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 ```
 
 MathQuill has to perform calculations based on computed CSS values. If you
@@ -72,36 +92,8 @@ mathFieldSpan.appendTo(document.body);
 mathField.redraw();
 ```
 
-Any element that has been MathQuill-ified can be reverted:
+MathQuill API objects further expose the following public methods:
 
-```html
-<span id="revert-me" class="mathquill-embedded-latex">
-  some <code>HTML</code>
-</span>
-```
-```js
-MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
-```
-
-Manipulating the HTML DOM inside MathQuill-ified elements can break our
-rendering and functionality, but we have a public API to manipulate MathQuill
-things: the global `MathQuill()` function takes a DOM element, and will return
-a MathQuill object if that element is a MathQuill thing, or `null` otherwise.
-
-`MathQuill.noConflict()` resets the global `MathQuill` variable to whatever it
-was before, and returns the `MathQuill` function to be used locally or set to
-some other variable, _a la_ [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict).
-
-`MathQuill.StaticMath()` and `MathQuill.MathField()` also take a DOM element
-argument, and additionally the element must either be not yet MathQuill-ified or
-a MathQuill instance of the same type. If not yet MathQuill-ified they will
-MathQuill-ify the element as described above, and in either case they will return
-a MathQuill object for that MathQuill instance.
-
-The MathQuill objects expose the following public methods to manipulate a
-MathQuill instance:
-
-* `.revert()` reverts
 * `.el()` returns the root HTML element
 * `.html()` returns the contents as static HTML
 * `.latex()` returns the contents as LaTeX

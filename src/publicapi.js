@@ -3,15 +3,9 @@
  ********************************************************/
 
 /**
- * Global function to test if an HTML element has been MathQuill-ified, and
- * get the MathQuill object for it if it has.
- *
- * Globally exported function that will take a single DOM element that is the
- * root of a MathQuill static math or math or text field, and returns the API
- * object for to it, or null if it is not a MathQuill-ified thing.
- *
- * Guarantees identity of returned object if called multiple separate times on
- * the same MathQuill thing, i.e.:
+ * Global function that takes an HTML element and, if it's the root HTML element
+ * of a static math or math or text field, returns its API object (if not, null).
+ * Identity of API object guaranteed if called multiple times, i.e.:
  *
  *   var mathfield = MathQuill.MathField(mathFieldSpan);
  *   assert(MathQuill(mathFieldSpan) === mathfield);
@@ -19,9 +13,9 @@
  *
  */
 function MathQuill(el) {
-  if (!el.nodeType) return null; // check that `el` is a DOM element, using the
+  if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-  var blockId = $(el).children('.mathquill-root-block').attr(mqBlockId);
+  var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
   return blockId ? Node.byId[blockId].controller.API : null;
 };
 
@@ -33,15 +27,16 @@ var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
 /**
- * Publicly export functions that will MathQuill-ify an HTML element and return
- * an API object. If the HTML element has already been MathQuill-ified into the
- * same kind, return the original API object, elsewise return null.
- * Note that they always returns an instance of themselves, or null.
+ * Publicly export functions that MathQuill-ify an HTML element and return an
+ * API object. If it had already been MathQuill-ified into the same kind, return
+ * the original API object (if different or not an HTML element, null).
+ *
+ * Always returns either an instance of itself, or null.
  */
 function setMathQuillDot(name, API) {
   MathQuill[name] = function(el, opts) {
     var mq = MathQuill(el);
-    if (mq instanceof API || !el.nodeType) return mq;
+    if (mq instanceof API || !el || !el.nodeType) return mq;
     return API($(el), opts);
   };
   MathQuill[name].prototype = API.prototype;
@@ -50,7 +45,7 @@ function setMathQuillDot(name, API) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    root.jQ = $('<span class="mathquill-root-block"/>').attr(mqBlockId, root.id)
+    root.jQ = $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(el);
     var ctrlr = this.controller = root.controller = Controller(root, el, opts);
     ctrlr.API = this;
@@ -60,8 +55,8 @@ var AbstractMathQuill = P(function(_) {
   _.initExtractContents = function(el) {
     var contents = el.contents().detach();
     this.revert = function() {
-      el.empty().unbind('.mathquill')
-      .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+      return el.empty().unbind('.mathquill')
+      .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
     return contents.text();
@@ -93,7 +88,7 @@ MathQuill.prototype = AbstractMathQuill.prototype;
 setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
-    this.initRoot(MathBlock(), el.addClass('mathquill-rendered-math'));
+    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
     this.controller.renderLatexMath(contents);
     this.controller.delegateMouseEvents();
     this.controller.staticMathTextareaEvents();
@@ -170,8 +165,8 @@ function RootBlockMixin(_) {
 
 setMathQuillDot('MathField', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
-    el.addClass('mathquill-rendered-math mathquill-editable');
     var contents = this.initExtractContents(el);
+    el.addClass('mq-editable-field mq-math-mode');
     this.initRoot(RootMathBlock(), el, opts);
     this.controller.root.setHandlers(opts && opts.handlers, this);
     this.controller.renderLatexMath(contents);
@@ -181,7 +176,8 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
-    this.initRoot(RootTextBlock(), el.addClass('mathquill-editable'));
+    el.addClass('mq-editable-field mq-text-mode');
+    this.initRoot(RootTextBlock(), el);
     this.controller.renderLatexText(contents);
     this.initEvents();
   };
@@ -194,11 +190,3 @@ setMathQuillDot('TextField', P(EditableField, function(_) {
     return this.controller.exportLatex();
   };
 }));
-
-//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
-//elements according to their CSS class.
-jQuery(function() {
-  jQuery('.mathquill-embedded-latex').each(function() { MathQuill.StaticMath(this); });
-  jQuery('.mathquill-editable').each(function() { MathQuill.MathField(this); });
-  jQuery('.mathquill-textbox').each(function() { MathQuill.TextField(this); });
-});
