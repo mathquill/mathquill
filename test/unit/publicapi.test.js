@@ -11,7 +11,7 @@ suite('Public API', function() {
     });
 
     test('MathQuill.MathField()', function() {
-      var el = $('<span>x^2</span>').appendTo('#mock');
+      var el = $('<span>x^2</span>');
       var mathField = MathQuill.MathField(el[0]);
       assert.ok(mathField instanceof MathQuill.MathField);
       assert.ok(mathField instanceof MathQuill.EditableField);
