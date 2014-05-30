@@ -443,6 +443,91 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+var Matrix =
+LatexCmds.begin = P(MathCommand, function (_, _super) {
+  _.ctrlSeq = '\\matrix';
+  _.numBlocks = function () {
+    return this.col * this.row;
+  };
+  _.init = function (col, row) {
+    this.col = col;
+    this.row = row;
+    var html = '';
+    for (var i = 0; i < row; i++) {
+      var r = '';
+      for (var j = 0; j < col; j++)
+        r += '<span class="mq-cell">&' + (i * col + j) + '</span>'
+      html += '<span class="mq-row">' + r + '</span>';
+    }
+    _super.init.call(this, this.ctrlSeq, '<span class="mq-matrix">' + html + '</span>', [ 'text' ]);
+  };
+  _.latex = function () {
+    var latex = '';
+    var index = 1;
+    var c = this.col;
+    var numBlocks = this.numBlocks();
+
+    this.eachChild(function (child) {
+      if (child.ends[L])
+        latex += child.latex();
+      if ((index) != numBlocks) {
+        if (index % c == 0)
+          latex += " \\\\ ";
+        else
+          latex += " & ";
+      }
+      index++;
+    });
+    return '\\begin{matrix}' + latex + '\\end{matrix}';
+  };
+  _.text = function () {
+    var cells = [];
+    this.eachChild(function (child) {
+      if (child.ends[L])
+        cells.push(child.text())
+    });
+    return 'matrix[' + this.col + '][' + this.row + ']{' + cells.join(',') + '}';
+  };
+  _.parser = function () {
+    var block = latexMathParser.block;
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return regex(/^\{matrix\}[\s\S]*?\\end\{matrix\}/).map(function (body) {
+      body = body.substring(8, body.length - 12).trim();
+      var rows = body.split(/\\\\/).map(function (r) {
+        return r.trim();
+      });
+      var rowsCount = rows.length;
+      var colsCount = 0;
+      var cells = [];
+      rows.forEach(function (r) {
+        var cols = r.split(/&/);
+        colsCount = Math.max(colsCount, cols.length);
+        cells = cells.concat(cols);
+      });
+
+      var matrix = Matrix(colsCount, rowsCount);
+
+      var blocks = matrix.blocks = Array(matrix.numBlocks());
+      for (var i = 0; i < blocks.length; i++) {
+        var newBlock = blocks[i] = latexMathParser.parse(cells[i]);
+        newBlock.adopt(matrix, matrix.ends[R], 0);
+      }
+      return matrix;
+    })
+  };
+  _.finalizeTree = function () {
+    for (var i = 0; i < this.row; i++) {
+      for (var j = 0; j < this.col; j++) {
+        var b = this.blocks[i * this.col + j];
+        b.upOutOf = (i == 0 && j != 0) ? this.blocks[this.row * this.col - this.row + j - 1 ] : this.blocks[(i - 1) * this.col + j];
+        b.downOutOf = ((i + 1) == this.row && (j + 1) != this.col) ? this.blocks[j + 1] : this.blocks[(i + 1) * this.col + j];
+      }
+    }
+  }
+});
+
 function DelimsMixin(_, super_) {
   _.jQadd = function() {
     super_.jQadd.apply(this, arguments);
@@ -679,7 +764,15 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     };
     this.ends[L].write = function(cursor, ch, replacedFragment) {
       if (replacedFragment) replacedFragment.remove();
-
+      if (this.parent.ends[L].latex().indexOf('matrix') == 0){
+        if(/^matrix\dx\d$/.test(this.parent.ends[L].latex())){
+          this.parent.renderCommand(cursor);
+          if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+        } else {
+          VanillaSymbol(ch).createLeftOf(cursor);
+        }
+        return;
+      }
       if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
       else {
         this.parent.renderCommand(cursor);

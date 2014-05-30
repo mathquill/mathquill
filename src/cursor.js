@@ -105,15 +105,19 @@ var Cursor = P(Point, function(_) {
     var self = this, offset = self.jQ.removeClass('mq-cursor').offset();
     self.jQ.addClass('mq-cursor');
     return offset;
-  }
+  };
   _.insertCmd = function(latexCmd, replacedFragment) {
     var cmd = LatexCmds[latexCmd];
     if (cmd) {
       cmd = cmd(latexCmd);
       if (replacedFragment) cmd.replaces(replacedFragment);
       cmd.createLeftOf(this);
-    }
-    else {
+    } else if (/matrix\dx\d/.test(latexCmd)) {
+      var p = latexCmd.substr(6).split('x');
+      cmd = Matrix(p[0]|0||3, p[1]|0||3);
+      if (replacedFragment) cmd.replaces(replacedFragment);
+      cmd.createLeftOf(this);
+    } else {
       cmd = TextBlock();
       cmd.replaces(latexCmd);
       cmd.createLeftOf(this);

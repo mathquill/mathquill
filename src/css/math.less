@@ -194,6 +194,28 @@
     display: block;
   }
 
+  .mq-matrix {
+    display: inline-table;
+    font-size: 80%;
+    vertical-align: middle;
+  }
+
+  .mq-matrix > span.mq-row {
+    display: table-row;
+  }
+
+  .mq-matrix > span.mq-row > span.mq-cell {
+    display: table-cell;
+    text-align: center;
+    padding: 0 2px 0 2px;
+    border-collapse: collapse;
+    border-spacing: 2px;
+    border: 1px solid transparent;
+  }
+
+  .mq-matrix > span.mq-row > span.mq-cell.mq-empty {
+    border-color: rgba(0, 0, 0, .1);
+  }
   ////
   // un-italicized functions
   // like \sin, \cos, \ln, etc.
