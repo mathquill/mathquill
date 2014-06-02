@@ -192,6 +192,26 @@ suite('Public API', function() {
       mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
       assert.equal(mq.latex(), '\\sqrt{xy^2}');
     });
+
+    test('backslash commands are passed their name', function() {
+      mq.cmd('\\alpha');
+      assert.equal(mq.latex(), '\\alpha');
+    });
+
+    test('replaces selection', function() {
+      mq.typedText('49').select().cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{49}');
+    });
+
+    test('auto-unitalicized', function() {
+      mq.cmd('\\sin');
+      assert.equal(mq.latex(), '\\sin');
+    });
+
+    test('nonexistent LaTeX command is noop', function() {
+      mq.typedText('49').select().cmd('\\asdf').cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{49}');
+    });
   });
 
   suite('spaceBehavesLikeTab', function() {

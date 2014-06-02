@@ -22,6 +22,33 @@ suite('typing with auto-replaces', function() {
     assertLatex('1\\ \\frac{2}{3}');
   });
 
+  suite('LatexCommandInput', function() {
+    test('basic', function() {
+      mq.typedText('\\sqrt-x');
+      assertLatex('\\sqrt{-x}');
+    });
+
+    test('they\'re passed their name', function() {
+      mq.cmd('\\alpha');
+      assert.equal(mq.latex(), '\\alpha');
+    });
+
+    test('replaces selection', function() {
+      mq.typedText('49').select().typedText('\\sqrt').keystroke('Enter');
+      assertLatex('\\sqrt{49}');
+    });
+
+    test('auto-unitalicized', function() {
+      mq.typedText('\\sin^2');
+      assertLatex('\\sin^2');
+    });
+
+    test('nonexistent LaTeX command', function() {
+      mq.typedText('\\asdf+');
+      assertLatex('\\text{asdf}+');
+    });
+  });
+
   suite('auto-expanding parens', function() {
     suite('simple', function() {
       test('empty parens', function() {

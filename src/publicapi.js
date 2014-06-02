@@ -109,10 +109,18 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     return this;
   };
   _.cmd = function(cmd) {
-    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show(),
-      seln = cursor.replaceSelection();
-    if (/^\\[a-z]+$/i.test(cmd)) cursor.insertCmd(cmd.slice(1), seln);
-    else cursor.parent.write(cursor, cmd, seln);
+    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show();
+    if (/^\\[a-z]+$/i.test(cmd)) {
+      cmd = cmd.slice(1);
+      var klass = LatexCmds[cmd];
+      if (klass) {
+        cmd = klass(cmd);
+        if (cursor.selection) cmd.replaces(cursor.replaceSelection());
+        cmd.createLeftOf(cursor);
+      }
+      else /* TODO: API needs better error reporting */;
+    }
+    else cursor.parent.write(cursor, cmd, cursor.replaceSelection());
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };

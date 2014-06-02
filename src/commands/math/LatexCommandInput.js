@@ -74,7 +74,20 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
 
     var latex = this.ends[L].latex();
     if (!latex) latex = ' ';
-    cursor.insertCmd(latex, this._replacedFragment);
+    var cmd = LatexCmds[latex];
+    if (cmd) {
+      cmd = cmd(latex);
+      if (this._replacedFragment) cmd.replaces(this._replacedFragment);
+      cmd.createLeftOf(cursor);
+    }
+    else {
+      cmd = TextBlock();
+      cmd.replaces(latex);
+      cmd.createLeftOf(cursor);
+      cursor.insRightOf(cmd);
+      if (this._replacedFragment)
+        this._replacedFragment.remove();
+    }
   };
 });
 
