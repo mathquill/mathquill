@@ -45,6 +45,7 @@ BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
 BASIC_JS = $(BUILD_DIR)/mathquill-basic.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
+BASIC_CSS = $(BUILD_DIR)/mathquill-basic.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
 UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
@@ -75,12 +76,12 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all dev js basic uglify css font dist clean
+.PHONY: all basic dev js uglify css font dist clean
 all: font css uglify
+basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
 dev: font css js
 js: $(BUILD_JS)
-basic: $(UGLY_BASIC_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
@@ -104,6 +105,9 @@ $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
 
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+
+$(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
+	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
 
 $(NODE_MODULES_INSTALLED): package.json
 	npm install

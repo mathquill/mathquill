@@ -7,6 +7,6 @@
   "devDependencies": {
     "mocha": "*",
     "uglify-js": "2.x",
-    "less": "git://github.com/cloudhead/less.js"
+    "less": ">=1.5.1"
   }
 }

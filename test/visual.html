@@ -114,26 +114,6 @@ $(function() {
 });
 </script>
 
-<p>Basic Math: backslash <code>\</code> and dollar <code>$</code> aren't special, <code>/</code> still works <span id="basic"></span>
-<br/><textarea id="basic-latex"></textarea>
-
-<script>
-$(function() {
-  var latex = $('#basic-latex').on('keydown keypress', function() {
-    var prev = latex.val();
-    setTimeout(function() {
-      var now = latex.val();
-      if (now !== prev) mq.latex(now);
-    });
-  });
-  var mq = MathQuillBasic.MathField($('#basic')[0], {
-    handlers: { edited: function(mq) {
-      if (!latex.is(':focus')) latex.val(mq.latex());
-    } }
-  });
-});
-</script>
-
 <h3>Up/Down seeking and caching</h3>
 
 <p>
