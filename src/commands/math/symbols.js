@@ -418,6 +418,7 @@ var Inequality = P(BinaryOperator, function(_, super_) {
   _.deleteTowards = function(dir, cursor) {
     if (dir === L && !this.strict) {
       this.swap(true);
+      this.finalizeInsert();
       return;
     }
     super_.deleteTowards.apply(this, arguments);
@@ -441,6 +442,7 @@ var Equality = P(BinaryOperator, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
       cursor[L].swap(false);
+      cursor[L].finalizeInsert();
       return;
     }
     super_.createLeftOf.apply(this, arguments);
