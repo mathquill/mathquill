@@ -9,24 +9,25 @@
 
 @basic:~"";
 .font-srcs() when not (@basic) {
-  src: url(fonts/Symbola.eot);
+  src: url(/fonts/Symbola.eot);
   src:
     local("Symbola Regular"),
     local("Symbola"),
-    url(fonts/Symbola.woff2) format("woff2"),
-    url(fonts/Symbola.woff) format("woff"),
-    url(fonts/Symbola.ttf) format("truetype"),
-    url(fonts/Symbola.svg#Symbola) format("svg")
+    url(/fonts/Symbola.woff2) format("woff2"),
+    url(/fonts/Symbola.woff) format("woff"),
+    url(/fonts/Symbola.ttf) format("truetype"),
+    url(/fonts/Symbola.otf) format("opentype"),
+    url(/fonts/Symbola.svg#Symbola) format("svg")
   ;
 }
 .font-srcs() when (@basic) {
-  src: url(fonts/Symbola-basic.eot);
+  src: url(/fonts/Symbola-basic.eot);
   src:
     local("Symbola Regular"),
     local("Symbola"),
-    url(fonts/Symbola-basic.woff2) format("woff2"),
-    url(fonts/Symbola-basic.woff) format("woff"),
-    url(fonts/Symbola-basic.ttf) format("truetype")
+    url(/fonts/Symbola-basic.woff2) format("woff2"),
+    url(/fonts/Symbola-basic.woff) format("woff"),
+    url(/fonts/Symbola-basic.ttf) format("truetype")
   ;
 }
 
