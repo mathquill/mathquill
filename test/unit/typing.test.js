@@ -13,13 +13,22 @@ suite('typing with auto-replaces', function() {
     assert.equal(mq.latex(), latex);
   }
 
-  test('LiveFraction', function() {
-    mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
-    assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
-    mq.latex('').typedText('1+/2');
-    assertLatex('1+\\frac{2}{ }');
-    mq.latex('').typedText('1 2/3');
-    assertLatex('1\\ \\frac{2}{3}');
+  suite('LiveFraction', function() {
+    test('full MathQuill', function() {
+      mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
+      assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
+      mq.latex('').typedText('1+/2');
+      assertLatex('1+\\frac{2}{ }');
+      mq.latex('').typedText('1 2/3');
+      assertLatex('1\\ \\frac{2}{3}');
+    });
+
+    test('MathQuill-basic', function() {
+      var mq_basic = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq_basic.typedText('1/2');
+      assert.equal(mq_basic.latex(), '\\frac{1}{2}');
+      $(mq_basic.el()).remove();
+    });
   });
 
   suite('LatexCommandInput', function() {

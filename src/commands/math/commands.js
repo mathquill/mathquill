@@ -367,7 +367,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
       while (leftward &&
         !(
           leftward instanceof BinaryOperator ||
-          leftward instanceof TextBlock ||
+          leftward instanceof (LatexCmds.text || noop) ||
           leftward instanceof SummationNotation ||
           leftward.ctrlSeq === '\\ ' ||
           /^[,;:]$/.test(leftward.ctrlSeq)
