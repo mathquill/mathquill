@@ -34,7 +34,7 @@ Controller.open(function(_) {
       $(window).off('blur', windowBlur);
     }
     ctrlr.blurred = true;
-    cursor.hide();
+    cursor.hide().parent.blur();
   };
 });
 

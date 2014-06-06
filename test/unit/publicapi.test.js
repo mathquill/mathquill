@@ -24,7 +24,41 @@ suite('Public API', function() {
       assert.equal(MathQuill(mathFieldSpan), mathfield);
       assert.equal(MathQuill(mathFieldSpan), MathQuill(mathFieldSpan));
     });
+
+    test('blurred when created', function() {
+      var el = $('<span/>');
+      MathQuill.MathField(el[0]);
+      var rootBlock = el.find('.mq-root-block');
+      assert.ok(rootBlock.hasClass('mq-empty'));
+      assert.ok(!rootBlock.hasClass('mq-hasCursor'));
+    });
   });
+
+  suite('MathQuillBasic', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('typing \\', function() {
+      mq.typedText('\\');
+      assert.equal(mq.latex(), '\\backslash');
+    });
+
+    test('typing $', function() {
+      mq.typedText('$');
+      assert.equal(mq.latex(), '\\$');
+    });
+
+    test('parsing of advanced symbols', function() {
+      mq.latex('\\oplus');
+      assert.equal(mq.latex(), ''); // TODO: better LaTeX parse error behavior
+    });
+  });
+
   suite('basic API methods', function() {
     var mq;
     setup(function() {
