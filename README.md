@@ -296,6 +296,13 @@ installing the necessary build tools.)
 - `make dev` won't try to minify MathQuill (which can be annoyingly slow)
 - `make test` builds `mathquill.test.js` (used by `test/unit.html`) and also
   doesn't minify
+- `make basic` builds `mathquill-basic.{js,css}` and
+  `font/Symbola-basic.{eot,ttf}`; serve and load them instead for a stripped-
+  down version of MathQuill for basic mathematics, without advanced LaTeX
+  commands. Specifically, it doesn't let you type LaTeX backslash commands
+  with `\` or text blocks with `$`, and also won't render any LaTeX commands
+  that can't by typed without `\`. The resulting JS is only somewhat smaller,
+  but the font is like 100x smaller. (TODO: reduce full MathQuill's font size.)
 
 ## Understanding The Source Code
 
