@@ -17,8 +17,15 @@ Controller.open(function(_) {
         ctrlr.seek(target, pageX, pageY).cursor.select();
       }
 
-      function mousemove(e) { selectTo(e.pageX, e.pageY, $(e.target)); }
-      function docmousemove(e) { selectTo(e.pageX, e.pageY); }
+      var ignoreNextDocmousemove = false;
+      function mousemove(e) {
+        selectTo(e.pageX, e.pageY, $(e.target));
+        ignoreNextDocmousemove = true;
+      }
+      function docmousemove(e) {
+        if (ignoreNextDocmousemove) ignoreNextDocmousemove = false;
+        else selectTo(e.pageX, e.pageY);
+      }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
 
