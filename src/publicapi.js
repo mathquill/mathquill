@@ -85,13 +85,20 @@ var AbstractMathQuill = P(function(_) {
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
-setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_) {
+setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     var contents = this.initExtractContents(el);
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.controller.renderLatexMath(contents);
+    this.latex(contents);
     this.controller.delegateMouseEvents();
     this.controller.staticMathTextareaEvents();
+  };
+  _.latex = function() {
+    var returned = super_.latex.apply(this, arguments);
+    if (arguments.length > 0) {
+      this.controller.root.postOrder('registerInnerField', this.innerFields = []);
+    }
+    return returned;
   };
 }));
 

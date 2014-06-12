@@ -771,6 +771,9 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
+  _.registerInnerField = function(innerFields) {
+    innerFields.push(this.ends[L].controller.API);
+  };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
 });

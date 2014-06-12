@@ -182,8 +182,8 @@ suite('latex', function() {
         $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
         .appendTo('#mock')[0]
       );
-      inner1 = MathQuill($(outer.el()).find('.mq-editable-field:first')[0]);
-      inner2 = MathQuill($(outer.el()).find('.mq-editable-field:last')[0]);
+      inner1 = outer.innerFields[0];
+      inner2 = outer.innerFields[1];
     });
     teardown(function() {
       $(outer.el()).remove();
