@@ -210,8 +210,8 @@ LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor ', '&#8970;');
 LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor ', '&#8971;');
 LatexCmds.lceil = bind(VanillaSymbol, '\\lceil ', '&#8968;');
 LatexCmds.rceil = bind(VanillaSymbol, '\\rceil ', '&#8969;');
-LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\opencurlybrace ', '&#123;');
-LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\closecurlybrace ', '&#125;');
+LatexCmds.opencurlybrace = LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '{');
+LatexCmds.closecurlybrace = LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '}');
 
 //various symbols
 
