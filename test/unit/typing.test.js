@@ -13,13 +13,49 @@ suite('typing with auto-replaces', function() {
     assert.equal(mq.latex(), latex);
   }
 
-  test('LiveFraction', function() {
-    mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
-    assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
-    mq.latex('').typedText('1+/2');
-    assertLatex('1+\\frac{2}{ }');
-    mq.latex('').typedText('1 2/3');
-    assertLatex('1\\ \\frac{2}{3}');
+  suite('LiveFraction', function() {
+    test('full MathQuill', function() {
+      mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
+      assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
+      mq.latex('').typedText('1+/2');
+      assertLatex('1+\\frac{2}{ }');
+      mq.latex('').typedText('1 2/3');
+      assertLatex('1\\ \\frac{2}{3}');
+    });
+
+    test('MathQuill-basic', function() {
+      var mq_basic = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq_basic.typedText('1/2');
+      assert.equal(mq_basic.latex(), '\\frac{1}{2}');
+      $(mq_basic.el()).remove();
+    });
+  });
+
+  suite('LatexCommandInput', function() {
+    test('basic', function() {
+      mq.typedText('\\sqrt-x');
+      assertLatex('\\sqrt{-x}');
+    });
+
+    test('they\'re passed their name', function() {
+      mq.cmd('\\alpha');
+      assert.equal(mq.latex(), '\\alpha');
+    });
+
+    test('replaces selection', function() {
+      mq.typedText('49').select().typedText('\\sqrt').keystroke('Enter');
+      assertLatex('\\sqrt{49}');
+    });
+
+    test('auto-unitalicized', function() {
+      mq.typedText('\\sin^2');
+      assertLatex('\\sin^2');
+    });
+
+    test('nonexistent LaTeX command', function() {
+      mq.typedText('\\asdf+');
+      assertLatex('\\text{asdf}+');
+    });
   });
 
   suite('auto-expanding parens', function() {

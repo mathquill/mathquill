@@ -11,7 +11,7 @@ suite('Public API', function() {
     });
 
     test('MathQuill.MathField()', function() {
-      var el = $('<span>x^2</span>').appendTo('#mock');
+      var el = $('<span>x^2</span>');
       var mathField = MathQuill.MathField(el[0]);
       assert.ok(mathField instanceof MathQuill.MathField);
       assert.ok(mathField instanceof MathQuill.EditableField);
@@ -24,7 +24,41 @@ suite('Public API', function() {
       assert.equal(MathQuill(mathFieldSpan), mathfield);
       assert.equal(MathQuill(mathFieldSpan), MathQuill(mathFieldSpan));
     });
+
+    test('blurred when created', function() {
+      var el = $('<span/>');
+      MathQuill.MathField(el[0]);
+      var rootBlock = el.find('.mq-root-block');
+      assert.ok(rootBlock.hasClass('mq-empty'));
+      assert.ok(!rootBlock.hasClass('mq-hasCursor'));
+    });
   });
+
+  suite('MathQuillBasic', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('typing \\', function() {
+      mq.typedText('\\');
+      assert.equal(mq.latex(), '\\backslash');
+    });
+
+    test('typing $', function() {
+      mq.typedText('$');
+      assert.equal(mq.latex(), '\\$');
+    });
+
+    test('parsing of advanced symbols', function() {
+      mq.latex('\\oplus');
+      assert.equal(mq.latex(), ''); // TODO: better LaTeX parse error behavior
+    });
+  });
+
   suite('basic API methods', function() {
     var mq;
     setup(function() {
@@ -157,6 +191,26 @@ suite('Public API', function() {
       assert.equal(mq.latex(), 'xy^2');
       mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
       assert.equal(mq.latex(), '\\sqrt{xy^2}');
+    });
+
+    test('backslash commands are passed their name', function() {
+      mq.cmd('\\alpha');
+      assert.equal(mq.latex(), '\\alpha');
+    });
+
+    test('replaces selection', function() {
+      mq.typedText('49').select().cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{49}');
+    });
+
+    test('auto-unitalicized', function() {
+      mq.cmd('\\sin');
+      assert.equal(mq.latex(), '\\sin');
+    });
+
+    test('nonexistent LaTeX command is noop', function() {
+      mq.typedText('49').select().cmd('\\asdf').cmd('\\sqrt');
+      assert.equal(mq.latex(), '\\sqrt{49}');
     });
   });
 
