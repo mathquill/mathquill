@@ -103,7 +103,8 @@ setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
 }));
 
 var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
-  _.initEvents = function() {
+  _.initRootAndEvents = function(root, el, opts) {
+    this.initRoot(root, el, opts);
     this.controller.editable = true;
     this.controller.delegateMouseEvents();
     this.controller.editablesTextareaEvents();
@@ -173,16 +174,14 @@ function RootBlockMixin(_) {
 setMathQuillDot('MathField', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
     el.addClass('mq-editable-field mq-math-mode');
-    this.initRoot(RootMathBlock(), el, opts);
+    this.initRootAndEvents(RootMathBlock(), el, opts);
     this.controller.root.setHandlers(opts && opts.handlers, this);
-    this.initEvents();
   };
 }));
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
     el.addClass('mq-editable-field mq-text-mode');
-    this.initRoot(RootTextBlock(), el);
-    this.initEvents();
+    this.initRootAndEvents(RootTextBlock(), el);
   };
   _.latex = function(latex) {
     if (arguments.length > 0) {
