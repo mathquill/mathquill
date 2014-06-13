@@ -45,19 +45,21 @@ function setMathQuillDot(name, API) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
+    var ctrlr = this.controller = root.controller = Controller(root, el, opts);
+    ctrlr.createTextarea();
+    ctrlr.API = this;
+    root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
+
     var contents = el.contents().detach();
+    root.jQ =
+      $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
+    this.latex(contents.text());
+
     this.revert = function() {
       return el.empty().unbind('.mathquill')
       .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
-    root.jQ = $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
-      .appendTo(el);
-    var ctrlr = this.controller = root.controller = Controller(root, el, opts);
-    ctrlr.API = this;
-    root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
-    ctrlr.createTextarea();
-    this.latex(contents.text());
   };
   _.el = function() { return this.controller.container[0]; };
   _.text = function() { return this.controller.exportText(); };
