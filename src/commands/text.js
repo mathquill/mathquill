@@ -362,3 +362,17 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
+setMathQuillDot('TextField', P(EditableField, function(_) {
+  _.init = function(el) {
+    el.addClass('mq-editable-field mq-text-mode');
+    this.initRootAndEvents(RootTextBlock(), el);
+  };
+  _.latex = function(latex) {
+    if (arguments.length > 0) {
+      this.controller.renderLatexText(latex);
+      if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
+      return this;
+    }
+    return this.controller.exportLatex();
+  };
+}));

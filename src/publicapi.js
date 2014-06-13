@@ -115,10 +115,18 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     return this;
   };
   _.cmd = function(cmd) {
-    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show(),
-      seln = cursor.replaceSelection();
-    if (/^\\[a-z]+$/i.test(cmd)) cursor.insertCmd(cmd.slice(1), seln);
-    else cursor.parent.write(cursor, cmd, seln);
+    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show();
+    if (/^\\[a-z]+$/i.test(cmd)) {
+      cmd = cmd.slice(1);
+      var klass = LatexCmds[cmd];
+      if (klass) {
+        cmd = klass(cmd);
+        if (cursor.selection) cmd.replaces(cursor.replaceSelection());
+        cmd.createLeftOf(cursor);
+      }
+      else /* TODO: API needs better error reporting */;
+    }
+    else cursor.parent.write(cursor, cmd, cursor.replaceSelection());
     if (ctrlr.blurred) cursor.hide().parent.blur();
     return this;
   };
@@ -168,25 +176,3 @@ function RootBlockMixin(_) {
       : function() { if (this.handlers[name]) this.handlers[name](this.extraArg); });
   }(names[i]));
 }
-
-setMathQuillDot('MathField', P(EditableField, function(_, super_) {
-  _.init = function(el, opts) {
-    el.addClass('mq-editable-field mq-math-mode');
-    this.initRootAndEvents(RootMathBlock(), el, opts);
-    this.controller.root.setHandlers(opts && opts.handlers, this);
-  };
-}));
-setMathQuillDot('TextField', P(EditableField, function(_) {
-  _.init = function(el) {
-    el.addClass('mq-editable-field mq-text-mode');
-    this.initRootAndEvents(RootTextBlock(), el);
-  };
-  _.latex = function(latex) {
-    if (arguments.length > 0) {
-      this.controller.renderLatexText(latex);
-      if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
-      return this;
-    }
-    return this.controller.exportLatex();
-  };
-}));

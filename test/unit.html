@@ -25,6 +25,12 @@
       onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')">
     </script>
 
+    <!-- include MathQuill-basic -->
+    <script type="text/javascript" src="../build/mathquill-basic.js"></script>
+    <script type="text/javascript">
+      window.MathQuillBasic = MathQuill.noConflict();
+    </script>
+
   </head>
 
   <body>
