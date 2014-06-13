@@ -45,12 +45,14 @@ function setMathQuillDot(name, API) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
+    var contents = this.initExtractContents(el);
     root.jQ = $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
       .appendTo(el);
     var ctrlr = this.controller = root.controller = Controller(root, el, opts);
     ctrlr.API = this;
     root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
     ctrlr.createTextarea();
+    this.latex(contents);
   };
   _.initExtractContents = function(el) {
     var contents = el.contents().detach();
@@ -87,9 +89,7 @@ MathQuill.prototype = AbstractMathQuill.prototype;
 
 setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
-    var contents = this.initExtractContents(el);
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.latex(contents);
     this.controller.delegateMouseEvents();
     this.controller.staticMathTextareaEvents();
   };
@@ -172,20 +172,16 @@ function RootBlockMixin(_) {
 
 setMathQuillDot('MathField', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
-    var contents = this.initExtractContents(el);
     el.addClass('mq-editable-field mq-math-mode');
     this.initRoot(RootMathBlock(), el, opts);
     this.controller.root.setHandlers(opts && opts.handlers, this);
-    this.controller.renderLatexMath(contents);
     this.initEvents();
   };
 }));
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
-    var contents = this.initExtractContents(el);
     el.addClass('mq-editable-field mq-text-mode');
     this.initRoot(RootTextBlock(), el);
-    this.controller.renderLatexText(contents);
     this.initEvents();
   };
   _.latex = function(latex) {
