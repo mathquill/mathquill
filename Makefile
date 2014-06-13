@@ -9,16 +9,25 @@ OUTRO = $(SRC_DIR)/outro.js
 
 PJS_SRC = ./node_modules/pjs/src/p.js
 
-SOURCES = \
+BASE_SOURCES = \
   $(PJS_SRC) \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
   $(SRC_DIR)/services/*.util.js \
-  $(SRC_DIR)/services/*.js \
+  $(SRC_DIR)/services/*.js
+
+SOURCES_FULL = \
+  $(BASE_SOURCES) \
   $(SRC_DIR)/commands/*.js \
   $(SRC_DIR)/commands/*/*.js
+
+SOURCES_BASIC = \
+  $(BASE_SOURCES) \
+  $(SRC_DIR)/commands/math.js \
+  $(SRC_DIR)/commands/math/basicSymbols.js \
+  $(SRC_DIR)/commands/math/commands.js
 
 CSS_DIR = $(SRC_DIR)/css
 CSS_MAIN = $(CSS_DIR)/main.less
@@ -34,9 +43,12 @@ VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
 
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
+BASIC_JS = $(BUILD_DIR)/mathquill-basic.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
+BASIC_CSS = $(BUILD_DIR)/mathquill-basic.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
+UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
 CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
@@ -64,8 +76,9 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all cat uglify css font dist clean
+.PHONY: all basic dev js uglify css font dist clean
 all: font css uglify
+basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
 dev: font css js
 js: $(BUILD_JS)
@@ -78,14 +91,23 @@ clean:
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
-$(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
+$(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
+	cat $^ | ./script/escape-non-ascii > $@
+
+$(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
+	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
+
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+
+$(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
+	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
 
 $(NODE_MODULES_INSTALLED): package.json
 	npm install
@@ -112,11 +134,11 @@ $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 .PHONY: test server run-server
 server:
 	node script/test_server.js
-test: dev $(BUILD_TEST)
+test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 #

@@ -328,6 +328,18 @@ var Symbol = P(MathCommand, function(_, super_) {
   _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
+var VanillaSymbol = P(Symbol, function(_, super_) {
+  _.init = function(ch, html) {
+    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+  };
+});
+var BinaryOperator = P(Symbol, function(_, super_) {
+  _.init = function(ctrlSeq, html, text) {
+    super_.init.call(this,
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
+    );
+  };
+});
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the
@@ -412,3 +424,13 @@ var MathBlock = P(MathElement, function(_, super_) {
 });
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
+setMathQuillDot('MathField', P(EditableField, function(_, super_) {
+  _.init = function(el, opts) {
+    var contents = this.initExtractContents(el);
+    el.addClass('mq-editable-field mq-math-mode');
+    this.initRoot(RootMathBlock(), el, opts);
+    this.controller.root.setHandlers(opts && opts.handlers, this);
+    this.controller.renderLatexMath(contents);
+    this.initEvents();
+  };
+}));

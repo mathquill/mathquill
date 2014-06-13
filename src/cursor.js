@@ -106,23 +106,6 @@ var Cursor = P(Point, function(_) {
     self.jQ.addClass('mq-cursor');
     return offset;
   }
-  _.insertCmd = function(latexCmd, replacedFragment) {
-    var cmd = LatexCmds[latexCmd];
-    if (cmd) {
-      cmd = cmd(latexCmd);
-      if (replacedFragment) cmd.replaces(replacedFragment);
-      cmd.createLeftOf(this);
-    }
-    else {
-      cmd = TextBlock();
-      cmd.replaces(latexCmd);
-      cmd.createLeftOf(this);
-      this.insRightOf(cmd);
-      if (replacedFragment)
-        replacedFragment.remove();
-    }
-    return this;
-  };
   _.unwrapGramp = function() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
