@@ -92,7 +92,7 @@ Controller.open(function(_, super_) {
       block.finalizeInsert(cursor);
       if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
       if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
-      cursor.parent.bubble('edited');
+      cursor.parent.bubble('reflow');
     }
 
     return this;

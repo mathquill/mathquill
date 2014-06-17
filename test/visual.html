@@ -90,14 +90,14 @@ td {
   $(function() {
     var count = 0;
     MathQuill.MathField($('#redrawing-test')[0], {
-      handlers: { edited: function() { count += 1; } }, // also test 'edited' hook
+      handlers: { reflow: function() { count += 1; } }, // also test 'reflow' hook
     }).focus().moveToLeftEnd().keystroke('Right');
     var textarea = $('#redrawing-test textarea');
     var oldcount = count;
     // paste some stuff that needs resizing
     textarea.trigger('paste');
     textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
-    setTimeout(function() { if (count === oldcount) throw 'edited not called'; });
+    setTimeout(function() { if (count === oldcount) throw 'reflow not called'; });
   });
 </script>
 

@@ -161,7 +161,7 @@ var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
 MathQuill.MathField(el[0], {
   handlers: {
-    edited: function(mathField) { ... },
+    reflow: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
   },
@@ -196,7 +196,7 @@ built-in app Grapher.
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
   math field API object as arguments
-- `upOutOf`, `downOutOf`, `enter`, and `edited` are called with just the API
+- `upOutOf`, `downOutOf`, `enter`, and `reflow` are called with just the API
   object as the argument
 
 The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
@@ -209,10 +209,8 @@ arguments, and Backspace causes `deleteOutOf` (if provided) to be called with
 
 The `enter` handler is called whenever Enter is pressed.
 
-The `edited` handler is called when the field is edited (stuff is typed in,
-deleted, written with the API, etc), and occasionally for no reason. (That is,
-there's no guarantee the field has changed between calls to `edited`, but it is
-guaranteed `edited` is called whenever the field does change.)
+The `reflow` handler is called when the size of the field might have been
+changed by stuff being typed, or deleted, or written with the API, etc.
 
 Handlers are always called directly on the `handlers` object passed in,
 preserving the `this` value, so you can do stuff like:
@@ -242,7 +240,7 @@ over the math field:
 var latex = '';
 var mathField = MathQuill.MathField($('#mathfield')[0], {
   handlers: {
-    edited: function() { latex = mathField.latex(); },
+    reflow: function() { latex = mathField.latex(); },
     enter: function() { submitLatex(latex); }
   }
 });

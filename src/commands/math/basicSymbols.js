@@ -327,7 +327,7 @@ var LatexFragment = P(MathCommand, function(_) {
     block.finalizeInsert(cursor);
     if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
     if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
-    cursor.parent.bubble('edited');
+    cursor.parent.bubble('reflow');
   };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();
