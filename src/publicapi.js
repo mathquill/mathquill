@@ -78,7 +78,7 @@ var AbstractMathQuill = P(function(_) {
       .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
       .replace(/ class=(""|(?= |>))/g, '');
   };
-  _.redraw = function() {
+  _.reflow = function() {
     this.controller.root.postOrder('reflow');
     return this;
   };

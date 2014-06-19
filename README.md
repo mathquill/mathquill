@@ -81,15 +81,15 @@ Any element that has been MathQuill-ified can be reverted:
 MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 ```
 
-MathQuill has to perform calculations based on computed CSS values. If you
-mathquill-ify an element before inserting into the visible HTML DOM, then once
-it is visible MathQuill will need to recalculate:
+MathQuill uses computed dimensions, so if they change (because an element was
+mathquill-ified before it was in the visible HTML DOM, or the font size
+changed), then you'll need to tell MathQuill to recompute:
 
 ```js
 var mathFieldSpan = $('<span>\\sqrt{2}</span>');
 var mathField = MathQuill.MathField(mathFieldSpan[0]);
 mathFieldSpan.appendTo(document.body);
-mathField.redraw();
+mathField.reflow();
 ```
 
 MathQuill API objects further expose the following public methods:
