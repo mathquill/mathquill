@@ -424,7 +424,7 @@ var MathBlock = P(MathElement, function(_, super_) {
 });
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
-setMathQuillDot('MathField', P(EditableField, function(_, super_) {
+MathQuill.MathField = APIFnFor(P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
     el.addClass('mq-editable-field mq-math-mode');
     this.initRootAndEvents(RootMathBlock(), el, opts);

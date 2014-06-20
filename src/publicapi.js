@@ -27,19 +27,19 @@ var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
 /**
- * Publicly export functions that MathQuill-ify an HTML element and return an
- * API object. If it had already been MathQuill-ified into the same kind, return
- * the original API object (if different or not an HTML element, null).
- *
- * Always returns either an instance of itself, or null.
+ * Returns function (to be publicly exported) that MathQuill-ifies an HTML
+ * element and returns an API object. If the element had already been MathQuill-
+ * ified into the same kind, return the original API object (if different kind
+ * or not an HTML element, null).
  */
-function setMathQuillDot(name, API) {
-  MathQuill[name] = function(el, opts) {
+function APIFnFor(APIClass) {
+  function APIFn(el, opts) {
     var mq = MathQuill(el);
-    if (mq instanceof API || !el || !el.nodeType) return mq;
-    return API($(el), opts);
-  };
-  MathQuill[name].prototype = API.prototype;
+    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
+    return APIClass($(el), opts);
+  }
+  APIFn.prototype = APIClass.prototype;
+  return APIFn;
 }
 
 var AbstractMathQuill = P(function(_) {
@@ -85,7 +85,7 @@ var AbstractMathQuill = P(function(_) {
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
-setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
+MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
     this.controller.delegateMouseEvents();

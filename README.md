@@ -40,10 +40,10 @@ To load MathQuill,
 [the latest tarball]: http://mathquill.com/downloads.html
 
 Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
-MathQuill-ify an HTML element and return an API object. If it has already been
-MathQuill-ified into the same kind, return the original API object (if different
-or not an HTML element, `null`). Always returns either an instance of itself,
-or `null`.
+MathQuill-ify an HTML element and return an API object. If the element had
+already been MathQuill-ified into the same kind, return the original API object
+(if different kind or not an HTML element, `null`). Note that it always returns
+either an instance of itself, or `null`.
 
 ```js
 var staticMath = MathQuill.StaticMath(staticMathSpan);
