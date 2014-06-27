@@ -257,6 +257,22 @@ suite('Public API', function() {
 
       $(mq.el()).remove();
     });
+    test('space behaves like tab when globally set to true', function() {
+      MathQuill.options.spaceBehavesLikeTab = true;
+
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      rootBlock = mq.controller.root;
+      cursor = mq.controller.cursor;
+
+      mq.latex('\\sqrt{x}');
+
+      mq.keystroke('Left');
+      mq.keystroke('Spacebar');
+      assert.equal(cursor.parent, rootBlock, 'cursor in root block');
+      assert.equal(cursor[R], 0, 'cursor at end of block');
+
+      $(mq.el()).remove();
+    });
   });
 
   suite('statelessClipboard option', function() {
