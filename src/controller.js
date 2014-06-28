@@ -17,7 +17,7 @@ var Controller = P(function(_) {
     this.root = root;
     this.cursor = Cursor(root);
     this.container = container;
-    this.options = P(DefaultOpts, options || 0).p;
+    this.options = this.cursor.options = P(DefaultOpts, options || 0).p;
   };
 
   var notifyees = [];
