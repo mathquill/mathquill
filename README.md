@@ -135,14 +135,6 @@ These methods modify math typing behavior page-wide:
   typed, like `sin`, `log`, etc. (It defaults to
   [the LaTeX built-in operator names][Wikia], but with additional trig operators
   like `sech`, `arcsec`, `arsinh`, etc.)
-- `MathQuill.addCharsThatBreakOutOfSupSub('+-=<>')` sets the chars that when
-  typed, "break out" of super- and subscripts: for example, typing `x^2n+y`
-  normally results in the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or
-  Space if `spaceBehavesLikeTab` is true) to move the cursor out of the exponent
-  and get the LaTeX `x^{2n}+y`; but this option can make `+` "break out" of
-  the exponent, and type what you expect. Problem is, now you can't just type
-  `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the
-  paren or something
 
 [Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
@@ -164,7 +156,8 @@ MathQuill.MathField(el[0], {
   },
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
-  supSubsRequireOperand: true
+  supSubsRequireOperand: true,
+  charsThatBreakOutOfSupSub: '+-=<>'
 });
 ```
 
@@ -194,6 +187,14 @@ built-in app Grapher.
 `supSubsRequireOperand` disables typing of superscripts and subscripts when
 there's nothing to the left of the cursor to be exponentiated or subscripted.
 Averts the especially confusing typo `x^^2`, which looks much like `x^2`.
+
+`charsThatBreakOutOfSupSub` sets the chars that when typed, "break out" of
+superscripts and subscripts: for example, typing `x^2n+y` normally results in
+the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or Space if
+`spaceBehavesLikeTab` is true) to move the cursor out of the exponent and get
+the LaTeX `x^{2n}+y`; this option makes `+` "break out" of the exponent and
+type what you expect. Problem is, now you can't just type `x^n+m` to get the
+LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

@@ -977,11 +977,11 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('SupSub behavior options', function() {
-    test('addCharsThatBreakOutOfSupSub', function() {
+    test('charsThatBreakOutOfSupSub', function() {
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n+y}');
 
       mq.latex('');
-      MathQuill.addCharsThatBreakOutOfSupSub('+-=<>');
+      MathQuill.options.charsThatBreakOutOfSupSub = '+-=<>';
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
     });

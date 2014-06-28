@@ -181,11 +181,10 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     this.respace();
   };
-  var chars = '';
-  MathQuill.addCharsThatBreakOutOfSupSub = function(c) { chars += c; };
   _.finalizeTree = function() {
     this.ends[L].write = function(cursor, ch) {
-      if (chars.indexOf(ch) > -1) {
+      var breakOutChars = cursor.options.charsThatBreakOutOfSupSub;
+      if (breakOutChars && breakOutChars.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
       }
       MathBlock.p.write.apply(this, arguments);
