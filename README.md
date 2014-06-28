@@ -143,9 +143,6 @@ These methods modify math typing behavior page-wide:
   the exponent, and type what you expect. Problem is, now you can't just type
   `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the
   paren or something
-- `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
-  chars when there's nothing to the left of the cursor (Desmos, for example,
-  disables `^` and `_`, so that typos like `x^^2` are friendlier)
 
 [Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
@@ -166,7 +163,8 @@ MathQuill.MathField(el[0], {
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
   },
   spaceBehavesLikeTab: true,
-  leftRightIntoCmdGoes: 'up'
+  leftRightIntoCmdGoes: 'up',
+  supSubsRequireOperand: true
 });
 ```
 
@@ -192,6 +190,10 @@ can't get to it with just Left and Right, you have to press Down); which is
 the same behavior as the Desmos calculator. `'down'` instead means it is the
 numerator that is always skipped, which is the same behavior as the Mac OS X
 built-in app Grapher.
+
+`supSubsRequireOperand` disables typing of superscripts and subscripts when
+there's nothing to the left of the cursor to be exponentiated or subscripted.
+Averts the especially confusing typo `x^^2`, which looks much like `x^2`.
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

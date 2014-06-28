@@ -985,7 +985,7 @@ suite('typing with auto-replaces', function() {
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
     });
-    test('disableCharsWithoutOperand', function() {
+    test('supSubsRequireOperand', function() {
       assert.equal(mq.typedText('^').latex(), '^{ }');
       assert.equal(mq.typedText('2').latex(), '^2');
       assert.equal(mq.typedText('n').latex(), '^{2n}');
@@ -1002,7 +1002,7 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
 
       mq.latex('');
-      MathQuill.disableCharsWithoutOperand('^_');
+      MathQuill.options.supSubsRequireOperand = true;
 
       assert.equal(mq.typedText('^').latex(), '');
       assert.equal(mq.typedText('2').latex(), '2');

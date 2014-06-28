@@ -135,6 +135,10 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
+  _.createLeftOf = function(cursor) {
+    if (!cursor[L] && cursor.options.supSubsRequireOperand) return;
+    return super_.createLeftOf.apply(this, arguments);
+  };
   _.contactWeld = function(cursor) {
     // Look on either side for a SupSub, if one is found compare my
     // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
