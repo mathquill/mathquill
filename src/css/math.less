@@ -302,4 +302,27 @@
     cursor: text;
     font-family: @symbola;
   }
+
+  .mq-matrix {
+    vertical-align: middle;
+    margin-left: 0.1em;
+    margin-right: 0.1em;
+
+    table {
+      width: auto;
+      border-bottom: none;
+      &.mq-rows-1 { /* better alignment when there's just one row */
+        vertical-align: middle;
+        margin-bottom: 1px;
+      }
+    }
+
+    td {
+      border: none;
+      width: auto; /* defensive resets */
+      padding: 0 0.3em;
+      vertical-align: baseline;
+    }
+  }
+
 }

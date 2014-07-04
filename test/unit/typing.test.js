@@ -1020,4 +1020,79 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
     });
   });
+
+  suite('Matrices', function() {
+    test('type \\matrix', function() {
+      mq.typedText('\\matrix-x');
+      assertLatex('\\begin{matrix}-x&\\\\&\\end{matrix}');
+    });
+
+    test('add matrix via mq.write', function() {
+      mq.write('\\begin{matrix}x&y\\\\1&2\\end{matrix}');
+      assertLatex('\\begin{matrix}x&y\\\\1&2\\end{matrix}');
+    });
+
+    test('key bindings add rows and columns to matrix', function() {
+      mq.typedText('\\matrix-x');
+
+      mq.keystroke('Shift-Spacebar');
+      assertLatex('\\begin{matrix}-x&&\\\\&&\\end{matrix}');
+
+      mq.keystroke('Shift-Enter');
+      assertLatex('\\begin{matrix}-x&&\\\\&&\\\\&&\\end{matrix}');
+    });
+
+    test('key sequence populates matrix', function() {
+      mq.typedText('\\matrix-x')
+        .keystroke('Right').typedText('y')
+        .keystroke('Down Left').typedText('a')
+        .keystroke('Right').typedText('b')
+
+      assertLatex('\\begin{matrix}-x&y\\\\a&b\\end{matrix}');
+    });
+
+    test('cursor keys navigate around matrix', function() {
+      mq.write('\\begin{matrix}&&\\\\&&\\\\&&\\end{matrix}');
+
+      mq.keystroke('Left Left Left').typedText('a')
+        .keystroke('Up').typedText('b')
+        .keystroke('Right').typedText('c')
+        .keystroke('Down').typedText('d');
+
+      assertLatex('\\begin{matrix}&&\\\\b&c&\\\\a&d&\\end{matrix}');
+    });
+
+    test('delete key removes empty matrix row/column', function() {
+      mq.write('\\begin{matrix}a&&b\\\\&c&d\\\\&e&f\\end{matrix}');
+
+      // Row is not yet deleted as there was content
+      mq.keystroke('Left Backspace Left');
+      assertLatex('\\begin{matrix}a&&b\\\\&c&d\\\\&e&\\end{matrix}');
+
+      // Row is now deleted (delete e, then row)
+      mq.keystroke('Backspace Backspace');
+      assertLatex('\\begin{matrix}a&&b\\\\&c&d\\end{matrix}');
+
+      // Column is now deleted (delete c, then column)
+      mq.keystroke('Backspace Backspace');
+      assertLatex('\\begin{matrix}a&b\\\\&d\\end{matrix}');
+    });
+
+    suite('Matrix size limits', function() {
+      test('are enforced when user adds new rows/columns', function() {
+        mq.typedText('\\matrix-x');
+
+        for (var i=0; i<10; i++) {
+          mq.keystroke('Shift-Spacebar Shift-Enter');
+        }
+
+        assertLatex('\\begin{matrix}-x&&&&\\\\&&&&\\\\&&&&\\\\&&&&\\\\&&&&\\end{matrix}');
+      });
+
+      test('are enforced when creating a new matrix', function() {
+        mq.write('\\begin{matrix}0&1&2&3&4&5\\\\6&7&8&9&a&b\\\\c&d&e&f&g&h\\\\i&j&k&l&m&n\\\\o&p&q&r&s&t\\\\u&v&w&x&y&z\\end{matrix}');
+        assertLatex('\\begin{matrix}0&1&2&3&4\\\\6&7&8&9&a\\\\c&d&e&f&g\\\\i&j&k&l&m\\\\o&p&q&r&s\\end{matrix}');
+      });
+    });
+  });
 });

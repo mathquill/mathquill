@@ -707,3 +707,440 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
 });
+
+var Matrix =
+LatexCmds.matrix = P(MathCommand, function(_, super_) {
+
+  var MatrixCell = P(MathBlock, function(_, super_) {
+    _.init = function (column, row) {
+      this.column = column;
+      this.row = row;
+      return super_.init.call(this);
+    };
+    _.keystroke = function(key, e, ctrlr) {
+      switch (key) {
+      case 'Shift-Spacebar':
+        e.preventDefault();
+        return this.parent.insertColumn(this);
+        break;
+      case 'Shift-Enter':
+        return this.parent.insertRow(this);
+        break;
+      }
+      return super_.keystroke.apply(this, arguments);
+    };
+
+    _.deleteOutOf = function(dir, cursor) {
+      var self = this, args = arguments;
+      this.parent.backspace(this, dir, cursor, function () {
+        // called when last cell gets deleted
+        return super_.deleteOutOf.apply(self, args);
+      });
+    }
+  });
+
+  var delimiters = {
+    column: '&',
+    row: '\\\\'
+  };
+  _.parentheses = {
+    left: null,
+    right: null
+  };
+  _.maximum = {
+    rows: 5,
+    columns: 5
+  };
+  _.defaults = {
+    rows: 2,
+    columns: 2
+  };
+
+  _.ctrlSeq = '\\matrix';
+
+  _.createBlocks = function() {
+    var cmd = this,
+      blocks = cmd.blocks = [],
+      prevRow, column, i = 0;
+
+    this.htmlTemplate.replace(/&\d+/g, function (match, index) {
+      var row = cmd.htmlTemplate.substring(0, index).match(/<tr[^>]*>/ig).length - 1;
+      column = (prevRow === row) ? column + 1 : 0;
+
+      blocks[i] = MatrixCell(column, row);
+      blocks[i].adopt(cmd, cmd.ends[R], 0);
+      prevRow = row;
+      i++;
+    });
+  };
+
+  _.edited = function() {
+    var blockjQ = this.jQ.children('table');
+
+    var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
+
+    var parens = this.jQ.children('.mq-paren');
+    if (parens.length) {
+      scale(parens, min(1 + .2*(height - 1), 1.2), 1.05*height);
+    }
+  };
+
+  _.latex = function() {
+    var matrixName = this.getMatrixName(),
+      latex = '\\begin{' + matrixName + '}',
+      thisRow, row, i;
+
+    for(i = 0; i < this.blocks.length; i++) {
+      thisRow = this.blocks[i].row;
+
+      if (typeof row !== 'undefined') {
+        if (row !== thisRow) {
+          latex += delimiters.row;
+        } else {
+          latex += delimiters.column;
+        }
+      }
+
+      row = thisRow;
+      latex += this.blocks[i].latex();
+    };
+
+    latex += '\\end{' + matrixName + '}';
+    return latex;
+  };
+  _.createLeftOf = function(cursor) {
+    this.cursor = cursor;
+
+    var rows = Math.min(this.defaults.rows, this.maximum.rows),
+      columns = Math.min(this.defaults.columns, this.maximum.columns);
+
+    this.defaultHtmlTemplate = this.defaultHtmlTemplate || this.generateHtmlTemplate(rows, columns);
+    _.htmlTemplate = this.defaultHtmlTemplate;
+    super_.createLeftOf.call(this, cursor);
+  };
+  // Return string name of this matrix type - e.g. matrix, Bmatrix, pmatrix
+  _.getMatrixName = function () {
+    return this.ctrlSeq.replace('\\', '');
+  }
+  _.generateHtmlTemplate = function(numRows, numColumns) {
+    var matrix = '<span class="mq-matrix mq-non-leaf">' + parenTemplate(this.parentheses.left);
+    matrix += '<table class="mq-non-leaf">';
+
+    numRows = Math.min(numRows, this.maximum.rows);
+    numColumns = Math.min(numColumns, this.maximum.columns);
+
+    var count = 0;
+    for(var row = 0; row < numRows; row++) {
+      matrix += '<tr>';
+      for(var col = 0; col < numColumns; col++) {
+        matrix += '<td>&' + count + '</td>';
+        count++;
+      }
+      matrix += '</tr>';
+    }
+    matrix += '</table>';
+    matrix += parenTemplate(this.parentheses.right) + '</span>';
+    return matrix;
+
+    function parenTemplate(paren) {
+      return paren ? '<span class="mq-paren mq-scaled">' + paren + '</span>' : '';
+    }
+  };
+  _.htmlTemplate = _.generateHtmlTemplate(1, 1);
+
+  // Based on matrix parsing method in
+  // https://github.com/raywainman/mathquill/commit/5a9c6a04ac4e8bb1fd4f912ccbfa53a99224adf8
+  _.parser = function() {
+    var regex = Parser.regex, self = this, matrixName = this.getMatrixName(),
+      rgxContents = new RegExp("^(.*)\\\\end{" + matrixName + "}"),
+      rgxEnd = new RegExp("\\\\end{" + matrixName + "}");
+
+    return regex(rgxContents)
+    .then(function(a) {
+      // Strip out the trailing command (\end{matrix})
+      var content = a.replace(rgxEnd, '');
+
+      // Parse the individual blocks within the matrix
+      // Refer to http://en.wikibooks.org/wiki/LaTeX/Mathematics to learn more about the LaTeX
+      // matrix notation.
+      // Basically rows are delimited by double backslashes and columns by ampersands
+      var blocks = [];
+      var rows = content.split(delimiters.row);
+      var numRows = Math.min(rows.length, self.maximum.rows);
+      var numColumns = 0, columns, i;
+
+      // Get the (highest) number of columns, being defensive against inconsistent input
+      for(i = 0; i < numRows; i++) {
+        columns = rows[i].split(delimiters.column);
+        numColumns = Math.max(numColumns, columns.length);
+      }
+      // limit number of columns to maximum allowable
+      numColumns = Math.min(numColumns, self.maximum.columns);
+
+      for(i = 0; i < numRows; i++) {
+        // We have a row, now split it into its respective columns
+        columns = rows[i].split(delimiters.column);
+        for(var a = 0; a < numColumns; a++) {
+          // Parse the individual block, this block may contain other more complicated commands
+          // like a square root, we delegate the parsing of this to the Parser object. It returns
+          // a MathBlock object which is the object representation of the formula.
+
+          // We create a new MatrixCell which receives the MathBlock's children
+          var block = MatrixCell(a, i),
+            tmpBlock = latexMathParser.parse(columns[a] || ' ');
+
+          tmpBlock.children().adopt(block, block.ends[R], 0);
+
+          blocks.push(block);
+        }
+      }
+
+      // Tell our Latex.matrix command how big our matrix is
+      self.htmlTemplate = self.generateHtmlTemplate(numRows, numColumns);
+
+      // Attach the child blocks (each element of the matrix) to the parent matrix object
+      self.blocks = blocks;
+      for (var i = 0; i < blocks.length; i += 1) {
+        blocks[i].adopt(self, self.ends[R], 0);
+      }
+      // The block elements attached to a command are each rendered and then they replace the
+      // '&0', '&1', '&2', '&3'... placeholders that are found within the command's htmlTemplate
+
+      // Return the Latex.matrix() object to the main parser so that it knows to render this
+      // particular portion of latex in this fashion
+      return Parser.succeed(self);
+    });
+  };
+  // Relink all the cells after parsing
+  _.finalizeTree = function() {
+    var table = this.jQ.find('table');
+
+    if (table.length) {
+      this.relink();
+
+      // update mq-rows-<number> class on table
+      table.removeClass(function (index, classes) {
+        var toRemove = classes.match(/mq-rows-\d+/g);
+        return (toRemove && toRemove.join(' ')) || '';
+      });
+
+      table.addClass('mq-rows-' + table.find('tr').length);
+    }
+  };
+  // Reassign directional pointers for cursor key navigation between cells.
+  _.relink = function () {
+    var allCells = this.jQ.find('td');
+    var firstCellBlock = Node.byId[allCells.first().attr(mqBlockId)];
+    var lastCellBlock = Node.byId[allCells.last().attr(mqBlockId)];
+    var firstRow = allCells.eq(0).closest('tr');
+    var blocks = [];
+
+    allCells.each(function (cellIndex) {
+      var cellBlock = Node.byId[$(this).attr(mqBlockId)];
+      var nextCell = allCells.eq(cellIndex + 1);
+      var nextRow = $(this).closest('tr').next('tr');
+      var indexInColumn = $(this).closest('tr').index();
+      var indexInRow = $(this).index();
+      var downCell;
+
+      // set up horizontal linkage
+      if (nextCell.length) {
+        var nextCellBlock = Node.byId[nextCell.attr(mqBlockId)];
+        cellBlock[R] = nextCellBlock;
+        nextCellBlock[L] = cellBlock;
+      }
+
+      // set up vertical linkage
+      if (nextRow.length) {
+        downCell = nextRow.find('td').eq(indexInRow);
+      } else {
+        // bottom most cell links to top cell in next column via down arrow
+        downCell = firstRow.find('td').eq(indexInRow + 1);
+      }
+      if (downCell.length) {
+        var downCellBlock = Node.byId[downCell.attr(mqBlockId)];
+        cellBlock.downOutOf = downCellBlock;
+        downCellBlock.upOutOf = cellBlock;
+      }
+
+      cellBlock.column = indexInRow;
+      cellBlock.row = indexInColumn;
+      blocks.push(cellBlock);
+    });
+    // set start and end blocks of matrix - first and last cells.
+    this.ends[L] = firstCellBlock;
+    this.ends[R] = lastCellBlock;
+
+    // delete any leftover linkage to removed blocks at the beginning and end.
+    if (firstCellBlock && firstCellBlock[L]) { delete firstCellBlock[L]; }
+    if (lastCellBlock && lastCellBlock[R]) { delete lastCellBlock[R]; }
+
+    this.blocks = blocks;
+  };
+
+  // Also deletes row or column if it is empty
+  _.deleteCell = function (cell) {
+    var row = cell.jQ.closest('tr');
+    var indexInRow = cell.jQ.index();
+    var indexInColumn = row.index();
+    var rowCells = row.find('td').not(cell.jQ);
+    var colCells = this.jQ.find('tr').not(row).map(function () {
+      return $(this).find('td')[indexInRow];
+    });
+    var isLastBlock = this.jQ.find('td').length === 1;
+    var otherBlock;
+
+    function isEmpty() {
+      var cellBlock = Node.byId[$(this).attr(mqBlockId)];
+      return cellBlock.isEmpty();
+    }
+
+    if (rowCells.filter(isEmpty).length === rowCells.length && colCells.length) {
+      // row is empty (and there are other rows)
+      rowCells.remove();
+      cell.jQ.remove();
+      row.remove();
+      this.finalizeTree();
+    }
+    if (colCells.filter(isEmpty).length === colCells.length && rowCells.length) {
+      // column is empty (and there are other columns)
+      colCells.remove();
+      cell.jQ.remove();
+      this.finalizeTree();
+    }
+
+    if (!isLastBlock) {
+      indexInColumn = Math.min(indexInColumn, this.jQ.find('tr').length - 1);
+      indexInRow = Math.min(indexInRow, this.jQ.find('tr').eq(indexInColumn).find('td').length - 1);
+      otherBlock = Node.byId[this.jQ.find('tr').eq(indexInColumn).find('td').eq(indexInRow).attr(mqBlockId)];
+    }
+
+    return otherBlock;
+  };
+
+  _.addRow = function (prevRow) {
+    // limit number of rows that can be added.
+    if (this.jQ.find('tr').length >= this.maximum.rows) {
+      return;
+    }
+
+    var numCols = prevRow.find('td').length;
+    var newRow = $('<tr></tr>');
+    var newBlock, firstNewBlock;
+
+    for (var i = 0; i < numCols; i++) {
+      newBlock = MatrixCell();
+      newBlock.parent = this;
+      newBlock.jQ = $('<td class="mq-empty">').attr(mqBlockId, newBlock.id);
+      newRow.append(newBlock.jQ);
+
+      firstNewBlock = firstNewBlock || newBlock;
+    }
+    newRow.insertAfter(prevRow);
+    return firstNewBlock;
+  };
+
+  _.addColumn = function (prevCell) {
+    // limit number of columns that can be added.
+    if (prevCell.closest('tr').find('td').length >= this.maximum.columns) {
+      return;
+    }
+
+    var index = prevCell.index();
+    var rowIndex = prevCell.closest('tr').index();
+    var matrix = this;
+    var newBlock, newBlocks = [];
+
+    this.jQ.find('tr').each(function () {
+      newBlock = MatrixCell();
+      newBlock.parent = matrix;
+      newBlock.jQ = $('<td class="mq-empty">').attr(mqBlockId, newBlock.id);
+      newBlock.jQ.insertAfter($(this).find('td').eq(index));
+
+      newBlocks.push(newBlock);
+    });
+
+    return newBlocks[rowIndex];
+  };
+
+  _.insertColumn = function(currentBlock) {
+    newBlock = this.addColumn(currentBlock.jQ);
+    if (newBlock) {
+      this.cursor = this.cursor || this.parent.cursor;
+      this.finalizeTree();
+      this.bubble('redraw').cursor.insAtRightEnd(newBlock);
+    }
+  };
+  _.insertRow = function(currentBlock) {
+    newBlock = this.addRow(currentBlock.jQ.closest('tr'));
+    if (newBlock) {
+      this.cursor = this.cursor || this.parent.cursor;
+      this.finalizeTree();
+      this.bubble('redraw').cursor.insAtRightEnd(newBlock);
+
+      // just so parentheses get scaled.
+      this.bubble('edited');
+    }
+  };
+
+  _.backspace = function(currentBlock, dir, cursor, finalDeleteCallback) {
+    if (currentBlock.isEmpty()) {
+
+      var otherBlock = this.deleteCell(currentBlock);
+
+      if (otherBlock) {
+        cursor.insAtRightEnd(otherBlock);
+      }
+      else {
+        finalDeleteCallback();
+        this.finalizeTree();
+      }
+      this.bubble('edited');
+    }
+  };
+});
+
+LatexCmds.pmatrix = P(Matrix, function(_, super_) {
+  _.ctrlSeq = '\\pmatrix';
+
+  _.parentheses = {
+    left: '(',
+    right: ')'
+  };
+});
+
+LatexCmds.bmatrix = P(Matrix, function(_, super_) {
+  _.ctrlSeq = '\\bmatrix';
+
+  _.parentheses = {
+    left: '[',
+    right: ']'
+  };
+});
+
+LatexCmds.Bmatrix = P(Matrix, function(_, super_) {
+  _.ctrlSeq = '\\Bmatrix';
+
+  _.parentheses = {
+    left: '{',
+    right: '}'
+  };
+});
+
+LatexCmds.vmatrix = P(Matrix, function(_, super_) {
+  _.ctrlSeq = '\\vmatrix';
+
+  _.parentheses = {
+    left: '|',
+    right: '|'
+  };
+});
+
+LatexCmds.Vmatrix = P(Matrix, function(_, super_) {
+  _.ctrlSeq = '\\Vmatrix';
+
+  _.parentheses = {
+    left: '‖',
+    right: '‖'
+  };
+});
