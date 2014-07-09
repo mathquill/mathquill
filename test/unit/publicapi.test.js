@@ -32,6 +32,12 @@ suite('Public API', function() {
       assert.ok(rootBlock.hasClass('mq-empty'));
       assert.ok(!rootBlock.hasClass('mq-hasCursor'));
     });
+
+    test('MathQuill.InertMath', function() {
+      var el = $('<span>x</span>');
+      MathQuill.InertMath(el[0]);
+      assert.ok(el.find('var').length);
+    });
   });
 
   suite('MathQuillBasic', function() {
