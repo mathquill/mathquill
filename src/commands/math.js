@@ -431,3 +431,22 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
     this.controller.root.setHandlers(opts && opts.handlers, this);
   };
 }));
+
+/**
+ * Learnosity Addition...
+ *
+ * This is almost the same as StaticMath, except we don't
+ * bind any mouse events (which give us selectability and move
+ * around an invisible cursor).
+ *
+ * Otherwise, if you have a button that contains a rendered StaticMath symbol
+ * which causes something to be written into an editable mathquill,
+ * the mouseup event will hijack focus.
+ */
+setMathQuillDot('InertMath', P(AbstractMathQuill, function(_) {
+  _.init = function(el) {
+    var contents = this.initExtractContents(el);
+    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
+    this.controller.renderLatexMath(contents);
+  };
+}));
