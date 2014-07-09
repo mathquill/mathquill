@@ -59,6 +59,13 @@ code span {
 
 <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };">MQ.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
+<p>
+  Insert using inertMath <button class="insert-trigger" data-latex="\sqrt{4}"><span class="mathquill-inert-math">\sqrt{4}</span></button> inside formulas below:<br>
+  <span class="mathquill-math-field"></span><br>
+  or here: <span class="mathquill-math-field">\frac{2}{3}</span><br>
+  Now insert using staticMath <button class="insert-trigger" data-latex="\sqrt{4}"><span class="mathquill-static-math">\sqrt{4}</span></button> to the same formulas above, and notice that you can select all the text within a button.<br>
+</p>
+
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
@@ -69,6 +76,7 @@ MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.mathquill-inert-math').each(function() { MQ.InertMath(this); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });
@@ -114,6 +122,14 @@ $(function() {
 
   if(location.hash && location.hash.length > 1)
     latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
+});
+
+$(".insert-trigger").click(function () {
+  var latex = $(this).data('latex');
+  $(this).parent().find('.mathquill-math-field').each(function () {
+    var mathquill = MQ(this);
+    mathquill.write(latex);
+  });
 });
 
 //print the HTML source as an indented tree. TODO: syntax highlight

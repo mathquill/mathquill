@@ -466,3 +466,22 @@ API.MathField = function(APIClasses) {
     };
   });
 };
+
+/**
+ * This is almost the same as StaticMath, except we don't
+ * bind any mouse events (which give us selectability and move
+ * around an invisible cursor).
+ *
+ * Otherwise, if you have a button that contains a rendered StaticMath symbol
+ * which causes something to be written into an editable mathquill,
+ * the mouseup event will hijack focus.
+ */
+API.InertMath = function(APIClasses) {
+  return P(APIClasses.AbstractMathQuill, function(_, super_) {
+    this.RootBlock = MathBlock;
+    _.__mathquillify = function() {
+      super_.__mathquillify.call(this, 'mq-math-mode');
+      return this;
+    };
+  });
+};
