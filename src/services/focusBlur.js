@@ -5,7 +5,10 @@ Controller.open(function(_) {
     ctrlr.textarea.focus(function() {
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
-      root.jQ.addClass('mq-focused');
+      if (root.ultimateRoot) {
+        root.ultimateRoot.jQ.find('.mq-last-focused').removeClass('mq-last-focused');
+      }
+      root.jQ.addClass('mq-focused mq-last-focused');
       if (!cursor.parent)
         cursor.insAtRightEnd(root);
       if (cursor.selection) {

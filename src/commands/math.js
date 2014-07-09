@@ -450,3 +450,68 @@ setMathQuillDot('InertMath', P(AbstractMathQuill, function(_) {
     this.controller.renderLatexMath(contents);
   };
 }));
+
+/**
+ * Learnosity Addition...
+ *
+ * This gives us a "static" math area where we can nonetheless
+ * programmatically edit the editable areas.
+ *
+ * Adding public methods: Copy the method from EditableField above,
+ * but be sure to perform the action on the active root node -
+ * see "write" below for a simple example.
+ */
+setMathQuillDot('StaticMathWithEditables', P(AbstractMathQuill, function(_) {
+  _.init = function(el, opts) {
+    var contents = this.initExtractContents(el);
+    this.initRoot(MathBlock(), el.addClass('mq-math-mode'), opts);
+    this.controller.renderLatexMath(contents);
+    this.controller.delegateMouseEvents();
+  };
+  _.withActiveNode = function (callback) {
+    var rootBlocks = this.controller.container.find('.mq-inner-editable .mq-root-block'),
+      lastFocused = rootBlocks.filter('.mq-last-focused'),
+      activeRoot = lastFocused.length ? lastFocused.eq(0) : rootBlocks.eq(0),
+      activeNode =  Node.byId[activeRoot.attr(mqBlockId)];
+
+    if (activeNode) {
+      callback(activeNode);
+    }
+  };
+  _.write = function(latex) {
+    this.withActiveNode(function (activeNode) {
+      return EditableField.prototype.write.call(activeNode, latex);
+    });
+    return this;
+  };
+  _.cmd = function(cmd) {
+    this.withActiveNode(function (activeNode) {
+      return EditableField.prototype.cmd.call(activeNode, cmd);
+    });
+    return this;
+  };
+  _.keystroke = function(keys) {
+    this.withActiveNode(function (activeNode) {
+      return EditableField.prototype.keystroke.call(activeNode, keys);
+    });
+    return this;
+  };
+  // Get an array of latex strings from the individual editable areas
+  _.editables = function () {
+    return this.controller.container.find('.mq-inner-editable .mq-root-block').map(function () {
+      var node = Node.byId[jQuery(this).attr(mqBlockId)],
+        isActive = jQuery(this).hasClass('mq-focused');
+
+      return {
+        latex: node.latex(),
+        active: isActive
+      }
+    }).get();
+  };
+  _.typedText = function(text) {
+    this.withActiveNode(function (activeNode) {
+      return EditableField.prototype.typedText.call(activeNode, text);
+    });
+    return this;
+  };
+}));
