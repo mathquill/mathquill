@@ -720,11 +720,12 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var InnerMathField = P(MathQuill.MathField, function(_) {
-  _.init = function(root, container) {
+  _.init = function(root, ultimateRoot, container) {
     RootBlockMixin(root);
     this.__options = Options();
     var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
+    root.ultimateRoot = ultimateRoot;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
     ctrlr.cursor.insAtRightEnd(root);
@@ -733,7 +734,7 @@ var InnerMathField = P(MathQuill.MathField, function(_) {
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
-      '<span class="mq-editable-field">'
+      '<span class="mq-editable-field mq-inner-editable">'
     +   '<span class="mq-root-block">&0</span>'
     + '</span>'
   ;
@@ -744,12 +745,64 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
       .map(function(name) { self.name = name; }).or(succeed())
       .then(super_.parser.call(self));
   };
-  _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
+  _.finalizeTree = function() {
+    var root = Node.byId[this.jQ.closest('.mq-root-block').attr(mqBlockId)],
+      superKeystroke = this.ends[L].keystroke;
+
+    function focusAdjacentEditable(dir, dirward, cursor) {
+      var adjacent, nextDirward;
+      if (!cursor[dir]) {
+        while ((nextDirward = dirward[dir] || dirward.parent && dirward.parent[dir])) {
+          dirward = nextDirward;
+          adjacent = dirward.jQ.filter('.mq-editable-field').add(dirward.jQ.find('.mq-editable-field')).eq(0);
+          if (adjacent.length) {
+            adjacent.find('.mq-textarea').children()[0].focus();
+            return true;
+            break;
+          }
+        }
+      }
+    }
+
+    InnerMathField(this.ends[L], root, this.jQ);
+    this.ends[L].keystroke = function(key, e, ctrlr) {
+      var cursor = ctrlr.cursor,
+        movedFocus = false;
+
+      switch (key) {
+      case 'Left':
+        movedFocus = focusAdjacentEditable(L, this.parent, cursor);
+        break;
+      case 'Right':
+        movedFocus = focusAdjacentEditable(R, this.parent, cursor);
+        break;
+      case 'Up':
+        movedFocus = focusAdjacentEditable('upOutOf', this.parent, cursor);
+        break;
+      case 'Down':
+        movedFocus = focusAdjacentEditable('downOutOf', this.parent, cursor);
+        break;
+      }
+
+      if (!movedFocus && typeof superKeystroke === 'function') {
+        superKeystroke.apply(this, arguments);
+      }
+    };
+  };
   _.registerInnerField = function(innerFields) {
     innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
+  _.seek = function() {
+    return super_.seek.apply(this, arguments);
+  };
+  _.focus = function() {
+    return super_.focus.apply(this, arguments);
+  }
+  _.blur = function() {
+    return super_.blur && super_.blur.apply(this, arguments);
+  }
 });
 
 var Matrix =

@@ -38,6 +38,12 @@ suite('Public API', function() {
       MathQuill.InertMath(el[0]);
       assert.ok(el.find('var').length);
     });
+
+    test('MathQuill.StaticMathWithEditables', function() {
+      var el = $('<span>x</span>');
+      MathQuill.InertMath(el[0]);
+      assert.ok(el.find('var').length);
+    });
   });
 
   suite('MathQuillBasic', function() {
@@ -62,6 +68,44 @@ suite('Public API', function() {
     test('parsing of advanced symbols', function() {
       mq.latex('\\oplus');
       assert.equal(mq.latex(), ''); // TODO: better LaTeX parse error behavior
+    });
+  });
+
+  suite('StaticMathWithEditables', function() {
+    var mq;
+    setup(function() {
+      mq = MathQuill.StaticMathWithEditables($('<span></span>').appendTo('#mock')[0]);
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('intially empty editable areas', function() {
+      mq.latex('x+\\MathQuillMathField{}');
+      assert.equal(mq.latex(), 'x+');
+    });
+
+    test('intially full editable areas', function() {
+      mq.latex('x+\\MathQuillMathField{y}');
+      assert.equal(mq.latex(), 'x+y');
+    });
+
+    test('writes into first editable area by default', function() {
+      mq.latex('x+\\frac{\\MathQuillMathField{}}{\\MathQuillMathField{}}');
+      mq.typedText('12');
+      assert.equal(mq.latex(), 'x+\\frac{12}{ }');
+    });
+
+    test('cursor keys move between editable areas (horizontally)', function() {
+      mq.latex('\\MathQuillMathField{}+\\MathQuillMathField{}');
+      mq.typedText('4').keystroke('Right').typedText('5');
+      assert.equal(mq.latex(), '4+5');
+    });
+
+    test('cursor keys move between editable areas (vertically)', function() {
+      mq.latex('x+\\frac{\\MathQuillMathField{}}{\\MathQuillMathField{}}');
+      mq.typedText('3').keystroke('Down').typedText('4');
+      assert.equal(mq.latex(), 'x+\\frac{3}{4}');
     });
   });
 
