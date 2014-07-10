@@ -79,6 +79,8 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -441,6 +443,15 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.latex = function() {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
+});
+
+var Abs =
+LatexCmds.abs = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\abs';
+  _.htmlTemplate =
+      '<span class="mq-abs mq-non-leaf">&0</span>'
+  ;
+  _.textTemplate = ['|', '|'];
 });
 
 function DelimsMixin(_, super_) {
