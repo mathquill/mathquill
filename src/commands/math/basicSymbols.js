@@ -468,7 +468,7 @@ var Equality = P(BinaryOperator, function(_, super_) {
 });
 LatexCmds['='] = Equality;
 
-LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
+LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
