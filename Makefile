@@ -3,9 +3,13 @@
 #
 
 # inputs
+LATEST_COMMIT = $(shell git rev-parse HEAD | cut -c 1-7)
 SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
-OUTRO = $(SRC_DIR)/outro.js
+INTRO_CUSTOM = $(SRC_DIR)/wrappers/introCustom.js
+OUTRO_CUSTOM = $(SRC_DIR)/wrappers/outroCustom.js
+INTRO_TEST = $(SRC_DIR)/wrappers/introTest.js
+OUTRO_TEST = $(SRC_DIR)/wrappers/outroTest.js
 
 PJS_SRC = ./node_modules/pjs/src/p.js
 
@@ -91,13 +95,13 @@ clean:
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
-$(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+$(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO_CUSTOM) $(BUILD_DIR_EXISTS)
+	cat $(INTRO_CUSTOM) | sed 's/{{sha}}/$(LATEST_COMMIT)/g' | cat - $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BASIC_JS): $(INTRO_TEST) $(INTRO) $(SOURCES_BASIC) $(OUTRO_TEST) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
@@ -138,7 +142,7 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST): $(INTRO_TEST) $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO_TEST) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 #
