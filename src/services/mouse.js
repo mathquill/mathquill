@@ -12,15 +12,27 @@ Controller.open(function(_) {
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
-      var target;
-      function mousemove(e) { target = $(e.target); }
-      function docmousemove(e) {
+      function mousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
-        target = undefined;
+        ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
+
+        // [Eoghan]: Unbinding as I don't want this to get called twice.
+        // https://github.com/mathquill/mathquill/issues/312
+        if (e.target) $(e.target.ownerDocument).unbind('mousemove', docmousemove);
       }
-      // outside rootjQ, the MathQuill node corresponding to the target (if any)
-      // won't be inside this root, so don't mislead Controller::seek with it
+
+      // docmousemove is attached to the document, so that
+      // selection still works when the mouse leaves the window.
+      function docmousemove(e) {
+        // [Han]: i delete the target because of the way seek works.
+        // it will not move the mouse to the target, but will instead
+        // just seek those X and Y coordinates.  If there is a target,
+        // it will try to move the cursor to document, which will not work.
+        // cursor.seek needs to be refactored.
+        delete e.target;
+
+        return mousemove(e);
+      }
 
       function mouseup(e) {
         cursor.blink = blink;
