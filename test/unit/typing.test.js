@@ -814,7 +814,7 @@ suite('typing with auto-replaces', function() {
     setup(function() {
       MQ.config({
         autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+        autoCommands: 'pi tau phi theta Gamma sum lim prod sqrt nthroot'
       });
     });
 
@@ -827,6 +827,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('prod');
       mq.typedText('n=0').keystroke('Up').typedText('100').keystroke('Right');
       assertLatex('\\prod_{n=0}^{100}');
+      mq.keystroke('Ctrl-Backspace');
+
+      mq.typedText('lim');
+      mq.typedText('xy').keystroke('Right');
+      assertLatex('\\lim_{xy}');
       mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('sqrt');
@@ -897,7 +902,7 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command is a built-in operator name', function() {
-      var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+      var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MQ.config({ autoCommands: cmds[i] }) },
@@ -908,7 +913,7 @@ suite('typing with auto-replaces', function() {
     test('built-in operator names even after auto-operator names overridden', function() {
       MQ.config({ autoOperatorNames: 'sin inf arcosh cosh cos cosec csc' });
         // ^ happen to be the ones required by autoOperatorNames.test.js
-      var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
+      var cmds = 'Pr arg deg det exp gcd inf lg ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MQ.config({ autoCommands: cmds[i] }) },
                       'MQ.config({ autoCommands: "'+cmds[i]+'" })');

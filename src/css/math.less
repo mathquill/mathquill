@@ -323,6 +323,21 @@
     }
   }
 
+  .mq-limit {
+    text-align: center;
+
+    span  {
+      display: block;
+      &.mq-cursor {
+        display: inline-block;
+      }
+    }
+    .mq-approaches  {
+      font-size: 80%;
+      float: right; /* take out of normal flow to manipulate baseline */
+      width: 100%;
+    }
+  }
 
   &, .mq-editable-field {
     cursor: text;
