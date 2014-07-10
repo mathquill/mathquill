@@ -16,7 +16,8 @@ suite('typing with auto-replaces', function() {
   suite('LiveFraction', function() {
     test('full MathQuill', function() {
       mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
-      assertLatex('\\frac{1}{2}+\\frac{\\sin x}{ }');
+      // LRN - changed expected latex after disabling Tab key
+      assertLatex('\\frac{1}{2+\\frac{\\sin x}{ }}');
       mq.latex('').typedText('1+/2');
       assertLatex('1+\\frac{2}{ }');
       mq.latex('').typedText('1 2/3');
@@ -656,7 +657,8 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
           mq.keystroke('Left Left Shift-Left Shift-Left Shift-Left').typedText('|');
           assertLatex('1+\\left|2+3\\right|+4');
-          mq.keystroke('Tab Backspace');
+          // LRN - use arrow keys to break out of pipes rather than Tab (now disabled)
+          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+\\left|2+3+4\\right|');
           mq.keystroke('Left Left Left Backspace');
           assertLatex('1+2+3+4');
@@ -685,7 +687,8 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+\\left|1+2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left').typedText('|');
           assertLatex('0+\\left|1+\\left|2+3\\right|\\right|+4');
-          mq.keystroke('Shift-Tab Shift-Tab Del');
+          // LRN - use arrow keys to break out of pipes rather than Shift-Tab (now disabled)
+          mq.keystroke('Left Left Left Left Del');
           assertLatex('0+1+\\left|2+3\\right|+4');
         });
 
@@ -714,7 +717,8 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+\\left|1+2\\right|+3');
           mq.keystroke('Home Right Right Right').typedText('|');
           assertLatex('0+\\left|\\left|1+2\\right|\\right|+3');
-          mq.keystroke('Tab Del');
+          // LRN - use arrow keys to break out of pipes rather than Tab (now disabled)
+          mq.keystroke('Right Right Right Right Del');
           assertLatex('0+\\left|\\left|1+2\\right|+3\\right|');
         });
 
@@ -732,7 +736,8 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+\\left(1+2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left').typedText('|');
           assertLatex('0+\\left(1+\\left|2+3\\right|\\right|+4');
-          mq.keystroke('Shift-Tab Shift-Tab Del');
+          // LRN - use arrow keys to break out of pipes rather than Shift-Tab (now disabled)
+          mq.keystroke('Left Left Left Left Del');
           assertLatex('0+1+\\left|2+3\\right|+4');
         });
 
