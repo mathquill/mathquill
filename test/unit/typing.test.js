@@ -825,7 +825,7 @@ suite('typing with auto-replaces', function() {
 
   suite('auto-cmds', function() {
     MathQuill.addAutoCommands('pi tau phi theta Gamma '
-                              + 'sum prod sqrt nthroot');
+                              + 'sum lim prod sqrt nthroot');
 
     test('individual commands', function(){
       mq.typedText('sum' + 'n=0');
@@ -836,6 +836,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('prod');
       mq.typedText('n=0').keystroke('Up').typedText('100').keystroke('Right');
       assertLatex('\\prod_{n=0}^{100}');
+      mq.keystroke('Backspace');
+
+      mq.typedText('lim');
+      mq.typedText('xy').keystroke('Right');
+      assertLatex('\\lim_{xy}');
       mq.keystroke('Backspace');
 
       mq.typedText('sqrt');
@@ -899,7 +904,7 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command is already unitalicized', function() {
-      var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+      var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },

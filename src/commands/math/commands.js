@@ -236,24 +236,7 @@ var SupSub = P(MathCommand, function(_, super_) {
   };
 });
 
-var SummationNotation = P(MathCommand, function(_, super_) {
-  _.init = function(ch, html) {
-    var htmlTemplate =
-      '<span class="mq-large-operator mq-non-leaf">'
-    +   '<span class="mq-to"><span>&1</span></span>'
-    +   '<big>'+html+'</big>'
-    +   '<span class="mq-from"><span>&0</span></span>'
-    + '</span>'
-    ;
-    Symbol.prototype.init.call(this, ch, htmlTemplate);
-  };
-  _.latex = function() {
-    function simplify(latex) {
-      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
-    }
-    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
-      '^' + simplify(this.ends[R].latex());
-  };
+var SummationLimitNotation = P(MathCommand, function(_, super_) {
   _.parser = function() {
     var string = Parser.string;
     var optWhitespace = Parser.optWhitespace;
@@ -282,6 +265,26 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
+var SummationNotation = P(SummationLimitNotation, function(_, super_) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+      '<span class="mq-large-operator mq-non-leaf">'
+    +   '<span class="mq-to"><span>&1</span></span>'
+    +   '<big>'+html+'</big>'
+    +   '<span class="mq-from"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
+      '^' + simplify(this.ends[R].latex());
+  };
+});
+
 LatexCmds['∑'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
@@ -293,7 +296,24 @@ LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 LatexCmds.coprod =
 LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
 
-
+LatexCmds.lim =
+LatexCmds.limit = P(SummationLimitNotation, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+      '<span class="mq-limit mq-non-leaf">'
+    +   '<span class="mq-un-italicized">lim</span>'
+    +   '<span class="mq-approaches"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, '\\lim ', htmlTemplate);
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex());
+  };
+});
 
 function insLeftOfMeUnlessAtEnd(cursor) {
   // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
