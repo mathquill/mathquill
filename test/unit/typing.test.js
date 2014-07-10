@@ -57,6 +57,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('\\asdf+');
       assertLatex('\\text{asdf}+');
     });
+
+    test('dollar sign', function() {
+      mq.typedText('$');
+      assertLatex('\\$');
+    });
   });
 
   suite('auto-expanding parens', function() {
