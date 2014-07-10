@@ -3,9 +3,13 @@
 #
 
 # inputs
+LATEST_COMMIT = $(shell git rev-parse HEAD | cut -c 1-7)
 SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
-OUTRO = $(SRC_DIR)/outro.js
+INTRO_DEFINE = $(SRC_DIR)/wrappers/introDefine.js
+OUTRO_DEFINE = $(SRC_DIR)/wrappers/outroDefine.js
+INTRO_ORIGINAL = $(SRC_DIR)/wrappers/introOriginal.js
+OUTRO_ORIGINAL = $(SRC_DIR)/wrappers/outroOriginal.js
 
 PJS_SRC = ./node_modules/pjs/src/p.js
 
@@ -43,6 +47,7 @@ VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
 
 BUILD_DIR = ./build
 BUILD_JS = $(BUILD_DIR)/mathquill.js
+BUILD_DEFINE_WRAPPED_JS = $(BUILD_DIR)/mathquill-lrn-define-wrapped.js
 BASIC_JS = $(BUILD_DIR)/mathquill-basic.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BASIC_CSS = $(BUILD_DIR)/mathquill-basic.css
@@ -80,11 +85,12 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 #
 
 .PHONY: all basic dev js uglify css font dist clean
-all: font css uglify
+all: font css uglify lrn
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
-dev: font css js
+dev: font css js lrn
 js: $(BUILD_JS)
+lrn: $(BUILD_DEFINE_WRAPPED_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
@@ -94,13 +100,16 @@ clean:
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
-$(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_JS): $(INTRO_ORIGINAL) $(INTRO) $(SOURCES_FULL) $(OUTRO_ORIGINAL) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
+
+$(BUILD_DEFINE_WRAPPED_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO_DEFINE) $(BUILD_DIR_EXISTS)
+	cat $(INTRO_DEFINE) | sed 's/{{sha}}/$(LATEST_COMMIT)/g' | cat - $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BASIC_JS): $(INTRO_ORIGINAL) $(INTRO) $(SOURCES_BASIC) $(OUTRO_ORIGINAL) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
 
 $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
@@ -141,7 +150,7 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST): $(INTRO_ORIGINAL) $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO_ORIGINAL) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 #

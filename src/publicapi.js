@@ -19,13 +19,6 @@ function MathQuill(el) {
   return blockId ? Node.byId[blockId].controller.API : null;
 };
 
-MathQuill.noConflict = function() {
-  window.MathQuill = origMathQuill;
-  return MathQuill;
-};
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
-
 /**
  * Returns function (to be publicly exported) that MathQuill-ifies an HTML
  * element and returns an API object. If the element had already been MathQuill-
