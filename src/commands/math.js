@@ -428,6 +428,5 @@ MathQuill.MathField = APIFnFor(P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
     el.addClass('mq-editable-field mq-math-mode');
     this.initRootAndEvents(RootMathBlock(), el, opts);
-    this.controller.root.setHandlers(this.controller.options.handlers, this);
   };
 }));
