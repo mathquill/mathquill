@@ -28,8 +28,8 @@ MathQuill.addAutoCommands = function(cmds) {
     if (cmds[i].length < 2) {
       throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
     }
-    if (UnItalicizedCmds.hasOwnProperty(cmds[i])) {
-      throw '"' + cmds[i] + '" already auto-unitalicized';
+    if (LatexCmds[cmds[i]] === UnItalicized) {
+      throw '"' + cmds[i] + '" is a built-in auto-unitalicized command';
     }
     AutoCmds[cmds[i]] = 1;
     MAX_AUTOCMD_LEN = max(cmds[i].length, MAX_AUTOCMD_LEN);

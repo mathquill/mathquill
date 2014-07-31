@@ -893,9 +893,19 @@ suite('typing with auto-replaces', function() {
       assert.throws(function() { MathQuill.addAutoCommands('e'); });
     });
 
-    test('command is already unitalicized', function() {
+    test('command is a built-in auto-unitalicized command', function() {
       var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
+      for (var i = 0; i < cmds.length; i += 1) {
+        assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
+                      'MathQuill.addAutoCommands("'+cmds[i]+'")');
+      }
+    });
+
+    test('built-in auto-unitalicized command even after auto-unitalicizeds overridden', function() {
+      MathQuill.overrideAutoUnitalicized('sin inf arcosh cosh cos cosec csc');
+        // ^ happen to be the ones required by unitalicized.test.js
+      var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
                       'MathQuill.addAutoCommands("'+cmds[i]+'")');
