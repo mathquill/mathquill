@@ -45,10 +45,8 @@ function APIFnFor(APIClass) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    var ctrlr = this.controller = root.controller = Controller(root, el, opts);
+    var ctrlr = Controller(this, root, el, opts);
     ctrlr.createTextarea();
-    ctrlr.API = this;
-    root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
     var contents = el.contents().detach();
     root.jQ =

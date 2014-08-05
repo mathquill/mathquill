@@ -681,12 +681,11 @@ LatexCmds.choose = P(Binomial, function(_) {
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, container) {
     RootBlockMixin(root);
-    var ctrlr = this.controller = root.controller = Controller(root, container);
-    ctrlr.API = this;
+    var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
-    root.cursor = ctrlr.cursor.insAtRightEnd(root);
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
+    ctrlr.cursor.insAtRightEnd(root);
   };
 });
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {

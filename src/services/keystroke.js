@@ -170,7 +170,7 @@ Controller.open(function(_) {
   };
 
   var init = _.init;
-  _.init = function(root, container, opts) {
+  _.init = function(API, root, container, opts) {
     var updown = opts && opts.leftRightIntoCmdGoes;
     if (updown && updown !== 'up' && updown !== 'down') {
       throw '"up" or "down" required for leftRightIntoCmdGoes option, '

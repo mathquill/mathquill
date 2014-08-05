@@ -13,11 +13,15 @@
 var DefaultOpts = P(), defaultOpts = MathQuill.options = DefaultOpts.p;
 
 var Controller = P(function(_) {
-  _.init = function(root, container, options) {
+  _.init = function(API, root, container, options) {
+    this.API = API;
     this.root = root;
-    this.cursor = Cursor(root);
+    this.cursor = root.cursor = Cursor(root);
+      // TODO: stop depending on root.cursor, and rm it
     this.container = container;
     this.options = this.cursor.options = P(DefaultOpts, options || 0).p;
+
+    API.controller = root.controller = this;
   };
 
   var notifyees = [];
