@@ -118,7 +118,7 @@ var OperatorNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Nam
 var TwoWordOps = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
 (function() {
-  var mostOps = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
+  var mostOps = ('arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
   for (var i = 0; i < mostOps.length; i += 1) {
     OperatorNames[mostOps[i]] = UnItalicizedCmds[mostOps[i]] = 1;
