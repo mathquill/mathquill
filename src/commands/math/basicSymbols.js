@@ -144,15 +144,16 @@ MathQuill.overrideAutoUnitalicized = function(cmds) {
   }
   cmds = cmds.split(' ');
 
-  UnItalicizedCmds = {};
-  MAX_UNITALICIZED_LEN = 0;
+  var dict = {}, maxLength = 0;
   for (var i = 0; i < cmds.length; i += 1) {
     if (cmds[i].length < 2) {
       throw '"'+cmds[i]+'" not minimum length of 2';
     }
-    UnItalicizedCmds[cmds[i]] = 1;
-    MAX_UNITALICIZED_LEN = max(cmds[i].length, MAX_UNITALICIZED_LEN);
+    dict[cmds[i]] = 1;
+    maxLength = max(maxLength, cmds[i].length);
   }
+  UnItalicizedCmds = dict;
+  MAX_UNITALICIZED_LEN = maxLength;
 };
 var UnItalicized = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };

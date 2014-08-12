@@ -90,6 +90,7 @@ suite('auto-unitalicized commands', function() {
 
     test('command length less than 2', function() {
       assert.throws(function() { MathQuill.overrideAutoUnitalicized('e'); });
+      assert.ok(MAX_UNITALICIZED_LEN > 0, 'MAX_UNITALICIZED_LEN not reset to 0');
     });
 
     suite('command list not perfectly space-delimited', function() {
