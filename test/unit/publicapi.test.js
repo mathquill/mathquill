@@ -258,7 +258,7 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
     test('space behaves like tab when globally set to true', function() {
-      MathQuill.options.spaceBehavesLikeTab = true;
+      MathQuill.config({ spaceBehavesLikeTab: true });
 
       mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
       rootBlock = mq.controller.root;

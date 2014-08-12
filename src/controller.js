@@ -4,24 +4,18 @@
  *
  *   Controller.open(function(_) { ... });
  *
- * and whose default options are set with
- *
- *   defaultOpts.optionName = ...;
- *
  ********************************************/
 
-var DefaultOpts = P(), defaultOpts = MathQuill.options = DefaultOpts.p;
-
 var Controller = P(function(_) {
-  _.init = function(API, root, container, options) {
+  _.init = function(API, root, container) {
     this.API = API;
     this.root = root;
-    this.cursor = root.cursor = Cursor(root);
-      // TODO: stop depending on root.cursor, and rm it
     this.container = container;
-    this.options = this.cursor.options = P(DefaultOpts, options || 0).p;
 
     API.controller = root.controller = this;
+
+    this.cursor = root.cursor = Cursor(root, API.__options);
+    // TODO: stop depending on root.cursor, and rm it
   };
 
   var notifyees = [];

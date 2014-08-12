@@ -141,14 +141,14 @@ These methods modify math typing behavior page-wide:
 (TODO: methods to remove auto-commands etc, and per-field versions of all these
 methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))
 
-#### Handlers/Options
+#### Configuration Options
 
 `MathQuill.MathField()` can also take an options object:
 
 ```js
 var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
-MathQuill.MathField(el[0], {
+var mathField = MathQuill.MathField(el[0], {
   handlers: {
     edited: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
@@ -160,6 +160,11 @@ MathQuill.MathField(el[0], {
   charsThatBreakOutOfSupSub: '+-=<>'
 });
 ```
+
+To change `mathField`'s options, the `.config({ ... })` method takes an options
+object in the same format.
+
+Global defaults for a page may be set with `MathQuill.config({ ... })`.
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
 like {Shift-,}Tab escaping from the current block (as opposed to the default

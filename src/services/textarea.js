@@ -6,7 +6,7 @@
 Controller.open(function(_) {
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
-      fn = this.options.substituteTextarea, textarea = this.textarea =
+      fn = this.API.__options.substituteTextarea, textarea = this.textarea =
         $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
 
     var ctrlr = this;
@@ -31,7 +31,7 @@ Controller.open(function(_) {
     var latex = '';
     if (this.cursor.selection) {
       latex = this.cursor.selection.join('latex');
-      if (this.options.statelessClipboard) {
+      if (this.API.__options.statelessClipboard) {
         // FIXME: like paste, only this works for math fields; should ask parent
         latex = '$' + latex + '$';
       }
@@ -88,7 +88,7 @@ Controller.open(function(_) {
     this.scrollHoriz();
   };
   _.paste = function(text) {
-    if (this.options.statelessClipboard) { // FIXME: document in README
+    if (this.API.__options.statelessClipboard) { // FIXME: document in README
       if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
       }

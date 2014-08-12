@@ -42,10 +42,16 @@ function APIFnFor(APIClass) {
   return APIFn;
 }
 
+var Options = P(), optionProcessors = {};
+MathQuill.__options = Options.p;
+
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    var ctrlr = Controller(this, root, el, opts);
+    this.__options = Options();
+    this.config(opts);
+
+    var ctrlr = Controller(this, root, el);
     ctrlr.createTextarea();
 
     var contents = el.contents().detach();
@@ -58,6 +64,14 @@ var AbstractMathQuill = P(function(_) {
       .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
+  };
+  _.config =
+  MathQuill.config = function(opts) {
+    for (var opt in opts) if (opts.hasOwnProperty(opt)) {
+      var optVal = opts[opt], processor = optionProcessors[opt];
+      this.__options[opt] = (processor ? processor(optVal) : optVal);
+    }
+    return this;
   };
   _.el = function() { return this.controller.container[0]; };
   _.text = function() { return this.controller.exportText(); };
@@ -104,7 +118,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     this.controller.editable = true;
     this.controller.delegateMouseEvents();
     this.controller.editablesTextareaEvents();
-    root.setHandlers(this.controller.options.handlers, this);
+    root.setHandlers(this.__options.handlers, this);
   };
   _.focus = function() { this.controller.textarea.focus(); return this; };
   _.blur = function() { this.controller.textarea.blur(); return this; };

@@ -181,10 +181,10 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     this.respace();
   };
+  Options.p.charsThatBreakOutOfSupSub = '';
   _.finalizeTree = function() {
     this.ends[L].write = function(cursor, ch) {
-      var breakOutChars = cursor.options.charsThatBreakOutOfSupSub;
-      if (breakOutChars && breakOutChars.indexOf(ch) > -1) {
+      if (cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
       }
       MathBlock.p.write.apply(this, arguments);
@@ -681,6 +681,7 @@ LatexCmds.choose = P(Binomial, function(_) {
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, container) {
     RootBlockMixin(root);
+    this.__options = Options();
     var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
     ctrlr.createTextarea();
