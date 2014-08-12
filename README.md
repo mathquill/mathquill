@@ -128,11 +128,11 @@ These methods modify math typing behavior page-wide:
 - `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
   of LaTeX control words (no backslash, letters only, min length 2), and adds
   them to the (default empty) set of "auto-commands", commands automatically
-  rendered by just typing the letters outside a `LatexCommandInput`
-- `MathQuill.overrideAutoUnitalicized('sin cos etc')` also takes a list of the
+  rendered by just typing the letters without typing a backslash first
+- `MathQuill.overrideAutoOperatorNames('sin cos etc')` also takes a list of the
   same form (space-delimited letters-only each length>=2), and overrides the set
-  of operator names that get automatically unitalicized when the letters are
-  typed, like `sin`, `log`, etc. (It defaults to
+  of operator names that automatically become non-italicized when typing the
+  letters without typing a backslash first, like `sin`, `log`, etc. (Defaults to
   [the LaTeX built-in operator names][Wikia], but with additional trig operators
   like `sech`, `arcsec`, `arsinh`, etc.)
 

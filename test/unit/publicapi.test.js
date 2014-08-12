@@ -203,7 +203,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\sqrt{49}');
     });
 
-    test('auto-unitalicized', function() {
+    test('operator name', function() {
       mq.cmd('\\sin');
       assert.equal(mq.latex(), '\\sin');
     });

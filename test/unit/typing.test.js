@@ -47,7 +47,7 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\sqrt{49}');
     });
 
-    test('auto-unitalicized', function() {
+    test('auto-operator names', function() {
       mq.typedText('\\sin^2');
       assertLatex('\\sin^2');
     });
@@ -893,7 +893,7 @@ suite('typing with auto-replaces', function() {
       assert.throws(function() { MathQuill.addAutoCommands('e'); });
     });
 
-    test('command is a built-in auto-unitalicized command', function() {
+    test('command is a built-in operator name', function() {
       var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
@@ -902,9 +902,9 @@ suite('typing with auto-replaces', function() {
       }
     });
 
-    test('built-in auto-unitalicized command even after auto-unitalicizeds overridden', function() {
-      MathQuill.overrideAutoUnitalicized('sin inf arcosh cosh cos cosec csc');
-        // ^ happen to be the ones required by unitalicized.test.js
+    test('built-in operator names even after auto-operator names overridden', function() {
+      MathQuill.overrideAutoOperatorNames('sin inf arcosh cosh cos cosec csc');
+        // ^ happen to be the ones required by autoOperatorNames.test.js
       var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
         assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },

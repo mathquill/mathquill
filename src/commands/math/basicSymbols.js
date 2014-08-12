@@ -28,8 +28,8 @@ MathQuill.addAutoCommands = function(cmds) {
     if (cmds[i].length < 2) {
       throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
     }
-    if (LatexCmds[cmds[i]] === UnItalicized) {
-      throw '"' + cmds[i] + '" is a built-in auto-unitalicized command';
+    if (LatexCmds[cmds[i]] === OperatorName) {
+      throw '"' + cmds[i] + '" is a built-in operator name';
     }
     AutoCmds[cmds[i]] = 1;
     MAX_AUTOCMD_LEN = max(cmds[i].length, MAX_AUTOCMD_LEN);
@@ -60,45 +60,45 @@ var Letter = P(Variable, function(_, super_) {
     super_.createLeftOf.apply(this, arguments);
   };
   _.italicize = function(bool) {
-    this.jQ.toggleClass('mq-un-italicized', !bool);
+    this.jQ.toggleClass('mq-operator-name', !bool);
     return this;
   };
   _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
-    // don't auto-unitalicize if the sibling to my right changed (dir === R or
-    // undefined) and it's now a Letter, it will unitalicize everyone
+    // don't auto-un-italicize if the sibling to my right changed (dir === R or
+    // undefined) and it's now a Letter, it will un-italicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
     this.autoUnItalicize();
   };
   _.autoUnItalicize = function() {
-    if (MAX_UNITALICIZED_LEN === 0) return;
-    // want longest possible auto-unitalicized command, so join together longest
+    if (MAX_AUTO_OP_NAME_LEN === 0) return;
+    // want longest possible operator names, so join together entire contiguous
     // sequence of letters
     var str = this.letter;
     for (var l = this[L]; l instanceof Letter; l = l[L]) str = l.letter + str;
     for (var r = this[R]; r instanceof Letter; r = r[R]) str += r.letter;
 
     // removeClass and delete flags from all letters before figuring out
-    // which are part of an auto-unitalicized command, if any
+    // which, if any, are part of an operator name
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
       el.italicize(true).jQ.removeClass('mq-first mq-last');
       el.ctrlSeq = el.letter;
     });
 
-    // check for auto-unitalicized commands: at each position from left to
-    // right, check substrings from longest to shortest
+    // check for operator names: at each position from left to right, check
+    // substrings from longest to shortest
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
-      for (var len = min(MAX_UNITALICIZED_LEN, str.length - i); len > 0; len -= 1) {
+      for (var len = min(MAX_AUTO_OP_NAME_LEN, str.length - i); len > 0; len -= 1) {
         var word = str.slice(i, i + len);
-        if (UnItalicizedCmds.hasOwnProperty(word)) {
+        if (AutoOpNames.hasOwnProperty(word)) {
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.italicize(false);
             var last = letter;
           }
 
-          var isBuiltIn = OperatorNames.hasOwnProperty(word);
+          var isBuiltIn = BuiltInOpNames.hasOwnProperty(word);
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
-          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
+          if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
           if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
           if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
 
@@ -113,32 +113,33 @@ var Letter = P(Variable, function(_, super_) {
     return node instanceof Symbol && !(node instanceof BinaryOperator);
   }
 });
-var OperatorNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+var BuiltInOpNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
   // except for over/under line/arrow \lim variants like \varlimsup
-var TwoWordOps = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
-var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
+var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
+var AutoOpNames = {}, MAX_AUTO_OP_NAME_LEN = 9; // auto-un-italicized operator names
 (function() {
   var mostOps = ('arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
   for (var i = 0; i < mostOps.length; i += 1) {
-    OperatorNames[mostOps[i]] = UnItalicizedCmds[mostOps[i]] = 1;
+    BuiltInOpNames[mostOps[i]] = AutoOpNames[mostOps[i]] = 1;
   }
 
-  var trigOps = 'sin cos tan arcsin arccos arctan sinh cosh tanh'.split(' ');
-  for (var i = 0; i < trigOps.length; i += 1) OperatorNames[trigOps[i]] = 1;
-  OperatorNames.sec = OperatorNames.csc = OperatorNames.cot =
-  OperatorNames.coth = 1; // why coth but not sech and csch, LaTeX?
+  var builtInTrigs = // why coth but not sech and csch, LaTeX?
+    'sin cos tan arcsin arccos arctan sinh cosh tanh sec csc cot coth'.split(' ');
+  for (var i = 0; i < builtInTrigs.length; i += 1) {
+    BuiltInOpNames[builtInTrigs[i]] = 1;
+  }
 
-  var trigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
-  for (var i = 0; i < trigs.length; i += 1) {
-    UnItalicizedCmds[trigs[i]] =
-    UnItalicizedCmds['arc'+trigs[i]] =
-    UnItalicizedCmds[trigs[i]+'h'] =
-    UnItalicizedCmds['ar'+trigs[i]+'h'] =
-    UnItalicizedCmds['arc'+trigs[i]+'h'] = 1;
+  var autoTrigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
+  for (var i = 0; i < autoTrigs.length; i += 1) {
+    AutoOpNames[autoTrigs[i]] =
+    AutoOpNames['arc'+autoTrigs[i]] =
+    AutoOpNames[autoTrigs[i]+'h'] =
+    AutoOpNames['ar'+autoTrigs[i]+'h'] =
+    AutoOpNames['arc'+autoTrigs[i]+'h'] = 1;
   }
 }());
-MathQuill.overrideAutoUnitalicized = function(cmds) {
+MathQuill.overrideAutoOperatorNames = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
@@ -152,10 +153,10 @@ MathQuill.overrideAutoUnitalicized = function(cmds) {
     dict[cmds[i]] = 1;
     maxLength = max(maxLength, cmds[i].length);
   }
-  UnItalicizedCmds = dict;
-  MAX_UNITALICIZED_LEN = maxLength;
+  AutoOpNames = dict;
+  MAX_AUTO_OP_NAME_LEN = maxLength;
 };
-var UnItalicized = P(Symbol, function(_, super_) {
+var OperatorName = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };
   _.createLeftOf = function(cursor) {
     var fn = this.ctrlSeq;
@@ -172,8 +173,8 @@ var UnItalicized = P(Symbol, function(_, super_) {
     return Parser.succeed(block.children());
   };
 });
-for (var fn in OperatorNames) if (OperatorNames.hasOwnProperty(fn)) {
-  LatexCmds[fn] = UnItalicized;
+for (var fn in BuiltInOpNames) if (BuiltInOpNames.hasOwnProperty(fn)) {
+  LatexCmds[fn] = OperatorName;
 }
 LatexCmds.operatorname = P(MathCommand, function(_) {
   _.createLeftOf = noop;
@@ -287,7 +288,7 @@ LatexCmds.rhov = //Elsevier and 9573-13
 LatexCmds.varrho = //AMS and LaTeX
   bind(Variable,'\\varrho ','&#1009;');
 
-//Greek constants, look best in un-italicised Times New Roman
+//Greek constants, look best in non-italicized Times New Roman
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
 LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
