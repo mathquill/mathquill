@@ -27,8 +27,8 @@ var TextBlock = P(Node, function(_, super_) {
     var textBlock = this;
     super_.createLeftOf.call(this, cursor);
 
-    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
-    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
+    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(cursor.options, L);
+    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(cursor.options, R);
     textBlock.bubble('edited');
 
     cursor.insAtRightEnd(textBlock);

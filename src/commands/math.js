@@ -8,9 +8,9 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, super_) {
-  _.finalizeInsert = function(cursor) {
+  _.finalizeInsert = function(options, cursor) {
     var self = this;
-    self.postOrder('finalizeTree');
+    self.postOrder('finalizeTree', options);
     self.postOrder('contactWeld', cursor);
 
     // note: this order is important.
@@ -20,8 +20,8 @@ var MathElement = P(Node, function(_, super_) {
     self.postOrder('blur');
 
     self.postOrder('edited');
-    if (self[R].siblingCreated) self[R].siblingCreated(L);
-    if (self[L].siblingCreated) self[L].siblingCreated(R);
+    if (self[R].siblingCreated) self[R].siblingCreated(options, L);
+    if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble('edited');
   };
 });
@@ -77,7 +77,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
-    cmd.finalizeInsert();
+    cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {

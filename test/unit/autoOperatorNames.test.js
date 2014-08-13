@@ -77,32 +77,32 @@ suite('autoOperatorNames', function() {
     assert.equal(count, str.length + 5);
   });
 
-  suite('MathQuill.overrideAutoOperatorNames()', function() {
+  suite('override autoOperatorNames', function() {
     test('basic', function() {
-      MathQuill.overrideAutoOperatorNames('sin lol');
+      MathQuill.config({ autoOperatorNames: 'sin lol' });
       mq.typedText('arcsintrololol');
       assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
     });
 
     test('command contains non-letters', function() {
-      assert.throws(function() { MathQuill.overrideAutoOperatorNames('e1'); });
+      assert.throws(function() { MathQuill.config({ autoOperatorNames: 'e1' }); });
     });
 
     test('command length less than 2', function() {
-      assert.throws(function() { MathQuill.overrideAutoOperatorNames('e'); });
+      assert.throws(function() { MathQuill.config({ autoOperatorNames: 'e' }); });
     });
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
-        assert.throws(function() { MathQuill.overrideAutoOperatorNames('pi  theta'); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: 'pi  theta' }); });
       });
 
       test('leading space', function() {
-        assert.throws(function() { MathQuill.overrideAutoOperatorNames(' pi'); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: ' pi' }); });
       });
 
       test('trailing space', function() {
-        assert.throws(function() { MathQuill.overrideAutoOperatorNames('pi '); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: 'pi ' }); });
       });
     });
   });

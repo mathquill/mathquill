@@ -197,7 +197,7 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
-  _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
+  _.respace = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ.toggleClass('mq-limit', this[L].ctrlSeq === '\\int ');
   };
@@ -549,7 +549,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.closeOpposing(this.ends[L].ends[this.side]); // if so become [1+2)+3
       var origEnd = this.ends[L].ends[side];
       this.unwrap();
-      if (origEnd.siblingCreated) origEnd.siblingCreated(side);
+      if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
     else { // check if like deleting inner close-brace of ([1+2}+3) where
@@ -568,7 +568,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
           .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
-        if (origEnd.siblingCreated) origEnd.siblingCreated(side);
+        if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
       else (outward ? cursor.insDirOf(side, this)
@@ -589,7 +589,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.side = 0;
     };
   };
-  _.siblingCreated = function(dir) { // if something typed between ghost and far
+  _.siblingCreated = function(opts, dir) { // if something typed between ghost and far
     if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
   };
 });

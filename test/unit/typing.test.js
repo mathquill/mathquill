@@ -904,7 +904,7 @@ suite('typing with auto-replaces', function() {
     });
 
     test('built-in operator names even after auto-operator names overridden', function() {
-      MathQuill.overrideAutoOperatorNames('sin inf arcosh cosh cos cosec csc');
+      MathQuill.config({ autoOperatorNames: 'sin inf arcosh cosh cos cosec csc' });
         // ^ happen to be the ones required by autoOperatorNames.test.js
       var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {

@@ -150,8 +150,8 @@ var Cursor = P(Point, function(_) {
 
     gramp.jQ.remove();
 
-    if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(R);
-    if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(L);
+    if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(cursor.options, R);
+    if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(cursor.options, L);
   };
   _.startSelection = function() {
     var anticursor = this.anticursor = Point.copy(this);

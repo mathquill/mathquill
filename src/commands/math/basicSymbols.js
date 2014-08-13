@@ -67,14 +67,15 @@ var Letter = P(Variable, function(_, super_) {
     this.jQ.toggleClass('mq-operator-name', !bool);
     return this;
   };
-  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(dir) {
+  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(opts, dir) {
     // don't auto-un-italicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will un-italicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
-    this.autoUnItalicize();
+    this.autoUnItalicize(opts);
   };
-  _.autoUnItalicize = function() {
-    if (MAX_AUTO_OP_NAME_LEN === 0) return;
+  _.autoUnItalicize = function(opts) {
+    var autoOps = opts.autoOperatorNames;
+    if (autoOps._maxLength === 0) return;
     // want longest possible operator names, so join together entire contiguous
     // sequence of letters
     var str = this.letter;
@@ -91,9 +92,9 @@ var Letter = P(Variable, function(_, super_) {
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
     outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
-      for (var len = min(MAX_AUTO_OP_NAME_LEN, str.length - i); len > 0; len -= 1) {
+      for (var len = min(autoOps._maxLength, str.length - i); len > 0; len -= 1) {
         var word = str.slice(i, i + len);
-        if (AutoOpNames.hasOwnProperty(word)) {
+        if (autoOps.hasOwnProperty(word)) {
           for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
             letter.italicize(false);
             var last = letter;
@@ -120,12 +121,12 @@ var Letter = P(Variable, function(_, super_) {
 var BuiltInOpNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
   // except for over/under line/arrow \lim variants like \varlimsup
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
-var AutoOpNames = {}, MAX_AUTO_OP_NAME_LEN = 9; // auto-un-italicized operator names
 (function() {
+  var autoOps = Options.p.autoOperatorNames = { _maxLength: 9 };
   var mostOps = ('arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
   for (var i = 0; i < mostOps.length; i += 1) {
-    BuiltInOpNames[mostOps[i]] = AutoOpNames[mostOps[i]] = 1;
+    BuiltInOpNames[mostOps[i]] = autoOps[mostOps[i]] = 1;
   }
 
   var builtInTrigs = // why coth but not sech and csch, LaTeX?
@@ -136,29 +137,28 @@ var AutoOpNames = {}, MAX_AUTO_OP_NAME_LEN = 9; // auto-un-italicized operator n
 
   var autoTrigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
   for (var i = 0; i < autoTrigs.length; i += 1) {
-    AutoOpNames[autoTrigs[i]] =
-    AutoOpNames['arc'+autoTrigs[i]] =
-    AutoOpNames[autoTrigs[i]+'h'] =
-    AutoOpNames['ar'+autoTrigs[i]+'h'] =
-    AutoOpNames['arc'+autoTrigs[i]+'h'] = 1;
+    autoOps[autoTrigs[i]] =
+    autoOps['arc'+autoTrigs[i]] =
+    autoOps[autoTrigs[i]+'h'] =
+    autoOps['ar'+autoTrigs[i]+'h'] =
+    autoOps['arc'+autoTrigs[i]+'h'] = 1;
   }
 }());
-MathQuill.overrideAutoOperatorNames = function(cmds) {
+optionProcessors.autoOperatorNames = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  cmds = cmds.split(' ');
-
-  var dict = {}, maxLength = 0;
-  for (var i = 0; i < cmds.length; i += 1) {
-    if (cmds[i].length < 2) {
-      throw '"'+cmds[i]+'" not minimum length of 2';
+  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  for (var i = 0; i < list.length; i += 1) {
+    var cmd = list[i];
+    if (cmd.length < 2) {
+      throw '"'+cmd+'" not minimum length of 2';
     }
-    dict[cmds[i]] = 1;
-    maxLength = max(maxLength, cmds[i].length);
+    dict[cmd] = 1;
+    maxLength = max(maxLength, cmd.length);
   }
-  AutoOpNames = dict;
-  MAX_AUTO_OP_NAME_LEN = maxLength;
+  dict._maxLength = maxLength;
+  return dict;
 };
 var OperatorName = P(Symbol, function(_, super_) {
   _.init = function(fn) { this.ctrlSeq = fn; };
@@ -330,9 +330,9 @@ var LatexFragment = P(MathCommand, function(_) {
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
-    block.finalizeInsert(cursor);
-    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
-    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
+    block.finalizeInsert(cursor.options, cursor);
+    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
     cursor.parent.bubble('edited');
   };
   _.parser = function() {
@@ -374,7 +374,7 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
-  _.contactWeld = _.siblingCreated = _.siblingDeleted = function(dir) {
+  _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className =
       (!this[L] || this[L] instanceof BinaryOperator ? '' : 'mq-binary-operator');

@@ -121,22 +121,6 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
-#### Global Behavior Options
-
-These methods modify math typing behavior page-wide:
-
-- `MathQuill.overrideAutoOperatorNames('sin cos etc')` also takes a list of the
-  same form (space-delimited letters-only each length>=2), and overrides the set
-  of operator names that automatically become non-italicized when typing the
-  letters without typing a backslash first, like `sin`, `log`, etc. (Defaults to
-  [the LaTeX built-in operator names][Wikia], but with additional trig operators
-  like `sech`, `arcsec`, `arsinh`, etc.)
-
-[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
-
-(TODO: methods to remove auto-commands etc, and per-field versions of all these
-methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))
-
 #### Configuration Options
 
 `MathQuill.MathField()` can also take an options object:
@@ -154,7 +138,8 @@ var mathField = MathQuill.MathField(el[0], {
   leftRightIntoCmdGoes: 'up',
   supSubsRequireOperand: true,
   charsThatBreakOutOfSupSub: '+-=<>',
-  autoCommands: 'pi theta sqrt sum'
+  autoCommands: 'pi theta sqrt sum',
+  autoOperatorNames: 'sin cos etc'
 });
 ```
 
@@ -202,6 +187,14 @@ LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
 letters only, min length 2), defines the (default empty) set of "auto-commands",
 commands automatically rendered by just typing the letters without typing a
 backslash first.
+
+`autoOperatorNames`, a list of the same form (space-delimited letters-only each
+length>=2), and overrides the set of operator names that automatically become
+non-italicized when typing the letters without typing a backslash first, like
+`sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names][Wikia], but
+with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
+
+[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

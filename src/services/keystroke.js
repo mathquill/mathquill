@@ -236,8 +236,8 @@ Controller.open(function(_) {
       else cursor.parent.deleteOutOf(dir, cursor);
     }
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(L);
+    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
+    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
     cursor.parent.bubble('edited');
 
     return this;
