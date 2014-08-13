@@ -818,9 +818,10 @@ suite('typing with auto-replaces', function() {
     });
   });
 
-  suite('auto-cmds', function() {
-    MathQuill.addAutoCommands('pi tau phi theta Gamma '
-                              + 'sum prod sqrt nthroot');
+  suite('autoCommands', function() {
+    MathQuill.config({
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+    });
 
     test('individual commands', function(){
       mq.typedText('sum' + 'n=0');
@@ -886,19 +887,19 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command contains non-letters', function() {
-      assert.throws(function() { MathQuill.addAutoCommands('e1'); });
+      assert.throws(function() { MathQuill.config({ autoCommands: 'e1' }); });
     });
 
     test('command length less than 2', function() {
-      assert.throws(function() { MathQuill.addAutoCommands('e'); });
+      assert.throws(function() { MathQuill.config({ autoCommands: 'e' }); });
     });
 
     test('command is a built-in operator name', function() {
       var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
-        assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
-                      'MathQuill.addAutoCommands("'+cmds[i]+'")');
+        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
+                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
 
@@ -907,22 +908,22 @@ suite('typing with auto-replaces', function() {
         // ^ happen to be the ones required by autoOperatorNames.test.js
       var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
-        assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
-                      'MathQuill.addAutoCommands("'+cmds[i]+'")');
+        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
+                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands('pi  theta'); });
+        assert.throws(function() { MathQuill.config({ autoCommands: 'pi  theta' }); });
       });
 
       test('leading space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands(' pi'); });
+        assert.throws(function() { MathQuill.config({ autoCommands: ' pi' }); });
       });
 
       test('trailing space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands('pi '); });
+        assert.throws(function() { MathQuill.config({ autoCommands: 'pi ' }); });
       });
     });
   });

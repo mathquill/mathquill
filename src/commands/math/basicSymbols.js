@@ -18,37 +18,41 @@ var Variable = P(Symbol, function(_, super_) {
   };
 });
 
-var AutoCmds = {}, MAX_AUTOCMD_LEN = 0;
-MathQuill.addAutoCommands = function(cmds) {
+Options.p.autoCommands = { _maxLength: 0 };
+optionProcessors.autoCommands = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  cmds = cmds.split(' ');
-  for (var i = 0; i < cmds.length; i += 1) {
-    if (cmds[i].length < 2) {
-      throw 'autocommand "'+cmds[i]+'" not minimum length of 2';
+  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  for (var i = 0; i < list.length; i += 1) {
+    var cmd = list[i];
+    if (cmd.length < 2) {
+      throw 'autocommand "'+cmd+'" not minimum length of 2';
     }
-    if (LatexCmds[cmds[i]] === OperatorName) {
-      throw '"' + cmds[i] + '" is a built-in operator name';
+    if (LatexCmds[cmd] === OperatorName) {
+      throw '"' + cmd + '" is a built-in operator name';
     }
-    AutoCmds[cmds[i]] = 1;
-    MAX_AUTOCMD_LEN = max(cmds[i].length, MAX_AUTOCMD_LEN);
+    dict[cmd] = 1;
+    maxLength = max(maxLength, cmd.length);
   }
+  dict._maxLength = maxLength;
+  return dict;
 };
 
 var Letter = P(Variable, function(_, super_) {
   _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.createLeftOf = function(cursor) {
-    if (MAX_AUTOCMD_LEN > 0) {
+    var autoCmds = cursor.options.autoCommands, maxLength = autoCmds._maxLength;
+    if (maxLength > 0) {
       // want longest possible autocommand, so join together longest
       // sequence of letters
       var str = this.letter, l = cursor[L], i = 1;
-      while (l instanceof Letter && i < MAX_AUTOCMD_LEN) {
+      while (l instanceof Letter && i < maxLength) {
         str = l.letter + str, l = l[L], i += 1;
       }
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
-        if (AutoCmds.hasOwnProperty(str)) {
+        if (autoCmds.hasOwnProperty(str)) {
           for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
           Fragment(l, cursor[L]).remove();
           cursor[L] = l[L];

@@ -125,10 +125,6 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 
 These methods modify math typing behavior page-wide:
 
-- `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
-  of LaTeX control words (no backslash, letters only, min length 2), and adds
-  them to the (default empty) set of "auto-commands", commands automatically
-  rendered by just typing the letters without typing a backslash first
 - `MathQuill.overrideAutoOperatorNames('sin cos etc')` also takes a list of the
   same form (space-delimited letters-only each length>=2), and overrides the set
   of operator names that automatically become non-italicized when typing the
@@ -157,7 +153,8 @@ var mathField = MathQuill.MathField(el[0], {
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
   supSubsRequireOperand: true,
-  charsThatBreakOutOfSupSub: '+-=<>'
+  charsThatBreakOutOfSupSub: '+-=<>',
+  autoCommands: 'pi theta sqrt sum'
 });
 ```
 
@@ -200,6 +197,11 @@ the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or Space if
 the LaTeX `x^{2n}+y`; this option makes `+` "break out" of the exponent and
 type what you expect. Problem is, now you can't just type `x^n+m` to get the
 LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
+
+`autoCommands`, a space-delimited list of LaTeX control words (no backslash,
+letters only, min length 2), defines the (default empty) set of "auto-commands",
+commands automatically rendered by just typing the letters without typing a
+backslash first.
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
