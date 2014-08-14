@@ -8,7 +8,9 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, super_) {
-  _.finalizeInsert = function(options, cursor) {
+  _.finalizeInsert = function(options, cursor) { // `cursor` param is only for
+      // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
+      // see ea7307eb4fac77c149a11ffdf9a831df85247693
     var self = this;
     self.postOrder('finalizeTree', options);
     self.postOrder('contactWeld', cursor);
