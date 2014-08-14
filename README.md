@@ -129,17 +129,17 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
 var mathField = MathQuill.MathField(el[0], {
-  handlers: {
-    edited: function(mathField) { ... },
-    upOutOf: function(mathField) { ... },
-    moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
-  },
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
   supSubsRequireOperand: true,
   charsThatBreakOutOfSupSub: '+-=<>',
   autoCommands: 'pi theta sqrt sum',
-  autoOperatorNames: 'sin cos etc'
+  autoOperatorNames: 'sin cos etc',
+  handlers: {
+    edited: function(mathField) { ... },
+    upOutOf: function(mathField) { ... },
+    moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
+  }
 });
 ```
 
