@@ -113,6 +113,11 @@ suite('latex', function() {
     assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}x&y\\\\1&\\end{Vmatrix}');
   });
 
+  test('miscellaneous symbols', function() {
+    assertParsesLatex('\\xrightarrow{xyz}');
+    assertParsesLatex('\\xleftarrow{123}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
