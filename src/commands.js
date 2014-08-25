@@ -73,6 +73,7 @@ var Style = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tagName, attrs) {
     _super.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
   };
+  _.charCountBehavior = 'e';
 });
 
 var EmptyNullBlock = P(MathCommand, function(_, _super) {
@@ -327,6 +328,7 @@ var HatCommand = P(MathCommand, function(_, _super) {
     var scale = Math.max(Math.round(this.endChild[R].jQ.width() / hat.width()), 1);
     scaleX(hat, scale);
   };
+  _.charCountBehavior = 'e';
 });
 
 var WideHat =
