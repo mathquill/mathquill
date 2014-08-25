@@ -70,6 +70,12 @@ var Style = P(MathCommand, function(_, super_) {
   };
 });
 
+var XRightArrowStyle = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, tagName, attrs) {
+    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="mq-xarrow-inner">&0</'+tagName+'></'+tagName+'>');
+  };
+});
+
 //fonts
 LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
@@ -81,6 +87,8 @@ LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.xleftarrow = bind(XRightArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
+LatexCmds.xrightarrow = bind(XRightArrowStyle, '\\xrightarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-right"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
