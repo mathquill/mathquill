@@ -35,7 +35,7 @@ var latex = $('#basic-latex').on('keydown keypress', function() {
   });
 });
 var mq = MathQuill.MathField($('#basic')[0], {
-  handlers: { edited: function(mq) {
+  handlers: { reflow: function(mq) {
     if (!latex.is(':focus')) latex.val(mq.latex());
   } }
 });

@@ -29,7 +29,7 @@ var TextBlock = P(Node, function(_, super_) {
 
     if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
     if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
-    textBlock.bubble('edited');
+    textBlock.bubble('reflow');
 
     cursor.insAtRightEnd(textBlock);
 
