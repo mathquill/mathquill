@@ -12,19 +12,12 @@ Controller.open(function(_) {
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
-      function selectTo(pageX, pageY, target) {
-        if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target, pageX, pageY).cursor.select();
-      }
-
-      var ignoreNextDocmousemove = false;
-      function mousemove(e) {
-        selectTo(e.pageX, e.pageY, $(e.target));
-        ignoreNextDocmousemove = true;
-      }
+      var target;
+      function mousemove(e) { target = $(e.target); }
       function docmousemove(e) {
-        if (ignoreNextDocmousemove) ignoreNextDocmousemove = false;
-        else selectTo(e.pageX, e.pageY);
+        if (!cursor.anticursor) cursor.startSelection();
+        ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
