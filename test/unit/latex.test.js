@@ -182,8 +182,8 @@ suite('latex', function() {
         $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
         .appendTo('#mock')[0]
       );
-      inner1 = MathQuill($(outer.el()).find('.mq-editable-field:first')[0]);
-      inner2 = MathQuill($(outer.el()).find('.mq-editable-field:last')[0]);
+      inner1 = outer.innerFields[0];
+      inner2 = outer.innerFields[1];
     });
     teardown(function() {
       $(outer.el()).remove();
@@ -209,6 +209,24 @@ suite('latex', function() {
       assert.equal(inner1.latex(), 'x_0+x_1+x_2+x_3');
       assert.equal(inner2.latex(), '3+1');
       assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+    });
+
+    test('optional inner field name', function() {
+      outer.latex('\\MathQuillMathField[mantissa]{}\\cdot\\MathQuillMathField[base]{}^{\\MathQuillMathField[exp]{}}');
+      assert.equal(outer.innerFields.length, 3);
+
+      var mantissa = outer.innerFields.mantissa;
+      var base = outer.innerFields.base;
+      var exp = outer.innerFields.exp;
+
+      assert.equal(mantissa, outer.innerFields[0]);
+      assert.equal(base, outer.innerFields[1]);
+      assert.equal(exp, outer.innerFields[2]);
+
+      mantissa.latex('1.2345');
+      base.latex('10');
+      exp.latex('8');
+      assert.equal(outer.latex(), '1.2345\\cdot10^8');
     });
   });
 

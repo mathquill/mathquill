@@ -693,7 +693,17 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     +   '<span class="mq-root-block">&0</span>'
     + '</span>'
   ;
+  _.parser = function() {
+    var self = this,
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
+      .map(function(name) { self.name = name; }).or(succeed())
+      .then(super_.parser.call(self));
+  };
   _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
+  _.registerInnerField = function(innerFields) {
+    innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
+  };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
 });

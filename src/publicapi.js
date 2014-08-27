@@ -45,21 +45,21 @@ function setMathQuillDot(name, API) {
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    root.jQ = $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
-      .appendTo(el);
     var ctrlr = this.controller = root.controller = Controller(root, el, opts);
+    ctrlr.createTextarea();
     ctrlr.API = this;
     root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
-    ctrlr.createTextarea();
-  };
-  _.initExtractContents = function(el) {
+
     var contents = el.contents().detach();
+    root.jQ =
+      $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
+    this.latex(contents.text());
+
     this.revert = function() {
       return el.empty().unbind('.mathquill')
       .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
-    return contents.text();
   };
   _.el = function() { return this.controller.container[0]; };
   _.text = function() { return this.controller.exportText(); };
@@ -85,18 +85,24 @@ var AbstractMathQuill = P(function(_) {
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
-setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_) {
+setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
-    var contents = this.initExtractContents(el);
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.controller.renderLatexMath(contents);
     this.controller.delegateMouseEvents();
     this.controller.staticMathTextareaEvents();
+  };
+  _.latex = function() {
+    var returned = super_.latex.apply(this, arguments);
+    if (arguments.length > 0) {
+      this.controller.root.postOrder('registerInnerField', this.innerFields = []);
+    }
+    return returned;
   };
 }));
 
 var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
-  _.initEvents = function() {
+  _.initRootAndEvents = function(root, el, opts) {
+    this.initRoot(root, el, opts);
     this.controller.editable = true;
     this.controller.delegateMouseEvents();
     this.controller.editablesTextareaEvents();

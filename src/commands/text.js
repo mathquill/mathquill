@@ -364,11 +364,8 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
 });
 setMathQuillDot('TextField', P(EditableField, function(_) {
   _.init = function(el) {
-    var contents = this.initExtractContents(el);
     el.addClass('mq-editable-field mq-text-mode');
-    this.initRoot(RootTextBlock(), el);
-    this.controller.renderLatexText(contents);
-    this.initEvents();
+    this.initRootAndEvents(RootTextBlock(), el);
   };
   _.latex = function(latex) {
     if (arguments.length > 0) {
