@@ -69,9 +69,12 @@ var Letter = P(Variable, function(_, super_) {
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
         if (autoCmds.hasOwnProperty(str)) {
-          for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
-          Fragment(l, cursor[L]).remove();
-          cursor[L] = l[L];
+          l = cursor[L];
+          if (str.length > 1) {
+            for (var i = 2; i < str.length; i += 1, l = l[L]);
+            Fragment(l, cursor[L]).remove();
+            cursor[L] = l[L];
+          }
           return LatexCmds[str](str).createLeftOf(cursor);
         }
         str = str.slice(1);
@@ -127,6 +130,21 @@ var Letter = P(Variable, function(_, super_) {
           i += len - 1;
           first = last;
           continue outer;
+        } else if (Units.hasOwnProperty(word)) {
+          for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
+            letter.italicize(false);
+            var last = letter;
+          }
+
+          first.ctrlSeq = '\\text{' + first.ctrlSeq;
+          last.ctrlSeq += '}';
+          if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
+          if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
+
+          i += len - 1;
+          first = last;
+          continue outer;
         }
       }
     }
@@ -137,6 +155,7 @@ var Letter = P(Variable, function(_, super_) {
 });
 var BuiltInOpNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
   // except for over/under line/arrow \lim variants like \varlimsup
+var Units = {};
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 (function() {
   var autoOps = Options.p.autoOperatorNames = { _maxLength: 9 };

@@ -979,6 +979,34 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('unItalicizedTextCmds (Units)', function() {
+    setup(function() {
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0], {
+        unItalicizedTextCmds: ['g', 'mol', 'kg']
+      });
+    });
+
+    test('are wrapped in \\text block', function(){
+      mq.typedText('mol');
+      assertLatex('\\text{mol}');
+    });
+
+    test('does not affect adjacent text', function(){
+      mq.typedText('xmolx');
+      assertLatex('x\\text{mol}x');
+    });
+
+    test('can be entered multiple times', function(){
+      mq.typedText('molmolkg');
+      assertLatex('\\text{mol}\\text{mol}\\text{kg}');
+    });
+
+    test('supports different string lengths, including 1 char', function(){
+      mq.typedText('g kg mol');
+      assertLatex('\\text{g}\\ \\text{kg}\\ \\text{mol}');
+    });
+  });
+
   suite('inequalities', function() {
     // assertFullyFunctioningInequality() checks not only that the inequality
     // has the right LaTeX and when you backspace it has the right LaTeX,

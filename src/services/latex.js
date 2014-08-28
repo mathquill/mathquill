@@ -84,6 +84,10 @@ Controller.open(function(_, super_) {
     var all = Parser.all;
     var eof = Parser.eof;
 
+    // HACK: set value of Units before every parse
+    // ensuring that the correct units are available for this mq instance
+    this.setUnitalicizedTextCmds();
+
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
     if (block && !block.isEmpty()) {

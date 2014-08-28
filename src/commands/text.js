@@ -48,12 +48,21 @@ var TextBlock = P(Node, function(_, super_) {
     return optWhitespace
       .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
       .map(function(text) {
-        // TODO: is this the correct behavior when parsing
-        // the latex \text{} ?  This violates the requirement that
-        // the text contents are always nonempty.  Should we just
-        // disown the parent node instead?
-        TextPiece(text).adopt(textBlock, 0, 0);
-        return textBlock;
+        // check if this is a unit
+        if (text.length && Units.hasOwnProperty(text)) {
+          var block = MathBlock();
+          for (var i = 0; i < text.length; i += 1) {
+            Letter(text.charAt(i)).adopt(block, block.ends[R], 0);
+          }
+          return block.children();
+        } else {
+          // TODO: is this the correct behavior when parsing
+          // the latex \text{} ?  This violates the requirement that
+          // the text contents are always nonempty.  Should we just
+          // disown the parent node instead?
+          TextPiece(text).adopt(textBlock, 0, 0);
+          return textBlock;
+        }
       })
     ;
   };
