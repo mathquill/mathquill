@@ -17,6 +17,7 @@ Controller.open(function(_) {
       }
       else
         cursor.show();
+      ctrlr.setUnitalicizedTextCmds();
     }).blur(function() {
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if

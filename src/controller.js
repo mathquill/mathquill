@@ -10,6 +10,20 @@ var Controller = P(function(_) {
     this.cursor = Cursor(root);
     this.container = container;
     this.options = options || 0;
+    this.setUnitalicizedTextCmds();
+  };
+
+  _.setUnitalicizedTextCmds = function() {
+    Units = {};
+    var unitalicizedTextCmds = this.options && this.options.unItalicizedTextCmds || [];
+    if (unitalicizedTextCmds instanceof Array) {
+      for (var i = 0; i < unitalicizedTextCmds.length; i += 1) {
+        Units[unitalicizedTextCmds[i]] = 1;
+      }
+      this.options.unItalicizedTextCmds = Units;
+    } else if (unitalicizedTextCmds && !(unitalicizedTextCmds instanceof Array)) {
+      Units = this.options.unItalicizedTextCmds;
+    }
   };
 
   var notifyees = [];

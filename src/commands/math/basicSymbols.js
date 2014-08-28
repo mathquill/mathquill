@@ -49,9 +49,12 @@ var Letter = P(Variable, function(_, super_) {
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
         if (AutoCmds.hasOwnProperty(str)) {
-          for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
-          Fragment(l, cursor[L]).remove();
-          cursor[L] = l[L];
+          l = cursor[L];
+          if (str.length > 1) {
+            for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
+            Fragment(l, cursor[L]).remove();
+            cursor[L] = l[L];
+          }
           return LatexCmds[str](str).createLeftOf(cursor);
         }
         str = str.slice(1);
@@ -105,6 +108,21 @@ var Letter = P(Variable, function(_, super_) {
           i += len - 1;
           first = last;
           continue outer;
+        } else if (Units.hasOwnProperty(word)) {
+          for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
+            letter.italicize(false);
+            var last = letter;
+          }
+
+          first.ctrlSeq = '\\text{' + first.ctrlSeq;
+          last.ctrlSeq += '}';
+          if (TwoWordOps.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
+          if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
+          if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
+
+          i += len - 1;
+          first = last;
+          continue outer;
         }
       }
     }
@@ -117,6 +135,7 @@ var OperatorNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Nam
   // except for over/under line/arrow \lim variants like \varlimsup
 var TwoWordOps = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 var UnItalicizedCmds = {}, MAX_UNITALICIZED_LEN = 9; // auto-unitalicized words
+var Units = {};
 (function() {
   var mostOps = ('Pr arg deg det dim exp gcd hom inf ker lg ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
