@@ -105,8 +105,14 @@ jQuery.fn.mathquill = function(cmd, latex) {
         var blockId = $(this).attr(mqBlockId),
           block = blockId && MathElement[blockId],
           cursor = block && block.cursor;
-        if (cursor)
+        if (cursor) {
           cursor.allowLatex = latex;
+          if (latex) {
+            CharCmds['\\'] = LatexCommandInput;
+          } else {
+            CharCmds['\\'] = LatexCmds.backslash;
+          }
+        }
       });
   case 'allowSpace':
     if (arguments.length > 1)
