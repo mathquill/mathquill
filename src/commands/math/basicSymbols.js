@@ -196,6 +196,7 @@ LatexCmds.f = P(Letter, function(_, super_) {
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', ' ');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
+LatexCmds['"'] = LatexCmds.doublePrime = bind(VanillaSymbol, '"', '&Prime;');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
