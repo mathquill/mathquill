@@ -135,6 +135,9 @@ var mathField = MathQuill.MathField(el[0], {
   charsThatBreakOutOfSupSub: '+-=<>',
   autoCommands: 'pi theta sqrt sum',
   autoOperatorNames: 'sin cos etc',
+  substituteTextarea: function() {
+    return document.createElement('textarea');
+  },
   handlers: {
     edited: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
@@ -195,6 +198,23 @@ non-italicized when typing the letters without typing a backslash first, like
 with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
 
 [Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+
+`substituteTextarea`, a function that creates a focusable DOM element, called
+when initializing a math field. It defaults to a `<textarea>`, but for example,
+Desmos substitutes a `<span tabindex=0></span>` in mobile browsers to suppress
+the built-in virtual keyboard in favor of a custom math keypad that calls the
+MathQuill API. Unfortunately there's no universal [check for a virtual keyboard]
+[StackOverflow], you can't even [detect a touchscreen][stucox] (notably
+[Modernizr gave up][Modernizr]) and even if you could, Windows 8 and ChromeOS
+devices have both physical keyboards and touchscreens and you can connect
+physical keyboards to iOS and Android devices with Bluetooth, so touchscreen !=
+virtual keyboard. Desmos currently sniffs the user agent for iOS or Android, so
+Bluetooth keyboards just don't work in Desmos on iOS or Android, the tradeoffs
+are up to you.
+
+[StackOverflow]: http://stackoverflow.com/q/2593139/362030
+[stucox]: http://www.stucox.com/blog/you-cant-detect-a-touchscreen/
+[Modernizr]: https://github.com/Modernizr/Modernizr/issues/548
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

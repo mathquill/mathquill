@@ -4,10 +4,14 @@
  ********************************************/
 
 Controller.open(function(_) {
+  Options.p.substituteTextarea = function() { return $('<textarea>')[0]; };
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
-      fn = this.API.__options.substituteTextarea, textarea = this.textarea =
-        $(fn ? fn() : '<textarea/>').appendTo(textareaSpan);
+      textarea = this.API.__options.substituteTextarea();
+    if (!textarea.nodeType) {
+      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
+    }
+    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };

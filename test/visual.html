@@ -361,7 +361,7 @@ function timeAndLog(f) {
 
 MathQuill.MathField($('#no-kbd-math')[0], {
   substituteTextarea: function() {
-    return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />');
+    return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
   }
 });
 </script>
