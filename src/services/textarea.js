@@ -92,7 +92,12 @@ Controller.open(function(_) {
     this.scrollHoriz();
   };
   _.paste = function(text) {
-    if (this.API.__options.statelessClipboard) { // FIXME: document in README
+    // TODO: document `statelessClipboard` config option in README, after
+    // making it work like it should, that is, in both text and math mode
+    // (currently only works in math fields, so worse than pointless, it
+    //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
+    //  cut/copied LaTeX)
+    if (this.API.__options.statelessClipboard) {
       if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
       }
