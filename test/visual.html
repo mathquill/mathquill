@@ -103,13 +103,18 @@ td {
 
 <h3>Behavior Options</h3>
 
-<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span> Space should behave like Tab, and left and right should go through the upper block</p>
+<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
+<p>Space should behave like Tab, left and right should go through the upper block, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
 
 <script>
 $(function() {
   MathQuill.MathField($('#custom-behavior')[0], {
     spaceBehavesLikeTab: true,
-    leftRightIntoCmdGoes: 'up'
+    leftRightIntoCmdGoes: 'up',
+    supSubsRequireOperand: true,
+    charsThatBreakOutOfSupSub: '+-=<>',
+    autoCommands: 'pi theta sqrt sum',
+    autoOperatorNames: 'only'
   });
 });
 </script>
