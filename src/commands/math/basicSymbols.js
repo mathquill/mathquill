@@ -51,7 +51,7 @@ var Letter = P(Variable, function(_, super_) {
         if (AutoCmds.hasOwnProperty(str)) {
           l = cursor[L];
           if (str.length > 1) {
-            for (var i = 2, l = cursor[L]; i < str.length; i += 1, l = l[L]);
+            for (var i = 2; i < str.length; i += 1, l = l[L]);
             Fragment(l, cursor[L]).remove();
             cursor[L] = l[L];
           }
