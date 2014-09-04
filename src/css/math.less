@@ -372,12 +372,13 @@
 
   .mq-xarrow {
     position: relative;
-    top: -0.7em;
+    top: -0.5em;
     padding-bottom: 0.2em;
     margin-top: 5px;
     margin-left: 5px;
     margin-right: 5px;
     font-size: 0.7em;
+    border-bottom: 1px solid black;
 
     .mq-xarrow-inner {
       padding-left: 0.3em;
@@ -387,19 +388,12 @@
     &:after {
       display: block;
       position: relative;
-      top: 0.5em;
+      top: 0.45em;
       font-size: 0.8em;
       line-height: 0em;
       content: '\27A4';
       text-align: right;
       right: -0.3em;
-    }
-    &:before {
-      display: block;
-      position: relative;
-      top: 1.4em;
-      border-top: 1px solid black;
-      content: '';
     }
     &.mq-arrow-left:after {
       -moz-transform: scaleX(-1);
