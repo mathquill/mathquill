@@ -945,7 +945,7 @@ LatexCmds.matrix = P(MathCommand, function(_, super_) {
   // https://github.com/raywainman/mathquill/commit/5a9c6a04ac4e8bb1fd4f912ccbfa53a99224adf8
   _.parser = function() {
     var regex = Parser.regex, self = this, matrixName = this.getMatrixName(),
-      rgxContents = new RegExp("^(.*)\\\\end{" + matrixName + "}"),
+      rgxContents = new RegExp("^(.*?)\\\\end{" + matrixName + "}"),
       rgxEnd = new RegExp("\\\\end{" + matrixName + "}");
 
     return regex(rgxContents)
