@@ -443,11 +443,9 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
  * which causes something to be written into an editable mathquill,
  * the mouseup event will hijack focus.
  */
-setMathQuillDot('InertMath', P(AbstractMathQuill, function(_) {
+setMathQuillDot('InertMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
-    var contents = this.initExtractContents(el);
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.controller.renderLatexMath(contents);
   };
 }));
 
@@ -461,11 +459,9 @@ setMathQuillDot('InertMath', P(AbstractMathQuill, function(_) {
  * but be sure to perform the action on the active root node -
  * see "write" below for a simple example.
  */
-setMathQuillDot('StaticMathWithEditables', P(AbstractMathQuill, function(_) {
+setMathQuillDot('StaticMathWithEditables', P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
-    var contents = this.initExtractContents(el);
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'), opts);
-    this.controller.renderLatexMath(contents);
     this.controller.delegateMouseEvents();
   };
   _.withActiveNode = function (callback) {
