@@ -414,7 +414,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
       });
     }).or(super_.parser.call(this));
   };
-  _.edited = function() {
+  _.reflow = function() {
     var block = this.ends[R].jQ;
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
@@ -452,7 +452,7 @@ function DelimsMixin(_, super_) {
     this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
     this.contentjQ = this.jQ.children(':eq(1)');
   };
-  _.edited = function() {
+  _.reflow = function() {
     var height = this.contentjQ.outerHeight()
                  / parseInt(this.contentjQ.css('fontSize'), 10);
     scale(this.delimjQs, min(1 + .2*(height - 1), 1.2), 1.05*height);
@@ -513,7 +513,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
-        brack.bubble('edited');
+        brack.bubble('reflow');
       }
     }
     else {

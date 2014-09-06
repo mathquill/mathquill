@@ -12,23 +12,15 @@ Controller.open(function(_) {
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
-      function mousemove(e) {
-        if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.select();
-      }
-
-      // docmousemove is attached to the document, so that
-      // selection still works when the mouse leaves the window.
+      var target;
+      function mousemove(e) { target = $(e.target); }
       function docmousemove(e) {
-        // [Han]: i delete the target because of the way seek works.
-        // it will not move the mouse to the target, but will instead
-        // just seek those X and Y coordinates.  If there is a target,
-        // it will try to move the cursor to document, which will not work.
-        // cursor.seek needs to be refactored.
-        delete e.target;
-
-        return mousemove(e);
+        if (!cursor.anticursor) cursor.startSelection();
+        ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        target = undefined;
       }
+      // outside rootjQ, the MathQuill node corresponding to the target (if any)
+      // won't be inside this root, so don't mislead Controller::seek with it
 
       function mouseup(e) {
         cursor.blink = blink;
@@ -58,6 +50,8 @@ Controller.open(function(_) {
 
       rootjQ.mousemove(mousemove);
       $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+      // listen on document not just body to not only hear about mousemove and
+      // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
     });
   }
 });
@@ -66,10 +60,12 @@ Controller.open(function(_) {
   _.seek = function(target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
 
-    var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
-    if (!nodeId) {
-      var targetParent = target.parent();
-      nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
+    if (target) {
+      var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
+      if (!nodeId) {
+        var targetParent = target.parent();
+        nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
+      }
     }
     var node = nodeId ? Node.byId[nodeId] : this.root;
     pray('nodeId is the id of some Node that exists', node);

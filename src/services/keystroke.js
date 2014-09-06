@@ -238,7 +238,7 @@ Controller.open(function(_) {
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble('edited');
+    cursor.parent.bubble('reflow');
 
     return this;
   };

@@ -18,13 +18,13 @@ var MathElement = P(Node, function(_, super_) {
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
-    // correctly by 'edited' handlers.
+    // correctly by 'reflow' handlers.
     self.postOrder('blur');
 
-    self.postOrder('edited');
+    self.postOrder('reflow');
     if (self[R].siblingCreated) self[R].siblingCreated(options, L);
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
-    self.bubble('edited');
+    self.bubble('reflow');
   };
 });
 

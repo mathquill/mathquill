@@ -90,8 +90,8 @@ var AbstractMathQuill = P(function(_) {
       .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
       .replace(/ class=(""|(?= |>))/g, '');
   };
-  _.redraw = function() {
-    this.controller.root.postOrder('edited');
+  _.reflow = function() {
+    this.controller.root.postOrder('reflow');
     return this;
   };
 });
@@ -182,7 +182,7 @@ function RootBlockMixin(_) {
     this.extraArg = extraArg; // extra context arg for handlers
   };
 
-  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf edited'.split(' ');
+  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf reflow'.split(' ');
   for (var i = 0; i < names.length; i += 1) (function(name) {
     _[name] = (i < 3
       ? function(dir) { if (this.handlers[name]) this.handlers[name](dir, this.extraArg); }

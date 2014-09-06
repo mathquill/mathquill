@@ -81,15 +81,15 @@ Any element that has been MathQuill-ified can be reverted:
 MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 ```
 
-MathQuill has to perform calculations based on computed CSS values. If you
-mathquill-ify an element before inserting into the visible HTML DOM, then once
-it is visible MathQuill will need to recalculate:
+MathQuill uses computed dimensions, so if they change (because an element was
+mathquill-ified before it was in the visible HTML DOM, or the font size
+changed), then you'll need to tell MathQuill to recompute:
 
 ```js
 var mathFieldSpan = $('<span>\\sqrt{2}</span>');
 var mathField = MathQuill.MathField(mathFieldSpan[0]);
 mathFieldSpan.appendTo(document.body);
-mathField.redraw();
+mathField.reflow();
 ```
 
 MathQuill API objects further expose the following public methods:
@@ -139,7 +139,7 @@ var mathField = MathQuill.MathField(el[0], {
     return document.createElement('textarea');
   },
   handlers: {
-    edited: function(mathField) { ... },
+    reflow: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
   }
@@ -219,7 +219,7 @@ are up to you.
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
   math field API object as arguments
-- `upOutOf`, `downOutOf`, `enter`, and `edited` are called with just the API
+- `upOutOf`, `downOutOf`, `enter`, and `reflow` are called with just the API
   object as the argument
 
 The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
@@ -232,10 +232,8 @@ arguments, and Backspace causes `deleteOutOf` (if provided) to be called with
 
 The `enter` handler is called whenever Enter is pressed.
 
-The `edited` handler is called when the field is edited (stuff is typed in,
-deleted, written with the API, etc), and occasionally for no reason. (That is,
-there's no guarantee the field has changed between calls to `edited`, but it is
-guaranteed `edited` is called whenever the field does change.)
+The `reflow` handler is called when the size of the field might have been
+changed by stuff being typed, or deleted, or written with the API, etc.
 
 Handlers are always called directly on the `handlers` object passed in,
 preserving the `this` value, so you can do stuff like:
@@ -265,7 +263,7 @@ over the math field:
 var latex = '';
 var mathField = MathQuill.MathField($('#mathfield')[0], {
   handlers: {
-    edited: function() { latex = mathField.latex(); },
+    reflow: function() { latex = mathField.latex(); },
     enter: function() { submitLatex(latex); }
   }
 });
