@@ -248,6 +248,13 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
   };
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+    if (cursor.options.sumStartsWithNEquals) {
+      Letter('n').createLeftOf(cursor);
+      Equality().createLeftOf(cursor);
+    }
+  };
   _.latex = function() {
     function simplify(latex) {
       return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';

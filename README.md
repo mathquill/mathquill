@@ -131,6 +131,7 @@ var el = $('<span>x^2</span>').appendTo('body');
 var mathField = MathQuill.MathField(el[0], {
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
+  sumStartsWithNEquals: true,
   supSubsRequireOperand: true,
   charsThatBreakOutOfSupSub: '+-=<>',
   autoCommands: 'pi theta sqrt sum',
@@ -173,6 +174,10 @@ can't get to it with just Left and Right, you have to press Down); which is
 the same behavior as the Desmos calculator. `'down'` instead means it is the
 numerator that is always skipped, which is the same behavior as the Mac OS X
 built-in app Grapher.
+
+If `sumStartsWithNEquals` is true then when you type `\sum`, `\prod`, or
+`\coprod`, the lower limit starts out with `n=`, e.g. you get the LaTeX
+`\sum_{n=}^{ }`, rather than empty by default.
 
 `supSubsRequireOperand` disables typing of superscripts and subscripts when
 there's nothing to the left of the cursor to be exponentiated or subscripted.
