@@ -73,25 +73,25 @@ var AbstractMathQuill = P(function(_) {
     }
     return this;
   };
-  _.el = function() { return this.controller.container[0]; };
-  _.text = function() { return this.controller.exportText(); };
+  _.el = function() { return this.__controller.container[0]; };
+  _.text = function() { return this.__controller.exportText(); };
   _.latex = function(latex) {
     if (arguments.length > 0) {
-      this.controller.renderLatexMath(latex);
-      if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
+      this.__controller.renderLatexMath(latex);
+      if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     }
-    return this.controller.exportLatex();
+    return this.__controller.exportLatex();
   };
   _.html = function() {
-    return this.controller.root.jQ.html()
+    return this.__controller.root.jQ.html()
       .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
       .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
       .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
       .replace(/ class=(""|(?= |>))/g, '');
   };
   _.reflow = function() {
-    this.controller.root.postOrder('reflow');
+    this.__controller.root.postOrder('reflow');
     return this;
   };
 });
@@ -100,13 +100,13 @@ MathQuill.prototype = AbstractMathQuill.prototype;
 MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.controller.delegateMouseEvents();
-    this.controller.staticMathTextareaEvents();
+    this.__controller.delegateMouseEvents();
+    this.__controller.staticMathTextareaEvents();
   };
   _.latex = function() {
     var returned = super_.latex.apply(this, arguments);
     if (arguments.length > 0) {
-      this.controller.root.postOrder('registerInnerField', this.innerFields = []);
+      this.__controller.root.postOrder('registerInnerField', this.innerFields = []);
     }
     return returned;
   };
@@ -115,20 +115,20 @@ MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
 var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.initRootAndEvents = function(root, el, opts) {
     this.initRoot(root, el, opts);
-    this.controller.editable = true;
-    this.controller.delegateMouseEvents();
-    this.controller.editablesTextareaEvents();
+    this.__controller.editable = true;
+    this.__controller.delegateMouseEvents();
+    this.__controller.editablesTextareaEvents();
     root.setHandlers(this.__options.handlers, this);
   };
-  _.focus = function() { this.controller.textarea.focus(); return this; };
-  _.blur = function() { this.controller.textarea.blur(); return this; };
+  _.focus = function() { this.__controller.textarea.focus(); return this; };
+  _.blur = function() { this.__controller.textarea.blur(); return this; };
   _.write = function(latex) {
-    this.controller.writeLatex(latex);
-    if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
+    this.__controller.writeLatex(latex);
+    if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
     return this;
   };
   _.cmd = function(cmd) {
-    var ctrlr = this.controller.notify(), cursor = ctrlr.cursor.show();
+    var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor.show();
     if (/^\\[a-z]+$/i.test(cmd)) {
       cmd = cmd.slice(1);
       var klass = LatexCmds[cmd];
@@ -144,18 +144,18 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     return this;
   };
   _.select = function() {
-    var ctrlr = this.controller;
+    var ctrlr = this.__controller;
     ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
     while (ctrlr.cursor[L]) ctrlr.selectLeft();
     return this;
   };
   _.clearSelection = function() {
-    this.controller.cursor.clearSelection();
+    this.__controller.cursor.clearSelection();
     return this;
   };
 
   _.moveToDirEnd = function(dir) {
-    this.controller.notify('move').cursor.insAtDirEnd(dir, this.controller.root);
+    this.__controller.notify('move').cursor.insAtDirEnd(dir, this.__controller.root);
     return this;
   };
   _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
@@ -164,12 +164,12 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.keystroke = function(keys) {
     var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
     for (var i = 0; i < keys.length; i += 1) {
-      this.controller.keystroke(keys[i], { preventDefault: noop });
+      this.__controller.keystroke(keys[i], { preventDefault: noop });
     }
     return this;
   };
   _.typedText = function(text) {
-    for (var i = 0; i < text.length; i += 1) this.controller.typedText(text.charAt(i));
+    for (var i = 0; i < text.length; i += 1) this.__controller.typedText(text.charAt(i));
     return this;
   };
 });

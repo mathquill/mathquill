@@ -9,7 +9,7 @@ suite('typing with auto-replaces', function() {
 
   function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
   function assertLatex(latex) {
-    prayWellFormedPoint(mq.controller.cursor);
+    prayWellFormedPoint(mq.__controller.cursor);
     assert.equal(mq.latex(), latex);
   }
 

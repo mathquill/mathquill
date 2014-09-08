@@ -75,18 +75,18 @@ suite('Public API', function() {
 
     test('select, clearSelection', function() {
       mq.latex('n+\\frac{n}{2}');
-      assert.ok(!mq.controller.cursor.selection);
+      assert.ok(!mq.__controller.cursor.selection);
       mq.select();
-      assert.equal(mq.controller.cursor.selection.join('latex'), 'n+\\frac{n}{2}');
+      assert.equal(mq.__controller.cursor.selection.join('latex'), 'n+\\frac{n}{2}');
       mq.clearSelection();
-      assert.ok(!mq.controller.cursor.selection);
+      assert.ok(!mq.__controller.cursor.selection);
     });
 
     test('latex while there\'s a selection', function() {
       mq.latex('a');
       assert.equal(mq.latex(), 'a');
       mq.select();
-      assert.equal(mq.controller.cursor.selection.join('latex'), 'a');
+      assert.equal(mq.__controller.cursor.selection.join('latex'), 'a');
       mq.latex('b');
       assert.equal(mq.latex(), 'b');
       mq.typedText('c');
@@ -100,14 +100,14 @@ suite('Public API', function() {
 
     test('.moveToDirEnd(dir)', function() {
       mq.latex('a x^2 + b x + c = 0');
-      assert.equal(mq.controller.cursor[L].ctrlSeq, '0');
-      assert.equal(mq.controller.cursor[R], 0);
+      assert.equal(mq.__controller.cursor[L].ctrlSeq, '0');
+      assert.equal(mq.__controller.cursor[R], 0);
       mq.moveToLeftEnd();
-      assert.equal(mq.controller.cursor[L], 0);
-      assert.equal(mq.controller.cursor[R].ctrlSeq, 'a');
+      assert.equal(mq.__controller.cursor[L], 0);
+      assert.equal(mq.__controller.cursor[R].ctrlSeq, 'a');
       mq.moveToRightEnd();
-      assert.equal(mq.controller.cursor[L].ctrlSeq, '0');
-      assert.equal(mq.controller.cursor[R], 0);
+      assert.equal(mq.__controller.cursor[L].ctrlSeq, '0');
+      assert.equal(mq.__controller.cursor[R], 0);
     });
   });
 
@@ -218,8 +218,8 @@ suite('Public API', function() {
     var mq, rootBlock, cursor;
     test('space behaves like tab with default opts', function() {
       mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-      rootBlock = mq.controller.root;
-      cursor = mq.controller.cursor;
+      rootBlock = mq.__controller.root;
+      cursor = mq.__controller.cursor;
 
       mq.latex('\\sqrt{x}');
       mq.keystroke('Left');
@@ -240,8 +240,8 @@ suite('Public API', function() {
     test('space behaves like tab when spaceBehavesLikeTab is true', function() {
       var opts = { 'spaceBehavesLikeTab': true };
       mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
-      rootBlock = mq.controller.root;
-      cursor = mq.controller.cursor;
+      rootBlock = mq.__controller.root;
+      cursor = mq.__controller.cursor;
 
       mq.latex('\\sqrt{x}');
 
@@ -261,8 +261,8 @@ suite('Public API', function() {
       MathQuill.config({ spaceBehavesLikeTab: true });
 
       mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
-      rootBlock = mq.controller.root;
-      cursor = mq.controller.cursor;
+      rootBlock = mq.__controller.root;
+      cursor = mq.__controller.cursor;
 
       mq.latex('\\sqrt{x}');
 

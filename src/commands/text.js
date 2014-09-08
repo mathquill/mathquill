@@ -369,10 +369,10 @@ MathQuill.TextField = APIFnFor(P(EditableField, function(_) {
   };
   _.latex = function(latex) {
     if (arguments.length > 0) {
-      this.controller.renderLatexText(latex);
-      if (this.controller.blurred) this.controller.cursor.hide().parent.blur();
+      this.__controller.renderLatexText(latex);
+      if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     }
-    return this.controller.exportLatex();
+    return this.__controller.exportLatex();
   };
 }));
