@@ -1,4 +1,4 @@
-suite('auto-unitalicized commands', function() {
+suite('autoOperatorNames', function() {
   var mq;
   setup(function() {
     mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
@@ -15,7 +15,7 @@ suite('auto-unitalicized commands', function() {
   }
 
   test('simple LaTeX parsing, typing', function() {
-    function assertUnitalicizedCommandWorks(str, latex) {
+    function assertAutoOperatorNamesWork(str, latex) {
       var count = 0;
       var _autoUnItalicize = Letter.prototype.autoUnItalicize;
       Letter.prototype.autoUnItalicize = function() {
@@ -37,14 +37,14 @@ suite('auto-unitalicized commands', function() {
       assert.equal(count, 2 + str.length);
     }
 
-    assertUnitalicizedCommandWorks('sin', '\\sin');
-    assertUnitalicizedCommandWorks('inf', '\\inf');
-    assertUnitalicizedCommandWorks('arcosh', '\\operatorname{arcosh}');
-    assertUnitalicizedCommandWorks('acosh', 'a\\cosh');
-    assertUnitalicizedCommandWorks('cosine', '\\cos ine');
-    assertUnitalicizedCommandWorks('arcosecant', 'ar\\operatorname{cosec}ant');
-    assertUnitalicizedCommandWorks('cscscscscscsc', '\\csc s\\csc s\\csc sc');
-    assertUnitalicizedCommandWorks('scscscscscsc', 's\\csc s\\csc s\\csc');
+    assertAutoOperatorNamesWork('sin', '\\sin');
+    assertAutoOperatorNamesWork('inf', '\\inf');
+    assertAutoOperatorNamesWork('arcosh', '\\operatorname{arcosh}');
+    assertAutoOperatorNamesWork('acosh', 'a\\cosh');
+    assertAutoOperatorNamesWork('cosine', '\\cos ine');
+    assertAutoOperatorNamesWork('arcosecant', 'ar\\operatorname{cosec}ant');
+    assertAutoOperatorNamesWork('cscscscscscsc', '\\csc s\\csc s\\csc sc');
+    assertAutoOperatorNamesWork('scscscscscsc', 's\\csc s\\csc s\\csc');
   });
 
   test('deleting', function() {
@@ -77,32 +77,32 @@ suite('auto-unitalicized commands', function() {
     assert.equal(count, str.length + 5);
   });
 
-  suite('MathQuill.overrideAutoUnitalicized()', function() {
+  suite('override autoOperatorNames', function() {
     test('basic', function() {
-      MathQuill.overrideAutoUnitalicized('sin lol');
+      MathQuill.config({ autoOperatorNames: 'sin lol' });
       mq.typedText('arcsintrololol');
       assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
     });
 
     test('command contains non-letters', function() {
-      assert.throws(function() { MathQuill.overrideAutoUnitalicized('e1'); });
+      assert.throws(function() { MathQuill.config({ autoOperatorNames: 'e1' }); });
     });
 
     test('command length less than 2', function() {
-      assert.throws(function() { MathQuill.overrideAutoUnitalicized('e'); });
+      assert.throws(function() { MathQuill.config({ autoOperatorNames: 'e' }); });
     });
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
-        assert.throws(function() { MathQuill.overrideAutoUnitalicized('pi  theta'); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: 'pi  theta' }); });
       });
 
       test('leading space', function() {
-        assert.throws(function() { MathQuill.overrideAutoUnitalicized(' pi'); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: ' pi' }); });
       });
 
       test('trailing space', function() {
-        assert.throws(function() { MathQuill.overrideAutoUnitalicized('pi '); });
+        assert.throws(function() { MathQuill.config({ autoOperatorNames: 'pi ' }); });
       });
     });
   });

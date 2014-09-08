@@ -27,28 +27,32 @@ var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
 /**
- * Publicly export functions that MathQuill-ify an HTML element and return an
- * API object. If it had already been MathQuill-ified into the same kind, return
- * the original API object (if different or not an HTML element, null).
- *
- * Always returns either an instance of itself, or null.
+ * Returns function (to be publicly exported) that MathQuill-ifies an HTML
+ * element and returns an API object. If the element had already been MathQuill-
+ * ified into the same kind, return the original API object (if different kind
+ * or not an HTML element, null).
  */
-function setMathQuillDot(name, API) {
-  MathQuill[name] = function(el, opts) {
+function APIFnFor(APIClass) {
+  function APIFn(el, opts) {
     var mq = MathQuill(el);
-    if (mq instanceof API || !el || !el.nodeType) return mq;
-    return API($(el), opts);
-  };
-  MathQuill[name].prototype = API.prototype;
+    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
+    return APIClass($(el), opts);
+  }
+  APIFn.prototype = APIClass.prototype;
+  return APIFn;
 }
+
+var Options = P(), optionProcessors = {};
+MathQuill.__options = Options.p;
 
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
   _.initRoot = function(root, el, opts) {
-    var ctrlr = this.controller = root.controller = Controller(root, el, opts);
+    this.__options = Options();
+    this.config(opts);
+
+    var ctrlr = Controller(this, root, el);
     ctrlr.createTextarea();
-    ctrlr.API = this;
-    root.cursor = ctrlr.cursor; // TODO: stop depending on root.cursor, and rm it
 
     var contents = el.contents().detach();
     root.jQ =
@@ -60,6 +64,14 @@ var AbstractMathQuill = P(function(_) {
       .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
     };
+  };
+  _.config =
+  MathQuill.config = function(opts) {
+    for (var opt in opts) if (opts.hasOwnProperty(opt)) {
+      var optVal = opts[opt], processor = optionProcessors[opt];
+      this.__options[opt] = (processor ? processor(optVal) : optVal);
+    }
+    return this;
   };
   _.el = function() { return this.controller.container[0]; };
   _.text = function() { return this.controller.exportText(); };
@@ -85,7 +97,7 @@ var AbstractMathQuill = P(function(_) {
 });
 MathQuill.prototype = AbstractMathQuill.prototype;
 
-setMathQuillDot('StaticMath', P(AbstractMathQuill, function(_, super_) {
+MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
     this.controller.delegateMouseEvents();
@@ -106,6 +118,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     this.controller.editable = true;
     this.controller.delegateMouseEvents();
     this.controller.editablesTextareaEvents();
+    root.setHandlers(this.__options.handlers, this);
   };
   _.focus = function() { this.controller.textarea.focus(); return this; };
   _.blur = function() { this.controller.textarea.blur(); return this; };

@@ -203,7 +203,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\sqrt{49}');
     });
 
-    test('auto-unitalicized', function() {
+    test('operator name', function() {
       mq.cmd('\\sin');
       assert.equal(mq.latex(), '\\sin');
     });
@@ -254,6 +254,22 @@ suite('Public API', function() {
       mq.keystroke('Shift-Spacebar');
       assert.equal(cursor[L], 0, 'left cursor is ' + cursor[L]);
       assert.equal(cursor[R], rootBlock.ends[L], 'parent of rootBlock is ' + cursor[R]);
+
+      $(mq.el()).remove();
+    });
+    test('space behaves like tab when globally set to true', function() {
+      MathQuill.config({ spaceBehavesLikeTab: true });
+
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      rootBlock = mq.controller.root;
+      cursor = mq.controller.cursor;
+
+      mq.latex('\\sqrt{x}');
+
+      mq.keystroke('Left');
+      mq.keystroke('Spacebar');
+      assert.equal(cursor.parent, rootBlock, 'cursor in root block');
+      assert.equal(cursor[R], 0, 'cursor at end of block');
 
       $(mq.el()).remove();
     });

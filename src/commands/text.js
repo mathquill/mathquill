@@ -27,8 +27,8 @@ var TextBlock = P(Node, function(_, super_) {
     var textBlock = this;
     super_.createLeftOf.call(this, cursor);
 
-    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(L);
-    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(R);
+    if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(cursor.options, L);
+    if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(cursor.options, R);
     textBlock.bubble('reflow');
 
     cursor.insAtRightEnd(textBlock);
@@ -362,7 +362,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
-setMathQuillDot('TextField', P(EditableField, function(_) {
+MathQuill.TextField = APIFnFor(P(EditableField, function(_) {
   _.init = function(el) {
     el.addClass('mq-editable-field mq-text-mode');
     this.initRootAndEvents(RootTextBlock(), el);

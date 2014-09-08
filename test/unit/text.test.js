@@ -29,7 +29,8 @@ suite('text', function() {
 
   test('changes the text nodes as the cursor moves around', function() {
     var block = fromLatex('\\text{abc}');
-    var ctrlr = Controller(block), cursor = ctrlr.cursor.insAtRightEnd(block);
+    var ctrlr = Controller({ __options: 0 }, block);
+    var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'abc', null);

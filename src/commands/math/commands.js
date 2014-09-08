@@ -135,6 +135,10 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
+  _.createLeftOf = function(cursor) {
+    if (!cursor[L] && cursor.options.supSubsRequireOperand) return;
+    return super_.createLeftOf.apply(this, arguments);
+  };
   _.contactWeld = function(cursor) {
     // Look on either side for a SupSub, if one is found compare my
     // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
@@ -177,11 +181,10 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     this.respace();
   };
-  var chars = '';
-  MathQuill.addCharsThatBreakOutOfSupSub = function(c) { chars += c; };
+  Options.p.charsThatBreakOutOfSupSub = '';
   _.finalizeTree = function() {
     this.ends[L].write = function(cursor, ch) {
-      if (chars.indexOf(ch) > -1) {
+      if (cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
       }
       MathBlock.p.write.apply(this, arguments);
@@ -194,7 +197,7 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
-  _.respace = _.siblingCreated = _.siblingDeleted = function(dir) {
+  _.respace = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ.toggleClass('mq-limit', this[L].ctrlSeq === '\\int ');
   };
@@ -546,7 +549,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.closeOpposing(this.ends[L].ends[this.side]); // if so become [1+2)+3
       var origEnd = this.ends[L].ends[side];
       this.unwrap();
-      if (origEnd.siblingCreated) origEnd.siblingCreated(side);
+      if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
     else { // check if like deleting inner close-brace of ([1+2}+3) where
@@ -565,7 +568,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
           .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
-        if (origEnd.siblingCreated) origEnd.siblingCreated(side);
+        if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
       else (outward ? cursor.insDirOf(side, this)
@@ -586,7 +589,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.side = 0;
     };
   };
-  _.siblingCreated = function(dir) { // if something typed between ghost and far
+  _.siblingCreated = function(opts, dir) { // if something typed between ghost and far
     if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
   };
 });
@@ -678,12 +681,12 @@ LatexCmds.choose = P(Binomial, function(_) {
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, container) {
     RootBlockMixin(root);
-    var ctrlr = this.controller = root.controller = Controller(root, container);
-    ctrlr.API = this;
+    this.__options = Options();
+    var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
-    root.cursor = ctrlr.cursor.insAtRightEnd(root);
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
+    ctrlr.cursor.insAtRightEnd(root);
   };
 });
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {

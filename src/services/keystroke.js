@@ -169,18 +169,16 @@ Controller.open(function(_) {
     return this.notify('move');
   };
 
-  var init = _.init;
-  _.init = function(root, container, opts) {
-    var updown = opts && opts.leftRightIntoCmdGoes;
+  optionProcessors.leftRightIntoCmdGoes = function(updown) {
     if (updown && updown !== 'up' && updown !== 'down') {
       throw '"up" or "down" required for leftRightIntoCmdGoes option, '
             + 'got "'+updown+'"';
     }
-    return init.apply(this, arguments);
+    return updown;
   };
   _.moveDir = function(dir) {
     prayDirection(dir);
-    var cursor = this.cursor, updown = this.options.leftRightIntoCmdGoes;
+    var cursor = this.cursor, updown = cursor.options.leftRightIntoCmdGoes;
 
     if (cursor.selection) {
       cursor.insDirOf(dir, cursor.selection.ends[dir]);
@@ -238,8 +236,8 @@ Controller.open(function(_) {
       else cursor.parent.deleteOutOf(dir, cursor);
     }
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(L);
+    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
+    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
     cursor.parent.bubble('reflow');
 
     return this;

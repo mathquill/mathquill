@@ -89,9 +89,9 @@ Controller.open(function(_, super_) {
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
       cursor[L] = block.ends[R];
-      block.finalizeInsert(cursor);
-      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(L);
-      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(R);
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
       cursor.parent.bubble('reflow');
     }
 
@@ -118,7 +118,7 @@ Controller.open(function(_, super_) {
       var html = block.join('html');
       jQ.html(html);
       root.jQize(jQ.children());
-      root.finalizeInsert();
+      root.finalizeInsert(cursor.options);
     }
     else {
       jQ.empty();
@@ -171,7 +171,7 @@ Controller.open(function(_, super_) {
 
       root.jQize().appendTo(root.jQ);
 
-      root.finalizeInsert();
+      root.finalizeInsert(cursor.options);
     }
   };
 });

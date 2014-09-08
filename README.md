@@ -40,10 +40,10 @@ To load MathQuill,
 [the latest tarball]: http://mathquill.com/downloads.html
 
 Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
-MathQuill-ify an HTML element and return an API object. If it has already been
-MathQuill-ified into the same kind, return the original API object (if different
-or not an HTML element, `null`). Always returns either an instance of itself,
-or `null`.
+MathQuill-ify an HTML element and return an API object. If the element had
+already been MathQuill-ified into the same kind, return the original API object
+(if different kind or not an HTML element, `null`). Note that it always returns
+either an instance of itself, or `null`.
 
 ```js
 var staticMath = MathQuill.StaticMath(staticMathSpan);
@@ -121,54 +121,35 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [one of these key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
 
-#### Global Behavior Options
-
-These methods modify math typing behavior page-wide:
-
-- `MathQuill.addAutoCommands('pi theta sqrt sum')` takes a space-delimited list
-  of LaTeX control words (no backslash, letters only, min length 2), and adds
-  them to the (default empty) set of "auto-commands", commands automatically
-  rendered by just typing the letters outside a `LatexCommandInput`
-- `MathQuill.overrideAutoUnitalicized('sin cos etc')` also takes a list of the
-  same form (space-delimited letters-only each length>=2), and overrides the set
-  of operator names that get automatically unitalicized when the letters are
-  typed, like `sin`, `log`, etc. (It defaults to
-  [the LaTeX built-in operator names][Wikia], but with additional trig operators
-  like `sech`, `arcsec`, `arsinh`, etc.)
-- `MathQuill.addCharsThatBreakOutOfSupSub('+-=<>')` sets the chars that when
-  typed, "break out" of super- and subscripts: for example, typing `x^2n+y`
-  normally results in the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or
-  Space if `spaceBehavesLikeTab` is true) to move the cursor out of the exponent
-  and get the LaTeX `x^{2n}+y`; but this option can make `+` "break out" of
-  the exponent, and type what you expect. Problem is, now you can't just type
-  `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the
-  paren or something
-- `MathQuill.disableCharsWithoutOperand('^_')` disables typing of the given
-  chars when there's nothing to the left of the cursor (Desmos, for example,
-  disables `^` and `_`, so that typos like `x^^2` are friendlier)
-
-[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
-
-(TODO: methods to remove auto-commands etc, and per-field versions of all these
-methods, if useful ([#286](https://github.com/mathquill/mathquill/issues/286)))
-
-#### Handlers/Options
+#### Configuration Options
 
 `MathQuill.MathField()` can also take an options object:
 
 ```js
 var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
-MathQuill.MathField(el[0], {
+var mathField = MathQuill.MathField(el[0], {
+  spaceBehavesLikeTab: true,
+  leftRightIntoCmdGoes: 'up',
+  supSubsRequireOperand: true,
+  charsThatBreakOutOfSupSub: '+-=<>',
+  autoCommands: 'pi theta sqrt sum',
+  autoOperatorNames: 'sin cos etc',
+  substituteTextarea: function() {
+    return document.createElement('textarea');
+  },
   handlers: {
     reflow: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
-  },
-  spaceBehavesLikeTab: true,
-  leftRightIntoCmdGoes: 'up'
+  }
 });
 ```
+
+To change `mathField`'s options, the `.config({ ... })` method takes an options
+object in the same format.
+
+Global defaults for a page may be set with `MathQuill.config({ ... })`.
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
 like {Shift-,}Tab escaping from the current block (as opposed to the default
@@ -192,6 +173,48 @@ can't get to it with just Left and Right, you have to press Down); which is
 the same behavior as the Desmos calculator. `'down'` instead means it is the
 numerator that is always skipped, which is the same behavior as the Mac OS X
 built-in app Grapher.
+
+`supSubsRequireOperand` disables typing of superscripts and subscripts when
+there's nothing to the left of the cursor to be exponentiated or subscripted.
+Averts the especially confusing typo `x^^2`, which looks much like `x^2`.
+
+`charsThatBreakOutOfSupSub` sets the chars that when typed, "break out" of
+superscripts and subscripts: for example, typing `x^2n+y` normally results in
+the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or Space if
+`spaceBehavesLikeTab` is true) to move the cursor out of the exponent and get
+the LaTeX `x^{2n}+y`; this option makes `+` "break out" of the exponent and
+type what you expect. Problem is, now you can't just type `x^n+m` to get the
+LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
+
+`autoCommands`, a space-delimited list of LaTeX control words (no backslash,
+letters only, min length 2), defines the (default empty) set of "auto-commands",
+commands automatically rendered by just typing the letters without typing a
+backslash first.
+
+`autoOperatorNames`, a list of the same form (space-delimited letters-only each
+length>=2), and overrides the set of operator names that automatically become
+non-italicized when typing the letters without typing a backslash first, like
+`sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names][Wikia], but
+with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
+
+[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+
+`substituteTextarea`, a function that creates a focusable DOM element, called
+when initializing a math field. It defaults to a `<textarea>`, but for example,
+Desmos substitutes a `<span tabindex=0></span>` in mobile browsers to suppress
+the built-in virtual keyboard in favor of a custom math keypad that calls the
+MathQuill API. Unfortunately there's no universal [check for a virtual keyboard]
+[StackOverflow], you can't even [detect a touchscreen][stucox] (notably
+[Modernizr gave up][Modernizr]) and even if you could, Windows 8 and ChromeOS
+devices have both physical keyboards and touchscreens and you can connect
+physical keyboards to iOS and Android devices with Bluetooth, so touchscreen !=
+virtual keyboard. Desmos currently sniffs the user agent for iOS or Android, so
+Bluetooth keyboards just don't work in Desmos on iOS or Android, the tradeoffs
+are up to you.
+
+[StackOverflow]: http://stackoverflow.com/q/2593139/362030
+[stucox]: http://www.stucox.com/blog/you-cant-detect-a-touchscreen/
+[Modernizr]: https://github.com/Modernizr/Modernizr/issues/548
 
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the

@@ -47,7 +47,7 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\sqrt{49}');
     });
 
-    test('auto-unitalicized', function() {
+    test('auto-operator names', function() {
       mq.typedText('\\sin^2');
       assertLatex('\\sin^2');
     });
@@ -818,9 +818,10 @@ suite('typing with auto-replaces', function() {
     });
   });
 
-  suite('auto-cmds', function() {
-    MathQuill.addAutoCommands('pi tau phi theta Gamma '
-                              + 'sum prod sqrt nthroot');
+  suite('autoCommands', function() {
+    MathQuill.config({
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+    });
 
     test('individual commands', function(){
       mq.typedText('sum' + 'n=0');
@@ -886,33 +887,43 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command contains non-letters', function() {
-      assert.throws(function() { MathQuill.addAutoCommands('e1'); });
+      assert.throws(function() { MathQuill.config({ autoCommands: 'e1' }); });
     });
 
     test('command length less than 2', function() {
-      assert.throws(function() { MathQuill.addAutoCommands('e'); });
+      assert.throws(function() { MathQuill.config({ autoCommands: 'e' }); });
     });
 
-    test('command is already unitalicized', function() {
+    test('command is a built-in operator name', function() {
       var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
-        assert.throws(function() { MathQuill.addAutoCommands(cmds[i]) },
-                      'MathQuill.addAutoCommands("'+cmds[i]+'")');
+        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
+                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
+      }
+    });
+
+    test('built-in operator names even after auto-operator names overridden', function() {
+      MathQuill.config({ autoOperatorNames: 'sin inf arcosh cosh cos cosec csc' });
+        // ^ happen to be the ones required by autoOperatorNames.test.js
+      var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
+      for (var i = 0; i < cmds.length; i += 1) {
+        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
+                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands('pi  theta'); });
+        assert.throws(function() { MathQuill.config({ autoCommands: 'pi  theta' }); });
       });
 
       test('leading space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands(' pi'); });
+        assert.throws(function() { MathQuill.config({ autoCommands: ' pi' }); });
       });
 
       test('trailing space', function() {
-        assert.throws(function() { MathQuill.addAutoCommands('pi '); });
+        assert.throws(function() { MathQuill.config({ autoCommands: 'pi ' }); });
       });
     });
   });
@@ -977,15 +988,15 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('SupSub behavior options', function() {
-    test('addCharsThatBreakOutOfSupSub', function() {
+    test('charsThatBreakOutOfSupSub', function() {
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n+y}');
 
       mq.latex('');
-      MathQuill.addCharsThatBreakOutOfSupSub('+-=<>');
+      MathQuill.config({ charsThatBreakOutOfSupSub: '+-=<>' });
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
     });
-    test('disableCharsWithoutOperand', function() {
+    test('supSubsRequireOperand', function() {
       assert.equal(mq.typedText('^').latex(), '^{ }');
       assert.equal(mq.typedText('2').latex(), '^2');
       assert.equal(mq.typedText('n').latex(), '^{2n}');
@@ -1002,7 +1013,7 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
 
       mq.latex('');
-      MathQuill.disableCharsWithoutOperand('^_');
+      MathQuill.config({ supSubsRequireOperand: true });
 
       assert.equal(mq.typedText('^').latex(), '');
       assert.equal(mq.typedText('2').latex(), '2');

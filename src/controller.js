@@ -1,15 +1,21 @@
 /*********************************************
  * Controller for a MathQuill instance,
  * on which services are registered with
- * Controller.open(function(_) { ... });
+ *
+ *   Controller.open(function(_) { ... });
+ *
  ********************************************/
 
 var Controller = P(function(_) {
-  _.init = function(root, container, options) {
+  _.init = function(API, root, container) {
+    this.API = API;
     this.root = root;
-    this.cursor = Cursor(root);
     this.container = container;
-    this.options = options || 0;
+
+    API.controller = root.controller = this;
+
+    this.cursor = root.cursor = Cursor(root, API.__options);
+    // TODO: stop depending on root.cursor, and rm it
   };
 
   var notifyees = [];

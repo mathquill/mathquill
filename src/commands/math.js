@@ -8,9 +8,11 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 var MathElement = P(Node, function(_, super_) {
-  _.finalizeInsert = function(cursor) {
+  _.finalizeInsert = function(options, cursor) { // `cursor` param is only for
+      // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
+      // see ea7307eb4fac77c149a11ffdf9a831df85247693
     var self = this;
-    self.postOrder('finalizeTree');
+    self.postOrder('finalizeTree', options);
     self.postOrder('contactWeld', cursor);
 
     // note: this order is important.
@@ -20,8 +22,8 @@ var MathElement = P(Node, function(_, super_) {
     self.postOrder('blur');
 
     self.postOrder('reflow');
-    if (self[R].siblingCreated) self[R].siblingCreated(L);
-    if (self[L].siblingCreated) self[L].siblingCreated(R);
+    if (self[R].siblingCreated) self[R].siblingCreated(options, L);
+    if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble('reflow');
   };
 });
@@ -77,7 +79,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
     }
-    cmd.finalizeInsert();
+    cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
   };
   _.createBlocks = function() {
@@ -362,7 +364,7 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 
   _.keystroke = function(key, e, ctrlr) {
-    if (ctrlr.options.spaceBehavesLikeTab
+    if (ctrlr.API.__options.spaceBehavesLikeTab
         && (key === 'Spacebar' || key === 'Shift-Spacebar')) {
       e.preventDefault();
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
@@ -424,10 +426,9 @@ var MathBlock = P(MathElement, function(_, super_) {
 });
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
-setMathQuillDot('MathField', P(EditableField, function(_, super_) {
+MathQuill.MathField = APIFnFor(P(EditableField, function(_, super_) {
   _.init = function(el, opts) {
     el.addClass('mq-editable-field mq-math-mode');
     this.initRootAndEvents(RootMathBlock(), el, opts);
-    this.controller.root.setHandlers(opts && opts.handlers, this);
   };
 }));
