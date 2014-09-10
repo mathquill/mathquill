@@ -48,7 +48,7 @@ function createRoot(jQ, root, textbox, editable) {
 
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  jQ.bind('mousedown.mathquill', function(e) {
+  jQ.bind('mousedown.mathquill touchstart.mathquill', function(e) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
@@ -93,7 +93,7 @@ function createRoot(jQ, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       jQ.unbind('mousemove', mousemove);
-      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup).unbind('touchend', mouseup);
     }
 
     if (iOS)
@@ -113,7 +113,7 @@ function createRoot(jQ, root, textbox, editable) {
     if (!editable) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
-    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup).bind('touchend', mouseup);
 
     return false;
   });
