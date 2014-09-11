@@ -451,6 +451,7 @@ MathQuill.MathField = APIFnFor(P(EditableField, function(_, super_) {
 MathQuill.InertMath = APIFnFor(P(AbstractMathQuill, function(_) {
   _.init = function(el, opts) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'), opts);
+    this.__controller.staticMathTextareaEvents();
   };
 }));
 
@@ -468,6 +469,7 @@ MathQuill.StaticMathWithEditables = APIFnFor(P(AbstractMathQuill, function(_) {
   _.init = function(el, opts) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'), opts);
     this.__controller.delegateMouseEvents();
+    this.__controller.staticMathTextareaEvents();
   };
   _.withActiveNode = function (callback) {
     var rootBlocks = this.__controller.container.find('.mq-inner-editable .mq-root-block'),

@@ -219,7 +219,10 @@ var saneKeyboardEvents = (function() {
     function pastedText() {
       var text = textarea.val();
       textarea.val('');
-      if (text) handlers.paste(text);
+      if (text) {
+        text = text.replace(/\{\{response\}\}/g, '');
+        handlers.paste(text);
+      }
     }
 
     // -*- attach event handlers -*- //
