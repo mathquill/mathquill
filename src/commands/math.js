@@ -446,6 +446,7 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
 setMathQuillDot('InertMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
+    this.controller.staticMathTextareaEvents();
   };
 }));
 
@@ -463,6 +464,7 @@ setMathQuillDot('StaticMathWithEditables', P(EditableField, function(_, super_) 
   _.init = function(el, opts) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'), opts);
     this.controller.delegateMouseEvents();
+    this.controller.staticMathTextareaEvents();
   };
   _.withActiveNode = function (callback) {
     var rootBlocks = this.controller.container.find('.mq-inner-editable .mq-root-block'),
