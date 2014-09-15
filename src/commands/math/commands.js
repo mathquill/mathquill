@@ -867,7 +867,7 @@ LatexCmds.matrix = P(MathCommand, function(_, super_) {
     });
   };
 
-  _.edited = function() {
+  _.reflow = function() {
     var blockjQ = this.jQ.children('table');
 
     var height = blockjQ.outerHeight()/+blockjQ.css('fontSize').slice(0,-2);
