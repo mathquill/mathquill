@@ -325,7 +325,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, _super) {
 var HatCommand = P(MathCommand, function(_, _super) {
   _.redraw = function() {
     var hat = this.jQ.find('.hatcmd-hat');
-    var scaleX = Math.max(Math.round(this.endChild[R].jQ.width() / hat.width()), 1);
+    var scaleX = Math.max(Math.round((this.endChild[R].jQ.width() / hat.width() * 1.1)), 1);
     var scaleY = Math.min(0.8+3/(4*scaleX), 1);
     scale(hat, scaleX, scaleY);
   };
