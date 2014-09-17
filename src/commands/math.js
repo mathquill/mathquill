@@ -445,8 +445,9 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
  */
 setMathQuillDot('InertMath', P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
+    var contents = el.contents().detach();
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.controller.staticMathTextareaEvents();
+    this.controller.renderLatexMath(contents.text());
   };
 }));
 
