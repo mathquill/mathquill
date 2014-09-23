@@ -118,6 +118,7 @@ suite('latex', function() {
     assertParsesLatex('\\xleftarrow{123}');
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ');
+    assertParsesLatex('\\middot ');
     assertParsesLatex('"');
   });
 
