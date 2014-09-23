@@ -82,14 +82,61 @@
   .mq-monospace {
     font-family: monospace, Symbola, serif;
   }
-
   .mq-overline {
+    margin-top: 0.2em;
+
+    &:before {
+      display: block;
+      position: relative;
+      top: 0.1em;
+      right: -0.1em;
+      font-size: 0.5em;
+      line-height: 0em;
+      content: '\27A4';
+      text-align: right;
+    }
+
+    .mq-overline-inner {
+      display: inline-block;
+      padding-top: 0.2em;
+      border-top: 1px solid black;
+
+      &:before {
+        display: block;
+        position: relative;
+        top: -0.3em;
+        left: -0.1em;
+        margin-top: -1px;
+        font-size: 0.5em;
+        line-height: 0em;
+        content: '\27A4';
+        text-align: right;
+        -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
+      }
+
+      &.mq-empty {
+        min-width: 1em;
+      }
+    }
+  }
+ .mq-oversegment {
     border-top: 1px solid black;
     margin-top: 1px;
+    &.mq-empty {
+      min-width: 1em;
+    }
   }
   .mq-underline {
     border-bottom: 1px solid black;
     margin-bottom: 1px;
+    &.mq-empty {
+      min-width: 1em;
+    }
   }
 
   ////
@@ -370,6 +417,9 @@
       transform: scaleX(-1);
       filter: FlipH;
       -ms-filter: "FlipH";
+    }
+    &.mq-empty {
+      min-width: 1em;
     }
   }
 
