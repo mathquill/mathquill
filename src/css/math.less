@@ -100,6 +100,8 @@
       display: inline-block;
       padding-top: 0.2em;
       border-top: 1px solid black;
+      min-width: 1em;
+      text-align: center;
 
       &:before {
         display: block;
@@ -117,10 +119,6 @@
         transform: scaleX(-1);
         filter: FlipH;
         -ms-filter: "FlipH";
-      }
-
-      &.mq-empty {
-        min-width: 1em;
       }
     }
   }
