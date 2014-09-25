@@ -76,11 +76,20 @@ var XRightArrowStyle = P(MathCommand, function(_, super_) {
   };
 });
 
-var OverLineStyle = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs) {
-    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="mq-overline-inner">&0</'+tagName+'></'+tagName+'>');
-  };
-});
+var OverLineStyleGenerator = function (className, leftArrow) {
+
+    if (typeof leftArrow === 'undefined' || leftArrow !== true) {
+        leftArrow = '';
+    } else {
+        leftArrow = '<span class="' + className + '-inner-before">&#10148;</span>';
+    }
+
+    return P(MathCommand, function(_, super_) {
+      _.init = function(ctrlSeq, tagName, attrs) {
+        super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="' + className + '-inner">' + leftArrow + '<span class="mq-empty-box">&0</span></'+tagName+'></'+tagName+'>');
+      };
+    });
+};
 
 //fonts
 LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
@@ -90,10 +99,10 @@ LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
-LatexCmds.overline = LatexCmds.bar = bind(OverLineStyle, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
-LatexCmds.oversegment = LatexCmds.bar = bind(Style, '\\oversegment', 'span', 'class="mq-non-leaf mq-oversegment"');
-LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
-LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline', true), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.oversegment = LatexCmds.bar = bind(OverLineStyleGenerator('mq-oversegment'), '\\oversegment', 'span', 'class="mq-non-leaf mq-oversegment"');
+LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 LatexCmds.xleftarrow = bind(XRightArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
 LatexCmds.xrightarrow = bind(XRightArrowStyle, '\\xrightarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-right"');
 
@@ -346,7 +355,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
   _.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf">'
-    +   '<span class="mq-sub">&0</span>'
+    +   '<span class="mq-sub"><span class="mq-empty-box">&0</span></span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -364,7 +373,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.supsub = 'sup';
   _.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf mq-sup-only">'
-    +   '<span class="mq-sup">&0</span>'
+    +   '<span class="mq-sup"><span class="mq-empty-box">&0</span></span>'
     + '</span>'
   ;
   _.textTemplate = [ '**' ];
@@ -383,8 +392,8 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="mq-fraction mq-non-leaf">'
-    +   '<span class="mq-numerator">&0</span>'
-    +   '<span class="mq-denominator">&1</span>'
+    +   '<span class="mq-numerator"><span class="mq-empty-box">&0</span></span>'
+    +   '<span class="mq-denominator"><span class="mq-empty-box">&1</span></span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -433,7 +442,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
     +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
-    +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
+    +   '<span class="mq-non-leaf mq-sqrt-stem"><span class="mq-empty-box">&0</span></span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -468,10 +477,10 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
-      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
+      '<sup class="mq-nthroot mq-non-leaf"><span class="mq-empty-box">&0</span></sup>'
     + '<span class="mq-scaled">'
     +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
-    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
+    +   '<span class="mq-sqrt-stem mq-non-leaf"><span class="mq-empty-box">&1</span></span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
@@ -484,7 +493,7 @@ var Abs =
 LatexCmds.abs = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\abs';
   _.htmlTemplate =
-      '<span class="mq-abs mq-non-leaf">&0</span>'
+      '<span class="mq-abs mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
   ;
   _.textTemplate = ['|', '|'];
 });

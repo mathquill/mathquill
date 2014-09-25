@@ -27,10 +27,8 @@
 
   // TODO: what's the difference between these?
   .mq-empty {
-    background: #ccc;
-    &.mq-root-block {
-      background: transparent;
-    }
+    background: transparent;
+    border: 1px dotted black;
   }
 
   &.mq-empty {
@@ -98,35 +96,50 @@
 
     .mq-overline-inner {
       display: inline-block;
+      position: relative;
       padding-top: 0.2em;
       border-top: 1px solid black;
       min-width: 1em;
       text-align: center;
 
-      &:before {
+      .mq-empty {
+        min-width: 1em;
+        margin-top: 0.1em;
+        display: inline-block;
+      }
+
+      .mq-overline-inner-before {
         display: block;
-        position: relative;
-        top: -0.3em;
+        position: absolute;
+        top: -0.5em;
         left: -0.1em;
-        margin-top: -1px;
         font-size: 0.5em;
-        line-height: 0em;
-        content: '\27A4';
+        line-height: 1em;
         text-align: right;
         -moz-transform: scaleX(-1);
         -o-transform: scaleX(-1);
         -webkit-transform: scaleX(-1);
         transform: scaleX(-1);
-        filter: FlipH;
-        -ms-filter: "FlipH";
+        -ms-filter: "fliph";
+        filter: fliph;
       }
     }
   }
  .mq-oversegment {
-    border-top: 1px solid black;
-    margin-top: 1px;
-    &.mq-empty {
+    margin-top: 0.2em;
+
+    .mq-oversegment-inner {
+      display: inline-block;
+      padding-top: 0.2em;
+      border-top: 1px solid black;
       min-width: 1em;
+      text-align: center;
+
+      .mq-empty {
+        min-width: 1em;
+        margin-top: 0.1em;
+        display: inline-block;
+      }
     }
   }
   .mq-underline {
@@ -134,6 +147,78 @@
     margin-bottom: 1px;
     &.mq-empty {
       min-width: 1em;
+    }
+  }
+  .mq-overarrow {
+    margin-top: 0.2em;
+
+    &:before {
+      display: block;
+      position: relative;
+      top: 0.1em;
+      right: -0.1em;
+      font-size: 0.5em;
+      line-height: 0em;
+      content: '\27A4';
+      text-align: right;
+    }
+
+    .mq-overarrow-inner {
+      display: inline-block;
+      padding-top: 0.2em;
+      border-top: 1px solid black;
+      min-width: 1em;
+      text-align: center;
+
+      .mq-empty {
+        min-width: 1em;
+        margin-top: 0.1em;
+        display: inline-block;
+      }
+    }
+    &.mq-arrow-left:before {
+      -moz-transform: scaleX(-1);
+      -o-transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+      filter: FlipH;
+      -ms-filter: "FlipH";
+    }
+  }
+  .mq-xarrow {
+    position: relative;
+    top: -0.5em;
+    padding-bottom: 0.2em;
+    margin-top: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    font-size: 0.7em;
+    border-bottom: 1px solid black;
+
+    .mq-xarrow-inner {
+      padding-left: 0.3em;
+      padding-right: 0.3em;
+    }
+
+    &:after {
+      display: block;
+      position: relative;
+      top: 0.45em;
+      font-size: 0.8em;
+      line-height: 0em;
+      content: '\27A4';
+      text-align: right;
+      right: -0.3em;
+    }
+    &.mq-arrow-left:after {
+      -moz-transform: scaleX(-1);
+      -o-transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+      filter: FlipH;
+      -ms-filter: "FlipH";
+      right: auto;
+      left: -0.3em;
     }
   }
 
@@ -283,17 +368,17 @@
   }
 
   .mq-numerator {
-    padding: 0 0.1em;
-    margin-bottom: -0.1em;
+    margin-bottom: 0.2em;
   }
 
   .mq-denominator {
     border-top: 1px solid;
-    float: right; // take out of normal flow to manipulate baseline
-    width: 100%;
+    float: left;
     padding: .1em .1em 0 .1em;
     margin-right: -.1em;
     margin-left: -.1em;
+    padding-top: .2em;
+    padding-left: 0.1em;
   }
 
   ////
@@ -310,9 +395,20 @@
   .mq-sqrt-stem {
     border-top: 1px solid;
     margin-top: 1px;
-    padding-left: .15em;
-    padding-right: .2em;
     margin-right: .1em;
+    padding-top: .2em;
+    padding-left: .15em;
+    font-size: .8em;
+
+    .mq-empty-box {
+      padding-left: .15em;
+      padding-right: .2em;
+      font-size: 1.25em;
+
+      &.mq-empty {
+        font-size: 1em;
+      }
+    }
   }
 
   .mq-vector-prefix {
@@ -388,74 +484,10 @@
   .mq-abs {
     border-left: 1px solid black;
     border-right: 1px solid black;
-    padding-left: 0.1em;
-    padding-right: 0.1em;
+    padding-left: 0.2em;
+    padding-right: 0.2em;
     margin-left: 0.1em;
     margin-right: 0.1em;
-  }
-
-  .mq-overarrow {
-    border-top: 1px solid black;
-    margin-top: 1px;
-    padding-top: 0.2em;
-
-    &:before {
-      display: block;
-      position: relative;
-      top: -0.4em;
-      font-size: 0.5em;
-      line-height: 0em;
-      content: '\27A4';
-      text-align: right;
-    }
-    &.mq-arrow-left:before {
-      -moz-transform: scaleX(-1);
-      -o-transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
-      transform: scaleX(-1);
-      filter: FlipH;
-      -ms-filter: "FlipH";
-    }
-    &.mq-empty {
-      min-width: 1em;
-    }
-  }
-
-  .mq-xarrow {
-    position: relative;
-    top: -0.5em;
-    padding-bottom: 0.2em;
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-    font-size: 0.7em;
-    border-bottom: 1px solid black;
-
-    .mq-xarrow-inner {
-      padding-left: 0.3em;
-      padding-right: 0.3em;
-    }
-
-    &:after {
-      display: block;
-      position: relative;
-      top: 0.45em;
-      font-size: 0.8em;
-      line-height: 0em;
-      content: '\27A4';
-      text-align: right;
-      right: -0.3em;
-    }
-    &.mq-arrow-left:after {
-      -moz-transform: scaleX(-1);
-      -o-transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
-      transform: scaleX(-1);
-      filter: FlipH;
-      -ms-filter: "FlipH";
-      right: auto;
-      left: -0.3em;
-    }
   }
 
 }
