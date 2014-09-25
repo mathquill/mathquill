@@ -1211,4 +1211,17 @@ suite('typing with auto-replaces', function() {
         'matrix bracket height should be increased when new row is added');
     });
   });
+
+  suite('square root', function() {
+    function sqrtHeight() {
+      return $(mq.el()).find('.mq-sqrt-prefix')[0].getBoundingClientRect().height;
+    }
+
+    test('scales to fit contents', function(){
+      mq.latex('\\sqrt{x}');
+      var height = sqrtHeight();
+      mq.latex('\\sqrt{\\frac{1}{2}}');
+      assert.ok(sqrtHeight() > height, 'sqrt prefix height should increase to fit contents');
+    });
+  });
 });
