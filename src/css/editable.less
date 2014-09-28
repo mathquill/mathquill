@@ -27,19 +27,19 @@
     .inline-block;
 
     .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
+    padding: 2px;
+  }
 
-    // This is a workaround to override the
-    // styles on .mq-editable-field *.
-    // TODO: figure out a better way.
-    &, .mq-math-mode & {
-      border: 1px solid gray;
-      padding: 2px;
+  // This is a workaround to override the
+  // styles on .mq-math-mode *.
+  // TODO: figure out a better way.
+  &, .mq-math-mode & {
+    border: 1px solid gray;
 
-      &.mq-focused {
-        .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
-        border-color: #709AC0;
-        border-radius: 1px;
-      }
+    &.mq-focused {
+      .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
+      border-color: #709AC0;
+      border-radius: 1px;
     }
   }
 // special styles for editables within static math
