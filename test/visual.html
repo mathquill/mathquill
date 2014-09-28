@@ -49,7 +49,7 @@ td {
 }
 
 #overflow-test {
-  width: 8em;
+  width: 100px;
 }
 
 </style>
@@ -134,11 +134,22 @@ $(function() {
 <h3>Horizontal overflow</h3>
 
 <p>
-<span id="overflow-test" class="mathquill-math-field">
+<span id="overflow-test">
   \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
 </span>
 (for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
 </p>
+
+<script>
+$(function() {
+  var overflowTest = $('#overflow-test');
+  MathQuill.MathField(overflowTest[0]);
+  var width = overflowTest.outerWidth(true);
+  if (width !== 100) {
+    throw 'math field '+width+'px wide instead of 100px';
+  }
+});
+</script>
 
 <h3>Selection Tests</h3>
 
