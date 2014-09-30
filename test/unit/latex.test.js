@@ -120,6 +120,9 @@ suite('latex', function() {
     assertParsesLatex('\\circledot ');
     assertParsesLatex('\\middot ');
     assertParsesLatex('"');
+    assertParsesLatex('\\dottedsquare ');
+    assertParsesLatex('\\square ');
+    assertParsesLatex('\\rectangle ');
   });
 
   suite('public API', function() {
