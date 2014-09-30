@@ -3,6 +3,8 @@
   .mq-root-block {
     .inline-block;
     width: 100%;
+    padding: 2px;
+    .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
     white-space: pre;
     overflow: hidden;
     vertical-align: middle;
@@ -22,14 +24,6 @@
 
     &.mq-blink { visibility: hidden; }
   }
-
-  .mq-root-block {
-    .inline-block;
-
-    .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
-    padding: 2px;
-  }
-
   // This is a workaround to override the
   // styles on .mq-math-mode *.
   // TODO: figure out a better way.
