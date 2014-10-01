@@ -87,6 +87,14 @@ var OverLineStyleGenerator = function (className) {
     });
 };
 
+var BiggerSymbolStyle = function (className, content) {
+    return P(Symbol, function(_, super_) {
+      _.init = function(ctrlSeq, tagName, attrs) {
+        super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="' + className + '-inner">' + content + '</'+tagName+'></'+tagName+'>');
+      };
+    });
+};
+
 //fonts
 LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
@@ -101,6 +109,8 @@ LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overr
 LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 LatexCmds.xleftarrow = bind(XRightArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
 LatexCmds.xrightarrow = bind(XRightArrowStyle, '\\xrightarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-right"');
+
+LatexCmds.parallelogram = bind(BiggerSymbolStyle('mq-parallelogram', '&#9649;'), '\\parallelogram ', 'span', 'class="mq-non-leaf mq-parallelogram"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
