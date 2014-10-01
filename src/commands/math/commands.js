@@ -76,17 +76,13 @@ var XRightArrowStyle = P(MathCommand, function(_, super_) {
   };
 });
 
-var OverLineStyleGenerator = function (className, leftArrow) {
+var OverLineStyleGenerator = function (className) {
 
-    if (typeof leftArrow === 'undefined' || leftArrow !== true) {
-        leftArrow = '';
-    } else {
-        leftArrow = '<span class="' + className + '-inner-before">&#10148;</span>';
-    }
+    var arrows = '<span class="' + className + '-inner-right">O</span><span class="' + className + '-inner-left">N</span>';
 
     return P(MathCommand, function(_, super_) {
       _.init = function(ctrlSeq, tagName, attrs) {
-        super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="' + className + '-inner">' + leftArrow + '<span class="mq-empty-box">&0</span></'+tagName+'></'+tagName+'>');
+        super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="' + className + '-inner">' + arrows + '<span class="mq-empty-box">&0</span></'+tagName+'></'+tagName+'>');
       };
     });
 };
@@ -99,7 +95,7 @@ LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
-LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline', true), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline'), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 LatexCmds.oversegment = LatexCmds.bar = bind(OverLineStyleGenerator('mq-oversegment'), '\\oversegment', 'span', 'class="mq-non-leaf mq-oversegment"');
 LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
