@@ -2,8 +2,8 @@ suite('up/down', function() {
   var mq, rootBlock, controller, cursor;
   setup(function() {
     mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-    rootBlock = mq.controller.root;
-    controller = mq.controller;
+    rootBlock = mq.__controller.root;
+    controller = mq.__controller;
     cursor = controller.cursor;
   });
   teardown(function() {
@@ -180,9 +180,9 @@ suite('up/down', function() {
     );
     var inner = MathQuill($(outer.el()).find('.mq-editable-field')[0]);
 
-    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+    assert.equal(inner.__controller.cursor.parent, inner.__controller.root);
     inner.keystroke('Down');
-    assert.equal(inner.controller.cursor.parent, inner.controller.root);
+    assert.equal(inner.__controller.cursor.parent, inner.__controller.root);
 
     $(outer.el()).remove();
   });
