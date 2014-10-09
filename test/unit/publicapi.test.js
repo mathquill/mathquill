@@ -568,7 +568,7 @@ suite('Public API', function() {
     });
     test('sum starts with `n=`', function() {
       var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
-        sumStartsWithNEquals: 'n='
+        sumStartsWithNEquals: true
       });
       assert.equal(mq.latex(), '');
 
