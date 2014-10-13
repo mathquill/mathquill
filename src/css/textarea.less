@@ -15,5 +15,9 @@
     position: absolute;
     clip: rect(1em 1em 1em 1em);
     resize: none; // hotfix: https://code.google.com/p/chromium/issues/detail?id=355199#c1
+    // Using "clip" property to hide content can cause scrollbar to appear in Webkit (http://snook.ca/archives/html_and_css/hiding-content-for-accessibility)
+    // Hence we need to set width and height to be really small
+    width: 1px !important;
+    height: 1px !important;
   }
 }
