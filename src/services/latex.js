@@ -77,7 +77,7 @@ var latexMathParser = (function() {
 Controller.open(function(_, super_) {
   _.exportLatex = function() {
     // .text() converts HTML entities into character codes, &nbsp; is 0xa0 (160 dec)
-    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1').replace('\xA0', '&nbsp;');
+    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1').replace(/\xA0/g, '&nbsp;');
   };
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;
