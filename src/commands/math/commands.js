@@ -464,7 +464,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     }).or(super_.parser.call(this));
   };
   _.reflow = function() {
-    var block = this.ends[R].jQ;
+    var block = this.ends[R].jQ.parent();
     scale(block.prev(), 1, block.innerHeight()/+block.css('fontSize').slice(0,-2) - .1);
   };
 });

@@ -416,15 +416,6 @@
     margin-right: .1em;
     padding-top: .2em;
     padding-left: .15em;
-    font-size: .8em;
-
-    .mq-empty-box {
-      font-size: 1.25em;
-
-      &.mq-empty {
-        font-size: 1em;
-      }
-    }
   }
 
   .mq-vector-prefix {
@@ -516,6 +507,24 @@
       position: relative;
       top: 0.23em;
       font-size: 2em;
+    }
+  }
+}
+
+// I don't like this but it's the only way I could fix
+// rendering of square roots in buttons for now
+.lrn_btn_grid {
+  .mq-math-mode {
+    .mq-sqrt-stem {
+      font-size: .8em;
+
+      .mq-empty-box {
+        font-size: 1.25em;
+
+        &.mq-empty {
+          font-size: 1em;
+        }
+      }
     }
   }
 }
