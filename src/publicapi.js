@@ -39,6 +39,7 @@ jQuery.fn.mathquill = function(cmd, latex) {
     return block && block.latex();
 
     case 'selectedLatex':
+      var selected = '';
       if (arguments.length > 1) {
         return this.each(function() {
           var blockId = $(this).attr(mqBlockId),
@@ -47,10 +48,17 @@ jQuery.fn.mathquill = function(cmd, latex) {
             block.renderLatex(latex);
         });
       }
-
       var blockId = $(this).attr(mqBlockId),
-        block = blockId && MathElement[blockId];
-      return block.cursor && block.cursor.prepareWrite().latex();
+        block = blockId && MathElement[blockId],
+        cursor = block.cursor;
+        if (cursor) {
+          var seln = cursor.prepareWrite();
+          if(seln){
+            selected = seln.latex();
+          }
+        }
+
+      return selected;
   case 'text':
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];
