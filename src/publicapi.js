@@ -37,6 +37,20 @@ jQuery.fn.mathquill = function(cmd, latex) {
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];
     return block && block.latex();
+
+    case 'selectedLatex':
+      if (arguments.length > 1) {
+        return this.each(function() {
+          var blockId = $(this).attr(mqBlockId),
+            block = blockId && MathElement[blockId];
+          if (block)
+            block.renderLatex(latex);
+        });
+      }
+
+      var blockId = $(this).attr(mqBlockId),
+        block = blockId && MathElement[blockId];
+      return block.cursor && block.cursor.prepareWrite().latex();
   case 'text':
     var blockId = $(this).attr(mqBlockId),
       block = blockId && MathElement[blockId];
