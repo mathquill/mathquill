@@ -11,9 +11,12 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.jQ = jQ.attr(mqBlockId, root.id);
   root.revert = function() {
-    jQ.empty().unbind('.mathquill')
-      .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
-      .append(contents);
+	  
+    // commented bcz to make disable in case solver sections
+    //jQ.empty().unbind('.mathquill')
+    //  .removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox')
+    //  .append(contents);
+	jQ.unbind('.mathquill').removeClass('mathquill-rendered-math mathquill-editable mathquill-textbox').find('.textarea').remove();
   };
 
   var cursor = root.cursor = Cursor(root);
