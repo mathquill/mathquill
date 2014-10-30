@@ -64,7 +64,7 @@ var latexMathParser = (function() {
       .many().map(joinBlocks).skip(optWhitespace)
     ).skip(string(']'))
   ;
-
+// Test123
   var latexMath = mathSequence;
 
   latexMath.block = mathBlock;
