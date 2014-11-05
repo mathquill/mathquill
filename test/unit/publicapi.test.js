@@ -578,4 +578,33 @@ suite('Public API', function() {
       });
     });
   });
+
+  suite('sumStartsWithNEquals', function() {
+    test('sum defaults to empty limits', function() {
+      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0]);
+      assert.equal(mq.latex(), '');
+
+      mq.cmd('\\sum');
+      assert.equal(mq.latex(), '\\sum_{ }^{ }');
+
+      mq.cmd('n');
+      assert.equal(mq.latex(), '\\sum_n^{ }', 'cursor in lower limit');
+
+      $(mq.el()).remove();
+    });
+    test('sum starts with `n=`', function() {
+      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
+        sumStartsWithNEquals: true
+      });
+      assert.equal(mq.latex(), '');
+
+      mq.cmd('\\sum');
+      assert.equal(mq.latex(), '\\sum_{n=}^{ }');
+
+      mq.cmd('0');
+      assert.equal(mq.latex(), '\\sum_{n=0}^{ }', 'cursor after the `n=`');
+
+      $(mq.el()).remove();
+    });
+  });
 });
