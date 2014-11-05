@@ -111,64 +111,90 @@ suite('Public API', function() {
     });
   });
 
-  test('*OutOf handlers', function() {
-    var upCounter = 0, moveCounter = 0, dir = null, deleteCounter = 0;
-
-    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0], {
-      handlers: {
-        upOutOf: function() { upCounter += 1; },
-        moveOutOf: function(d) { moveCounter += 1; dir = d; },
-        deleteOutOf: function(d) { deleteCounter += 1; dir = d; }
-      }
+  suite('*OutOf handlers', function() {
+    testHandlers('MathQuill.MathField() constructor', function(options) {
+      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0], options);
     });
+    testHandlers('MathQuill.MathField::config()', function(options) {
+      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
+    });
+    testHandlers('.config() on \\MathQuillMathField{} in a MathQuill.StaticMath', function(options) {
+      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
+    });
+    suite('global MathQuill.config()', function() {
+      testHandlers('a MathQuill.MathField', function(options) {
+        MathQuill.config(options);
+        return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      });
+      testHandlers('\\MathQuillMathField{} in a MathQuill.StaticMath', function(options) {
+        MathQuill.config(options);
+        return MathQuill.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0]).innerFields[0];
+      });
+      teardown(function() {
+        MathQuill.config({ handlers: undefined });
+      });
+    });
+    function testHandlers(title, mathFieldMaker) {
+      test(title, function() {
+        var upCounter = 0, moveCounter = 0, dir = null, deleteCounter = 0;
 
-    mq.latex('n+\\frac{n}{2}'); // starts at right edge
-    assert.equal(moveCounter, 0);
+        var mq = mathFieldMaker({
+          handlers: {
+            upOutOf: function() { upCounter += 1; },
+            moveOutOf: function(d) { moveCounter += 1; dir = d; },
+            deleteOutOf: function(d) { deleteCounter += 1; dir = d; }
+          }
+        });
 
-    mq.keystroke('Right'); // stay at right edge
-    assert.equal(moveCounter, 1);
-    assert.equal(dir, R);
+        mq.latex('n+\\frac{n}{2}'); // starts at right edge
+        assert.equal(moveCounter, 0);
 
-    mq.keystroke('Right'); // stay at right edge
-    assert.equal(moveCounter, 2);
-    assert.equal(dir, R);
+        mq.keystroke('Right'); // stay at right edge
+        assert.equal(moveCounter, 1);
+        assert.equal(dir, R);
 
-    mq.keystroke('Left'); // right edge of denominator
-    assert.equal(moveCounter, 2);
-    assert.equal(upCounter, 0);
+        mq.keystroke('Right'); // stay at right edge
+        assert.equal(moveCounter, 2);
+        assert.equal(dir, R);
 
-    mq.keystroke('Up'); // right edge of numerator
-    assert.equal(moveCounter, 2);
-    assert.equal(upCounter, 0);
+        mq.keystroke('Left'); // right edge of denominator
+        assert.equal(moveCounter, 2);
+        assert.equal(upCounter, 0);
 
-    mq.keystroke('Up'); // stays at right edge of numerator
-    assert.equal(upCounter, 1);
+        mq.keystroke('Up'); // right edge of numerator
+        assert.equal(moveCounter, 2);
+        assert.equal(upCounter, 0);
 
-    mq.keystroke('Up'); // stays at right edge of numerator
-    assert.equal(upCounter, 2);
+        mq.keystroke('Up'); // stays at right edge of numerator
+        assert.equal(upCounter, 1);
 
-    // go to left edge
-    mq.keystroke('Left').keystroke('Left').keystroke('Left').keystroke('Left');
-    assert.equal(moveCounter, 2);
+        mq.keystroke('Up'); // stays at right edge of numerator
+        assert.equal(upCounter, 2);
 
-    mq.keystroke('Left'); // stays at left edge
-    assert.equal(moveCounter, 3);
-    assert.equal(dir, L);
-    assert.equal(deleteCounter, 0);
+        // go to left edge
+        mq.keystroke('Left').keystroke('Left').keystroke('Left').keystroke('Left');
+        assert.equal(moveCounter, 2);
 
-    mq.keystroke('Backspace'); // stays at left edge
-    assert.equal(deleteCounter, 1);
-    assert.equal(dir, L);
+        mq.keystroke('Left'); // stays at left edge
+        assert.equal(moveCounter, 3);
+        assert.equal(dir, L);
+        assert.equal(deleteCounter, 0);
 
-    mq.keystroke('Backspace'); // stays at left edge
-    assert.equal(deleteCounter, 2);
-    assert.equal(dir, L);
+        mq.keystroke('Backspace'); // stays at left edge
+        assert.equal(deleteCounter, 1);
+        assert.equal(dir, L);
 
-    mq.keystroke('Left'); // stays at left edge
-    assert.equal(moveCounter, 4);
-    assert.equal(dir, L);
+        mq.keystroke('Backspace'); // stays at left edge
+        assert.equal(deleteCounter, 2);
+        assert.equal(dir, L);
 
-    $(mq.el()).remove();
+        mq.keystroke('Left'); // stays at left edge
+        assert.equal(moveCounter, 4);
+        assert.equal(dir, L);
+
+        $('#mock').empty();
+      });
+    }
   });
 
   suite('.cmd(...)', function() {

@@ -118,7 +118,6 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     this.__controller.editable = true;
     this.__controller.delegateMouseEvents();
     this.__controller.editablesTextareaEvents();
-    root.setHandlers(this.__options.handlers, this);
   };
   _.focus = function() { this.__controller.textarea.focus(); return this; };
   _.blur = function() { this.__controller.textarea.blur(); return this; };
@@ -175,17 +174,13 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
 });
 
 function RootBlockMixin(_) {
-  _.handlers = {};
-  _.setHandlers = function(handlers, extraArg) {
-    if (!handlers) return;
-    this.handlers = handlers;
-    this.extraArg = extraArg; // extra context arg for handlers
-  };
-
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf reflow'.split(' ');
   for (var i = 0; i < names.length; i += 1) (function(name) {
-    _[name] = (i < 3
-      ? function(dir) { if (this.handlers[name]) this.handlers[name](dir, this.extraArg); }
-      : function() { if (this.handlers[name]) this.handlers[name](this.extraArg); });
+    _[name] = function(dir) {
+      var API = this.controller.API, handlers = API.__options.handlers;
+      if (handlers && handlers[name]) {
+        (dir ? handlers[name](dir, API) : handlers[name](API));
+      }
+    };
   }(names[i]));
 }
