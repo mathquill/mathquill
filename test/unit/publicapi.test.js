@@ -140,9 +140,23 @@ suite('Public API', function() {
 
         var mq = mathFieldMaker({
           handlers: {
-            upOutOf: function() { upCounter += 1; },
-            moveOutOf: function(d) { moveCounter += 1; dir = d; },
-            deleteOutOf: function(d) { deleteCounter += 1; dir = d; }
+            upOutOf: function(_mq) {
+              assert.equal(arguments.length, 1);
+              assert.equal(_mq, mq);
+              upCounter += 1;
+            },
+            moveOutOf: function(_dir, _mq) {
+              assert.equal(arguments.length, 2);
+              assert.equal(_mq, mq);
+              dir = _dir;
+              moveCounter += 1;
+            },
+            deleteOutOf: function(_dir, _mq) {
+              assert.equal(arguments.length, 2);
+              assert.equal(_mq, mq);
+              dir = _dir;
+              deleteCounter += 1;
+            }
           }
         });
 

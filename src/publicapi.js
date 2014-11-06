@@ -175,12 +175,12 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
 
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf reflow'.split(' ');
-  for (var i = 0; i < names.length; i += 1) (function(name) {
+  for (var i = 0; i < names.length; i += 1) (function(i, name) {
     _[name] = function(dir) {
       var API = this.controller.API, handlers = API.__options.handlers;
       if (handlers && handlers[name]) {
-        (dir ? handlers[name](dir, API) : handlers[name](API));
+        (i < 3 ? handlers[name](dir, API) : handlers[name](API));
       }
     };
-  }(names[i]));
+  }(i, names[i]));
 }
