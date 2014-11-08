@@ -84,7 +84,8 @@ Controller.open(function(_) {
   };
   _.typedText = function(ch) {
     if (ch === '\n') {
-      if (this.root.handlers.enter) this.root.handlers.enter(this.API);
+      var handlers = this.API.__options.handlers;
+      if (handlers && handlers.enter) handlers.enter(this.API);
       return;
     }
     var cursor = this.notify().cursor;

@@ -136,10 +136,16 @@ suite('Public API', function() {
     });
     function testHandlers(title, mathFieldMaker) {
       test(title, function() {
-        var upCounter = 0, moveCounter = 0, dir = null, deleteCounter = 0;
+        var enterCounter = 0, upCounter = 0, moveCounter = 0, deleteCounter = 0,
+          dir = null;
 
         var mq = mathFieldMaker({
           handlers: {
+            enter: function(_mq) {
+              assert.equal(arguments.length, 1);
+              assert.equal(_mq, mq);
+              enterCounter += 1;
+            },
             upOutOf: function(_mq) {
               assert.equal(arguments.length, 1);
               assert.equal(_mq, mq);
@@ -162,6 +168,9 @@ suite('Public API', function() {
 
         mq.latex('n+\\frac{n}{2}'); // starts at right edge
         assert.equal(moveCounter, 0);
+
+        mq.typedText('\n'); // nothing happens
+        assert.equal(enterCounter, 1);
 
         mq.keystroke('Right'); // stay at right edge
         assert.equal(moveCounter, 1);
