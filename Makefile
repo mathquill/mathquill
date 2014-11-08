@@ -39,6 +39,8 @@ BUILD_JS = $(BUILD_DIR)/mathquill.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
+UGLY_JS_MAP = $(BUILD_DIR)/mathquill.min.js.map
+UGLY_JS_MAP_URL = mathquill.min.js.map
 CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
@@ -47,7 +49,7 @@ CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
-UGLIFY_OPTS ?= --mangle --compress hoist_vars=true
+UGLIFY_OPTS ?= --mangle --compress hoist_vars=true --source-map $(UGLY_JS_MAP) --source-map-url $(UGLY_JS_MAP_URL) --source-map-include-sources
 
 LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=
@@ -84,7 +86,7 @@ $(BUILD_JS): $(INTRO) $(SOURCES) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
-	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
+	$(UGLIFY) $(UGLIFY_OPTS) $< -o $@
 
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
