@@ -18,6 +18,14 @@ var Controller = P(function(_) {
     // TODO: stop depending on root.cursor, and rm it
   };
 
+  _.handle = function(name, dir) {
+    var handlers = this.API.__options.handlers;
+    if (handlers && handlers[name]) {
+      if (dir === L || dir === R) handlers[name](dir, this.API);
+      else handlers[name](this.API);
+    }
+  };
+
   var notifyees = [];
   this.onNotify = function(f) { notifyees.push(f); };
   _.notify = function() {

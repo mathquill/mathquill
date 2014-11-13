@@ -83,10 +83,7 @@ Controller.open(function(_) {
     this.focusBlurEvents();
   };
   _.typedText = function(ch) {
-    if (ch === '\n') {
-      if (this.root.handlers.enter) this.root.handlers.enter(this.API);
-      return;
-    }
+    if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
     this.scrollHoriz();
