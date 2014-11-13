@@ -1,0 +1,19 @@
+{
+  "name": "mathquill",
+  "version": "0.9.3",
+  "main": [
+    "build/mathquill.min.js",
+    "build/mathquill.css"
+  ],
+  "ignore": [
+    "test/**/*"
+  ],
+  "dependencies": {
+    "jquery": ">=1.4.3"
+  },
+  "keywords": [
+    "mathquill",
+    "math",
+    "latex"
+  ]
+}
