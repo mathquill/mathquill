@@ -104,7 +104,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline'), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
-LatexCmds.oversegment = LatexCmds.bar = bind(OverLineStyleGenerator('mq-oversegment'), '\\oversegment', 'span', 'class="mq-non-leaf mq-oversegment"');
+LatexCmds.overleftrightarrow = bind(OverLineStyleGenerator('mq-overleftrightarrow'), '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overleftrightarrow"');
 LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 LatexCmds.xleftarrow = bind(XRightArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
