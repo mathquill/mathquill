@@ -219,6 +219,7 @@ var saneKeyboardEvents = (function() {
       var text = textarea.val();
       textarea.val('');
       if (text) {
+        text = text.replace(/\^\{\{response\}\}/g, '^x');
         text = text.replace(/\{\{response\}\}/g, '');
         handlers.paste(text);
       }
