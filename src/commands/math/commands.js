@@ -790,6 +790,8 @@ var InnerMathField = P(MathQuill.MathField, function(_) {
     var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
     root.ultimateRoot = ultimateRoot;
+    // Required by StaticMathWithEditables.clear
+    root.select = EditableField.prototype.select;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
     ctrlr.cursor.insAtRightEnd(root);

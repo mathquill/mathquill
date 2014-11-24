@@ -494,6 +494,12 @@ MathQuill.StaticMathWithEditables = APIFnFor(P(AbstractMathQuill, function(_) {
     });
     return this;
   };
+  _.clear = function() {
+    this.withActiveNode(function (activeNode) {
+      EditableField.prototype.clear.call(activeNode);
+    });
+    return this;
+  };
   _.keystroke = function(keys) {
     this.withActiveNode(function (activeNode) {
       return EditableField.prototype.keystroke.call(activeNode, keys);

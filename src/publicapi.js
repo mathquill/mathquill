@@ -119,6 +119,10 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
     if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
     return this;
   };
+  _.clear = function() {
+    this.select().__controller.backspace();
+    return this;
+  };
   _.cmd = function(cmd) {
     var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
     if (/^\\[a-z]+$/i.test(cmd)) {

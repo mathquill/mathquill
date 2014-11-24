@@ -186,6 +186,12 @@ suite('Public API', function() {
       assert.equal(mq.__controller.cursor[L].ctrlSeq, '0');
       assert.equal(mq.__controller.cursor[R], 0);
     });
+
+    test('.clear()', function() {
+      mq.latex('xyz');
+      mq.clear();
+      assert.equal(mq.latex(), '');
+    });
   });
 
   suite('*OutOf handlers', function() {
