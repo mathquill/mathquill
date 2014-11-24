@@ -744,6 +744,8 @@ var InnerMathField = P(MathQuill.MathField, function(_) {
     ctrlr.editable = true;
     root.cursor = ctrlr.cursor.insAtRightEnd(root);
     root.ultimateRoot = ultimateRoot;
+    // Required by StaticMathWithEditables.clear
+    root.select = EditableField.prototype.select;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
   };

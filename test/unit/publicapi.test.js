@@ -109,6 +109,12 @@ suite('Public API', function() {
       assert.equal(mq.controller.cursor[L].ctrlSeq, '0');
       assert.equal(mq.controller.cursor[R], 0);
     });
+
+    test('.clear()', function() {
+      mq.latex('xyz');
+      mq.clear();
+      assert.equal(mq.latex(), '');
+    });
   });
 
   test('*OutOf handlers', function() {
