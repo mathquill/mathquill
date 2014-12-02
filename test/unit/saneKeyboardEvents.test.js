@@ -146,6 +146,43 @@ suite('key', function() {
       assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
     });
 
+    if (!document.hasFocus()) {
+      test('blur in keystroke handler: DOCUMENT NEEDS FOCUS, SEE CONSOLE ');
+      console.warn(
+        'The test "blur in keystroke handler" needs the document to have ' +
+        'focus. Only when the document has focus does .select() on an ' +
+        'element also focus it, which is part of the problematic behavior ' +
+        'we are testing robustness against. (Specifically, erroneously ' +
+        'calling .select() in a timeout after the textarea has blurred, ' +
+        '"stealing back" focus.)\n' +
+        'Normally, the page being open and focused is enough to have focus, ' +
+        'but with the Developer Tools open, it depends on whether you last ' +
+        'clicked on something in the Developer Tools or on the page itself. ' +
+        'Click the page, or close the Developer Tools, and Refresh.'
+      );
+    }
+    else {
+      test('blur in keystroke handler', function(done) {
+        var shim = saneKeyboardEvents(el, {
+          keystroke: function(key) {
+            assert.equal(key, 'Left');
+            el.blur();
+          }
+        });
+
+        shim.select('foobar');
+        assert.ok(document.activeElement === el[0], 'textarea focused');
+
+        el.trigger(Event('keydown', { which: 37 }));
+        assert.ok(document.activeElement !== el[0], 'textarea blurred');
+
+        setTimeout(function() {
+          assert.ok(document.activeElement !== el[0], 'textarea remains blurred');
+          done();
+        });
+      });
+    }
+
     suite('selected text after keypress or paste doesn\'t get mistaken' +
          ' for inputted text', function() {
       test('select() immediately after paste', function() {

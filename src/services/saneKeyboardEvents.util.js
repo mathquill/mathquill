@@ -148,12 +148,13 @@ var saneKeyboardEvents = (function() {
       keydown = e;
       keypress = null;
 
-      handleKey();
       if (shouldBeSelected) checkTextareaFor(function() {
         textarea[0].select(); // re-select textarea in case it's an unrecognized
         checkTextarea = noop; // key that clears the selection, then never
         clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });
+
+      handleKey();
     }
 
     function onKeypress(e) {
