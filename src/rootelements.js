@@ -21,7 +21,7 @@ function createRoot(jQ, root, textbox, editable) {
   root.renderLatex(contents.text());
 
   //textarea stuff
-  var textareaSpan = root.textarea = $('<span class="textarea"><textarea></textarea></span>'),
+  var textareaSpan = root.textarea = $('<span class="textarea"><textarea spellcheck="false" autocorrect="off" autocomplete="off"></textarea></span>'),
     textarea = textareaSpan.children();
 
   /******
