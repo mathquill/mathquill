@@ -67,7 +67,8 @@ var MathElement = P(Node, function(_, _super) {
     // Expects .createBlocks() to have been called already, since it
     // calls .html().
     var jQ = $(html);
-    jQ.find('*').andSelf().each(function() {
+    var jQFnAddSelf = jQuery.fn.addBack ? 'addBack' : 'andSelf';
+    jQ.find('*')[jQFnAddSelf]().each(function() {
       var jQ = $(this),
         cmdId = jQ.attr('mathquill-command-id'),
         blockId = jQ.attr('mathquill-block-id');
