@@ -87,6 +87,13 @@ var OverLineStyleGenerator = function (className) {
     });
 };
 
+// Function to attach style to long division symbol.
+var LongDivisionStyle = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, tagName, attrs) {
+    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><span class="mq-longdiv-curve-border">)</span><span class="mq-longdiv-inner"><span class="mq-empty">&0</span></'+tagName+'></span>');
+  };
+});
+
 var BiggerSymbolStyle = function (className, content) {
     return P(Symbol, function(_, super_) {
       _.init = function(ctrlSeq, tagName, attrs) {
@@ -104,6 +111,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline'), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.longdiv = bind(LongDivisionStyle, '\\longdiv', 'span', 'class="mq-non-leaf mq-longdiv"');
 LatexCmds.overleftrightarrow = bind(OverLineStyleGenerator('mq-overleftrightarrow'), '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overleftrightarrow"');
 LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
