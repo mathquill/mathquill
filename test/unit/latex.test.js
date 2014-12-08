@@ -126,6 +126,11 @@ suite('latex', function() {
     assertParsesLatex('\\overline{xyz}');
     assertParsesLatex('\\overleftarrow{123}');
     assertParsesLatex('\\overrightarrow{abc}');
+    assertParsesLatex('\\lrncuberoot{a}', '\\sqrt[3]{a}');
+    assertParsesLatex('\\lrnplaceholder{a}', 'a');
+    assertParsesLatex('\\lrnexponent{a}{b}', 'a^b');
+    assertParsesLatex('\\lrnsquaredexponent{a}', 'a^2');
+    assertParsesLatex('\\lrnsubscript{a}{b}', 'a_b');
   });
 
   suite('public API', function() {
