@@ -146,6 +146,40 @@
       }
     }
   }
+  .mq-longdiv {
+    padding-top: 0.2em;
+
+    .mq-longdiv-curve-border {
+      border-top-right-radius: 100em;
+      border-bottom-right-radius: 100em;
+      font-size: 1.4em;
+      display: inline;
+      padding-top: 0.2em;
+      margin-right: -0.12em;
+      max-width: 2px;
+      width: 2px;
+    }
+
+    .mq-longdiv-inner {
+      font-size: 1em;
+      border-top: 1px solid $Grey7;
+      border-radius: 0px 0px 0px 10px;
+      min-width: 1em;
+      text-align: center;
+      padding-left: 0.2em;
+      margin-left: -0.2em;
+      margin-top: 0.15em;
+      margin-right: 0.15em;
+      padding-top: .19em;
+      padding-left: .44em;
+      display: inline;
+
+      .mq-empty {
+        min-width: 1.5em;
+        display: inline-block;
+      }
+    }
+  }
   .mq-underline {
     border-bottom: 1px solid black;
     margin-bottom: 1px;
@@ -454,11 +488,6 @@
     }
   }
 
-  &, .mq-editable-field {
-    cursor: text;
-    font-family: @symbola;
-  }
-
   .mq-matrix {
     vertical-align: middle;
     margin-left: 0.1em;
@@ -505,6 +534,17 @@
       position: relative;
       top: 0.23em;
       font-size: 2em;
+    }
+  }
+
+  &, .mq-editable-field {
+    cursor: text;
+    font-family: @symbola;
+
+    .mq-longdiv {
+      .mq-longdiv-curve-border {
+        font-size: 1.33em;
+      }
     }
   }
 }

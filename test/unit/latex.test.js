@@ -131,6 +131,7 @@ suite('latex', function() {
     assertParsesLatex('\\lrnexponent{a}{b}', 'a^b');
     assertParsesLatex('\\lrnsquaredexponent{a}', 'a^2');
     assertParsesLatex('\\lrnsubscript{a}{b}', 'a_b');
+    assertParsesLatex('\\longdiv{x}');
   });
 
   suite('public API', function() {
