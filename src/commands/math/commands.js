@@ -78,7 +78,7 @@ var XRightArrowStyle = P(MathCommand, function(_, super_) {
 
 var OverLineStyleGenerator = function (className) {
 
-    var arrows = '<span class="' + className + '-inner-right">O</span><span class="' + className + '-inner-left">N</span>';
+    var arrows = '<span class="' + className + '-inner-right">g</span><span class="' + className + '-inner-left">h</span>';
 
     return P(MathCommand, function(_, super_) {
       _.init = function(ctrlSeq, tagName, attrs) {
