@@ -495,6 +495,22 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+var LrnCuberoot =
+LatexCmds.lrncuberoot = P(SquareRoot, function(_, super_) {
+  _.ctrlSeq = '\\lrncuberoot';
+  _.htmlTemplate =
+      '<sup class="mq-nthroot mq-non-leaf"><span class="mq-empty-box">3</span></sup>'
+    + '<span class="mq-scaled">'
+    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-stem mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['sqrt[3](', ')'];
+  _.latex = function() {
+    return '\\sqrt[3]{'+this.ends[L].latex()+'}';
+  };
+});
+
 var Abs =
 LatexCmds.abs = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\abs';
@@ -502,6 +518,70 @@ LatexCmds.abs = P(MathCommand, function(_, super_) {
       '<span class="mq-abs mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
   ;
   _.textTemplate = ['|', '|'];
+});
+
+var LrnPlaceholder =
+LatexCmds.lrnplaceholder = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\lrnplaceholder';
+  _.htmlTemplate =
+      '<span class="mq-lrnplaceholder mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
+  ;
+  _.textTemplate = [''];
+  _.latex = function() {
+    return this.ends[L].latex();
+  };
+});
+
+var LrnExponent =
+LatexCmds.lrnexponent = P(MathCommand, function(_, super_) {
+  _.ctrSeq = '\\lrnexponent',
+  _.htmlTemplate =
+      '<span class="mq-lrnexponent mq-non-leaf">'
+    +   '<span class="mq-lrnplaceholder mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
+    +   '<span class="mq-supsub mq-non-leaf mq-sup-only">'
+    +     '<span class="mq-sup"><span class="mq-empty-box">&1</span></span>'
+    +   '</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['', '**'];
+  _.latex = function() {
+    return this.ends[L].latex()+'^'+this.ends[R].latex();
+  };
+});
+
+var LrnSquaredExponent =
+LatexCmds.lrnsquaredexponent = P(MathCommand, function(_, super_) {
+  _.ctrSeq = '\\lrnsquaredexponent',
+  _.htmlTemplate =
+      '<span class="mq-lrnexponent mq-non-leaf">'
+    +   '<span class="mq-lrnplaceholder mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
+    +   '<span class="mq-supsub mq-non-leaf mq-sup-only">'
+    +     '<span class="mq-sup"><span class="mq-empty-box">2</span></span>'
+    +   '</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['', '**2'];
+  _.latex = function() {
+    return this.ends[L].latex()+'^2';
+  };
+});
+
+var LrnSubscript =
+LatexCmds.lrnsubscript = P(MathCommand, function(_, super_) {
+  _.ctrSeq = '\\lrnsubscript',
+  _.htmlTemplate =
+      '<span class="mq-lrnexponent mq-non-leaf">'
+    +   '<span class="mq-lrnplaceholder mq-non-leaf"><span class="mq-empty-box">&0</span></span>'
+    +   '<span class="mq-supsub mq-non-leaf">'
+    +     '<span class="mq-sub"><span class="mq-empty-box">&1</span></span>'
+    +     '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['', '_'];
+  _.latex = function() {
+    return this.ends[L].latex()+'_'+this.ends[R].latex();
+  };
 });
 
 function DelimsMixin(_, super_) {
