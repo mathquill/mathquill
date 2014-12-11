@@ -6,6 +6,11 @@
 
     // TODO: why is this here?
     .user-select(text);
+
+   > textarea {
+     opacity: 0; // Defense against iOS cursor appearing in client pages
+     overflow: hidden; // Defense against bug on Chrome with retina
+   }
   }
 
   .mq-textarea *, .mq-selectable {
