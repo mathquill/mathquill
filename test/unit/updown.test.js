@@ -93,7 +93,7 @@ suite('up/down', function() {
 
     mq.keystroke('Down');
     assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
-    assert.equal(cursor[L], 0, 'cursor down from numerator inserts at left end of denominator');
+    assert.equal(cursor[R], 0, 'cursor down from numerator inserts at right end of denominator');
 
     mq.keystroke('Up');
     assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
