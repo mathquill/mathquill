@@ -15,5 +15,8 @@
     clip: rect(1em 1em 1em 1em); // blinking insertion point in IE
 
     resize: none; // hotfix: https://code.google.com/p/chromium/issues/detail?id=355199#c1
+
+    width: 1px; // don't "stick out" invisibly from a math field,
+    height: 1px; // can affect ancestor's .scroll{Width,Height}
   }
 }
