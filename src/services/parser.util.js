@@ -20,7 +20,7 @@ var Parser = P(function(_, super_, Parser) {
   _.init = function(body) { this._ = body; };
 
   _.parse = function(stream) {
-    return this.skip(eof)._(stream, success, parseError);
+    return this.skip(eof)._(''+stream, success, parseError);
 
     function success(stream, result) { return result; }
   };

@@ -137,6 +137,15 @@ suite('latex', function() {
       });
 
       test('coerces to a string', function () {
+        assertParsesLatex(undefined, 'undefined');
+        assertParsesLatex(null, 'null');
+        assertParsesLatex(0, '0');
+        assertParsesLatex(Infinity, 'Infinity');
+        assertParsesLatex(NaN, 'NaN');
+        assertParsesLatex(true, 'true');
+        assertParsesLatex(false, 'false');
+        assertParsesLatex({}, '[objectObject]'); // lol, the space gets ignored
+        assertParsesLatex({toString: function() { return 'thing'; }}, 'thing');
       });
     });
 
