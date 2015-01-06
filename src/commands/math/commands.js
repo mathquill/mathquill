@@ -1273,7 +1273,7 @@ LatexCmds.matrix = P(MathCommand, function(_, super_) {
     if (newBlock) {
       this.cursor = this.cursor || this.parent.cursor;
       this.finalizeTree();
-      this.bubble('redraw').cursor.insAtRightEnd(newBlock);
+      this.bubble('reflow').cursor.insAtRightEnd(newBlock);
     }
   };
   _.insertRow = function(currentBlock) {
@@ -1281,10 +1281,7 @@ LatexCmds.matrix = P(MathCommand, function(_, super_) {
     if (newBlock) {
       this.cursor = this.cursor || this.parent.cursor;
       this.finalizeTree();
-      this.bubble('redraw').cursor.insAtRightEnd(newBlock);
-
-      // just so parentheses get scaled.
-      this.bubble('edited');
+      this.bubble('reflow').cursor.insAtRightEnd(newBlock);
     }
   };
 

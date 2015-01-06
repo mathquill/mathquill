@@ -1104,5 +1104,18 @@ suite('typing with auto-replaces', function() {
         assertLatex('\\begin{matrix}0&1&2&3&4\\\\6&7&8&9&a\\\\c&d&e&f&g\\\\i&j&k&l&m\\\\o&p&q&r&s\\end{matrix}');
       });
     });
+
+    test('brackets are scaled immediately', function() {
+      mq.write('\\begin{bmatrix}x\\end{bmatrix}');
+      function bracketTransform() {
+        return $(mq.el()).find('.mq-matrix .mq-paren.mq-scaled')
+          .attr('style').replace(/^.*?(transform.*?);.*?$/, '$1');
+      }
+      var originalTransform = bracketTransform();
+      mq.keystroke('Left Shift-Enter');
+
+      assert.ok(originalTransform !== bracketTransform(),
+        'matrix bracket height should be expanded when new row is added');
+    });
   });
 });
