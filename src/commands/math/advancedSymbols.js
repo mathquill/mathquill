@@ -3,7 +3,6 @@
  ***********************************/
 
 LatexCmds.notin =
-LatexCmds.sim =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
