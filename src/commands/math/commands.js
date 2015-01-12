@@ -461,7 +461,7 @@ function DelimsMixin(_, super_) {
   };
   _.reflow = function() {
     var height = this.contentjQ.outerHeight()
-                 / parseInt(this.contentjQ.css('fontSize'), 10);
+                 / parseFloat(this.contentjQ.css('fontSize'));
     scale(this.delimjQs, min(1 + .2*(height - 1), 1.2), 1.2*height);
   };
 }
