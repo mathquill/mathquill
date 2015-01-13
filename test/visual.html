@@ -189,11 +189,25 @@ $(function() {
 <tr><td><span class="mathquill-static-math">-1 + +-2</span><td><span>-1 + +-2</span>
 <tr><td><span class="mathquill-static-math">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
 <tr><td><span class="mathquill-static-math">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
+<tr><td><span class="mathquill-static-math" style="font-size:14.99px">\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span><td><span>\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span>
 <tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left| a + \left| b \right| \right|</span><td><span>\left| a + \left| b \right| \right|</span>
-<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span><td><span>\left(\left(\left(\left(\left(\left(\left( \right)\right)\right)\right)\right)\right)\right)</span>
 <tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
 <tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 </table>
+
+<p id="paren-alignment">Parentheses vertical alignment at font sizes ranging from 10px to 24px: <button>Click Me</button></p>
+<script>
+$('#paren-alignment button').click(function() {
+  var html = '<div>';
+  for (var i = 10; i <= 24; i += 1) {
+    html += i+'px: <span class="mathquill-static-math" style="font-size:'+i+'px">\\left(\\left(\\left(\\left(\\left(\\left(\\left( \\right)\\right)\\right)\\right)\\right)\\right)\\right)+\\left(1\\right)+\\left(x\\right)+\\left(y\\right)+\\left(\\frac{1}{2}\\right)+\\left(\\frac{\\frac{1}{x}}{2}\\right)+\\left(\\frac{1}{\\frac{x}{2}}\\right)+\\left(\\frac{\\frac{\\frac{1}{2}}{\\frac{3}{4}}}{\\frac{\\frac{5}{6}}{\\frac{7}{8}}}\\right)</span><br>';
+  }
+  html += '</div>';
+  $(html).insertAfter('#paren-alignment').find('.mathquill-static-math').each(function() {
+    MathQuill.StaticMath(this);
+  });
+});
+</script>
 
 <h3>Dynamic rendering performance</h3>
 <p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-math-field"></span></p>

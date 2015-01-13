@@ -146,7 +146,6 @@
     // within sup/sub.
     .mq-fraction {
       font-size: 70%;
-      vertical-align: -0.4em;
     }
   }
 
@@ -162,12 +161,12 @@
   // parentheses
   .mq-paren {
     padding: 0 .1em;
-    vertical-align: bottom;
-    -webkit-transform-origin: bottom center;
-    -moz-transform-origin: bottom center;
-    -ms-transform-origin: bottom center;
-    -o-transform-origin: bottom center;
-    transform-origin: bottom center;
+    vertical-align: top;
+    -webkit-transform-origin: center .06em;
+    -moz-transform-origin: center .06em;
+    -ms-transform-origin: center .06em;
+    -o-transform-origin: center .06em;
+    transform-origin: center .06em;
 
     &.mq-ghost { color: silver; }
 
@@ -210,7 +209,7 @@
   .mq-fraction {
     font-size: 90%;
     text-align: center;
-    vertical-align: -.5em;
+    vertical-align: -.4em;
     padding: 0 .2em;
   }
 
@@ -248,7 +247,7 @@
   .mq-sqrt-prefix {
     padding-top: 0;
     position: relative;
-    top: .1em;
+    top: .05em;
     vertical-align: top;
     .transform-origin(top);
   }
@@ -259,6 +258,7 @@
     padding-left: .15em;
     padding-right: .2em;
     margin-right: .1em;
+    padding-top: 1px;
   }
 
   .mq-vector-prefix {
