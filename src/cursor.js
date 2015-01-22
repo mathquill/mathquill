@@ -13,7 +13,7 @@ JS environment could actually contain many instances. */
 var Cursor = P(Point, function(_) {
   _.init = function(initParent) {
     this.parent = initParent;
-    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor">&zwj;</span>');
+    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>');
 
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('mq-blink'); };
