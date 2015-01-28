@@ -132,6 +132,7 @@ suite('latex', function() {
     assertParsesLatex('\\lrnsquaredexponent{a}', 'a^2');
     assertParsesLatex('\\lrnsubscript{a}{b}', 'a_b');
     assertParsesLatex('\\longdiv{x}');
+    assertParsesLatex('\\rightleftharpoons ');
   });
 
   suite('public API', function() {
