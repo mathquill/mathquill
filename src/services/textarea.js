@@ -85,7 +85,7 @@ Controller.open(function(_) {
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
-    cursor.parent.write(cursor, ch, cursor.show().replaceSelection());
+    cursor.parent.write(cursor, ch);
     this.scrollHoriz();
   };
   _.paste = function(text) {

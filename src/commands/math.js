@@ -396,7 +396,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };
-  _.write = function(cursor, ch, replacedFragment) {
+  _.write = function(cursor, ch) {
     var cmd;
     if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
       cmd = Letter(ch);
@@ -405,7 +405,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     else
       cmd = VanillaSymbol(ch);
 
-    if (replacedFragment) cmd.replaces(replacedFragment);
+    if (cursor.selection) cmd.replaces(cursor.replaceSelection());
 
     cmd.createLeftOf(cursor);
   };
