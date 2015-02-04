@@ -90,7 +90,14 @@ function createRoot(jQ, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
     }
 
-    setTimeout(function() { textarea.focus(); textarea.focused = true; });
+    textarea.focus();
+//     setTimeout(function() {
+//       if (document.activeElement != textarea[0]) {
+//         console.debug('focus', 'focus');
+// //        textarea.focus();
+// //        textarea.focused = true;
+//       }
+//     });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
@@ -185,6 +192,11 @@ function createRoot(jQ, root, textbox, editable) {
 
   jQ.bind('focus.mathquill blur.mathquill', function(e) {
     textarea.trigger(e);
+  }).bind('click.mathquill', function(e) {
+    if (document.activeElement != textarea[0]) {
+      textarea.focus();
+      textarea.focused = true;
+    }
   }).blur();
 }
 

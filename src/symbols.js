@@ -192,6 +192,14 @@ var BinaryOperator = P(Symbol, function(_, _super) {
   };
 });
 
+var DollarSymbol = P(Symbol, function(_, _super) {
+  _.init = function(ctrlSeq, html, text) {
+    _super.init.call(this,
+      ctrlSeq, '<span class="dollar-symbol">'+html+'</span>', text
+    );
+  };
+});
+
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
@@ -219,6 +227,8 @@ LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   bind(PlusMinus,'\\pm ','&plusmn;');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;');
+
+CharCmds['$'] = bind(DollarSymbol, '\\$', '$');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
