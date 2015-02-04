@@ -321,6 +321,84 @@ LatexCmds.uppercase =
 LatexCmds.lowercase =
   makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text-mode"');
 
+// Chemical bonds in mhchem format
+LatexCmds.ce = P(TextBlock, function(_, super_) {
+  function wrapDots(html) {
+    return html.replace(/(&middot;)/g, '<span class="mq-bond-dot">$1</span>');
+  }
+  _.bondHtml = {
+    '-': '-',
+    '=': '=',
+    '#': '&#8801;',
+    '...': wrapDots('&middot;&middot;&middot;'),
+    '....': wrapDots('&middot;&middot;&middot;&middot;'),
+    '->': '&#8594;',
+    '<-': '&#8592;',
+  };
+  _.bond = null;
+  _.ctrlSeq = '\\ce';
+  _.regex = /^(\\bond{([^{}]+?)})/i;
+  _.jQadd = function(jQ) {
+    super_.jQadd.call(this, jQ);
+    if (this.bond) this.jQaddBond();
+  };
+  _.jQaddBond = function() {
+    this.jQ.empty()
+      .removeClass('mq-text-mode')
+      .addClass('mq-ce mq-bond')
+      .html(this.bondHtml[this.bond]);
+  };
+  _.parseBond = function (contents) {
+    if (contents.length) { 
+      this.bond = this.regex.exec(contents) &&
+        contents.replace(this.regex, '$2');
+    }
+    if (!this.bondHtml[this.bond]) this.bond = null;
+  };
+  _.latex = function() {
+    return (
+      '\\ce{' 
+      + (this.bond ? '\\bond{' + this.bond + '}' : this.textContents())
+      + '}'
+    );
+  };
+  _.text = function() { return this.bond || this.textContents(); };
+  _.isEmpty = function() { return !this.text(); };
+  _.moveOutOf = function(dir, cursor) {
+    if (!this.bond) {
+      this.parseEnteredText(dir, cursor);
+    }
+    cursor.insDirOf(dir, this); 
+  };
+  _.parseEnteredText = function(dir, cursor) {
+    var adj = cursor[-dir];
+    this.parseBond(this.textContents());
+    if (this.bond) {
+      while (adj instanceof TextPiece) {
+        adj = adj.remove()[-dir];
+      }
+      cursor[-dir] = this;
+      this.jQaddBond();
+    }
+  };
+  _.parser = function() {
+    var block = this;
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return optWhitespace
+      .then(string('{')).then(regex(this.regex)).skip(string('}'))
+      .map(function(text) {
+        block.parseBond(text);
+        return block;
+      })
+    ;
+  };
+  _.moveTowards = Symbol.prototype.moveTowards;
+  _.deleteTowards = Symbol.prototype.deleteTowards;
+  _.seek = Symbol.prototype.seek;
+  _.blur = MathBlock.prototype.blur;
+});
 
 var RootMathCommand = P(MathCommand, function(_, super_) {
   _.init = function(cursor) {
