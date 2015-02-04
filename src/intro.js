@@ -6,6 +6,26 @@
  * Mozilla Public License, v. 2.0. If a copy of the MPL
  * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
+ * - Wrapped mathquill in define call.
+ * - Added Cursor._lastCursorId property (to support programmatic write into \editable area)
+ * - Added 'softkey' command (to directly call backspace and cursor actions on editor)
+ * - Init option sets whether to use textarea or focusable span. (to not open soft keyboard on touch devices)
+ * - Removed automatic processing of mathquill classed elements. (We want to handle initialisation ourselves)
+ * - Allow single spaces; allow these to separate numerator of new fraction from previous symbols.
+ * - Added superscriptempty and subscriptempty latex commands.
+ * - Added 'editables' command to retrieve an array of latex values from \editable areas.
+ * - Expose read-only list of latex commands.
+ * - Don't open text block on $ press, add special symbol class for $.
+ *
+ * Eoghan McIlwaine
+ */
+define(['vendor/dom'], function (jQuery) {
+
+/**
+ * Copyleft 2010-2011 Jay and Han (laughinghan@gmail.com)
+ *   under the GNU Lesser General Public License
+ *     http://www.gnu.org/licenses/lgpl.html
+ * Project Website: http://mathquill.com
  */
 
 (function() {
