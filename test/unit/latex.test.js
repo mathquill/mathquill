@@ -133,6 +133,10 @@ suite('latex', function() {
     assertParsesLatex('\\lrnsubscript{a}{b}', 'a_b');
     assertParsesLatex('\\longdiv{x}');
     assertParsesLatex('\\rightleftharpoons ');
+    assertParsesLatex('\\mug ');
+    assertParsesLatex('\\mus ');
+    assertParsesLatex('\\mum ');
+    assertParsesLatex('\\muL ');
   });
 
   suite('public API', function() {

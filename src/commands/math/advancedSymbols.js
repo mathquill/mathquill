@@ -228,6 +228,12 @@ LatexCmds.rceil = bind(VanillaSymbol, '\\rceil ', '&#8969;');
 LatexCmds.opencurlybrace = LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '{');
 LatexCmds.closecurlybrace = LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '}');
 
+//microunits
+LatexCmds.mug = bind(VanillaSymbol, '\\mug ', 'µg');
+LatexCmds.mus = bind(VanillaSymbol, '\\mus ', 'µs');
+LatexCmds.mum = bind(VanillaSymbol, '\\mum ', 'µm');
+LatexCmds.muL = bind(VanillaSymbol, '\\muL ', 'µL');
+
 //various symbols
 
 LatexCmds['∫'] =
