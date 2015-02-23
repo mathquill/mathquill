@@ -357,9 +357,9 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.ends[L] === this.ends[R] ?
+    return (this.ends[L] === this.ends[R] && this.ends[L] !== 0) ?
       this.ends[L].text() :
-      '(' + this.join('text') + ')'
+      this.join('text')
     ;
   };
 
