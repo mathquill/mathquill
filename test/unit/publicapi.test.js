@@ -97,6 +97,33 @@ suite('Public API', function() {
       mq.latex('x+y');
       assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
     });
+    
+    test('.text() with incomplete commands', function() {
+      assert.equal(mq.text(), '');
+      mq.typedText('\\');
+      assert.equal(mq.text(), '\\');
+      mq.typedText('s');
+      assert.equal(mq.text(), '\\s');
+      mq.typedText('qrt');
+      assert.equal(mq.text(), '\\sqrt');
+    });
+    
+    test('.text() with complete commands', function() {
+      mq.latex('\\sqrt{}');
+      assert.equal(mq.text(), 'sqrt()');
+      mq.latex('\\nthroot[]{}');
+      assert.equal(mq.text(), 'sqrt[]()');
+      mq.latex('\\frac{}{}');
+      assert.equal(mq.text(), '(/)');
+      mq.latex('\\frac{3}{5}');
+      assert.equal(mq.text(), '(3/5)');
+      mq.latex('\\div');
+      assert.equal(mq.text(), '[/]');
+      mq.latex('^{}');
+      assert.equal(mq.text(), '**');
+      mq.latex('3^{4}');
+      assert.equal(mq.text(), '3**4');
+    });
 
     test('.moveToDirEnd(dir)', function() {
       mq.latex('a x^2 + b x + c = 0');
