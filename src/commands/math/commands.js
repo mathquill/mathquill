@@ -184,11 +184,38 @@ var SupSub = P(MathCommand, function(_, super_) {
   Options.p.charsThatBreakOutOfSupSub = '';
   _.finalizeTree = function() {
     this.ends[L].write = function(cursor, ch) {
+      if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
+        if (ch === '_') return;
+        var cmd = this.chToCmd(ch);
+        if (cmd instanceof Symbol) cursor.deleteSelection();
+        else cursor.clearSelection().insRightOf(this.parent);
+        return cmd.createLeftOf(cursor.show());
+      }
       if (cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
       }
       MathBlock.p.write.apply(this, arguments);
     };
+  };
+  _.moveTowards = function(dir, cursor, updown) {
+    if (cursor.options.autoSubscriptNumerals && !this.sup) {
+      cursor.insDirOf(dir, this);
+    }
+    else super_.moveTowards.apply(this, arguments);
+  };
+  _.deleteTowards = function(dir, cursor) {
+    if (cursor.options.autoSubscriptNumerals && this.sub) {
+      var cmd = this.sub.ends[-dir];
+      if (cmd instanceof Symbol) cmd.remove();
+      else if (cmd) cmd.deleteTowards(dir, cursor.insAtDirEnd(-dir, this.sub));
+
+      // TODO: factor out a .removeBlock() or something
+      // Also note `-dir` because in e.g. x_1^2| want backspacing (leftward)
+      // to delete the 1 but to end up rightward of x^2; with non-negated
+      // `dir` (try it), the cursor appears to have gone "through" the ^2.
+      if (this.sub.isEmpty()) this.sub.deleteOutOf(-dir, cursor.insAtLeftEnd(this.sub));
+    }
+    else super_.deleteTowards.apply(this, arguments);
   };
   _.latex = function() {
     function latex(prefix, block) {

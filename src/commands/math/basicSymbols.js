@@ -2,6 +2,20 @@
  * Symbols for Basic Mathematics
  ********************************/
 
+var Digit = P(VanillaSymbol, function(_, super_) {
+  _.createLeftOf = function(cursor) {
+    if (cursor.options.autoSubscriptNumerals
+        && cursor.parent !== cursor.parent.parent.sub
+        && (cursor[L] instanceof Variable
+          || (cursor[L] instanceof SupSub && cursor[L][L] instanceof Variable))) {
+      LatexCmds._().createLeftOf(cursor);
+      super_.createLeftOf.call(this, cursor);
+      cursor.insRightOf(cursor.parent.parent);
+    }
+    else super_.createLeftOf.call(this, cursor);
+  };
+});
+
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
     super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');

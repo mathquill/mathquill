@@ -134,6 +134,7 @@ var mathField = MathQuill.MathField(el[0], {
   sumStartsWithNEquals: true,
   supSubsRequireOperand: true,
   charsThatBreakOutOfSupSub: '+-=<>',
+  autoSubscriptNumerals: true,
   autoCommands: 'pi theta sqrt sum',
   autoOperatorNames: 'sin cos etc',
   substituteTextarea: function() {
