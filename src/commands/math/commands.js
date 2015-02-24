@@ -686,9 +686,10 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var InnerMathField = P(MathQuill.MathField, function(_) {
-  _.init = function(root, container) {
+  _.init = function(root, container, options) {
     RootBlockMixin(root);
     this.__options = Options();
+    this.config(options);
     var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
     ctrlr.createTextarea();
@@ -710,7 +711,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
       .map(function(name) { self.name = name; }).or(succeed())
       .then(super_.parser.call(self));
   };
-  _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
+  _.finalizeTree = function(options) { InnerMathField(this.ends[L], this.jQ, options); };
   _.registerInnerField = function(innerFields) {
     innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
   };
