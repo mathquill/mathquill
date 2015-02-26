@@ -61,6 +61,9 @@ UGLIFY_OPTS ?= --mangle --compress hoist_vars=true
 
 LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=
+ifdef OMIT_FONT_FACE
+  LESS_OPTS += --modify-var="omit-font-face=true"
+endif
 
 # Empty target files whose Last Modified timestamps are used to record when
 # something like `npm install` last happened (which, for example, would then be

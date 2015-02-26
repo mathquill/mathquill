@@ -1,10 +1,14 @@
-@font-face {
-  font-family: Symbola;
-  .font-face();
+@omit-font-face:;
+.font-face;
+.font-face() when not (@omit-font-face) {
+  @font-face {
+    font-family: Symbola;
+    .font-srcs;
+  }
 }
 
 @basic:;
-.font-face() when not (@basic) {
+.font-srcs() when not (@basic) {
   src: url(font/Symbola.eot);
   src:
     local("Symbola Regular"),
@@ -14,7 +18,7 @@
     url(font/Symbola.svg#Symbola) format("svg")
   ;
 }
-.font-face() when (@basic) {
+.font-srcs() when (@basic) {
   src: url(font/Symbola-basic.eot);
   src:
     local("Symbola Regular"),
