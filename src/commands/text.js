@@ -91,8 +91,8 @@ var TextBlock = P(Node, function(_, super_) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insRightOf(this);
   };
-  _.write = function(cursor, ch, replacedFragment) {
-    if (replacedFragment) replacedFragment.remove();
+  _.write = function(cursor, ch) {
+    cursor.show().deleteSelection();
 
     if (ch !== '$') {
       if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
@@ -324,9 +324,9 @@ var RootMathCommand = P(MathCommand, function(_, super_) {
     super_.createBlocks.call(this);
 
     this.ends[L].cursor = this.cursor;
-    this.ends[L].write = function(cursor, ch, replacedFragment) {
+    this.ends[L].write = function(cursor, ch) {
       if (ch !== '$')
-        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
+        MathBlock.prototype.write.call(this, cursor, ch);
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
         this.parent.deleteTowards(dir, cursor);
@@ -337,7 +337,7 @@ var RootMathCommand = P(MathCommand, function(_, super_) {
       else if (!cursor[L])
         cursor.insLeftOf(this.parent);
       else
-        MathBlock.prototype.write.call(this, cursor, ch, replacedFragment);
+        MathBlock.prototype.write.call(this, cursor, ch);
     };
   };
   _.latex = function() {
@@ -350,8 +350,8 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
     return super_.keystroke.apply(this, arguments);
   };
-  _.write = function(cursor, ch, replacedFragment) {
-    if (replacedFragment) replacedFragment.remove();
+  _.write = function(cursor, ch) {
+    cursor.show().deleteSelection();
     if (ch === '$')
       RootMathCommand(cursor).createLeftOf(cursor);
     else {

@@ -27,8 +27,8 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
 
       return this;
     };
-    this.ends[L].write = function(cursor, ch, replacedFragment) {
-      if (replacedFragment) replacedFragment.remove();
+    this.ends[L].write = function(cursor, ch) {
+      cursor.show().deleteSelection();
 
       if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
       else {
