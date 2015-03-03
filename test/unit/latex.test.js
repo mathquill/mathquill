@@ -138,6 +138,8 @@ suite('latex', function() {
     assertParsesLatex('\\mum ');
     assertParsesLatex('\\muL ');
     assertParsesLatex('\\mathbb{AZ09}');
+    assertParsesLatex('\\underset{under}{over}');
+    assertParsesLatex('\\underset{\\sim }{over}');
   });
 
   suite('public API', function() {

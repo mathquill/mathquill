@@ -557,6 +557,27 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
   };
 });
 
+LatexCmds.underset = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\underset';
+  _.htmlTemplate =
+      '<span class="mq-underset mq-non-leaf">'
+    +   '<span class="mq-over"><span class="mq-empty-box">&1</span></span>'
+    +   '<span class="mq-under"><span class="mq-empty-box">&0</span></span>'
+    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['[', '|', ']'];
+  _.finalizeTree = function() {
+    // Add extra style for tilde vector notation
+    var under = this.ends[L];
+    if (under.latex() === '\\sim ') {
+      this.jQ.addClass('mq-tilde-vector');
+    }
+    this.downInto = this.ends[L].upOutOf = this.ends[R];
+    this.upInto = this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
 var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {

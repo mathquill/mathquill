@@ -7,7 +7,8 @@ describe('Mathquill style tests', function () {
             ["Fraction","\\frac{x}{y}"],
             ["Square root","\\sqrt{123}"],
             ["Nested fraction","\\frac{\\frac{x}{y}}{\\frac{x}{y}}"],
-            ["Vertically stretched square root","\\sqrt{\\frac{1}{2}}"]
+            ["Vertically stretched square root","\\sqrt{\\frac{1}{2}}"],
+            ["Horizontal alignment: fraction, underset","\\frac{x}{y} + \\underset{y}{x}"]
         ];
 
     before(function(done) {
