@@ -107,6 +107,10 @@ suite('latex', function() {
     assertParsesLatex('\\circledot ', '\\odot ');
   });
 
+  test('miscellaneous symbols', function () {
+    assertParsesLatex('\\mathbb{AZ09}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
