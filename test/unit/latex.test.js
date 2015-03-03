@@ -107,6 +107,11 @@ suite('latex', function() {
     assertParsesLatex('\\circledot ', '\\odot ');
   });
 
+  test('miscellaneous symbols', function() {
+    assertParsesLatex('\\underset{under}{over}');
+    assertParsesLatex('\\underset{\\sim }{over}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {

@@ -218,7 +218,7 @@
   // TODO: try http://jsbin.com/gabunebe/4/edit instead
   //   obsoletes the &nbsp; in HTML template, but needs cross-browser
   //   testing. See also .supsub
-  .mq-fraction {
+  .mq-fraction, .mq-underset {
     font-size: 90%;
     text-align: center;
     vertical-align: -.4em;
@@ -227,28 +227,38 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .mq-fraction, .mq-large-operator, x:-moz-any-link {
+  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .mq-fraction, .mq-large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
-  .mq-numerator, .mq-denominator {
+  .mq-underset.mq-tilde-vector .mq-under {
+    line-height: 0.6em;
+  }
+
+  .mq-numerator, .mq-denominator, .mq-over, .mq-under {
     display: block;
   }
 
-  .mq-numerator {
+  .mq-numerator, .mq-over {
     padding: 0 0.1em;
+  }
+
+  .mq-denominator, .mq-under {
+    float: left;
+    width: 100%;
+    padding: .15em .1em 0 .1em;
+    margin-right: -.1em;
+    margin-left: -.1em;
+    text-align: center;
   }
 
   .mq-denominator {
     border-top: 1px solid;
-    float: right; // take out of normal flow to manipulate baseline
-    width: 100%;
-    padding: 0.1em;
   }
 
   ////
