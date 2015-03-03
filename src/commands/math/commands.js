@@ -406,7 +406,7 @@ LatexCmds.lim =
 LatexCmds.limit = P(SummationLimitNotation, function(_, super_) {
   _.init = function() {
     var htmlTemplate =
-      '<span class="mq-limit mq-non-leaf">'
+      '<span class="mq-lim mq-non-leaf">'
     +   '<span class="mq-un-italicized">lim</span>'
     +   '<span class="mq-approaches"><span>&0</span></span>'
     + '</span>'
