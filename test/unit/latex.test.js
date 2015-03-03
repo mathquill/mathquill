@@ -137,6 +137,7 @@ suite('latex', function() {
     assertParsesLatex('\\mus ');
     assertParsesLatex('\\mum ');
     assertParsesLatex('\\muL ');
+    assertParsesLatex('\\mathbb{AZ09}');
   });
 
   suite('public API', function() {

@@ -102,12 +102,80 @@ var BiggerSymbolStyle = function (className, content) {
     });
 };
 
+var DoubleStruck = P(Variable, function(_, super_) {
+  _.symbols = {
+    C: "&#8450;",
+    H: "&#8461;",
+    N: "&#8469;",
+    P: "&#8473;",
+    Q: "&#8474;",
+    R: "&#8477;",
+    Z: "&#8484;"
+  };
+  _.init = function(ch) {
+    var inner = ch;
+    if (this.symbols[ch]) {
+      inner = '<span class="mq-original">' + ch + '</span>' + this.symbols[ch];
+    }
+    super_.init.call(this, ch, inner);
+  };
+});
+
 //fonts
 LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"');
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"');
 LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"');
+LatexCmds.mathbb = P(MathCommand, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\mathbb', '<span class="mq-mathbb mq-font">&0</span>');
+  };
+  _.adopt = function() {
+    this.eachChild(function(child) {
+      if (!child.writeOverride) {
+        var origWrite = child.write,
+          origDeleteOutOf = child.deleteOutOf;
+        child.write = child.writeOverride = function(cursor, ch, replacedFragment) {
+          var cmd;
+          if (DoubleStruck.prototype.symbols[ch]) {
+            cmd = DoubleStruck(ch);
+            if (replacedFragment) cmd.replaces(replacedFragment);
+            cmd.createLeftOf(cursor);
+          } else {
+            return origWrite.apply(child, arguments);
+          }
+        };
+        child.deleteOutOf = function(dir, cursor) {
+          var variables = [];
+          child.eachChild(function(grand) {
+            var ch = grand.ctrlSeq;
+            variables.push(Variable(ch).adopt(child, child.ends[R], 0));
+            grand.remove();
+          });
+          if (variables.length) cursor[R] = variables[0];
+          child.jQize().appendTo(child.jQ);
+          return origDeleteOutOf.apply(child, arguments);
+        };
+      }
+    });
+    return super_.adopt.apply(this, arguments);
+  };
+  _.finalizeTree = function() {
+    this.eachChild(function(child) {
+      child.eachChild(function(grand) {
+        var ch = grand.ctrlSeq, NewCmd = Variable;
+        if (DoubleStruck.prototype.symbols[ch]) {
+          NewCmd = DoubleStruck;
+        }
+        NewCmd(ch).adopt(child, child.ends[R], 0);
+        grand.remove();
+      });
+      child.jQize().appendTo(child.jQ);
+    });
+  };
+});
+
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(OverLineStyleGenerator('mq-overline'), '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
