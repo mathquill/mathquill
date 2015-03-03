@@ -117,6 +117,10 @@ suite('latex', function() {
     assertParsesLatex('\\mathbb{AZ09}');
   });
 
+  test('underset', function() {
+    assertParsesLatex('\\underset{under}{over}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
