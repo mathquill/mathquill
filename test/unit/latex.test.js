@@ -121,6 +121,16 @@ suite('latex', function() {
     assertParsesLatex('\\underset{under}{over}');
   });
 
+  test('xrightarrow', function() {
+    assertParsesLatex('\\xrightarrow{over}');
+    assertParsesLatex('\\xrightarrow[under]{over}');
+  });
+
+  test('xleftarrow', function() {
+    assertParsesLatex('\\xleftarrow{over}');
+    assertParsesLatex('\\xleftarrow[under]{over}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
