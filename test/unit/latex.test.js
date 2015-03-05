@@ -140,6 +140,10 @@ suite('latex', function() {
     assertParsesLatex('\\mathbb{AZ09}');
     assertParsesLatex('\\underset{under}{over}');
     assertParsesLatex('\\underset{\\sim }{over}');
+    assertParsesLatex('\\xrightarrow{over}');
+    assertParsesLatex('\\xrightarrow[under]{over}');
+    assertParsesLatex('\\xleftarrow{over}');
+    assertParsesLatex('\\xleftarrow[under]{over}');
   });
 
   suite('public API', function() {
