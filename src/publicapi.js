@@ -114,9 +114,14 @@ jQuery.fn.mathquill = function(cmd, latex) {
           }
         }
       });
+  case 'mapCharCmd':
+    if (arguments.length === 3)
+      CharCmds[latex] = LatexCmds[arguments[2]];
+    return this;
   case 'unmapCharCmd':
     if (arguments.length > 1)
       delete CharCmds[latex];
+    return this;
   case 'allowSpace':
     if (arguments.length > 1)
       return this.each(function() {
