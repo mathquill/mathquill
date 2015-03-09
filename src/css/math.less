@@ -289,13 +289,31 @@
     }
   }
   .mq-longarrow {
-    -moz-transform: scaleX(1.5);
-    -o-transform: scaleX(1.5);
-    -webkit-transform: scaleX(1.5);
-    -ms-transform: scaleX(1.5);
-    transform: scaleX(1.5);
-    margin-right: 0.2em;
-    margin-left: 0.2em;
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+    display: -moz-inline-box;
+    display: inline-block;
+
+    .mq-arrow-tail {
+      letter-spacing: -0.5em;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0.4em;
+      text-indent: -0.5em;
+      display: inline-block;
+      float: left;
+      margin-right: -0.06em;
+
+      &.mq-tail-right {
+        float: right;
+        margin-left: -0.06em;
+        margin-right: 0;
+      }
+    }
+
+    .mq-arrow-mirror {
+      letter-spacing: -0.12em;
+    }
   }
 
   ////

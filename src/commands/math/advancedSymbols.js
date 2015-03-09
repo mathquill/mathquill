@@ -118,7 +118,7 @@ case '!':
  */
 var LongArrow = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span class="mq-scaled mq-longarrow">'+html+'</span>');
+    super_.init.call(this, ch, '<span class="mq-longarrow">'+html+'</span>');
   };
 });
 
@@ -163,12 +163,12 @@ LatexCmds.vdash = bind(VanillaSymbol, '\\vdash ', '&#8870;');
 LatexCmds.dashv = bind(VanillaSymbol, '\\dashv ', '&#8867;');
 
 //arrows
-LatexCmds.longleftarrow = bind(LongArrow, '\\longleftarrow ', '&#8592;');
-LatexCmds.longrightarrow = bind(LongArrow, '\\longrightarrow ', '&#8594;');
-LatexCmds.Longleftarrow = bind(LongArrow, '\\Longleftarrow ', '&#8656;');
-LatexCmds.Longrightarrow = bind(LongArrow, '\\Longrightarrow ', '&#8658;');
-LatexCmds.longleftrightarrow = bind(LongArrow, '\\longleftrightarrow ', '&#8596;');
-LatexCmds.Longleftrightarrow = bind(LongArrow, '\\Longleftrightarrow ', '&#8660;');
+LatexCmds.longleftarrow = bind(LongArrow, '\\longleftarrow ', '&larr;<span class="mq-arrow-tail mq-tail-right">&larr;</span>');
+LatexCmds.longrightarrow = bind(LongArrow, '\\longrightarrow ', '<span class="mq-arrow-tail">&larr;</span>&rarr;');
+LatexCmds.Longleftarrow = bind(LongArrow, '\\Longleftarrow ', '&lArr;<span class="mq-arrow-tail mq-tail-right">&lArr;</span>');
+LatexCmds.Longrightarrow = bind(LongArrow, '\\Longrightarrow ', '<span class="mq-arrow-tail">&lArr;</span>&rArr;');
+LatexCmds.longleftrightarrow = bind(LongArrow, '\\longleftrightarrow ', '<span class="mq-arrow-mirror">&larr;&rarr;</span>');
+LatexCmds.Longleftrightarrow = bind(LongArrow, '\\Longleftrightarrow ', '<span class="mq-arrow-mirror">&lArr;&rArr;</span>');
 LatexCmds.updownarrow = bind(VanillaSymbol, '\\updownarrow ', '&#8597;');
 LatexCmds.Updownarrow = bind(VanillaSymbol, '\\Updownarrow ', '&#8661;');
 LatexCmds.mapsto = bind(VanillaSymbol, '\\mapsto ', '&#8614;');
