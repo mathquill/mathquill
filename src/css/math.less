@@ -83,6 +83,9 @@
   .mq-monospace {
     font-family: monospace, Symbola, serif;
   }
+  .mq-mathbb .mq-original {
+    display: none;
+  }
   .mq-overleftrightarrow {
     margin-top: 0.35em;
     position: relative;
@@ -339,16 +342,16 @@
 
     // special styles for fractions
     // within sup/sub.
-    .mq-fraction {
+    .mq-fraction, .mq-underset {
       font-size: 70%;
       vertical-align: -0.4em;
     }
 
-    .mq-numerator {
+    .mq-numerator, .mq-over {
       padding-bottom: 0;
     }
 
-    .mq-denominator {
+    .mq-denominator, .mq-under {
       padding-top: 0;
     }
   }
@@ -411,7 +414,7 @@
   // TODO: try http://jsbin.com/gabunebe/4/edit instead
   //   obsoletes the &nbsp; in HTML template, but needs cross-browser
   //   testing. See also .supsub
-  .mq-fraction {
+  .mq-fraction, .mq-underset {
     font-size: 90%;
     text-align: center;
     vertical-align: -.5em;
@@ -420,32 +423,42 @@
 
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .mq-fraction, .mq-large-operator, x:-moz-any-link {
+  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .mq-fraction, .mq-large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
-  .mq-numerator, .mq-denominator {
+  .mq-underset.mq-tilde-vector .mq-under {
+    line-height: 0.6em;
+  }
+
+  .mq-numerator, .mq-denominator, .mq-over, .mq-under {
     display: block;
   }
 
-  .mq-numerator {
-    margin-bottom: 0.2em;
+  .mq-numerator, .mq-over {
     padding: .1em .1em 0 .1em;
     width: 100%;
   }
 
-  .mq-denominator {
-    border-top: 1px solid;
+  .mq-numerator {
+    margin-bottom: 0.2em;
+  }
+
+  .mq-denominator, .mq-under {
     float: left;
-    padding: .1em .1em 1px .1em;
-    padding-top: .2em;
     width: 100%;
     text-align: center;
+    padding: 0 .1em .1em .1em;
+  }
+
+  .mq-denominator {
+    border-top: 1px solid;
+    padding: .1em .1em 1px .1em;
   }
 
   ////
@@ -494,7 +507,7 @@
     }
   }
 
-  .mq-limit {
+  .mq-lim {
     text-align: center;
 
     span  {

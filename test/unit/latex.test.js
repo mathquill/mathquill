@@ -113,6 +113,14 @@ suite('latex', function() {
     assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}x&y\\\\1&\\end{Vmatrix}');
   });
 
+  test('mathbb', function() {
+    assertParsesLatex('\\mathbb{AZ09}');
+  });
+
+  test('underset', function() {
+    assertParsesLatex('\\underset{under}{over}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
