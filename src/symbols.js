@@ -227,6 +227,7 @@ LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   bind(PlusMinus,'\\pm ','&plusmn;');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;');
+LatexCmds['⁻'] = LatexCmds.unaryneg = bind(PlusMinus, '\\unaryneg ', '&#8315;');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;');
