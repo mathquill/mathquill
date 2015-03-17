@@ -147,7 +147,7 @@ suite('Public API', function() {
       mq.latex('x+y');
       assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
     });
-    
+
     test('.text() with incomplete commands', function() {
       assert.equal(mq.text(), '');
       mq.typedText('\\');
@@ -157,7 +157,7 @@ suite('Public API', function() {
       mq.typedText('qrt');
       assert.equal(mq.text(), '\\sqrt');
     });
-    
+
     test('.text() with complete commands', function() {
       mq.latex('\\sqrt{}');
       assert.equal(mq.text(), 'sqrt()');
@@ -728,7 +728,44 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '');
       mq.write('asdf');
       mq.select();
+      $(mq.el()).remove();
+    });
+  });
 
+  suite('disableFlorin', function() {
+    var opts = { 'disableFlorin': true }, mq, mq2;
+
+    function assertNoFlorin() {
+      var $el = $(mq.el());
+      assert.equal($el.find('var').text(), 'f');
+      assert.equal($el.find('.mq-florin').length, 0);
+    }
+
+    test('normal "f" is written when disableFlorin is true', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      mq.typedText('f');
+      assertNoFlorin();
+      $(mq.el()).remove();
+    });
+
+    test('disableFlorin also works for InertMath', function() {
+      mq = MathQuill.InertMath( $('<span>f</span>').appendTo('#mock')[0], opts);
+      assertNoFlorin();
+      $(mq.el()).remove();
+    });
+
+    test('disableFlorin persists', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      mq2 = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      mq.typedText('f');
+      assertNoFlorin();
+      $(mq.el(), mq2.el()).remove();
+    });
+
+    test('florin is written when disableFlorin is not set', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      mq.typedText('f');
+      assert.equal($(mq.el()).find('.mq-florin').length, 1);
       $(mq.el()).remove();
     });
   });
