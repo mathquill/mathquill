@@ -70,9 +70,46 @@ var Style = P(MathCommand, function(_, super_) {
   };
 });
 
-var XRightArrowStyle = P(MathCommand, function(_, super_) {
+// xrightarrow and xleftarrow
+var XArrowStyle = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, tagName, attrs) {
-    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="mq-xarrow-inner">&0</'+tagName+'></'+tagName+'>');
+    this.args = arguments;
+    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'><'+tagName+' class="mq-xarrow-over">&0</'+tagName+'></'+tagName+'>');
+    this.textTemplate = [ctrlSeq.replace('\\', '') + '(', ')'];
+  };
+  _.parser = function() {
+    var cmd = this;
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var withSub = XArrowWithSub.apply(null, cmd.args);
+        withSub.blocks = [ optBlock, block ];
+        optBlock.adopt(withSub, 0, 0);
+        block.adopt(withSub, optBlock, 0);
+        return withSub;
+      });
+    }).or(super_.parser.call(this));
+  };
+});
+
+// ...with optional subscript
+var XArrowWithSub = P(XArrowStyle, function(_, super_) {
+  _.init = function(ctrlSeq, tagName, attrs) {
+    this.htmlTemplate =
+        '<' + tagName + ' ' + attrs + '>'
+      +   '<' + tagName + ' class="mq-xarrow-over">&1</' + tagName + '>'
+      +   '<' + tagName + ' class="mq-xarrow-under">&0</' + tagName + '>'
+      + '</' + tagName + '>'
+    ;
+    MathCommand.prototype.init.call(this, ctrlSeq);
+    this.textTemplate = [ctrlSeq.replace('\\', '') + '[', '](', ')'];
+  };
+  _.latex = function() {
+    return this.ctrlSeq + '['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  };
+  _.finalizeTree = function() {
+    this.jQ.addClass('mq-withsub');
+    this.downInto = this.ends[L].upOutOf = this.ends[R];
+    this.upInto = this.ends[R].downOutOf = this.ends[L];
   };
 });
 
@@ -183,8 +220,8 @@ LatexCmds.longdiv = bind(LongDivisionStyle, '\\longdiv', 'span', 'class="mq-non-
 LatexCmds.overleftrightarrow = bind(OverLineStyleGenerator('mq-overleftrightarrow'), '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overleftrightarrow"');
 LatexCmds.overrightarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(OverLineStyleGenerator('mq-overarrow'), '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
-LatexCmds.xleftarrow = bind(XRightArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
-LatexCmds.xrightarrow = bind(XRightArrowStyle, '\\xrightarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-right"');
+LatexCmds.xleftarrow = bind(XArrowStyle, '\\xleftarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-left"');
+LatexCmds.xrightarrow = bind(XArrowStyle, '\\xrightarrow', 'span', 'class="mq-non-leaf mq-xarrow mq-arrow-right"');
 
 LatexCmds.parallelogram = bind(BiggerSymbolStyle('mq-parallelogram', '&#9649;'), '\\parallelogram ', 'span', 'class="mq-non-leaf mq-parallelogram"');
 

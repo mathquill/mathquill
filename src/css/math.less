@@ -246,20 +246,29 @@
   }
   .mq-xarrow {
     position: relative;
-    top: -0.5em;
-    padding-bottom: 0.2em;
-    margin-top: 5px;
-    margin-left: 5px;
-    margin-right: 5px;
-    font-size: 0.7em;
-    border-bottom: 1px solid black;
+    font-size: 70%;
+    text-align: center;
+    padding: 0 0.2em;
 
-    .mq-xarrow-inner {
-      padding-left: 0.3em;
-      padding-right: 0.3em;
+    &.mq-withsub {
+      vertical-align: -0.5em;
     }
 
-    &:after {
+    .mq-xarrow-over {
+      border-bottom: 1px solid black;
+      display: block;
+      padding: 0.1em 0.1em 0.2em 0.1em;
+      position: relative;
+    }
+
+    .mq-xarrow-under {
+      display: block;
+      padding: 0em 0.1em 0.2em 0.1em;
+      position: relative;
+      top: 0.2em;
+    }
+
+    .mq-xarrow-over:after {
       display: block;
       position: relative;
       top: 0.45em;
@@ -269,7 +278,8 @@
       text-align: right;
       right: -0.3em;
     }
-    &.mq-arrow-left:after {
+
+    &.mq-arrow-left .mq-xarrow-over:after {
       -moz-transform: scaleX(-1);
       -o-transform: scaleX(-1);
       -webkit-transform: scaleX(-1);
@@ -281,13 +291,31 @@
     }
   }
   .mq-longarrow {
-    -moz-transform: scaleX(1.5);
-    -o-transform: scaleX(1.5);
-    -webkit-transform: scaleX(1.5);
-    -ms-transform: scaleX(1.5);
-    transform: scaleX(1.5);
-    margin-right: 0.2em;
-    margin-left: 0.2em;
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+    display: -moz-inline-box;
+    display: inline-block;
+
+    .mq-arrow-tail {
+      letter-spacing: -0.5em;
+      white-space: nowrap;
+      overflow: hidden;
+      width: 0.4em;
+      text-indent: -0.5em;
+      display: inline-block;
+      float: left;
+      margin-right: -0.06em;
+
+      &.mq-tail-right {
+        float: right;
+        margin-left: -0.06em;
+        margin-right: 0;
+      }
+    }
+
+    .mq-arrow-mirror {
+      letter-spacing: -0.12em;
+    }
   }
 
   ////
@@ -552,6 +580,14 @@
     padding-right: 0.2em;
     margin-left: 0.1em;
     margin-right: 0.1em;
+  }
+
+  .mq-ce.mq-bond {
+    margin: auto 0.1em;
+  
+    .mq-bond-dot {
+      margin: auto 0.05em;
+    }
   }
 
   .mq-lrnplaceholder {
