@@ -217,7 +217,8 @@ var MathCommand = P(MathElement, function(_, _super) {
     var currentPoint = this;
     
     // this is a complex item, not text: we have no buffer
-    if(this.textTemplate && this.textTemplate.length > 1) return null;
+    if((this.textTemplate && this.textTemplate.length > 1) ||
+       (this.textTemplate && this.textTemplate.length >= 1 && this.textTemplate[0].length > 1)) return null;
 
     buffer = this.textTemplate[0];
     // assemble backwards
