@@ -201,7 +201,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   };
 });
 
-LatexCmds.f = P(Letter, function(_, super_) {
+var Florin = P(Letter, function(_, super_) {
   _.init = function() {
     Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-florin">&fnof;</var>');
   };

@@ -545,4 +545,42 @@ suite('Public API', function() {
       });
     });
   });
+
+  suite('disableFlorin', function() {
+    var opts = { 'disableFlorin': true }, mq, mq2;
+
+    function assertNoFlorin() {
+      var $el = $(mq.el());
+      assert.equal($el.find('var').text(), 'f');
+      assert.equal($el.find('.mq-florin').length, 0);
+    }
+
+    test('normal "f" is written when disableFlorin is true', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      mq.typedText('f');
+      assertNoFlorin();
+      $(mq.el()).remove();
+    });
+
+    test('disableFlorin also works for InertMath', function() {
+      mq = MathQuill.InertMath( $('<span>f</span>').appendTo('#mock')[0], opts);
+      assertNoFlorin();
+      $(mq.el()).remove();
+    });
+
+    test('disableFlorin persists', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts);
+      mq2 = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      mq.typedText('f');
+      assertNoFlorin();
+      $(mq.el(), mq2.el()).remove();
+    });
+
+    test('florin is written when disableFlorin is not set', function() {
+      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      mq.typedText('f');
+      assert.equal($(mq.el()).find('.mq-florin').length, 1);
+      $(mq.el()).remove();
+    });
+  });
 });

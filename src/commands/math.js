@@ -395,9 +395,18 @@ var MathBlock = P(MathElement, function(_, super_) {
     return node.seek(pageX, cursor);
   };
   _.write = function(cursor, ch, replacedFragment) {
-    var cmd;
+    var pnt = this, opts = {}, cmd;
+
+    // Get options from the root
+    if (ch === 'f') {
+      while (pnt.parent) { pnt = pnt.parent; }
+      opts = pnt.controller && pnt.controller.options;
+    }
+
     if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
       cmd = Letter(ch);
+    else if (ch === 'f')
+      cmd = (opts.disableFlorin) ? Letter(ch) : Florin(ch);
     else if (cmd = CharCmds[ch] || LatexCmds[ch])
       cmd = cmd(ch);
     else
@@ -444,9 +453,11 @@ setMathQuillDot('MathField', P(EditableField, function(_, super_) {
  * the mouseup event will hijack focus.
  */
 setMathQuillDot('InertMath', P(AbstractMathQuill, function(_, super_) {
-  _.init = function(el) {
+  _.init = function(el, opts) {
     var contents = el.contents().detach();
-    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
+    this.initRoot(MathBlock(), el.addClass('mq-math-mode'), {
+      disableFlorin: opts && opts.disableFlorin
+    });
     this.controller.renderLatexMath(contents.text());
   };
 }));
