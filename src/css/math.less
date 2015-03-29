@@ -544,6 +544,8 @@
     table {
       width: auto;
       border-bottom: none;
+       border-spacing: 3px;
+       border-collapse: separate;
       &.mq-rows-1 { /* better alignment when there's just one row */
         vertical-align: middle;
         margin-bottom: 1px;
@@ -551,9 +553,9 @@
     }
 
     td {
-      border: none;
+      border: 1px dotted #ffffff;
       width: auto; /* defensive resets */
-      padding: 0 0.3em;
+      padding: 0.1em 0.3em;
       vertical-align: baseline;
     }
   }
@@ -569,7 +571,7 @@
 
   .mq-ce.mq-bond {
     margin: auto 0.1em;
-  
+
     .mq-bond-dot {
       margin: auto 0.05em;
     }
