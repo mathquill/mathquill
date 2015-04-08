@@ -1007,6 +1007,18 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('max depth option', function() {
+    setup(function() {
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0], { maxDepth: 2 });
+    });
+
+    test('quietly refuses to enter math deeper than maxDepth', function(){
+      mq.typedText('\\sqrt \\sqrt \\sqrt \\sqrt x');
+      assertLatex('\\sqrt{\\ \\sqrt{ }}');
+    });
+  });
+
+
   suite('inequalities', function() {
     // assertFullyFunctioningInequality() checks not only that the inequality
     // has the right LaTeX and when you backspace it has the right LaTeX,

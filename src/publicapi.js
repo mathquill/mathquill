@@ -35,7 +35,7 @@ function APIFnFor(APIClass) {
   return APIFn;
 }
 
-var Options = P(), optionProcessors = {};
+var Options = P({ maxDepth: 100 }), optionProcessors = {};
 MathQuill.__options = Options.p;
 
 var AbstractMathQuill = P(function(_) {
@@ -130,6 +130,8 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
       var klass = LatexCmds[cmd];
       if (klass) {
         cmd = klass(cmd);
+        // preventing creating too many nested symbols
+        if (cursor.tooDeep()) return false;
         if (cursor.selection) cmd.replaces(cursor.replaceSelection());
         cmd.createLeftOf(cursor.show());
       }
