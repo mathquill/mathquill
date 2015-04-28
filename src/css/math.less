@@ -249,7 +249,7 @@
     padding: 0 0.2em;
 
     &.mq-withsub {
-      vertical-align: -0.5em;
+      vertical-align: 0.9em;
     }
 
     .mq-xarrow-over {
@@ -260,24 +260,24 @@
     }
 
     .mq-xarrow-under {
-      display: block;
+      float: left;
       padding: 0em 0.1em 0.2em 0.1em;
       position: relative;
       top: 0.2em;
+      margin-bottom: 0.2em;
     }
 
-    .mq-xarrow-over:after {
+    .mq-xarrow-over:before {
       display: block;
-      position: relative;
-      top: 0.45em;
-      font-size: 0.8em;
-      line-height: 0em;
+      position: absolute;
+      font-size: 0.6em;
+      height: 1em;
+      bottom: -0.64em;
       content: '\27A4';
-      text-align: right;
       right: -0.3em;
     }
 
-    &.mq-arrow-left .mq-xarrow-over:after {
+    &.mq-arrow-left .mq-xarrow-over:before {
       -moz-transform: scaleX(-1);
       -o-transform: scaleX(-1);
       -webkit-transform: scaleX(-1);
