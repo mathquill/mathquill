@@ -240,7 +240,7 @@ var SupSub = P(MathCommand, function(_, super_) {
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
         .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
-      this.jQ.append('<span style="display:inline-block;width:0">&nbsp;</span>');
+      this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
     }
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
@@ -281,7 +281,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
   _.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf">'
     +   '<span class="mq-sub">&0</span>'
-    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
@@ -383,7 +383,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="mq-numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
-    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
   _.textTemplate = ['(', '/', ')'];
