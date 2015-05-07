@@ -521,8 +521,8 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
   _.oppBrack = function(node, expectedSide) {
-    // node must be 1-sided bracket of expected side (if any, may be undefined),
-    // and unless I'm a pipe, node and I must be opposite-facing sides
+    // return node iff it's a 1-sided bracket of expected side (if any, may be
+    // undefined), and of opposite side from me if I'm not a pipe
     return node instanceof Bracket && node.side && node.side !== -expectedSide
       && (this.sides[this.side].ch === '|' || node.side === -this.side) && node;
   };
@@ -535,6 +535,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
         // check if next to or inside an opposing one-sided bracket
+        // (must check both sides 'cos I might be a pipe)
       var brack = this.oppBrack(cursor[L], L) || this.oppBrack(cursor[R], R)
                   || this.oppBrack(cursor.parent.parent);
     }
