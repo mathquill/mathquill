@@ -92,15 +92,15 @@ suite('typing with auto-replaces', function() {
       });
     });
 
-    suite('mis-matched brackets', function() {
-      test('empty mis-matched brackets', function() {
+    suite('mismatched brackets', function() {
+      test('empty mismatched brackets', function() {
         mq.typedText('(');
         assertLatex('\\left(\\right)');
         mq.typedText(']');
         assertLatex('\\left(\\right]');
       });
 
-      test('typing mis-matched brackets', function() {
+      test('typing mismatched brackets', function() {
         mq.typedText('1+');
         assertLatex('1+');
         mq.typedText('(');
@@ -111,7 +111,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(2+3\\right]+4');
       });
 
-      test('wrapping things in mis-matched brackets', function() {
+      test('wrapping things in mismatched brackets', function() {
         mq.typedText('1+2+3+4');
         assertLatex('1+2+3+4');
         mq.keystroke('Left Left').typedText(']');
@@ -120,7 +120,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left(2+3\\right]+4');
       });
 
-      test('nested mis-matched brackets', function() {
+      test('nested mismatched brackets', function() {
         mq.typedText('1+(2+[3+4)+5]+6');
         assertLatex('1+\\left(2+\\left[3+4\\right)+5\\right]+6');
       });
@@ -148,7 +148,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left|2+3\\right|+4');
       });
 
-      suite('can type mis-matched paren/pipe group from any side', function() {
+      suite('can type mismatched paren/pipe group from any side', function() {
         suite('straight typing', function() {
           test('|)', function() {
             mq.typedText('|)');
@@ -329,7 +329,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('+4');
       });
 
-      test('rendering mis-matched brackets from LaTeX then backspacing close-bracket then open-paren', function() {
+      test('rendering mismatched brackets from LaTeX then backspacing close-bracket then open-paren', function() {
         mq.latex('1+\\left(2+3\\right]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Backspace');
@@ -338,7 +338,7 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('rendering mis-matched brackets from LaTeX then backspacing open-paren then close-bracket', function() {
+      test('rendering mismatched brackets from LaTeX then backspacing open-paren then close-bracket', function() {
         mq.latex('1+\\left(2+3\\right]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -604,7 +604,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('rendering mis-matched paren/pipe group from LaTeX then backspacing close-paren then open-pipe', function() {
+        test('rendering mismatched paren/pipe group from LaTeX then backspacing close-paren then open-pipe', function() {
           mq.latex('1+\\left|2+3\\right)+4');
           assertLatex('1+\\left|2+3\\right)+4');
           mq.keystroke('Left Left Backspace');
@@ -613,7 +613,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('rendering mis-matched paren/pipe group from LaTeX then backspacing open-pipe then close-paren', function() {
+        test('rendering mismatched paren/pipe group from LaTeX then backspacing open-pipe then close-paren', function() {
           mq.latex('1+\\left|2+3\\right)+4');
           assertLatex('1+\\left|2+3\\right)+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -622,7 +622,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('rendering mis-matched paren/pipe group from LaTeX then backspacing close-pipe then open-paren', function() {
+        test('rendering mismatched paren/pipe group from LaTeX then backspacing close-pipe then open-paren', function() {
           mq.latex('1+\\left(2+3\\right|+4');
           assertLatex('1+\\left(2+3\\right|+4');
           mq.keystroke('Left Left Backspace');
@@ -631,7 +631,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('rendering mis-matched paren/pipe group from LaTeX then backspacing open-paren then close-pipe', function() {
+        test('rendering mismatched paren/pipe group from LaTeX then backspacing open-paren then close-pipe', function() {
           mq.latex('1+\\left(2+3\\right|+4');
           assertLatex('1+\\left(2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
@@ -727,7 +727,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+\\left|1+\\left|2+3+4\\right|\\right|');
         });
 
-        test('backspacing open-paren of mis-matched paren/pipe group containing a one-sided pipe', function() {
+        test('backspacing open-paren of mismatched paren/pipe group containing a one-sided pipe', function() {
           mq.latex('0+\\left(1+2+3\\right|+4');
           assertLatex('0+\\left(1+2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left').typedText('|');
@@ -736,7 +736,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+1+\\left|2+3\\right|+4');
         });
 
-        test('backspacing open-paren mis-matched paren/pipe group inside a one-sided pipe', function() {
+        test('backspacing open-paren mismatched paren/pipe group inside a one-sided pipe', function() {
           mq.latex('0+1+\\left(2+3\\right|+4');
           assertLatex('0+1+\\left(2+3\\right|+4');
           mq.keystroke('Home Right Right').typedText('|');

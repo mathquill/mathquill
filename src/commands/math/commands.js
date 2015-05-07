@@ -529,7 +529,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.closeOpposing = function(brack) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
-    brack.delimjQs.eq(this.side === L ? 0 : 1) // mis-matched, like [a, b))
+    brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
       .removeClass('mq-ghost').html(this.sides[this.side].ch);
   };
   _.createLeftOf = function(cursor) {
