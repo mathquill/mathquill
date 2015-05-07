@@ -1018,6 +1018,25 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('polyatomic SupSub', function() {
+    var valid = ['x_x{}^y', 'x_{ }{}^{ }', 'x_{x+123}{}^y', 'x_x{}^{y+123}', 'x_{x+123}{}^y'];
+
+    test('empty braces are kept when syntax is valid', function() {
+      for (var i in valid) {
+        mq.latex(valid[i]);
+        assertLatex(valid[i]);
+      }
+    });
+
+    test('empty braces are stripped when either subscript or superscript are missing', function() {
+      mq.latex('x_x{}');
+      assertLatex('x_x');
+
+      mq.latex('x_{}^y');
+      assertLatex('x_{ }^y');
+    });
+  });
+
 
   suite('inequalities', function() {
     // assertFullyFunctioningInequality() checks not only that the inequality

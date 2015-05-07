@@ -424,6 +424,13 @@
     padding-right: .2em;
   }
 
+  .mq-nothing {
+    width: 0;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+  }
+
   ////
   // \frac
   // fractions
@@ -471,6 +478,17 @@
 
   .mq-denominator {
     border-top: 1px solid;
+  }
+
+  &.mq-polyatomic {
+    vertical-align: 0.5em;
+
+    .mq-sup {
+      float: right;
+    }
+    .mq-sub {
+      margin-top: 1em;
+    }
   }
 
   ////
