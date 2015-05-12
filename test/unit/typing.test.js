@@ -736,7 +736,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+1+\\left|2+3\\right|+4');
         });
 
-        test('backspacing open-paren mismatched paren/pipe group inside a one-sided pipe 0+|1+(2+3|+4|', function() {
+        test('backspacing open-paren of mismatched paren/pipe group inside a one-sided pipe 0+|1+(2+3|+4|', function() {
           mq.latex('0+1+\\left(2+3\\right|+4');
           assertLatex('0+1+\\left(2+3\\right|+4');
           mq.keystroke('Home Right Right').typedText('|');
