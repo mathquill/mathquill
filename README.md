@@ -131,6 +131,7 @@ var el = $('<span>x^2</span>').appendTo('body');
 var mathField = MathQuill.MathField(el[0], {
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
+  restrictMismatchedBrackets: true,
   sumStartsWithNEquals: true,
   supSubsRequireOperand: true,
   charsThatBreakOutOfSupSub: '+-=<>',
@@ -175,6 +176,11 @@ can't get to it with just Left and Right, you have to press Down); which is
 the same behavior as the Desmos calculator. `'down'` instead means it is the
 numerator that is always skipped, which is the same behavior as the Mac OS X
 built-in app Grapher.
+
+If `restrictMismatchedBrackets` is true then you can type [a,b) and [a,b), but
+if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or
+`\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise,
+you'd get `\left( \right| x \left| + 1 \right)`.
 
 If `sumStartsWithNEquals` is true then when you type `\sum`, `\prod`, or
 `\coprod`, the lower limit starts out with `n=`, e.g. you get the LaTeX

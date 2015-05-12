@@ -93,11 +93,15 @@ suite('typing with auto-replaces', function() {
     });
 
     suite('mismatched brackets', function() {
-      test('empty mismatched brackets (]', function() {
+      test('empty mismatched brackets (] and [}', function() {
         mq.typedText('(');
         assertLatex('\\left(\\right)');
         mq.typedText(']');
         assertLatex('\\left(\\right]');
+        mq.typedText('[');
+        assertLatex('\\left(\\right]\\left[\\right]');
+        mq.typedText('}');
+        assertLatex('\\left(\\right]\\left[\\right\\}');
       });
 
       test('typing mismatched brackets 1+(2+3]+4', function() {
@@ -123,6 +127,28 @@ suite('typing with auto-replaces', function() {
       test('nested mismatched brackets 1+(2+[3+4)+5]+6', function() {
         mq.typedText('1+(2+[3+4)+5]+6');
         assertLatex('1+\\left(2+\\left[3+4\\right)+5\\right]+6');
+      });
+
+      suite('restrictMismatchedBrackets', function() {
+        setup(function() {
+          mq.config({ restrictMismatchedBrackets: true });
+        });
+        test('typing (|x|+1) works', function() {
+          mq.typedText('(|x|+1)');
+          assertLatex('\\left(\\left|x\\right|+1\\right)');
+        });
+        test('typing [x} becomes [{x}]', function() {
+          mq.typedText('[x}');
+          assertLatex('\\left[\\left\\{x\\right\\}\\right]');
+        });
+        test('normal matching pairs {f(n), [a,b]} work', function() {
+          mq.typedText('{f(n), [a,b]}');
+          assertLatex('\\left\\{f\\left(n\\right),\\ \\left[a,b\\right]\\right\\}');
+        });
+        test('[a,b) and (a,b] still work', function() {
+          mq.typedText('[a,b) + (a,b]');
+          assertLatex('\\left[a,b\\right)\\ +\\ \\left(a,b\\right]');
+        });
       });
     });
 
@@ -181,7 +207,17 @@ suite('typing with auto-replaces', function() {
       });
     });
 
-    suite('backspacing', function() {
+    suite('backspacing', backspacingTests);
+
+    suite('backspacing with restrictMismatchedBrackets', function() {
+      setup(function() {
+        mq.config({ restrictMismatchedBrackets: true });
+      });
+
+      backspacingTests();
+    });
+
+    function backspacingTests() {
       test('typing then backspacing a close-paren in the middle of 1+2+3+4', function() {
         mq.typedText('1+2+3+4');
         assertLatex('1+2+3+4');
@@ -405,18 +441,18 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+\\left[2+3\\right]+4');
       });
 
-      test('backspacing paren containing a one-sided paren 0+[(1+2)+3}+4', function() {
-        mq.typedText('0+[1+2+3}+4');
-        assertLatex('0+\\left[1+2+3\\right\\}+4');
+      test('backspacing paren containing a one-sided paren 0+[(1+2)+3]+4', function() {
+        mq.typedText('0+[1+2+3]+4');
+        assertLatex('0+\\left[1+2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left').typedText(')');
-        assertLatex('0+\\left[\\left(1+2\\right)+3\\right\\}+4');
+        assertLatex('0+\\left[\\left(1+2\\right)+3\\right]+4');
         mq.keystroke('Right Right Right Backspace');
         assertLatex('0+\\left[1+2\\right)+3+4');
       });
 
-      test('backspacing paren inside a one-sided paren (0+[1+2}+3)+4', function() {
-        mq.typedText('0+[1+2}+3)+4');
-        assertLatex('\\left(0+\\left[1+2\\right\\}+3\\right)+4');
+      test('backspacing paren inside a one-sided paren (0+[1+2]+3)+4', function() {
+        mq.typedText('0+[1+2]+3)+4');
+        assertLatex('\\left(0+\\left[1+2\\right]+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Backspace');
         assertLatex('0+\\left[1+2+3\\right)+4');
       });
@@ -745,7 +781,7 @@ suite('typing with auto-replaces', function() {
           assertLatex('0+\\left|1+2+3\\right|+4');
         });
       });
-    });
+    }
 
     suite('typing outside ghost paren', function() {
       test('typing outside ghost paren solidifies ghost 1+(2+3)', function() {

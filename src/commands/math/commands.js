@@ -520,11 +520,14 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
-  _.oppBrack = function(node, expectedSide) {
+  _.oppBrack = function(opts, node, expectedSide) {
     // return node iff it's a 1-sided bracket of expected side (if any, may be
     // undefined), and of opposite side from me if I'm not a pipe
     return node instanceof Bracket && node.side && node.side !== -expectedSide
-      && (this.sides[this.side].ch === '|' || node.side === -this.side) && node;
+      && (this.sides[this.side].ch === '|' || node.side === -this.side)
+      && (!opts.restrictMismatchedBrackets
+        || OPP_BRACKS[this.sides[this.side].ch] === node.sides[node.side].ch
+        || { '(': ']', '[': ')' }[this.sides[L].ch] === node.sides[R].ch) && node;
   };
   _.closeOpposing = function(brack) {
     brack.side = 0;
@@ -536,8 +539,10 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
         // check if next to or inside an opposing one-sided bracket
         // (must check both sides 'cos I might be a pipe)
-      var brack = this.oppBrack(cursor[L], L) || this.oppBrack(cursor[R], R)
-                  || this.oppBrack(cursor.parent.parent);
+      var opts = cursor.options;
+      var brack = this.oppBrack(opts, cursor[L], L)
+                  || this.oppBrack(opts, cursor[R], R)
+                  || this.oppBrack(opts, cursor.parent.parent);
     }
     if (brack) {
       var side = this.side = -brack.side; // may be pipe with .side not yet set
@@ -576,18 +581,19 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       return;
     }
 
+    var opts = cursor.options;
     this.side = -side;
-    // check if like deleting outer close-brace of [(1+2)+3} where inner open-
-    if (this.oppBrack(this.ends[L].ends[this.side], side)) { // paren is ghost,
-      this.closeOpposing(this.ends[L].ends[this.side]); // if so become [1+2)+3
+    // if deleting like, outer close-brace of [(1+2)+3} where inner open-paren
+    if (this.oppBrack(opts, this.ends[L].ends[this.side], side)) { // is ghost,
+      this.closeOpposing(this.ends[L].ends[this.side]); // then become [1+2)+3
       var origEnd = this.ends[L].ends[side];
       this.unwrap();
       if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
     }
-    else { // check if like deleting inner close-brace of ([1+2}+3) where
-      if (this.oppBrack(this.parent.parent, side)) { // outer open-paren is
-        this.parent.parent.closeOpposing(this); // ghost, if so become [1+2+3)
+    else { // if deleting like, inner close-brace of ([1+2}+3) where outer
+      if (this.oppBrack(opts, this.parent.parent, side)) { // open-paren is
+        this.parent.parent.closeOpposing(this); // ghost, then become [1+2+3)
         this.parent.parent.unwrap();
       }
       else { // deleting one of a pair of brackets, become one-sided
