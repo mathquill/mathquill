@@ -398,7 +398,8 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.chToCmd = function(ch) {
     var cons;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+    // exclude f because it gets a dedicated command with more spacing
+    if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
