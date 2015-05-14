@@ -1,9 +1,9 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han][] and [Jay][].  Current development is proudly supported by [Desmos][], whose awesome graphing calculator makes extensive use of Mathquill.
+by [Han][] and [Jeanine][].  Current development is proudly supported by [Desmos][], whose awesome graphing calculator makes extensive use of Mathquill.
 
 [Han]: http://github.com/laughinghan
-[Jay]: http://github.com/jayferd
+[Jeanine]: http://github.com/jneen
 [Desmos]: http://desmos.com/
 
 Please note that this is a beta version, so bugs and unimplemented features
@@ -148,7 +148,7 @@ throughout MathQuill, plus some globals and opening boilerplate.
 * Classes are defined using [Pjs][], and the variable `_` is used by convention
   as the prototype.
 
-[pjs]: https://github.com/jayferd/pjs
+[pjs]: https://github.com/jneen/pjs
 
 `tree.js` defines the abstract classes for the JS objects that make up the edit tree.
 
