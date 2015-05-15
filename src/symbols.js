@@ -327,31 +327,31 @@ LatexCmds['∫'] = LatexCmds['int'] = LatexCmds.integral = bind(BigSymbol,'\\int
 
 //the canonical sets of numbers
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
-  bind(VanillaSymbol,'\\mathbb{N}','&#8469;');
+  bind(VanillaSymbol,'\\N','&#8469;');
 
 LatexCmds.P =
 LatexCmds.primes = LatexCmds.Primes =
 LatexCmds.projective = LatexCmds.Projective =
 LatexCmds.probability = LatexCmds.Probability =
-  bind(VanillaSymbol,'\\mathbb{P}','&#8473;');
+  bind(VanillaSymbol,'\\P','&#8473;');
 
 LatexCmds.Z = LatexCmds.integers = LatexCmds.Integers =
-  bind(VanillaSymbol,'\\mathbb{Z}','&#8484;');
+  bind(VanillaSymbol,'\\Z','&#8484;');
 
 LatexCmds.Q = LatexCmds.rationals = LatexCmds.Rationals =
-  bind(VanillaSymbol,'\\mathbb{Q}','&#8474;');
+  bind(VanillaSymbol,'\\Q','&#8474;');
 
 LatexCmds.R = LatexCmds.reals = LatexCmds.Reals =
-  bind(VanillaSymbol,'\\mathbb{R}','&#8477;');
+  bind(VanillaSymbol,'\\R','&#8477;');
 
 LatexCmds.C =
 LatexCmds.complex = LatexCmds.Complex =
 LatexCmds.complexes = LatexCmds.Complexes =
 LatexCmds.complexplane = LatexCmds.Complexplane = LatexCmds.ComplexPlane =
-  bind(VanillaSymbol,'\\mathbb{C}','&#8450;');
+  bind(VanillaSymbol,'\\C','&#8450;');
 
 LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaternions =
-  bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
+  bind(VanillaSymbol,'\\H','&#8461;');
 
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
