@@ -6,13 +6,10 @@ var Digit = P(VanillaSymbol, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (cursor.options.autoSubscriptNumerals
         && cursor.parent !== cursor.parent.parent.sub
-        && (
-          (cursor[L] instanceof Variable && cursor[L].isItalic !== false) ||
-          (
-            cursor[L] instanceof SupSub &&
-            cursor[L][L] instanceof Variable &&
-            cursor[L][L].isItalic !== false
-          ))) {
+        && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
+            || (cursor[L] instanceof SupSub
+                && cursor[L][L] instanceof Variable
+                && cursor[L][L].isItalic !== false))) {
       LatexCmds._().createLeftOf(cursor);
       super_.createLeftOf.call(this, cursor);
       cursor.insRightOf(cursor.parent.parent);
