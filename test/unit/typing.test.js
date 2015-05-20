@@ -256,8 +256,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(2+3]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -275,8 +273,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(2+3]');
         assertLatex('1+\\left(2+3\\right]');
         mq.keystroke('Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3');
       });
 
@@ -293,8 +289,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Right Backspace');
         assertLatex('2+3+4');
       });
 
@@ -319,9 +313,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(]+4');
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
-        assertLatex('\\left[1+\\right]+4');
-        assertParenBlockNonEmpty();
-        mq.keystroke('Right Backspace');
         assertLatex('1++4');
       });
 
@@ -338,9 +329,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(]');
         assertLatex('1+\\left(\\right]');
         mq.keystroke('Left Backspace');
-        assertLatex('\\left[1+\\right]');
-        assertParenBlockNonEmpty();
-        mq.keystroke('Right Right Backspace');
         assertLatex('1+');
       });
 
@@ -358,8 +346,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(]+4');
         assertLatex('\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
-        assertLatex('\\left[\\right]+4');
-        mq.keystroke('Right Right Backspace');
         assertLatex('+4');
       });
 
@@ -376,8 +362,6 @@ suite('typing with auto-replaces', function() {
         mq.latex('1+\\left(2+3\\right]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -430,9 +414,7 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Home Right Backspace');
-        assertLatex('\\left[2+3\\right]+4');
-        mq.typedText('1+');
-        assertLatex('1+\\left[2+3\\right]+4');
+        assertLatex('2+3+4');
       });
 
       test('backspacing paren containing a one-sided paren 0+[(1+2)+3]+4', function() {
@@ -626,8 +608,6 @@ suite('typing with auto-replaces', function() {
           mq.latex('1+\\left|2+3\\right)+4');
           assertLatex('1+\\left|2+3\\right)+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left(1+2+3\\right)+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -644,8 +624,6 @@ suite('typing with auto-replaces', function() {
           mq.latex('1+\\left(2+3\\right|+4');
           assertLatex('1+\\left(2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left|1+2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -749,7 +727,7 @@ suite('typing with auto-replaces', function() {
           mq.keystroke('Home Right Right').typedText('|');
           assertLatex('0+\\left|1+\\left(2+3\\right|+4\\right|');
           mq.keystroke('Right Right Del');
-          assertLatex('0+\\left|1+2+3\\right|+4');
+          assertLatex('0+\\left|1+2+3+4\\right|');
         });
       });
     }
