@@ -60,10 +60,13 @@ function createRoot(jQ, root, textbox, editable) {
       return false;
     }
 
-    var iOS = false,
+    var iOS = false, android = false,
     p = navigator.platform;
     if (p === 'iPad' || p === 'iPhone' || p === 'iPod') {
       iOS = true;
+    }
+    if (p === 'Android') {
+      android = true;
     }
 
     // docmousemove is attached to the document, so that
@@ -96,7 +99,7 @@ function createRoot(jQ, root, textbox, editable) {
       $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup).unbind('touchend', mouseup);
     }
 
-    if (iOS)
+    if (iOS || android)
       textarea.focus();
     else
       setTimeout(function() { textarea.focus(); });
@@ -106,7 +109,7 @@ function createRoot(jQ, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    if (iOS) {
+    if (iOS || android) {
       var evtTouch = e.originalEvent.touches[0];
       cursor.seek($(e.target), evtTouch.pageX, evtTouch.pageY);
     }
