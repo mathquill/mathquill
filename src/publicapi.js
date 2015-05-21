@@ -139,6 +139,15 @@ function getInterface(v) {
       this.__controller.root.postOrder('reflow');
       return this;
     };
+  _.fastClick = function(target, clientX, clientY) {
+    var ctrlr = this.__controller, root = ctrlr.root;
+    var el = document.elementFromPoint(clientX, clientY);
+    if (!jQuery.contains(root.jQ[0], el)) el = root.jQ[0];
+    ctrlr.seek($(el), clientX + pageXOffset, clientY + pageYOffset);
+  };
+  _.ignoreNextMousedown = function(fn) {
+    this.__controller.cursor.options.ignoreNextMousedown = fn;
+  };
   });
   MQ.prototype = AbstractMathQuill.prototype;
 
