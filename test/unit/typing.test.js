@@ -1026,11 +1026,25 @@ suite('typing with auto-replaces', function() {
   suite('SupSub behavior options', function() {
     test('charsThatBreakOutOfSupSub', function() {
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n+y}');
-
       mq.latex('');
+      assert.equal(mq.typedText('x^+2n').latex(), 'x^{+2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x^-2n').latex(), 'x^{-2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x^=2n').latex(), 'x^{=2n}');
+      mq.latex('');
+
       MathQuill.config({ charsThatBreakOutOfSupSub: '+-=<>' });
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
+      mq.latex('');
+      // Unary operators never break out of exponents.
+      assert.equal(mq.typedText('x^+2n').latex(), 'x^{+2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x^-2n').latex(), 'x^{-2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('x^=2n').latex(), 'x^{=2n}');
+      mq.latex('');
     });
     test('supSubsRequireOperand', function() {
       assert.equal(mq.typedText('^').latex(), '^{ }');

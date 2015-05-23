@@ -191,7 +191,12 @@ var SupSub = P(MathCommand, function(_, super_) {
         else cursor.clearSelection().insRightOf(this.parent);
         return cmd.createLeftOf(cursor.show());
       }
-      if (cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
+      if (
+        cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1 &&
+        // Unary operators never break out of exponents, so that it's easy to
+        // write negative exponents.
+        cursor[L] !== 0
+      ) {
         cursor.insRightOf(this.parent);
       }
       MathBlock.p.write.apply(this, arguments);
