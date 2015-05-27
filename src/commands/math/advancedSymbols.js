@@ -181,7 +181,9 @@ LatexCmds.rightharpoonup = bind(VanillaSymbol, '\\rightharpoonup ', '&#8640;');
 LatexCmds.swarrow = bind(VanillaSymbol, '\\swarrow ', '&#8601;');
 LatexCmds.leftharpoondown = bind(VanillaSymbol, '\\leftharpoondown ', '&#8637;');
 LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;');
-LatexCmds.rightleftharpoons = bind(VanillaSymbol, '\\rightleftharpoons ', '&#8652;');
+// Symbola font has different value for the below 2 harpoons against other references
+LatexCmds.rightleftharpoons = bind(VanillaSymbol, '\\rightleftharpoons ', '&#8651;');
+LatexCmds.leftrightharpoons = bind(VanillaSymbol, '\\leftrightharpoons ', '&#8652;');
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
