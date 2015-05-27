@@ -651,6 +651,26 @@ LatexCmds.underset = P(MathCommand, function(_, super_) {
   };
 });
 
+LatexCmds.overset = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\overset';
+  _.htmlTemplate =
+      '<span class="mq-overset">'
+    +   '<span class="mq-overset-top mq-overset-align"><span class="mq-empty-box">&0</span></span>'
+    +   '<span class="mq-text-only mq-overset-align"><span class="mq-empty-box ">&1</span></span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['[', '|', ']'];
+  _.finalizeTree = function() {
+    // Add extra style for tilde vector notation
+    var under = this.ends[L];
+    if (under.latex() === '\\sim ') {
+      this.jQ.addClass('mq-tilde-vector');
+    }
+    this.downInto = this.ends[L].upOutOf = this.ends[R];
+    this.upInto = this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
 var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {
