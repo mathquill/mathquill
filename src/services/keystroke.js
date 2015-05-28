@@ -158,6 +158,13 @@ Controller.open(function(_) {
     prayDirection(dir);
     var cursor = this.cursor;
 
+    //tabbing out of selection behaves like pressing the relevant arrow direction
+    if (cursor.selection) {
+      if (dir === R) this.moveRight();
+      if (dir === L) this.moveLeft();
+      return e.preventDefault();
+    }
+
     // only prevent default of Tab if not in the root editable
     if (cursor.parent !== this.root) e.preventDefault();
 
