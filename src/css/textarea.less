@@ -6,6 +6,9 @@
 
     // TODO: why is this here?
     .user-select(text);
+
+    //fixes chrome 43 bug where the left side of 'f' could get cut off. discovered by @ctlusto
+    border: 1px solid transparent;
   }
 
   .mq-textarea *, .mq-selectable {
