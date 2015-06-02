@@ -630,4 +630,20 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
   });
+
+  suite('substituteTextarea', function() {
+    test('doesn\'t blow up on selection', function() {
+      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
+        substituteTextarea: function() {
+          return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
+        }
+      });
+
+      assert.equal(mq.latex(), '');
+      mq.write('asdf');
+      mq.select();
+
+      $(mq.el()).remove();
+    });
+  });
 });

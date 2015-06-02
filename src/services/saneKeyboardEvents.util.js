@@ -122,7 +122,7 @@ var saneKeyboardEvents = (function() {
       clearTimeout(timeoutId);
 
       textarea.val(text);
-      if (text) textarea[0].select();
+      if (text && textarea[0].select) textarea[0].select();
       shouldBeSelected = !!text;
     }
     var shouldBeSelected = false;
@@ -149,7 +149,7 @@ var saneKeyboardEvents = (function() {
       keypress = null;
 
       if (shouldBeSelected) checkTextareaFor(function() {
-        textarea[0].select(); // re-select textarea in case it's an unrecognized
+        if (textarea[0].select) textarea[0].select(); // re-select textarea in case it's an unrecognized
         checkTextarea = noop; // key that clears the selection, then never
         clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });
@@ -194,7 +194,7 @@ var saneKeyboardEvents = (function() {
         handlers.typedText(text);
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
-      else if (text) textarea[0].select(); // re-select if that's why we're here
+      else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
     }
 
     function onBlur() { keydown = keypress = null; }
