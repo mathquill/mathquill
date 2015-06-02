@@ -464,4 +464,4 @@ LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
-CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '&sim;', '~');
+CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
