@@ -427,6 +427,39 @@ LatexCmds.leftharpoondown = bind(VanillaSymbol, '\\leftharpoondown ', '&#8637;')
 LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;');
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
+LatexCmds.rightleftharpoons = bind(VanillaSymbol, '\\rightleftharpoons ', '&#8652;');
+
+LatexCmds.twoheadleftarrow = bind(VanillaSymbol, '\\twoheadleftarrow ', '&#8606;');
+LatexCmds.twoheadrightarrow = bind(VanillaSymbol, '\\twoheadrightarrow ', '&#8608;');
+
+LatexCmds.leadsto = bind(VanillaSymbol, '\\leadsto ', '&#x21DD;');
+
+LatexCmds.dashleftarrow = bind(VanillaSymbol, '\\dashleftarrow ', '&#x21E0;');
+LatexCmds.dashrightarrow = bind(VanillaSymbol, '\\dashrightarrow ', '&#x21E2;');
+
+LatexCmds.leftleftarrow = bind(VanillaSymbol, '\\leftleftarrow ', '&#x21C7;');
+LatexCmds.upuparrow = bind(VanillaSymbol, '\\upuparrow ', '&#x21C8;');
+LatexCmds.rightrightarrow = bind(VanillaSymbol, '\\rightrightarrow ', '&#x21C9;');
+LatexCmds.downdownarrow = bind(VanillaSymbol, '\\downdownarrow ', '&#x21CA;');
+
+LatexCmds.curvearrowleft = bind(VanillaSymbol, '\\curvearrowleft ', '&#x21B6;');
+LatexCmds.curvearrowright = bind(VanillaSymbol, '\\curvearrowright ', '&#x21B7;');
+
+LatexCmds.circlearrowleft = bind(VanillaSymbol, '\\circlearrowleft ', '&#x21BA;');
+LatexCmds.circlearrowright = bind(VanillaSymbol, '\\circlearrowright ', '&#x21BB;');
+
+LatexCmds.looparrowleft = bind(VanillaSymbol, '\\looparrowleft ', '&#x21AB;');
+LatexCmds.looparrowright = bind(VanillaSymbol, '\\looparrowright ', '&#x21AC;');
+
+LatexCmds.leftrightsquigarrow = bind(VanillaSymbol, '\\leftrightsquigarrow ', '&#x21AD;');
+
+LatexCmds.Lsh = bind(VanillaSymbol, '\\Lsh ', '&#x21B0;');
+LatexCmds.Rsh = bind(VanillaSymbol, '\\Rsh ', '&#x21B1;');
+
+LatexCmds.origof = bind(VanillaSymbol, '\\origof ', '&#x022B6;');
+LatexCmds.imageof = bind(VanillaSymbol, '\\imageof ', '&#x022B7;');
+LatexCmds.multimap = bind(VanillaSymbol, '\\multimap ', '&#x022B8;');
+
 //Misc
 LatexCmds.ldots = bind(VanillaSymbol, '\\ldots ', '&#8230;');
 LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
@@ -476,6 +509,7 @@ LatexCmds.vert = bind(VanillaSymbol,'|');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
 LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
 LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
+LatexCmds.intercal = bind(VanillaSymbol,'\\intercal ','&#x022BA;');
 
 LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
   bind(VanillaSymbol,'\\text\\AA ','&#8491;');
