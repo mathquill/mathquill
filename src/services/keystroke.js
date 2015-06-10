@@ -45,6 +45,7 @@ Node.open(function(_) {
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
+    case 'Meta-Right': // so cmd + arrow works like other textareas/inputs in OSX
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
       break;
 
@@ -57,6 +58,7 @@ Node.open(function(_) {
 
     // Ctrl-Shift-End -> select to the end of the root block.
     case 'Ctrl-Shift-End':
+    case 'Meta-Shift-Right': // OSX
       while (cursor[R] || cursor.parent !== ctrlr.root) {
         ctrlr.selectRight();
       }
@@ -69,11 +71,13 @@ Node.open(function(_) {
 
     // Ctrl-Home -> move to the start of the current block.
     case 'Ctrl-Home':
+    case 'Meta-Left': // OSX
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
     case 'Shift-Home':
+    case 'Shift-Meta-Left': // OSX
       while (cursor[L]) {
         ctrlr.selectLeft();
       }
@@ -81,6 +85,7 @@ Node.open(function(_) {
 
     // Ctrl-Shift-Home -> move to the start of the root block.
     case 'Ctrl-Shift-Home':
+    case 'Meta-Shift-Left': // OSX
       while (cursor[L] || cursor.parent !== ctrlr.root) {
         ctrlr.selectLeft();
       }
