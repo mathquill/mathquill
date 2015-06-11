@@ -47,10 +47,22 @@ var latexMathParser = (function() {
     })
   ;
 
+  var unknown =
+    string('\\').then(regex(/^\w+/))
+    .then(function(ctrlSeq) {
+      if (!LatexCmds[ctrlSeq]) {
+        return UnknownCmd(ctrlSeq).parser();
+      } else {
+        return fail('recognised command: \\'+ctrlSeq);
+      }
+    })
+  ;
+
   var command =
     controlSequence
     .or(variable)
     .or(symbol)
+    .or(unknown)
   ;
 
   // Parsers yielding MathBlocks

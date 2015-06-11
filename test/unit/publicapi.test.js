@@ -65,9 +65,9 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\$');
     });
 
-    test('parsing of advanced symbols', function() {
+    test('parsing of unrecognised symbols', function() {
       mq.latex('\\oplus');
-      assert.equal(mq.latex(), ''); // TODO: better LaTeX parse error behavior
+      assert.equal(mq.latex(), '\\oplus'); // TODO: better LaTeX parse error behavior
     });
   });
 
@@ -362,9 +362,9 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\sin');
     });
 
-    test('nonexistent LaTeX command is noop', function() {
+    test('nonexistent LaTeX command is recognised and rendered', function() {
       mq.typedText('49').select().cmd('\\asdf').cmd('\\sqrt');
-      assert.equal(mq.latex(), '\\sqrt{49}');
+      assert.ok($(mq.el()).find('.mq-unknown-cmd').length);
     });
   });
 

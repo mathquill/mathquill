@@ -1053,6 +1053,13 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
+var UnknownCmd = P(Symbol, function(_, super_) {
+  _.init = function(ctrlSeq) {
+    ctrlSeq = '\\' + ctrlSeq;
+    super_.init.call(this, ctrlSeq, '<span class="mq-unknown-cmd">'+ctrlSeq+'</span>');
+  };
+});
+
 var InnerMathField = P(MathQuill.MathField, function(_) {
   _.init = function(root, ultimateRoot, container, opts) {
     RootBlockMixin(root);
