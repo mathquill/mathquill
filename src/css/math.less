@@ -440,7 +440,7 @@
   .mq-fraction, .mq-underset {
     font-size: 90%;
     text-align: center;
-    vertical-align: -.4em;
+    vertical-align: -.5em;
     padding: 0 .2em;
   }
 
@@ -481,20 +481,24 @@
   }
 
   .mq-numerator, .mq-over {
-    padding: 0 0.1em;
+    padding: .1em .1em 0 .1em;
+    width: 100%;
+  }
+
+  .mq-numerator {
+    margin-bottom: 0.2em;
   }
 
   .mq-denominator, .mq-under {
     float: left;
     width: 100%;
     padding: .15em .1em 0 .1em;
-    margin-right: -.1em;
-    margin-left: -.1em;
     text-align: center;
   }
 
   .mq-denominator {
     border-top: 1px solid;
+    padding: .1em .1em 1px .1em;
   }
 
   &.mq-polyatomic {
@@ -514,7 +518,7 @@
   .mq-sqrt-prefix {
     padding-top: 0;
     position: relative;
-    top: .05em;
+    top: .1em;
     vertical-align: top;
     .transform-origin(top);
   }
@@ -522,10 +526,9 @@
   .mq-sqrt-stem {
     border-top: 1px solid;
     margin-top: 1px;
-    padding-left: .15em;
-    padding-right: .2em;
     margin-right: .1em;
-    padding-top: 1px;
+    padding-left: .15em;
+    padding-top: .2em;
   }
 
   .mq-vector-prefix {

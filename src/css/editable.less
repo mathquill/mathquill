@@ -28,7 +28,7 @@
   // styles on .mq-math-mode *.
   // TODO: figure out a better way.
   &, .mq-math-mode & {
-    border: 1px solid gray;
+    // border: 1px solid gray;
 
     &.mq-focused {
       .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
@@ -46,7 +46,7 @@
   .mq-latex-command-input {
     color: inherit;
     font-family: @mono;
-    border: 1px solid gray;
+    // border: 1px solid gray;
     padding-right: 1px;
     margin-right: 1px;
     margin-left: 2px;
@@ -59,6 +59,10 @@
     &.mq-hasCursor {
       border-color: ActiveBorder;
     }
+  }
+
+  .mq-root-block.mq-disable-italics var {
+    font-style: normal;
   }
 }
 

@@ -49,7 +49,8 @@ var AbstractMathQuill = P(function(_) {
 
     var contents = el.contents().detach();
     root.jQ =
-      $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
+        $('<span class="mq-root-block"/>').attr(mqBlockId, root.id)
+            .toggleClass('mq-disable-italics', !!opts && !!opts.disableItalics).appendTo(el);
     this.latex(contents.text());
 
     this.revert = function() {
