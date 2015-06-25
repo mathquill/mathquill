@@ -179,7 +179,7 @@ var TextBlock = P(Node, function(_, super_) {
   function fuseChildren(self) {
     self.jQ[0].normalize();
 
-    var textPcDom = self.jQ[0].firstChild;
+    var textPcDom = self.jQ.contents().filter(function (i, el) { return el.nodeType === 3; })[0]
     var textPc = TextPiece(textPcDom.data);
     textPc.jQadd(textPcDom);
 
