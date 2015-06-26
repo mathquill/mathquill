@@ -4,6 +4,7 @@
   "dependencies": {
     "pjs": "3.x"
   },
+  "main": "build/mathquill.js" ,
   "devDependencies": {
     "mocha": "*",
     "uglify-js": "2.x",
