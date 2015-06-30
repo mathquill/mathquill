@@ -244,7 +244,19 @@ var Fragment = P(function(_) {
     this.ends[dir] = withDir;
     this.ends[-dir] = oppDir;
 
-    this.jQ = this.fold(this.jQ, function(jQ, el) { return jQ.add(el.jQ); });
+    // To build the jquery collection for a fragment, accumulate elements
+    // into an array and then call jQ.add once on the result. jQ.add sorts the
+    // collection according to document order each time it is called, so
+    // building a collection by folding jQ.add directly takes more than
+    // quadratic time in the number of elements.
+    //
+    // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
+    var accum = this.fold([], function (accum, el) {
+      accum.push.apply(accum, el.jQ.get());
+      return accum;
+    });
+
+    this.jQ = this.jQ.add(accum);
   };
   _.jQ = $();
 
