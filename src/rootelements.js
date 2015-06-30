@@ -109,13 +109,8 @@ function createRoot(jQ, root, textbox, editable) {
       // http://bugs.jquery.com/ticket/10345
 
     cursor.blink = noop;
-    if (iOS || android) {
-      var evtTouch = e.originalEvent.touches[0];
-      cursor.seek($(e.target), evtTouch.pageX, evtTouch.pageY);
-    }
-    else {
-      cursor.seek($(e.target), e.pageX, e.pageY);
-    }
+    e = e.scaledTouches != null && e.scaledTouches.length ? e.scaledTouches[0] : e.originalEvent.touches != null && e.originalEvent.touches.length ? e.originalEvent.touches[0] : e;
+    cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = Point(cursor.parent, cursor[L], cursor[R]);
 
