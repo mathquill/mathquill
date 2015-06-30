@@ -252,7 +252,7 @@ var Fragment = P(function(_) {
     //
     // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
     var accum = this.fold([], function (accum, el) {
-      Array.prototype.push.apply(accum, el.jQ.get());
+      accum.push.apply(accum, el.jQ.get());
       return accum;
     });
 
