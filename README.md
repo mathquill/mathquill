@@ -197,6 +197,8 @@ the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or Space if
 the LaTeX `x^{2n}+y`; this option makes `+` "break out" of the exponent and
 type what you expect. Problem is, now you can't just type `x^n+m` to get the
 LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
+(Doesn't apply to the first character in a superscript or subscript, so typing
+`x^-6` still results in `x^{-6}`.)
 
 `autoCommands`, a space-delimited list of LaTeX control words (no backslash,
 letters only, min length 2), defines the (default empty) set of "auto-commands",
