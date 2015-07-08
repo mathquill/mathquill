@@ -158,10 +158,10 @@ suite('SupSub', function() {
       assert.equal(mq.latex(), 'x_a^b');
 
       mq.keystroke('Left Backspace');
-      assert.equal(mq.latex(), 'xb_a');
+      assert.equal(mq.latex(), 'x_ab');
 
       mq.typedText('c');
-      assert.equal(mq.latex(), 'xcb_a');
+      assert.equal(mq.latex(), 'x_acb');
     });
   });
 });

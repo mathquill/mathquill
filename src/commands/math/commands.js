@@ -246,12 +246,13 @@ var SupSub = P(MathCommand, function(_, super_) {
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
       cmd[supsub].deleteOutOf = function(dir, cursor) {
-        cursor.insDirOf(dir, this.parent);
+        cursor.insDirOf((this[dir] ? -dir : dir), this.parent);
         if (!this.isEmpty()) {
-          cursor[-dir] = this.ends[dir];
+          var end = this.ends[dir];
           this.children().disown()
-            .withDirAdopt(dir, cursor.parent, cursor[dir], this.parent)
-            .jQ.insDirOf(dir, this.parent.jQ);
+            .withDirAdopt(dir, cursor.parent, cursor[dir], cursor[-dir])
+            .jQ.insDirOf(-dir, cursor.jQ);
+          cursor[-dir] = end;
         }
         cmd.supsub = oppositeSupsub;
         delete cmd[supsub];
