@@ -2,8 +2,10 @@
   "name": "mathquill",
   "version": "0.9.4",
   "dependencies": {
-    "pjs": "3.x"
+    "pjs": "3.x",
+    "fs": "*"
   },
+  "main": "build/mathquill.js" ,
   "devDependencies": {
     "mocha": "*",
     "uglify-js": "2.x",
