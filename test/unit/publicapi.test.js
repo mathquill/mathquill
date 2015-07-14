@@ -738,7 +738,7 @@ suite('Public API', function() {
     function assertNoFlorin() {
       var $el = $(mq.el());
       assert.equal($el.find('var').text(), 'f');
-      assert.equal($el.find('.mq-florin').length, 0);
+      assert.equal($el.find('.mq-f').length, 0);
     }
 
     function assertDisableItalics() {
@@ -773,7 +773,7 @@ suite('Public API', function() {
     test('florin is written when disableItalics is not set', function() {
       mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
       mq.typedText('f');
-      assert.equal($(mq.el()).find('.mq-florin').length, 1);
+      assert.equal($(mq.el()).find('.mq-f').length, 1);
       assert.equal($(mq.el()).find('.mq-disable-italics').length, 0);
       $(mq.el()).remove();
     });
