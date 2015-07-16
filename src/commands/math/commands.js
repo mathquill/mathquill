@@ -1054,9 +1054,9 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 var InnerMathField = P(MathQuill.MathField, function(_) {
-  _.init = function(root, ultimateRoot, container) {
+  _.init = function(root, ultimateRoot, container, opts) {
     RootBlockMixin(root);
-    this.__options = Options();
+    this.__options = opts || Options();
     var ctrlr = Controller(this, root, container);
     ctrlr.editable = true;
     root.ultimateRoot = ultimateRoot;
@@ -1083,6 +1083,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   };
   _.finalizeTree = function() {
     var root = Node.byId[this.jQ.closest('.mq-root-block').attr(mqBlockId)],
+      opts = root && root.controller && root.controller.API.__options || {},
       superKeystroke = this.ends[L].keystroke;
 
     function focusAdjacentEditable(dir, dirward, cursor) {
@@ -1100,7 +1101,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
       }
     }
 
-    InnerMathField(this.ends[L], root, this.jQ);
+    InnerMathField(this.ends[L], root, this.jQ, opts);
     this.ends[L].keystroke = function(key, e, ctrlr) {
       var cursor = ctrlr.cursor,
         movedFocus = false;

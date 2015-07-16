@@ -107,6 +107,28 @@ suite('Public API', function() {
       mq.typedText('3').keystroke('Down').typedText('4');
       assert.equal(mq.latex(), 'x+\\frac{3}{4}');
     });
+
+    test('textarea has all the needed classes and attributes applied', function() {
+      var textarea,
+        id = 'focusable1';
+      mq = MathQuill.StaticMathWithEditables($('<span></span>').appendTo('#mock')[0], {
+        substituteTextarea: function () {
+          var $textarea = $('<textarea>').attr({
+              'tabindex': '-1',
+              'class': 'lrn_focusable',
+              'id': 'focusable1'
+            });
+          if ($textarea.length > 0) {
+            return $textarea[0];
+          }
+        }
+      });
+      mq.latex('\\MathQuillMathField{}');
+      textarea = mq.__controller.container.find('textarea');
+
+      assert.equal(textarea.hasClass('lrn_focusable'), true);
+      assert.equal(textarea.attr('id'), id);
+    });
   });
 
   suite('basic API methods', function() {
