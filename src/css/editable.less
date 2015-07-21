@@ -1,19 +1,5 @@
 .mq-editable-field {
   .inline-block;
-  .mq-root-block {
-    .inline-block;
-    width: 100%;
-    padding: 2px;
-    .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
-    white-space: nowrap;
-    overflow: hidden;
-    vertical-align: middle;
-    // &:after is a fix for
-    // https://bugs.webkit.org/show_bug.cgi?id=35443#c1
-    &:after {
-      content: '';
-    }
-  }
   .mq-cursor {
     border-left: 1px solid black;
     margin-left: -1px;
