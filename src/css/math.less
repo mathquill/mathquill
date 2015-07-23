@@ -437,50 +437,29 @@
   // TODO: try http://jsbin.com/gabunebe/4/edit instead
   //   obsoletes the &nbsp; in HTML template, but needs cross-browser
   //   testing. See also .supsub
-  .mq-fraction, .mq-underset {
+  .mq-fraction {
     font-size: 90%;
     text-align: center;
     vertical-align: -.5em;
     padding: 0 .2em;
   }
 
-  .mq-overset {
-    margin: 0 0.3em;
-    padding-top: 0.3em;
-    display: inline-block;
-    text-align: center;
-    var {
-      font-style: normal;
-    }
-    .mq-overset-top {
-      display: block;
-      font-size: 0.7em;
-    }
-    .mq-supsub {
-        font-size: .9em;
-    }
-  }
-
   // Firefox 2 (and older?) only
   // because display:inline-block is FUBAR in Gecko < 1.9.0
-  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link {
     display: -moz-groupbox;
   }
 
   // Firefox 3+ (Gecko 1.9.0+)
-  .mq-fraction, .mq-underset, .mq-large-operator, x:-moz-any-link, x:default {
+  .mq-fraction, .mq-large-operator, x:-moz-any-link, x:default {
     display: inline-block;
   }
 
-  .mq-underset.mq-tilde-vector .mq-under {
-    line-height: 0.6em;
-  }
-
-  .mq-numerator, .mq-denominator, .mq-over, .mq-under {
+  .mq-numerator, .mq-denominator {
     display: block;
   }
 
-  .mq-numerator, .mq-over {
+  .mq-numerator {
     padding: .1em .1em 0 .1em;
     width: 100%;
   }
@@ -489,7 +468,7 @@
     margin-bottom: 0.2em;
   }
 
-  .mq-denominator, .mq-under {
+  .mq-denominator {
     float: left;
     width: 100%;
     padding: .15em .1em 0 .1em;
@@ -509,6 +488,29 @@
     }
     .mq-sub {
       margin-top: 1em;
+    }
+  }
+
+  ////
+  // \overset & \underset
+  // overset and underset text
+  .mq-overunder {
+    text-align: center;
+    position: relative;
+    top: .01em;
+
+    // fix \mathbf vertical alignment issue
+    .mq-font {
+      font-family: inherit;
+    }
+
+    &.mq-underset {
+      vertical-align: text-top;
+    }
+
+    &.mq-underset .mq-under, &.mq-overset .mq-over {
+      display: block;
+      font-size: 0.7em;
     }
   }
 
