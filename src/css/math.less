@@ -37,6 +37,7 @@
     padding: 0;
     border-color: black;
     .user-select(none);
+    box-sizing: border-box;
   }
 
   // TODO: what's the difference between these?
@@ -252,9 +253,7 @@
     border-top: 1px solid;
     float: right; // take out of normal flow to manipulate baseline
     width: 100%;
-    padding: .1em;
-    position: relative;
-    left: .1em;
+    padding: 0.1em;
   }
 
   ////
@@ -263,7 +262,7 @@
   .mq-sqrt-prefix {
     padding-top: 0;
     position: relative;
-    top: .05em;
+    top: 0.1em;
     vertical-align: top;
     .transform-origin(top);
   }
