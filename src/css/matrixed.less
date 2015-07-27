@@ -17,4 +17,69 @@
     filter: progid:DXImageTransform.Microsoft.Chroma(color='white');
     margin-top: -.1em;
   }
+  .mq-matrix {
+    table {
+      border-spacing: 2px;
+    }
+  }
+}
+
+button {
+    .mq-math-mode {
+        .mq-matrix {
+            table {
+                &.mq-rows-2, &.mq-rows-3 {
+                    td {
+                        font-size: 0.3em;
+                        width: 0.9em;
+                    }
+                }
+                &.mq-rows-2 {
+                    margin-bottom: -2px;
+                }
+                &.mq-rows-1 {
+                    td {
+                        font-size: 0.6em;
+                        width: 1.1em;
+                        margin-bottom: 3px;
+                    }
+                    margin-bottom: 3px;
+                }
+            }
+
+             .matrix-edit-content-row {
+                display: inline-block;
+                text-align: center;
+                vertical-align: middle;
+                p {
+                    font-size: 0.7em;
+                }
+            }
+
+            .matrix-edit-content-col {
+                display: inline-block;
+                text-align: center;
+                vertical-align: middle;
+                p {
+                    padding: 0 0.15em;
+                    font-size: 0.7em;
+                }
+            }
+
+            .mq-paren {
+                transform: scale(1.13, 1.77);
+                padding: 0;
+                display: inline-block;
+            }
+
+        }
+    }
+    .matrix-edit {
+        .mq-empty {
+            padding: 0.1em;
+            margin: 0.1em;
+            font-size: 0.4em;
+            width: 0.8em;
+        }
+    }
 }
