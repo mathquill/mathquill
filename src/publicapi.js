@@ -54,9 +54,31 @@ var AbstractMathQuill = P(function(_) {
     this.latex(contents.text());
 
     this.revert = function() {
-      return el.empty().unbind('.mathquill')
+      el.find('['+ mqCmdId + ']').each(function () {
+        var block = Node.byId[$(this).attr(mqCmdId)];
+        if (block) block.remove();
+      });
+      el.find('['+ mqBlockId + ']').each(function () {
+        var block = Node.byId[$(this).attr(mqBlockId)];
+        if (block) block.dispose();
+      });
+
+      el.empty().unbind('.mathquill')
       .removeClass('mq-editable-field mq-math-mode mq-text-mode')
       .append(contents);
+
+      jQuery.each(Node.byId, function (name, val) {
+        if (!(val.jQ && val.jQ.length && val.jQ[0].nodeType !== 3)) {
+          val.dispose();
+        }
+      });
+
+      jQuery.each(ctrlr, function (name, val) {
+        if (val instanceof $) { val.off(); }
+        delete ctrlr[name];
+      });
+
+      return el;
     };
   };
   _.config =
