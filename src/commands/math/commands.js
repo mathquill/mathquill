@@ -670,19 +670,13 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
 LatexCmds.underset = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\underset';
   _.htmlTemplate =
-      '<span class="mq-underset mq-non-leaf">'
-    +   '<span class="mq-over"><span class="mq-empty-box">&1</span></span>'
-    +   '<span class="mq-under"><span class="mq-empty-box">&0</span></span>'
-    +   '<span style="display:inline-block;width:0">&nbsp;</span>'
+      '<span class="mq-underset mq-overunder mq-non-leaf">'
+    +   '<span class="mq-over">&1</span>'
+    +   '<span class="mq-under">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['[', '|', ']'];
   _.finalizeTree = function() {
-    // Add extra style for tilde vector notation
-    var under = this.ends[L];
-    if (under.latex() === '\\sim ') {
-      this.jQ.addClass('mq-tilde-vector');
-    }
     this.downInto = this.ends[L].upOutOf = this.ends[R];
     this.upInto = this.ends[R].downOutOf = this.ends[L];
   };
@@ -691,20 +685,15 @@ LatexCmds.underset = P(MathCommand, function(_, super_) {
 LatexCmds.overset = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\overset';
   _.htmlTemplate =
-      '<span class="mq-overset">'
-    +   '<span class="mq-overset-top mq-overset-align"><span class="mq-empty-box">&0</span></span>'
-    +   '<span class="mq-text-only mq-overset-align"><span class="mq-empty-box ">&1</span></span>'
+      '<span class="mq-overset mq-overunder mq-non-leaf">'
+    +   '<span class="mq-over">&0</span>'
+    +   '<span class="mq-under">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['[', '|', ']'];
   _.finalizeTree = function() {
-    // Add extra style for tilde vector notation
-    var under = this.ends[L];
-    if (under.latex() === '\\sim ') {
-      this.jQ.addClass('mq-tilde-vector');
-    }
-    this.downInto = this.ends[L].upOutOf = this.ends[R];
-    this.upInto = this.ends[R].downOutOf = this.ends[L];
+    this.downInto = this.ends[R].upOutOf = this.ends[L];
+    this.upInto = this.ends[L].downOutOf = this.ends[R];
   };
 });
 
