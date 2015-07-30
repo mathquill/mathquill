@@ -124,6 +124,15 @@ suite('SupSub', function() {
     assert.equal(mq.latex(), 'x_b^{ac}');
   });
 
+  test('moving cursor around Integral / SupSub combination', function() {
+    mq.latex('\\int_{ }^{ }');
+    mq.keystroke('Left Left Left').typedText('x');
+    assert.equal(mq.latex(), 'x\\int_{ }^{ }');
+
+    mq.keystroke('Right').typedText('y');
+    assert.equal(mq.latex(), 'x\\int_y^{ }');
+  });
+
   suite('deleting', function() {
     test('backspacing out of and then re-typing subscript', function() {
       mq.latex('x_a^b');

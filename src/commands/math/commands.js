@@ -405,6 +405,11 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     else super_.moveTowards.apply(this, arguments);
   };
+  _.movingLeftOf = function(cursor) {
+    if (this[L] instanceof Integral) {
+      cursor.insLeftOf(this[L]);
+    }
+  };
   _.deleteTowards = function(dir, cursor) {
     if (cursor.options.autoSubscriptNumerals && this.sub) {
       var cmd = this.sub.ends[-dir];

@@ -238,9 +238,27 @@ LatexCmds.muL = bind(VanillaSymbol, '\\muL ', 'µL');
 
 //various symbols
 
+Controller.open(function(_) {
+  this.onNotify(function(e) {
+    if (e === 'move' && this[R] && this[R].movingLeftOf) {
+      this[R].movingLeftOf(this);
+    }
+  });
+});
+
+var Integral = P(Symbol, function(_, super_) {
+  // Prevent the cursor from getting close to this symbol
+  _.moveTowards = function(dir, cursor) {
+    if (dir === R && this[R] instanceof SupSub) {
+      cursor.insAtDirEnd(L, this[R].ends[L]);
+    }
+    else super_.moveTowards.apply(this, arguments);
+  };
+});
+
 LatexCmds['∫'] =
 LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
+LatexCmds.integral = bind(Integral,'\\int ','<big>&int;</big>');
 
 LatexCmds.caret = bind(VanillaSymbol,'\\text{^}','^');
 LatexCmds.underscore = bind(VanillaSymbol,'\\_','_');
