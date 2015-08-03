@@ -2,6 +2,8 @@
 
 # build tools
 /node_modules
+/test/style/screenshots/*.png
+/test/style/screenshots/failed/*.png
 
 # dist
 /build
