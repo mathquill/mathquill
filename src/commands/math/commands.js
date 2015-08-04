@@ -577,7 +577,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.deleteSide = function(side, outward, cursor) {
     var parent = this.parent, sib = this[side], farEnd = parent.ends[side];
 
-    if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
+    if (
+      //unwrap if deleting either...
+      side === this.side || //the solid side with a ghost pair
+      (this.side === 0 && side === -1) //opening paren
+    ) {
       this.unwrap();
       sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
       return;

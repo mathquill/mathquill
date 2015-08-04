@@ -199,9 +199,9 @@ suite('typing with auto-replaces', function() {
             mq.typedText('||');
             assertLatex('\\left|\\right|');
             mq.keystroke('Left Backspace');
-            assertLatex('\\left|\\right|');
+            assertLatex('');
             mq.typedText('(');
-            assertLatex('\\left(\\right|');
+            assertLatex('\\left(\\right)');
           });
         });
       });
@@ -236,12 +236,10 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('backspacing open-paren then close-paren of 1+(2+3)+4', function() {
+      test('backspacing open-paren of 1+(2+3)+4', function() {
         mq.typedText('1+(2+3)+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left(1+2+3\\right)+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -258,8 +256,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(2+3]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -277,8 +273,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(2+3]');
         assertLatex('1+\\left(2+3\\right]');
         mq.keystroke('Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3');
       });
 
@@ -295,8 +289,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Right Backspace');
         assertLatex('2+3+4');
       });
 
@@ -321,9 +313,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(]+4');
         assertLatex('1+\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
-        assertLatex('\\left[1+\\right]+4');
-        assertParenBlockNonEmpty();
-        mq.keystroke('Right Backspace');
         assertLatex('1++4');
       });
 
@@ -340,9 +329,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+(]');
         assertLatex('1+\\left(\\right]');
         mq.keystroke('Left Backspace');
-        assertLatex('\\left[1+\\right]');
-        assertParenBlockNonEmpty();
-        mq.keystroke('Right Right Backspace');
         assertLatex('1+');
       });
 
@@ -360,8 +346,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(]+4');
         assertLatex('\\left(\\right]+4');
         mq.keystroke('Left Left Left Backspace');
-        assertLatex('\\left[\\right]+4');
-        mq.keystroke('Right Right Backspace');
         assertLatex('+4');
       });
 
@@ -378,8 +362,6 @@ suite('typing with auto-replaces', function() {
         mq.latex('1+\\left(2+3\\right]+4');
         assertLatex('1+\\left(2+3\\right]+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left[1+2+3\\right]+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -392,12 +374,10 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('rendering paren group 1+(2+3)+4 from LaTeX then backspacing open-paren then close-paren', function() {
+      test('rendering paren group 1+(2+3)+4 from LaTeX then backspacing open-paren', function() {
         mq.latex('1+\\left(2+3\\right)+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left(1+2+3\\right)+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -412,14 +392,12 @@ suite('typing with auto-replaces', function() {
         assertLatex('1+2+3+4');
       });
 
-      test('wrapping selection in parens 1+(2+3)+4 then backspacing open-paren then close-paren', function() {
+      test('wrapping selection in parens 1+(2+3)+4 then backspacing open-paren', function() {
         mq.typedText('1+2+3+4');
         assertLatex('1+2+3+4');
         mq.keystroke('Left Left Shift-Left Shift-Left Shift-Left').typedText('(');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Backspace');
-        assertLatex('\\left(1+2+3\\right)+4');
-        mq.keystroke('Right Right Right Right Backspace');
         assertLatex('1+2+3+4');
       });
 
@@ -436,9 +414,7 @@ suite('typing with auto-replaces', function() {
         mq.typedText('(2+3]+4');
         assertLatex('\\left(2+3\\right]+4');
         mq.keystroke('Home Right Backspace');
-        assertLatex('\\left[2+3\\right]+4');
-        mq.typedText('1+');
-        assertLatex('1+\\left[2+3\\right]+4');
+        assertLatex('2+3+4');
       });
 
       test('backspacing paren containing a one-sided paren 0+[(1+2)+3]+4', function() {
@@ -472,11 +448,6 @@ suite('typing with auto-replaces', function() {
         mq.typedText('1+((2+3))');
         assertLatex('1+\\left(\\left(2+3\\right)\\right)');
         mq.keystroke('Left Left Left Left Left Backspace');
-        assertLatex('1+\\left(\\left(2+3\\right)\\right)');
-        mq.keystroke('Backspace');
-        assertLatex('\\left(1+\\left(2+3\\right)\\right)');
-        // now check that the inner open-paren isn't still a ghost
-        mq.keystroke('Right Right Right Right Del');
         assertLatex('1+\\left(2+3\\right)');
       });
 
@@ -490,7 +461,7 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Right Right Right Right Right Backspace');
         assertLatex('\\left(1+2\\right)+\\left(3+4\\right)+5');
         mq.keystroke('Left Left Left Left Backspace');
-        assertLatex('\\left(\\left(1+2\\right)+3+4\\right)+5');
+        assertLatex('\\left(1+2\\right)+3+4+5');
       });
 
       suite('pipes', function() {
@@ -512,12 +483,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('backspacing open-pipe then close-pipe of 1+|2+3|+4', function() {
+        test('backspacing open-pipe of 1+|2+3|+4', function() {
           mq.typedText('1+|2+3|+4');
           assertLatex('1+\\left|2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left|1+2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -530,12 +499,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3');
         });
 
-        test('backspacing open-pipe then close-pipe of 1+|2+3| (nothing after pipe pair)', function() {
+        test('backspacing open-pipe of 1+|2+3| (nothing after pipe pair)', function() {
           mq.typedText('1+|2+3|');
           assertLatex('1+\\left|2+3\\right|');
           mq.keystroke('Left Left Left Left Backspace');
-          assertLatex('\\left|1+2+3\\right|');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3');
         });
 
@@ -548,12 +515,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('2+3+4');
         });
 
-        test('backspacing open-pipe then close-pipe of |2+3|+4 (nothing before pipe pair)', function() {
+        test('backspacing open-pipe of |2+3|+4 (nothing before pipe pair)', function() {
           mq.typedText('|2+3|+4');
           assertLatex('\\left|2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left|2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Right Backspace');
           assertLatex('2+3+4');
         });
 
@@ -574,13 +539,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('1++4');
         });
 
-        test('backspacing open-pipe then close-pipe of 1+||+4 (empty pipe pair)', function() {
+        test('backspacing open-pipe of 1+||+4 (empty pipe pair)', function() {
           mq.typedText('1+||+4');
           assertLatex('1+\\left|\\right|+4');
           mq.keystroke('Left Left Left Backspace');
-          assertLatex('\\left|1+\\right|+4');
-          assertParenBlockNonEmpty();
-          mq.keystroke('Right Backspace');
           assertLatex('1++4');
         });
 
@@ -593,13 +555,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+');
         });
 
-        test('backspacing open-pipe then close-pipe of 1+|| (empty pipe pair, nothing after)', function() {
+        test('backspacing open-pipe of 1+|| (empty pipe pair, nothing after)', function() {
           mq.typedText('1+||');
           assertLatex('1+\\left|\\right|');
           mq.keystroke('Left Backspace');
-          assertLatex('\\left|1+\\right|');
-          assertParenBlockNonEmpty();
-          mq.keystroke('Right Right Backspace');
           assertLatex('1+');
         });
 
@@ -613,12 +572,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('+4');
         });
 
-        test('backspacing open-pipe then close-pipe of ||+4 (empty pipe pair, nothing before)', function() {
+        test('backspacing open-pipe of ||+4 (empty pipe pair, nothing before)', function() {
           mq.typedText('||+4');
           assertLatex('\\left|\\right|+4');
           mq.keystroke('Left Left Left Backspace');
-          assertLatex('\\left|\\right|+4');
-          mq.keystroke('Right Right Backspace');
           assertLatex('+4');
         });
 
@@ -631,12 +588,10 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('rendering pipe pair 1+|2+3|+4 from LaTeX then backspacing open-pipe then close-pipe', function() {
+        test('rendering pipe pair 1+|2+3|+4 from LaTeX then backspacing open-pipe', function() {
           mq.latex('1+\\left|2+3\\right|+4');
           assertLatex('1+\\left|2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left|1+2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -653,8 +608,6 @@ suite('typing with auto-replaces', function() {
           mq.latex('1+\\left|2+3\\right)+4');
           assertLatex('1+\\left|2+3\\right)+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left(1+2+3\\right)+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -671,19 +624,15 @@ suite('typing with auto-replaces', function() {
           mq.latex('1+\\left(2+3\\right|+4');
           assertLatex('1+\\left(2+3\\right|+4');
           mq.keystroke('Left Left Left Left Left Left Backspace');
-          assertLatex('\\left|1+2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
-        test('wrapping selection in pipes 1+|2+3|+4 then backspacing open-pipe then close-pipe', function() {
+        test('wrapping selection in pipes 1+|2+3|+4 then backspacing open-pipe', function() {
           mq.typedText('1+2+3+4');
           assertLatex('1+2+3+4');
           mq.keystroke('Left Left Shift-Left Shift-Left Shift-Left').typedText('|');
           assertLatex('1+\\left|2+3\\right|+4');
           mq.keystroke('Backspace');
-          assertLatex('\\left|1+2+3\\right|+4');
-          mq.keystroke('Right Right Right Right Backspace');
           assertLatex('1+2+3+4');
         });
 
@@ -698,22 +647,22 @@ suite('typing with auto-replaces', function() {
           assertLatex('1+2+3+4');
         });
 
-        test('backspacing close-pipe of 1+|2+3| (nothing after) then typing', function() {
+        test('backspacing close-pipe then open-pipe of 1+|2+3| (nothing after pipe pair)', function() {
           mq.typedText('1+|2+3|');
           assertLatex('1+\\left|2+3\\right|');
           mq.keystroke('Backspace');
           assertLatex('1+\\left|2+3\\right|');
-          mq.typedText('+4');
-          assertLatex('1+\\left|2+3+4\\right|');
+          mq.keystroke('Left Left Left Backspace');
+          assertLatex('1+2+3');
         });
 
         test('backspacing open-pipe of |2+3|+4 (nothing before) then typing', function() {
           mq.typedText('|2+3|+4');
           assertLatex('\\left|2+3\\right|+4');
           mq.keystroke('Home Right Backspace');
-          assertLatex('\\left|2+3\\right|+4');
+          assertLatex('2+3+4');
           mq.typedText('1+');
-          assertLatex('1+\\left|2+3\\right|+4');
+          assertLatex('1+2+3+4');
         });
 
         test('backspacing pipe containing a one-sided pipe 0+|1+|2+3||+4', function() {
@@ -731,7 +680,7 @@ suite('typing with auto-replaces', function() {
           mq.keystroke('Home Right Right').typedText('|');
           assertLatex('0+\\left|1+\\left|2+3\\right|+4\\right|');
           mq.keystroke('Right Right Del');
-          assertLatex('0+\\left|1+2+3\\right|+4');
+          assertLatex('0+\\left|1+2+3+4\\right|');
         });
 
         test('backspacing pipe containing and inside a one-sided pipe |0+|1+|2+3||+4|', function() {
@@ -778,7 +727,7 @@ suite('typing with auto-replaces', function() {
           mq.keystroke('Home Right Right').typedText('|');
           assertLatex('0+\\left|1+\\left(2+3\\right|+4\\right|');
           mq.keystroke('Right Right Del');
-          assertLatex('0+\\left|1+2+3\\right|+4');
+          assertLatex('0+\\left|1+2+3+4\\right|');
         });
       });
     }
@@ -790,7 +739,7 @@ suite('typing with auto-replaces', function() {
         mq.keystroke('Right').typedText('+4');
         assertLatex('1+\\left(2+3\\right)+4');
         mq.keystroke('Left Left Left Left Left Left Backspace');
-        assertLatex('\\left(1+2+3\\right)+4');
+        assertLatex('1+2+3+4');
       });
 
       test('selected and replaced by LiveFraction solidifies ghosts (1+2)/( )', function() {
@@ -830,14 +779,14 @@ suite('typing with auto-replaces', function() {
           mq.keystroke('Right').typedText('|');
           assertLatex('\\left|1+2\\right|');
           mq.keystroke('Home Del');
-          assertLatex('\\left|1+2\\right|');
+          assertLatex('1+2');
         });
 
         test('close pipe pair from outside to the left |1+2|', function() {
           mq.typedText('|1+2|');
           assertLatex('\\left|1+2\\right|');
           mq.keystroke('Home Del');
-          assertLatex('\\left|1+2\\right|');
+          assertLatex('1+2');
           mq.keystroke('Left').typedText('|');
           assertLatex('\\left|1+2\\right|');
           mq.keystroke('Ctrl-End Backspace');
