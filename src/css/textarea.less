@@ -10,12 +10,17 @@
 
   .mq-textarea *, .mq-selectable {
     .user-select(text);
-
     position: absolute; // the only way to hide the textarea *and* the
     clip: rect(1em 1em 1em 1em); // blinking insertion point in IE
-
     resize: none; // hotfix: https://code.google.com/p/chromium/issues/detail?id=355199#c1
+  }
 
+  //remove system cursor on iPad
+  .mq-textarea textarea:focus {
+    text-indent: -9999em;
+  }
+
+  .mq-selectable {
     width: 1px; // don't "stick out" invisibly from a math field,
     height: 1px; // can affect ancestor's .scroll{Width,Height}
   }
