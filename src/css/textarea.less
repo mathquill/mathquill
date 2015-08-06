@@ -14,6 +14,8 @@
     position: absolute; // the only way to hide the textarea *and* the
     clip: rect(1em 1em 1em 1em); // blinking insertion point in IE
 
+    font-size: 0; // the only way to hide the blinking blue cursor in iOS 8
+
     resize: none; // hotfix: https://code.google.com/p/chromium/issues/detail?id=355199#c1
 
     width: 1px; // don't "stick out" invisibly from a math field,
