@@ -352,12 +352,20 @@
 
     .mq-sup {
       display: block;
+      margin-top: -1em;
     }
 
     .mq-sub {
       display: block;
       float: left;
     }
+
+    &.mq-polyatomic {
+      .mq-sup {
+        float: right;
+      }
+    }
+
     &.mq-limit .mq-sub {
       margin-left: -.25em;
     }
@@ -482,10 +490,6 @@
 
   &.mq-polyatomic {
     vertical-align: 0.5em;
-
-    .mq-sup {
-      float: right;
-    }
     .mq-sub {
       margin-top: 1em;
     }
