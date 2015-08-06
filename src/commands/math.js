@@ -108,7 +108,7 @@ var MathCommand = P(MathElement, function(_, super_) {
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
   };
   _.deleteTowards = function(dir, cursor) {
-    this.moveTowards(dir, cursor, null);
+    cursor.insAtDirEnd(-dir, this.ends[-dir]);
   };
   _.selectTowards = function(dir, cursor) {
     cursor[-dir] = this;
