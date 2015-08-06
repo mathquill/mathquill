@@ -1,3 +1,21 @@
+## v0.9.4: 2014-1-22
+
+URGENT HOTFIX for cursor showing up as an ugly box in Chrome 40 (#371)
+
+**bugfixes:**
+- (#371) fix cursor showing up as an ugly box in Chrome 40
+- (#230) fix selecting previously selected static math can't be copied
+- (#217) fix no Array::indexOf in IE&lt;9, use RegExp::test
+- (#213) fix exception on up/down while something is selected
+- (#211) fix CSS typo causing no italics when there should be
+
+**build system changes:**
+- (#222 and #228) `make server` auto-rebuilds without restarting server
+- (#212) use empty target trick in Makefile
+
+**docs:**
+- (#283) change license from LGPL to Mozilla Public License
+
 ## v0.9.3: 2013-11-11
 
 **new features:**

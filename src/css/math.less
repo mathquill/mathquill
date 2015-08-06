@@ -1,3 +1,17 @@
+.mq-root-block, .mq-math-mode .mq-root-block {
+  .inline-block;
+  width: 100%;
+  padding: 2px;
+  .box-sizing(border-box); // supported by IE8+: http://caniuse.com/css3-boxsizing
+  white-space: nowrap;
+  overflow: hidden;
+  vertical-align: middle;
+  // &:after is a fix for
+  // https://bugs.webkit.org/show_bug.cgi?id=35443#c1
+  &:after {
+    content: '';
+  }
+}
 .mq-math-mode {
   font-variant: normal;
   font-weight: normal;
@@ -23,6 +37,7 @@
     padding: 0;
     border-color: black;
     .user-select(none);
+    box-sizing: border-box;
   }
 
   // TODO: what's the difference between these?
@@ -60,11 +75,13 @@
     font-style: italic;
   }
 
-  var.mq-florin {
-    .inline-block;
-    width: .3em;
-    position: relative;
-    left: -.1em;
+  var.mq-f {
+    margin-right: 0.1em;
+    margin-left: 0.1em;
+  }
+
+  .mq-roman var.mq-f {
+    margin: 0;
   }
 
   big {
@@ -236,9 +253,7 @@
     border-top: 1px solid;
     float: right; // take out of normal flow to manipulate baseline
     width: 100%;
-    padding: .1em;
-    position: relative;
-    left: .1em;
+    padding: 0.1em;
   }
 
   ////
@@ -247,7 +262,7 @@
   .mq-sqrt-prefix {
     padding-top: 0;
     position: relative;
-    top: .05em;
+    top: 0.1em;
     vertical-align: top;
     .transform-origin(top);
   }

@@ -355,9 +355,9 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.html = function() { return this.join('html'); };
   _.latex = function() { return this.join('latex'); };
   _.text = function() {
-    return this.ends[L] === this.ends[R] ?
+    return (this.ends[L] === this.ends[R] && this.ends[L] !== 0) ?
       this.ends[L].text() :
-      '(' + this.join('text') + ')'
+      this.join('text')
     ;
   };
 
@@ -396,7 +396,8 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.chToCmd = function(ch) {
     var cons;
-    if (ch.match(/^[a-eg-zA-Z]$/)) //exclude f because want florin
+    // exclude f because it gets a dedicated command with more spacing
+    if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
