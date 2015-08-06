@@ -583,7 +583,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       return;
     }
 
-    var opts = cursor.options;
+    var opts = cursor.options, wasSolid = !this.side;
     this.side = -side;
     // if deleting like, outer close-brace of [(1+2)+3} where inner open-paren
     if (this.oppBrack(opts, this.ends[L].ends[this.side], side)) { // is ghost,
@@ -597,8 +597,13 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       if (this.oppBrack(opts, this.parent.parent, side)) { // open-paren is
         this.parent.parent.closeOpposing(this); // ghost, then become [1+2+3)
         this.parent.parent.unwrap();
+      } // else if deleting outward from a solid pair, unwrap
+      else if (outward && wasSolid) {
+        this.unwrap();
+        sib ? cursor.insDirOf(-side, sib) : cursor.insAtDirEnd(side, parent);
+        return;
       }
-      else { // deleting one of a pair of brackets, become one-sided
+      else { // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
                              ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
         this.delimjQs.removeClass('mq-ghost')
