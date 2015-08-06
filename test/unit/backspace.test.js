@@ -129,7 +129,7 @@ suite('backspace', function() {
     mq.keystroke('Backspace');
     assert.equal(mq.latex(),'x_2^{32}');
 
-    //second backspace goes into the exponent
+    //second backspace is within the exponent
     mq.keystroke('Backspace');
     assert.equal(mq.latex(),'x_2^3');
 
@@ -141,9 +141,21 @@ suite('backspace', function() {
     mq.keystroke('Backspace');
     assert.equal(mq.latex(),'x_2');
 
-    //(slightly weird behavior), next backspace is at the baseline and removes the x
+    //into subscript
     mq.keystroke('Backspace');
-    assert.equal(mq.latex(),'_2');
+    assert.equal(mq.latex(),'x_2');
+
+    //clear out subscript
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(),'x_{ }');
+
+    //unpeel exponent
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(),'x');
+
+    //clear out math field
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(),'');
   });
 
   test('backspace through nthroot', function() {

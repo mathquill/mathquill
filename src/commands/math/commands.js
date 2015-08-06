@@ -211,10 +211,13 @@ var SupSub = P(MathCommand, function(_, super_) {
       else if (cmd) cmd.deleteTowards(dir, cursor.insAtDirEnd(-dir, this.sub));
 
       // TODO: factor out a .removeBlock() or something
-      // Also note `-dir` because in e.g. x_1^2| want backspacing (leftward)
-      // to delete the 1 but to end up rightward of x^2; with non-negated
-      // `dir` (try it), the cursor appears to have gone "through" the ^2.
-      if (this.sub.isEmpty()) this.sub.deleteOutOf(-dir, cursor.insAtLeftEnd(this.sub));
+      if (this.sub.isEmpty()) {
+        this.sub.deleteOutOf(L, cursor.insAtLeftEnd(this.sub));
+        if (this.sup) cursor.insDirOf(-dir, this);
+        // Note `-dir` because in e.g. x_1^2| want backspacing (leftward)
+        // to delete the 1 but to end up rightward of x^2; with non-negated
+        // `dir` (try it), the cursor appears to have gone "through" the ^2.
+      }
     }
     else super_.deleteTowards.apply(this, arguments);
   };
