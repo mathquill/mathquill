@@ -863,22 +863,22 @@ suite('typing with auto-replaces', function() {
       mq.typedText('sum' + 'n=0');
       mq.keystroke('Up').typedText('100').keystroke('Right');
       assertLatex('\\sum_{n=0}^{100}');
-      mq.keystroke('Ctrl-Backspace').keystroke('Backspace').keystroke('Ctrl-Backspace');
+      mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('prod');
       mq.typedText('n=0').keystroke('Up').typedText('100').keystroke('Right');
       assertLatex('\\prod_{n=0}^{100}');
-      mq.keystroke('Ctrl-Backspace').keystroke('Backspace').keystroke('Ctrl-Backspace');
+      mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('sqrt');
       mq.typedText('100').keystroke('Right');
       assertLatex('\\sqrt{100}');
-      mq.keystroke('Ctrl-Backspace').keystroke('Backspace');
+      mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('nthroot');
       mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
       assertLatex('\\sqrt[n]{100}');
-      mq.keystroke('Ctrl-Backspace').keystroke('Backspace').keystroke('Backspace');
+      mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('pi');
       assertLatex('\\pi');
