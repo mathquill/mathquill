@@ -25,11 +25,6 @@ suite('CSS', function() {
         mock = $('#mock');
 
     mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
-    mq.typedText("f'");
-
-    var mqF = $(mq.el()).find('.mq-f');
-    var testVal = parseFloat(mqF.css('margin-right')) - parseFloat(mqF.css('margin-left'));
-    assert.ok(testVal > 0, 'this should be truthy') ;
     mq.latex('C_2{}^{2-}H_2{}^3');
 
     var element = $(mq.el()).find('.mq-sup');
