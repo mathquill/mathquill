@@ -196,4 +196,24 @@ suite('backspace', function() {
     mq.keystroke('Backspace');
     assert.equal(mq.latex(),'n=1');
   });
+
+  suite('empties', function() {
+    test('backspace empty exponent', function() {
+      mq.latex('x^{}');
+      mq.keystroke('Backspace');
+      assert.equal(mq.latex(), 'x');
+    });
+
+    test('backspace empty sqrt', function() {
+      mq.latex('1+\\sqrt{}');
+      mq.keystroke('Backspace');
+      assert.equal(mq.latex(), '1+');
+    });
+
+    test('backspace empty fraction', function() {
+      mq.latex('1+\\frac{}{}');
+      mq.keystroke('Backspace');
+      assert.equal(mq.latex(), '1+');
+    });
+  });
 });
