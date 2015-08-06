@@ -4,7 +4,10 @@
  ********************************************/
 
 Controller.open(function(_) {
-  Options.p.substituteTextarea = function() { return $('<textarea>')[0]; };
+  Options.p.substituteTextarea = function() {
+    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+               'spellcheck=false x-palm-disable-ste-all=true />')[0];
+  };
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.API.__options.substituteTextarea();
