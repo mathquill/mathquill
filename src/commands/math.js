@@ -401,8 +401,6 @@ var MathBlock = P(MathElement, function(_, super_) {
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
-    else if (ch === 'f')
-      return (options.disableItalics) ? Letter(ch) : Florin(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
