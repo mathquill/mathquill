@@ -57,6 +57,12 @@ Controller.open(function(_) {
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
       e.target.unselectable = true; // http://jsbin.com/yagekiji/1
 
+      // if textarea is not focusable so the controller should not look for
+      // the mq component and set cursor to it
+      if (!textarea.is(':focus')) {
+        return false;
+      }
+
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
