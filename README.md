@@ -23,6 +23,7 @@ for example:
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
+  MathQuill.interfaceVersion(1);
   $('.static-math').each(function() { MathQuill.StaticMath(this); });
   $('.math-field').each(function() { MathQuill.MathField(this); });
 </script>
@@ -38,6 +39,12 @@ To load MathQuill,
 
 [Google CDN-hosted copy]: http://code.google.com/apis/libraries/devguide.html#jquery
 [the latest tarball]: http://mathquill.com/downloads.html
+
+To use the MathQuill API, first declare an interface version:
+
+```js
+MathQuill.interfaceVersion(1);
+```
 
 Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
 MathQuill-ify an HTML element and return an API object. If the element had
@@ -65,10 +72,6 @@ HTML element of a static math or math field, returns its API object (if not,
 MathQuill(mathFieldSpan) === mathField // => true
 MathQuill(mathFieldSpan) === MathQuill(mathFieldSpan) // => true
 ```
-
-`MathQuill.noConflict()` resets the global `MathQuill` variable to whatever it
-was before, and returns the `MathQuill` function to be used locally or set to
-some other variable, _a la_ [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict).
 
 Any element that has been MathQuill-ified can be reverted:
 
@@ -120,6 +123,19 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
 [key values]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
+
+MathQuill overwrites the global `MathQuill` variable when loaded. You can undo
+that with `.noConflict()` (similar to [`jQuery.noConflict()`]
+(http://api.jquery.com/jQuery.noConflict)):
+
+```html
+<script src="/path/to/first-mathquill.js"></script>
+<script src="/path/to/second-mathquill.js"></script>
+<script>
+var secondMathQuill = MathQuill.interfaceVersion(1).noConflict();
+secondMathQuill.StaticMath(...);
+</script>
+```
 
 #### Configuration Options
 
