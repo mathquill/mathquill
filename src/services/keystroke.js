@@ -16,9 +16,7 @@ Node.open(function(_) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
-      while (cursor[L] || cursor.selection) {
-        ctrlr.backspace();
-      }
+      ctrlr.ctrlDeleteDir(L);
       break;
 
     case 'Shift-Backspace':
@@ -117,9 +115,7 @@ Node.open(function(_) {
 
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
-      while (cursor[R] || cursor.selection) {
-        ctrlr.deleteForward();
-      }
+      ctrlr.ctrlDeleteDir(R);
       break;
 
     case 'Shift-Del':
@@ -235,6 +231,21 @@ Controller.open(function(_) {
       if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
       else cursor.parent.deleteOutOf(dir, cursor);
     }
+
+    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
+    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
+    cursor.parent.bubble('reflow');
+
+    return this;
+  };
+  _.ctrlDeleteDir = function(dir) {
+    prayDirection(dir);
+    var cursor = this.cursor;
+    if (!cursor[L] || cursor.selection) return ctrlr.deleteDir();
+
+    this.notify('edit');
+    Fragment(cursor.parent.ends[L], cursor[L]).remove();
+    cursor.insAtDirEnd(L, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
