@@ -23,8 +23,6 @@ MathQuill.noConflict = function() {
   window.MathQuill = origMathQuill;
   return MathQuill;
 };
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
 
 /**
  * Returns function (to be publicly exported) that MathQuill-ifies an HTML
@@ -184,3 +182,38 @@ function RootBlockMixin(_) {
     this.controller.handle('edit');
   };
 }
+
+/**
+ * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
+ * v0.10.x introduces it, so for now, don't completely break the API before
+ * MathQuill.interfaceVersion(1) is called, just complain with console.warn().
+ *
+ * .noConflict() is shimmed here directly because it needs to be modified,
+ * the rest are shimmed in outro.js so that MathQuill.MathField.prototype etc
+ * can be accessed (same reason this is at the end of publicapi.js, so that
+ * MathQuill.prototype can be accessed).
+ */
+function insistOnInterVer() {
+  if (window.console) console.warn(
+    'Please call MathQuill.interfaceVersion(1) before doing anything else ' +
+    'with the MathQuill API. This will be required starting v1.0.0.'
+  );
+}
+function preInterVerMathQuill(el) {
+  insistOnInterVer();
+  return MathQuill(el);
+};
+preInterVerMathQuill.prototype = MathQuill.prototype;
+
+preInterVerMathQuill.interfaceVersion = function(v) {
+  if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
+  return window.MathQuill = MathQuill;
+};
+
+preInterVerMathQuill.noConflict = function() {
+  insistOnInterVer();
+  window.MathQuill = origMathQuill;
+  return preInterVerMathQuill;
+};
+var origMathQuill = window.MathQuill;
+window.MathQuill = preInterVerMathQuill;

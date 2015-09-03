@@ -36,7 +36,8 @@
     <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
     <script type="text/javascript" src="../build/mathquill-basic.js"></script>
     <script type="text/javascript">
-      window.MathQuillBasic = MathQuill.noConflict();
+      MathQuillBasic = MathQuill.interfaceVersion(1).noConflict();
+      MathQuill.interfaceVersion(1);
     </script>
 
   </head>

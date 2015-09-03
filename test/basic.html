@@ -27,6 +27,8 @@
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill-basic.js"></script>
 <script type="text/javascript">
+MathQuill.interfaceVersion(1);
+
 var latex = $('#basic-latex').on('keydown keypress', function() {
   var prev = latex.val();
   setTimeout(function() {
