@@ -255,9 +255,8 @@ window.onerror = function() {
 };
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
-<script type="text/javascript" src="../build/mathquill-basic.js"></script>
 <script type="text/javascript">
-window.MathQuillBasic = MathQuill.noConflict();
+MathQuill.interfaceVersion(1);
 
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
