@@ -15,17 +15,26 @@ Just load MathQuill and call our constructors on some HTML element DOM objects,
 for example:
 
 ```html
-<p>
-  Solve <span class="static-math">ax^2+bx+c=0</span>:
-  <span class="math-field">x=</span>
-</p>
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
-  $('.static-math').each(function() { MathQuill.StaticMath(this); });
-  $('.math-field').each(function() { MathQuill.MathField(this); });
+  $(function() {
+    MathQuill.StaticMath($('#problem')[0]);
+    var answer = MathQuill.MathField($('#answer')[0], {
+      handlers: {
+        edit: function() {
+          checkAnswer(answer.latex());
+        }
+      }
+    });
+  });
 </script>
+
+<p>
+  Solve <span id="problem">ax^2 + bx + c = 0</span>:
+  <span id="answer">x=</span>
+</p>
 ```
 
 To load MathQuill,
@@ -142,7 +151,7 @@ var mathField = MathQuill.MathField(el[0], {
     return document.createElement('textarea');
   },
   handlers: {
-    reflow: function(mathField) { ... },
+    edit: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
   }
@@ -232,7 +241,7 @@ keyboards just don't work in Desmos on iOS, the tradeoffs are up to you.
 Supported handlers:
 - `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
   math field API object as arguments
-- `upOutOf`, `downOutOf`, `enter`, and `reflow` are called with just the API
+- `upOutOf`, `downOutOf`, `enter`, and `edit` are called with just the API
   object as the argument
 
 The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
@@ -245,8 +254,9 @@ arguments, and Backspace causes `deleteOutOf` (if provided) to be called with
 
 The `enter` handler is called whenever Enter is pressed.
 
-The `reflow` handler is called when the size of the field might have been
+The `edit` handler is called when the contents of the field might have been
 changed by stuff being typed, or deleted, or written with the API, etc.
+(Deprecated aliases: `edited`, `reflow`.)
 
 Handlers are always called directly on the `handlers` object passed in,
 preserving the `this` value, so you can do stuff like:
@@ -276,7 +286,7 @@ over the math field:
 var latex = '';
 var mathField = MathQuill.MathField($('#mathfield')[0], {
   handlers: {
-    reflow: function() { latex = mathField.latex(); },
+    edit: function() { latex = mathField.latex(); },
     enter: function() { submitLatex(latex); }
   }
 });

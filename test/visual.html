@@ -91,7 +91,7 @@ td {
   $(function() {
     var count = 0;
     MathQuill.MathField($('#reflowing-test')[0], {
-      handlers: { reflow: function() { count += 1; } }, // also test 'reflow' hook
+      handlers: { edit: function() { count += 1; } }, // also test 'edit' hook
     }).focus().moveToLeftEnd().keystroke('Right');
     var textarea = $('#reflowing-test textarea');
     var oldcount = count;

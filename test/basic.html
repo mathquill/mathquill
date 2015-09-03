@@ -36,7 +36,7 @@ var latex = $('#basic-latex').on('keydown keypress', function() {
 });
 var mq = MathQuill.MathField($('#basic')[0], {
   autoSubscriptNumerals: true,
-  handlers: { reflow: function(mq) {
+  handlers: { edit: function(mq) {
     if (!latex.is(':focus')) latex.val(mq.latex());
   } }
 });
