@@ -332,7 +332,7 @@ transforms, so MathQuill uses a matrix filter to stretch parens etc,
 which [anti-aliases wrongly without an opaque background][Transforms],
 so MathQuill defaults to white.)
 
-[Transforms]: http://github.com/laughinghan/mathquill/wiki/Transforms
+[Transforms]: http://github.com/mathquill/mathquill/wiki/Transforms
 
 ## Building and Testing
 
@@ -358,8 +358,8 @@ installing the necessary build tools.)
 
 All the CSS is in `src/css`. Most of it's pretty straightforward, the choice of
 font isn't settled, and fractions are somewhat arcane, see the Wiki pages
-["Fonts"](http://github.com/laughinghan/mathquill/wiki/Fonts) and
-["Fractions"](http://github.com/laughinghan/mathquill/wiki/Fractions).
+["Fonts"](http://github.com/mathquill/mathquill/wiki/Fonts) and
+["Fractions"](http://github.com/mathquill/mathquill/wiki/Fractions).
 
 All the JavaScript that you actually want to read is in `src/`, `build/` is
 created by `make` to contain the same JS cat'ed and minified.
