@@ -16,7 +16,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 **typist-facing changes:**
 - (#453) incremental backspace: backspacing into a compound command like
   fraction or exponent goes left into it rather than selecting it
-- (#269, #285) render pasted text in math mode if cursor in math mode
+- (#285) render pasted text in math mode if cursor in math mode
 - (5cf838d) LiveFraction (typing `/`) stops at space when expanding left
 - (#264) intentional blur (like clicking outside field) clears selection
 - (#262, #281, #391, #449) auto-expanding, mis-matchable parens/pipes
