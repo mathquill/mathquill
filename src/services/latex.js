@@ -27,6 +27,12 @@ var latexMathParser = (function() {
   var variable = letter.map(function(c) { return Letter(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
+  // Compound commands e.g. \not\subset
+  var compound = regex(/^\\not\\[a-z]+/).then(function(cmp) {
+    return CompoundCmds[cmp] && CompoundCmds[cmp]().parser() ||
+      fail('unknown compound command: '+cmp);
+  });
+
   var controlSequence =
     regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
     .or(string('\\').then(
@@ -59,7 +65,8 @@ var latexMathParser = (function() {
   ;
 
   var command =
-    controlSequence
+    compound
+    .or(controlSequence)
     .or(variable)
     .or(symbol)
     .or(unknown)

@@ -113,6 +113,14 @@ suite('latex', function() {
     assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}x&y\\\\1&\\end{Vmatrix}');
   });
 
+  test('compound symbols beginning with \\not', function() {
+    assertParsesLatex('\\not\\ni ');
+    assertParsesLatex('\\not\\subset ');
+    assertParsesLatex('\\not\\supset ');
+    assertParsesLatex('\\not\\subseteq ');
+    assertParsesLatex('\\not\\supseteq ');
+  });
+
   test('miscellaneous symbols', function() {
     assertParsesLatex('\\xrightarrow{xyz}');
     assertParsesLatex('\\xleftarrow{123}');
