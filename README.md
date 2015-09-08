@@ -208,5 +208,10 @@ ready, finds and mathquill-ifies `.mathquill-editable` and so on elements.
 The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
 License, v. 2.0: http://mozilla.org/MPL/2.0/
 
-The quick-and-dirty is you can do whatever as long as modifications to MathQuill
-itself are in public GitHub forks.
+The quick-and-dirty is you can do whatever if modifications to MathQuill are in
+public GitHub forks.
+
+Other ways to publicize modifications are also fine, as are private use
+modifications. See also: [MPL 2.0 FAQ][]
+
+[MPL 2.0 FAQ]: https://www.mozilla.org/en-US/MPL/2.0/FAQ/
