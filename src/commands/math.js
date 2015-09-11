@@ -52,6 +52,9 @@ var MathCommand = P(MathElement, function(_, super_) {
       return isEmpty && child.isEmpty();
     });
   };
+  _.isStyleBlock = function() {
+    return false;
+  };
 
   _.parser = function() {
     var block = latexMathParser.block;
