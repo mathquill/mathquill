@@ -66,7 +66,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (#272) fix API methods `.write()` on empty LaTeX and `.cmd()` erroring
 - (#255) fix auto-spacing of `SupSub` and `PlusMinus`
 - (#266) fix keyboard select after mouse select
-- (#268) `\ ` not `\:` as LaTeX for space
+- (#268) <code>\ </code> not `\:` as LaTeX for space
 - (68c8f2b) fix resize gripper appearing sometimes in Chrome
 - (6803077) fix Shift-Enter, Ctrl-Enter inputting newlines
 - (f17fb95) fix potential Ctrl-C "copy" race condition
