@@ -7,7 +7,7 @@ for (var key in MathQuill) (function(key, val) {
     };
     preInterVerMathQuill[key].prototype = val.prototype;
   }
-  else preInterVerMathQuill = val;
+  else preInterVerMathQuill[key] = val;
 }(key, MathQuill[key]));
 
 }());
