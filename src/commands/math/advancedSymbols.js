@@ -31,7 +31,8 @@ LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
 LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
 
-LatexCmds.notni = LatexCmds.niton = LatexCmds.notcontains = LatexCmds.doesnotcontain =
+LatexCmds.notni = LatexCmds.niton = LatexCmds.notcontains =
+LatexCmds.doesnotcontain = CompoundCmds['\\not\\ni'] =
   bind(BinaryOperator,'\\not\\ni ','&#8716;');
 
 LatexCmds.sub = LatexCmds.subset = bind(BinaryOperator,'\\subset ','&sub;');
@@ -41,11 +42,13 @@ LatexCmds.sup = LatexCmds.supset = LatexCmds.superset =
 
 LatexCmds.nsub = LatexCmds.notsub =
 LatexCmds.nsubset = LatexCmds.notsubset =
+CompoundCmds['\\not\\subset'] =
   bind(BinaryOperator,'\\not\\subset ','&#8836;');
 
 LatexCmds.nsup = LatexCmds.notsup =
 LatexCmds.nsupset = LatexCmds.notsupset =
 LatexCmds.nsuperset = LatexCmds.notsuperset =
+CompoundCmds['\\not\\supset'] =
   bind(BinaryOperator,'\\not\\supset ','&#8837;');
 
 LatexCmds.sube = LatexCmds.subeq = LatexCmds.subsete = LatexCmds.subseteq =
@@ -60,6 +63,7 @@ LatexCmds.nsube = LatexCmds.nsubeq =
 LatexCmds.notsube = LatexCmds.notsubeq =
 LatexCmds.nsubsete = LatexCmds.nsubseteq =
 LatexCmds.notsubsete = LatexCmds.notsubseteq =
+CompoundCmds['\\not\\subseteq'] =
   bind(BinaryOperator,'\\not\\subseteq ','&#8840;');
 
 LatexCmds.nsupe = LatexCmds.nsupeq =
@@ -68,6 +72,7 @@ LatexCmds.nsupsete = LatexCmds.nsupseteq =
 LatexCmds.notsupsete = LatexCmds.notsupseteq =
 LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
+CompoundCmds['\\not\\supseteq'] =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
 
 
