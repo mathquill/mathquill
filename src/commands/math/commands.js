@@ -808,7 +808,10 @@ LatexCmds.lrnexponent = P(MathCommand, function(_, super_) {
   ;
   _.textTemplate = ['', '**'];
   _.latex = function() {
-    return this.ends[L].latex()+'^'+this.ends[R].latex();
+    var rLatex = this.ends[R].latex();
+    if (rLatex.length > 1) rLatex = '{'+rLatex+'}';
+    else if (rLatex.length === 0) rLatex = '{ }';
+    return this.ends[L].latex()+'^'+rLatex;
   };
 });
 
