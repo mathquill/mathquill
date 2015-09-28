@@ -16,7 +16,7 @@ suite('CSS', function() {
     $(mock).css({
       fontSize: '',
       height: '',
-      widht: ''
+      width: ''
     });
   });
 });
