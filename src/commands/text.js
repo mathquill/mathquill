@@ -84,6 +84,11 @@ var TextBlock = P(Node, function(_, super_) {
   _.selectTowards = MathCommand.prototype.selectTowards;
   _.deleteTowards = MathCommand.prototype.deleteTowards;
 
+  _.isEmpty = function() {
+    return (this.ends[L] === 0 || this.ends[L].text === "") &&
+        (this.ends[R] === 0 || this.ends[R].text === "");
+  };
+
   _.selectOutOf = function(dir, cursor) {
     cursor.insDirOf(dir, this);
   };
@@ -170,7 +175,8 @@ var TextBlock = P(Node, function(_, super_) {
   function fuseChildren(self) {
     self.jQ[0].normalize();
 
-    var textPcDom = self.jQ.contents().filter(function (i, el) { return el.nodeType === 3; })[0]
+    var textNodes = self.jQ.contents().filter(function (i, el) { return el.nodeType === window.Node.TEXT_NODE; });
+    var textPcDom = textNodes.length > 0 ? textNodes[0] : document.createTextNode("");
     var textPc = TextPiece(textPcDom.data);
     textPc.jQadd(textPcDom);
 
