@@ -205,7 +205,7 @@ suite('backspace', function() {
     var textBlock = rootBlock.ends[R];
     assert.equal(cursor.parent, textBlock, 'cursor is in text block');
     assert.equal(cursor[R], 0, 'cursor is at the end of text block');
-    assert.equal(cursor[L].ctrlSeq, 'x', 'cursor is rightward of the x');
+    assert.equal(cursor[L].text, 'x', 'cursor is rightward of the x');
   });
 
   suite('empties', function() {
