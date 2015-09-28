@@ -197,7 +197,7 @@ suite('backspace', function() {
     assert.equal(mq.latex(),'n=1');
   });
 
-  test('backspace into text block', function() {
+  test('backspace through text block', function() {
     mq.latex('\\text{x}');
 
     mq.keystroke('Backspace');
@@ -205,7 +205,23 @@ suite('backspace', function() {
     var textBlock = rootBlock.ends[R];
     assert.equal(cursor.parent, textBlock, 'cursor is in text block');
     assert.equal(cursor[R], 0, 'cursor is at the end of text block');
-    assert.equal(cursor[L].ctrlSeq, 'x', 'cursor is rightward of the x');
+    assert.equal(cursor[L].text, 'x', 'cursor is rightward of the x');
+
+    mq.keystroke('Backspace');
+    assert.equal(cursor.parent, textBlock, 'cursor is still in text block');
+    assert.equal(cursor[R], 0, 'cursor is at right the end of text block');
+    assert.equal(cursor[L], 0, 'cursor is at left the end of text block');
+    assert.equal(mq.latex(), '\\text{}', 'the x has been deleted');
+
+    mq.keystroke('Backspace');
+    assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
+    assert.equal(cursor[L], textBlock, 'cursor is to the right of the text block');
+    assert.equal(mq.latex(), '\\text{}', 'text block still empty');
+
+    mq.keystroke('Backspace');
+    assert.equal(cursor[R], 0, 'cursor is at the right end of the root block');
+    assert.equal(cursor[L], 0, 'cursor is at the left end of the root block');
+    assert.equal(mq.latex(), '');
   });
 
   suite('empties', function() {
