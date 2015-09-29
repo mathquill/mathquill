@@ -71,20 +71,22 @@ suite('text', function() {
     var controller = mq.__controller;
     var cursor = controller.cursor;
 
-    mq.latex('\\text{x}');
+    try {
+      mq.latex('\\text{x}');
 
-    mq.keystroke('Left');
-    assertSplit(cursor.jQ, 'x');
+      mq.keystroke('Left');
+      assertSplit(cursor.jQ, 'x');
 
-    mq.keystroke('Backspace');
-    assertSplit(cursor.jQ);
+      mq.keystroke('Backspace');
+      assertSplit(cursor.jQ);
 
-    mq.keystroke('Right Left');
-    assertSplit(cursor.jQ);
+      mq.keystroke('Right Left');
+      assertSplit(cursor.jQ);
 
-    mq.typedText('y');
-    assertSplit(cursor.jQ, 'y');
-
-    $(mq.el()).remove();
+      mq.typedText('y');
+      assertSplit(cursor.jQ, 'y');
+    } finally {
+      $(mq.el()).remove();
+    }
   });
 });
