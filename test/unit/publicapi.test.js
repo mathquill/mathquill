@@ -129,6 +129,14 @@ suite('Public API', function() {
       assert.equal(textarea.hasClass('lrn_focusable'), true);
       assert.equal(textarea.attr('id'), id);
     });
+
+    test('mousedown outside editable area doesnt activate cursor', function() {
+      mq.latex('\\MathQuillMathField{}+\\MathQuillMathField{}');
+      $(mq.el()).find('.mq-binary-operator').trigger('mousedown');
+      assert.equal($(mq.el()).find('.mq-cursor').length, 0,
+        'Cursor was created outside editable areas');
+    });
+    
   });
 
   suite('basic API methods', function() {
