@@ -65,4 +65,26 @@ suite('text', function() {
 
     assert.equal(block.latex(), '\\text{x}');
   });
+
+  test('updates in the DOM from typing after stepping out of and back into an empty block', function() {
+    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    var controller = mq.__controller;
+    var cursor = controller.cursor;
+
+    mq.latex('\\text{x}');
+
+    mq.keystroke('Left');
+    assertSplit(cursor.jQ, 'x');
+
+    mq.keystroke('Backspace');
+    assertSplit(cursor.jQ);
+
+    mq.keystroke('Right Left');
+    assertSplit(cursor.jQ);
+
+    mq.typedText('y');
+    assertSplit(cursor.jQ, 'y');
+
+    $(mq.el()).remove();
+  });
 });
