@@ -12,6 +12,12 @@ suite('mouse events', function() {
     $(mq.el()).remove();
   });
 
+  function createEvent(type, pageX) {
+    var event = jQuery.Event(type);
+    event.pageX = pageX;
+    return event;
+  }
+
   function assertAnticursor() {
     var anticursor = cursor.anticursor;
 
@@ -31,44 +37,33 @@ suite('mouse events', function() {
   });
 
   suite('text blocks', function() {
-    var textBlock, textBlockX, mousedownEvent;
+    var textBlock, textBlockX;
 
     setup(function() {
       mq.latex('\\text{abc}');
 
       textBlock = root.ends[L];
       textBlockX = textBlock.jQ.offset().left;
-
-      mousedownEvent = jQuery.Event("mousedown");
-      mousedownEvent.pageX = textBlockX + 1;
     });
 
     test('mousedown sets anticursor and ancestors', function() {
-      textBlock.jQ.trigger(mousedownEvent);
+      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
 
       assert.equal(cursor.parent, textBlock);
       assertAnticursor();
     });
 
     test('mousemove does not discard ancestors', function() {
-      textBlock.jQ.trigger(mousedownEvent);
-
-      var mousemoveEvent = jQuery.Event('mousemove');
-      mousemoveEvent.pageX = textBlockX + 1;
-
-      textBlock.jQ.trigger(mousemoveEvent);
+      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
+      textBlock.jQ.trigger(createEvent('mousemove', textBlockX + 1));
 
       assert.equal(cursor.parent, textBlock);
       assertAnticursor();
     });
 
     test('text can be selected', function() {
-      textBlock.jQ.trigger(mousedownEvent);
-
-      var mousemoveEvent = jQuery.Event('mousemove');
-      mousemoveEvent.pageX = textBlockX + textBlock.jQ.width() - 1;
-
-      textBlock.jQ.trigger(mousemoveEvent);
+      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
+      textBlock.jQ.trigger(createEvent('mousemove', textBlockX + textBlock.jQ.width() - 1));
       textBlock.jQ.trigger('mouseup');
 
       var textBlockChildren = textBlock.jQ.children();
