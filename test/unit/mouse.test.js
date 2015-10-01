@@ -46,6 +46,14 @@ suite('mouse events', function() {
       textBlockX = textBlock.jQ.offset().left;
     });
 
+    function assertSelection(expectedSelection) {
+      var textBlockChildren = textBlock.jQ.children();
+      assert.equal(textBlockChildren.length, 1, 'text block has one child');
+      assert.ok(textBlockChildren.hasClass('mq-selection'), 'child has mq-selection class');
+      assert.equal(textBlockChildren.prop('tagName'), 'SPAN', 'text block child is a span');
+      assert.equal(textBlockChildren.text(), expectedSelection, 'selection span contains text ' + expectedSelection);
+    }
+
     test('mousedown sets anticursor and ancestors', function() {
       textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
 
@@ -66,11 +74,24 @@ suite('mouse events', function() {
       textBlock.jQ.trigger(createEvent('mousemove', textBlockX + textBlock.jQ.width() - 1));
       textBlock.jQ.trigger('mouseup');
 
-      var textBlockChildren = textBlock.jQ.children();
-      assert.equal(textBlockChildren.length, 1, 'text block has one child');
-      assert.ok(textBlockChildren.hasClass('mq-selection'), 'child has mq-selection class');
-      assert.equal(textBlockChildren.prop('tagName'), 'SPAN', 'text block child is a span');
-      assert.equal(textBlockChildren.text(), 'abc', 'selection span contains text abc');
+      assertSelection('abc');
+    });
+
+    test('immediate subsequent selection', function() {
+      var textBlockWidth = textBlock.jQ.width();
+      var averageCharWidth = textBlockWidth / 3;
+
+      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
+      textBlock.jQ.trigger(createEvent('mousemove', textBlockX + averageCharWidth));
+      textBlock.jQ.trigger('mouseup');
+
+      assertSelection('a');
+
+      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + textBlockWidth - 1));
+      textBlock.jQ.trigger(createEvent('mousemove', textBlockX + textBlockWidth - averageCharWidth));
+      textBlock.jQ.trigger('mouseup');
+
+      assertSelection('c');
     });
   });
 });
