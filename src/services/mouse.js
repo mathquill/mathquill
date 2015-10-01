@@ -45,6 +45,9 @@ Controller.open(function(_) {
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
       e.target.unselectable = true; // http://jsbin.com/yagekiji/1
 
+      // In case we just made a selection we need to ensure that the previous anticursor is removed.
+      cursor.endSelection();
+
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
