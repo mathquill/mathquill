@@ -209,8 +209,8 @@ suite('backspace', function() {
 
     mq.keystroke('Backspace');
     assert.equal(cursor.parent, textBlock, 'cursor is still in text block');
-    assert.equal(cursor[R], 0, 'cursor is at right the end of text block');
-    assert.equal(cursor[L], 0, 'cursor is at left the end of text block');
+    assert.equal(cursor[R], 0, 'cursor is at the right end of the text block');
+    assert.equal(cursor[L], 0, 'cursor is at the left end of the text block');
     assert.equal(mq.latex(), '\\text{}', 'the x has been deleted');
 
     mq.keystroke('Backspace');
