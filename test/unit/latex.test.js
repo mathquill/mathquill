@@ -2,11 +2,18 @@ suite('latex', function() {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
-    var result = latexMathParser.parse(str).join('latex');
+    var result = latexMathParser.parse(str).postOrder('finalizeTree', Options.p).join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );
   }
+
+  test('empty LaTeX', function () {
+    assertParsesLatex('');
+    assertParsesLatex(' ', '');
+    assertParsesLatex('{}', '');
+    assertParsesLatex('   {}{} {{{}}  }', '');
+  });
 
   test('variables', function() {
     assertParsesLatex('xyz');
@@ -82,49 +89,226 @@ suite('latex', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
 
+  test('escaped whitespace', function() {
+    assertParsesLatex('\\ ', '\\ ');
+    assertParsesLatex('\\      ', '\\ ');
+    assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+    assertParsesLatex('\\space\\   \\   space  ', '\\ \\ \\ space');
+  });
+
   test('\\text', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
-  suite('RootMathBlock::renderLatex', function() {
-    var el;
+  test('matrices', function() {
+    assertParsesLatex('\\begin{matrix}x\\end{matrix}');
+    assertParsesLatex('\\begin{pmatrix}x\\end{pmatrix}');
+    assertParsesLatex('\\begin{Bmatrix}x\\end{Bmatrix}');
+    assertParsesLatex('\\begin{vmatrix}x&y\\\\1&2\\end{vmatrix}');
+    assertParsesLatex('\\begin{bmatrix}x&y&z&123&x^2\\\\23&s&\\sin \\theta &1&x\\\\e&h&a&1&y\\end{bmatrix}');
+
+    // Adds missing cells
+    assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}x&y\\\\1&\\end{Vmatrix}');
+  });
+
+  test('compound symbols beginning with \\not', function() {
+    assertParsesLatex('\\not\\ni ');
+    assertParsesLatex('\\not\\subset ');
+    assertParsesLatex('\\not\\supset ');
+    assertParsesLatex('\\not\\subseteq ');
+    assertParsesLatex('\\not\\supseteq ');
+  });
+
+  test('miscellaneous symbols', function() {
+    assertParsesLatex('\\xrightarrow{xyz}');
+    assertParsesLatex('\\xleftarrow{123}');
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ');
+    assertParsesLatex('\\middot ');
+    assertParsesLatex('"');
+    assertParsesLatex('\\dottedsquare ');
+    assertParsesLatex('\\square ');
+    assertParsesLatex('\\rectangle ');
+    assertParsesLatex('\\overline{xyz}');
+    assertParsesLatex('\\overleftarrow{123}');
+    assertParsesLatex('\\overrightarrow{abc}');
+    assertParsesLatex('\\lrncuberoot{a}', '\\sqrt[3]{a}');
+    assertParsesLatex('\\lrnplaceholder{a}', 'a');
+    assertParsesLatex('\\lrnexponent{a}{b}', 'a^b');
+    assertParsesLatex('\\lrnsquaredexponent{a}', 'a^2');
+    assertParsesLatex('\\lrnsubscript{a}{b}', 'a_b');
+    assertParsesLatex('\\longdiv{x}');
+    assertParsesLatex('\\rightleftharpoons ');
+    assertParsesLatex('\\mug ');
+    assertParsesLatex('\\mus ');
+    assertParsesLatex('\\mum ');
+    assertParsesLatex('\\muL ');
+    assertParsesLatex('\\mathbb{AZ09}');
+    assertParsesLatex('\\underset{under}{over}');
+    assertParsesLatex('\\underset{\\sim }{over}');
+    assertParsesLatex('\\xrightarrow{over}');
+    assertParsesLatex('\\xrightarrow[under]{over}');
+    assertParsesLatex('\\xleftarrow{over}');
+    assertParsesLatex('\\xleftarrow[under]{over}');
+  });
+
+  suite('public API', function() {
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
-    test('basic rendering', function() {
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    suite('.latex(...)', function() {
+      function assertParsesLatex(str, latex) {
+        if (arguments.length < 2) latex = str;
+        mq.latex(str);
+        assert.equal(mq.latex(), latex);
+      }
+
+      test('basic rendering', function() {
+        assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
+
+      test('re-rendering', function() {
+        assertParsesLatex('a x^2 + b x + c = 0', 'ax^2+bx+c=0');
+        assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
+
+      test('empty LaTeX', function () {
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
+      });
+
+      test('coerces to a string', function () {
+        assertParsesLatex(undefined, 'undefined');
+        assertParsesLatex(null, 'null');
+        assertParsesLatex(0, '0');
+        assertParsesLatex(Infinity, 'Infinity');
+        assertParsesLatex(NaN, 'NaN');
+        assertParsesLatex(true, 'true');
+        assertParsesLatex(false, 'false');
+        assertParsesLatex({}, '[objectObject]'); // lol, the space gets ignored
+        assertParsesLatex({toString: function() { return 'thing'; }}, 'thing');
+      });
     });
 
-    test('re-rendering', function() {
-      el.mathquill('latex', 'a x^2 + b x + c = 0');
-      assert.equal(el.mathquill('latex'), 'ax^2+bx+c=0');
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    suite('.write(...)', function() {
+      test('empty LaTeX', function () {
+        function assertParsesLatex(str, latex) {
+          if (arguments.length < 2) latex = str;
+          mq.write(str);
+          assert.equal(mq.latex(), latex);
+        }
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
+      });
+
+      suite('\\sum', function() {
+        test('basic', function() {
+          mq.write('\\sum_{n=0}^5');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
+        });
+
+        test('only lower bound', function() {
+          mq.write('\\sum_{n=0}');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
+        });
+
+        test('only upper bound', function() {
+          mq.write('\\sum^5');
+          assert.equal(mq.latex(), '\\sum_{ }^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{ }^5x^n');
+        });
+      });
+    });
+  });
+
+  suite('\\MathQuillMathField', function() {
+    var outer, inner1, inner2;
+    setup(function() {
+      outer = MathQuill.StaticMath(
+        $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
+        .appendTo('#mock')[0]
+      );
+      inner1 = outer.innerFields[0];
+      inner2 = outer.innerFields[1];
+    });
+    teardown(function() {
+      $(outer.el()).remove();
+    });
+
+    test('initial latex', function() {
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2');
+      assert.equal(inner2.latex(), '3');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2}{3}');
+    });
+
+    test('setting latex', function() {
+      inner1.latex('\\sum_{i=0}^N x_i');
+      inner2.latex('N');
+      assert.equal(inner1.latex(), '\\sum_{i=0}^Nx_i');
+      assert.equal(inner2.latex(), 'N');
+      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^Nx_i}{N}');
+    });
+
+    test('writing latex', function() {
+      inner1.write('+ x_3');
+      inner2.write('+ 1');
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2+x_3');
+      assert.equal(inner2.latex(), '3+1');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+    });
+
+    test('optional inner field name', function() {
+      outer.latex('\\MathQuillMathField[mantissa]{}\\cdot\\MathQuillMathField[base]{}^{\\MathQuillMathField[exp]{}}');
+      assert.equal(outer.innerFields.length, 3);
+
+      var mantissa = outer.innerFields.mantissa;
+      var base = outer.innerFields.base;
+      var exp = outer.innerFields.exp;
+
+      assert.equal(mantissa, outer.innerFields[0]);
+      assert.equal(base, outer.innerFields[1]);
+      assert.equal(exp, outer.innerFields[2]);
+
+      mantissa.latex('1.2345');
+      base.latex('10');
+      exp.latex('8');
+      assert.equal(outer.latex(), '1.2345\\cdot10^8');
     });
   });
 
   suite('error handling', function() {
-    var el;
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
     function testCantParse(title /*, latex...*/) {
       var latex = [].slice.call(arguments, 1);
       test(title, function() {
         for (var i = 0; i < latex.length; i += 1) {
-          el.mathquill('latex', latex[i]);
-          assert.equal(el.mathquill('latex'), '', "shouldn\'t parse '"+latex[i]+"'");
+          mq.latex(latex[i]);
+          assert.equal(mq.latex(), '', "shouldn\'t parse '"+latex[i]+"'");
         }
       });
     }
