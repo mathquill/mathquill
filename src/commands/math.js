@@ -511,15 +511,32 @@ MathQuill.StaticMathWithEditables = APIFnFor(P(AbstractMathQuill, function(_) {
   };
   // Get an array of latex strings from the individual editable areas
   _.editables = function () {
-    return this.__controller.container.find('.mq-inner-editable .mq-root-block').map(function () {
+    var index = 0,
+        superscriptIndex = null,
+        subscriptIndex = null;
+    var editables = this.__controller.container.find('.mq-inner-editable .mq-root-block').map(function () {
       var node = Node.byId[jQuery(this).attr(mqBlockId)],
         isActive = jQuery(this).hasClass('mq-focused');
-
+      if ($(node.jQ[0]).closest('.mq-sup').length !== 0) {
+        superscriptIndex = index;
+      } else if ($(node.jQ[0]).closest('.mq-sub').length !== 0) {
+        subscriptIndex = index;
+      }
+      index++;
       return {
         latex: node.latex(),
         active: isActive
       }
     }).get();
+
+    if(superscriptIndex !== null && subscriptIndex !== null) {
+      var sup = editables[superscriptIndex],
+          sub = editables[subscriptIndex];
+      editables[superscriptIndex] = sub;
+      editables[subscriptIndex] = sup;
+    }
+
+    return editables;
   };
   _.typedText = function(text) {
     this.withActiveNode(function (activeNode) {
