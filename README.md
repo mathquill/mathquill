@@ -18,7 +18,7 @@ To use MathQuill on your website, grab the latest tarball from the [downloads pa
 
 [downloads page]: http://mathquill.com/downloads.html
 
-* [the stylesheet](http://mathquill.github.com/mathquill.css)
+* [the stylesheet](http://mathquill.github.com/mathquill/mathquill.css)
 * [the fonts](http://mathquill.github.com/fonts.html) in the
 `font/` directory relative to `mathquill.css` (or change your copy of
 `mathquill.css` to include from the right directory)
@@ -115,7 +115,7 @@ so MathQuill defaults to white.)
 
 To hack on MathQuill, you're gonna want to build and test the source files
 you edit. In addition to `make`, MathQuill uses some build tools written on
-[Node][http://nodejs.org/#download], so you will need to install that before
+[Node](http://nodejs.org/#download), so you will need to install that before
 running `make`. (Once it's installed, `make` automatically does `npm install`,
 installing the necessary build tools.)
 
@@ -128,8 +128,8 @@ installing the necessary build tools.)
 
 All the CSS is in `mathquill.css`. Most of it's pretty straightforward, the
 choice of font isn't settled, and fractions are somewhat arcane, see the Wiki
-pages ["Fonts"](http://github.com/laughinghan/mathquill/wiki/Fonts) and
-["Fractions"](http://github.com/laughinghan/mathquill/wiki/Fractions).
+pages ["Fonts"](https://github.com/mathquill/mathquill/wiki/Fonts) and
+["Fractions"](http://github.com/mathquill/mathquill/wiki/Fractions).
 
 All the JavaScript that you actually want to read is in `src/`, `build/` is
 created when you run `make` just to contain a cat'ed and minified version of
