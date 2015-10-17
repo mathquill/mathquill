@@ -81,6 +81,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="monospace font"');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="non-leaf underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="non-leaf overline"');
+LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="non-leaf overarc"');
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
