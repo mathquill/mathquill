@@ -18,22 +18,69 @@ suite('mouse events', function() {
     return event;
   }
 
-  function assertAnticursor() {
-    var anticursor = cursor.anticursor;
+  test('math can be selected', function() {
+    mq.latex('x^2+y^2');
 
-    assert.ok(anticursor, 'anticursor set on cursor');
-    assert.equal(anticursor[L], cursor[L], 'cursor and anticursor have the same left end');
-    assert.equal(anticursor[R], cursor[R], 'cursor and anticursor have the same right end');
-    assert.equal(anticursor.parent, cursor.parent, 'cursor and anticursor have the same parent');
-    assert.ok(anticursor.ancestors, 'ancestors set on anticursor');
-  }
+    var rootX = root.jQ.offset().left;
+    root.jQ.trigger(createEvent('mousedown', rootX + 1));
+    root.jQ.trigger(createEvent('mousemove', rootX + root.jQ.width() - 1));
+    root.jQ.trigger('mouseup');
 
-  test('mousedown sets anticursor and ancestors', function() {
-    assert.ok(!cursor.anticursor);
+    assert.equal(cursor.selection.join('latex'), 'x^2+y^2');
+  });
 
-    ctrlr.container.trigger("mousedown");
+  test('subsequent selection', function() {
+    mq.latex('abc');
 
-    assertAnticursor();
+    var rootX = root.jQ.offset().left;
+    var rootWidth = root.jQ.width();
+    var averageCharWidth = rootWidth / 3;
+
+    root.jQ.trigger(createEvent('mousedown', rootX + 1));
+    root.jQ.trigger(createEvent('mousemove', rootX + averageCharWidth));
+    root.jQ.trigger('mouseup');
+
+    assert.equal(cursor.selection.join('latex'), 'a');
+
+    root.jQ.trigger(createEvent('mousedown', rootX + rootWidth - 1));
+    root.jQ.trigger(createEvent('mousemove', rootX + rootWidth - averageCharWidth));
+    root.jQ.trigger('mouseup');
+
+    assert.equal(cursor.selection.join('latex'), 'c');
+  });
+
+  test('keyboard select continues mouse select', function() {
+    mq.latex('abc');
+
+    var rootX = root.jQ.offset().left;
+    root.jQ.trigger(createEvent('mousedown', rootX + 1));
+    root.jQ.trigger(createEvent('mousemove', rootX + root.jQ.width() - 1));
+    root.jQ.trigger('mouseup');
+
+    assert.equal(cursor.selection.join('latex'), 'abc');
+
+    mq.keystroke('Shift-Left');
+
+    assert.equal(cursor.selection.join('latex'), 'ab');
+  });
+
+  test('keyboard select doesn\'t break mouse select', function() {
+    mq.latex('abc');
+
+    var rootX = root.jQ.offset().left;
+    root.jQ.trigger(createEvent('mousedown', rootX + 1));
+    root.jQ.trigger(createEvent('mousemove', rootX + root.jQ.width() - 1));
+
+    assert.equal(cursor.selection.join('latex'), 'abc');
+
+    mq.keystroke('Shift-Left');
+
+    assert.equal(cursor.selection.join('latex'), 'ab');
+
+    root.jQ.trigger(createEvent('mousemove', rootX + root.jQ.width() - 1));
+    root.jQ.trigger('mouseup');
+
+    assert.equal(cursor.selection.join('latex'), 'abc');
   });
 
   suite('text blocks', function() {
@@ -47,27 +94,14 @@ suite('mouse events', function() {
     });
 
     function assertSelection(expectedSelection) {
+      assert.equal(cursor.selection.join('latex'), expectedSelection);
+
       var textBlockChildren = textBlock.jQ.children();
       assert.equal(textBlockChildren.length, 1, 'text block has one child');
       assert.ok(textBlockChildren.hasClass('mq-selection'), 'child has mq-selection class');
       assert.equal(textBlockChildren.prop('tagName'), 'SPAN', 'text block child is a span');
       assert.equal(textBlockChildren.text(), expectedSelection, 'selection span contains text ' + expectedSelection);
     }
-
-    test('mousedown sets anticursor and ancestors', function() {
-      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
-
-      assert.equal(cursor.parent, textBlock);
-      assertAnticursor();
-    });
-
-    test('mousemove does not discard ancestors', function() {
-      textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));
-      textBlock.jQ.trigger(createEvent('mousemove', textBlockX + 1));
-
-      assert.equal(cursor.parent, textBlock);
-      assertAnticursor();
-    });
 
     test('text can be selected', function() {
       textBlock.jQ.trigger(createEvent('mousedown', textBlockX + 1));

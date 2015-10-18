@@ -154,9 +154,11 @@ var Cursor = P(Point, function(_) {
     if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(cursor.options, L);
   };
   _.startSelection = function() {
+    // do this on Shift-Left/Right or mousemove if there isn't already an anticursor
     this.anticursor = Anticursor(this.parent, this[L], this[R]);
   };
-  _.endSelection = function() {
+  _.resetSelection = function() {
+    // do this on Left/Right or mousedown to reset where selection would start from
     delete this.anticursor;
   };
   _.select = function() {
