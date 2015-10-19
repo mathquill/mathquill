@@ -100,7 +100,7 @@ suite('latex', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
-    assertParsesLatex('\\text{}');
+    assertParsesLatex('\\text{}', '');
   });
 
   suite('public API', function() {

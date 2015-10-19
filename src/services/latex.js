@@ -2,7 +2,7 @@
 var latexMathParser = (function() {
   function commandToBlock(cmd) {
     var block = MathBlock();
-    cmd.adopt(block, 0, 0);
+    if (cmd) cmd.adopt(block, 0, 0);
     return block;
   }
   function joinBlocks(blocks) {
