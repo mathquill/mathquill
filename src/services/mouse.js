@@ -45,11 +45,11 @@ Controller.open(function(_) {
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
       e.target.unselectable = true; // http://jsbin.com/yagekiji/1
 
-      // In case we just made a selection we need to ensure that the previous anticursor is removed.
-      cursor.endSelection();
+      // Must be before seek because TextBlock relies on no anticursor during mousedown
+      cursor.resetSelection();
 
       cursor.blink = noop;
-      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      ctrlr.seek($(e.target), e.pageX, e.pageY);
 
       rootjQ.mousemove(mousemove);
       $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);

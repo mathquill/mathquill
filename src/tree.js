@@ -60,7 +60,6 @@ var $ = P(jQuery, function(_) {
 
 var Point = P(function(_) {
   _.parent = 0;
-  _.ancestors = 0;
   _[L] = 0;
   _[R] = 0;
 
@@ -68,17 +67,6 @@ var Point = P(function(_) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
-
-    var ancestors = this.ancestors = {}; // a map from each ancestor of
-    // the point, to its child that is also an ancestor; in other words,
-    // the point's ancestor chain in reverse order
-    for (var ancestor = this; ancestor.parent; ancestor = ancestor.parent) {
-      ancestors[ancestor.parent.id] = ancestor;
-    }
-  };
-
-  this.copy = function(pt) {
-    return Point(pt.parent, pt[L], pt[R]);
   };
 });
 
