@@ -121,6 +121,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
   _.blur = function() { this.__controller.textarea.blur(); return this; };
   _.write = function(latex) {
     this.__controller.writeLatex(latex);
+    this.__controller.scrollHoriz();
     if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
     return this;
   };
@@ -133,6 +134,7 @@ var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
         cmd = klass(cmd);
         if (cursor.selection) cmd.replaces(cursor.replaceSelection());
         cmd.createLeftOf(cursor.show());
+        this.__controller.scrollHoriz();
       }
       else /* TODO: API needs better error reporting */;
     }
