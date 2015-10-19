@@ -89,45 +89,4 @@ suite('text', function() {
       $(mq.el()).remove();
     }
   });
-
-  suite('deleteOutOf', function() {
-    var mq, cursor, rootBlock, textBlock;
-
-    setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-      cursor = mq.__controller.cursor;
-      rootBlock = mq.__controller.root;
-      mq.latex("\\text{x}");
-      textBlock = rootBlock.ends[L];
-    });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
-
-    test('moves cursor to the left when backspacing out', function() {
-      mq.keystroke("Left Left");
-      assert.equal(cursor.parent, textBlock, 'cursor is in text block');
-      assert.equal(cursor[R].text, 'x', 'cursor to the left of the text');
-      assert.equal(cursor[L], 0, 'cursor at left end of the text block');
-
-      mq.keystroke('Backspace');
-      assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
-      assert.equal(cursor[R], textBlock, 'cursor to the left of the text block');
-      assert.equal(cursor[L], 0, 'cursor at left end of the root block');
-      assert.equal(mq.latex(), '\\text{x}', 'text block still present');
-    });
-
-    test('moves cursor to the right when deleting out', function() {
-      mq.keystroke("Left");
-      assert.equal(cursor.parent, textBlock, 'cursor is in text block');
-      assert.equal(cursor[R], 0, 'cursor at right end of the text block');
-      assert.equal(cursor[L].text, 'x', 'cursor to the right of the text');
-
-      mq.keystroke('Del');
-      assert.equal(cursor.parent, rootBlock, 'cursor is in root block');
-      assert.equal(cursor[R], 0, 'cursor at right end of the root block');
-      assert.equal(cursor[L], textBlock, 'cursor to the right of the text block');
-      assert.equal(mq.latex(), '\\text{x}', 'text block still present');
-    });
-  });
 });

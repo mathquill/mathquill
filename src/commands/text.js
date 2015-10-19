@@ -90,7 +90,6 @@ var TextBlock = P(Node, function(_, super_) {
   _.deleteOutOf = function(dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insRightOf(this);
-    else cursor.insDirOf(dir, this);
   };
   _.write = function(cursor, ch) {
     cursor.show().deleteSelection();
