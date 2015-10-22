@@ -3,8 +3,8 @@
  ********************************************************/
 
 /**
- * Global function that takes an HTML element and, if it's the root HTML element
- * of a static math or math or text field, returns its API object (if not, null).
+ * Function that takes an HTML element and, if it's the root HTML element of a
+ * static math or math or text field, returns its API object (if not, null).
  * Identity of API object guaranteed if called multiple times, i.e.:
  *
  *   var mathfield = MathQuill.MathField(mathFieldSpan);
@@ -17,11 +17,6 @@ function MathQuill(el) {
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
   return blockId ? Node.byId[blockId].controller.API : null;
-};
-
-MathQuill.noConflict = function() {
-  window.MathQuill = origMathQuill;
-  return MathQuill;
 };
 
 /**
@@ -185,18 +180,22 @@ function RootBlockMixin(_) {
 
 /**
  * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
- * v0.10.x introduces it, so for now, don't completely break the API before
- * MathQuill.interfaceVersion(1) is called, just complain with console.warn().
+ * v0.10.x introduces it, so for now, don't completely break the API for
+ * people who don't know about it, just complain with console.warn().
  *
- * .noConflict() is shimmed here directly because it needs to be modified,
- * the rest are shimmed in outro.js so that MathQuill.MathField.prototype etc
+ * The methods are shimmed in outro.js so that MathQuill.MathField.prototype etc
  * can be accessed (same reason this is at the end of publicapi.js, so that
  * MathQuill.prototype can be accessed).
  */
 function insistOnInterVer() {
   if (window.console) console.warn(
-    'Please call MathQuill.interfaceVersion(1) before doing anything else ' +
-    'with the MathQuill API. This will be required starting v1.0.0.'
+    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
+    'to get interface version 1 before doing anything else:\n' +
+    '\n' +
+    '    MathQuill = MathQuill.getInterface(1);\n' +
+    '    // now MathQuill.MathField() works like it used to\n' +
+    ' '
+//   ^ apparently necessary to show the empty line in Blink/WebKit
   );
 }
 function preInterVerMathQuill(el) {
@@ -205,13 +204,12 @@ function preInterVerMathQuill(el) {
 };
 preInterVerMathQuill.prototype = MathQuill.prototype;
 
-preInterVerMathQuill.interfaceVersion = function(v) {
+preInterVerMathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
-  return window.MathQuill = MathQuill;
+  return MathQuill;
 };
 
 preInterVerMathQuill.noConflict = function() {
-  insistOnInterVer();
   window.MathQuill = origMathQuill;
   return preInterVerMathQuill;
 };

@@ -19,7 +19,7 @@ for example:
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
-  MathQuill.interfaceVersion(1);
+  MathQuill = MathQuill.getInterface(1);
   $(function() {
     MathQuill.StaticMath($('#problem')[0]);
     var answer = MathQuill.MathField($('#answer')[0], {
@@ -49,10 +49,10 @@ To load MathQuill,
 [Google CDN-hosted copy]: http://code.google.com/apis/libraries/devguide.html#jquery
 [the latest tarball]: http://mathquill.com/downloads.html
 
-To use the MathQuill API, first declare an interface version:
+To use the MathQuill API, first get the latest version of the interface:
 
 ```js
-MathQuill.interfaceVersion(1);
+MathQuill = MathQuill.getInterface(1);
 ```
 
 Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
@@ -141,10 +141,17 @@ that with `.noConflict()` (similar to [`jQuery.noConflict()`]
 <script src="/path/to/first-mathquill.js"></script>
 <script src="/path/to/second-mathquill.js"></script>
 <script>
-var secondMathQuill = MathQuill.interfaceVersion(1).noConflict();
-secondMathQuill.StaticMath(...);
+var secondMQ = MathQuill.noConflict().getInterface(1);
+secondMQ.MathField(...);
+
+var firstMQ = MathQuill.getInterface(1);
+firstMQ.MathField(...);
 </script>
 ```
+
+(Warning: This lets different copies of MathQuill each power their own
+ math fields, using different copies on the same DOM element won't work.
+ Anyway, the main point of .noConflict() is to help you reduce globals.)
 
 #### Configuration Options
 
