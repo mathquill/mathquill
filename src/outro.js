@@ -1,5 +1,4 @@
 for (var key in MathQuill) (function(key, val) {
-  if (preInterVerMathQuill[key]) return; // already set .noConflict
   if (typeof val === 'function') {
     preInterVerMathQuill[key] = function() {
       insistOnInterVer();

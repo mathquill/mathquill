@@ -202,7 +202,6 @@ function preInterVerMathQuill(el) {
   insistOnInterVer();
   return MathQuill(el);
 };
-preInterVerMathQuill.prototype = MathQuill.prototype;
 
 preInterVerMathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
