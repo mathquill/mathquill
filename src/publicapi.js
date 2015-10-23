@@ -197,19 +197,20 @@ function insistOnInterVer() {
 //   ^ apparently necessary to show the empty line in Blink/WebKit
   );
 }
-function preInterVerMathQuill(el) {
+// globally exported API object
+function MathQuill(el) {
   insistOnInterVer();
   return MQ(el);
 };
 
-preInterVerMathQuill.getInterface = function(v) {
+MathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
   return MQ;
 };
 
-preInterVerMathQuill.noConflict = function() {
+MathQuill.noConflict = function() {
   window.MathQuill = origMathQuill;
-  return preInterVerMathQuill;
+  return MathQuill;
 };
 var origMathQuill = window.MathQuill;
-window.MathQuill = preInterVerMathQuill;
+window.MathQuill = MathQuill;
