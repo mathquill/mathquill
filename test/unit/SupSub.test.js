@@ -1,7 +1,7 @@
 suite('SupSub', function() {
   var mq;
   setup(function() {
-    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
   teardown(function() {
     $(mq.el()).remove();

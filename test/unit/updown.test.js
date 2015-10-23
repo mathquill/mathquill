@@ -1,7 +1,7 @@
 suite('up/down', function() {
   var mq, rootBlock, controller, cursor;
   setup(function() {
-    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     rootBlock = mq.__controller.root;
     controller = mq.__controller;
     cursor = controller.cursor;
@@ -175,10 +175,10 @@ suite('up/down', function() {
   });
 
   test('\\MathQuillMathField{} in a fraction', function() {
-    var outer = MathQuill.MathField(
+    var outer = MQ.MathField(
       $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
     );
-    var inner = MathQuill($(outer.el()).find('.mq-editable-field')[0]);
+    var inner = MQ($(outer.el()).find('.mq-editable-field')[0]);
 
     assert.equal(inner.__controller.cursor.parent, inner.__controller.root);
     inner.keystroke('Down');

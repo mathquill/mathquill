@@ -105,7 +105,7 @@ suite('latex', function() {
   suite('public API', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
@@ -190,7 +190,7 @@ suite('latex', function() {
   suite('\\MathQuillMathField', function() {
     var outer, inner1, inner2;
     setup(function() {
-      outer = MathQuill.StaticMath(
+      outer = MQ.StaticMath(
         $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
         .appendTo('#mock')[0]
       );
@@ -245,7 +245,7 @@ suite('latex', function() {
   suite('error handling', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();

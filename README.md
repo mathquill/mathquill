@@ -19,10 +19,10 @@ for example:
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
-  MathQuill = MathQuill.getInterface(1);
   $(function() {
-    MathQuill.StaticMath($('#problem')[0]);
-    var answer = MathQuill.MathField($('#answer')[0], {
+    var MQ = MathQuill.getInterface(1);
+    MQ.StaticMath($('#problem')[0]);
+    var answer = MQ.MathField($('#answer')[0], {
       handlers: {
         edit: function() {
           checkAnswer(answer.latex());
@@ -52,34 +52,34 @@ To load MathQuill,
 To use the MathQuill API, first get the latest version of the interface:
 
 ```js
-MathQuill = MathQuill.getInterface(1);
+var MQ = MathQuill.getInterface(1);
 ```
 
-Now you can call `MathQuill.StaticMath()` or `MathQuill.MathField()`, which
-MathQuill-ify an HTML element and return an API object. If the element had
-already been MathQuill-ified into the same kind, return the original API object
-(if different kind or not an HTML element, `null`). Note that it always returns
+Now you can call `MQ.StaticMath()` or `MQ.MathField()`, which MathQuill-ify
+an HTML element and return an API object. If the element had already been
+MathQuill-ified into the same kind, return the original API object (if
+different kind or not an HTML element, `null`). Note that it always returns
 either an instance of itself, or `null`.
 
 ```js
-var staticMath = MathQuill.StaticMath(staticMathSpan);
-mathField instanceof MathQuill.StaticMath // => true
-mathField instanceof MathQuill // => true
+var staticMath = MQ.StaticMath(staticMathSpan);
+mathField instanceof MQ.StaticMath // => true
+mathField instanceof MQ // => true
 
-var mathField = MathQuill.MathField(mathFieldSpan);
-mathField instanceof MathQuill.MathField // => true
-mathField instanceof MathQuill.EditableField // => true
-mathField instanceof MathQuill // => true
+var mathField = MQ.MathField(mathFieldSpan);
+mathField instanceof MQ.MathField // => true
+mathField instanceof MQ.EditableField // => true
+mathField instanceof MQ // => true
 ```
 
-The global `MathQuill()` function takes an HTML element and, if it's the root
+`MQ` is also a function that takes an HTML element and, if it's the root
 HTML element of a static math or math field, returns its API object (if not,
 `null`). Identity of API object guaranteed if called multiple times, e.g.
 (continuing previous example):
 
 ```js
-MathQuill(mathFieldSpan) === mathField // => true
-MathQuill(mathFieldSpan) === MathQuill(mathFieldSpan) // => true
+MQ(mathFieldSpan) === mathField // => true
+MQ(mathFieldSpan) === MQ(mathFieldSpan) // => true
 ```
 
 Any element that has been MathQuill-ified can be reverted:
@@ -90,7 +90,7 @@ Any element that has been MathQuill-ified can be reverted:
 </span>
 ```
 ```js
-MathQuill($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
+MQ($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 ```
 
 MathQuill uses computed dimensions, so if they change (because an element was
@@ -99,7 +99,7 @@ changed), then you'll need to tell MathQuill to recompute:
 
 ```js
 var mathFieldSpan = $('<span>\\sqrt{2}</span>');
-var mathField = MathQuill.MathField(mathFieldSpan[0]);
+var mathField = MQ.MathField(mathFieldSpan[0]);
 mathFieldSpan.appendTo(document.body);
 mathField.reflow();
 ```
@@ -111,8 +111,8 @@ MathQuill API objects further expose the following public methods:
 * `.latex()` returns the contents as LaTeX
 * `.latex('a_n x^n')` will render the argument as LaTeX
 
-Additionally, descendants of `MathQuill.EditableField` (currently only
-`MathQuill.MathField`) expose:
+Additionally, descendants of `MQ.EditableField` (currently only `MQ.MathField`)
+expose:
 
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
@@ -122,9 +122,8 @@ Additionally, descendants of `MathQuill.EditableField` (currently only
 * `.clearSelection()` clears the current selection
 * `.moveTo{Left,Right,Dir}End()` move the cursor to the left/right end of the
   editable field, respectively. (The first two are implemented in terms of
-  `.moveToDirEnd(dir)` where `dir` is one of `MathQuill.L` or `MathQuill.R`,
-  constants obeying the contract that `MathQuill.L === -MathQuill.R` and vice
-  versa.)
+  `.moveToDirEnd(dir)` where `dir` is one of `MQ.L` or `MQ.R`, constants that
+  obey the contract that `MQ.L === -MQ.R` and vice versa.)
 * `.keystroke(keys)` simulates keystrokes given a string like `"Ctrl-Home Del"`,
   a whitespace-delimited list of [key values][] with optional prefixes
 * `.typedText(text)` simulates typing text, one character at a time
@@ -155,12 +154,11 @@ firstMQ.MathField(...);
 
 #### Configuration Options
 
-`MathQuill.MathField()` can also take an options object:
+`MQ.MathField()` can also take an options object:
 
 ```js
-var L = MathQuill.L, R = MathQuill.R;
 var el = $('<span>x^2</span>').appendTo('body');
-var mathField = MathQuill.MathField(el[0], {
+var mathField = MQ.MathField(el[0], {
   spaceBehavesLikeTab: true,
   leftRightIntoCmdGoes: 'up',
   restrictMismatchedBrackets: true,
@@ -176,7 +174,7 @@ var mathField = MathQuill.MathField(el[0], {
   handlers: {
     edit: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
-    moveOutOf: function(dir, mathField) { if (dir === L) ... else ... }
+    moveOutOf: function(dir, mathField) { if (dir === MQ.L) ... else ... }
   }
 });
 ```
@@ -184,7 +182,7 @@ var mathField = MathQuill.MathField(el[0], {
 To change `mathField`'s options, the `.config({ ... })` method takes an options
 object in the same format.
 
-Global defaults for a page may be set with `MathQuill.config({ ... })`.
+Global defaults for a page may be set with `MQ.config({ ... })`.
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
 like {Shift-,}Tab escaping from the current block (as opposed to the default
@@ -271,9 +269,9 @@ The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
 Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom
 edge and so nothing happens within the math field. For example, when the cursor
 is at the left edge, pressing the Left key causes the `moveOutOf` handler (if
-provided) to be called with `MathQuill.L` and the math field API object as
-arguments, and Backspace causes `deleteOutOf` (if provided) to be called with
-`MathQuill.L` and the API object as arguments, etc.
+provided) to be called with `MQ.L` and the math field API object as arguments,
+and Backspace causes `deleteOutOf` (if provided) to be called with `MQ.L` and
+the API object as arguments, etc.
 
 The `enter` handler is called whenever Enter is pressed.
 
@@ -290,13 +288,13 @@ var MathList = P(function(_) {
     this.el = ...
   };
   _.add = function() {
-    var math = MathQuill.MathField($('<span/>')[0], { handlers: this });
+    var math = MQ.MathField($('<span/>')[0], { handlers: this });
     $(math.el()).appendTo(this.el);
     math.i = this.maths.length;
     this.maths.push(math);
   };
   _.moveOutOf = function(dir, math) {
-    var adjacentI = (dir === MathQuill.L ? math.i - 1 : math.i + 1);
+    var adjacentI = (dir === MQ.L ? math.i - 1 : math.i + 1);
     var adjacentMath = this.maths[adjacentI];
     if (adjacentMath) adjacentMath.focus().moveToDirEnd(-dir);
   };
@@ -307,7 +305,7 @@ Of course you can always ignore the last argument, like when the handlers close
 over the math field:
 ```js
 var latex = '';
-var mathField = MathQuill.MathField($('#mathfield')[0], {
+var mathField = MQ.MathField($('#mathfield')[0], {
   handlers: {
     edit: function() { latex = mathField.latex(); },
     enter: function() { submitLatex(latex); }
@@ -428,8 +426,8 @@ More specifically:
     + `controller.js` defines the base class for the **controller**, which each
       math field or static math instance has one of, and to which each service
       adds methods.
-- `publicapi.js` defines the global `MathQuill` function, the
-  `MathQuill.MathField()` etc. constructors, and the API objects returned by
+- `publicapi.js` defines the global `MathQuill.getInterface()` function, the
+  `MQ.MathField()` etc. constructors, and the API objects returned by
   them. The constructors, and the API methods on the objects they return, call
   appropriate controller methods to initialize and manipulate math field and
   static math instances.

@@ -57,20 +57,20 @@ code span {
 
 <p>LaTeX math can also have textboxes inside: <span class="mathquill-static-math">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
 
-<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MathQuill(this.nextSibling).revert()'); MathQuill.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MathQuill.MathField(this.nextSibling)'); MathQuill(this.nextSibling).revert(); this.onclick = orig; };">MathQuill.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
+<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };">MQ.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 </div>
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-MathQuill = MathQuill.getInterface(1);
+MQ = MathQuill.getInterface(1);
 
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 $(function() {
-  $('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
-  $('.mathquill-math-field').each(function() { MathQuill.MathField(this); });
-  $('.mathquill-text-field').each(function() { MathQuill.TextField(this); });
+  $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.mathquill-math-field').each(function() { MQ.MathField(this); });
+  $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });
 
 $('#show-html-source').toggle(function() {
@@ -88,7 +88,7 @@ $('#codecogs').click(function() {
 });
 
 $(function() {
-  var latexMath = MathQuill($('#editable-math')[0]);
+  var latexMath = MQ($('#editable-math')[0]);
   $(latexMath.el()).bind('keydown keypress', function() {
     setTimeout(function() {
       var latex = latexMath.latex();
