@@ -184,8 +184,7 @@ function RootBlockMixin(_) {
  * people who don't know about it, just complain with console.warn().
  *
  * The methods are shimmed in outro.js so that MathQuill.MathField.prototype etc
- * can be accessed (same reason this is at the end of publicapi.js, so that
- * MathQuill.prototype can be accessed).
+ * can be accessed.
  */
 function insistOnInterVer() {
   if (window.console) console.warn(
