@@ -362,7 +362,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
-MathQuill.TextField = APIFnFor(P(EditableField, function(_) {
+MQ.TextField = APIFnFor(P(EditableField, function(_) {
   _.init = function(el) {
     el.addClass('mq-editable-field mq-text-mode');
     this.initRootAndEvents(RootTextBlock(), el);

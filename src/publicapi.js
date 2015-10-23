@@ -7,12 +7,12 @@
  * static math or math or text field, returns its API object (if not, null).
  * Identity of API object guaranteed if called multiple times, i.e.:
  *
- *   var mathfield = MathQuill.MathField(mathFieldSpan);
- *   assert(MathQuill(mathFieldSpan) === mathfield);
- *   assert(MathQuill(mathFieldSpan) === MathQuill(mathFieldSpan));
+ *   var mathfield = MQ.MathField(mathFieldSpan);
+ *   assert(MQ(mathFieldSpan) === mathfield);
+ *   assert(MQ(mathFieldSpan) === MQ(mathFieldSpan));
  *
  */
-function MathQuill(el) {
+function MQ(el) {
   if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
@@ -27,7 +27,7 @@ function MathQuill(el) {
  */
 function APIFnFor(APIClass) {
   function APIFn(el, opts) {
-    var mq = MathQuill(el);
+    var mq = MQ(el);
     if (mq instanceof APIClass || !el || !el.nodeType) return mq;
     return APIClass($(el), opts);
   }
@@ -36,7 +36,7 @@ function APIFnFor(APIClass) {
 }
 
 var Options = P(), optionProcessors = {};
-MathQuill.__options = Options.p;
+MQ.__options = Options.p;
 
 var AbstractMathQuill = P(function(_) {
   _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
@@ -59,7 +59,7 @@ var AbstractMathQuill = P(function(_) {
     };
   };
   _.config =
-  MathQuill.config = function(opts) {
+  MQ.config = function(opts) {
     for (var opt in opts) if (opts.hasOwnProperty(opt)) {
       var optVal = opts[opt], processor = optionProcessors[opt];
       this.__options[opt] = (processor ? processor(optVal) : optVal);
@@ -88,9 +88,9 @@ var AbstractMathQuill = P(function(_) {
     return this;
   };
 });
-MathQuill.prototype = AbstractMathQuill.prototype;
+MQ.prototype = AbstractMathQuill.prototype;
 
-MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
+MQ.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
   _.init = function(el) {
     this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
     this.__controller.delegateMouseEvents();
@@ -105,7 +105,7 @@ MathQuill.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
   };
 }));
 
-var EditableField = MathQuill.EditableField = P(AbstractMathQuill, function(_) {
+var EditableField = MQ.EditableField = P(AbstractMathQuill, function(_) {
   _.initRootAndEvents = function(root, el, opts) {
     this.initRoot(root, el, opts);
     this.__controller.editable = true;
@@ -183,8 +183,8 @@ function RootBlockMixin(_) {
  * v0.10.x introduces it, so for now, don't completely break the API for
  * people who don't know about it, just complain with console.warn().
  *
- * The methods are shimmed in outro.js so that MathQuill.MathField.prototype etc
- * can be accessed.
+ * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
+ * be accessed.
  */
 function insistOnInterVer() {
   if (window.console) console.warn(
@@ -199,12 +199,12 @@ function insistOnInterVer() {
 }
 function preInterVerMathQuill(el) {
   insistOnInterVer();
-  return MathQuill(el);
+  return MQ(el);
 };
 
 preInterVerMathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
-  return MathQuill;
+  return MQ;
 };
 
 preInterVerMathQuill.noConflict = function() {

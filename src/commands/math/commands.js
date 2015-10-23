@@ -727,7 +727,7 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-var InnerMathField = P(MathQuill.MathField, function(_) {
+var InnerMathField = P(MQ.MathField, function(_) {
   _.init = function(root, container) {
     RootBlockMixin(root);
     this.__options = Options();
