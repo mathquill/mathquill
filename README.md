@@ -149,8 +149,8 @@ firstMQ.MathField(...);
 ```
 
 (Warning: This lets different copies of MathQuill each power their own
- math fields, using different copies on the same DOM element won't work.
- Anyway, the main point of .noConflict() is to help you reduce globals.)
+ math fields, but using different copies on the same DOM element won't
+ work. Anyway, .noConflict() is primarily to help you reduce globals.)
 
 #### Configuration Options
 
