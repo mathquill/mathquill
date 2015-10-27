@@ -44,7 +44,8 @@ var AbstractMathQuill = P(function(_) {
     this.__options = Options();
     this.config(opts);
 
-    var ctrlr = Controller(this, root, el);
+    var ctrlr = this.__controller = Controller(root, el, this.__options);
+    ctrlr.API = this;
     ctrlr.createTextarea();
 
     var contents = el.contents().detach();

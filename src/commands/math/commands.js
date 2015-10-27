@@ -731,7 +731,8 @@ var InnerMathField = P(MQ.MathField, function(_) {
   _.init = function(root, container) {
     RootBlockMixin(root);
     this.__options = Options();
-    var ctrlr = Controller(this, root, container);
+    var ctrlr = this.__controller = Controller(root, container, this.__options);
+    ctrlr.API = this;
     ctrlr.editable = true;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
