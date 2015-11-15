@@ -362,10 +362,10 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
-MQ.TextField = APIFnFor(P(EditableField, function(_) {
-  _.init = function(el) {
-    el.addClass('mq-editable-field mq-text-mode');
-    this.initRootAndEvents(RootTextBlock(), el);
+MQ.TextField = APIFnFor(P(EditableField, function(_, super_) {
+  this.RootBlock = RootTextBlock;
+  _.__mathquillify = function() {
+    return super_.__mathquillify.call(this, 'mq-editable-field mq-text-mode');
   };
   _.latex = function(latex) {
     if (arguments.length > 0) {

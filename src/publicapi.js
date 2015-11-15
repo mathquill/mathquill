@@ -29,7 +29,8 @@ function APIFnFor(APIClass) {
   function APIFn(el, opts) {
     var mq = MQ(el);
     if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-    return APIClass($(el), opts);
+    var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
+    return APIClass(ctrlr).__mathquillify(opts);
   }
   APIFn.prototype = APIClass.prototype;
   return APIFn;
@@ -39,16 +40,16 @@ var Options = P(), optionProcessors = {};
 MQ.__options = Options.p;
 
 var AbstractMathQuill = P(function(_) {
-  _.init = function() { throw "wtf don't call me, I'm 'abstract'"; };
-  _.initRoot = function(root, el, opts) {
-    this.__options = Options();
-    this.config(opts);
-
-    var ctrlr = this.__controller = Controller(root, el, this.__options);
+  _.init = function(ctrlr) {
+    this.__controller = ctrlr;
+    this.__options = ctrlr.options;
     ctrlr.API = this;
+  };
+  _.__mathquillify = function(classNames) {
+    var ctrlr = this.__controller, root = ctrlr.root, el = ctrlr.container;
     ctrlr.createTextarea();
 
-    var contents = el.contents().detach();
+    var contents = el.addClass(classNames).contents().detach();
     root.jQ =
       $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
     this.latex(contents.text());
@@ -91,13 +92,13 @@ var AbstractMathQuill = P(function(_) {
 });
 MQ.prototype = AbstractMathQuill.prototype;
 
-
-var EditableField = MQ.EditableField = P(AbstractMathQuill, function(_) {
-  _.initRootAndEvents = function(root, el, opts) {
-    this.initRoot(root, el, opts);
+var EditableField = P(AbstractMathQuill, function(_, super_) {
+  _.__mathquillify = function() {
+    super_.__mathquillify.apply(this, arguments);
     this.__controller.editable = true;
     this.__controller.delegateMouseEvents();
     this.__controller.editablesTextareaEvents();
+    return this;
   };
   _.focus = function() { this.__controller.textarea.focus(); return this; };
   _.blur = function() { this.__controller.textarea.blur(); return this; };
@@ -152,6 +153,8 @@ var EditableField = MQ.EditableField = P(AbstractMathQuill, function(_) {
     return this;
   };
 });
+MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
+MQ.EditableField.prototype = EditableField.prototype;
 
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');

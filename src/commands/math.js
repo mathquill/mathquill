@@ -429,10 +429,12 @@ var MathBlock = P(MathElement, function(_, super_) {
 });
 
 MQ.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
-  _.init = function(el) {
-    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
+  this.RootBlock = MathBlock;
+  _.__mathquillify = function() {
+    super_.__mathquillify.call(this, 'mq-math-mode');
     this.__controller.delegateMouseEvents();
     this.__controller.staticMathTextareaEvents();
+    return this;
   };
   _.latex = function() {
     var returned = super_.latex.apply(this, arguments);
@@ -444,9 +446,11 @@ MQ.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
 }));
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
-MQ.MathField = APIFnFor(P(EditableField, function(_, super_) {
-  _.init = function(el, opts) {
-    el.addClass('mq-editable-field mq-math-mode');
-    this.initRootAndEvents(RootMathBlock(), el, opts);
+var MathField = P(EditableField, function(_, super_) {
+  this.RootBlock = RootMathBlock;
+  _.__mathquillify = function(opts) {
+    this.config(opts);
+    return super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
   };
-}));
+});
+MQ.MathField = APIFnFor(MathField);
