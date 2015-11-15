@@ -91,20 +91,6 @@ var AbstractMathQuill = P(function(_) {
 });
 MQ.prototype = AbstractMathQuill.prototype;
 
-MQ.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
-  _.init = function(el) {
-    this.initRoot(MathBlock(), el.addClass('mq-math-mode'));
-    this.__controller.delegateMouseEvents();
-    this.__controller.staticMathTextareaEvents();
-  };
-  _.latex = function() {
-    var returned = super_.latex.apply(this, arguments);
-    if (arguments.length > 0) {
-      this.__controller.root.postOrder('registerInnerField', this.innerFields = []);
-    }
-    return returned;
-  };
-}));
 
 var EditableField = MQ.EditableField = P(AbstractMathQuill, function(_) {
   _.initRootAndEvents = function(root, el, opts) {
