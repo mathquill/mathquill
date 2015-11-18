@@ -37,7 +37,13 @@ function APIFnFor(APIClass) {
 }
 
 var Options = P(), optionProcessors = {};
-MQ.__options = Options.p;
+function config(currentOptions, newOptions) {
+  for (var name in newOptions) if (newOptions.hasOwnProperty(name)) {
+    var value = newOptions[name], processor = optionProcessors[name];
+    currentOptions[name] = (processor ? processor(value) : value);
+  }
+}
+MQ.config = function(opts) { config(Options.p, opts); return this; };
 
 var AbstractMathQuill = P(function(_) {
   _.init = function(ctrlr) {
@@ -60,14 +66,7 @@ var AbstractMathQuill = P(function(_) {
       .append(contents);
     };
   };
-  _.config =
-  MQ.config = function(opts) {
-    for (var opt in opts) if (opts.hasOwnProperty(opt)) {
-      var optVal = opts[opt], processor = optionProcessors[opt];
-      this.__options[opt] = (processor ? processor(optVal) : optVal);
-    }
-    return this;
-  };
+  _.config = function(opts) { config(this.__options, opts); return this; };
   _.el = function() { return this.__controller.container[0]; };
   _.text = function() { return this.__controller.exportText(); };
   _.latex = function(latex) {
