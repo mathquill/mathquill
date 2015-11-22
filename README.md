@@ -57,7 +57,7 @@ var MQ = MathQuill.getInterface(1);
 
 Now you can call `MQ.StaticMath()` or `MQ.MathField()`, which MathQuill-ify
 an HTML element and return an API object. If the element had already been
-MathQuill-ified into the same kind, return the original API object (if
+MathQuill-ified into the same kind, return that kind of API object (if
 different kind or not an HTML element, `null`). Note that it always returns
 either an instance of itself, or `null`.
 
@@ -72,15 +72,42 @@ mathField instanceof MQ.EditableField // => true
 mathField instanceof MQ // => true
 ```
 
-`MQ` is also a function that takes an HTML element and, if it's the root
-HTML element of a static math or math field, returns its API object (if not,
-`null`). Identity of API object guaranteed if called multiple times, e.g.
-(continuing previous example):
+`MQ` itself is a function that takes an HTML element and, if it's the root
+HTML element of a static math or math field, returns an API object for it
+(if not, `null`):
 
 ```js
-MQ(mathFieldSpan) === mathField // => true
-MQ(mathFieldSpan) === MQ(mathFieldSpan) // => true
+MQ(mathFieldSpan) instanceof MQ.MathField // => true
+MQ(otherSpan) // => null
 ```
+
+API objects for the same MathQuill instance have the same `.id`, which will
+always be a unique truthy primitive value that can be used as an object key
+(like an ad hoc [`Map`][] or [`Set`][]):
+
+```js
+MQ(mathFieldSpan).id === mathField.id // => true
+
+var setOfMathFields = {};
+setOfMathFields[mathField.id] = mathField;
+MQ(mathFieldSpan).id in setOfMathFields // => true
+staticMath.id in setOfMathFields // false
+```
+
+[`Map`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
+[`Set`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set
+
+Similarly, API objects for the same MathQuill instance share a `.data` object
+(which can be used like an ad hoc [`WeakMap`][] or [`WeakSet`][]):
+
+```js
+MQ(mathFieldSpan).data === mathField.data // => true
+mathField.data.foo = 'bar';
+MQ(mathFieldSpan).data.foo // 'bar'
+```
+
+[`WeakMap`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
+[`WeakSet`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet
 
 Any element that has been MathQuill-ified can be reverted:
 
@@ -290,11 +317,11 @@ var MathList = P(function(_) {
   _.add = function() {
     var math = MQ.MathField($('<span/>')[0], { handlers: this });
     $(math.el()).appendTo(this.el);
-    math.i = this.maths.length;
+    math.data.i = this.maths.length;
     this.maths.push(math);
   };
   _.moveOutOf = function(dir, math) {
-    var adjacentI = (dir === MQ.L ? math.i - 1 : math.i + 1);
+    var adjacentI = (dir === MQ.L ? math.data.i - 1 : math.data.i + 1);
     var adjacentMath = this.maths[adjacentI];
     if (adjacentMath) adjacentMath.focus().moveToDirEnd(-dir);
   };

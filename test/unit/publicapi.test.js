@@ -20,9 +20,15 @@ suite('Public API', function() {
 
     test('identity of API object returned by MQ()', function() {
       var mathFieldSpan = $('<span/>')[0];
-      var mathfield = MQ.MathField(mathFieldSpan);
-      assert.equal(MQ(mathFieldSpan), mathfield);
-      assert.equal(MQ(mathFieldSpan), MQ(mathFieldSpan));
+      var mathField = MQ.MathField(mathFieldSpan);
+
+      assert.ok(MQ(mathFieldSpan) !== mathField);
+
+      assert.equal(MQ(mathFieldSpan).id, mathField.id);
+      assert.equal(MQ(mathFieldSpan).id, MQ(mathFieldSpan).id);
+
+      assert.equal(MQ(mathFieldSpan).data, mathField.data);
+      assert.equal(MQ(mathFieldSpan).data, MQ(mathFieldSpan).data);
     });
 
     test('blurred when created', function() {
@@ -170,23 +176,23 @@ suite('Public API', function() {
           handlers: {
             enter: function(_mq) {
               assert.equal(arguments.length, 1);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               enterCounter += 1;
             },
             upOutOf: function(_mq) {
               assert.equal(arguments.length, 1);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               upCounter += 1;
             },
             moveOutOf: function(_dir, _mq) {
               assert.equal(arguments.length, 2);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               dir = _dir;
               moveCounter += 1;
             },
             deleteOutOf: function(_dir, _mq) {
               assert.equal(arguments.length, 2);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               dir = _dir;
               deleteCounter += 1;
             }

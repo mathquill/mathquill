@@ -743,7 +743,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   };
   _.finalizeTree = function() {
     var ctrlr = Controller(this.ends[L], this.jQ, Options());
-    MathField(ctrlr);
+    ctrlr.APIClass = MathField;
     ctrlr.editable = true;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
@@ -751,7 +751,7 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     RootBlockMixin(ctrlr.root);
   };
   _.registerInnerField = function(innerFields) {
-    innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
+    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };

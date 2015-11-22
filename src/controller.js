@@ -8,6 +8,9 @@
 
 var Controller = P(function(_) {
   _.init = function(root, container, options) {
+    this.id = root.id;
+    this.data = {};
+
     this.root = root;
     this.container = container;
     this.options = options;
@@ -21,8 +24,8 @@ var Controller = P(function(_) {
   _.handle = function(name, dir) {
     var handlers = this.options.handlers;
     if (handlers && handlers[name]) {
-      if (dir === L || dir === R) handlers[name](dir, this.API);
-      else handlers[name](this.API);
+      if (dir === L || dir === R) handlers[name](dir, this.APIClass(this));
+      else handlers[name](this.APIClass(this));
     }
   };
 

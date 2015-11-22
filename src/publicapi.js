@@ -16,7 +16,8 @@ function MQ(el) {
   if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
-  return blockId ? Node.byId[blockId].controller.API : null;
+  var ctrlr = blockId && Node.byId[blockId].controller;
+  return ctrlr ? ctrlr.APIClass(ctrlr) : null;
 };
 
 /**
@@ -30,6 +31,7 @@ function APIFnFor(APIClass) {
     var mq = MQ(el);
     if (mq instanceof APIClass || !el || !el.nodeType) return mq;
     var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
+    ctrlr.APIClass = APIClass;
     return APIClass(ctrlr).__mathquillify(opts);
   }
   APIFn.prototype = APIClass.prototype;
@@ -49,7 +51,8 @@ var AbstractMathQuill = P(function(_) {
   _.init = function(ctrlr) {
     this.__controller = ctrlr;
     this.__options = ctrlr.options;
-    ctrlr.API = this;
+    this.id = ctrlr.id;
+    this.data = ctrlr.data;
   };
   _.__mathquillify = function(classNames) {
     var ctrlr = this.__controller, root = ctrlr.root, el = ctrlr.container;
