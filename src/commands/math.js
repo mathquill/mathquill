@@ -436,6 +436,10 @@ MQ.StaticMath = APIFnFor(P(AbstractMathQuill, function(_, super_) {
     this.__controller.staticMathTextareaEvents();
     return this;
   };
+  _.init = function() {
+    super_.init.apply(this, arguments);
+    this.__controller.root.postOrder('registerInnerField', this.innerFields = []);
+  };
   _.latex = function() {
     var returned = super_.latex.apply(this, arguments);
     if (arguments.length > 0) {

@@ -240,6 +240,13 @@ suite('latex', function() {
       exp.latex('8');
       assert.equal(outer.latex(), '1.2345\\cdot10^8');
     });
+
+    test('separate API object', function() {
+      var outer2 = MQ(outer.el());
+      assert.equal(outer2.innerFields.length, 2);
+      assert.equal(outer2.innerFields[0].id, inner1.id);
+      assert.equal(outer2.innerFields[1].id, inner2.id);
+    });
   });
 
   suite('error handling', function() {
