@@ -45,24 +45,6 @@ function MQ(el) {
   return ctrlr ? ctrlr.APIClass(ctrlr) : null;
 };
 
-/**
- * Returns function (to be publicly exported) that MathQuill-ifies an HTML
- * element and returns an API object. If the element had already been MathQuill-
- * ified into the same kind, return the original API object (if different kind
- * or not an HTML element, null).
- */
-function APIFnFor(APIClass) {
-  function APIFn(el, opts) {
-    var mq = MQ(el);
-    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-    var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
-    ctrlr.APIClass = APIClass;
-    return APIClass(ctrlr).__mathquillify(opts);
-  }
-  APIFn.prototype = APIClass.prototype;
-  return APIFn;
-}
-
 var Options = P(), optionProcessors = {};
 function config(currentOptions, newOptions) {
   for (var name in newOptions) if (newOptions.hasOwnProperty(name)) {
@@ -182,6 +164,24 @@ var EditableField = P(AbstractMathQuill, function(_, super_) {
 });
 MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
 MQ.EditableField.prototype = EditableField.prototype;
+
+/**
+ * Returns function (to be publicly exported) that MathQuill-ifies an HTML
+ * element and returns an API object. If the element had already been MathQuill-
+ * ified into the same kind, return the original API object (if different kind
+ * or not an HTML element, null).
+ */
+function APIFnFor(APIClass) {
+  function APIFn(el, opts) {
+    var mq = MQ(el);
+    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
+    var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
+    ctrlr.APIClass = APIClass;
+    return APIClass(ctrlr).__mathquillify(opts);
+  }
+  APIFn.prototype = APIClass.prototype;
+  return APIFn;
+}
 
 MathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
