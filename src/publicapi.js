@@ -158,18 +158,6 @@ var EditableField = P(AbstractMathQuill, function(_, super_) {
 MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
 MQ.EditableField.prototype = EditableField.prototype;
 
-function RootBlockMixin(_) {
-  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
-  for (var i = 0; i < names.length; i += 1) (function(name) {
-    _[name] = function(dir) { this.controller.handle(name, dir); };
-  }(names[i]));
-  _.reflow = function() {
-    this.controller.handle('reflow');
-    this.controller.handle('edited');
-    this.controller.handle('edit');
-  };
-}
-
 /**
  * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
  * v0.10.x introduces it, so for now, don't completely break the API for
@@ -206,3 +194,15 @@ MathQuill.noConflict = function() {
 };
 var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
+
+function RootBlockMixin(_) {
+  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
+  for (var i = 0; i < names.length; i += 1) (function(name) {
+    _[name] = function(dir) { this.controller.handle(name, dir); };
+  }(names[i]));
+  _.reflow = function() {
+    this.controller.handle('reflow');
+    this.controller.handle('edited');
+    this.controller.handle('edit');
+  };
+}
