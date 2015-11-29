@@ -3,6 +3,31 @@
  ********************************************************/
 
 /**
+ * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
+ * v0.10.x introduces it, so for now, don't completely break the API for
+ * people who don't know about it, just complain with console.warn().
+ *
+ * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
+ * be accessed.
+ */
+function insistOnInterVer() {
+  if (window.console) console.warn(
+    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
+    'to get interface version 1 before doing anything else:\n' +
+    '\n' +
+    '    MathQuill = MathQuill.getInterface(1);\n' +
+    '    // now MathQuill.MathField() works like it used to\n' +
+    ' '
+//   ^ apparently necessary to show the empty line in Blink/WebKit
+  );
+}
+// globally exported API object
+function MathQuill(el) {
+  insistOnInterVer();
+  return MQ1(el);
+};
+
+/**
  * Function that takes an HTML element and, if it's the root HTML element of a
  * static math or math or text field, returns its API object (if not, null).
  * Identity of API object guaranteed if called multiple times, i.e.:
@@ -157,31 +182,6 @@ var EditableField = P(AbstractMathQuill, function(_, super_) {
 });
 MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
 MQ.EditableField.prototype = EditableField.prototype;
-
-/**
- * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
- * v0.10.x introduces it, so for now, don't completely break the API for
- * people who don't know about it, just complain with console.warn().
- *
- * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
- * be accessed.
- */
-function insistOnInterVer() {
-  if (window.console) console.warn(
-    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
-    'to get interface version 1 before doing anything else:\n' +
-    '\n' +
-    '    MathQuill = MathQuill.getInterface(1);\n' +
-    '    // now MathQuill.MathField() works like it used to\n' +
-    ' '
-//   ^ apparently necessary to show the empty line in Blink/WebKit
-  );
-}
-// globally exported API object
-function MathQuill(el) {
-  insistOnInterVer();
-  return MQ(el);
-};
 
 MathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
