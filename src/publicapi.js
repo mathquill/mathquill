@@ -3,6 +3,31 @@
  ********************************************************/
 
 /**
+ * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
+ * v0.10.x introduces it, so for now, don't completely break the API for
+ * people who don't know about it, just complain with console.warn().
+ *
+ * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
+ * be accessed.
+ */
+function insistOnInterVer() {
+  if (window.console) console.warn(
+    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
+    'to get interface version 1 before doing anything else:\n' +
+    '\n' +
+    '    MathQuill = MathQuill.getInterface(1);\n' +
+    '    // now MathQuill.MathField() works like it used to\n' +
+    ' '
+//   ^ apparently necessary to show the empty line in Blink/WebKit
+  );
+}
+// globally exported API object
+function MathQuill(el) {
+  insistOnInterVer();
+  return MQ1(el);
+};
+
+/**
  * Function that takes an HTML element and, if it's the root HTML element of a
  * static math or math or text field, returns its API object (if not, null).
  * Identity of API object guaranteed if called multiple times, i.e.:
@@ -19,24 +44,6 @@ function MQ(el) {
   var ctrlr = blockId && Node.byId[blockId].controller;
   return ctrlr ? ctrlr.APIClass(ctrlr) : null;
 };
-
-/**
- * Returns function (to be publicly exported) that MathQuill-ifies an HTML
- * element and returns an API object. If the element had already been MathQuill-
- * ified into the same kind, return the original API object (if different kind
- * or not an HTML element, null).
- */
-function APIFnFor(APIClass) {
-  function APIFn(el, opts) {
-    var mq = MQ(el);
-    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-    var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
-    ctrlr.APIClass = APIClass;
-    return APIClass(ctrlr).__mathquillify(opts);
-  }
-  APIFn.prototype = APIClass.prototype;
-  return APIFn;
-}
 
 var Options = P(), optionProcessors = {};
 function config(currentOptions, newOptions) {
@@ -158,42 +165,23 @@ var EditableField = P(AbstractMathQuill, function(_, super_) {
 MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
 MQ.EditableField.prototype = EditableField.prototype;
 
-function RootBlockMixin(_) {
-  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
-  for (var i = 0; i < names.length; i += 1) (function(name) {
-    _[name] = function(dir) { this.controller.handle(name, dir); };
-  }(names[i]));
-  _.reflow = function() {
-    this.controller.handle('reflow');
-    this.controller.handle('edited');
-    this.controller.handle('edit');
-  };
-}
-
 /**
- * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
- * v0.10.x introduces it, so for now, don't completely break the API for
- * people who don't know about it, just complain with console.warn().
- *
- * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
- * be accessed.
+ * Returns function (to be publicly exported) that MathQuill-ifies an HTML
+ * element and returns an API object. If the element had already been MathQuill-
+ * ified into the same kind, return the original API object (if different kind
+ * or not an HTML element, null).
  */
-function insistOnInterVer() {
-  if (window.console) console.warn(
-    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
-    'to get interface version 1 before doing anything else:\n' +
-    '\n' +
-    '    MathQuill = MathQuill.getInterface(1);\n' +
-    '    // now MathQuill.MathField() works like it used to\n' +
-    ' '
-//   ^ apparently necessary to show the empty line in Blink/WebKit
-  );
+function APIFnFor(APIClass) {
+  function APIFn(el, opts) {
+    var mq = MQ(el);
+    if (mq instanceof APIClass || !el || !el.nodeType) return mq;
+    var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
+    ctrlr.APIClass = APIClass;
+    return APIClass(ctrlr).__mathquillify(opts);
+  }
+  APIFn.prototype = APIClass.prototype;
+  return APIFn;
 }
-// globally exported API object
-function MathQuill(el) {
-  insistOnInterVer();
-  return MQ(el);
-};
 
 MathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
@@ -206,3 +194,15 @@ MathQuill.noConflict = function() {
 };
 var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
+
+function RootBlockMixin(_) {
+  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
+  for (var i = 0; i < names.length; i += 1) (function(name) {
+    _[name] = function(dir) { this.controller.handle(name, dir); };
+  }(names[i]));
+  _.reflow = function() {
+    this.controller.handle('reflow');
+    this.controller.handle('edited');
+    this.controller.handle('edit');
+  };
+}
