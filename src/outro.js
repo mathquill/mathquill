@@ -1,4 +1,4 @@
-for (var key in MQ) (function(key, val) {
+for (var key in MQ1) (function(key, val) {
   if (typeof val === 'function') {
     MathQuill[key] = function() {
       insistOnInterVer();
@@ -7,6 +7,6 @@ for (var key in MQ) (function(key, val) {
     MathQuill[key].prototype = val.prototype;
   }
   else MathQuill[key] = val;
-}(key, MQ[key]));
+}(key, MQ1[key]));
 
 }());

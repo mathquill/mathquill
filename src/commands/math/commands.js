@@ -750,8 +750,8 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     ctrlr.cursor.insAtRightEnd(ctrlr.root);
     RootBlockMixin(ctrlr.root);
   };
-  _.registerInnerField = function(innerFields) {
-    innerFields.push(innerFields[this.name] = API.MathField(this.ends[L].controller));
+  _.registerInnerField = function(innerFields, MathField) {
+    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };

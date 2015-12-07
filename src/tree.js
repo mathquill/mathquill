@@ -11,8 +11,8 @@
 //
 // the contract is that they can be used as object properties
 // and (-L) === R, and (-R) === L.
-var L = MQ.L = -1;
-var R = MQ.R = 1;
+var L = -1;
+var R = 1;
 
 function prayDirection(dir) {
   pray('a direction was passed', dir === L || dir === R);

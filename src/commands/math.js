@@ -428,32 +428,38 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 });
 
-API.StaticMath = P(AbstractMathQuill, function(_, super_) {
-  this.RootBlock = MathBlock;
-  _.__mathquillify = function() {
-    super_.__mathquillify.call(this, 'mq-math-mode');
-    this.__controller.delegateMouseEvents();
-    this.__controller.staticMathTextareaEvents();
-    return this;
-  };
-  _.init = function() {
-    super_.init.apply(this, arguments);
-    this.__controller.root.postOrder('registerInnerField', this.innerFields = []);
-  };
-  _.latex = function() {
-    var returned = super_.latex.apply(this, arguments);
-    if (arguments.length > 0) {
-      this.__controller.root.postOrder('registerInnerField', this.innerFields = []);
-    }
-    return returned;
-  };
-});
+API.StaticMath = function(APIClasses) {
+  return P(APIClasses.AbstractMathQuill, function(_, super_) {
+    this.RootBlock = MathBlock;
+    _.__mathquillify = function() {
+      super_.__mathquillify.call(this, 'mq-math-mode');
+      this.__controller.delegateMouseEvents();
+      this.__controller.staticMathTextareaEvents();
+      return this;
+    };
+    _.init = function() {
+      super_.init.apply(this, arguments);
+      this.__controller.root.postOrder(
+        'registerInnerField', this.innerFields = [], APIClasses.MathField);
+    };
+    _.latex = function() {
+      var returned = super_.latex.apply(this, arguments);
+      if (arguments.length > 0) {
+        this.__controller.root.postOrder(
+          'registerInnerField', this.innerFields = [], APIClasses.MathField);
+      }
+      return returned;
+    };
+  });
+};
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
-API.MathField = P(EditableField, function(_, super_) {
-  this.RootBlock = RootMathBlock;
-  _.__mathquillify = function(opts) {
-    this.config(opts);
-    return super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
-  };
-});
+API.MathField = function(APIClasses) {
+  return P(APIClasses.EditableField, function(_, super_) {
+    this.RootBlock = RootMathBlock;
+    _.__mathquillify = function(opts) {
+      this.config(opts);
+      return super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
+    };
+  });
+};
