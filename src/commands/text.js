@@ -362,7 +362,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
-MQ.TextField = APIFnFor(P(EditableField, function(_, super_) {
+API.TextField = P(EditableField, function(_, super_) {
   this.RootBlock = RootTextBlock;
   _.__mathquillify = function() {
     return super_.__mathquillify.call(this, 'mq-editable-field mq-text-mode');
@@ -375,4 +375,4 @@ MQ.TextField = APIFnFor(P(EditableField, function(_, super_) {
     }
     return this.__controller.exportLatex();
   };
-}));
+});

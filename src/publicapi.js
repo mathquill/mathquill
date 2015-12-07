@@ -42,10 +42,10 @@ function MQ(el) {
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
   var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
   var ctrlr = blockId && Node.byId[blockId].controller;
-  return ctrlr ? ctrlr.APIClass(ctrlr) : null;
+  return ctrlr ? API[ctrlr.KIND_OF_MQ](ctrlr) : null;
 };
 
-var Options = P(), optionProcessors = {};
+var API = {}, Options = P(), optionProcessors = {};
 function config(currentOptions, newOptions) {
   for (var name in newOptions) if (newOptions.hasOwnProperty(name)) {
     var value = newOptions[name], processor = optionProcessors[name];
@@ -166,22 +166,20 @@ MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
 MQ.EditableField.prototype = EditableField.prototype;
 
 /**
- * Returns function (to be publicly exported) that MathQuill-ifies an HTML
- * element and returns an API object. If the element had already been MathQuill-
- * ified into the same kind, return the original API object (if different kind
- * or not an HTML element, null).
+ * Export the API functions that MathQuill-ify an HTML element into API objects
+ * of each class. If the element had already been MathQuill-ified but into a
+ * different kind (or it's not an HTML element), return null.
  */
-function APIFnFor(APIClass) {
-  function APIFn(el, opts) {
+for (var kind in API) (function(kind, APIClass) {
+  MQ[kind] = function(el, opts) {
     var mq = MQ(el);
     if (mq instanceof APIClass || !el || !el.nodeType) return mq;
     var ctrlr = Controller(APIClass.RootBlock(), $(el), Options());
-    ctrlr.APIClass = APIClass;
+    ctrlr.KIND_OF_MQ = kind;
     return APIClass(ctrlr).__mathquillify(opts);
-  }
-  APIFn.prototype = APIClass.prototype;
-  return APIFn;
-}
+  };
+  MQ[kind].prototype = APIClass.prototype;
+}(kind, API[kind]));
 
 MathQuill.getInterface = function(v) {
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
