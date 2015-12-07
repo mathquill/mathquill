@@ -34,12 +34,11 @@ MathQuill.getInterface = function(v) {
 
   /**
    * Function that takes an HTML element and, if it's the root HTML element of a
-   * static math or math or text field, returns its API object (if not, null).
-   * Identity of API object guaranteed if called multiple times, i.e.:
+   * static math or math or text field, returns an API object for it (else, null).
    *
    *   var mathfield = MQ.MathField(mathFieldSpan);
-   *   assert(MQ(mathFieldSpan) === mathfield);
-   *   assert(MQ(mathFieldSpan) === MQ(mathFieldSpan));
+   *   assert(MQ(mathFieldSpan).id === mathfield.id);
+   *   assert(MQ(mathFieldSpan).id === MQ(mathFieldSpan).id);
    *
    */
   function MQ(el) {
