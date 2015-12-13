@@ -36,8 +36,8 @@
     <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
     <script type="text/javascript" src="../build/mathquill-basic.js"></script>
     <script type="text/javascript">
-      MQBasic = MathQuill.noConflict().getInterface(1);
-      MQ = MathQuill.getInterface(1);
+      MQBasic = MathQuill.noConflict().getInterface(MathQuill.getInterface.MAX);
+      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
     </script>
 
   </head>

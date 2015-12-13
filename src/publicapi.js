@@ -28,9 +28,14 @@ function MathQuill(el) {
   insistOnInterVer();
   return MQ1(el);
 };
+MathQuill.getInterface = getInterface;
 
-MathQuill.getInterface = function(v) {
-  if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
+var MIN = getInterface.MIN = 1;
+var MAX = getInterface.MAX = 2;
+
+function getInterface(v) {
+  if (!(MIN <= v && v <= MAX)) throw 'Only interface versions between ' +
+    MIN + ' and ' + MAX + ' supported. You specified: ' + v;
 
   /**
    * Function that takes an HTML element and, if it's the root HTML element of a
@@ -193,8 +198,8 @@ MathQuill.getInterface = function(v) {
   }(kind, API[kind]));
 
   return MQ;
-};
-var MQ1 = MathQuill.getInterface(1);
+}
+var MQ1 = getInterface(1);
 
 MathQuill.noConflict = function() {
   window.MathQuill = origMathQuill;

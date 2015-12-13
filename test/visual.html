@@ -256,7 +256,7 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-MQ = MathQuill.getInterface(1);
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');

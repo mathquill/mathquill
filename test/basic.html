@@ -27,7 +27,7 @@
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill-basic.js"></script>
 <script type="text/javascript">
-MQ = MathQuill.getInterface(1);
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
 var latex = $('#basic-latex').on('keydown keypress', function() {
   var prev = latex.val();
