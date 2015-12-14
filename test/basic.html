@@ -38,10 +38,11 @@ var latex = $('#basic-latex').on('keydown keypress', function() {
 });
 var mq = MQ.MathField($('#basic')[0], {
   autoSubscriptNumerals: true,
-  handlers: { edit: function(mq) {
+  handlers: { edit: function() {
     if (!latex.is(':focus')) latex.val(mq.latex());
   } }
 });
+latex.val(mq.latex());
 </script>
 </body>
 </html>

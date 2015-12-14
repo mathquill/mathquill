@@ -144,6 +144,37 @@ suite('Public API', function() {
     });
   });
 
+  test('edit handler interface versioning', function() {
+    var count = 0;
+
+    // interface version 2 (latest)
+    var mq2 = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function(_mq) {
+          assert.equal(mq2.id, _mq.id);
+          count += 1;
+        }
+      }
+    });
+    assert.equal(count, 0);
+    mq2.latex('x^2');
+    assert.equal(count, 2); // sigh, once for postOrder and once for bubble
+
+    count = 0;
+    // interface version 1
+    var MQ1 = MathQuill.getInterface(1);
+    var mq1 = MQ1.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function(_mq) {
+          if (count <= 2) assert.equal(mq1, undefined);
+          else assert.equal(mq1.id, _mq.id);
+          count += 1;
+        }
+      }
+    });
+    assert.equal(count, 2);
+  });
+
   suite('*OutOf handlers', function() {
     testHandlers('MQ.MathField() constructor', function(options) {
       return MQ.MathField($('<span></span>').appendTo('#mock')[0], options);

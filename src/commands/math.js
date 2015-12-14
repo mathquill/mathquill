@@ -457,9 +457,12 @@ var RootMathBlock = P(MathBlock, RootBlockMixin);
 API.MathField = function(APIClasses) {
   return P(APIClasses.EditableField, function(_, super_) {
     this.RootBlock = RootMathBlock;
-    _.__mathquillify = function(opts) {
+    _.__mathquillify = function(opts, interfaceVersion) {
       this.config(opts);
-      return super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
+      if (interfaceVersion > 1) this.__controller.root.reflow = noop;
+      super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
+      delete this.__controller.root.reflow;
+      return this;
     };
   });
 };

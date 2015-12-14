@@ -20,7 +20,7 @@ for example:
 <script src="/path/to/mathquill.js"></script>
 <script>
   $(function() {
-    var MQ = MathQuill.getInterface(1);
+    var MQ = MathQuill.getInterface(2);
     MQ.StaticMath($('#problem')[0]);
     var answer = MQ.MathField($('#answer')[0], {
       handlers: {
@@ -52,7 +52,7 @@ To load MathQuill,
 To use the MathQuill API, first get the latest version of the interface:
 
 ```js
-var MQ = MathQuill.getInterface(1);
+var MQ = MathQuill.getInterface(2);
 ```
 
 Now you can call `MQ.StaticMath()` or `MQ.MathField()`, which MathQuill-ify
@@ -167,10 +167,10 @@ that with `.noConflict()` (similar to [`jQuery.noConflict()`]
 <script src="/path/to/first-mathquill.js"></script>
 <script src="/path/to/second-mathquill.js"></script>
 <script>
-var secondMQ = MathQuill.noConflict().getInterface(1);
+var secondMQ = MathQuill.noConflict().getInterface(2);
 secondMQ.MathField(...);
 
-var firstMQ = MathQuill.getInterface(1);
+var firstMQ = MathQuill.getInterface(2);
 firstMQ.MathField(...);
 </script>
 ```

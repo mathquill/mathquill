@@ -94,11 +94,10 @@ td {
       handlers: { edit: function() { count += 1; } }, // also test 'edit' hook
     }).focus().moveToLeftEnd().keystroke('Right');
     var textarea = $('#reflowing-test textarea');
-    var oldcount = count;
     // paste some stuff that needs resizing
     textarea.trigger('paste');
     textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
-    setTimeout(function() { if (count === oldcount) throw 'reflow not called'; });
+    setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
   });
 </script>
 
