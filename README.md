@@ -91,7 +91,7 @@ MQ(mathFieldSpan).id === mathField.id // => true
 var setOfMathFields = {};
 setOfMathFields[mathField.id] = mathField;
 MQ(mathFieldSpan).id in setOfMathFields // => true
-staticMath.id in setOfMathFields // false
+staticMath.id in setOfMathFields // => false
 ```
 
 [`Map`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map
@@ -103,7 +103,7 @@ Similarly, API objects for the same MathQuill instance share a `.data` object
 ```js
 MQ(mathFieldSpan).data === mathField.data // => true
 mathField.data.foo = 'bar';
-MQ(mathFieldSpan).data.foo // 'bar'
+MQ(mathFieldSpan).data.foo // => 'bar'
 ```
 
 [`WeakMap`]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap
