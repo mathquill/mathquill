@@ -36,9 +36,7 @@ MathQuill.interfaceVersion = function(v) {
 };
 MathQuill.getInterface = getInterface;
 
-var MIN = getInterface.MIN = 1;
-var MAX = getInterface.MAX = 2;
-
+var MIN = getInterface.MIN = 1, MAX = getInterface.MAX = 2;
 function getInterface(v) {
   if (!(MIN <= v && v <= MAX)) throw 'Only interface versions between ' +
     MIN + ' and ' + MAX + ' supported. You specified: ' + v;
