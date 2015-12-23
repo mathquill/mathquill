@@ -5,9 +5,9 @@
 var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
 
 /**
- * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
- * v0.10.x introduces it, so for now, don't completely break the API for
- * people who don't know about it, just complain with console.warn().
+ * Interface Versioning (#459, #495) to allow us to virtually guarantee
+ * backcompat. v0.10.x introduces it, so for now, don't completely break the
+ * API for people who don't know about it, just complain with console.warn().
  *
  * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
  * be accessed.
@@ -29,6 +29,11 @@ function MathQuill(el) {
   return MQ1(el);
 };
 MathQuill.prototype = Progenote.p;
+MathQuill.interfaceVersion = function(v) {
+  // shim for #459-era interface versioning (ended with #495)
+  if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
+  return window.MathQuill = MQ1;
+};
 MathQuill.getInterface = getInterface;
 
 var MIN = getInterface.MIN = 1;
