@@ -2,7 +2,7 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, Options = P(), optionProcessors = {};
+var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
 
 /**
  * Interface Versioning (#459) to allow us to virtually guarantee backcompat.
@@ -28,6 +28,7 @@ function MathQuill(el) {
   insistOnInterVer();
   return MQ1(el);
 };
+MathQuill.prototype = Progenote.p;
 MathQuill.getInterface = getInterface;
 
 var MIN = getInterface.MIN = 1;
@@ -69,7 +70,7 @@ function getInterface(v) {
   }
   MQ.config = function(opts) { config(Options.p, opts); return this; };
 
-  var AbstractMathQuill = APIClasses.AbstractMathQuill = P(function(_) {
+  var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
       this.__controller = ctrlr;
       this.__options = ctrlr.options;

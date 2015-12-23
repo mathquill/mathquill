@@ -16,6 +16,17 @@ suite('Public API', function() {
       assert.ok(mathField instanceof MQ.MathField);
       assert.ok(mathField instanceof MQ.EditableField);
       assert.ok(mathField instanceof MQ);
+      assert.ok(mathField instanceof MathQuill);
+    });
+
+    test('interface versioning isolates prototype chain', function() {
+      var mathFieldSpan = $('<span/>')[0];
+      var mathField = MQ.MathField(mathFieldSpan);
+
+      var MQ1 = MathQuill.getInterface(1);
+      assert.ok(!(mathField instanceof MQ1.MathField));
+      assert.ok(!(mathField instanceof MQ1.EditableField));
+      assert.ok(!(mathField instanceof MQ1));
     });
 
     test('identity of API object returned by MQ()', function() {

@@ -65,11 +65,13 @@ either an instance of itself, or `null`.
 var staticMath = MQ.StaticMath(staticMathSpan);
 mathField instanceof MQ.StaticMath // => true
 mathField instanceof MQ // => true
+mathField instanceof MathQuill // => true
 
 var mathField = MQ.MathField(mathFieldSpan);
 mathField instanceof MQ.MathField // => true
 mathField instanceof MQ.EditableField // => true
 mathField instanceof MQ // => true
+mathField instanceof MathQuill // => true
 ```
 
 `MQ` itself is a function that takes an HTML element and, if it's the root
