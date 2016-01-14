@@ -410,4 +410,40 @@ suite('key', function() {
       el.trigger('input');
     });
   });
+
+  suite('dead keys', function() {
+    var expectedText;
+
+    setup(function() {
+      expectedText = '';
+
+      saneKeyboardEvents(el, {
+        keystroke: noop,
+        typedText: function(text) {
+          assert.equal(text, expectedText);
+        }
+      });
+    });
+
+    test('character consumed and removed at first input event (Chrome and Safari 9)', function() {
+      el.trigger('keypress'); // Needed to bind typedText to checkTextarea.
+      el.val(expectedText = '^');
+      el.trigger('input');
+      assert.equal(el.val(), '');
+    });
+
+    test('character consumed at first input event but removed on the second (Firefox and Safari 6)', function() {
+      el.trigger('keypress'); // Needed to bind typedText to checkTextarea.
+      el.val(expectedText = '^');
+      el.trigger('compositionstart');
+      el.trigger('input');
+      assert.equal(el.val(), expectedText); // The character remains even though consumed
+                                            // to prevent Safari 6 from breaking.
+
+      expectedText = ''; // handler.typedText should receive no text.
+      el.trigger('compositionend');
+      el.trigger('input');
+      assert.equal(el.val(), expectedText); // Character has been removed.
+    });
+  });
 });
