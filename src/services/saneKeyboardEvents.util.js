@@ -95,6 +95,9 @@ var saneKeyboardEvents = (function() {
     var textarea = jQuery(el);
     var target = jQuery(handlers.container || textarea);
 
+    var deadkey = false;
+    var deadkeyChar = "";
+
     // checkTextareaFor() is called after keypress or paste events to
     // say "Hey, I think something was just typed" or "pasted" (resp.),
     // so that at all subsequent opportune times (next event or timeout),
@@ -191,6 +194,22 @@ var saneKeyboardEvents = (function() {
       var text = textarea.val();
       if (text.length === 1) {
         textarea.val('');
+
+        // Chrome and newer Safari versions trigger compositionend when the dead key
+        // character is removed from the textarea. Older Safari triggers it after the next
+        // keydown event while Firefox triggers it right before the next input event.
+        // Older versions of Safari even breaks if this character is removed, so we have to put
+        // it back in the textarea. These Safari versions also insert a duplicate character to replace
+        // the first one. To make behaviour consistent cross-browser we always consume the
+        // first character and if a duplicate one is detected it is ignored.
+        if (deadkey) {
+          textarea.val(text);
+          deadkeyChar = text;
+        }
+        else if (deadkeyChar === text) {
+          text = deadkeyChar = "";
+        }
+
         handlers.typedText(text);
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
@@ -222,12 +241,17 @@ var saneKeyboardEvents = (function() {
       if (text) handlers.paste(text);
     }
 
+    function onCompositionStart() { deadkey = true; }
+    function onCompositionEnd() { deadkey = false; }
+
     // -*- attach event handlers -*- //
     target.bind({
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
-      paste: onPaste
+      paste: onPaste,
+      compositionstart: onCompositionStart,
+      compositionend: onCompositionEnd
     });
 
     // -*- export public methods -*- //
