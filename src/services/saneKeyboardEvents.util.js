@@ -195,13 +195,17 @@ var saneKeyboardEvents = (function() {
       if (text.length === 1) {
         textarea.val('');
 
-        // Chrome and newer Safari versions trigger compositionend when the dead key
-        // character is removed from the textarea. Older Safari triggers it after the next
-        // keydown event while Firefox triggers it right before the next input event.
-        // Older versions of Safari even breaks if this character is removed, so we have to put
-        // it back in the textarea. These Safari versions also insert a duplicate character to replace
-        // the first one. To make behaviour consistent cross-browser we always consume the
-        // first character and if a duplicate one is detected it is ignored.
+        // We always remove the character from the textarea because on Chrome and newer Safari versions
+        // this triggers compositionend when a dead key has been typed. On Firefox and older Safari versions
+        // it does not trigger however, and older Safari versions will even break if the character is removed.
+        // So, if after we've removed it we're still in 'deadkey' state, we put the character back.
+        // See https://github.com/mathquill/mathquill/issues/205
+        //
+        // After the current input event, Firefox will trigger compositionend and an additional input event which
+        // replaces the first character. Older Safari versions triggers the first input event before the keydown
+        // event for dead keys, followed by compositionend and a second input event which replaces the first
+        // character (this is where it breaks if the first character is suddenly gone). In both these cases we
+        // need to identify duplicate dead key characters (deadkeyChar) and ignore them.
         if (deadkey) {
           textarea.val(text);
           deadkeyChar = text;
