@@ -7,7 +7,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 (https://github.com/mathquill/mathquill/wiki/v0.9.x-%E2%86%92-v0.10.0-Migration-Guide).
 
 **API-only changes:**
-- (#336, #349, #351, #353, #425) config options architecture
+- (#336, #349, #351, #353) config options architecture
 - (#308) don't auto-MathQuill-ify on jQuery `ready`
 - (#297) prefix all CSS classes with `mq-`
 - (#238, #272, #288, #337, #362) kill jQuery plugin; new global
@@ -42,7 +42,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
   field, pan/scroll horizontally
 - (#247, #301, #255) auto-unitalicize `sin`, `log` etc operator names
 - (#245, #253) config option whether to Spacebar behaves like Tab
-- (#241, #325) new API methods as used by Desmos
+- (#241, #325, #425) new API methods as used by Desmos
 - (#191) `\class{classname}{math}` _a la_
   [MathJax](http://docs.mathjax.org/en/v2.2-latest/tex.html#html)
 - (#151) `\textcolor{color}{math}`
