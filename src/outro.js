@@ -1,3 +1,4 @@
+var MQ1 = getInterface(1);
 for (var key in MQ1) (function(key, val) {
   if (typeof val === 'function') {
     MathQuill[key] = function() {

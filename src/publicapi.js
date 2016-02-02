@@ -14,13 +14,15 @@ var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
  */
 function insistOnInterVer() {
   if (window.console) console.warn(
-    'This usage of the MathQuill API will fail in v1.0.0. The easiest fix is ' +
-    'to get interface version 1 before doing anything else:\n' +
+    'You are using the MathQuill API without specifying an interface version, ' +
+    'which will fail in v1.0.0. You can fix this easily by doing this before ' +
+    'doing anything else:\n' +
     '\n' +
     '    MathQuill = MathQuill.getInterface(1);\n' +
     '    // now MathQuill.MathField() works like it used to\n' +
-    ' '
-//   ^ apparently necessary to show the empty line in Blink/WebKit
+    '\n' +
+    'See also the "`dev` branch (2014–2015) → v0.10.0 Migration Guide" at\n' +
+    '  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide'
   );
 }
 // globally exported API object
@@ -32,7 +34,21 @@ MathQuill.prototype = Progenote.p;
 MathQuill.interfaceVersion = function(v) {
   // shim for #459-era interface versioning (ended with #495)
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
-  return window.MathQuill = MQ1;
+  insistOnInterVer = function() {
+    if (window.console) console.warn(
+      'You called MathQuill.interfaceVersion(1); to specify the interface ' +
+      'version, which will fail in v1.0.0. You can fix this easily by doing ' +
+      'this before doing anything else:\n' +
+      '\n' +
+      '    MathQuill = MathQuill.getInterface(1);\n' +
+      '    // now MathQuill.MathField() works like it used to\n' +
+      '\n' +
+      'See also the "`dev` branch (2014–2015) → v0.10.0 Migration Guide" at\n' +
+      '  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide'
+    );
+  };
+  insistOnInterVer();
+  return MathQuill;
 };
 MathQuill.getInterface = getInterface;
 
@@ -203,7 +219,6 @@ function getInterface(v) {
 
   return MQ;
 }
-var MQ1 = getInterface(1);
 
 MathQuill.noConflict = function() {
   window.MathQuill = origMathQuill;
