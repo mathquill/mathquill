@@ -10,8 +10,8 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (#336, #349, #351, #353) config options architecture
 - (#308) don't auto-MathQuill-ify on jQuery `ready`
 - (#297) prefix all CSS classes with `mq-`
-- (#238, #272, #288, #337, #362) kill jQuery plugin; new global
-  `MathQuill()` returns API objects
+- (#238, #272, #288, #337, #362, #459, #463, #495) kill jQuery plugin; new
+  global `MathQuill()` returns API objects
 
 **typist-facing changes:**
 - (#453) incremental backspace: backspacing into a compound command like
@@ -22,13 +22,15 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (#262, #281, #391, #449) auto-expanding, mis-matchable parens/pipes
 - (#259) blue focus ring only around whole field not individual blocks
 - (#258) `\sum` now comes with lower and upper limit blocks
-- (#246, #248, #274, #434) merge adjacent `SupSub`s into one command
+- (#246, #248, #274, #434, #473) merge adjacent `SupSub`s into one
+  command
 - (#187) delete `\vector`
 - (#144) Shift-Left/Right unselects back into a thing after selecting
   out of it
 - (#157) stop fractions created by typing `/` at `,`/`;`/`:`
 
 **new features:**
+- (#468) add WOFF and WOFF2 font formats
 - (#376, #398) add `autoSubscriptNumerals` option
 - (#338) config option `sumStartsWithNEquals`
 - (#321) static math instances may have `.innerFields`
@@ -42,7 +44,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
   field, pan/scroll horizontally
 - (#247, #301, #255) auto-unitalicize `sin`, `log` etc operator names
 - (#245, #253) config option whether to Spacebar behaves like Tab
-- (#241, #325, #425) new API methods as used by Desmos
+- (#241, #325, #425, #462) new API methods as used by Desmos
 - (#191) `\class{classname}{math}` _a la_
   [MathJax](http://docs.mathjax.org/en/v2.2-latest/tex.html#html)
 - (#151) `\textcolor{color}{math}`
@@ -56,7 +58,8 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (#448) fix `\ddots` to be downward-rightward not upward-rightward
 - (#432) fix quadratic-time fragment construction
 - (#379) fix `.text()` errors when currently typing backslash command
-- (#364, #367, #363, #397, #402, #417) fixes to spacing and positioning
+- (#364, #367, #363, #397, #402, #417, #472) fixes to spacing and
+  positioning
 - (#323, #365, #409) fix LaTeX for `/`, `{`, `}` `^`, `_`, and `~`
 - (99da82a) fix LaTeX parsing of `'`
 - (#294, #355) fix `Cmd-Left` turns selection into typed text in Firefox
@@ -74,6 +77,8 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (c1fe1ef, 9aef35f) fix up/down in an `\editable{}` in a fraction
 
 **docs:**
+- (#485) add more metadata to package.json
+- (#484) fix links in README
 - (#393) correctly credit co-creator @jneen
 - (#283) use Mozilla Public License (MPL) instead of LGPL
 
