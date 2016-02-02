@@ -74,8 +74,8 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (c1fe1ef, 9aef35f) fix up/down in an `\editable{}` in a fraction
 
 **docs:**
-- (#283) use Mozilla Public License (MPL) instead of LGPL
 - (#393) correctly credit co-creator @jneen
+- (#283) use Mozilla Public License (MPL) instead of LGPL
 
 **internal refactors:**
 - (#303) remove STIX font files, never used them
