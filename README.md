@@ -18,24 +18,23 @@ for example:
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
-<script>
-  $(function() {
-    var MQ = MathQuill.getInterface(2);
-    MQ.StaticMath($('#problem')[0]);
-    var answer = MQ.MathField($('#answer')[0], {
-      handlers: {
-        edit: function() {
-          checkAnswer(answer.latex());
-        }
-      }
-    });
-  });
-</script>
 
 <p>
   Solve <span id="problem">ax^2 + bx + c = 0</span>:
   <span id="answer">x=</span>
 </p>
+
+<script>
+  var MQ = MathQuill.getInterface(2);
+  MQ.StaticMath($('#problem')[0]);
+  var answer = MQ.MathField($('#answer')[0], {
+    handlers: {
+      edit: function() {
+        checkAnswer(answer.latex());
+      }
+    }
+  });
+</script>
 ```
 
 To load MathQuill,
