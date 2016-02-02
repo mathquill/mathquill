@@ -727,17 +727,6 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-var InnerMathField = P(MathQuill.MathField, function(_) {
-  _.init = function(root, container) {
-    RootBlockMixin(root);
-    this.__options = Options();
-    var ctrlr = Controller(this, root, container);
-    ctrlr.editable = true;
-    ctrlr.createTextarea();
-    ctrlr.editablesTextareaEvents();
-    ctrlr.cursor.insAtRightEnd(root);
-  };
-});
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
@@ -752,9 +741,17 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
       .map(function(name) { self.name = name; }).or(succeed())
       .then(super_.parser.call(self));
   };
-  _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
-  _.registerInnerField = function(innerFields) {
-    innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
+  _.finalizeTree = function() {
+    var ctrlr = Controller(this.ends[L], this.jQ, Options());
+    ctrlr.KIND_OF_MQ = 'MathField';
+    ctrlr.editable = true;
+    ctrlr.createTextarea();
+    ctrlr.editablesTextareaEvents();
+    ctrlr.cursor.insAtRightEnd(ctrlr.root);
+    RootBlockMixin(ctrlr.root);
+  };
+  _.registerInnerField = function(innerFields, MathField) {
+    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };

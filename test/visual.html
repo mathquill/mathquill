@@ -90,15 +90,14 @@ td {
 <script type="text/javascript">
   $(function() {
     var count = 0;
-    MathQuill.MathField($('#reflowing-test')[0], {
+    MQ.MathField($('#reflowing-test')[0], {
       handlers: { edit: function() { count += 1; } }, // also test 'edit' hook
     }).focus().moveToLeftEnd().keystroke('Right');
     var textarea = $('#reflowing-test textarea');
-    var oldcount = count;
     // paste some stuff that needs resizing
     textarea.trigger('paste');
     textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
-    setTimeout(function() { if (count === oldcount) throw 'reflow not called'; });
+    setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
   });
 </script>
 
@@ -109,7 +108,7 @@ td {
 
 <script>
 $(function() {
-  MathQuill.MathField($('#custom-behavior')[0], {
+  MQ.MathField($('#custom-behavior')[0], {
     spaceBehavesLikeTab: true,
     leftRightIntoCmdGoes: 'up',
     restrictMismatchedBrackets: true,
@@ -147,7 +146,7 @@ $(function() {
 <script>
 $(function() {
   var overflowTest = $('#overflow-test');
-  MathQuill.MathField(overflowTest[0]);
+  MQ.MathField(overflowTest[0]);
   var width = overflowTest.outerWidth(true);
   if (width !== 102) {
     throw 'math field '+width+'px wide instead of 102px';
@@ -176,7 +175,7 @@ $(function() {
   <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
 </table>
 <table id="dynamic-reflow">
-<tr><th colspan=3><code>MathQuill(...).reflow()</code>
+<tr><th colspan=3><code>MQ(...).reflow()</code>
 <tr>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
@@ -209,7 +208,7 @@ $('#paren-alignment button').click(function() {
   }
   html += '</div>';
   $(html).insertAfter('#paren-alignment').find('.mathquill-static-math').each(function() {
-    MathQuill.StaticMath(this);
+    MQ.StaticMath(this);
   });
 });
 </script>
@@ -256,7 +255,7 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
-MathQuill.interfaceVersion(1);
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
@@ -265,9 +264,9 @@ $('#show-textareas-button').click(function() {
 //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
 //elements according to their CSS class.
 $(function() {
-  $('.mathquill-static-math').each(function() { MathQuill.StaticMath(this); });
-  $('.mathquill-math-field').each(function() { MathQuill.MathField(this); });
-  $('.mathquill-text-field').each(function() { MathQuill.TextField(this); });
+  $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.mathquill-math-field').each(function() { MQ.MathField(this); });
+  $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });
 
 // test selecting from outside the mathquill editable
@@ -293,32 +292,32 @@ $('#dynamic-initial tr').each(function() {
   var math = $('span', this);
   if (!math.length) return;
 
-  MathQuill.StaticMath(math[0]);
-  MathQuill.MathField(math[1]);
-  MathQuill.MathField(math[2]).revert();
+  MQ.StaticMath(math[0]);
+  MQ.MathField(math[1]);
+  MQ.MathField(math[2]).revert();
 });
-// MathQuill(...).reflow()
+// MQ(...).reflow()
 $('#dynamic-reflow tr').each(function() {
   var math = $('span', this), td;
   if (!math.length) return;
 
   td = math.eq(0).parent();
   math.eq(0).detach();
-  MathQuill.StaticMath(math[0]);
+  MQ.StaticMath(math[0]);
   math.eq(0).appendTo(td);
-  MathQuill(math[0]).reflow();
+  MQ(math[0]).reflow();
 
   td = math.eq(1).parent();
   math.eq(1).detach();
-  MathQuill.MathField(math[1]);
+  MQ.MathField(math[1]);
   math.eq(1).appendTo(td);
-  MathQuill(math[1]).reflow();
+  MQ(math[1]).reflow();
 
   td = math.eq(2).parent();
   math.eq(2).detach();
-  MathQuill.MathField(math[2]).revert();
+  MQ.MathField(math[2]).revert();
   math.eq(2).appendTo(td);
-  if (MathQuill(math[2])) throw 'should been have reverted';
+  if (MQ(math[2])) throw 'should been have reverted';
 });
 
 // Dynamic rendering performance
@@ -394,7 +393,7 @@ function timeAndLog(f) {
   });
 }());
 
-MathQuill.MathField($('#no-kbd-math')[0], {
+MQ.MathField($('#no-kbd-math')[0], {
   substituteTextarea: function() {
     return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
   }

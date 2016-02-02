@@ -7,22 +7,26 @@
  ********************************************/
 
 var Controller = P(function(_) {
-  _.init = function(API, root, container) {
-    this.API = API;
+  _.init = function(root, container, options) {
+    this.id = root.id;
+    this.data = {};
+
     this.root = root;
     this.container = container;
+    this.options = options;
 
-    API.__controller = root.controller = this;
+    root.controller = this;
 
-    this.cursor = root.cursor = Cursor(root, API.__options);
+    this.cursor = root.cursor = Cursor(root, options);
     // TODO: stop depending on root.cursor, and rm it
   };
 
   _.handle = function(name, dir) {
-    var handlers = this.API.__options.handlers;
-    if (handlers && handlers[name]) {
-      if (dir === L || dir === R) handlers[name](dir, this.API);
-      else handlers[name](this.API);
+    var handlers = this.options.handlers;
+    if (handlers && handlers.fns[name]) {
+      var mq = handlers.APIClasses[this.KIND_OF_MQ](this);
+      if (dir === L || dir === R) handlers.fns[name](dir, mq);
+      else handlers.fns[name](mq);
     }
   };
 

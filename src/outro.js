@@ -1,13 +1,13 @@
-for (var key in MathQuill) (function(key, val) {
-  if (preInterVerMathQuill[key]) return; // already set .noConflict
+var MQ1 = getInterface(1);
+for (var key in MQ1) (function(key, val) {
   if (typeof val === 'function') {
-    preInterVerMathQuill[key] = function() {
+    MathQuill[key] = function() {
       insistOnInterVer();
       return val.apply(this, arguments);
     };
-    preInterVerMathQuill[key].prototype = val.prototype;
+    MathQuill[key].prototype = val.prototype;
   }
-  else preInterVerMathQuill[key] = val;
-}(key, MathQuill[key]));
+  else MathQuill[key] = val;
+}(key, MQ1[key]));
 
 }());
