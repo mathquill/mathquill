@@ -46,9 +46,18 @@ function createRoot(jQ, root, textbox, editable) {
     e.stopPropagation();
   });
 
+  var iOS = false, android = false,
+    p = navigator.platform;
+  if (p === 'iPad' || p === 'iPhone' || p === 'iPod') {
+    iOS = true;
+  }
+  if (p === 'Android') {
+    android = true;
+  }
+
   //drag-to-select event handling
   var anticursor, blink = cursor.blink;
-  jQ.bind('mousedown.mathquill touchstart.mathquill', function(e) {
+  jQ.bind(iOS || android ? 'click.mathquill' : 'mousedown.mathquill', function(e) {
     function mousemove(e) {
       cursor.seek($(e.target), e.pageX, e.pageY);
 
@@ -58,15 +67,6 @@ function createRoot(jQ, root, textbox, editable) {
       }
 
       return false;
-    }
-
-    var iOS = false, android = false,
-    p = navigator.platform;
-    if (p === 'iPad' || p === 'iPhone' || p === 'iPod') {
-      iOS = true;
-    }
-    if (p === 'Android') {
-      android = true;
     }
 
     // docmousemove is attached to the document, so that
@@ -96,28 +96,30 @@ function createRoot(jQ, root, textbox, editable) {
 
       // delete the mouse handlers now that we're not dragging anymore
       jQ.unbind('mousemove', mousemove);
-      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup).unbind('touchend', mouseup);
+      $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup).unbind('click', mouseup);
     }
 
-    if (iOS || android)
+    if (iOS || android) {
       textarea.focus();
-    else
-      setTimeout(function() { textarea.focus(); });
+      textarea.focused = true;
+    } else {
+      setTimeout(function() { textarea.focus(); textarea.focused = true; });
       // preventDefault won't prevent focus on mousedown in IE<9
       // that means immediately after this mousedown, whatever was
       // mousedown-ed will receive focus
       // http://bugs.jquery.com/ticket/10345
+    }
 
     cursor.blink = noop;
-    e = e.scaledTouches != null && e.scaledTouches.length ? e.scaledTouches[0] : e.originalEvent.touches != null && e.originalEvent.touches.length ? e.originalEvent.touches[0] : e;
     cursor.seek($(e.target), e.pageX, e.pageY);
 
     anticursor = Point(cursor.parent, cursor[L], cursor[R]);
 
-    if (!editable) jQ.prepend(textareaSpan);
+    if (!editable && !textarea.focused) jQ.prepend(textareaSpan);
 
     jQ.mousemove(mousemove);
-    $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup).bind('touchend', mouseup);
+    var ownerDocument = $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+    if(iOS || android) { ownerDocument.click(mouseup); }
 
     return false;
   });
@@ -132,6 +134,7 @@ function createRoot(jQ, root, textbox, editable) {
     });
     function detach() {
       textareaSpan.detach();
+      textarea.focused = false;
     }
     return;
   }
