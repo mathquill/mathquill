@@ -6,6 +6,11 @@ plugin, instead global `MathQuill()` returns API objects, like jQuery
 itself): See the [v0.9.x → v0.10.0 Migration Guide]
 (https://github.com/mathquill/mathquill/wiki/v0.9.x-%E2%86%92-v0.10.0-Migration-Guide).
 
+(If you already use the new global `MathQuill()`-based API from the
+ `dev` branch, migrating to v0.10.0 should be just [one small change]
+ (https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide)
+ for you.)
+
 **API-only changes:**
 - (#336, #349, #351, #353) config options architecture
 - (#308) don't auto-MathQuill-ify on jQuery `ready`
