@@ -230,8 +230,8 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
 LatexCmds['⁻'] = LatexCmds.unaryneg = bind(PlusMinus, '\\unaryneg ', '&#8315;');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;');
-//semantically should be &sdot;, but &middot; looks better
+  bind(BinaryOperator, '\\cdot ', '&bull;');
+//semantically should be &sdot;, but &middot; looks better, and apparently &bull; is even better
 
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
 LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
