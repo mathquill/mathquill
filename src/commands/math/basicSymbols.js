@@ -160,6 +160,13 @@ var AutoOpNames = Options.p.autoOperatorNames = { _maxLength: 9 };
     AutoOpNames['ar'+autoTrigs[i]+'h'] =
     AutoOpNames['arc'+autoTrigs[i]+'h'] = 1;
   }
+
+  // compat with some of the nonstandard LaTeX exported by MathQuill
+  // before #247. None of these are real LaTeX commands so, seems safe
+  var moreNonstandardOps = 'gcf hcf lcm proj span'.split(' ');
+  for (var i = 0; i < moreNonstandardOps.length; i += 1) {
+    AutoOpNames[moreNonstandardOps[i]] = 1;
+  }
 }());
 optionProcessors.autoOperatorNames = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
