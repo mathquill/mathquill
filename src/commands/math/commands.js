@@ -727,6 +727,7 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
+LatexCmds.editable = // backcompat with before cfd3620 on #233
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
