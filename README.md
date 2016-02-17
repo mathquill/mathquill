@@ -1,13 +1,16 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han][] and [Jeanine][].  Current development is proudly supported by [Desmos][], whose awesome graphing calculator makes extensive use of Mathquill.
+by [Han][], [Jeanine][], and [Mary][]
 
 [Han]: http://github.com/laughinghan
 [Jeanine]: http://github.com/jneen
-[Desmos]: http://desmos.com/
+[Mary]: http://github.com/stufflebear
 
-Please note that this is a beta version, so bugs and unimplemented features
-are all over the place.
+Good news! We've resumed active development and we're committed to getting
+things running smoothly. Find a dusty corner? Let us know in [Slack][]/[IRC][]!
+
+[Slack]: http://slackin.mathquill.com
+[IRC]: irc://irc.freenode.net/mathquill
 
 ## Usage
 
