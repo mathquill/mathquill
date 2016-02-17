@@ -138,12 +138,12 @@ var Letter = P(Variable, function(_, super_) {
 var BuiltInOpNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
   // except for over/under line/arrow \lim variants like \varlimsup
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
+var AutoOpNames = Options.p.autoOperatorNames = { _maxLength: 9 };
 (function() {
-  var autoOps = Options.p.autoOperatorNames = { _maxLength: 9 };
   var mostOps = ('arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
   for (var i = 0; i < mostOps.length; i += 1) {
-    BuiltInOpNames[mostOps[i]] = autoOps[mostOps[i]] = 1;
+    BuiltInOpNames[mostOps[i]] = AutoOpNames[mostOps[i]] = 1;
   }
 
   var builtInTrigs = // why coth but not sech and csch, LaTeX?
@@ -154,11 +154,18 @@ var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 
   var autoTrigs = 'sin cos tan sec cosec csc cotan cot ctg'.split(' ');
   for (var i = 0; i < autoTrigs.length; i += 1) {
-    autoOps[autoTrigs[i]] =
-    autoOps['arc'+autoTrigs[i]] =
-    autoOps[autoTrigs[i]+'h'] =
-    autoOps['ar'+autoTrigs[i]+'h'] =
-    autoOps['arc'+autoTrigs[i]+'h'] = 1;
+    AutoOpNames[autoTrigs[i]] =
+    AutoOpNames['arc'+autoTrigs[i]] =
+    AutoOpNames[autoTrigs[i]+'h'] =
+    AutoOpNames['ar'+autoTrigs[i]+'h'] =
+    AutoOpNames['arc'+autoTrigs[i]+'h'] = 1;
+  }
+
+  // compat with some of the nonstandard LaTeX exported by MathQuill
+  // before #247. None of these are real LaTeX commands so, seems safe
+  var moreNonstandardOps = 'gcf hcf lcm proj span'.split(' ');
+  for (var i = 0; i < moreNonstandardOps.length; i += 1) {
+    AutoOpNames[moreNonstandardOps[i]] = 1;
   }
 }());
 optionProcessors.autoOperatorNames = function(cmds) {
@@ -194,7 +201,7 @@ var OperatorName = P(Symbol, function(_, super_) {
     return Parser.succeed(block.children());
   };
 });
-for (var fn in BuiltInOpNames) if (BuiltInOpNames.hasOwnProperty(fn)) {
+for (var fn in AutoOpNames) if (AutoOpNames.hasOwnProperty(fn)) {
   LatexCmds[fn] = OperatorName;
 }
 LatexCmds.operatorname = P(MathCommand, function(_) {
