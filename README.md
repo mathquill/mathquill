@@ -7,10 +7,10 @@ by [Han][], [Jeanine][], and [Mary][]
 [Mary]: http://github.com/stufflebear
 
 Good news! We've resumed active development and we're committed to getting
-things running smoothly. Find a dusty corner? Let us know in [Slack][]/[IRC][]!
+things running smoothly. Find a dusty corner? Let us know in [Slack][]!
+(Prefer IRC? We're #mathquill on Freenode.)
 
 [Slack]: http://slackin.mathquill.com
-[IRC]: irc://irc.freenode.net/mathquill
 
 ## Usage
 
