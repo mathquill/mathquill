@@ -19,12 +19,13 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
   global `MathQuill()` returns API objects
 
 **typist-facing changes:**
+- (#506) delete `\caret` and `\underscore`
 - (#453) incremental backspace: backspacing into a compound command like
   fraction or exponent goes left into it rather than selecting it
 - (#285) render pasted text in math mode if cursor in math mode
 - (5cf838d) LiveFraction (typing `/`) stops at space when expanding left
 - (#264) intentional blur (like clicking outside field) clears selection
-- (#262, #281, #391, #449) auto-expanding, mis-matchable parens/pipes
+- (#262, #281, #391, #449, #509) auto-expanding, mis-matchable parens/pipes
 - (#259) blue focus ring only around whole field not individual blocks
 - (#258) `\sum` now comes with lower and upper limit blocks
 - (#246, #248, #274, #434, #473) merge adjacent `SupSub`s into one
@@ -47,7 +48,7 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
   render when you type the letters, without typing backslash first
 - (#261, #361, #387, #404) when the math is too wide to fit in the
   field, pan/scroll horizontally
-- (#247, #301, #255) auto-unitalicize `sin`, `log` etc operator names
+- (#247, #301, #255, #509) auto-unitalicize `sin`, `log` etc operator names
 - (#245, #253) config option whether to Spacebar behaves like Tab
 - (#241, #325, #425, #462) new API methods as used by Desmos
 - (#191) `\class{classname}{math}` _a la_
@@ -91,8 +92,8 @@ itself): See the [v0.9.x → v0.10.0 Migration Guide]
 - (#303) remove STIX font files, never used them
 - (#244) refactor focus/blur out into its own service
 - (#240) simplify `saneKeyboardEvents()` handlers pattern
-- (#233, #234, #236, #237, #239) massive refactor of cursor and root
-  block nonlocal responsibilities as controller and services instead
+- (#233, #234, #236, #237, #239, #509) massive refactor of cursor and
+- root block nonlocal responsibilities as controller and services instead
 - (#195, #340) some LaTeX rendering performance fixes; separate out
   root block DOM node from container DOM node
 - (#183) `Cursor::notify` framework
