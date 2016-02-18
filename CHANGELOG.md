@@ -1,3 +1,105 @@
+## v0.10.0: (UNRELEASED)
+
+Many major changes including a total overhaul of the API (no more
+auto-MathQuill-ifying of `.mathquill-editable` etc, and no more jQuery
+plugin, instead global `MathQuill()` returns API objects, like jQuery
+itself): See the [v0.9.x → v0.10.0 Migration Guide]
+(https://github.com/mathquill/mathquill/wiki/v0.9.x-%E2%86%92-v0.10.0-Migration-Guide).
+
+(If you already use the new global `MathQuill()`-based API from the
+ `dev` branch, migrating to v0.10.0 should be just [one small change]
+ (https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide)
+ for you.)
+
+**API-only changes:**
+- (#336, #349, #351, #353) config options architecture
+- (#308) don't auto-MathQuill-ify on jQuery `ready`
+- (#297) prefix all CSS classes with `mq-`
+- (#238, #272, #288, #337, #362, #459, #463, #495) kill jQuery plugin; new
+  global `MathQuill()` returns API objects
+
+**typist-facing changes:**
+- (#506) delete `\caret` and `\underscore`
+- (#453) incremental backspace: backspacing into a compound command like
+  fraction or exponent goes left into it rather than selecting it
+- (#285) render pasted text in math mode if cursor in math mode
+- (5cf838d) LiveFraction (typing `/`) stops at space when expanding left
+- (#264) intentional blur (like clicking outside field) clears selection
+- (#262, #281, #391, #449, #509) auto-expanding, mis-matchable parens/pipes
+- (#259) blue focus ring only around whole field not individual blocks
+- (#258) `\sum` now comes with lower and upper limit blocks
+- (#246, #248, #274, #434, #473) merge adjacent `SupSub`s into one
+  command
+- (#187) delete `\vector`
+- (#144) Shift-Left/Right unselects back into a thing after selecting
+  out of it
+- (#157) stop fractions created by typing `/` at `,`/`;`/`:`
+
+**new features:**
+- (#468) add WOFF and WOFF2 font formats
+- (#376, #398) add `autoSubscriptNumerals` option
+- (#338) config option `sumStartsWithNEquals`
+- (#321) static math instances may have `.innerFields`
+- (#279) `leftRightIntoCmdGoes: 'up'/'down'`
+- (#278, #407, #442) `SupSub` options to improve usability
+- (#276, #410) anything focusable can be used to `substituteTextarea`
+- (#263) typing `<=` and `>=` results in `\le` and `\ge`
+- (#265) "autocommands": LaTeX control sequences that automatically
+  render when you type the letters, without typing backslash first
+- (#261, #361, #387, #404) when the math is too wide to fit in the
+  field, pan/scroll horizontally
+- (#247, #301, #255, #509) auto-unitalicize `sin`, `log` etc operator names
+- (#245, #253) config option whether to Spacebar behaves like Tab
+- (#241, #325, #425, #462) new API methods as used by Desmos
+- (#191) `\class{classname}{math}` _a la_
+  [MathJax](http://docs.mathjax.org/en/v2.2-latest/tex.html#html)
+- (#151) `\textcolor{color}{math}`
+
+**new build system features:**
+- (#377) `OMIT_FONT_FACE=true make` omits `@font-face {...}`
+- (#319) `make basic` builds stripped-down MathQuill for basic math
+
+**bugfixes:**
+- (#452) fix blinking blue cursor and autocorrect on iOS
+- (#448) fix `\ddots` to be downward-rightward not upward-rightward
+- (#432) fix quadratic-time fragment construction
+- (#379) fix `.text()` errors when currently typing backslash command
+- (#364, #367, #363, #397, #402, #417, #472) fixes to spacing and
+  positioning
+- (#323, #365, #409) fix LaTeX for `/`, `{`, `}` `^`, `_`, and `~`
+- (99da82a) fix LaTeX parsing of `'`
+- (#294, #355) fix `Cmd-Left` turns selection into typed text in Firefox
+- (#296, #392) fix `f`/florin situation
+- (#299) don't use reserved word `yield`
+- (#284) escape non-ASCII Unicode characters in the JS source code
+- (#272) fix API methods `.write()` on empty LaTeX and `.cmd()` erroring
+- (#255) fix auto-spacing of `SupSub` and `PlusMinus`
+- (#266) fix keyboard select after mouse select
+- (#268) <code>\ </code> not `\:` as LaTeX for space
+- (68c8f2b) fix resize gripper appearing sometimes in Chrome
+- (6803077) fix Shift-Enter, Ctrl-Enter inputting newlines
+- (f17fb95) fix potential Ctrl-C "copy" race condition
+- (765dd70, #322) don't unnecessarily `stopPropagation()` mouse events
+- (c1fe1ef, 9aef35f) fix up/down in an `\editable{}` in a fraction
+
+**docs:**
+- (#485) add more metadata to package.json
+- (#484) fix links in README
+- (#393) correctly credit co-creator @jneen
+- (#283) use Mozilla Public License (MPL) instead of LGPL
+
+**internal refactors:**
+- (#303) remove STIX font files, never used them
+- (#244) refactor focus/blur out into its own service
+- (#240) simplify `saneKeyboardEvents()` handlers pattern
+- (#233, #234, #236, #237, #239, #509) massive refactor of cursor and
+- root block nonlocal responsibilities as controller and services instead
+- (#195, #340) some LaTeX rendering performance fixes; separate out
+  root block DOM node from container DOM node
+- (#183) `Cursor::notify` framework
+- (#117, #142, #186, #287) massive refactor of cursor methods to not
+  assume the edit tree is double-layered
+
 ## v0.9.4: 2014-1-22
 
 URGENT HOTFIX for cursor showing up as an ugly box in Chrome 40 (#371)
