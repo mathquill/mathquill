@@ -109,7 +109,7 @@ var saneKeyboardEvents = (function() {
       clearTimeout(timeoutId);
       timeoutId = setTimeout(checker);
     }
-    target.bind('keydown keypress input keyup focusout paste', function() { checkTextarea(); });
+    target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
 
 
     // -*- public methods -*- //
@@ -148,8 +148,10 @@ var saneKeyboardEvents = (function() {
       keydown = e;
       keypress = null;
 
-      if (shouldBeSelected) checkTextareaFor(function() {
-        if (textarea[0].select) textarea[0].select(); // re-select textarea in case it's an unrecognized
+      if (shouldBeSelected) checkTextareaFor(function(e) {
+        if (!(e && e.type === 'focusout') && textarea[0].select) {
+          textarea[0].select(); // re-select textarea in case it's an unrecognized
+        }
         checkTextarea = noop; // key that clears the selection, then never
         clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });

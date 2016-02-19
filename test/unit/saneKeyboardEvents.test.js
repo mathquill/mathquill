@@ -166,7 +166,7 @@ suite('key', function() {
         var shim = saneKeyboardEvents(el, {
           keystroke: function(key) {
             assert.equal(key, 'Left');
-            el.blur();
+            el[0].blur();
           }
         });
 
