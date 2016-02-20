@@ -46,10 +46,10 @@ To load MathQuill,
 - the fonts should be served from the `font/` directory relative to
   `mathquill.css` (unless you'd rather change where your copy of `mathquill.css`
   includes them from), which is already the case if you just:
-- unpack and serve [the latest tarball][].
+- download and serve [the latest release][].
 
 [Google CDN-hosted copy]: http://code.google.com/apis/libraries/devguide.html#jquery
-[the latest tarball]: http://mathquill.com/downloads.html
+[the latest release]: https://github.com/mathquill/mathquill/releases/latest
 
 To use the MathQuill API, first get the latest version of the interface:
 
