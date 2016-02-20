@@ -1,6 +1,6 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han][], [Jeanine][], and [Mary][]
+by [Han][], [Jeanine][], and [Mary][] (maintainers@mathquill.com)
 
 [Han]: http://github.com/laughinghan
 [Jeanine]: http://github.com/jneen

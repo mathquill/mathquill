@@ -1,4 +1,4 @@
-## v0.10.0: (UNRELEASED)
+## v0.10.0: 2016-02-20
 
 Many major changes including a total overhaul of the API (no more
 auto-MathQuill-ifying of `.mathquill-editable` etc, and no more jQuery
