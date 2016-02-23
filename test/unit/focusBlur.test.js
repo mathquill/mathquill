@@ -1,4 +1,8 @@
 suite('focusBlur', function() {
+  function assertHasFocus(mq, name, invert) {
+    assert.ok(!!invert ^ $(mq.el()).find('textarea').is(':focus'), name + (invert ? ' does not have focus' : ' has focus'));
+  }
+
   suite('handlers can shift focus away', function() {
     var mq, mq2, wasUpOutOfCalled;
     setup(function() {
@@ -20,9 +24,6 @@ suite('focusBlur', function() {
     function triggerUpOutOf(mq) {
       $(mq.el()).find('textarea').trigger(jQuery.Event('keydown', { which: 38 }));
       assert.ok(wasUpOutOfCalled);
-    }
-    function assertHasFocus(mq, name) {
-      assert.ok($(mq.el()).find('textarea').is(':focus'), name + ' has focus');
     }
 
     test('normally', function() {
@@ -48,6 +49,38 @@ suite('focusBlur', function() {
         assertHasFocus(mq2, 'mq2');
         done();
       });
+    });
+  });
+
+  test('select behaves normally after blurring and re-focusing', function(done) {
+    var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+
+    mq.focus();
+    assertHasFocus(mq, 'mq');
+
+    mq.typedText('asdf');
+    assert.equal(mq.latex(), 'asdf');
+
+    mq.keystroke('Shift-Left');
+    setTimeout(function() {
+      assert.equal($(mq.el()).find('textarea').val(), 'f');
+
+      mq.blur();
+      assertHasFocus(mq, 'mq', 'not');
+      setTimeout(function() {
+        assert.equal($(mq.el()).find('textarea').val(), '');
+
+        mq.focus();
+        assertHasFocus(mq, 'mq');
+
+        mq.keystroke('Shift-Left');
+        setTimeout(function() {
+          assert.equal($(mq.el()).find('textarea').val(), 'd');
+
+          $(mq.el()).remove();
+          done();
+        });
+      }, 10);
     });
   });
 });
