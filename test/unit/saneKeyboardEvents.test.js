@@ -1,4 +1,4 @@
-suite('key', function() {
+suite('saneKeyboardEvents', function() {
   var el;
   var Event = jQuery.Event
 
