@@ -50,16 +50,19 @@ var Cursor = P(Point, function(_) {
   };
 
   _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
-    if (parent !== this.parent && this.parent.blur) this.parent.blur();
+    var oldParent = this.parent;
     this.parent = parent;
     this[dir] = withDir;
     this[-dir] = oppDir;
+    // by contract, .blur() is called after all has been said and done
+    // and the cursor has actually been moved
+    if (oldParent !== parent && oldParent.blur) oldParent.blur();
   };
   _.insDirOf = function(dir, el) {
     prayDirection(dir);
+    this.jQ.insDirOf(dir, el.jQ);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
-    this.jQ.insDirOf(dir, el.jQ);
     return this;
   };
   _.insLeftOf = function(el) { return this.insDirOf(L, el); };
@@ -67,8 +70,8 @@ var Cursor = P(Point, function(_) {
 
   _.insAtDirEnd = function(dir, el) {
     prayDirection(dir);
-    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
     this.jQ.insAtDirEnd(dir, el.jQ);
+    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
     el.focus();
     return this;
   };
