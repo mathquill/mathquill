@@ -391,7 +391,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  _.textTemplate = ['(', '/', ')'];
+  _.textTemplate = ['(', ')/(', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
