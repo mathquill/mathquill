@@ -53,4 +53,16 @@ suite('text', function() {
     ctrlr.moveRight();
     assertSplit(cursor.jQ, 'abc', null);
   });
+
+  test('does not change latex as the cursor moves around', function() {
+    var block = fromLatex('\\text{x}');
+    var ctrlr = Controller({ __options: 0 }, block);
+    var cursor = ctrlr.cursor.insAtRightEnd(block);
+
+    ctrlr.moveLeft();
+    ctrlr.moveLeft();
+    ctrlr.moveLeft();
+
+    assert.equal(block.latex(), '\\text{x}');
+  });
 });
