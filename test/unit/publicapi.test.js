@@ -1,43 +1,60 @@
 suite('Public API', function() {
   suite('global functions', function() {
     test('null', function() {
-      assert.equal(MathQuill(), null);
-      assert.equal(MathQuill(0), null);
-      assert.equal(MathQuill('<span/>'), null);
-      assert.equal(MathQuill($('<span/>')[0]), null);
-      assert.equal(MathQuill.MathField(), null);
-      assert.equal(MathQuill.MathField(0), null);
-      assert.equal(MathQuill.MathField('<span/>'), null);
+      assert.equal(MQ(), null);
+      assert.equal(MQ(0), null);
+      assert.equal(MQ('<span/>'), null);
+      assert.equal(MQ($('<span/>')[0]), null);
+      assert.equal(MQ.MathField(), null);
+      assert.equal(MQ.MathField(0), null);
+      assert.equal(MQ.MathField('<span/>'), null);
     });
 
-    test('MathQuill.MathField()', function() {
+    test('MQ.MathField()', function() {
       var el = $('<span>x^2</span>');
-      var mathField = MathQuill.MathField(el[0]);
-      assert.ok(mathField instanceof MathQuill.MathField);
-      assert.ok(mathField instanceof MathQuill.EditableField);
+      var mathField = MQ.MathField(el[0]);
+      assert.ok(mathField instanceof MQ.MathField);
+      assert.ok(mathField instanceof MQ.EditableField);
+      assert.ok(mathField instanceof MQ);
       assert.ok(mathField instanceof MathQuill);
     });
 
-    test('identity of API object returned by MathQuill()', function() {
+    test('interface versioning isolates prototype chain', function() {
       var mathFieldSpan = $('<span/>')[0];
-      var mathfield = MathQuill.MathField(mathFieldSpan);
-      assert.equal(MathQuill(mathFieldSpan), mathfield);
-      assert.equal(MathQuill(mathFieldSpan), MathQuill(mathFieldSpan));
+      var mathField = MQ.MathField(mathFieldSpan);
+
+      var MQ1 = MathQuill.getInterface(1);
+      assert.ok(!(mathField instanceof MQ1.MathField));
+      assert.ok(!(mathField instanceof MQ1.EditableField));
+      assert.ok(!(mathField instanceof MQ1));
+    });
+
+    test('identity of API object returned by MQ()', function() {
+      var mathFieldSpan = $('<span/>')[0];
+      var mathField = MQ.MathField(mathFieldSpan);
+
+      assert.ok(MQ(mathFieldSpan) !== mathField);
+
+      assert.equal(MQ(mathFieldSpan).id, mathField.id);
+      assert.equal(MQ(mathFieldSpan).id, MQ(mathFieldSpan).id);
+
+      assert.equal(MQ(mathFieldSpan).data, mathField.data);
+      assert.equal(MQ(mathFieldSpan).data, MQ(mathFieldSpan).data);
     });
 
     test('blurred when created', function() {
       var el = $('<span/>');
-      MathQuill.MathField(el[0]);
+      MQ.MathField(el[0]);
       var rootBlock = el.find('.mq-root-block');
       assert.ok(rootBlock.hasClass('mq-empty'));
       assert.ok(!rootBlock.hasClass('mq-hasCursor'));
     });
   });
 
-  suite('MathQuillBasic', function() {
+  suite('mathquill-basic', function() {
     var mq;
     setup(function() {
-      mq = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQBasic.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
@@ -62,14 +79,14 @@ suite('Public API', function() {
   suite('basic API methods', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
     });
 
     test('.revert()', function() {
-      var mq = MathQuill.MathField($('<span>some <code>HTML</code></span>')[0]);
+      var mq = MQ.MathField($('<span>some <code>HTML</code></span>')[0]);
       assert.equal(mq.revert().html(), 'some <code>HTML</code>');
     });
 
@@ -114,15 +131,17 @@ suite('Public API', function() {
       mq.latex('\\nthroot[]{}');
       assert.equal(mq.text(), 'sqrt[]()');
       mq.latex('\\frac{}{}');
-      assert.equal(mq.text(), '(/)');
+      assert.equal(mq.text(), '()/()');
       mq.latex('\\frac{3}{5}');
-      assert.equal(mq.text(), '(3/5)');
+      assert.equal(mq.text(), '(3)/(5)');
+      mq.latex('\\frac{3+2}{5-1}');
+      assert.equal(mq.text(), '(3+2)/(5-1)');
       mq.latex('\\div');
       assert.equal(mq.text(), '[/]');
       mq.latex('^{}');
-      assert.equal(mq.text(), '**');
+      assert.equal(mq.text(), '^');
       mq.latex('3^{4}');
-      assert.equal(mq.text(), '3**4');
+      assert.equal(mq.text(), '3^4');
     });
 
     test('.moveToDirEnd(dir)', function() {
@@ -138,27 +157,58 @@ suite('Public API', function() {
     });
   });
 
+  test('edit handler interface versioning', function() {
+    var count = 0;
+
+    // interface version 2 (latest)
+    var mq2 = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function(_mq) {
+          assert.equal(mq2.id, _mq.id);
+          count += 1;
+        }
+      }
+    });
+    assert.equal(count, 0);
+    mq2.latex('x^2');
+    assert.equal(count, 2); // sigh, once for postOrder and once for bubble
+
+    count = 0;
+    // interface version 1
+    var MQ1 = MathQuill.getInterface(1);
+    var mq1 = MQ1.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function(_mq) {
+          if (count <= 2) assert.equal(mq1, undefined);
+          else assert.equal(mq1.id, _mq.id);
+          count += 1;
+        }
+      }
+    });
+    assert.equal(count, 2);
+  });
+
   suite('*OutOf handlers', function() {
-    testHandlers('MathQuill.MathField() constructor', function(options) {
-      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0], options);
+    testHandlers('MQ.MathField() constructor', function(options) {
+      return MQ.MathField($('<span></span>').appendTo('#mock')[0], options);
     });
-    testHandlers('MathQuill.MathField::config()', function(options) {
-      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
+    testHandlers('MQ.MathField::config()', function(options) {
+      return MQ.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
     });
-    testHandlers('.config() on \\MathQuillMathField{} in a MathQuill.StaticMath', function(options) {
-      return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
+    testHandlers('.config() on \\MathQuillMathField{} in a MQ.StaticMath', function(options) {
+      return MQ.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
     });
-    suite('global MathQuill.config()', function() {
-      testHandlers('a MathQuill.MathField', function(options) {
-        MathQuill.config(options);
-        return MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    suite('global MQ.config()', function() {
+      testHandlers('a MQ.MathField', function(options) {
+        MQ.config(options);
+        return MQ.MathField($('<span></span>').appendTo('#mock')[0]);
       });
-      testHandlers('\\MathQuillMathField{} in a MathQuill.StaticMath', function(options) {
-        MathQuill.config(options);
-        return MathQuill.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0]).innerFields[0];
+      testHandlers('\\MathQuillMathField{} in a MQ.StaticMath', function(options) {
+        MQ.config(options);
+        return MQ.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0]).innerFields[0];
       });
       teardown(function() {
-        MathQuill.config({ handlers: undefined });
+        MQ.config({ handlers: undefined });
       });
     });
     function testHandlers(title, mathFieldMaker) {
@@ -170,23 +220,23 @@ suite('Public API', function() {
           handlers: {
             enter: function(_mq) {
               assert.equal(arguments.length, 1);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               enterCounter += 1;
             },
             upOutOf: function(_mq) {
               assert.equal(arguments.length, 1);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               upCounter += 1;
             },
             moveOutOf: function(_dir, _mq) {
               assert.equal(arguments.length, 2);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               dir = _dir;
               moveCounter += 1;
             },
             deleteOutOf: function(_dir, _mq) {
               assert.equal(arguments.length, 2);
-              assert.equal(_mq, mq);
+              assert.equal(_mq.id, mq.id);
               dir = _dir;
               deleteCounter += 1;
             }
@@ -250,7 +300,7 @@ suite('Public API', function() {
   suite('.cmd(...)', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
@@ -321,7 +371,7 @@ suite('Public API', function() {
   suite('spaceBehavesLikeTab', function() {
     var mq, rootBlock, cursor;
     test('space behaves like tab with default opts', function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
       rootBlock = mq.__controller.root;
       cursor = mq.__controller.cursor;
 
@@ -343,7 +393,7 @@ suite('Public API', function() {
     });
     test('space behaves like tab when spaceBehavesLikeTab is true', function() {
       var opts = { 'spaceBehavesLikeTab': true };
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0], opts)
+      mq = MQ.MathField( $('<span></span>').appendTo('#mock')[0], opts)
       rootBlock = mq.__controller.root;
       cursor = mq.__controller.cursor;
 
@@ -362,9 +412,9 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
     test('space behaves like tab when globally set to true', function() {
-      MathQuill.config({ spaceBehavesLikeTab: true });
+      MQ.config({ spaceBehavesLikeTab: true });
 
-      mq = MathQuill.MathField( $('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField( $('<span></span>').appendTo('#mock')[0]);
       rootBlock = mq.__controller.root;
       cursor = mq.__controller.cursor;
 
@@ -383,7 +433,7 @@ suite('Public API', function() {
     suite('default', function() {
       var mq, textarea;
       setup(function() {
-        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+        mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
         textarea = $(mq.el()).find('textarea');;
       });
       teardown(function() {
@@ -426,7 +476,7 @@ suite('Public API', function() {
     suite('statelessClipboard set to true', function() {
       var mq, textarea;
       setup(function() {
-        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0],
+        mq = MQ.MathField($('<span></span>').appendTo('#mock')[0],
                                  { statelessClipboard: true });
         textarea = $(mq.el()).find('textarea');;
       });
@@ -473,13 +523,13 @@ suite('Public API', function() {
   suite('leftRightIntoCmdGoes: "up"/"down"', function() {
     test('"up" or "down" required', function() {
       assert.throws(function() {
-        MathQuill.MathField($('<span></span>')[0], { leftRightIntoCmdGoes: 1 });
+        MQ.MathField($('<span></span>')[0], { leftRightIntoCmdGoes: 1 });
       });
     });
     suite('default', function() {
       var mq;
       setup(function() {
-        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+        mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
       });
       teardown(function() {
         $(mq.el()).remove();
@@ -579,7 +629,7 @@ suite('Public API', function() {
     suite('"up"', function() {
       var mq;
       setup(function() {
-        mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0],
+        mq = MQ.MathField($('<span></span>').appendTo('#mock')[0],
                                  { leftRightIntoCmdGoes: 'up' });
       });
       teardown(function() {
@@ -659,7 +709,7 @@ suite('Public API', function() {
 
   suite('sumStartsWithNEquals', function() {
     test('sum defaults to empty limits', function() {
-      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0]);
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
       assert.equal(mq.latex(), '');
 
       mq.cmd('\\sum');
@@ -671,7 +721,7 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
     test('sum starts with `n=`', function() {
-      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
         sumStartsWithNEquals: true
       });
       assert.equal(mq.latex(), '');
@@ -688,7 +738,7 @@ suite('Public API', function() {
 
   suite('substituteTextarea', function() {
     test('doesn\'t blow up on selection', function() {
-      var mq = MathQuill.MathField($('<span>').appendTo('#mock')[0], {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
         substituteTextarea: function() {
           return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
         }

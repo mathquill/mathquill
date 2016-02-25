@@ -18,7 +18,7 @@ Controller.open(function(_) {
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder('intentionalBlur'); // none, intentional blur: #264
-        cursor.clearSelection();
+        cursor.clearSelection().endSelection();
         blur();
       });
       $(window).on('blur', windowBlur);

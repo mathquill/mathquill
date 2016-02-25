@@ -1,7 +1,7 @@
 suite('backspace', function() {
   var mq, rootBlock, controller, cursor;
   setup(function() {
-    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     rootBlock = mq.__controller.root;
     controller = mq.__controller;
     cursor = controller.cursor;

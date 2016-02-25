@@ -105,7 +105,7 @@ suite('latex', function() {
   suite('public API', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
@@ -218,7 +218,7 @@ suite('latex', function() {
   suite('\\MathQuillMathField', function() {
     var outer, inner1, inner2;
     setup(function() {
-      outer = MathQuill.StaticMath(
+      outer = MQ.StaticMath(
         $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
         .appendTo('#mock')[0]
       );
@@ -268,12 +268,19 @@ suite('latex', function() {
       exp.latex('8');
       assert.equal(outer.latex(), '1.2345\\cdot10^8');
     });
+
+    test('separate API object', function() {
+      var outer2 = MQ(outer.el());
+      assert.equal(outer2.innerFields.length, 2);
+      assert.equal(outer2.innerFields[0].id, inner1.id);
+      assert.equal(outer2.innerFields[1].id, inner2.id);
+    });
   });
 
   suite('error handling', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();

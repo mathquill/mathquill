@@ -27,7 +27,7 @@
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill-basic.js"></script>
 <script type="text/javascript">
-MathQuill.interfaceVersion(1);
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
 var latex = $('#basic-latex').on('keydown keypress', function() {
   var prev = latex.val();
@@ -36,12 +36,13 @@ var latex = $('#basic-latex').on('keydown keypress', function() {
     if (now !== prev) mq.latex(now);
   });
 });
-var mq = MathQuill.MathField($('#basic')[0], {
+var mq = MQ.MathField($('#basic')[0], {
   autoSubscriptNumerals: true,
-  handlers: { edit: function(mq) {
+  handlers: { edit: function() {
     if (!latex.is(':focus')) latex.val(mq.latex());
   } }
 });
+latex.val(mq.latex());
 </script>
 </body>
 </html>
