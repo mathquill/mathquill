@@ -56,7 +56,7 @@ suite('text', function() {
 
   test('does not change latex as the cursor moves around', function() {
     var block = fromLatex('\\text{x}');
-    var ctrlr = Controller({ __options: 0 }, block);
+    var ctrlr = Controller(block, 0, 0);
     var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();
