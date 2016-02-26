@@ -158,7 +158,16 @@ expose:
 * `.keystroke(keys)` simulates keystrokes given a string like `"Ctrl-Home Del"`,
   a whitespace-delimited list of [key values][] with optional prefixes
 * `.typedText(text)` simulates typing text, one character at a time
-* [Experimental] `.dropEmbedded(pageX, pageY, options)` allows you to add an element that you define at the given coordinates. In `options`, include a string htmlString and functions to return the desired text and latex outputs.
+* `ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ` `.dropEmbedded(pageX, pageY, options)` insert a custom
+  embedded element at the given coordinates, where `options` is an object like:
+
+  ```js
+  {
+    htmlString: '<span class="custom-embed"></span>',
+    text: function() { return 'custom_embed'; },
+    latex: function() { return '\customEmbed'; }
+  }
+  ```
 
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
