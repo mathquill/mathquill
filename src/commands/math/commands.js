@@ -757,3 +757,13 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
 });
+
+var Embed = P(Symbol, function(_, super_) {
+  _.init = function(options) {
+    super_.init.call(this);
+    function noop () { return ""; }
+    this.text = options.text || noop;
+    this.htmlTemplate = options.htmlString || "";
+    this.latex = options.latex || noop;
+  }
+});

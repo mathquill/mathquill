@@ -158,6 +158,7 @@ expose:
 * `.keystroke(keys)` simulates keystrokes given a string like `"Ctrl-Home Del"`,
   a whitespace-delimited list of [key values][] with optional prefixes
 * `.typedText(text)` simulates typing text, one character at a time
+* [Experimental] `.dropEmbedded(pageX, pageY, options)` allows you to add an element that you define at the given coordinates. In `options`, include a string htmlString and functions to return the desired text and latex outputs.
 
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
