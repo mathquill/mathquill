@@ -489,7 +489,7 @@ var Vec =
 LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
 
 var Tilde =
-LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '&#126;', ['tilde(', ')']);
+LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
 
 function DelimsMixin(_, super_) {
   _.jQadd = function() {
