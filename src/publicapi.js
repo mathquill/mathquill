@@ -148,6 +148,7 @@ function getInterface(v) {
     _.blur = function() { this.__controller.textarea.blur(); return this; };
     _.write = function(latex) {
       this.__controller.writeLatex(latex);
+      this.__controller.scrollHoriz();
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     };
@@ -160,6 +161,7 @@ function getInterface(v) {
           cmd = klass(cmd);
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());
           cmd.createLeftOf(cursor.show());
+          this.__controller.scrollHoriz();
         }
         else /* TODO: API needs better error reporting */;
       }
@@ -196,6 +198,15 @@ function getInterface(v) {
       for (var i = 0; i < text.length; i += 1) this.__controller.typedText(text.charAt(i));
       return this;
     };
+    _.dropEmbedded = function(pageX, pageY, options) {
+      var clientX = pageX - $(window).scrollLeft();
+      var clientY = pageY - $(window).scrollTop();
+
+      var el = document.elementFromPoint(clientX, clientY);
+      this.__controller.seek($(el), pageX, pageY);
+      var cmd = Embed(options);
+      cmd.createLeftOf(this.__controller.cursor);
+    }
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;

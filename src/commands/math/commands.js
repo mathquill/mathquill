@@ -391,7 +391,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  _.textTemplate = ['(', '/', ')'];
+  _.textTemplate = ['(', ')/(', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
@@ -756,4 +756,14 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
+});
+
+var Embed = P(Symbol, function(_, super_) {
+  _.init = function(options) {
+    super_.init.call(this);
+    function noop () { return ""; }
+    this.text = options.text || noop;
+    this.htmlTemplate = options.htmlString || "";
+    this.latex = options.latex || noop;
+  }
 });

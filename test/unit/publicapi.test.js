@@ -131,9 +131,11 @@ suite('Public API', function() {
       mq.latex('\\nthroot[]{}');
       assert.equal(mq.text(), 'sqrt[]()');
       mq.latex('\\frac{}{}');
-      assert.equal(mq.text(), '(/)');
+      assert.equal(mq.text(), '()/()');
       mq.latex('\\frac{3}{5}');
-      assert.equal(mq.text(), '(3/5)');
+      assert.equal(mq.text(), '(3)/(5)');
+      mq.latex('\\frac{3+2}{5-1}');
+      assert.equal(mq.text(), '(3+2)/(5-1)');
       mq.latex('\\div');
       assert.equal(mq.text(), '[/]');
       mq.latex('^{}');
@@ -335,6 +337,34 @@ suite('Public API', function() {
     test('nonexistent LaTeX command is noop', function() {
       mq.typedText('49').select().cmd('\\asdf').cmd('\\sqrt');
       assert.equal(mq.latex(), '\\sqrt{49}');
+    });
+
+    test('overflow triggers automatic horizontal scroll', function(done) {
+      var mqEl = mq.el();
+      var rootEl = mq.__controller.root.jQ[0];
+      var cursor = mq.__controller.cursor;
+
+      $(mqEl).width(10);
+      var previousScrollLeft = rootEl.scrollLeft;
+
+      mq.cmd("\\alpha");
+      setTimeout(afterScroll, 150);
+
+      function afterScroll() {
+        cursor.show();
+
+        try {
+          assert.ok(rootEl.scrollLeft > previousScrollLeft, "scrolls on cmd");
+          assert.ok(mqEl.getBoundingClientRect().right > cursor.jQ[0].getBoundingClientRect().right,
+            "cursor right end is inside the field");
+        }
+        catch(error) {
+          done(error);
+          return;
+        }
+
+        done();
+      }
     });
   });
 
@@ -718,6 +748,51 @@ suite('Public API', function() {
       mq.write('asdf');
       mq.select();
 
+      $(mq.el()).remove();
+    });
+  });
+
+  suite('dropEmbedded', function() {
+    test('inserts into empty', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {});
+      mq.dropEmbedded(0, 0, {
+       htmlString: '<span class="test-span">EMBED HTML FN</span>',
+       text: function () { return "embeded text" },
+       latex: function () { return "embeded latex" }
+      });
+
+      assert.ok(jQuery('.test-span').length);
+      assert.equal(mq.text(), "embeded text");
+      assert.equal(mq.latex(), "embeded latex");
+
+      $(mq.el()).remove();
+    });
+    test('inserts at coordinates', function() {
+      // Insert filler so that the page is taller than the window so this test is deterministic
+      // Test that we use clientY instead of pageY
+      var windowHeight = $(window).height();
+      var filler = $('<div>').height(windowHeight);
+      filler.insertBefore('#mock');
+
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {});
+      mq.typedText("mmmm/mmmm");
+      var pos = $(mq.el()).offset();
+      var mqx = pos.left;
+      var mqy = pos.top;
+
+      mq.el().scrollIntoView();
+
+      mq.dropEmbedded(mqx + 30, mqy + 40, {
+       htmlString: '<span class="test-span">EMBED HTML FN</span>',
+       text: function () { return "embeded text" },
+       latex: function () { return "embeded latex" }
+      });
+
+      assert.ok(jQuery('.test-span').length);
+      assert.equal(mq.text(), "(m*m*m*m)/(m*m*embeded text*m*m)");
+      assert.equal(mq.latex(), "\\frac{mmmm}{mmembeded latexmm}");
+
+      filler.remove();
       $(mq.el()).remove();
     });
   });
