@@ -494,9 +494,7 @@ The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
 License, v. 2.0: http://mozilla.org/MPL/2.0/
 
 The quick-and-dirty is you can do whatever if modifications to MathQuill are in
-public GitHub forks.
-
-Other ways to publicize modifications are also fine, as are private use
-modifications. See also: [MPL 2.0 FAQ][]
+public GitHub forks. (Other ways to publicize modifications are also fine, as
+are private use modifications. See also: [MPL 2.0 FAQ][])
 
 [MPL 2.0 FAQ]: https://www.mozilla.org/en-US/MPL/2.0/FAQ/
