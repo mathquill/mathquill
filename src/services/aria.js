@@ -44,3 +44,6 @@ var Aria = P(function(_) {
     this.text = "";
   };
 });
+
+// We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
+var aria = Aria();
