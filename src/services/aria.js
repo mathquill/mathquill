@@ -34,7 +34,8 @@ var Aria = P(function(_) {
     }
   };
 
-  _.alert = function() {
+  _.alert = function(t) {
+    if(t!=="") this.queue(t, true);
     if(this.text) this.jQ.empty().html(this.text);
     this.clear();
   };
