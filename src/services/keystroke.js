@@ -149,7 +149,6 @@ Node.open(function(_) {
 
 Controller.open(function(_) {
   this.onNotify(function(e) {
-    aria.alert(e);
     if (e === 'move' || e === 'upDown') this.show().clearSelection();
   });
   _.escapeDir = function(dir, key, e) {
