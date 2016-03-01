@@ -19,10 +19,38 @@ var Aria = P(function(_) {
     if (!jQuery(el).length) jQuery('body').append("<div role='alert' aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></div>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
     this.jQ = jQuery(el);
     this.text = "";
+    this.repDict = {
+      "+": " plus ",
+      "-": " minus ",
+      "*": " times ",
+      "/": " over ",
+      "^": " exponent ",
+      "=": " equals ",
+      "(": " left paren ",
+      ")": " right paren ",
+      "frac": "fraction",
+      "sqrt": "square root"
+    };
   };
 
-  _.queue = function(t, shouldAppend) {
-    var spaceChar = " ";
+  _.massageText = function(t) {
+    for(var key in this.repDict) {
+      if (this.repDict.hasOwnProperty(key)) t = t.replace(key, this.repDict[key]);
+    }
+    return t;
+  };
+
+
+  _.queue = function(item, shouldAppend) {
+    var t = "", spaceChar = " ";
+    if(typeof(item) === 'object' ) {
+      if(item.text) t = item.text();
+      else if(item.ctrlSeq) t = item.ctrlSeq;
+      else if(item.ch) t = item.ch;
+      t = this.massageText(t);
+    }
+    else t = item;
+
     if(this.text === "" || t === "") spaceChar = "";
     if(t) {
       if (shouldAppend) {
@@ -35,7 +63,7 @@ var Aria = P(function(_) {
   };
 
   _.alert = function(t) {
-    if(t!=="") this.queue(t, true);
+    if(t) this.queue(t, true);
     if(this.text) this.jQ.empty().html(this.text);
     this.clear();
   };
@@ -44,3 +72,6 @@ var Aria = P(function(_) {
     this.text = "";
   };
 });
+
+// We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
+var aria = Aria();
