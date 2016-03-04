@@ -34,7 +34,7 @@ var Aria = P(function(_) {
   };
 
   _.massageText = function(t) {
-    for(var key in this.repDict) {
+    for (var key in this.repDict) {
       if (this.repDict.hasOwnProperty(key)) t = t.replace(key, this.repDict[key]);
     }
     return t;
