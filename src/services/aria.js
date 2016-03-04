@@ -75,3 +75,9 @@ var Aria = P(function(_) {
 
 // We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
 var aria = Aria();
+
+Controller.open(function(_) {
+  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
+  // and http://www.gh-mathspeak.com/examples/grammar-rules/
+  _.exportMathSpeak = function() { return this.root.mathspeak(); };
+});

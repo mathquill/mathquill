@@ -155,6 +155,11 @@ suite('Public API', function() {
       assert.equal(mq.__controller.cursor[L].ctrlSeq, '0');
       assert.equal(mq.__controller.cursor[R], 0);
     });
+
+    test('.mathspeak()', function() {
+      mq.latex('\\frac{d}{dx}\\sqrt{x}');
+      assert.equal(mq.mathspeak(), 'StartFraction d Over d x EndFraction StartRoot x EndRoot');
+    });
   });
 
   test('edit handler interface versioning', function() {

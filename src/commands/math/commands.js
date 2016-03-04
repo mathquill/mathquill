@@ -290,6 +290,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
+  _.mathspeakTemplate = [ 'Subscript', 'Baseline' ];
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
@@ -307,6 +308,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
+  _.mathspeakTemplate = [ 'Superscript', 'Baseline' ];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -392,6 +394,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['(', ')/(', ')'];
+  _.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
@@ -440,6 +443,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
+  _.mathspeakTemplate = ['StartRoot', 'EndRoot'];
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
@@ -720,6 +724,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
+  _.mathspeakTemplate = ['StartBinomial', 'Choose', 'EndBinomial'];
 });
 
 var Choose =
