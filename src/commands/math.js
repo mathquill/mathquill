@@ -325,7 +325,7 @@ var Symbol = P(MathCommand, function(_, super_) {
   };
 
   _.latex = function(){ return this.ctrlSeq; };
-  _.text = function(){ return this.textTemplate; };
+  _.text = function(){ return this.textTemplate.join(''); };
   _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
