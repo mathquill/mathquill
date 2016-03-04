@@ -27,8 +27,8 @@ var Aria = P(function(_) {
   };
 
   _.alert = function(t) {
-    if(t) this.queue(t);
-    if(this.items.length) this.jQ.empty().html(this.items.join(' '));
+    if (t) this.queue(t);
+    if (this.items.length) this.jQ.empty().html(this.items.join(' '));
     this.clear();
   };
 
