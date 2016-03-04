@@ -57,7 +57,6 @@ var Cursor = P(Point, function(_) {
     // by contract, .blur() is called after all has been said and done
     // and the cursor has actually been moved
     if (oldParent !== parent && oldParent.blur) oldParent.blur();
-    aria.queue(withDir);
   };
   _.insDirOf = function(dir, el) {
     prayDirection(dir);

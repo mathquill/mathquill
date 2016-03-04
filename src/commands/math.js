@@ -106,6 +106,8 @@ var MathCommand = P(MathElement, function(_, super_) {
   _.moveTowards = function(dir, cursor, updown) {
     var updownInto = updown && this[updown+'Into'];
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
+    aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel+'.')
+        .queue('Of').queue(cursor.parent.parent);
   };
   _.deleteTowards = function(dir, cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
@@ -321,6 +323,7 @@ var Symbol = P(MathCommand, function(_, super_) {
     cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir] = this;
     cursor[dir] = this[dir];
+    aria.queue(this);
   };
   _.deleteTowards = function(dir, cursor) {
     cursor[dir] = this.remove()[dir];
@@ -377,6 +380,7 @@ var MathBlock = P(MathElement, function(_, super_) {
       return speechArray;
     }).join(' ');
   };
+  _.ariaLabel = 'block';
 
   _.keystroke = function(key, e, ctrlr) {
     if (ctrlr.options.spaceBehavesLikeTab
@@ -393,8 +397,17 @@ var MathBlock = P(MathElement, function(_, super_) {
   // the cursor
   _.moveOutOf = function(dir, cursor, updown) {
     var updownInto = updown && this.parent[updown+'Into'];
-    if (!updownInto && this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
-    else cursor.insDirOf(dir, this.parent);
+    if (!updownInto && this[dir]) {
+      cursor.insAtDirEnd(-dir, this[dir]);
+      aria.queue('from').queueDirEndOf(dir).queue(this.ariaLabel)
+          .queue('to').queueDirEndOf(-dir).queue(cursor.parent.ariaLabel+'.')
+          .queue('Of').queue(cursor.parent.parent);
+    }
+    else {
+      cursor.insDirOf(dir, this.parent);
+      aria.queue('from').queueDirEndOf(dir).queue(this.ariaLabel)
+          .queue('to').queueDirOf(dir).queue(this.parent);
+    }
   };
   _.selectOutOf = function(dir, cursor) {
     cursor.insDirOf(dir, this.parent);
