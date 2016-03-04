@@ -53,19 +53,19 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-End -> select to the end of the root block.
+    // Ctrl-Shift-End -> select all the way to the end of the root block.
     case 'Ctrl-Shift-End':
       while (cursor[R] || cursor.parent !== ctrlr.root) {
         ctrlr.selectRight();
       }
       break;
 
-    // Home -> move to the start of the root block or the current block.
+    // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
       break;
 
-    // Ctrl-Home -> move to the start of the root block.
+    // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
       break;
@@ -77,7 +77,7 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-Home -> select to the start of the root block.
+    // Ctrl-Shift-Home -> select all the way to the start of the root block.
     case 'Ctrl-Shift-Home':
       while (cursor[L] || cursor.parent !== ctrlr.root) {
         ctrlr.selectLeft();
