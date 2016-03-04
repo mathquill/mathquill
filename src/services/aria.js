@@ -26,6 +26,14 @@ var Aria = P(function(_) {
     this.items.push(item);
     return this;
   };
+  _.queueDirOf = function(dir) {
+    prayDirection(dir);
+    return this.queue(dir === L ? 'before' : 'after');
+  };
+  _.queueDirEndOf = function(dir) {
+    prayDirection(dir);
+    return this.queue(dir === L ? 'start of' : 'end of');
+  };
 
   _.alert = function(t) {
     if (t) this.queue(t);

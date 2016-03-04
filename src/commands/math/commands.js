@@ -398,6 +398,8 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
+    this.ends[L].ariaLabel = 'numerator';
+    this.ends[R].ariaLabel = 'denominator';
   };
 });
 
