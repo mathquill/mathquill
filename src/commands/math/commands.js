@@ -468,6 +468,17 @@ var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
   _.textTemplate = ['vec(', ')'];
 });
 
+var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\hat';
+  _.htmlTemplate =
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-hat-prefix">^</span>'
+    +   '<span class="mq-hat-stem">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['hat(', ')'];
+});
+
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
