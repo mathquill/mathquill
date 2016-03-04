@@ -18,60 +18,40 @@ var Aria = P(function(_) {
     // No matter how many Mathquill instances exist, we only need one alert object to say something.
     if (!jQuery(el).length) jQuery('body').append("<div role='alert' aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></div>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
     this.jQ = jQuery(el);
-    this.text = "";
-    this.repDict = {
-      "+": " plus ",
-      "-": " minus ",
-      "*": " times ",
-      "/": " over ",
-      "^": " exponent ",
-      "=": " equals ",
-      "(": " left paren ",
-      ")": " right paren ",
-      "frac": "fraction",
-      "sqrt": "square root"
-    };
+    this.items = [];
   };
 
-  _.massageText = function(t) {
-    for(var key in this.repDict) {
-      if (this.repDict.hasOwnProperty(key)) t = t.replace(key, this.repDict[key]);
-    }
-    return t;
+  _.queue = function(item) {
+    if (item instanceof Node) item = item.mathspeak();
+    this.items.push(item);
+    return this;
   };
-
-
-  _.queue = function(item, shouldAppend) {
-    var t = "", spaceChar = " ";
-    if(typeof(item) === 'object' ) {
-      if(item.text) t = item.text();
-      else if(item.ctrlSeq) t = item.ctrlSeq;
-      else if(item.ch) t = item.ch;
-      t = this.massageText(t);
-    }
-    else t = item;
-
-    if(this.text === "" || t === "") spaceChar = "";
-    if(t) {
-      if (shouldAppend) {
-        this.text = this.text + spaceChar + t;
-      }
-      else {
-        this.text = t + spaceChar + this.text;
-      }
-    }
+  _.queueDirOf = function(dir) {
+    prayDirection(dir);
+    return this.queue(dir === L ? 'before' : 'after');
+  };
+  _.queueDirEndOf = function(dir) {
+    prayDirection(dir);
+    return this.queue(dir === L ? 'start of' : 'end of');
   };
 
   _.alert = function(t) {
-    if(t) this.queue(t, true);
-    if(this.text) this.jQ.empty().html(this.text);
-    this.clear();
+    if (t) this.queue(t);
+    if (this.items.length) this.jQ.empty().html(this.items.join(' '));
+    return this.clear();
   };
 
   _.clear = function() {
-    this.text = "";
+    this.items.length = 0;
+    return this;
   };
 });
 
 // We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
 var aria = Aria();
+
+Controller.open(function(_) {
+  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
+  // and http://www.gh-mathspeak.com/examples/grammar-rules/
+  _.exportMathSpeak = function() { return this.root.mathspeak(); };
+});

@@ -114,6 +114,7 @@ function getInterface(v) {
     _.config = function(opts) { config(this.__options, opts); return this; };
     _.el = function() { return this.__controller.container[0]; };
     _.text = function() { return this.__controller.exportText(); };
+    _.mathspeak = function() { return this.__controller.exportMathSpeak(); };
     _.latex = function(latex) {
       if (arguments.length > 0) {
         this.__controller.renderLatexMath(latex);

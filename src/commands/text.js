@@ -72,6 +72,7 @@ var TextBlock = P(Node, function(_, super_) {
       + '</span>'
     );
   };
+  _.mathspeak = function() { return { speech: this.text() }; };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and

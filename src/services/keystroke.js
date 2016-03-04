@@ -53,19 +53,19 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-End -> select to the end of the root block.
+    // Ctrl-Shift-End -> select all the way to the end of the root block.
     case 'Ctrl-Shift-End':
       while (cursor[R] || cursor.parent !== ctrlr.root) {
         ctrlr.selectRight();
       }
       break;
 
-    // Home -> move to the start of the root block or the current block.
+    // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
       break;
 
-    // Ctrl-Home -> move to the start of the root block.
+    // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
       break;
@@ -77,7 +77,7 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-Home -> select to the start of the root block.
+    // Ctrl-Shift-Home -> select all the way to the start of the root block.
     case 'Ctrl-Shift-Home':
       while (cursor[L] || cursor.parent !== ctrlr.root) {
         ctrlr.selectLeft();
@@ -162,8 +162,8 @@ Controller.open(function(_) {
     // default browser action if so)
     if (cursor.parent === this.root) return;
 
-    if (dir === L) aria.queue("escape left", true);
-    else aria.queue("escape right", true);
+    if (dir === L) aria.queue("escape left");
+    else aria.queue("escape right");
     cursor.parent.moveOutOf(dir, cursor);
     return this.notify('move');
   };
@@ -227,7 +227,7 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if(cursor[dir]) aria.queue(cursor[dir], true);
+    if (cursor[dir]) aria.queue(cursor[dir]);
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
@@ -281,7 +281,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if(cursor.selection) aria.queue(cursor.selection.join('latex') + " selected", true);
+    if (cursor.selection) aria.queue(cursor.selection.join('latex') + " selected");
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };

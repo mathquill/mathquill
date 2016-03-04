@@ -290,6 +290,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
+  _.mathspeakTemplate = [ 'Subscript', 'Baseline' ];
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
@@ -307,6 +308,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
+  _.mathspeakTemplate = [ 'Superscript', 'Baseline' ];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -392,9 +394,12 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['(', ')/(', ')'];
+  _.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
+    this.ends[L].ariaLabel = 'numerator';
+    this.ends[R].ariaLabel = 'denominator';
   };
 });
 
@@ -440,6 +445,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
+  _.mathspeakTemplate = ['StartRoot', 'EndRoot'];
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
@@ -524,6 +530,16 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   };
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
+  };
+  _.mathspeak = function() {
+    var open = this.sides[L].ch, close = this.sides[R].ch;
+    if (open === '|' && close === '|') {
+      this.mathspeakTemplate = ['StartAbsoluteValue', 'EndAbsoluteValue'];
+    }
+    else {
+      this.mathspeakTemplate = ['left-' + BRACKET_NAMES[open], 'right-' + BRACKET_NAMES[close]];
+    }
+    return super_.mathspeak.call(this);
   };
   _.oppBrack = function(opts, node, expectedSide) {
     // return node iff it's a 1-sided bracket of expected side (if any, may be
@@ -659,17 +675,25 @@ var OPP_BRACKS = {
   '|': '|'
 };
 
-function bindCharBracketPair(open, ctrlSeq) {
+var BRACKET_NAMES = {
+  '&lang;': 'angle-bracket',
+  '&rang;': 'angle-bracket',
+  '|': 'pipe'
+};
+
+function bindCharBracketPair(open, ctrlSeq, name) {
   var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
   CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
   CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+  BRACKET_NAMES[open] = BRACKET_NAMES[close] = name;
 }
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
+bindCharBracketPair('(', null, 'parenthesis');
+bindCharBracketPair('[', null, 'bracket');
+bindCharBracketPair('{', '\\{', 'brace');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -720,6 +744,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
+  _.mathspeakTemplate = ['StartBinomial', 'Choose', 'EndBinomial'];
 });
 
 var Choose =
