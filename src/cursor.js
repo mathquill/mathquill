@@ -57,7 +57,7 @@ var Cursor = P(Point, function(_) {
     // by contract, .blur() is called after all has been said and done
     // and the cursor has actually been moved
     if (oldParent !== parent && oldParent.blur) oldParent.blur();
-    aria.queue(withDir, true);
+    aria.queue(withDir);
   };
   _.insDirOf = function(dir, el) {
     prayDirection(dir);
@@ -98,8 +98,8 @@ var Cursor = P(Point, function(_) {
       var pageX = self.offset().left;
       to.seek(pageX, self);
     }
-    if (this[L]) aria.queue(this[L], true);
-    else if (this[R]) aria.queue(this[R], true);
+    if (this[L]) aria.queue(this[L]);
+    else if (this[R]) aria.queue(this[R]);
   };
   _.offset = function() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()

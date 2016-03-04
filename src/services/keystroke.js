@@ -162,8 +162,8 @@ Controller.open(function(_) {
     // default browser action if so)
     if (cursor.parent === this.root) return;
 
-    if (dir === L) aria.queue("escape left", true);
-    else aria.queue("escape right", true);
+    if (dir === L) aria.queue("escape left");
+    else aria.queue("escape right");
     cursor.parent.moveOutOf(dir, cursor);
     return this.notify('move');
   };
@@ -227,7 +227,7 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (cursor[dir]) aria.queue(cursor[dir], true);
+    if (cursor[dir]) aria.queue(cursor[dir]);
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
@@ -281,7 +281,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.queue(cursor.selection.join('latex') + " selected", true);
+    if (cursor.selection) aria.queue(cursor.selection.join('latex') + " selected");
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };

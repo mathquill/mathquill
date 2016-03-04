@@ -21,24 +21,19 @@ var Aria = P(function(_) {
     this.text = "";
   };
 
-  _.queue = function(item, shouldAppend) {
+  _.queue = function(item) {
     var t = "", spaceChar = " ";
     if (item instanceof Node) t = item.mathspeak();
     else t = item;
 
     if(this.text === "" || t === "") spaceChar = "";
     if(t) {
-      if (shouldAppend) {
-        this.text = this.text + spaceChar + t;
-      }
-      else {
-        this.text = t + spaceChar + this.text;
-      }
+      this.text = this.text + spaceChar + t;
     }
   };
 
   _.alert = function(t) {
-    if(t) this.queue(t, true);
+    if(t) this.queue(t);
     if(this.text) this.jQ.empty().html(this.text);
     this.clear();
   };
