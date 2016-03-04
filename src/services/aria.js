@@ -24,16 +24,18 @@ var Aria = P(function(_) {
   _.queue = function(item) {
     if (item instanceof Node) item = item.mathspeak();
     this.items.push(item);
+    return this;
   };
 
   _.alert = function(t) {
     if (t) this.queue(t);
     if (this.items.length) this.jQ.empty().html(this.items.join(' '));
-    this.clear();
+    return this.clear();
   };
 
   _.clear = function() {
     this.items.length = 0;
+    return this;
   };
 });
 
