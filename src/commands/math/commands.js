@@ -529,6 +529,16 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
+  _.mathspeak = function() {
+    var open = this.sides[L].ch, close = this.sides[R].ch;
+    if (open === '|' && close === '|') {
+      this.mathspeakTemplate = ['StartAbsoluteValue', 'EndAbsoluteValue'];
+    }
+    else {
+      this.mathspeakTemplate = ['left-' + BRACKET_NAMES[open], 'right-' + BRACKET_NAMES[close]];
+    }
+    return super_.mathspeak.call(this);
+  };
   _.oppBrack = function(opts, node, expectedSide) {
     // return node iff it's a 1-sided bracket of expected side (if any, may be
     // undefined), and of opposite side from me if I'm not a pipe
@@ -663,17 +673,25 @@ var OPP_BRACKS = {
   '|': '|'
 };
 
-function bindCharBracketPair(open, ctrlSeq) {
+var BRACKET_NAMES = {
+  '&lang;': 'angle-bracket',
+  '&rang;': 'angle-bracket',
+  '|': 'pipe'
+};
+
+function bindCharBracketPair(open, ctrlSeq, name) {
   var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
   CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
   CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+  BRACKET_NAMES[open] = BRACKET_NAMES[close] = name;
 }
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
+bindCharBracketPair('(', null, 'parenthesis');
+bindCharBracketPair('[', null, 'bracket');
+bindCharBracketPair('{', '\\{', 'brace');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {

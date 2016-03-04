@@ -302,9 +302,10 @@ var MathCommand = P(MathElement, function(_, super_) {
  * Lightweight command without blocks or children.
  */
 var Symbol = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, html, text) {
+  _.init = function(ctrlSeq, html, text, mathspeak) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
+    this.mathspeakName = mathspeak || text;
     super_.init.call(this, ctrlSeq, html, [ text ]);
   };
 
@@ -333,20 +334,20 @@ var Symbol = P(MathCommand, function(_, super_) {
   };
 
   _.latex = function(){ return this.ctrlSeq; };
-  _.mathspeak =
   _.text = function(){ return this.textTemplate.join(''); };
+  _.mathspeak = function(){ return this.mathspeakName; };
   _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
 var VanillaSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+  _.init = function(ch, html, mathspeak) {
+    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
 });
 var BinaryOperator = P(Symbol, function(_, super_) {
-  _.init = function(ctrlSeq, html, text) {
+  _.init = function(ctrlSeq, html, text, mathspeak) {
     super_.init.call(this,
-      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak
     );
   };
 });

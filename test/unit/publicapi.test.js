@@ -159,6 +159,19 @@ suite('Public API', function() {
     test('.mathspeak()', function() {
       mq.latex('\\frac{d}{dx}\\sqrt{x}');
       assert.equal(mq.mathspeak(), 'StartFraction d Over d x EndFraction StartRoot x EndRoot');
+
+      mq.latex('1+2-3\\cdot\\frac{5}{6^7}=\\left(8+9\\right)');
+      assert.equal(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 Superscript 7 Baseline EndFraction equals left-parenthesis 8 plus 9 right-parenthesis');
+
+      // Example 13 from http://www.gh-mathspeak.com/examples/quick-tutorial/index.php?verbosity=v&explicitness=2&interp=0
+      mq.latex('d=\\sqrt{ \\left( x_2 - x_1 \\right)^2 - \\left( y_2 - y_1 \\right)^2 }');
+      assert.equal(mq.mathspeak(), 'd equals StartRoot left-parenthesis x Subscript 2 Baseline minus x Subscript 1 Baseline right-parenthesis Superscript 2 Baseline minus left-parenthesis y Subscript 2 Baseline minus y Subscript 1 Baseline right-parenthesis Superscript 2 Baseline EndRoot');
+
+      mq.latex('').typedText('\\langle').keystroke('Spacebar').typedText('u,v'); // .latex() doesn't work yet for angle brackets :(
+      assert.equal(mq.mathspeak(), 'left-angle-bracket u , v right-angle-bracket');
+
+      mq.latex('\\left| x \\right| + \\left( y \\right|');
+      assert.equal(mq.mathspeak(), 'StartAbsoluteValue x EndAbsoluteValue plus left-parenthesis y right-pipe');
     });
   });
 

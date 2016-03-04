@@ -406,16 +406,16 @@ var PlusMinus = P(BinaryOperator, function(_) {
   };
 });
 
-LatexCmds['+'] = bind(PlusMinus, '+', '+');
+LatexCmds['+'] = bind(PlusMinus, '+', '+', 'plus');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
-LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;');
+LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;', 'minus');
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
-  bind(PlusMinus,'\\pm ','&plusmn;');
+  bind(PlusMinus,'\\pm ','&plusmn;', 'plus-or-minus');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
-  bind(PlusMinus,'\\mp ','&#8723;');
+  bind(PlusMinus,'\\mp ','&#8723;', 'minus-or-plus');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;');
+  bind(BinaryOperator, '\\cdot ', '&middot;', '*', 'times');
 //semantically should be &sdot;, but &middot; looks better
 
 var Inequality = P(BinaryOperator, function(_, super_) {
@@ -455,7 +455,7 @@ LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, fals
 
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
-    super_.init.call(this, '=', '=');
+    super_.init.call(this, '=', '=', '=', 'equals');
   };
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
