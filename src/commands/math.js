@@ -288,6 +288,14 @@ var MathCommand = P(MathElement, function(_, super_) {
       return text + child.text() + (cmd.textTemplate[i] || '');
     });
   };
+  _.mathspeakTemplate = [];
+  _.mathspeak = function() {
+    var cmd = this, i = 0;
+    return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq, function(speech, block) {
+      i += 1;
+      return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i] || 'End'+cmd.ctrlSeq);
+    });
+  };
 });
 
 /**
@@ -325,6 +333,7 @@ var Symbol = P(MathCommand, function(_, super_) {
   };
 
   _.latex = function(){ return this.ctrlSeq; };
+  _.mathspeak =
   _.text = function(){ return this.textTemplate.join(''); };
   _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
@@ -360,6 +369,12 @@ var MathBlock = P(MathElement, function(_, super_) {
       this.ends[L].text() :
       this.join('text')
     ;
+  };
+  _.mathspeak = function() {
+    return this.foldChildren([], function(speechArray, cmd) {
+      speechArray.push(cmd.mathspeak());
+      return speechArray;
+    }).join(' ');
   };
 
   _.keystroke = function(key, e, ctrlr) {
