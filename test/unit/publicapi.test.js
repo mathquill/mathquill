@@ -796,4 +796,19 @@ suite('Public API', function() {
       $(mq.el()).remove();
     });
   });
+
+  test('.registerEmbed()', function() {
+    MQ.registerEmbed('thing', {
+      htmlString: '<span class="embedded-html"></span>',
+      text: function () { return "embedded text" },
+      latex: function () { return "embedded latex" }
+    });
+    var mq = MQ.MathField($('<span>\\sqrt{\\embed{thing}}</span>').appendTo('#mock')[0]);
+
+    assert.ok(jQuery('.embedded-html').length);
+    assert.equal(mq.text(), "sqrt(embedded text)");
+    assert.equal(mq.latex(), "\\sqrt{embedded latex}");
+
+    $(mq.el()).remove();
+  });
 });
