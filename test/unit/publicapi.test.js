@@ -798,12 +798,27 @@ suite('Public API', function() {
   });
 
   test('.registerEmbed()', function() {
-    MQ.registerEmbed('thing', {
-      htmlString: '<span class="embedded-html"></span>',
-      text: function () { return "embedded text" },
-      latex: function () { return "embedded latex" }
+    var calls = 0, data;
+    MQ.registerEmbed('thing', function(data_) {
+      calls += 1;
+      data = data_;
+      return {
+        htmlString: '<span class="embedded-html"></span>',
+        text: function () { return "embedded text" },
+        latex: function () { return "embedded latex" }
+      };
     });
     var mq = MQ.MathField($('<span>\\sqrt{\\embed{thing}}</span>').appendTo('#mock')[0]);
+    assert.equal(calls, 1);
+    assert.equal(data, undefined);
+
+    assert.ok(jQuery('.embedded-html').length);
+    assert.equal(mq.text(), "sqrt(embedded text)");
+    assert.equal(mq.latex(), "\\sqrt{embedded latex}");
+
+    mq.latex('\\sqrt{\\embed{thing}[data]}');
+    assert.equal(calls, 2);
+    assert.equal(data, 'data');
 
     assert.ok(jQuery('.embedded-html').length);
     assert.equal(mq.text(), "sqrt(embedded text)");

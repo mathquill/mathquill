@@ -777,7 +777,11 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     var self = this;
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
-      .map(function(name) { return self.setOptions(EMBEDS[name]); })
+      .then(function(name) {
+        return latexMathParser.optBlock.or(succeed()).map(function(data) {
+          return self.setOptions(EMBEDS[name](data));
+        });
+      })
     ;
   };
 });
