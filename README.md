@@ -168,6 +168,7 @@ expose:
     latex: function() { return '\customEmbed'; }
   }
   ```
+* `ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ` `.registerEmbed('name', function(id){return options})` allows MathQuill to parse custom embedded objects from latex, where `options` is an object like the one defined above in `.dropEmbedded`. This will parse the following latex into the embedded object you defined: `\embed{name}[id]}`
 
 [on `textarea`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622
 [on `input`s]: http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168
