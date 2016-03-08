@@ -162,7 +162,7 @@ var saneKeyboardEvents = (function() {
         var keyVal = KEY_VALUES[which];
        
 	//handle copy/paste keystrokes, control sequences
-	if (e.ctrlKey) {
+	if (e.ctrlKey || (e.originalEvent && e.originalEvent.metaKey)) {
 	  var chr = String.fromCharCode(which);
 	  if (chr=='C') {
 	    onSoftCopy();
