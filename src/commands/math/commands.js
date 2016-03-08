@@ -778,9 +778,13 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
       .then(function(name) {
-        return latexMathParser.optBlock.or(succeed()).map(function(data) {
-          return self.setOptions(EMBEDS[name](data));
-        });
+        // the chars allowed in the optional data block are arbitrary other than
+        // excluding curly braces and square brackets (which'd be too confusing)
+        return string('[').then(regex(/^[-\w\s]*/)).skip(string(']'))
+          .or(succeed()).map(function(data) {
+            return self.setOptions(EMBEDS[name](data));
+          })
+        ;
       })
     ;
   };
