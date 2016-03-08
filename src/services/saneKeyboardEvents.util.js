@@ -166,6 +166,8 @@ var saneKeyboardEvents = (function() {
 	  var chr = String.fromCharCode(which);
 	  if (chr=='C') {
 	    onSoftCopy();
+	  } else if (chr=='X') {
+	    onSoftCut();
 	  } else if (chr=='V') {
 	    onSoftPaste();
 	  } else {
@@ -180,10 +182,18 @@ var saneKeyboardEvents = (function() {
       	handleKey();
       }
     }
-    function onSoftCopy(evt) {
-      window.MathQuillClipboard = handlers.cursor.selection.join('latex');
+    function onSoftCopy() {
+      if (handlers.cursor.selection) {
+        window.MathQuillClipboard = handlers.cursor.selection.join('latex');
+      }
     }
-    function onSoftPaste(evt) {
+    function onSoftCut() {
+      if (handlers.cursor.selection) {
+        window.MathQuillClipboard = handlers.cursor.selection.join('latex');
+        handlers.cursor.deleteSelection();
+      }
+    }
+    function onSoftPaste() {
       if (window.MathQuillClipboard) {
         handlers.writeLatex(window.MathQuillClipboard);
       }
