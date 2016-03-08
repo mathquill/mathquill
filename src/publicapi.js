@@ -2,7 +2,7 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
+var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {};
 
 /**
  * Interface Versioning (#459, #495) to allow us to virtually guarantee
@@ -88,6 +88,12 @@ function getInterface(v) {
     }
   }
   MQ.config = function(opts) { config(Options.p, opts); return this; };
+  MQ.registerEmbed = function(name, options) {
+    if (!/^[a-z][a-z0-9]*$/i.test(name)) {
+      throw 'Embed name must start with letter and be only letters and digits';
+    }
+    EMBEDS[name] = options;
+  };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
@@ -204,9 +210,9 @@ function getInterface(v) {
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
-      var cmd = Embed(options);
+      var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
-    }
+    };
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;

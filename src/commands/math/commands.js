@@ -758,12 +758,30 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.text = function(){ return this.ends[L].text(); };
 });
 
-var Embed = P(Symbol, function(_, super_) {
-  _.init = function(options) {
-    super_.init.call(this);
+// Embed arbitrary things
+// Probably the closest DOM analogue would be an iframe?
+// From MathQuill's perspective, it's a Symbol, it can be
+// anywhere and the cursor can go around it but never in it.
+// Create by calling public API method .dropEmbedded(),
+// or by calling the global public API method .registerEmbed()
+// and rendering LaTeX like \embed{registeredName} (see test).
+var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
+  _.setOptions = function(options) {
     function noop () { return ""; }
     this.text = options.text || noop;
     this.htmlTemplate = options.htmlString || "";
     this.latex = options.latex || noop;
-  }
+    return this;
+  };
+  _.parser = function() {
+    var self = this;
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
+      .then(function(name) {
+        return latexMathParser.optBlock.or(succeed()).map(function(data) {
+          return self.setOptions(EMBEDS[name](data));
+        });
+      })
+    ;
+  };
 });
