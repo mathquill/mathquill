@@ -166,15 +166,18 @@ var saneKeyboardEvents = (function() {
 	  var chr = String.fromCharCode(which);
 	  if (chr=='C') {
 	    onSoftCopy();
+	    usedkeydown = true;
 	  } else if (chr=='X') {
 	    onSoftCut();
+	    usedkeydown = true;
 	  } else if (chr=='V') {
 	    onSoftPaste();
-	  } else {
+	    usedkeydown = true;
+	  } else if (chr=='A' || keyVal) {
 	    handleKey();
+	    usedkeydown = true;
 	  }
-	  usedkeydown = true;
-	} else if (keyVal || (e.originalEvent && e.originalEvent.metaKey) || e.altKey) {
+	} else if (keyVal) {
 	  handleKey();
 	  usedkeydown = true;
 	}
