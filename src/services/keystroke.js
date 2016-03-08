@@ -281,7 +281,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.queue(cursor.selection.join('latex') + " selected");
+    if (cursor.selection) aria.queue(cursor.selection.join('mathspeak') + " selected");
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
