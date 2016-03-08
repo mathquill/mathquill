@@ -91,7 +91,8 @@ var saneKeyboardEvents = (function() {
   return function saneKeyboardEvents(el, handlers) {
     var keydown = null;
     var keypress = null;
-
+    var usedkeydown = null;
+    
     var textarea = jQuery(el);
     var target = jQuery(handlers.container || textarea);
 
@@ -147,7 +148,7 @@ var saneKeyboardEvents = (function() {
     function onKeydown(e) {
       keydown = e;
       keypress = null;
-
+      usedkeydown = false;
       if (shouldBeSelected) checkTextareaFor(function(e) {
         if (!(e && e.type === 'focusout') && textarea[0].select) {
           textarea[0].select(); // re-select textarea in case it's an unrecognized
@@ -155,20 +156,59 @@ var saneKeyboardEvents = (function() {
         checkTextarea = noop; // key that clears the selection, then never
         clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });
-
-      handleKey();
+      
+      if (handlers.options.keyboardPassthrough) {
+        var which = e.which || e.keyCode;
+        var keyVal = KEY_VALUES[which];
+       
+	//handle copy/paste keystrokes, control sequences
+	if (e.ctrlKey) {
+	  var chr = String.fromCharCode(which);
+	  if (chr=='C') {
+	    onSoftCopy();
+	  } else if (chr=='V') {
+	    onSoftPaste();
+	  } else {
+	    handleKey();
+	  }
+	  usedkeydown = true;
+	} else if (keyVal || (e.originalEvent && e.originalEvent.metaKey) || e.altKey) {
+	  handleKey();
+	  usedkeydown = true;
+	}
+      } else {
+      	handleKey();
+      }
     }
-
+    function onSoftCopy(evt) {
+      window.MathQuillClipboard = handlers.cursor.selection.join('latex');
+    }
+    function onSoftPaste(evt) {
+      if (window.MathQuillClipboard) {
+        handlers.writeLatex(window.MathQuillClipboard);
+      }
+    }
+    
     function onKeypress(e) {
-      // call the key handler for repeated keypresses.
-      // This excludes keypresses that happen directly
-      // after keydown.  In that case, there will be
-      // no previous keypress, so we skip it here
-      if (keydown && keypress) handleKey();
+      if (handlers.options.keyboardPassthrough) {
+        var which = e.which || e.keyCode;
+ 
+        if (!usedkeydown) { //prevent second plan of handled characters
+          var chr = String.fromCharCode(which);
+          //pass through keypress
+          handlers.typedText(chr);  
+        }	            
+      } else {
+        // call the key handler for repeated keypresses.
+        // This excludes keypresses that happen directly
+        // after keydown.  In that case, there will be
+        // no previous keypress, so we skip it here
+        if (keydown && keypress) handleKey();
 
-      keypress = e;
+        keypress = e;
 
-      checkTextareaFor(typedText);
+        checkTextareaFor(typedText);
+      }
     }
     function typedText() {
       // If there is a selection, the contents of the textarea couldn't
