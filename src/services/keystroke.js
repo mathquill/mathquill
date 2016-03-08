@@ -39,11 +39,13 @@ Node.open(function(_) {
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
+      aria.queue("end of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
+      aria.queue("end of").queue(ctrlr.root);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -63,11 +65,13 @@ Node.open(function(_) {
     // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
+      aria.queue("start of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
       break;
 
     // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
+      aria.queue("start of").queue(ctrlr.root);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -162,9 +166,8 @@ Controller.open(function(_) {
     // default browser action if so)
     if (cursor.parent === this.root) return;
 
-    if (dir === L) aria.queue("escape left");
-    else aria.queue("escape right");
     cursor.parent.moveOutOf(dir, cursor);
+    aria.alert();
     return this.notify('move');
   };
 
@@ -227,7 +230,7 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (cursor[dir]) aria.queue(cursor[dir]);
+    if (cursor[dir]) aria.queue(cursor[dir].ariaLabel).queue(cursor[dir]);
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
@@ -248,7 +251,9 @@ Controller.open(function(_) {
     if (!cursor[L] || cursor.selection) return ctrlr.deleteDir();
 
     this.notify('edit');
-    Fragment(cursor.parent.ends[L], cursor[L]).remove();
+    var fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+    aria.queue(fragRemoved);
+    fragRemoved.remove();
     cursor.insAtDirEnd(L, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
@@ -281,7 +286,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.queue(cursor.selection.join('mathspeak') + " selected");
+    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + " selected"); // clearing first because selection fires several times, and we don't want repeated speech.
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
