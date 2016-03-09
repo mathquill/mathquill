@@ -102,6 +102,11 @@ suite('latex', function() {
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
+  test('not real LaTex commands, but valid symbols', function() {
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ', '\\odot ');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
