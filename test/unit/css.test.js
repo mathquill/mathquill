@@ -41,4 +41,16 @@ suite('CSS', function() {
 
     testEl.remove();
   });
+
+  test('test florin spacing', function () {
+    var mq,
+        mock = $('#mock');
+
+    mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
+    mq.typedText("f'");
+
+    var mqF = $(mq.el()).find('.mq-f');
+    var testVal = parseFloat(mqF.css('margin-right')) - parseFloat(mqF.css('margin-left'));
+    assert.ok(testVal > 0, 'this should be truthy') ;
+  });
 });

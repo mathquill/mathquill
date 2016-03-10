@@ -152,6 +152,8 @@ LatexCmds.doteq = bind(VanillaSymbol, '\\doteq ', '&#8784;');
 LatexCmds.frown = bind(VanillaSymbol, '\\frown ', '&#8994;');
 LatexCmds.vdash = bind(VanillaSymbol, '\\vdash ', '&#8870;');
 LatexCmds.dashv = bind(VanillaSymbol, '\\dashv ', '&#8867;');
+LatexCmds.nless = bind(VanillaSymbol, '\\nless ', '&#8814;');
+LatexCmds.ngtr = bind(VanillaSymbol, '\\ngtr ', '&#8815;');
 
 //arrows
 LatexCmds.longleftarrow = bind(VanillaSymbol, '\\longleftarrow ', '&#8592;');
