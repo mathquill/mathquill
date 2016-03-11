@@ -311,7 +311,31 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   };
 });
 
-var SummationLimitNotation = P(MathCommand, function(_, super_) {
+var SummationNotation = P(MathCommand, function(_, super_) {
+  _.init = function(ch, html) {
+    var htmlTemplate =
+      '<span class="mq-large-operator mq-non-leaf">'
+    +   '<span class="mq-to"><span>&1</span></span>'
+    +   '<big>'+html+'</big>'
+    +   '<span class="mq-from"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ch, htmlTemplate);
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
+      '^' + simplify(this.ends[R].latex());
+  };
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+    if (cursor.options.sumStartsWithNEquals) {
+      Letter('n').createLeftOf(cursor);
+      Equality().createLeftOf(cursor);
+    }
+  };
   _.parser = function() {
     var string = Parser.string;
     var optWhitespace = Parser.optWhitespace;
@@ -337,33 +361,6 @@ var SummationLimitNotation = P(MathCommand, function(_, super_) {
     this.upInto = this.ends[R];
     this.ends[L].upOutOf = this.ends[R];
     this.ends[R].downOutOf = this.ends[L];
-  };
-});
-
-var SummationNotation = P(SummationLimitNotation, function(_, super_) {
-  _.init = function(ch, html) {
-    var htmlTemplate =
-      '<span class="mq-large-operator mq-non-leaf">'
-    +   '<span class="mq-to"><span>&1</span></span>'
-    +   '<big>'+html+'</big>'
-    +   '<span class="mq-from"><span>&0</span></span>'
-    + '</span>'
-    ;
-    Symbol.prototype.init.call(this, ch, htmlTemplate);
-  };
-  _.latex = function() {
-    function simplify(latex) {
-      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
-    }
-    return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
-      '^' + simplify(this.ends[R].latex());
-  };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
-    if (cursor.options.sumStartsWithNEquals) {
-      Letter('n').createLeftOf(cursor);
-      Equality().createLeftOf(cursor);
-    }
   };
 });
 
@@ -399,7 +396,7 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
 });
 
 LatexCmds.lim =
-LatexCmds.limit = P(SummationLimitNotation, function(_, super_) {
+LatexCmds.limit = P(MathCommand, function(_, super_) {
   _.init = function() {
     var htmlTemplate =
       '<span class="mq-limit mq-non-leaf">'
@@ -414,6 +411,36 @@ LatexCmds.limit = P(SummationLimitNotation, function(_, super_) {
       return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
     }
     return this.ctrlSeq + '_' + simplify(this.ends[L].latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this, child = MathBlock();
+    self.blocks = [ child ];
+    child.adopt(self, 0, 0);
+
+    return optWhitespace.then(string('_')).then(function(supOrSub) {
+      return block.then(function(block) {
+        block.children().adopt(child, child.ends[R], 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L];
+    this.ends[L].upOutOf = function(cursor) {
+      // this is basically gonna be insRightOfMeUnlessAtEnd,
+      // by analogy with insLeftOfMeUnlessAtEnd
+      var cmd = this.parent, ancestorCmd = cursor;
+      do {
+        if (ancestorCmd[L]) return cursor.insRightOf(cmd);
+        ancestorCmd = ancestorCmd.parent.parent;
+      } while (ancestorCmd !== cmd);
+      cursor.insLeftOf(cmd);
+    };
   };
 });
 
