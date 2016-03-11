@@ -103,10 +103,15 @@ suite('latex', function() {
     assertParsesLatex('\\text{}', '');
   });
 
+  test('not real LaTex commands, but valid symbols', function() {
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ', '\\odot ');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();
@@ -163,6 +168,34 @@ suite('latex', function() {
         assertParsesLatex('   {}{} {{{}}  }', '');
       });
 
+      test('overflow triggers automatic horizontal scroll', function(done) {
+        var mqEl = mq.el();
+        var rootEl = mq.__controller.root.jQ[0];
+        var cursor = mq.__controller.cursor;
+
+        $(mqEl).width(10);
+        var previousScrollLeft = rootEl.scrollLeft;
+
+        mq.write("abc");
+        setTimeout(afterScroll, 150);
+
+        function afterScroll() {
+          cursor.show();
+
+          try {
+            assert.ok(rootEl.scrollLeft > previousScrollLeft, "scrolls on write");
+            assert.ok(mqEl.getBoundingClientRect().right > cursor.jQ[0].getBoundingClientRect().right,
+              "cursor right end is inside the field");
+          }
+          catch(error) {
+            done(error);
+            return;
+          }
+
+          done();
+        }
+      });
+
       suite('\\sum', function() {
         test('basic', function() {
           mq.write('\\sum_{n=0}^5');
@@ -191,7 +224,7 @@ suite('latex', function() {
   suite('\\MathQuillMathField', function() {
     var outer, inner1, inner2;
     setup(function() {
-      outer = MathQuill.StaticMath(
+      outer = MQ.StaticMath(
         $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
         .appendTo('#mock')[0]
       );
@@ -241,12 +274,19 @@ suite('latex', function() {
       exp.latex('8');
       assert.equal(outer.latex(), '1.2345\\cdot10^8');
     });
+
+    test('separate API object', function() {
+      var outer2 = MQ(outer.el());
+      assert.equal(outer2.innerFields.length, 2);
+      assert.equal(outer2.innerFields[0].id, inner1.id);
+      assert.equal(outer2.innerFields[1].id, inner2.id);
+    });
   });
 
   suite('error handling', function() {
     var mq;
     setup(function() {
-      mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
       $(mq.el()).remove();

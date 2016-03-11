@@ -79,6 +79,8 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -306,7 +308,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     +   '<span class="mq-sup">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = [ '**' ];
+  _.textTemplate = [ '^' ];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -391,7 +393,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  _.textTemplate = ['(', '/', ')'];
+  _.textTemplate = ['(', ')/(', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
@@ -727,17 +729,7 @@ LatexCmds.choose = P(Binomial, function(_) {
   _.createLeftOf = LiveFraction.prototype.createLeftOf;
 });
 
-var InnerMathField = P(MathQuill.MathField, function(_) {
-  _.init = function(root, container) {
-    RootBlockMixin(root);
-    this.__options = Options();
-    var ctrlr = Controller(this, root, container);
-    ctrlr.editable = true;
-    ctrlr.createTextarea();
-    ctrlr.editablesTextareaEvents();
-    ctrlr.cursor.insAtRightEnd(root);
-  };
-});
+LatexCmds.editable = // backcompat with before cfd3620 on #233
 LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\MathQuillMathField';
   _.htmlTemplate =
@@ -752,10 +744,50 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
       .map(function(name) { self.name = name; }).or(succeed())
       .then(super_.parser.call(self));
   };
-  _.finalizeTree = function() { InnerMathField(this.ends[L], this.jQ); };
-  _.registerInnerField = function(innerFields) {
-    innerFields.push(innerFields[this.name] = this.ends[L].controller.API);
+  _.finalizeTree = function() {
+    var ctrlr = Controller(this.ends[L], this.jQ, Options());
+    ctrlr.KIND_OF_MQ = 'MathField';
+    ctrlr.editable = true;
+    ctrlr.createTextarea();
+    ctrlr.editablesTextareaEvents();
+    ctrlr.cursor.insAtRightEnd(ctrlr.root);
+    RootBlockMixin(ctrlr.root);
+  };
+  _.registerInnerField = function(innerFields, MathField) {
+    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
   _.latex = function(){ return this.ends[L].latex(); };
   _.text = function(){ return this.ends[L].text(); };
+});
+
+// Embed arbitrary things
+// Probably the closest DOM analogue would be an iframe?
+// From MathQuill's perspective, it's a Symbol, it can be
+// anywhere and the cursor can go around it but never in it.
+// Create by calling public API method .dropEmbedded(),
+// or by calling the global public API method .registerEmbed()
+// and rendering LaTeX like \embed{registeredName} (see test).
+var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
+  _.setOptions = function(options) {
+    function noop () { return ""; }
+    this.text = options.text || noop;
+    this.htmlTemplate = options.htmlString || "";
+    this.latex = options.latex || noop;
+    return this;
+  };
+  _.parser = function() {
+    var self = this;
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
+      .then(function(name) {
+        // the chars allowed in the optional data block are arbitrary other than
+        // excluding curly braces and square brackets (which'd be too confusing)
+        return string('[').then(regex(/^[-\w\s]*/)).skip(string(']'))
+          .or(succeed()).map(function(data) {
+            return self.setOptions(EMBEDS[name](data));
+          })
+        ;
+      })
+    ;
+  };
 });

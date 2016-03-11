@@ -1,7 +1,7 @@
 suite('autoSubscript', function() {
   var mq;
   setup(function() {
-    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0], {autoSubscriptNumerals: true});
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {autoSubscriptNumerals: true});
     rootBlock = mq.__controller.root;
     controller = mq.__controller;
     cursor = controller.cursor;

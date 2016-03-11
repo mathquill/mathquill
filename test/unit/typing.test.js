@@ -1,7 +1,7 @@
 suite('typing with auto-replaces', function() {
   var mq;
   setup(function() {
-    mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
   teardown(function() {
     $(mq.el()).remove();
@@ -23,8 +23,8 @@ suite('typing with auto-replaces', function() {
       assertLatex('1\\ \\frac{2}{3}');
     });
 
-    test('MathQuill-basic', function() {
-      var mq_basic = MathQuillBasic.MathField($('<span></span>').appendTo('#mock')[0]);
+    test('mathquill-basic', function() {
+      var mq_basic = MQBasic.MathField($('<span></span>').appendTo('#mock')[0]);
       mq_basic.typedText('1/2');
       assert.equal(mq_basic.latex(), '\\frac{1}{2}');
       $(mq_basic.el()).remove();
@@ -811,8 +811,10 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('autoCommands', function() {
-    MathQuill.config({
-      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+    setup(function() {
+      MQ.config({
+        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+      });
     });
 
     test('individual commands', function(){
@@ -879,43 +881,43 @@ suite('typing with auto-replaces', function() {
     });
 
     test('command contains non-letters', function() {
-      assert.throws(function() { MathQuill.config({ autoCommands: 'e1' }); });
+      assert.throws(function() { MQ.config({ autoCommands: 'e1' }); });
     });
 
     test('command length less than 2', function() {
-      assert.throws(function() { MathQuill.config({ autoCommands: 'e' }); });
+      assert.throws(function() { MQ.config({ autoCommands: 'e' }); });
     });
 
     test('command is a built-in operator name', function() {
       var cmds = ('Pr arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                   + ' limsup liminf injlim projlim Pr').split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
-        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
-                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
+        assert.throws(function() { MQ.config({ autoCommands: cmds[i] }) },
+                      'MQ.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
 
     test('built-in operator names even after auto-operator names overridden', function() {
-      MathQuill.config({ autoOperatorNames: 'sin inf arcosh cosh cos cosec csc' });
+      MQ.config({ autoOperatorNames: 'sin inf arcosh cosh cos cosec csc' });
         // ^ happen to be the ones required by autoOperatorNames.test.js
       var cmds = 'Pr arg deg det exp gcd inf lg lim ln log max min sup'.split(' ');
       for (var i = 0; i < cmds.length; i += 1) {
-        assert.throws(function() { MathQuill.config({ autoCommands: cmds[i] }) },
-                      'MathQuill.config({ autoCommands: "'+cmds[i]+'" })');
+        assert.throws(function() { MQ.config({ autoCommands: cmds[i] }) },
+                      'MQ.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
-        assert.throws(function() { MathQuill.config({ autoCommands: 'pi  theta' }); });
+        assert.throws(function() { MQ.config({ autoCommands: 'pi  theta' }); });
       });
 
       test('leading space', function() {
-        assert.throws(function() { MathQuill.config({ autoCommands: ' pi' }); });
+        assert.throws(function() { MQ.config({ autoCommands: ' pi' }); });
       });
 
       test('trailing space', function() {
-        assert.throws(function() { MathQuill.config({ autoCommands: 'pi ' }); });
+        assert.throws(function() { MQ.config({ autoCommands: 'pi ' }); });
       });
     });
   });
@@ -990,7 +992,7 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('x^=2n').latex(), 'x^{=2n}');
       mq.latex('');
 
-      MathQuill.config({ charsThatBreakOutOfSupSub: '+-=<>' });
+      MQ.config({ charsThatBreakOutOfSupSub: '+-=<>' });
 
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
       mq.latex('');
@@ -1026,7 +1028,7 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
 
       mq.latex('');
-      MathQuill.config({ supSubsRequireOperand: true });
+      MQ.config({ supSubsRequireOperand: true });
 
       assert.equal(mq.typedText('^').latex(), '');
       assert.equal(mq.typedText('2').latex(), '2');

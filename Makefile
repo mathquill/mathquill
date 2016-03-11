@@ -57,7 +57,7 @@ CLEAN += $(DIST)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
-UGLIFY_OPTS ?= --mangle --compress hoist_vars=true
+UGLIFY_OPTS ?= --mangle --compress hoist_vars=true --comments /maintainers@mathquill.com/
 
 LESSC ?= ./node_modules/.bin/lessc
 LESS_OPTS ?=

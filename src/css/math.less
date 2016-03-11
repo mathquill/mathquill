@@ -6,11 +6,6 @@
   white-space: nowrap;
   overflow: hidden;
   vertical-align: middle;
-  // &:after is a fix for
-  // https://bugs.webkit.org/show_bug.cgi?id=35443#c1
-  &:after {
-    content: '';
-  }
 }
 .mq-math-mode {
   font-variant: normal;
@@ -76,7 +71,7 @@
   }
 
   var.mq-f {
-    margin-right: 0.1em;
+    margin-right: 0.2em;
     margin-left: 0.1em;
   }
 
@@ -307,5 +302,29 @@
   &, .mq-editable-field {
     cursor: text;
     font-family: @symbola;
+  }
+
+  .mq-overarrow {
+    border-top: 1px solid black;
+    margin-top: 1px;
+    padding-top: 0.2em;
+
+    &:before {
+      display: block;
+      position: relative;
+      top: -0.34em;
+      font-size: 0.5em;
+      line-height: 0em;
+      content: '\27A4';
+      text-align: right;
+    }
+    &.mq-arrow-left:before {
+      -moz-transform: scaleX(-1);
+      -o-transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+      filter: FlipH;
+      -ms-filter: "FlipH";
+    }
   }
 }

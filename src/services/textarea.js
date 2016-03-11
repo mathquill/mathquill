@@ -10,7 +10,7 @@ Controller.open(function(_) {
   };
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
-      textarea = this.API.__options.substituteTextarea();
+      textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
@@ -38,7 +38,7 @@ Controller.open(function(_) {
     var latex = '';
     if (this.cursor.selection) {
       latex = this.cursor.selection.join('latex');
-      if (this.API.__options.statelessClipboard) {
+      if (this.options.statelessClipboard) {
         // FIXME: like paste, only this works for math fields; should ask parent
         latex = '$' + latex + '$';
       }
@@ -97,7 +97,7 @@ Controller.open(function(_) {
     // (currently only works in math fields, so worse than pointless, it
     //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
     //  cut/copied LaTeX)
-    if (this.API.__options.statelessClipboard) {
+    if (this.options.statelessClipboard) {
       if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
       }

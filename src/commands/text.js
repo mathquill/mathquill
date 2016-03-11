@@ -174,7 +174,9 @@ var TextBlock = P(Node, function(_, super_) {
   function fuseChildren(self) {
     self.jQ[0].normalize();
 
-    var textNodes = self.jQ.contents().filter(function (i, el) { return el.nodeType === window.Node.TEXT_NODE; });
+    var textNodes = self.jQ.contents().filter(function (i, el) { return el.nodeType === 3; });
+    // nodeType === 3 has meant a Text node since ancient times:
+    //   http://reference.sitepoint.com/javascript/Node/nodeType
     var textPc = null;
 
     if (textNodes.length > 0) {
@@ -371,17 +373,19 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
     }
   };
 });
-MathQuill.TextField = APIFnFor(P(EditableField, function(_) {
-  _.init = function(el) {
-    el.addClass('mq-editable-field mq-text-mode');
-    this.initRootAndEvents(RootTextBlock(), el);
-  };
-  _.latex = function(latex) {
-    if (arguments.length > 0) {
-      this.__controller.renderLatexText(latex);
-      if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
-      return this;
-    }
-    return this.__controller.exportLatex();
-  };
-}));
+API.TextField = function(APIClasses) {
+  return P(APIClasses.EditableField, function(_, super_) {
+    this.RootBlock = RootTextBlock;
+    _.__mathquillify = function() {
+      return super_.__mathquillify.call(this, 'mq-editable-field mq-text-mode');
+    };
+    _.latex = function(latex) {
+      if (arguments.length > 0) {
+        this.__controller.renderLatexText(latex);
+        if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
+        return this;
+      }
+      return this.__controller.exportLatex();
+    };
+  });
+};
