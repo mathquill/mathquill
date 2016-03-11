@@ -23,7 +23,8 @@ var latexMathParser = (function() {
   var succeed = Parser.succeed;
   var fail = Parser.fail;
 
-  // Parsers yielding MathCommands
+  // Parsers yielding either MathCommands, or Fragments of MathCommands
+  //   (either way, something that can be adopted by a MathBlock)
   var variable = letter.map(function(c) { return Letter(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
