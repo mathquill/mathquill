@@ -374,11 +374,12 @@ var LatexFragment = P(MathCommand, function(_) {
 // largely coincides with, so Microsoft Word sometimes inserts them
 // and they get copy-pasted into MathQuill.
 //
-// (Irrelevant but funny story: Windows-1252 is actually a strict
-// superset of the "closely related but distinct"[3] "ISO 8859-1" --
-// see the lack of a dash after "ISO"? Completely different character
-// set, like elephants vs elephant seals, or "Zombies" vs "Zombie
-// Redneck Torture Family". What kind of idiot would get them confused.
+// (Irrelevant but funny story: though not a superset of Latin-1 aka
+// ISO-8859-1, Windows-1252 **is** a strict superset of the "closely
+// related but distinct"[3] "ISO 8859-1" -- see the lack of a dash
+// after "ISO"? Completely different character set, like elephants vs
+// elephant seals, or "Zombies" vs "Zombie Redneck Torture Family".
+// What kind of idiot would get them confused.
 // People in fact got them confused so much, it was so common to
 // mislabel Windows-1252 text as ISO-8859-1, that most modern web
 // browsers and email clients treat the MIME charset of ISO-8859-1
