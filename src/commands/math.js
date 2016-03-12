@@ -106,8 +106,7 @@ var MathCommand = P(MathElement, function(_, super_) {
   _.moveTowards = function(dir, cursor, updown) {
     var updownInto = updown && this[updown+'Into'];
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
-    aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel)
-        .queue('of').queue(cursor.parent.parent);
+    aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel).queue(cursor.parent);
   };
   _.deleteTowards = function(dir, cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
@@ -295,8 +294,8 @@ var MathCommand = P(MathElement, function(_, super_) {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
       i += 1;
-      return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i] || 'End'+cmd.ctrlSeq);
-    });
+      return speech + ' ' + block.mathspeak() + ', ' + (cmd.mathspeakTemplate[i]+', ' || 'End'+cmd.ctrlSeq+', ');
+    }).replace(/ +(?= )/g,'');
   };
 });
 
@@ -307,7 +306,7 @@ var Symbol = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, html, text, mathspeak) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
-    this.mathspeakName = mathspeak || text;
+    this.mathspeakName = mathspeak || text.split().join(' ');
     super_.init.call(this, ctrlSeq, html, [ text ]);
   };
 
@@ -363,7 +362,8 @@ var BinaryOperator = P(Symbol, function(_, super_) {
 var MathBlock = P(MathElement, function(_, super_) {
   _.join = function(methodName) {
     return this.foldChildren('', function(fold, child) {
-      return fold + child[methodName]();
+      if(methodName === 'mathspeak') return fold + child[methodName]() + ' ';
+      else return fold + child[methodName]();
     });
   };
   _.html = function() { return this.join('html'); };
@@ -378,7 +378,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     return this.foldChildren([], function(speechArray, cmd) {
       speechArray.push(cmd.mathspeak());
       return speechArray;
-    }).join(' ');
+    }).join(' ').replace(/ +(?= )/g,'');
   };
   _.ariaLabel = 'block';
 
@@ -399,8 +399,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     var updownInto = updown && this.parent[updown+'Into'];
     if (!updownInto && this[dir]) {
       cursor.insAtDirEnd(-dir, this[dir]);
-      aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel)
-          .queue('of').queue(cursor.parent.parent);
+      aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel).queue(cursor.parent);
     }
     else {
       cursor.insDirOf(dir, this.parent);
