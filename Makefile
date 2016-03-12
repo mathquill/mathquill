@@ -23,7 +23,7 @@ SOURCES_FULL = \
   $(SRC_DIR)/commands/math.js \
   $(SRC_DIR)/commands/text.js \
   $(SRC_DIR)/commands/math/*.js
-# text.js currently depends on math.js #435 :(
+# FIXME text.js currently depends on math.js (#435), restore these when fixed:
 # $(SRC_DIR)/commands/*.js \
 # $(SRC_DIR)/commands/*/*.js
 
