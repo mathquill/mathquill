@@ -133,6 +133,22 @@ Node.open(function(_) {
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
+    case 'Alt-Up': // speak parent block that has focus
+      if(cursor.parent.parent) aria.queue(cursor.parent.parent);
+      break;
+
+    case 'Alt-Down': // speak current block that has focus
+      if(cursor.parent) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      break;
+
+    case 'Alt-Left': // speak left child
+      if(cursor.parent.ends[L]) aria.queue(cursor.parent.ends[L].ariaLabel).queue(cursor.parent.ends[L]);
+      break;
+
+    case 'Alt-Right': // speak right child
+      if(cursor.parent.ends[R]) aria.queue(cursor.parent.ends[R].ariaLabel).queue(cursor.parent[R]);
+      break;
+
     default:
       return;
     }
