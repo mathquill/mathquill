@@ -141,12 +141,12 @@ Node.open(function(_) {
       if(cursor.parent) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
       break;
 
-    case 'Alt-Left': // speak left child
-      if(cursor.parent.ends[L]) aria.queue(cursor.parent.ends[L].ariaLabel).queue(cursor.parent.ends[L]);
+    case 'Alt-Left': // speak left-adjacent block
+      if(cursor.parent.parent.ends[L]) aria.queue(cursor.parent.parent.ends[L].ariaLabel).queue(cursor.parent.parent.ends[L]);
       break;
 
-    case 'Alt-Right': // speak right child
-      if(cursor.parent.ends[R]) aria.queue(cursor.parent.ends[R].ariaLabel).queue(cursor.parent[R]);
+    case 'Alt-Right': // speak right-adjacent block
+      if(cursor.parent.parent.ends[R]) aria.queue(cursor.parent.parent.ends[R].ariaLabel).queue(cursor.parent.parent.ends[R]);
       break;
 
     default:
