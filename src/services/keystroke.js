@@ -133,20 +133,30 @@ Node.open(function(_) {
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
+    // These remaining hotkeys are only of benefit to people running screen readers.
     case 'Alt-Up': // speak parent block that has focus
-      if(cursor.parent.parent) aria.queue(cursor.parent.parent);
+      if(cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
+      else aria.queue('nothing above');
       break;
 
     case 'Alt-Down': // speak current block that has focus
-      if(cursor.parent) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      else aria.queue('block is empty');
       break;
 
     case 'Alt-Left': // speak left-adjacent block
-      if(cursor.parent.parent.ends[L]) aria.queue(cursor.parent.parent.ends[L].ariaLabel).queue(cursor.parent.parent.ends[L]);
+      if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L].ariaLabel).queue(cursor.parent.parent.ends[L]);
+      else aria.queue('nothing to the left');
       break;
 
-    case 'Alt-Right': // speak right-adjacent block
-      if(cursor.parent.parent.ends[R]) aria.queue(cursor.parent.parent.ends[R].ariaLabel).queue(cursor.parent.parent.ends[R]);
+    case 'Ctrl-Alt-Right': // speak right-adjacent block
+      if(cursor.parent.parent.ends[R] && cursor.parent.parent.ends[R] instanceof Node) aria.queue(cursor.parent.parent.ends[R].ariaLabel).queue(cursor.parent.parent.ends[R]);
+      else aria.queue('nothing to the right');
+      break;
+
+    case 'Alt-Shift-Down': // speak selection
+      if(cursor.selection) aria.queue(cursor.selection.join('mathspeak')+' selected');
+      else aria.queue('nothing selected');
       break;
 
     default:
