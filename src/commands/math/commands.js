@@ -396,12 +396,13 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['(', ')/(', ')'];
-  _.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
+    if(this.parent.parent.ctrlSeq === this.ctrlSeq) this.mathspeakTemplate = ['StartNestedFraction', 'Over', 'EndNestedFraction'];
+    else this.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
 
   };
 });
