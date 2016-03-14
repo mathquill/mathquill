@@ -292,7 +292,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
-  _.mathspeakTemplate = [ 'Subscript', 'Baseline' ];
+  _.mathspeakTemplate = [ 'Subscript', 'Baseline'];
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
@@ -310,7 +310,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeakTemplate = [ 'Superscript', 'Baseline' ];
+  _.mathspeakTemplate = [ 'Superscript', 'Baseline'];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -396,12 +396,14 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['(', ')/(', ')'];
-  _.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
+    if(this.parent.parent.ctrlSeq === this.ctrlSeq) this.mathspeakTemplate = ['StartNestedFraction', 'Over', 'EndNestedFraction'];
+    else this.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
+
   };
 });
 
@@ -539,7 +541,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.mathspeakTemplate = ['StartAbsoluteValue', 'EndAbsoluteValue'];
     }
     else {
-      this.mathspeakTemplate = ['left-' + BRACKET_NAMES[open], 'right-' + BRACKET_NAMES[close]];
+      this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open], 'right ' + BRACKET_NAMES[close]];
     }
     return super_.mathspeak.call(this);
   };

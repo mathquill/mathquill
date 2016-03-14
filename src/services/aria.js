@@ -32,7 +32,7 @@ var Aria = P(function(_) {
   };
   _.queueDirEndOf = function(dir) {
     prayDirection(dir);
-    return this.queue(dir === L ? 'start of' : 'end of');
+    return this.queue(dir === L ? 'beginning of' : 'end of');
   };
 
   _.alert = function(t) {

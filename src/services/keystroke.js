@@ -65,13 +65,13 @@ Node.open(function(_) {
     // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
-      aria.queue("start of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      aria.queue("beginning of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
       break;
 
     // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
-      aria.queue("start of").queue(ctrlr.root);
+      aria.queue("beginning of").queue(ctrlr.root);
       break;
 
     // Shift-Home -> select to the start of the current block.

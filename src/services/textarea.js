@@ -88,7 +88,11 @@ Controller.open(function(_) {
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
+    var oldBlockId = cursor.parent.id;
     cursor.parent.write(cursor, ch);
+    if (oldBlockId != cursor.parent.id) aria.queue(cursor.parent.ariaLabel);
+    else aria.queue(ch);
+    aria.alert();
     this.scrollHoriz();
   };
   _.paste = function(text) {
