@@ -25,7 +25,8 @@ var Variable = P(Symbol, function(_, super_) {
   _.text = function() {
     var text = this.ctrlSeq;
     if (this[L] && !(this[L] instanceof Variable)
-        && !(this[L] instanceof BinaryOperator))
+        && !(this[L] instanceof BinaryOperator)
+        && this[L].ctrlSeq !== "\\ ")
       text = '*' + text;
     if (this[R] && !(this[R] instanceof BinaryOperator)
         && !(this[R].ctrlSeq === '^'))
