@@ -3,6 +3,7 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
+      aria.jQ.empty();
       ctrlr.textarea.attr('aria-label', 'Mathquill Input: ' + root.mathspeak());
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
@@ -16,6 +17,7 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function() {
+      aria.jQ.empty();
       ctrlr.textarea.attr('aria-label', 'Mathquill Input: ' + root.mathspeak());
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
