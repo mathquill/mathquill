@@ -360,9 +360,9 @@ var BinaryOperator = P(Symbol, function(_, super_) {
  * ancestor operators.
  */
 var MathBlock = P(MathElement, function(_, super_) {
-  _.join = function(methodName) {
+  _.join = function(methodName, sepWithSpace) {
     return this.foldChildren('', function(fold, child) {
-      if(methodName === 'mathspeak') return fold + child[methodName]() + ' ';
+      if(sepWithSpace) return fold + child[methodName]() + ' ';
       else return fold + child[methodName]();
     });
   };

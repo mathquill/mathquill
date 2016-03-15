@@ -155,7 +155,7 @@ Node.open(function(_) {
       break;
 
     case 'Ctrl-Alt-Shift-Down': // speak selection
-      if(cursor.selection) aria.queue(cursor.selection.join('mathspeak')+' selected');
+      if(cursor.selection) aria.queue(cursor.selection.join('mathspeak', true)+' selected');
       else aria.queue('nothing selected');
       break;
 
@@ -312,7 +312,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + " selected"); // clearing first because selection fires several times, and we don't want repeated speech.
+    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', true) + " selected"); // clearing first because selection fires several times, and we don't want repeated speech.
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };
