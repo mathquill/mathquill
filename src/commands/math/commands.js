@@ -371,11 +371,11 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['∑'] =
+LatexCmds['?'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
 
-LatexCmds['∏'] =
+LatexCmds['?'] =
 LatexCmds.prod =
 LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 
@@ -401,9 +401,18 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.parent.parent.ctrlSeq === this.ctrlSeq) this.mathspeakTemplate = ['StartNestedFraction', 'Over', 'EndNestedFraction'];
+    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction', 'Over', 'EndNestedFraction'];
     else this.mathspeakTemplate = ['StartFraction', 'Over', 'EndFraction'];
+  };
 
+  _.getFracDepth = function() {
+    var level = 0;
+    var walkUp = function(item, level) {
+      if(item instanceof Node && item.ctrlSeq && item.ctrlSeq.toLowerCase().search('frac') >= 0) level += 1;
+      if(item.parent) return walkUp(item.parent, level);
+      else return level;
+    };
+    return walkUp(this, level);
   };
 });
 
@@ -440,7 +449,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCommand, function(_, super_) {
+LatexCmds['v'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
