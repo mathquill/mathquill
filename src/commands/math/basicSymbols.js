@@ -29,7 +29,7 @@ var Variable = P(Symbol, function(_, super_) {
         && this[L].ctrlSeq !== "\\ ")
       text = '*' + text;
     if (this[R] && !(this[R] instanceof BinaryOperator)
-        && !(this[R].ctrlSeq === '^'))
+        && !(this[R] instanceof SupSub))
       text += '*';
     return text;
   };
