@@ -145,7 +145,7 @@ suite('Public API', function() {
       mq.latex('3x+\\ 4');
       assert.equal(mq.text(), '3*x+ 4');
       mq.latex('x^2');
-      assert.equal(mq.text(), 'x**2')
+      assert.equal(mq.text(), 'x^2')
     });
 
     test('.moveToDirEnd(dir)', function() {
