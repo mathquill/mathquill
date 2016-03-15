@@ -134,17 +134,17 @@ Node.open(function(_) {
       break;
 
     // These remaining hotkeys are only of benefit to people running screen readers.
-    case 'Alt-Up': // speak parent block that has focus
+    case 'Ctrl-Alt-Up': // speak parent block that has focus
       if(cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
       else aria.queue('nothing above');
       break;
 
-    case 'Alt-Down': // speak current block that has focus
+    case 'Ctrl-Alt-Down': // speak current block that has focus
       if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
       else aria.queue('block is empty');
       break;
 
-    case 'Alt-Left': // speak left-adjacent block
+    case 'Ctrl-Alt-Left': // speak left-adjacent block
       if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L].ariaLabel).queue(cursor.parent.parent.ends[L]);
       else aria.queue('nothing to the left');
       break;
@@ -154,7 +154,7 @@ Node.open(function(_) {
       else aria.queue('nothing to the right');
       break;
 
-    case 'Alt-Shift-Down': // speak selection
+    case 'Ctrl-Alt-Shift-Down': // speak selection
       if(cursor.selection) aria.queue(cursor.selection.join('mathspeak')+' selected');
       else aria.queue('nothing selected');
       break;
