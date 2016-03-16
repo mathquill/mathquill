@@ -293,6 +293,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
   ;
   _.textTemplate = [ '_' ];
   _.mathspeakTemplate = [ 'Subscript, ', ', Baseline'];
+  _.ariaLabel = 'subscript';
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
@@ -311,6 +312,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   ;
   _.textTemplate = [ '^' ];
   _.mathspeakTemplate = [ 'Superscript, ', ', Baseline'];
+  _.ariaLabel = 'superscript';
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -459,6 +461,7 @@ LatexCmds['v'] = P(MathCommand, function(_, super_) {
   ;
   _.textTemplate = ['sqrt(', ')'];
   _.mathspeakTemplate = ['StartRoot, ', ', EndRoot'];
+  _.ariaLabel = 'root';
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
@@ -548,9 +551,11 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
       this.mathspeakTemplate = ['StartAbsoluteValue, ', ', EndAbsoluteValue'];
+      this.ariaLabel = 'absolute value';
     }
     else {
-      this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open], 'right ' + BRACKET_NAMES[close]];
+      this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open]+',', ', right ' + BRACKET_NAMES[close]];
+      this.ariaLabel = BRACKET_NAMES[open]+' block';
     }
     return super_.mathspeak.call(this);
   };
@@ -758,6 +763,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
   ;
   _.textTemplate = ['choose(',',',')'];
   _.mathspeakTemplate = ['StartBinomial, ', 'Choose', ', EndBinomial'];
+  _.ariaLabel = 'binomial';
 });
 
 var Choose =

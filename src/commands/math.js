@@ -106,7 +106,7 @@ var MathCommand = P(MathElement, function(_, super_) {
   _.moveTowards = function(dir, cursor, updown) {
     var updownInto = updown && this[updown+'Into'];
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
-    aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel).queue(cursor.parent);
+    aria.queueDirEndOf(-dir).queue(cursor.parent);
   };
   _.deleteTowards = function(dir, cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
@@ -399,7 +399,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     var updownInto = updown && this.parent[updown+'Into'];
     if (!updownInto && this[dir]) {
       cursor.insAtDirEnd(-dir, this[dir]);
-      aria.queueDirEndOf(-dir).queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      aria.queueDirEndOf(-dir).queue(cursor.parent);
     }
     else {
       cursor.insDirOf(dir, this.parent);

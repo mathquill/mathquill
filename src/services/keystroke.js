@@ -39,7 +39,7 @@ Node.open(function(_) {
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
-      aria.queue("end of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      aria.queue("end of").queue(cursor.parent);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
@@ -65,7 +65,7 @@ Node.open(function(_) {
     // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
-      aria.queue("beginning of").queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      aria.queue("beginning of").queue(cursor.parent);
       break;
 
     // Ctrl-Home -> move all the way to the start of the root block.
@@ -140,17 +140,17 @@ Node.open(function(_) {
       break;
 
     case 'Ctrl-Alt-Down': // speak current block that has focus
-      if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent.ariaLabel).queue(cursor.parent);
+      if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
       else aria.queue('block is empty');
       break;
 
     case 'Ctrl-Alt-Left': // speak left-adjacent block
-      if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L].ariaLabel).queue(cursor.parent.parent.ends[L]);
+      if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L]);
       else aria.queue('nothing to the left');
       break;
 
     case 'Ctrl-Alt-Right': // speak right-adjacent block
-      if(cursor.parent.parent.ends[R] && cursor.parent.parent.ends[R] instanceof Node) aria.queue(cursor.parent.parent.ends[R].ariaLabel).queue(cursor.parent.parent.ends[R]);
+      if(cursor.parent.parent.ends[R] && cursor.parent.parent.ends[R] instanceof Node) aria.queue(cursor.parent.parent.ends[R]);
       else aria.queue('nothing to the right');
       break;
 
@@ -256,7 +256,7 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (cursor[dir]) aria.queue(cursor[dir].ariaLabel).queue(cursor[dir]);
+    if (cursor[dir]) aria.queue(cursor[dir]);
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present

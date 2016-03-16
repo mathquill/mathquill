@@ -22,7 +22,11 @@ var Aria = P(function(_) {
   };
 
   _.queue = function(item) {
-    if (item instanceof Node) item = item.mathspeak();
+    if (item instanceof Node) {
+      if (item.parent && item.parent.ariaLabel && item.parent.ariaLabel !== 'block') item = item.parent.ariaLabel+' '+item.mathspeak();
+      else if (item.ariaLabel && item.ariaLabel !== 'block') item = item.ariaLabel+' '+item.mathspeak();
+      else item = item.mathspeak();
+    }
     this.items.push(item);
     return this;
   };
