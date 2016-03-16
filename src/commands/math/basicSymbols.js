@@ -416,14 +416,8 @@ LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;');
 
-var Times = P(BinaryOperator, function(_) {
-  _.text = function() {
-    return '*'
-  };
-});
-
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(Times, '\\cdot ', '&middot;');
+  bind(BinaryOperator, '\\cdot ', '&middot;', '*');
 //semantically should be &sdot;, but &middot; looks better
 
 var Inequality = P(BinaryOperator, function(_, super_) {
