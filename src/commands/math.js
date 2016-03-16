@@ -294,7 +294,7 @@ var MathCommand = P(MathElement, function(_, super_) {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
       i += 1;
-      return speech + ' ' + block.mathspeak() + ', ' + (cmd.mathspeakTemplate[i]+', ' || 'End'+cmd.ctrlSeq+', ');
+      return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i]+' ' || 'End'+cmd.ctrlSeq+' ');
     }).replace(/ +(?= )/g,'');
   };
 });
