@@ -136,10 +136,15 @@ var Letter = P(Variable, function(_, super_) {
     return node instanceof Symbol && !(node instanceof BinaryOperator);
   }
 });
-var BuiltInOpNames = {}; // http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
-  // except for over/under line/arrow \lim variants like \varlimsup
+var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
+  // are built-into LaTeX: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // MathQuill auto-unitalicizes some operator names not in that set, like 'hcf'
+  // and 'arsinh', which must be exported as \operatorname{hcf} and
+  // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
+  // \varlimsup are not supported
+var AutoOpNames = Options.p.autoOperatorNames = { _maxLength: 9 }; // the set
+  // of operator names that MathQuill auto-unitalicizes by default; overridable
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
-var AutoOpNames = Options.p.autoOperatorNames = { _maxLength: 9 };
 (function() {
   var mostOps = ('arg deg det dim exp gcd hom inf ker lg lim ln log max min sup'
                  + ' limsup liminf injlim projlim Pr').split(' ');
