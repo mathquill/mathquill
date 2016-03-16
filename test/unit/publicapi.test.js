@@ -124,7 +124,7 @@ suite('Public API', function() {
       mq.typedText('qrt');
       assert.equal(mq.text(), '\\sqrt');
     });
-    
+
     test('.text() with complete commands', function() {
       mq.latex('\\sqrt{}');
       assert.equal(mq.text(), 'sqrt()');
@@ -145,7 +145,11 @@ suite('Public API', function() {
       mq.latex('3x+\\ 4');
       assert.equal(mq.text(), '3*x+ 4');
       mq.latex('x^2');
-      assert.equal(mq.text(), 'x^2')
+      assert.equal(mq.text(), 'x^2');
+
+      mq.latex('');
+      mq.typedText('*2*3***4');
+      assert.equal(mq.text(), '*2*3***4');
     });
 
     test('.moveToDirEnd(dir)', function() {
@@ -339,6 +343,8 @@ suite('Public API', function() {
       assert.equal(mq.latex(), 'xy^2');
       mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
       assert.equal(mq.latex(), '\\sqrt{xy^2}');
+      mq.typedText('*2**');
+      assert.equal(mq.latex(), '\\sqrt{xy^2\\cdot2\\cdot\\cdot}');
     });
 
     test('backslash commands are passed their name', function() {
