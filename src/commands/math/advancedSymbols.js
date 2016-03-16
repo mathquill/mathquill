@@ -73,44 +73,44 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 //the canonical sets of numbers
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
-  bind(VanillaSymbol,'\\mathbb{N}','&#8469;');
+  bind(VanillaSymbol,'\\mathbb{N}','&#8469;', 'naturals');
 
 LatexCmds.P =
 LatexCmds.primes = LatexCmds.Primes =
 LatexCmds.projective = LatexCmds.Projective =
 LatexCmds.probability = LatexCmds.Probability =
-  bind(VanillaSymbol,'\\mathbb{P}','&#8473;');
+  bind(VanillaSymbol,'\\mathbb{P}','&#8473;', 'P');
 
 LatexCmds.Z = LatexCmds.integers = LatexCmds.Integers =
-  bind(VanillaSymbol,'\\mathbb{Z}','&#8484;');
+  bind(VanillaSymbol,'\\mathbb{Z}','&#8484;', 'integers');
 
 LatexCmds.Q = LatexCmds.rationals = LatexCmds.Rationals =
-  bind(VanillaSymbol,'\\mathbb{Q}','&#8474;');
+  bind(VanillaSymbol,'\\mathbb{Q}','&#8474;', 'rationals');
 
 LatexCmds.R = LatexCmds.reals = LatexCmds.Reals =
-  bind(VanillaSymbol,'\\mathbb{R}','&#8477;');
+  bind(VanillaSymbol,'\\mathbb{R}','&#8477;', 'reals');
 
 LatexCmds.C =
 LatexCmds.complex = LatexCmds.Complex =
 LatexCmds.complexes = LatexCmds.Complexes =
 LatexCmds.complexplane = LatexCmds.Complexplane = LatexCmds.ComplexPlane =
-  bind(VanillaSymbol,'\\mathbb{C}','&#8450;');
+  bind(VanillaSymbol,'\\mathbb{C}','&#8450;', 'complexes');
 
 LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaternions =
-  bind(VanillaSymbol,'\\mathbb{H}','&#8461;');
+  bind(VanillaSymbol,'\\mathbb{H}','&#8461;', 'quaternions');
 
 //spacing
 LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
 LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
 /* spacing special characters, gonna have to implement this in LatexCommandInput::onText somehow
 case ',':
-  return VanillaSymbol('\\, ',' ');
+  return VanillaSymbol('\\, ',' ', 'comma');
 case ':':
-  return VanillaSymbol('\\: ','  ');
+  return VanillaSymbol('\\: ','  ', 'colon');
 case ';':
-  return VanillaSymbol('\\; ','   ');
+  return VanillaSymbol('\\; ','   ', 'semicolon');
 case '!':
-  return Symbol('\\! ','<span style="margin-right:-.2em"></span>');
+  return Symbol('\\! ','<span style="margin-right:-.2em"></span>', 'exclamation point');
 */
 
 //binary operators
