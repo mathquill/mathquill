@@ -39,7 +39,7 @@ Node.open(function(_) {
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
-      aria.queue("end of").queue(cursor.parent);
+      aria.queue("end of").queue(cursor.parent, true);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
@@ -65,7 +65,7 @@ Node.open(function(_) {
     // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
-      aria.queue("beginning of").queue(cursor.parent);
+      aria.queue("beginning of").queue(cursor.parent, true);
       break;
 
     // Ctrl-Home -> move all the way to the start of the root block.

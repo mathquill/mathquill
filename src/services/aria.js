@@ -21,10 +21,13 @@ var Aria = P(function(_) {
     this.items = [];
   };
 
-  _.queue = function(item) {
+  _.queue = function(item, shouldDescribe) {
     if (item instanceof Node) {
-      if (item.parent && item.parent.ariaLabel && item.parent.ariaLabel !== 'block') item = item.parent.ariaLabel+' '+item.mathspeak();
-      else if (item.ariaLabel && item.ariaLabel !== 'block') item = item.ariaLabel+' '+item.mathspeak();
+      if (shouldDescribe) {
+        if (item.parent && item.parent.ariaLabel) item = item.parent.ariaLabel+' '+item.mathspeak();
+        else if (item.ariaLabel) item = item.ariaLabel+' '+item.mathspeak();
+        else item = item.mathspeak();
+      }
       else item = item.mathspeak();
     }
     this.items.push(item);
