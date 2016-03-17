@@ -129,9 +129,6 @@ Node.open(function(_) {
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
-    case 'Enter':
-      return ctrlr.handle('enter');
-
     default:
       return;
     }
