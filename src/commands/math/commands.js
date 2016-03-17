@@ -403,7 +403,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'Over', ', EndNestedFraction'];
+    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'NestedOver', ', EndNestedFraction'];
     else this.mathspeakTemplate = ['StartFraction, ', 'Over', ', EndFraction'];
   };
 
