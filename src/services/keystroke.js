@@ -160,6 +160,7 @@ Node.open(function(_) {
       break;
 
     case 'Enter':
+      aria.queue('new line');
       return ctrlr.handle('enter');
 
     default:
