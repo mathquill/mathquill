@@ -277,8 +277,9 @@ var Selection = P(Fragment, function(_, super_) {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  _.join = function(methodName) {
+  _.join = function(methodName, sepWithSpace) {
     return this.fold('', function(fold, child) {
+      if (sepWithSpace) return fold + child[methodName]()+' ';
       return fold + child[methodName]();
     });
   };

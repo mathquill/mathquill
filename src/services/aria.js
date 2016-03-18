@@ -23,7 +23,7 @@ var Aria = P(function(_) {
 
   _.queue = function(item, shouldDescribe) {
     if (item instanceof Node) {
-      if (shouldDescribe) {
+      if (shouldDescribe) { // used to ensure item is described when cursor reaches block boundaries
         if (item.parent && item.parent.ariaLabel) item = item.parent.ariaLabel+' '+item.mathspeak();
         else if (item.ariaLabel) item = item.ariaLabel+' '+item.mathspeak();
         else item = item.mathspeak();
