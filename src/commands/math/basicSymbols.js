@@ -229,7 +229,8 @@ LatexCmds.f = P(Letter, function(_, super_) {
 });
 
 // VanillaSymbol's
-LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
+LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;', 'space');
+LatexCmds['\n'] = LatexCmds.newline = bind(VanillaSymbol, '\\', '<br/>', 'blank');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;', 'prime');
 

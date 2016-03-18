@@ -100,8 +100,8 @@ LatexCmds.H = LatexCmds.Hamiltonian = LatexCmds.quaternions = LatexCmds.Quaterni
   bind(VanillaSymbol,'\\mathbb{H}','&#8461;', 'quaternions');
 
 //spacing
-LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ');
-LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ');
+LatexCmds.quad = LatexCmds.emsp = bind(VanillaSymbol,'\\quad ','    ', '4 spaces');
+LatexCmds.qquad = bind(VanillaSymbol,'\\qquad ','        ', '8 spaces');
 /* spacing special characters, gonna have to implement this in LatexCommandInput::onText somehow
 case ',':
   return VanillaSymbol('\\, ',' ', 'comma');
