@@ -56,8 +56,9 @@ UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
 CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
-DIST = $(DISTDIR).tgz
-CLEAN += $(DIST)
+DISTTAR = $(DISTDIR).tgz
+DISTZIP = $(DISTDIR).zip
+CLEAN += $(DISTTAR) $(DISTZIP)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
@@ -92,7 +93,6 @@ js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
-dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
 
@@ -128,10 +128,11 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 	rm -rf $@
 	cp -r $< $@
 
-$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
+dist: $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 	rm -rf $(DISTDIR)
 	cp -r $(BUILD_DIR) $(DISTDIR)
-	tar -czf $(DIST) $(DISTDIR)
+	zip -r -X $(DISTZIP) $(DISTDIR)
+	tar -czf $(DISTTAR) $(DISTDIR)
 	rm -r $(DISTDIR)
 
 #
