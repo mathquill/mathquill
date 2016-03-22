@@ -131,7 +131,7 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 $(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 	rm -rf $(DISTDIR)
 	cp -r $(BUILD_DIR) $(DISTDIR)
-	tar -czf $(DIST) --exclude='\.gitkeep' $(DISTDIR)
+	tar -czf $(DIST) $(DISTDIR)
 	rm -r $(DISTDIR)
 
 #
