@@ -106,6 +106,7 @@ suite('latex', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
     assertParsesLatex('\\degree ');
+    assertParsesLatex('\\square ');
   });
 
   suite('public API', function() {
