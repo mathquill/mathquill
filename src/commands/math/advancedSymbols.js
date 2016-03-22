@@ -142,6 +142,7 @@ LatexCmds.mid = bind(VanillaSymbol, '\\mid ', '&#8739;');
 LatexCmds.ll = bind(VanillaSymbol, '\\ll ', '&#8810;');
 LatexCmds.gg = bind(VanillaSymbol, '\\gg ', '&#8811;');
 LatexCmds.parallel = bind(VanillaSymbol, '\\parallel ', '&#8741;');
+LatexCmds.nparallel = bind(VanillaSymbol, '\\nparallel ', '&#8742;');
 LatexCmds.bowtie = bind(VanillaSymbol, '\\bowtie ', '&#8904;');
 LatexCmds.sqsubset = bind(VanillaSymbol, '\\sqsubset ', '&#8847;');
 LatexCmds.sqsupset = bind(VanillaSymbol, '\\sqsupset ', '&#8848;');
@@ -152,6 +153,8 @@ LatexCmds.doteq = bind(VanillaSymbol, '\\doteq ', '&#8784;');
 LatexCmds.frown = bind(VanillaSymbol, '\\frown ', '&#8994;');
 LatexCmds.vdash = bind(VanillaSymbol, '\\vdash ', '&#8870;');
 LatexCmds.dashv = bind(VanillaSymbol, '\\dashv ', '&#8867;');
+LatexCmds.nless = bind(VanillaSymbol, '\\nless ', '&#8814;');
+LatexCmds.ngtr = bind(VanillaSymbol, '\\ngtr ', '&#8815;');
 
 //arrows
 LatexCmds.longleftarrow = bind(VanillaSymbol, '\\longleftarrow ', '&#8592;');
@@ -180,7 +183,7 @@ LatexCmds.cdots = bind(VanillaSymbol, '\\cdots ', '&#8943;');
 LatexCmds.vdots = bind(VanillaSymbol, '\\vdots ', '&#8942;');
 LatexCmds.ddots = bind(VanillaSymbol, '\\ddots ', '&#8945;');
 LatexCmds.surd = bind(VanillaSymbol, '\\surd ', '&#8730;');
-LatexCmds.triangle = bind(VanillaSymbol, '\\triangle ', '&#9653;');
+LatexCmds.triangle = bind(VanillaSymbol, '\\triangle ', '&#9651;');
 LatexCmds.ell = bind(VanillaSymbol, '\\ell ', '&#8467;');
 LatexCmds.top = bind(VanillaSymbol, '\\top ', '&#8868;');
 LatexCmds.flat = bind(VanillaSymbol, '\\flat ', '&#9837;');
@@ -317,6 +320,8 @@ LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','&cup;');
 LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
   bind(BinaryOperator,'\\cap ','&cap;');
 
-LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;');
+// FIXME: the correct LaTeX would be ^\circ but we can't parse that
+LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
+LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
