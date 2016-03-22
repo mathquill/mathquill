@@ -1,3 +1,40 @@
+## v0.10.1: 2016-03-21
+
+Important fix: remove `font-size: 0` on textarea (#585), fixing typing
+in Chrome Canary (#540) as well as the Enter key not triggering the
+`enter` handler in Webkit and Blink (#566). `transform: scale(0)` is
+used instead and expected to be much more robust.
+
+(Note: if you're coming from v0.9.x, there've been major API changes,
+see the [v0.9.x → v0.10.0 Migration Guide][].)
+
+[v0.9.x → v0.10.0 Migration Guide]: https://github.com/mathquill/mathquill/wiki/v0.9.x-%E2%86%92-v0.10.0-Migration-Guide
+
+**new features:**
+- (#544, #552, #558, #581) new symbols `\nparallel`, `\measuredangle`,
+  `\odot`, `\parallelogram` (nonstandard), `\nless`, `\ngtr`, `\square`
+- (#544) new commands `\overleftarrow`, `\overrightarrow`
+
+
+**bugfixes:**
+- (#585) fix typing in Chrome Canary, Enter key in Webkit+Blink
+- (#582) fix `\degree` symbol to round-trip (rather than exporting
+  `^\circ` which doesn't parse as one symbol)
+- (#578) fix `.text()` to output `\cdot` as `*`
+- (#529, #571, #574) fix `.text()` of fractions, spaces, variables followed
+  by exponents
+- (#577) fix `\triangle` symbol to match LaTeX better
+- (#568) hotfix #435 order-dependence breaking clean build on Linux
+- (#560) fix florin spacing still too close
+- (#546) fix parsing or pasting `×` (Unicode times symbol)
+- (#519/#487) fix auto-horizontal-scroll/pan on API calls
+- (#528) fix #429 can't move cursor out of `TextBlock`
+- (#526) fix exponentiation to export `^` not `**`
+- (#525) fix Tab while there's a selection
+
+**build system fixes:**
+- (#532) add console output to show URL of local test pages
+
 ## v0.10.0: 2016-02-20
 
 Many major changes including a total overhaul of the API (no more
