@@ -51,6 +51,7 @@ Controller.open(function(_) {
 
     this.container.prepend('<span class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
+    cursor.hide().parent.blur();
     textarea.bind('cut paste', false)
     .focus(function() { ctrlr.blurred = false; }).blur(function() {
       if (cursor.selection) cursor.selection.clear();
