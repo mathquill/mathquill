@@ -56,8 +56,9 @@ UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
 CLEAN += $(BUILD_DIR)/*
 
 DISTDIR = ./mathquill-$(VERSION)
-DIST = $(DISTDIR).tgz
-CLEAN += $(DIST)
+DISTTAR = $(DISTDIR).tgz
+DISTZIP = $(DISTDIR).zip
+CLEAN += $(DISTTAR) $(DISTZIP)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
@@ -92,7 +93,6 @@ js: $(BUILD_JS)
 uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
-dist: $(DIST)
 clean:
 	rm -rf $(CLEAN)
 
@@ -128,10 +128,11 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 	rm -rf $@
 	cp -r $< $@
 
-$(DIST): $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
+dist: $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
 	rm -rf $(DISTDIR)
 	cp -r $(BUILD_DIR) $(DISTDIR)
-	tar -czf $(DIST) --exclude='\.gitkeep' $(DISTDIR)
+	zip -r -X $(DISTZIP) $(DISTDIR)
+	tar -czf $(DISTTAR) $(DISTDIR)
 	rm -r $(DISTDIR)
 
 #
@@ -147,83 +148,3 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
-
-#
-# -*- site (mathquill.github.com) tasks
-#
-
-.PHONY: site publish site-pull
-
-SITE = mathquill.github.com
-SITE_CLONE_URL = git@github.com:mathquill/mathquill.github.com
-SITE_COMMITMSG = 'updating mathquill to $(VERSION)'
-
-DOWNLOADS_PAGE = $(SITE)/downloads.html
-DIST_DOWNLOAD = $(SITE)/downloads/$(DIST)
-
-site: $(SITE) $(SITE)/mathquill $(SITE)/demo.html $(SITE)/support $(DOWNLOADS_PAGE)
-
-publish: site-pull site
-	pwd
-	cd $(SITE) \
-	&& git add -- mathquill demo.html support downloads downloads.html \
-	&& git commit -m $(SITE_COMMITMSG) \
-	&& git push
-
-$(SITE)/mathquill: $(DIST)
-	mkdir -p $@
-	tar -xzf $(DIST) \
-		--directory $@ \
-		--strip-components=2
-
-$(DIST_DOWNLOAD): $(DIST)
-	mkdir -p $(dir $@)
-	cp $^ $@
-
-# freaking bsd, i swear
-# adapted from https://developer.apple.com/library/mac/documentation/opensource/Conceptual/ShellScripting/PortingScriptstoMacOSX/PortingScriptstoMacOSX.html#//apple_ref/doc/uid/TP40004268-TP40003517-SW21
-ifeq (x, $(shell echo xy | sed -r 's/(x)y/\1/' 2>/dev/null))
-  # gnu
-  SED = sed -r
-  SED_I = $(SED) -i
-else
-  # bsd
-  SED = sed -E
-  SED_I = $(SED) -i ''
-endif
-
-$(DOWNLOADS_PAGE): $(DIST_DOWNLOAD)
-	@echo Using $(SED)
-	@echo -n updating downloads page...
-	@$(SED_I) \
-		-e '/Latest version:/ s/[0-9]+[.][0-9]+[.][0-9]+/$(VERSION)/g' \
-		$(DOWNLOADS_PAGE)
-	@mkdir -p tmp
-	@ls $(SITE)/downloads/*.tgz \
-		| egrep -o '[0-9]+[.][0-9]+[.][0-9]+' \
-		| fgrep -v $(VERSION) \
-		| sort -rn -t. -k 1,1 -k 2,2 -k 3,3 \
-		| sed 's|.*|<li><a class="prev" href="downloads/mathquill-&.tgz">v&</a></li>|' \
-		> tmp/versions-list.html
-	@$(SED_I) \
-		-e '/<a class="prev"/d' \
-		-e '/<ul id="prev-versions">/ r tmp/versions-list.html' \
-		$(DOWNLOADS_PAGE)
-	@rm tmp/versions-list.html
-	@echo done.
-
-$(SITE)/demo.html: test/demo.html
-	cat $^ \
-	| $(SED) 's:../build/:mathquill/:' \
-	| $(SED) 's:local test page:live demo:' \
-	> $@
-
-$(SITE)/support: test/support
-	rm -rf $@
-	cp -r $^ $@
-
-$(SITE):
-	git clone $(SITE_CLONE_URL) $@
-
-site-pull: $(SITE)
-	cd $(SITE) && git pull

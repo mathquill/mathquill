@@ -197,6 +197,7 @@ LatexCmds.heartsuit = bind(VanillaSymbol, '\\heartsuit ', '&#9825;', 'heart suit
 LatexCmds.spadesuit = bind(VanillaSymbol, '\\spadesuit ', '&#9824;', 'spade suit');
 //not real LaTex command see https://github.com/mathquill/mathquill/pull/552 for more details
 LatexCmds.parallelogram = bind(VanillaSymbol, '\\parallelogram ', '&#9649;', 'parallelogram');
+LatexCmds.square = bind(VanillaSymbol, '\\square ', '&#11036;', 'square');
 
 //variable-sized
 LatexCmds.oint = bind(VanillaSymbol, '\\oint ', '&#8750;', 'o int');
@@ -319,7 +320,8 @@ LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','&cup;', 'union')
 LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
   bind(BinaryOperator,'\\cap ','&cap;', 'intersection');
 
-LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'^\\circ ','&deg;', 'degrees');
+// FIXME: the correct LaTeX would be ^\circ but we can't parse that
+LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;', 'degrees');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;', 'angle');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;', 'measured angle');
