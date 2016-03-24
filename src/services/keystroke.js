@@ -159,9 +159,6 @@ Node.open(function(_) {
       else aria.queue('nothing selected');
       break;
 
-    case 'Enter':
-      return ctrlr.handle('enter');
-
     default:
       return;
     }
