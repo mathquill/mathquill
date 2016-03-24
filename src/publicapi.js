@@ -214,6 +214,12 @@ function getInterface(v) {
       var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
+
+    _.setAriaLabel = function(ariaLabel) {
+      if(ariaLabel && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
+      else this.__controller.ariaLabel = 'MathQuill Input';
+      return this;
+    };
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;

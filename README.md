@@ -159,6 +159,8 @@ expose:
 * `.keystroke(keys)` simulates keystrokes given a string like `"Ctrl-Home Del"`,
   a whitespace-delimited list of [key values][] with optional prefixes
 * `.typedText(text)` simulates typing text, one character at a time
+* `.setAriaLabel(ariaLabel)` where `ariaLabel` is the label of the editable field which will be announced by screen readers.
+  This text is not shown on screen. If not set, the default of `MathQuill Input` is used.
 * `ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ` `.dropEmbedded(pageX, pageY, options)` insert a custom
   embedded element at the given coordinates, where `options` is an object like:
 
