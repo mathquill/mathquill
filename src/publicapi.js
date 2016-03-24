@@ -216,7 +216,7 @@ function getInterface(v) {
     };
 
     _.setAriaLabel = function(ariaLabel) {
-      if(ariaLabel && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
+      if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
       else this.__controller.ariaLabel = 'MathQuill Input';
       return this;
     };
