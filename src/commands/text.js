@@ -109,7 +109,7 @@ var TextBlock = P(Node, function(_, super_) {
     else { // split apart
       var leftBlock = TextBlock();
       var leftPc = this.ends[L];
-      leftPc.disown();
+      leftPc.disown().jQ.detach();
       leftPc.adopt(leftBlock, 0, 0);
 
       cursor.insLeftOf(this);

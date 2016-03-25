@@ -87,4 +87,21 @@ suite('text', function() {
       $(mq.el()).remove();
     }
   });
+
+  test('typing $ in a textblock splits it', function() {
+    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    var controller = mq.__controller;
+    var cursor = controller.cursor;
+
+    try {
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      mq.typedText('$');
+      assert.equal(mq.latex(), '\\text{as}\\text{df}');
+    } finally {
+      $(mq.el()).remove();
+    }
+  });
 });
