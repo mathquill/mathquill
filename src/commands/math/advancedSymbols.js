@@ -229,7 +229,7 @@ LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>', 'integral');
 LatexCmds.slash = bind(VanillaSymbol, '/', 'slash');
 LatexCmds.vert = bind(VanillaSymbol,'|', 'vertical bar');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;', 'perpendicular');
-LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;', 'nabla');
+LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
 LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;', 'horizontal bar');
 
 LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
