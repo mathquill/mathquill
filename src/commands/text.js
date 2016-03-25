@@ -124,7 +124,7 @@ var TextBlock = P(Node, function(_, super_) {
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.jQ.width()/this.text.length;
     var approxPosition = Math.round((pageX - this.jQ.offset().left)/avgChWidth);
-    if (approxPosition <= 0 || textPc === null) cursor.insAtLeftEnd(this);
+    if (approxPosition <= 0) cursor.insAtLeftEnd(this);
     else if (approxPosition >= textPc.text.length) cursor.insAtRightEnd(this);
     else cursor.insLeftOf(textPc.splitRight(approxPosition));
 
@@ -164,27 +164,31 @@ var TextBlock = P(Node, function(_, super_) {
     }
   };
 
-  _.blur = function() {
+  _.blur = function(cursor) {
     MathBlock.prototype.blur.call(this);
-    fuseChildren(this);
+    if (!cursor) return;
+    if (this.textContents() === '') {
+      this.remove();
+      if (cursor[L] === this) cursor[L] = this[L];
+      else if (cursor[R] === this) cursor[R] = this[R];
+    }
+    else fuseChildren(this);
   };
 
   function fuseChildren(self) {
     self.jQ[0].normalize();
 
-    var textNodes = self.jQ.contents().filter(function (i, el) { return el.nodeType === 3; });
+    var textPcDom = self.jQ[0].firstChild;
+    if (!textPcDom) return;
+    pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
     // nodeType === 3 has meant a Text node since ancient times:
     //   http://reference.sitepoint.com/javascript/Node/nodeType
-    var textPc = null;
 
-    if (textNodes.length > 0) {
-      var textPcDom = textNodes[0];
-      textPc = TextPiece(textPcDom.data);
-      textPc.jQadd(textPcDom);
-    }
+    var textPc = TextPiece(textPcDom.data);
+    textPc.jQadd(textPcDom);
 
     self.children().disown();
-    return textPc !== null ? textPc.adopt(self, 0, 0) : null;
+    return textPc.adopt(self, 0, 0);
   }
 
   _.focus = MathBlock.prototype.focus;

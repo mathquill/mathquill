@@ -66,7 +66,7 @@ suite('text', function() {
     assert.equal(block.latex(), '\\text{x}');
   });
 
-  test('updates in the DOM from typing after stepping out of and back into an empty block', function() {
+  test('stepping out of an empty block deletes it', function() {
     var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
     var controller = mq.__controller;
     var cursor = controller.cursor;
@@ -80,11 +80,9 @@ suite('text', function() {
       mq.keystroke('Backspace');
       assertSplit(cursor.jQ);
 
-      mq.keystroke('Right Left');
+      mq.keystroke('Right');
       assertSplit(cursor.jQ);
-
-      mq.typedText('y');
-      assertSplit(cursor.jQ, 'y');
+      assert.equal(cursor[L], 0);
     } finally {
       $(mq.el()).remove();
     }
