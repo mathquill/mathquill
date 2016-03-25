@@ -386,7 +386,7 @@ LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
 
 LatexCmds['∫'] =
 LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
+LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>', 'integral');
 
 var Fraction =
 LatexCmds.frac =

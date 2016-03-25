@@ -222,10 +222,6 @@ LatexCmds.lbrack = bind(VanillaSymbol, '[', 'left bracket');
 LatexCmds.rbrack = bind(VanillaSymbol, ']', 'right bracket');
 
 //various symbols
-LatexCmds['∫'] =
-LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>', 'integral');
-
 LatexCmds.slash = bind(VanillaSymbol, '/', 'slash');
 LatexCmds.vert = bind(VanillaSymbol,'|', 'vertical bar');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;', 'perpendicular');
