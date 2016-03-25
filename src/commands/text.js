@@ -64,10 +64,8 @@ var TextBlock = P(Node, function(_, super_) {
   _.text = function() { return '"' + this.textContents() + '"'; };
   _.latex = function() {
     var contents = this.textContents();
-
     if (contents.length === 0) return '';
-
-    return '\\text{' + this.textContents() + '}';
+    return '\\text{' + contents + '}';
   };
   _.html = function() {
     return (
