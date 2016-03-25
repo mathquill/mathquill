@@ -7,10 +7,9 @@ by [Han][], [Jeanine][], and [Mary][] (maintainers@mathquill.com)
 [Mary]: http://github.com/stufflebear
 
 Good news! We've resumed active development and we're committed to getting
-things running smoothly. Find a dusty corner? Let us know in [Slack][]!
-(Prefer IRC? We're #mathquill on Freenode.)
-
-[Slack]: http://slackin.mathquill.com
+things running smoothly.  
+Find a dusty corner? Let us know! <big>[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
+[<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)</big>
 
 ## Usage
 
@@ -145,6 +144,7 @@ MathQuill API objects further expose the following public methods:
 Additionally, descendants of `MQ.EditableField` (currently only `MQ.MathField`)
 expose:
 
+* `.focus()`, `.blur()` focuses or defocuses the editable field
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
   with the current selection

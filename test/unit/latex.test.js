@@ -106,6 +106,8 @@ suite('latex', function() {
   test('not real LaTex commands, but valid symbols', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
+    assertParsesLatex('\\degree ');
+    assertParsesLatex('\\square ');
   });
 
   suite('public API', function() {
