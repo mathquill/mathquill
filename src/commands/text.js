@@ -48,7 +48,7 @@ var TextBlock = P(Node, function(_, super_) {
     return optWhitespace
       .then(string('{')).then(regex(/^[^}]*/)).skip(string('}'))
       .map(function(text) {
-        if (text.length === 0) return;
+        if (text.length === 0) return Fragment();
 
         TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
