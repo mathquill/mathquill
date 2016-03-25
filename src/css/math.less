@@ -49,7 +49,14 @@
 
 
   .mq-text-mode {
-    font-size: 87%;
+    display: inline-block;
+  }
+  .mq-text-mode.mq-hasCursor {
+    box-shadow: inset darkgray 0 .1em .2em;
+    padding: 0 .1em;
+    margin: 0 -.1em;
+
+    min-width: 1ex;
   }
 
   .mq-font {
