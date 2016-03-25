@@ -1,4 +1,4 @@
-// Parser MathCommand
+// Parser MathBlock
 var latexMathParser = (function() {
   function commandToBlock(cmd) {
     var block = MathBlock();
