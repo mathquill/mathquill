@@ -15,7 +15,7 @@ var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {}
 function insistOnInterVer() {
   if (window.console) console.warn(
     'You are using the MathQuill API without specifying an interface version, ' +
-    'which will fail in v1.0.0. You can fix this easily by doing this before ' +
+    'which will fail in v1.0.0. Easiest fix is to do the following before ' +
     'doing anything else:\n' +
     '\n' +
     '    MathQuill = MathQuill.getInterface(1);\n' +
