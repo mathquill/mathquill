@@ -197,6 +197,20 @@ $(function() {
 <tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 <tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
 <tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
+<tr><td colspan=2><span id="sixes"></span>
+<script>
+$(function() {
+    var i,
+        sixes = '',
+        start = 10,
+        end = 40;
+    for (i = start; i <= end; i++) {
+        sixes += '<span style="font-size: ' + i + 'px" class="mathquill-math-field">6<\/span>';
+    }
+    $('#sixes').html(sixes);
+    $('#sixes .mathquill-math-field').each(function() { MQ.MathField(this); });
+});
+</script>
 </table>
 
 <p id="paren-alignment">Parentheses vertical alignment at font sizes ranging from 10px to 24px: <button>Click Me</button></p>
