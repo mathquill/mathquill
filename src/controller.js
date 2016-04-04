@@ -16,6 +16,7 @@ var Controller = P(function(_) {
     this.options = options;
 
     this.ariaLabel = 'MathQuill Input';
+    this.ariaPostLabel = '';
 
     root.controller = this;
 

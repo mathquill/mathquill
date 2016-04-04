@@ -220,6 +220,12 @@ function getInterface(v) {
       else this.__controller.ariaLabel = 'MathQuill Input';
       return this;
     };
+
+    _.setAriaPostLabel = function(ariaPostLabel) {
+      if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') this.__controller.ariaPostLabel = ariaPostLabel;
+      else this.__controller.ariaPostLabel = '';
+      return this;
+    };
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;

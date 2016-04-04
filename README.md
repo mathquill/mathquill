@@ -162,6 +162,8 @@ expose:
 * `.typedText(text)` simulates typing text, one character at a time
 * `.setAriaLabel(ariaLabel)` where `ariaLabel` is the label of the editable field which will be announced by screen readers.
   This text is not shown on screen. If not set, the default of `MathQuill Input` is used.
+* `.setAriaPostLabel(ariaPostLabel)` where `ariaPostLabel` is the text to proceed the editable field contents (such as error messages) which will be announced by screen readers.
+  This text is not shown on screen. If not set, the default of `` is used.
 * `ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ` `.dropEmbedded(pageX, pageY, options)` insert a custom
   embedded element at the given coordinates, where `options` is an object like:
 
