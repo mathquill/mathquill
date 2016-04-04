@@ -17,6 +17,7 @@ Controller.open(function(_) {
       function docmousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', true) + 'selected').alert();
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
@@ -27,6 +28,7 @@ Controller.open(function(_) {
         if (!cursor.selection) {
           if (ctrlr.editable) {
             cursor.show();
+            aria.queue(cursor.parent).alert();
           }
           else {
             textareaSpan.detach();
