@@ -298,7 +298,10 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
-  bind(VanillaSymbol,'\\exists ','&exist;', 'exists');
+  bind(VanillaSymbol,'\\exists ','&exist;', 'there exists at least 1');
+
+LatexCmds.nexists = LatexCmds.nexist =
+      bind(VanillaSymbol, '\\nexists ', '&#8708;', 'there is no');
 
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
   bind(VanillaSymbol,'\\wedge ','&and;', 'and');

@@ -146,6 +146,7 @@ MathQuill API objects further expose the following public methods:
 Additionally, descendants of `MQ.EditableField` (currently only `MQ.MathField`)
 expose:
 
+* `.focus()`, `.blur()` focuses or defocuses the editable field
 * `.write(' - 1')` will write some LaTeX at the current cursor position
 * `.cmd('\\sqrt')` will enter a LaTeX command at the current cursor position or
   with the current selection

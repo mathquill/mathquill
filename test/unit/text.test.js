@@ -65,4 +65,43 @@ suite('text', function() {
 
     assert.equal(block.latex(), '\\text{x}');
   });
+
+  test('stepping out of an empty block deletes it', function() {
+    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    var controller = mq.__controller;
+    var cursor = controller.cursor;
+
+    try {
+      mq.latex('\\text{x}');
+
+      mq.keystroke('Left');
+      assertSplit(cursor.jQ, 'x');
+
+      mq.keystroke('Backspace');
+      assertSplit(cursor.jQ);
+
+      mq.keystroke('Right');
+      assertSplit(cursor.jQ);
+      assert.equal(cursor[L], 0);
+    } finally {
+      $(mq.el()).remove();
+    }
+  });
+
+  test('typing $ in a textblock splits it', function() {
+    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
+    var controller = mq.__controller;
+    var cursor = controller.cursor;
+
+    try {
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      mq.typedText('$');
+      assert.equal(mq.latex(), '\\text{as}\\text{df}');
+    } finally {
+      $(mq.el()).remove();
+    }
+  });
 });
