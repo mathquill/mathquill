@@ -174,9 +174,13 @@ var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
     AutoOpNames[moreNonstandardOps[i]] = 1;
   }
 }());
+
 optionProcessors.autoOperatorNames = function(cmds) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
-    throw '"'+cmds+'" not a space-delimited list of only letters';
+  if(typeof cmds !== 'string') {
+    throw '"'+cmds+'" not a space-delimited list';
+  }
+  if (!/^[a-z\|\-]+(?: [a-z\|\-]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of letters or "|"';
   }
   var list = cmds.split(' '), dict = {}, maxLength = 0;
   for (var i = 0; i < list.length; i += 1) {
@@ -184,8 +188,21 @@ optionProcessors.autoOperatorNames = function(cmds) {
     if (cmd.length < 2) {
       throw '"'+cmd+'" not minimum length of 2';
     }
-    dict[cmd] = 1;
-    maxLength = max(maxLength, cmd.length);
+    if(cmd.indexOf('|') < 0) { // normal auto operator
+      dict[cmd] = cmd;
+      maxLength = max(maxLength, cmd.length);
+    }
+    else { // this item has a speech-friendly alternative
+      var cmdArray = cmd.split('|');
+      if(cmdArray.length > 2) {
+        throw '"'+cmd+'" has more than 1 mathspeak delimiter';
+      }
+      if (cmdArray[0].length < 2) {
+        throw '"'+cmd[0]+'" not minimum length of 2';
+      }
+      dict[cmdArray[0]] = cmdArray[1].replace(/-/g, ' '); // convert dashes to spaces for the sake of speech
+      maxLength = max(maxLength, cmdArray[0].length);
+    }
   }
   dict._maxLength = maxLength;
   return dict;

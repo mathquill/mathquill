@@ -289,6 +289,8 @@ non-italicized when typing the letters without typing a backslash first, like
 `sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names][Wikia], but
 with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
 
+You can also specify a speech-friendly representation of the operator name by supplying the operator name, a `|` and its speech alternative (separate multiple words with a `-`). For example, 'sin|sine cos|cosine tan|tangent sinh|hyperbolic-sine'.
+
 [Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
 `substituteTextarea`, a function that creates a focusable DOM element, called

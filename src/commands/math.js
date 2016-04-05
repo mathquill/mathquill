@@ -306,7 +306,7 @@ var Symbol = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, html, text, mathspeak) {
     if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
 
-    this.mathspeakName = mathspeak || text.split().join(' ');
+    this.mathspeakName = mathspeak || text;
     super_.init.call(this, ctrlSeq, html, [ text ]);
   };
 
@@ -374,10 +374,29 @@ var MathBlock = P(MathElement, function(_, super_) {
     ;
   };
   _.mathspeak = function() {
-    return this.foldChildren([], function(speechArray, cmd) {
-      speechArray.push(cmd.mathspeak());
+    // first get mathspeak text of block elements and variables
+    var retVal = this.foldChildren([], function(speechArray, cmd) {
+      if (cmd.isItalic === false) { // Likely an auto operator, don't spell
+        speechArray.push(cmd.mathspeak());
+      }
+      else {
+        speechArray.push(cmd.mathspeak()+' ');
+      }
       return speechArray;
-    }).join(' ').replace(/ +(?= )/g,'');
+    }).join('').replace(/ +(?= )/g,'');
+    // next go through expression and replace auto operator names with their mathspeak counterparts
+    var autoOps = {};
+    if (this.controller) autoOps = this.controller.options.autoOperatorNames;
+    if(autoOps === {} || autoOps._maxLength === 0) return retVal;
+
+    var re = new RegExp(Object.keys(autoOps).join("|"),"gi");
+    return retVal.replace(re, function(matched){
+      var x = autoOps[matched.toLowerCase()];
+      if(typeof x === 'string') return x+' ';
+      else if(typeof x === 'number') return matched+' '; // this happens if built-in op
+      else return matched;
+    });
+
   };
   _.ariaLabel = 'block';
 
