@@ -295,7 +295,7 @@ var MathCommand = P(MathElement, function(_, super_) {
     return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
       i += 1;
       return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i]+' ' || 'End'+cmd.ctrlSeq+' ');
-    }).replace(/ +(?= )/g,'');
+    });
   };
 });
 
@@ -383,7 +383,7 @@ var MathBlock = P(MathElement, function(_, super_) {
         speechArray.push(cmd.mathspeak()+' ');
       }
       return speechArray;
-    }).join('').replace(/ +(?= )/g,'');
+    }).join('');
     // next go through expression and replace auto operator names with their mathspeak counterparts
     var autoOps = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;

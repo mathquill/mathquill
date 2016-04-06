@@ -45,7 +45,7 @@ Node.open(function(_) {
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
-      aria.queue("end of").queue(ctrlr.root);
+      aria.queue("end of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -71,7 +71,7 @@ Node.open(function(_) {
     // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
-      aria.queue("beginning of").queue(ctrlr.root);
+      aria.queue("beginning of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-Home -> select to the start of the current block.
