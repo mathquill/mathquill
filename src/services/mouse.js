@@ -17,7 +17,7 @@ Controller.open(function(_) {
       function docmousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
-        if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', true) + 'selected').alert();
+        if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
