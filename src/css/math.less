@@ -218,6 +218,14 @@
   }
   var.mq-operator-name.mq-last {
     padding-right: .2em;
+
+    &.mq-followed-by-supsub {
+      padding-right: 0;
+
+      + .mq-supsub {
+        padding-right: .2em;
+      }
+    }
   }
 
   ////
