@@ -10,7 +10,7 @@ Good news! We've resumed active development and we're committed to getting
 things running smoothly.  
 Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues)
 
-MathQuill is a web formula editor designed to make typing math easy and beautiful. To view a demo, please view our [website](http://mathquill.com/). The MathQuill project is currently supported by its [partners](http://mathquill.com/partners.html). We are bound by a [Code of Conduct](https://docs.google.com/document/d/18hrSALV-dSJxagFBXMKUp3u26v5T693qNZ8ZzCUoGZA/edit?usp=sharing).
+MathQuill is a web formula editor designed to make typing math easy and beautiful. To view a demo, please view our [website](http://mathquill.com/). The MathQuill project is currently supported by its [partners](http://mathquill.com/partners.html). We are bound by a [Code of Conduct](http://mathquill.readthedocs.org/en/latest/Code_of_Conduct/).
 
 We'd love to hear from you-we love offering help and receiving feedback.
 
