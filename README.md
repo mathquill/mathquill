@@ -13,7 +13,7 @@ Find a dusty corner? Let us know! <big>[<img alt="slackin.mathquill.com" src="ht
 
 ## Docs
 
-Check out the docs at [http://mathquill.readthedocs.org/en/latest/](http://mathquill.readthedocs.org/en/latest/)
+Check out the docs at [ReadTheDocs](http://mathquill.readthedocs.org/)
 
 ## Open-Source License
 
