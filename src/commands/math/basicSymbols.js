@@ -103,7 +103,7 @@ var Letter = P(Variable, function(_, super_) {
     // removeClass and delete flags from all letters before figuring out
     // which, if any, are part of an operator name
     Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.italicize(true).jQ.removeClass('mq-first mq-last');
+      el.italicize(true).jQ.removeClass('mq-first mq-last mq-followed-by-supsub');
       el.ctrlSeq = el.letter;
     });
 
@@ -122,8 +122,14 @@ var Letter = P(Variable, function(_, super_) {
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
           if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
-          if (nonOperatorSymbol(first[L])) first.jQ.addClass('mq-first');
-          if (nonOperatorSymbol(last[R])) last.jQ.addClass('mq-last');
+          if (!shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
+          if (!shouldOmitPadding(last[R]) && !(last[R] instanceof Bracket)) {
+            // also omit space between operator name and paren like in sin(x)
+            last.jQ.addClass('mq-last');
+            if (last[R] instanceof SupSub) {
+              last.jQ.addClass('mq-followed-by-supsub');
+            }
+          }
 
           i += len - 1;
           first = last;
@@ -132,8 +138,9 @@ var Letter = P(Variable, function(_, super_) {
       }
     }
   };
-  function nonOperatorSymbol(node) {
-    return node instanceof Symbol && !(node instanceof BinaryOperator);
+  function shouldOmitPadding(node) {
+    // omit padding if no node, or if node already has padding (to avoid double-padding)
+    return !node || (node instanceof BinaryOperator) || (node instanceof SummationNotation);
   }
 });
 var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
