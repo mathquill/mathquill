@@ -8,12 +8,18 @@ by [Han][], [Jeanine][], and [Mary][] (maintainers@mathquill.com)
 
 Good news! We've resumed active development and we're committed to getting
 things running smoothly.  
-Find a dusty corner? Let us know! <big>[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
+Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues)
+
+MathQuill is a web formula editor designed to make typing math easy and beautiful. To view a demo, please view our [website](http://mathquill.com/). The MathQuill project is currently supported by its [partners](http://mathquill.com/partners.html). We are bound by a [Code of Conduct](https://docs.google.com/document/d/18hrSALV-dSJxagFBXMKUp3u26v5T693qNZ8ZzCUoGZA/edit?usp=sharing).
+
+We'd love to hear from you-we love offering help and receiving feedback.
+
+<big>[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
 [<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)</big>
 
 ## Docs
 
-Check out the docs at [ReadTheDocs](http://mathquill.readthedocs.org/)
+Check out the docs on [Read The Docs](http://mathquill.readthedocs.org/)
 
 ## Open-Source License
 
