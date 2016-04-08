@@ -52,5 +52,7 @@ suite('CSS', function() {
     var mqF = $(mq.el()).find('.mq-f');
     var testVal = parseFloat(mqF.css('margin-right')) - parseFloat(mqF.css('margin-left'));
     assert.ok(testVal > 0, 'this should be truthy') ;
+
+    $(mq.el()).remove();
   });
 });
