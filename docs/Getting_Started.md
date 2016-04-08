@@ -17,15 +17,15 @@ To use the MathQuill API, load it with:
 var MQ = MathQuill.getInterface(2);
 ```
 
-All [API methods]() will be called on `MQ`.
+All [API methods](http://mathquill.readthedocs.org/en/latest/Api_Methods/) will be called on `MQ`.
 
 You can also [build from the source code]().
 
 ## Basic Usage
 
-MathQuill instances can be created on DOM objects. For the full list of constructors and API methods, see [API Methods]().
+MathQuill instances can be created on DOM objects. For the full list of constructors and API methods, see [API Methods](http://mathquill.readthedocs.org/en/latest/Api_Methods).
 
-The below examples assume that MathQuill has been properly loaded and exposed as `MQ` as shown [above]().
+The below examples assume that MathQuill has been properly loaded and exposed as `MQ` as shown [above](http://mathquill.readthedocs.org/en/latest/Getting_Started/#download-and-load).
 
 ### Render Static Math
 
@@ -41,7 +41,7 @@ Call `MQ.StaticMath` on the DOM object.
 
 ### Editable Math
 
-To create an editable math field, call `MQ.MathField` with the dom object and the [config](). The following example shows a mathfield created on the answer span with a handler to check the answer every time an edit may occur.
+To create an editable math field, call `MQ.MathField` with the dom object and the [config](http://mathquill.readthedocs.org/en/latest/Config/). The following example shows a mathfield created on the answer span with a handler to check the answer every time an edit may occur.
 ```html
 <p><span id="answer">x=</span></p>
 

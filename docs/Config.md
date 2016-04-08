@@ -2,7 +2,7 @@
 
 ## Setting Configuration
 
-The configuration options for a given mathField has the following structure and [properties]():
+The configuration options for a given mathField has the following structure and [options](http://mathquill.readthedocs.org/en/latest/Config/#configuration-options):
 ```js
 {
   spaceBehavesLikeTab: true,
@@ -103,10 +103,8 @@ backslash first.
 `autoOperatorNames`, a list of the same form (space-delimited letters-only each
 length>=2), and overrides the set of operator names that automatically become
 non-italicized when typing the letters without typing a backslash first, like
-`sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names][Wikia], but
+`sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names](http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.), but
 with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
-
-[Wikia]: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
 
 ### substituteTextarea
 
@@ -115,16 +113,12 @@ when setting up a math field. It defaults to `<textarea autocorrect=off .../>`,
 but for example, Desmos substitutes `<span tabindex=0></span>` on iOS to
 suppress the built-in virtual keyboard in favor of a custom math keypad that
 calls the MathQuill API. Unfortunately there's no universal [check for a virtual
-keyboard][StackOverflow], you can't even [detect a touchscreen][stucox] (notably
-[Modernizr gave up][Modernizr]) and even if you could, Windows 8 and ChromeOS
+keyboard](http://stackoverflow.com/q/2593139/362030), you can't even [detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/) (notably
+[Modernizr gave up](https://github.com/Modernizr/Modernizr/issues/548)) and even if you could, Windows 8 and ChromeOS
 devices have both physical keyboards and touchscreens and you can connect
 physical keyboards to iOS and Android devices with Bluetooth, so touchscreen !=
 virtual keyboard. Desmos currently sniffs the user agent for iOS, so Bluetooth
 keyboards just don't work in Desmos on iOS, the tradeoffs are up to you.
-
-[StackOverflow]: http://stackoverflow.com/q/2593139/362030
-[stucox]: http://www.stucox.com/blog/you-cant-detect-a-touchscreen/
-[Modernizr]: https://github.com/Modernizr/Modernizr/issues/548
 
 ### Handlers
 
@@ -181,3 +175,36 @@ var mathField = MQ.MathField($('#mathfield')[0], {
   }
 });
 ```
+### Changing Colors
+
+To change the foreground color, don't just set the `color`, also set
+the `border-color`, because the cursor, fraction bar, and square root
+overline are all borders, not text. (Example below.)
+
+Due to technical limitations of IE8, if you support it, and want to give
+a MathQuill editable a background color other than white, and support
+square roots, parentheses, square brackets, or curly braces, you will
+need to, in addition to of course setting the background color on the
+editable itself, set it on elements with class `mq-matrixed`, and then set
+a Chroma filter on elements with class `mq-matrixed-container`.
+
+For example, to style as white-on-black instead of black-on-white:
+
+    #my-math-input {
+      color: white;
+      border-color: white;
+      background: black;
+    }
+    #my-math-input .mq-matrixed {
+      background: black;
+    }
+    #my-math-input .mq-matrixed-container {
+      filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
+    }
+
+(This is because almost all math rendered by MathQuill has a transparent
+background, so for them it's sufficient to set the background color on
+the editable itself. The exception is, IE8 doesn't support CSS
+transforms, so MathQuill uses a matrix filter to stretch parens etc,
+which [anti-aliases wrongly without an opaque background](http://github.com/mathquill/mathquill/wiki/Transforms),
+so MathQuill defaults to white.)
