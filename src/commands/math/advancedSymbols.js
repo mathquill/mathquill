@@ -321,5 +321,6 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 
 // FIXME: the correct LaTeX would be ^\circ but we can't parse that
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
+
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
