@@ -239,6 +239,9 @@ LatexCmds.f = P(Letter, function(_, super_) {
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
+LatexCmds["''"] = LatexCmds.second = bind(VanillaSymbol,'\\second ','&#8243;');
+LatexCmds["''"] = LatexCmds.third = bind(VanillaSymbol,'\\third ','&#8244;');
+LatexCmds.backprime = bind(VanillaSymbol, "\\backprime ", '&#8245;');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
