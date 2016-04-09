@@ -29,9 +29,9 @@ var latexMathParser = (function() {
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
   var controlSequence =
-    regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
+    regex(/^[^\\a-eg-zA-Z|]/) // hotfix #164; match MathBlock::write
     .or(string('\\').then(
-      regex(/^[a-z]+/i)
+      regex(/^[a-z|]+/i)
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {

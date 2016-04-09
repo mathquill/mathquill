@@ -220,10 +220,11 @@ LatexCmds.opencurlybrace = LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '
 LatexCmds.closecurlybrace = LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '}');
 LatexCmds.lbrack = bind(VanillaSymbol, '[');
 LatexCmds.rbrack = bind(VanillaSymbol, ']');
-
+ 
 //various symbols
 LatexCmds.slash = bind(VanillaSymbol, '/');
 LatexCmds.vert = bind(VanillaSymbol,'|');
+LatexCmds['|'] = bind(VanillaSymbol,'\\| ','&#8741;');
 LatexCmds.perp = LatexCmds.perpendicular = bind(VanillaSymbol,'\\perp ','&perp;');
 LatexCmds.nabla = LatexCmds.del = bind(VanillaSymbol,'\\nabla ','&nabla;');
 LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
@@ -321,6 +322,12 @@ LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
 
 // FIXME: the correct LaTeX would be ^\circ but we can't parse that
 LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
+
+LatexCmds.celsius = bind(VanillaSymbol,'\\celsius ','&#8451;');
+LatexCmds.micro = bind(VanillaSymbol,'\\micro ','&#181;');
+LatexCmds.perthousand = bind(VanillaSymbol,'\\perthousand ','&#8240;');
+LatexCmds.ohm = bind(VanillaSymbol,'\\ohm ','&#8486;');
+
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
