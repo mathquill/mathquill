@@ -2,22 +2,17 @@
 
 by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (maintainers@mathquill.com)
 
-Good news! We've resumed active development and we're committed to getting
-things running smoothly.  
-Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues)
-
 MathQuill is a web formula editor designed to make typing math easy and beautiful. To view a demo, please view our [website](http://mathquill.com/). The MathQuill project is currently supported by its [partners](http://mathquill.com/partners.html). We are bound by a [Code of Conduct](http://mathquill.readthedocs.org/en/latest/Code_of_Conduct/).
 
-We'd love to hear from you-we love offering help and receiving feedback.
+MathQuill is actively developed and we're committed to getting
+things running smoothly. Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues) We'd love to hear from you.
 
 <big>[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
 [<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)</big>
 
 ## Getting Started
 
-Check out our [Getting Started Guide](http://mathquill.readthedocs.org/en/latest/Getting_Started/) for instructions on how to get setup up with MathQuill and start using it.
-
-MathQuill has a simple interface:
+MathQuill has a simple interface. This brief example creates a MathQuill element and renders, then reads a given input:
 ```javascript
 var htmlElement = document.getElementById('some_id');
 var config = {
@@ -29,6 +24,8 @@ var mathField = MQ.MathField(htmlElement, config);
 mathField.latex('2^{\\frac{3}{2}}'); // Renders the given LaTeX in the MathQuill field
 console.log(mathField.latex()); // Shows '2^{\frac{3}{2}}'
 ```
+
+Check out our [Getting Started Guide](http://mathquill.readthedocs.org/en/latest/Getting_Started/) for setup instructions and basic MathQuill usage.
 
 ## Open-Source License
 

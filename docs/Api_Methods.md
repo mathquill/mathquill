@@ -6,9 +6,7 @@ To use the MathQuill API, first get the latest version of the interface:
 var MQ = MathQuill.getInterface(2);
 ```
 
-MathQuill overwrites the global `MathQuill` variable when loaded. You can undo
-that with `.noConflict()` (similar to [`jQuery.noConflict()`]
-(http://api.jquery.com/jQuery.noConflict)):
+MathQuill overwrites the global `MathQuill` variable when loaded. You can undo that with `.noConflict()` (similar to [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
 
 ```html
 <script src="/path/to/first-mathquill.js"></script>
@@ -22,9 +20,7 @@ firstMQ.MathField(...);
 </script>
 ```
 
-(Warning: This lets different copies of MathQuill each power their own
- math fields, but using different copies on the same DOM element won't
- work. Anyway, .noConflict() is primarily to help you reduce globals.)
+(Warning: This lets different copies of MathQuill each power their own math fields, but using different copies on the same DOM element won't work. Anyway, .noConflict() is primarily to help you reduce globals.)
 
 # Constructors
 
@@ -68,9 +64,7 @@ mathField instanceof MathQuill // => true
 ```
 
 ## Comparing IDs
-API objects for the same MathQuill instance have the same `.id`, which will
-always be a unique truthy primitive value that can be used as an object key
-(like an ad hoc [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) or [`Set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)):
+API objects for the same MathQuill instance have the same `.id`, which will always be a unique truthy primitive value that can be used as an object key (like an ad hoc [`Map`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) or [`Set`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Set)):
 
 ```js
 MQ(mathFieldSpan).id === mathField.id // => true
@@ -82,8 +76,7 @@ staticMath.id in setOfMathFields // => false
 ```
 
 ## Data Object
-Similarly, API objects for the same MathQuill instance share a `.data` object
-(which can be used like an ad hoc [`WeakMap`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) or [`WeakSet`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet)):
+Similarly, API objects for the same MathQuill instance share a `.data` object (which can be used like an ad hoc [`WeakMap`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakMap) or [`WeakSet`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/WeakSet)):
 
 ```js
 MQ(mathFieldSpan).data === mathField.data // => true
@@ -109,9 +102,7 @@ MQ($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
 
 ## reflow()
 
-MathQuill uses computed dimensions, so if they change (because an element was
-mathquill-ified before it was in the visible HTML DOM, or the font size
-changed), then you'll need to tell MathQuill to recompute:
+MathQuill uses computed dimensions, so if they change (because an element was mathquill-ified before it was in the visible HTML DOM, or the font size changed), then you'll need to tell MathQuill to recompute:
 
 ```js
 var mathFieldSpan = $('<span>\\sqrt{2}</span>');
@@ -122,19 +113,19 @@ mathField.reflow();
 
 ## el()
 
-Returns the root HTML element.
+Returns the root HTML element of the mathField.
 
 ## html()
 
-Returns the contents of the MathField as static HTML
+Returns the contents of the mathField as static HTML.
 
 ## latex()
 
-Returns the contents as LaTeX
+Returns the contents of the mathField as LaTeX.
 
 ## latex(latex_string)
 
-This will render the argument as LaTeX
+This will render the argument as LaTeX in the mathField.
 
 # Editable MathField Methods
 
@@ -168,20 +159,22 @@ mathField.cmd('\\sqrt'); // writes a square root character after the cursor posi
 
 Selects the contents (just like [on `textarea`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622) and [on `input`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168)).
 
+To clear this selection, use [`clearSelection`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#clearselection)
+
 ## clearSelection()
 
-Clears the current selection.
+Clears the current selection in the mathField.
 
 ## moveToLeftEnd(), moveToRightEnd()
 
-Move the cursor to the left/right end of the editable field, respectively. These are implemented in terms of [`moveToDirEnd`, shown below]().
+Move the cursor to the left/right end of the editable field, respectively. These are implemented in terms of [`moveToDirEnd`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetodirenddirection).
 
 ## movetoDirEnd(direction)
 
-Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants that obey the contract that `MQ.L === -MQ.R` and vice versa. This function may be easier to use than the functions above it if used in the [`moveOutOf` handler]() when setting the [configuration of a mathField](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
+Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants that obey the contract that `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](http://mathquill.readthedocs.org/en/latest/Config/#outof-handlers) when setting the [configuration of a mathField](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
 
 ```javascript
-var mathFieldConfig = {
+var config = {
   handlers: {
     moveOutOf: function(direction, mathField) {
       mathField.movetoDirEnd(direction);
@@ -200,14 +193,14 @@ mathField.keystroke('Shift-Left'); // Selects character before the current curso
 
 ## typedText(text)
 
-Simulates typing text, one character at a time.
+Simulates typing text, one character at a time from where the cursor currently is. This is supposed to be identical to what would happen if a user were typing the text in.
 
 ```javascript
 // Types part of the demo from mathquill.com without delays between keystrokes
 mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 ```
 
-## dropEmbedded(pageX, pageY, options) **[Experimental]()**
+## dropEmbedded(pageX, pageY, options) **[Experimental](http://mathquill.readthedocs.org/en/latest/Api_Methods/#note-on-experimental-features)**
 
 Insert a custom embedded element at the given coordinates, where `options` is an object like:
 ```js
@@ -218,10 +211,10 @@ Insert a custom embedded element at the given coordinates, where `options` is an
 }
 ```
 
-## registerEmbed('name', function(id){return options}) **[Experimental]()**
+## registerEmbed('name', function(id){return options}) **[Experimental](http://mathquill.readthedocs.org/en/latest/Api_Methods/#note-on-experimental-features)**
 
 Allows MathQuill to parse custom embedded objects from latex, where `options` is an object like the one defined above in `.dropEmbedded`. This will parse the following latex into the embedded object you defined: `\embed{name}[id]}`.
 
 ## Note on Experimental Features
 
-Methods marked as experimental may be altered drastically or removed in future versions. They may also receive less maintance than other non-experimental features.
+Methods marked as experimental may be altered drastically or removed in future versions. They may also receive less maintenance than other non-experimental features.
