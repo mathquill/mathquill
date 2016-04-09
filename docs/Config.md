@@ -1,6 +1,4 @@
-# MathField Config
-
-## Setting Configuration
+# Setting Configuration
 
 The configuration options for a given mathField has the following structure and [options](http://mathquill.readthedocs.org/en/latest/Config/#configuration-options):
 ```js
@@ -31,15 +29,15 @@ To change the options later on, use `mathField.config(NEW_CONFIG)`.
 
 Global defaults for a page may be set with `MQ.config(NEW_CONFIG)`.
 
-## Configuration Options
+# Configuration Options
 
-### spacesBehavesLikeTab
+## spacesBehavesLikeTab
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave
 like {Shift-,}Tab escaping from the current block (as opposed to the default
 behavior of inserting a Space character).
 
-### leftRightIntoCmdGoes
+## leftRightIntoCmdGoes
 
 By default, the Left and Right keys move the cursor through all possible cursor
 positions in a particular order: right into a fraction puts the cursor at the
@@ -60,26 +58,26 @@ the same behavior as the Desmos calculator. `'down'` instead means it is the
 numerator that is always skipped, which is the same behavior as the Mac OS X
 built-in app Grapher.
 
-### restrictMismatchedBrackets
+## restrictMismatchedBrackets
 
 If `restrictMismatchedBrackets` is true then you can type [a,b) and [a,b), but
 if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or
 `\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise,
 you'd get `\left( \right| x \left| + 1 \right)`.
 
-### sumStartsWithNEquals
+## sumStartsWithNEquals
 
 If `sumStartsWithNEquals` is true then when you type `\sum`, `\prod`, or
 `\coprod`, the lower limit starts out with `n=`, e.g. you get the LaTeX
 `\sum_{n=}^{ }`, rather than empty by default.
 
-### supSubsRequireOperand
+## supSubsRequireOperand
 
 `supSubsRequireOperand` disables typing of superscripts and subscripts when
 there's nothing to the left of the cursor to be exponentiated or subscripted.
 Averts the especially confusing typo `x^^2`, which looks much like `x^2`.
 
-### charsThatBreakOutOfSupSub
+## charsThatBreakOutOfSupSub
 
 `charsThatBreakOutOfSupSub` sets the chars that when typed, "break out" of
 superscripts and subscripts: for example, typing `x^2n+y` normally results in
@@ -91,14 +89,14 @@ LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
 (Doesn't apply to the first character in a superscript or subscript, so typing
 `x^-6` still results in `x^{-6}`.)
 
-### autoCommands
+## autoCommands
 
 `autoCommands`, a space-delimited list of LaTeX control words (no backslash,
 letters only, min length 2), defines the (default empty) set of "auto-commands",
 commands automatically rendered by just typing the letters without typing a
 backslash first.
 
-### autoOperatorNames
+## autoOperatorNames
 
 `autoOperatorNames`, a list of the same form (space-delimited letters-only each
 length>=2), and overrides the set of operator names that automatically become
@@ -106,7 +104,7 @@ non-italicized when typing the letters without typing a backslash first, like
 `sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names](http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.), but
 with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
 
-### substituteTextarea
+## substituteTextarea
 
 `substituteTextarea`, a function that creates a focusable DOM element, called
 when setting up a math field. It defaults to `<textarea autocorrect=off .../>`,
@@ -120,30 +118,9 @@ physical keyboards to iOS and Android devices with Bluetooth, so touchscreen !=
 virtual keyboard. Desmos currently sniffs the user agent for iOS, so Bluetooth
 keyboards just don't work in Desmos on iOS, the tradeoffs are up to you.
 
-### Handlers
+# Handlers
 
-Supported handlers:
-- `moveOutOf`, `deleteOutOf`, and `selectOutOf` are called with `dir` and the
-  math field API object as arguments
-- `upOutOf`, `downOutOf`, `enter`, and `edit` are called with just the API
-  object as the argument
-
-The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/
-Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom
-edge and so nothing happens within the math field. For example, when the cursor
-is at the left edge, pressing the Left key causes the `moveOutOf` handler (if
-provided) to be called with `MQ.L` and the math field API object as arguments,
-and Backspace causes `deleteOutOf` (if provided) to be called with `MQ.L` and
-the API object as arguments, etc.
-
-The `enter` handler is called whenever Enter is pressed.
-
-The `edit` handler is called when the contents of the field might have been
-changed by stuff being typed, or deleted, or written with the API, etc.
-(Deprecated aliases: `edited`, `reflow`.)
-
-Handlers are always called directly on the `handlers` object passed in,
-preserving the `this` value, so you can do stuff like:
+Handlers are called directly on the `handlers` object passed in, preserving the `this` value, so you can do stuff like:
 ```js
 var MathList = P(function(_) {
   _.init = function() {
@@ -164,8 +141,8 @@ var MathList = P(function(_) {
   ...
 });
 ```
-Of course you can always ignore the last argument, like when the handlers close
-over the math field:
+
+You can always ignore the last argument, like when the handlers close over the math field:
 ```js
 var latex = '';
 var mathField = MQ.MathField($('#mathfield')[0], {
@@ -175,18 +152,25 @@ var mathField = MQ.MathField($('#mathfield')[0], {
   }
 });
 ```
-### Changing Colors
 
-To change the foreground color, don't just set the `color`, also set
-the `border-color`, because the cursor, fraction bar, and square root
-overline are all borders, not text. (Example below.)
+## *OutOf handlers
 
-Due to technical limitations of IE8, if you support it, and want to give
-a MathQuill editable a background color other than white, and support
-square roots, parentheses, square brackets, or curly braces, you will
-need to, in addition to of course setting the background color on the
-editable itself, set it on elements with class `mq-matrixed`, and then set
-a Chroma filter on elements with class `mq-matrixed-container`.
+moveOutOf(direction, mathField), deleteOutOf(direction, mathField), selectOutOf(direction, mathField), upOutOf(mathField), downOutOf(mathField)
+
+The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom edge and so nothing happens within the math field. For example, when the cursor is at the left edge, pressing the Left key causes the `moveOutOf` handler (if
+provided) to be called with `MQ.L` and the math field API object as arguments, and Backspace causes `deleteOutOf` (if provided) to be called with `MQ.L` and the API object as arguments, etc.
+
+## enter(mathField)
+
+Called whenever Enter is pressed.
+
+## edit(mathField)
+
+This is called when the contents of the field might have been changed by stuff being typed, or deleted, or written with the API, etc. (Deprecated aliases: `edited`, `reflow`.) Note that this may be called when nothing has actually changed.
+
+# Changing Colors
+
+To change the foreground color, set both `color` and the `border-color` because some MathQuill symbols are implemented with borders, not text.
 
 For example, to style as white-on-black instead of black-on-white:
 
@@ -202,9 +186,6 @@ For example, to style as white-on-black instead of black-on-white:
       filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
     }
 
-(This is because almost all math rendered by MathQuill has a transparent
-background, so for them it's sufficient to set the background color on
-the editable itself. The exception is, IE8 doesn't support CSS
-transforms, so MathQuill uses a matrix filter to stretch parens etc,
-which [anti-aliases wrongly without an opaque background](http://github.com/mathquill/mathquill/wiki/Transforms),
-so MathQuill defaults to white.)
+## Color Changes Support IE8
+
+To support a MathQuill editable background color other than white in IE8, set the background color on both the editable mathField and on elements with class `mq-matrixed`. Then set a Chroma filter on elements with class `mq-matrixed-container`.

@@ -19,21 +19,21 @@ Check out our [Getting Started Guide](http://mathquill.readthedocs.org/en/latest
 
 MathQuill has a simple interface:
 ```javascript
-var domObject = document.getElementById('#some_id');
+var htmlElement = document.getElementById('some_id');
 var config = {
   handlers: {edit: myEditHandler},
   restrictMismatchedBrackets: true
-}
-var mathField = MQ.MathField(domObject, config);
+};
+var mathField = MQ.MathField(htmlElement, config);
 
-mathField.latex('2^{\frac{3}{2}}') // Renders the given LaTeX in the MathQuill field
-console.log(mathField.latex()) // Shows '2^{\frac{3}{2}}'
+mathField.latex('2^{\\frac{3}{2}}'); // Renders the given LaTeX in the MathQuill field
+console.log(mathField.latex()); // Shows '2^{\frac{3}{2}}'
 ```
 
 ## Open-Source License
 
 The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
-License, v. 2.0: http://mozilla.org/MPL/2.0/
+License, v. 2.0: [http://mozilla.org/MPL/2.0/](http://mozilla.org/MPL/2.0/)
 
 The quick-and-dirty is you can do whatever if modifications to MathQuill are in
 public GitHub forks. (Other ways to publicize modifications are also fine, as
