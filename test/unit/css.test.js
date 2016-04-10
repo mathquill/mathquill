@@ -52,13 +52,15 @@ suite('CSS', function() {
     var mqF = $(mq.el()).find('.mq-f');
     var testVal = parseFloat(mqF.css('margin-right')) - parseFloat(mqF.css('margin-left'));
     assert.ok(testVal > 0, 'this should be truthy') ;
+
+    $(mq.el()).remove();
   });
 
   test('unary PlusMinus before separator', function () {
     var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    mq.latex('(-1,-1-1)-1,(+1;+1+1)+1,(\\pm{}1,\\pm{}1\\pm{}1)\\pm{}1');
+    mq.latex('(-1,-1-1)-1,(+1;+1+1)+1,(\\pm1,\\pm1\\pm1)\\pm1');
     var spans = $(mq.el()).find('.mq-root-block').find('span');
-    assert.ok(spans.length >= 35, 'PlusMinus expression parsed incorrectly');
+    assert.equal(spans.length, 35, 'PlusMinus expression parsed incorrectly');
 
     function isBinaryOperator(i) { return $(spans[i]).hasClass('mq-binary-operator'); }
     function assertBinaryOperator(i, s) { assert.ok(isBinaryOperator(i), '"' + s + '" should be binary'); }
@@ -76,6 +78,7 @@ suite('CSS', function() {
     assertUnaryOperator(28, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm');
     assertBinaryOperator(30, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm');
     assertBinaryOperator(33, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm1)\pm');
-  
+
+    $(mq.el()).remove();
   });
 });
