@@ -414,8 +414,11 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
+    // If the left sibling is a binary operator or a separator (comma, semicolon, colon)
+    // or an open bracket (open parenthesis, open square bracket)
+    // consider the operator to be unary, otherwise binary
     this.jQ[0].className =
-      (!this[L] || this[L] instanceof BinaryOperator ? '' : 'mq-binary-operator');
+      (!this[L] || this[L] instanceof BinaryOperator || /^[,;:\(\[]$/.test(this[L].ctrlSeq) ? '' : 'mq-binary-operator');
     return this;
   };
 });
