@@ -133,8 +133,10 @@ div .note {
 
 </head>
 
-<script type="text/javascript" async
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+// Load a standard MathJax configuration, with typesetting on startup disabled.
+// We'll trigger the typesetting explicitly later.
+<script type="text/javascript"
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML&skipStartupTypeset=true">
 </script>
 
 <body>
@@ -1042,6 +1044,7 @@ var sections = [
     };
     
     $('#document').html(t);
+
     $('.mathquill-static-math').each(function() { 
         MQ.StaticMath(this);
         if (MQ(this).latex() === '') {
@@ -1050,6 +1053,13 @@ var sections = [
             this.innerHTML = '<span style="background:red; color: white; font-weight:bolder; padding-left:.5em; padding-right:.5em;">?</span>';
         }
     });
+    
+    // We've deferred the typeseting on startup. Do it explicitly now on each
+    // elements with a "mathjax" class.
+    $('.mathjax').each(function() { 
+        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this]);
+    });
+
 });
 
 
