@@ -1,0 +1,718 @@
+<!DOCTYPE html><html><head>
+<title>MathQuill Reference</title>
+<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+<style type="text/css">
+
+h2 {
+    font-variant: small-caps;
+}
+
+h3 {
+    font-variant: small-caps;
+
+}
+
+code {
+    font-family: monospace;
+    font-size: 1.2em;
+}
+
+table tr {
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    break-inside: avoid;
+}
+
+tr > td:first-child {
+    text-align: right;
+    padding-right: .5em;
+}
+
+.col2 {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2;
+}
+
+.col3 {
+    -webkit-column-count: 3;
+    -moz-column-count: 3;
+    column-count: 3;
+}
+
+.col4 {
+    -webkit-column-count: 4;
+    -moz-column-count: 4;
+    column-count: 4;
+}
+
+.col5 {
+    -webkit-column-count: 5;
+    -moz-column-count: 5;
+    column-count: 5;
+}
+
+img {
+    opacity: .5;
+}
+
+</style>
+
+</head>
+<body>
+
+<div id="table"></div>    
+
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="../build/mathquill.js"></script>
+<script type="text/javascript">
+
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+
+//on document ready, generate the list of control sequences
+$(function() {
+var entries = [
+    '3.3', "abcdefghijklmnopqrstuvwxyz",
+    '3.3', "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    '3.3', "-1234567890",
+    '3.3.a', "\\imath",
+    '3.3.a', "\\jmath",
+    '3.3.a', "\\hat\\jmath",
+    '3.4', "\\Gamma",
+    '3.4', "\\Delta",
+    '3.4', "\\Lambda",
+    '3.4', "\\Phi",
+    '3.4', "\\Psi",
+    '3.4', "\\Sigma",
+    '3.4', "\\Theta",
+    '3.4', "\\Upsilon",
+    '3.4', "\\Xi",
+    '3.4', "\\Omega",
+    '3.4', "\\alpha",
+    '3.4', "\\beta",
+    '3.4', "\\gamma",
+    '3.4', "\\delta",
+    '3.4', "\\epsilon",
+    '3.4', "\\zeta",
+    '3.4', "\\eta",
+    '3.4', "\\theta",
+    '3.4', "\\iota",
+    '3.4', "\\kappa",
+    '3.4', "\\lambda",
+    '3.4', "\\mu",
+    '3.4', "\\nu",
+    '3.4', "\\xi",
+    '3.4', "\\pi",
+    '3.4', "\\rho",
+    '3.4', "\\sigma",
+    '3.4', "\\tau",
+    '3.4', "\\upsilon",
+    '3.4', "\\phi",
+    '3.4', "\\chi",
+    '3.4', "\\psi",
+    '3.4', "\\omega",
+    '3.4', "\\digamma",
+    '3.4', "\\varepsilon",
+    '3.4', "\\varkappa",
+    '3.4', "\\varphi",
+    '3.4', "\\varpi",
+    '3.4', "\\varrho",
+    '3.4', "\\varsigma",
+    '3.4', "\\vartheta",
+    
+    '3.5', "\\aleph",
+    '3.5', "\\beth",
+    '3.5', "\\daleth",
+    '3.5', "\\gimel",
+    '3.5', "\\complement",
+    '3.5', "\\ell",
+    '3.5', "\\eth",
+    '3.5', "\\hbar",
+    '3.5', "\\hslash",
+    '3.5', "\\mho",
+    '3.5', "\\partial",
+    '3.5', "\\wp",
+    '3.5', "\\circledS",
+    '3.5', "\\Bbbk",
+    '3.5', "\\Finv",
+    '3.5', "\\Game",
+    '3.5', "\\Im",
+    '3.5', "\\Re",
+
+    '3.6', "\\#",
+    '3.6', "\\&",
+    '3.6', "\\angle",
+    '3.6', "\\backprime",
+    '3.6', "\\bigstar",
+    '3.6', "\\blacklozenge",
+    '3.6', "\\blacksquare",
+    '3.6', "\\blacktriangle",
+    '3.6', "\\blacktriangledown",
+    '3.6', "\\bot",
+    '3.6', "\\clubsuit",
+    '3.6', "\\diagdown",
+    '3.6', "\\diagup",
+    '3.6', "\\diamondsuit",
+    '3.6', "\\emptyset",
+    '3.6', "\\exists",
+    '3.6', "\\flat",
+    '3.6', "\\forall",
+    '3.6', "\\heartsuit",
+    '3.6', "\\infty",
+    '3.6', "\\lozenge",
+    '3.6', "\\measuredangle",
+    '3.6', "\\nabla",
+    '3.6', "\\natural",
+    '3.6', "\\neg",
+    '3.6', "\\nexists",
+    '3.6', "\\prime",
+    '3.6', "\\sharp",
+    '3.6', "\\spadesuit",
+    '3.6', "\\sphericalangle",
+    '3.6', "\\square",
+    '3.6', "\\surd",
+    '3.6', "\\top",
+    '3.6', "\\triangle",
+    '3.6', "\\varnothing",
+    
+    '3.7', "*",
+    '3.7', "+",
+    '3.7', "-",
+    '3.7', "\\amalg",
+    '3.7', "\\ast",
+    '3.7', "\\barwedge",
+    '3.7', "\\bigcirc",
+    '3.7', "\\bigtriangledown",
+    '3.7', "\\bigtriangleup",
+    '3.7', "\\boxdot",
+    '3.7', "\\boxminus",
+    '3.7', "\\boxplus",
+    '3.7', "\\boxtimes",
+    '3.7', "\\bullet",
+    '3.7', "\\cap",
+    '3.7', "\\Cap",
+    '3.7', "\\cdot",
+    '3.7', "\\centerdot",
+    '3.7', "\\circ",
+    '3.7', "\\circledast",
+    '3.7', "\\circledcirc",
+    '3.7', "\\circleddash",
+    '3.7', "\\cup",
+    '3.7', "\\Cup",
+    '3.7', "\\curlyvee",
+    '3.7', "\\curlywedge",
+    '3.7', "\\dagger",
+    '3.7', "\\ddagger",
+    '3.7', "\\diamond",
+    '3.7', "\\div",
+    '3.7', "\\divideontimes",
+    '3.7', "\\dotplus",
+    '3.7', "\\doublebarwedge",
+    '3.7', "\\gtrdot",
+    '3.7', "\\intercal",
+    '3.7', "\\leftthreetimes",
+    '3.7', "\\lessdot",
+    '3.7', "\\ltimes",
+    '3.7', "\\mp",
+    '3.7', "\\odot",
+    '3.7', "\\ominus",
+    '3.7', "\\oplus",
+    '3.7', "\\oslash",
+    '3.7', "\\otimes",
+    '3.7', "\\pm",
+    '3.7', "\\rightthreetimes",
+    '3.7', "\\rtimes",
+    '3.7', "\\setminus",
+    '3.7', "\\smallsetminus",
+    '3.7', "\\sqcap",
+    '3.7', "\\sqcup",
+    '3.7', "\\star",
+    '3.7', "\\times",
+    '3.7', "\\triangleleft",
+    '3.7', "\\triangleright",
+    '3.7', "\\uplus",
+    '3.7', "\\vee",
+    '3.7', "\\veebar",
+    '3.7', "\\wedge",
+    '3.7', "\\wr",
+    '3.7.synonyms', "\\land",
+    '3.7.synonyms', "\\lor",
+    '3.7.synonyms', "\\doublecup",
+    '3.7.synonyms', "\\doublecap",
+    
+    '3.8', "<",
+    '3.8', "=",
+    '3.8', ">",
+    '3.8', "\\approx",
+    '3.8', "\\approxeq",
+    '3.8', "\\asymp",
+    '3.8', "\\backsim",
+    '3.8', "\\backsimeq",
+    '3.8', "\\bumpeq",
+    '3.8', "\\Bumpeq",
+    '3.8', "\\circeq",
+    '3.8', "\\cong",
+    '3.8', "\\curlyeqprec",
+    '3.8', "\\curlyeqsucc",
+    '3.8', "\\doteq",
+    '3.8', "\\doteqdot",
+    '3.8', "\\eqcirc",
+    '3.8', "\\eqsim",
+    '3.8', "\\eqslantgtr",
+    '3.8', "\\eqslantless",
+    '3.8', "\\equiv",
+    '3.8', "\\fallingdotseq",
+    '3.8', "\\geq",
+    '3.8', "\\geqq",
+    '3.8', "\\geqslant",
+    '3.8', "\\gg",
+    '3.8', "\\ggg",
+    '3.8', "\\gnapprox",
+    '3.8', "\\gneq",
+    '3.8', "\\gneqq",
+    '3.8', "\\gnsim",
+    '3.8', "\\gtrapprox",
+    '3.8', "\\gtreqless",
+    '3.8', "\\gtreqqless",
+    '3.8', "\\gtrless",
+    '3.8', "\\gtrsim",
+    '3.8', "\\gvertneqq",
+
+    '3.8', "\\leq",
+    '3.8', "\\leqq",
+    '3.8', "\\leqslant",
+    '3.8', "\\lessapprox",
+    '3.8', "\\lesseqgtr",
+    '3.8', "\\lesseqqgtr",
+    '3.8', "\\lessgtr",
+    '3.8', "\\lesssim",
+    '3.8', "\\ll",
+    '3.8', "\\lll",
+    '3.8', "\\lnapprox",
+    '3.8', "\\lneq",
+    '3.8', "\\lneqq",
+    '3.8', "\\lnsim",
+    '3.8', "\\lvertneqq",
+    '3.8', "\\ncong",
+    '3.8', "\\neq",
+    '3.8', "\\ngeq",
+    '3.8', "\\ngeqq",
+    '3.8', "\\ngeqslant",
+    '3.8', "\\ngtr",
+    '3.8', "\\nleq",
+    '3.8', "\\nleqq",
+    '3.8', "\\nleqslant",
+    '3.8', "\\nless",
+    '3.8', "\\nprec",
+    '3.8', "\\npreceq",
+    '3.8', "\\nsim",
+    '3.8', "\\nsucc",
+    '3.8', "\\nsucceq",
+    '3.8', "\\prec",
+    '3.8', "\\precapprox",
+    '3.8', "\\preccurlyeq",
+    '3.8', "\\preceq",
+    '3.8', "\\precnapprox",
+    '3.8', "\\precneqq",
+    '3.8', "\\precnsim",
+    '3.8', "\\risingdotseq",
+    '3.8', "\\sim",
+    '3.8', "\\simeq",
+    '3.8', "\\succ",
+    '3.8', "\\succapprox",
+    '3.8', "\\succcurlyeq",
+    '3.8', "\\succeq",
+    '3.8', "\\succnapprox",
+    '3.8', "\\succneqq",
+    '3.8', "\\succnsim",
+    '3.8', "\\succsim",
+    '3.8', "\\thickapprox",
+    '3.8', "\\thicksim",
+    '3.8', "\\triangleq",
+    '3.8.synonyms', "\\ne",
+    '3.8.synonyms', "\\le",
+    '3.8.synonyms', "\\ge",
+    '3.8.synonyms', "\\Doteq",
+    '3.8.synonyms', "\\llless",
+    '3.8.synonyms', "\\gggtr",
+
+    '3.9', "\\circlearrowleft",
+    '3.9', "\\circlearrowright",
+    '3.9', "\\curvearrowleft",
+    '3.9', "\\curvearrowright",
+    '3.9', "\\downdownarrows",
+    '3.9', "\\downharpoonleft",
+    '3.9', "\\downharpoonright",
+    '3.9', "\\hookleftarrow",
+    '3.9', "\\hookrightarrow",
+    '3.9', "\\leftarrow",
+    '3.9', "\\Leftarrow",
+    '3.9', "\\leftarrowtail",
+    '3.9', "\\leftharpoondown",
+    '3.9', "\\leftharpoonup",
+    '3.9', "\\leftleftarrows",
+    '3.9', "\\leftrightarrow",
+    '3.9', "\\Leftrightarrow",
+    '3.9', "\\leftrightarrows",
+    '3.9', "\\leftrightharpoons",
+    '3.9', "\\leftrightsquigarrow",
+    '3.9', "\\Lleftarrow",
+    '3.9', "\\longleftarrow",
+    '3.9', "\\Longleftarrow",
+    '3.9', "\\longleftrightarrow",
+    '3.9', "\\Longleftrightarrow",
+    '3.9', "\\longmapsto",
+    '3.9', "\\longrightarrow",
+    '3.9', "\\Longrightarrow",
+    '3.9', "\\looparrowleft",
+    '3.9', "\\looparrowright",
+    '3.9', "\\Lsh",
+    '3.9', "\\mapsto",
+    '3.9', "\\multimap",
+    '3.9', "\\nLeftarrow",
+    '3.9', "\\nLeftrightarrow",
+    '3.9', "\\nearrow",
+    '3.9', "\\nleftarrow",
+    '3.9', "\\nleftrightarrow",
+    '3.9', "\\nrightarrow",
+    '3.9', "\\nwarrow",
+    '3.9', "\\rightarrow",
+    '3.9', "\\Rightarrow",
+    '3.9', "\\rightarrowtail",
+    '3.9', "\\rightharpoondown",
+    '3.9', "\\rightharpoonup",
+    '3.9', "\\rightleftarrows",
+    '3.9', "\\rightleftharpoons",
+    '3.9', "\\rightsquigarrow",
+    '3.9', "\\Rrightarrow",
+    '3.9', "\\Rsh",
+    '3.9', "\\searrow",
+    '3.9', "\\swarrow",
+    '3.9', "\\twoheadleftarrow",
+    '3.9', "\\twoheadrightarrow",
+    '3.9', "\\upharpoonleft",
+    '3.9', "\\upharpoonright",
+    '3.9', "\\upuparrows",
+    '3.9.synonyms', "\\gets",
+    '3.9.synonyms', "\\to",
+    '3.9.synonyms', "\\restriction",
+    
+    '3.10', "\\backepsilon",
+    '3.10', "\\because",
+    '3.10', "\\between",
+    '3.10', "\\blacktriangleleft",
+    '3.10', "\\blacktriangleright",
+    '3.10', "\\bowtie",
+    '3.10', "\\dashv",
+    '3.10', "\\frown",
+    '3.10', "\\in",
+    '3.10', "\\mid",
+    '3.10', "\\models",
+    '3.10', "\\ni",
+    '3.10', "\\nmid",
+    '3.10', "\\notin",
+    '3.10', "\\nparallel",
+    '3.10', "\\nshortmid",
+    '3.10', "\\nshortparallel",
+    '3.10', "\\nsubseteq",
+    '3.10', "\\nsubseteqq",
+    '3.10', "\\nsupseteq",
+    '3.10', "\\nsupseteqq",
+    '3.10', "\\ntriangleleft",
+    '3.10', "\\ntrianglelefteq",
+    '3.10', "\\ntriangleright",
+    '3.10', "\\ntrianglerighteq",
+    '3.10', "\\nvdash",
+    '3.10', "\\nVdash",
+    '3.10', "\\nvDash",
+    '3.10', "\\nVDash",
+    '3.10', "\\parallel",
+    '3.10', "\\perp",
+    '3.10', "\\pitchfork",
+    '3.10', "\\propto",
+    '3.10', "\\shortmid",
+    '3.10', "\\shortparallel",
+    '3.10', "\\smallfrown",
+    '3.10', "\\smallsmile",
+    '3.10', "\\smile",
+    '3.10', "\\sqsubset",
+    '3.10', "\\sqsubseteq",
+    '3.10', "\\sqsupset",
+    '3.10', "\\sqsupseteq",
+    '3.10', "\\subset",
+    '3.10', "\\Subset",
+    '3.10', "\\subseteq",
+    '3.10', "\\subseteqq",
+    '3.10', "\\subsetneq",
+    '3.10', "\\subsetneqq",
+    '3.10', "\\supset",
+    '3.10', "\\Supset",
+    '3.10', "\\supseteq",
+    '3.10', "\\supseteqq",
+    '3.10', "\\supsetneq",
+    '3.10', "\\supsetneqq",
+    '3.10', "\\therefore",
+    '3.10', "\\trianglelefteq",
+    '3.10', "\\trianglerighteq",
+    '3.10', "\\varpropto",
+    '3.10', "\\varsubsetneq",
+    '3.10', "\\varsubsetneqq",
+    '3.10', "\\varsupsetneq",
+    '3.10', "\\varsupsetneqq",
+    '3.10', "\\vartriangle",
+    '3.10', "\\vartriangleleft",
+    '3.10', "\\vartriangleright",
+    '3.10', "\\vdash",
+    '3.10', "\\Vdash",
+    '3.10', "\\vDash",
+    '3.10', "\\Vvdash",
+    
+    
+    '3.11', "\\int_{-\\infty}^{\\infty} e^{-x^2} dx",
+    '3.11', "\\oint \\nabla f \\mathrm{d} t = 0",
+    '3.11', "\\bigcap_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigcup_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigodot_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigoplus_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigotimes_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigsqcup_{0 \\leq k \\leq n} n",
+    '3.11', "\\biguplus_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigvee_{0 \\leq k \\leq n} n",
+    '3.11', "\\bigwedge_{0 \\leq k \\leq n} n",
+    '3.11', "\\coprod_{0 \\leq k \\leq n} n",
+    '3.11', "\\prod_{0 \\leq k \\leq n} n",
+    '3.11', "\\smallint_{0 \\leq k \\leq n} n",
+    '3.11', "\\sum_{0 \\leq k \\leq n} n",
+    
+    '3.12', ".",
+    '3.12', "/",
+    '3.12', ",",
+    '3.12', ";",
+    '3.12', "\\colon",
+    '3.12', ":",
+    '3.12', "!",
+    '3.12', "?",
+    '3.12', "\\dotsb",
+    '3.12', "\\dotsc",
+    '3.12', "\\dotsi",
+    '3.12', "\\dotsm",
+    '3.12', "\\dotso",
+    '3.12', "\\ddots",
+    '3.12', "\\vdots",
+    '3.12', "\\dots",
+    '3.12.example', "f\\colon A\\to B \\mathrm{vs.} f: A\\to B",
+    '3.12.example', "a_1,\\ldots,a_n \\mathrm{vs.} a_1,\\cdots,a_n",
+    '3.12.example', "a_1 \\to \\cdots \to a_n \\mathrm{ vs. } a_1 \to \\ldots \\to a_n",
+    '3.12.example', "a_1,\\dots,a_n \\mathrm{ and }  a_1 \\to \\dots \\to a_n ",
+    
+    '3.14', "\\vert",
+    '3.14', "\\Vert",
+    '3.14', "\\/",
+    '3.14', "\\backslash",
+    '3.14', "\\arrowvert",
+    '3.14', "\\Arrowvert",
+    '3.14', "\\bracevert",
+
+    '3.16', "\\acute{x}",
+    '3.16', "\\grave{x}",
+    '3.16', "\\ddot{x}",
+    '3.16', "\\tilde{x}",
+    '3.16', "\\tilde{xxx}",
+    '3.16', "\\bar{x}",
+    '3.16', "\\breve{x}",
+    '3.16', "\\check{x}",
+    '3.16', "\\hat{x}",
+    '3.16', "\\hat{xxx}",
+    '3.16', "\\vec{x}",
+    '3.16', "\\vec{xxx}",
+    '3.16', "\\dot{x}",
+    '3.16', "\\ddot{x}",
+    '3.16', "\\dddot{x}",
+    '3.16', "\\widetilde{xxx}",
+    '3.16', "\\widehat{xxx}",
+
+    '3.17', "\\arccos",
+    '3.17', "\\arcsin",
+    '3.17', "\\arctan",
+    '3.17', "\\arg",
+    '3.17', "\\cos",
+    '3.17', "\\cosh",
+    '3.17', "\\cot",
+    '3.17', "\\csc",
+    '3.17', "\\deg",
+    '3.17', "\\det",
+    '3.17', "\\dim",
+    '3.17', "\\exp",
+    '3.17', "\\gcd",
+    '3.17', "\\hom",
+    '3.17', "\\inf",
+    '3.17', "\\injlim",
+    '3.17', "\\ker",
+    '3.17', "\\lg",
+    '3.17', "\\lim",
+    '3.17', "\\liminf",
+    '3.17', "\\limsup",
+    '3.17', "\\ln",
+    '3.17', "\\log",
+    '3.17', "\\max",
+    '3.17', "\\min",
+    '3.17', "\\Pr",
+    '3.17', "\\projlim",
+    '3.17', "\\sec",
+    '3.17', "\\sin",
+    '3.17', "\\sinh",
+    '3.17', "\\sup",
+    '3.17', "\\tan",
+    '3.17', "\\tanh",
+    '3.17', "\\varinjlim",
+    '3.17', "\\varprojlim",
+    '3.17', "\\varliminf",
+    '3.17', "\\varlimsup",
+    
+    
+    '3.18', "\\mathrm{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathbf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathsf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathit{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathcal{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathbb{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+    '3.18', "\\mathfrak{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
+        
+    '3.18.1', "\\mathcal{M}",
+    '3.18.1', "\\mathcal{ABCDEFGHIJKLMNOPQRSTUVWXYZ}",
+    '3.18.1', "\\mathcal{abcdefghijklmnopqrstuvwxyz}",
+
+    '3.18.2', "\\C",
+    '3.18.2', "\\R",
+    '3.18.2', "\\mathbb{R}",
+    '3.18.2', "\\N",
+    '3.18.2', "\\Z",
+    '3.18.2', "\\mathbb{ABCDEFGHIJKLMNOPQRSTUVWXYZ}",
+    '3.18.2', "\\mathbb{abcdefghijklmnopqrstuvwxyz}",
+
+    '3.18.3', "\\mathfrak{C}",
+    '3.18.3', "\\mathfrak{ABCDEFGHIJKLMNOPQRSTUVWXYZ}",
+    '3.18.3', "\\mathfrak{abcdefghijklmnopqrstuvwxyz}",
+
+    '5.1', "\\frac{1}{k}",
+    '5.1', "\\tfrac{1}{k}",
+    '5.1', "\\dfrac{1}{k}",
+    '5.1.example', "\\Re{z} =\\frac{n\\pi \\dfrac{\\theta +\\psi}{2}}{\\left(\\dfrac{\\theta +\\psi}{2}\\right)^2 + \\left( \\dfrac{1}{2}\\log \\left\\lvert\\dfrac{B}{A}\\right\\rvert\\right)^2}.",
+
+    '5.2', "\\binom{k}{1}",
+    '5.2', "\\tbinom{k}{1}",
+    '5.2', "\\dbinom{k}{1}",
+    '5.2.example', "2^k-\\binom{k}{1}2^{k-1}+\\binom{k}{2}2^{k-2}",
+
+
+    '7.1', "x \\mod k",
+    '7.1', "x \\bmod k",
+    '7.1', "x \\pmod k",
+    '7.1', "x \\pod k",
+    
+    '7.1.example', "\\gcd(n,m\\bmod n);\\quad x\\equiv y\\pmod b;\\quad x\\equiv y\\mod c;\\quad x\\equiv y\\pod d"
+    ];
+
+var sections = [
+    // Numbering schemes and sections from ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf
+    "3", "Math symbols and math fonts", "",
+    "3.3", "Latin letters and Arabic numerals", "col1",
+    "3.3.a", "", "col3",
+    "3.4", "Greek letters", "col5",
+    "3.5", "Other alphabetic symbols", "col5",
+    "3.6", "Miscellaneous simple symbols", "col4",
+    "3.7", "Binary operator symbols", "col4",
+    "3.7.synonyms", "", "col4",
+    "3.8", "Relation symbols: < = > \u227B \u223D  and variants", "col5",
+    "3.8.synonyms", "", "col4",
+    "3.9", "Relation symbols: arrows", "col3",
+    "3.9.synonyms", "", "col3",
+    "3.10", "Relation symbols: miscellaneous", "col4",
+    "3.11", "Cumulative (variable-size) operators", "col2",
+    "3.12", "Punctuation", "col5",
+    "3.12.example", "", "",
+    "3.13", "Pairing delimiters (extensible)", "col3",
+    "3.14", "Nonpairing extensible symbols", "col3", 
+    "3.15", "Extensible vertical arrows", "col3",
+    "3.16", "Accents", "col4", 
+    "3.17", "Named operators", "col5", 
+    "3.18", "Math font switches", "col1",
+    "3.18.1", "Calligraphic letters", "col1", 
+    "3.18.2", "Blackboard letters", "col1", 
+    "3.18.3", "Fraktur letters", "col1", 
+
+    "4", "Notations", "",
+    "4.1", "Top and bottom embellishments", "col3",
+    "4.2", "Extensible arrows", "col1", 
+    "4.3", "Affixing symbols to others", "col1",
+    "4.4", "Matrices", "col1", 
+    "4.5", "Math spacing commands", "col2",
+    "4.6", "Dots", "col1",
+    "4.7", "Nonbreaking dashes", "col1",
+    "4.8", "Roots", "col1",
+    "4.9", "Boxed formulas", "col1", 
+
+    "5", "Fractions and related constructions", "", 
+    "5.1", "Fractions", "col3",
+    "5.1.example", "", "", 
+    "5.2", "Binomials", "col3",
+    "5.2.example", "", "",
+    "5.3", "\\genfrac", "col1",
+    "5.4", "Continued fractions", "col1",
+
+    "6", "Delimiters", "col1",
+    "6.1", "Delimiter sizes", "col1", 
+    
+    "7", "The \\text command", "",
+    "7.1", "\\mod and its relatives", "col4",
+    "7.1.example", "", "",
+    
+    "8", "Integrals and sums", "",
+    
+];
+    var t = ''; // the output text
+    var i = 0;
+    var j = 0;
+    var matching = 0;
+    while (i < sections.length) {
+        if (sections[i + 1].length > 0) {
+            // Sections don't always have names...
+            var level = (sections[i].match(/\./g) || []).length + 1;
+            t += '<h' + level + '>' + sections[i] + '&nbsp;' + sections[i + 1] + '</h' + level + '>';
+        }
+        t += '<div class="' + sections[i + 2] + '">';
+        j = 0;
+        t += '<table>';
+        while (j < entries.length) {
+            if (entries[j] === sections[i]) {
+                // entry matches the current section
+                t += '<tr>';
+                t += '<td class="mathquill-static-math">' + entries[j + 1] + '</td>';
+                t += '<td><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
+                t += '<td><code>' + entries[j + 1] + '</code></td>';
+                t += '</tr>';
+            }
+            j += 2;
+        }
+        t += '</table>';
+        t += '</div>';
+        i += 3;
+    };
+    
+    $('#table').html(t);
+    $('.mathquill-static-math').each(function() { 
+        MQ.StaticMath(this);
+        if (this.textContent === '$$\u200B') {
+            // The MathQuilification failed
+            this.className = '';
+            this.innerHTML = '<span style="background:red; color: white; font-weight:bolder; padding-left:.5em; padding-right:.5em;">?</span>';
+        }
+    });
+});
+
+
+</script>
+
+
+</body>
+</html>
