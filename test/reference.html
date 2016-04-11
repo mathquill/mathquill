@@ -6,8 +6,8 @@
 body {
     margin-left: auto;
     margin-right: auto;
-    width: 1280px;
-    max-width: 1280px;
+    width: 700px;
+    max-width: 700px;
 }
 
 p {
@@ -66,28 +66,44 @@ tr > td:nth-child(3) {
     -webkit-column-count: 2;
     -moz-column-count: 2;
     column-count: 2;
-    display: inline-block;
+    -webkit-column-gap: 0;
+    -moz-column-gap: 0;
+    column-gap: 0;
+    display: inline-block;  /* prevents section from taking whole width */
+    max-width: 100%;        /* but don't overflow beyond the bounds of the parent */
 }
 
 .col3 {
     -webkit-column-count: 3;
     -moz-column-count: 3;
     column-count: 3;
-    display: inline-block;
+    -webkit-column-gap: 0;
+    -moz-column-gap: 0;
+    column-gap: 0;
+    display: inline-block;  /* prevents section from taking whole width */
+    max-width: 100%;        /* but don't overflow beyond the bounds of the parent */
 }
 
 .col4 {
     -webkit-column-count: 4;
     -moz-column-count: 4;
     column-count: 4;
-    display: inline-block;
+    -webkit-column-gap: 0;
+    -moz-column-gap: 0;
+    column-gap: 0;
+    display: inline-block;  /* prevents section from taking whole width */
+    max-width: 100%;        /* but don't overflow beyond the bounds of the parent */
 }
 
 .col5 {
     -webkit-column-count: 5;
     -moz-column-count: 5;
     column-count: 5;
-    display: inline-block;
+    -webkit-column-gap: 0;
+    -moz-column-gap: 0;
+    column-gap: 0;
+    display: inline-block;  /* prevents section from taking whole width */
+    max-width: 100%;        /* but don't overflow beyond the bounds of the parent */
 }
 
 div .note {
@@ -136,7 +152,7 @@ $(function() {
 var entries = [
     '1.note', "The sections in this document mirror those from the <a href='ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf'>AMS Short Math Guide</a>. \
 The commands and examples from each section are listed here, with a rendering from MathQuill, followed by a rendering from \
-<span class='codecogs'>LaTeX, \via <a href='http://www.codecogs.com/'>codecogs.com</a></span>, a rendering from \
+<span class='codecogs'>LaTeX, via <a href='http://www.codecogs.com/'>codecogs.com</a></span>, a rendering from \
 <span class='mathjax'>MathJax</span> and finally the raw LaTeX command.\
 When MathQuill is unable to render, a <span style='color: white; background: red; padding-left: .5em; padding-right: .5em; '>?</span> is displayed.",
     '3.3', "abcdefghijklmnopqrstuvwxyz",
@@ -690,13 +706,13 @@ as well as the special \".\" delimiter which is not displayed, therefore allowin
     '3.17.example', "\\Pr_{x}",
     
     
-    '3.18', "\\mathrm{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathbf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathsf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathit{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathcal{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathbb{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
-    '3.18', "\\mathfrak{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathrm{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathbf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathsf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathit{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathcal{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathbb{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathfrak{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi \\Delta\\Upsilon\\Xi}",
     '3.18', "\\mathrm{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathbf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathsf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
@@ -889,22 +905,22 @@ var sections = [
     "1.note", "", "",
     "3", "Math symbols and math fonts", "",
     "3.3", "Latin letters and Arabic numerals", "wide",
-    "3.3.note", "", "note",
-    "3.3.a", "", "col3",
-    "3.4", "Greek letters", "col5",
-    "3.5", "Other alphabetic symbols", "col4",
-    "3.6", "Miscellaneous simple symbols", "col4",
-    "3.7", "Binary operator symbols", "col4",
+//    "3.3.note", "", "note",
+    "3.3.a", "", "col2",
+    "3.4", "Greek letters", "col4",
+    "3.5", "Other alphabetic symbols", "col3",
+    "3.6", "Miscellaneous simple symbols", "col2",
+    "3.7", "Binary operator symbols", "col3",
     "3.7.example", "", "wide",
     "3.7.synonyms", "Synonyms", "col3",
-    "3.8", "Relation symbols: < = > \u227B \u223D  and variants", "col4",
+    "3.8", "Relation symbols: < = > \u227B \u223D  and variants", "col3",
     "3.8.synonyms", "Synonyms", "col2",
-    "3.9", "Relation symbols: arrows", "col3",
+    "3.9", "Relation symbols: arrows", "col2",
     "3.9.synonyms", "Synonyms", "col2",
-    "3.10", "Relation symbols: miscellaneous", "col3",
+    "3.10", "Relation symbols: miscellaneous", "col2",
     "3.10.synonyms", "Synonyms", "",
     "3.11", "Cumulative (variable-size) operators", "",
-    "3.12", "Punctuation", "col5",
+    "3.12", "Punctuation", "col4",
     "3.12.example", "", "",
     "3.12.note", "", "note",
     "3.13", "Pairing delimiters (extensible)", "col3",
@@ -914,8 +930,8 @@ var sections = [
     "3.14.synonyms", "Synonyms", "", 
     "3.15", "Extensible vertical arrows", "col2",
     "3.15.example", "", "",
-    "3.16", "Accents", "col4", 
-    "3.17", "Named operators", "col3", 
+    "3.16", "Accents", "col3", 
+    "3.17", "Named operators", "col2",
     "3.17.example", "", "", 
     "3.18", "Math font switches", "wide",
     "3.18.note", "", "note",
@@ -928,7 +944,7 @@ var sections = [
     
 
     "4", "Notations", "",
-    "4.1", "Top and bottom embellishments", "col3",
+    "4.1", "Top and bottom embellishments", "col2",
     "4.2", "Extensible arrows", "col1", 
     "4.2.note", "", "note", 
     "4.3", "Affixing symbols to others", "col1",
@@ -1028,7 +1044,7 @@ var sections = [
     $('#document').html(t);
     $('.mathquill-static-math').each(function() { 
         MQ.StaticMath(this);
-        if (this.textContent === '$$\u200B') {
+        if (MQ(this).latex() === '') {
             // The MathQuilification failed
             this.className = '';
             this.innerHTML = '<span style="background:red; color: white; font-weight:bolder; padding-left:.5em; padding-right:.5em;">?</span>';
