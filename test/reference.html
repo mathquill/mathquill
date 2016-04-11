@@ -135,8 +135,9 @@ MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 $(function() {
 var entries = [
     '1.note', "The sections in this document mirror those from the <a href='ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf'>AMS Short Math Guide</a>. \
-The commands and examples from each section are listed here, with a rendering from MathQuill, followed by a rendering from <span class='codecogs'>LaTeX, \
-via codecogs.com</span>, a rendering from <span class='mathjax'>MathJax</span> and finally the raw LaTeX command.\
+The commands and examples from each section are listed here, with a rendering from MathQuill, followed by a rendering from \
+<span class='codecogs'>LaTeX, \via <a href='http://www.codecogs.com/'>codecogs.com</a></span>, a rendering from \
+<span class='mathjax'>MathJax</span> and finally the raw LaTeX command.\
 When MathQuill is unable to render, a <span style='color: white; background: red; padding-left: .5em; padding-right: .5em; '>?</span> is displayed.",
     '3.3', "abcdefghijklmnopqrstuvwxyz",
     '3.3', "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -997,7 +998,7 @@ var sections = [
                     t += '<div class="wide-entry">';
                     t += '<div><code>' + entries[j + 1] + '</code></div>';
                     t += '<div class="mathquill-static-math">' + entries[j + 1] + '</div>';
-                    t += '<div class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></div>';
+ //                   t += '<div class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></div>';
                     t += '<div class="mathjax">$$' + entries[j + 1] + '$$</div>';
                     t += '</div>';
                 }
@@ -1010,7 +1011,7 @@ var sections = [
                     // entry matches the current section
                     t += '<tr>';
                     t += '<td class="mathquill-static-math">' + entries[j + 1] + '</td>';
-                    t += '<td class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
+//                    t += '<td class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
                     t += '<td class="mathjax">$$' + entries[j + 1] + '$$</td>';
                     t += '<td><code>' + entries[j + 1] + '</code></td>';
                     t += '</tr>';
