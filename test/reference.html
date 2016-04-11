@@ -26,6 +26,20 @@ h3 {
 code {
     font-family: monospace;
     font-size: 1.2em;
+    line-height: 1.6em;
+}
+
+.wide {
+    margin-left: 2em;   
+}
+
+.wide-entry {
+    border-bottom: 1px solid #999;
+    margin-bottom: .5em;
+}
+
+table {
+    margin-left: 2em;
 }
 
 table tr {
@@ -44,48 +58,72 @@ tr > td:nth-child(2) {
     text-align: right;
 }
 
+tr > td:nth-child(3) {
+    padding-left: .5em;
+}
 
 .col2 {
     -webkit-column-count: 2;
     -moz-column-count: 2;
     column-count: 2;
+    display: inline-block;
 }
 
 .col3 {
     -webkit-column-count: 3;
     -moz-column-count: 3;
     column-count: 3;
+    display: inline-block;
 }
 
 .col4 {
     -webkit-column-count: 4;
     -moz-column-count: 4;
     column-count: 4;
+    display: inline-block;
 }
 
 .col5 {
     -webkit-column-count: 5;
     -moz-column-count: 5;
     column-count: 5;
-}
-
-img {
-    opacity: .5;
+    display: inline-block;
 }
 
 div .note {
     border-left: 3px solid #666;
     padding-bottom: .12em;
     padding-top: .12em;
-    padding-left: .12em;
+    padding-left: 1em;
 }
+
+.codecogs {
+    background: #eaeafa;
+    padding-top: .3em;
+}
+
+.mathjax {
+    background: #faeaea;
+    padding-top: .25em;
+}
+
+.MJXc-display { 
+    text-align: left !important;
+    display: inline !important;
+}
+
 
 </style>
 
 </head>
+
+<script type="text/javascript" async
+  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML">
+</script>
+
 <body>
 
-<div id="table"></div>    
+<div id="document"></div>    
 
 <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
@@ -96,12 +134,18 @@ MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 //on document ready, generate the list of control sequences
 $(function() {
 var entries = [
+    '1.note', "The sections in this document mirror those from the <a href='ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf'>AMS Short Math Guide</a>. \
+The commands and examples from each section are listed here, with a rendering from MathQuill, followed by a rendering from <span class='codecogs'>LaTeX, \
+via codecogs.com</span>, a rendering from <span class='mathjax'>MathJax</span> and finally the raw LaTeX command.\
+When MathQuill is unable to render, a <span style='color: white; background: red; padding-left: .5em; padding-right: .5em; '>?</span> is displayed.",
     '3.3', "abcdefghijklmnopqrstuvwxyz",
     '3.3', "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    '3.3', "-1234567890",
+    '3.3', "-12,345,678.90",
     '3.3.a', "\\imath",
     '3.3.a', "\\jmath",
+    '3.3.a', "\\vec\\imath",
     '3.3.a', "\\hat\\jmath",
+    '3.3.note', "",
     '3.4', "\\Gamma",
     '3.4', "\\Delta",
     '3.4', "\\Lambda",
@@ -259,6 +303,7 @@ var entries = [
     '3.7', "\\veebar",
     '3.7', "\\wedge",
     '3.7', "\\wr",
+    '3.7.example', "-3+1-5*2\\ast3\\cdot7\\centerdot3\\bullet2\\odot1\\pm1\\mp2",
     '3.7.synonyms', "\\land",
     '3.7.synonyms', "\\lor",
     '3.7.synonyms', "\\doublecup",
@@ -352,9 +397,9 @@ var entries = [
     '3.8', "\\thickapprox",
     '3.8', "\\thicksim",
     '3.8', "\\triangleq",
-    '3.8.synonyms', "\\ne",
     '3.8.synonyms', "\\le",
     '3.8.synonyms', "\\ge",
+    '3.8.synonyms', "\\ne",
     '3.8.synonyms', "\\Doteq",
     '3.8.synonyms', "\\llless",
     '3.8.synonyms', "\\gggtr",
@@ -537,19 +582,27 @@ we recommend the more semantically oriented commands <kbd>\\dotsb</kbd>, <kbd>\\
    
     '3.13', "( )",
     '3.13', "[ ]",
+    '3.13', "\\{ \\}",
     '3.13', "\\lbrace \\rbrace",
     '3.13', "\\lvert \\rvert",
     '3.13', "\\lVert \\rVert",
     '3.13', "\\langle \\rangle",
     '3.13', "\\lceil \\rceil",
     '3.13', "\\lfloor \\rfloor",
+    '3.13', "\\lfloor \\rfloor",
+    '3.13', "\\ulcorner \\urcorner",    // Quine quotes, see https://en.wikipedia.org/wiki/Quasi-quotation
     '3.13', "\\left\\lgroup \\right\\rgroup",
     '3.13', "\\left\\lmoustache \\right\\rmoustache",
-    '3.13', "\\left( \\frac{a}{b} \\right.",
+    '3.13.example', "\\left\\ulcorner \\frac{1}{2} \\right\\urcorner",
+    '3.13.example', "\\left\\{ \\frac{a}{b} \\right|",
+    '3.13.example', "\\left( \\frac{a}{b} \\right.",
     '3.13.example', "\\lmoustache \\frac{\\sum x^2}{\\sum x^3}  \\rmoustache",
     '3.13.example', "\\left\\lmoustache \\frac{\\sum x^2}{\\sum x^3}  \\right\\rmoustache",
     '3.13.example', "\\langle \\frac{\\sum x^2}{\\sum x^3}  \\rangle ",
     '3.13.example', "\\left\\langle \\frac{\\sum x^2}{\\sum x^3}  \\right\\rangle ",
+    '3.13.note', "A pair of <kbd>\\.left</kbd> and <kbd>\\right<kbd> commands can have diffent delimiters.",
+    '3.13.note', "Any of the delimiters in this section can be used with <kbd>\\left</kbd> and <kbd>\\right</kbd> \
+as well as the special \".\" delimiter which is not displayed, therefore allowing to have an expression with a single delimiter",
     '3.13.note', "Although these commands can be used standalone, when combined with <kbd>\\left</kbd> and <kbd>\\right</kbd> the \
  delimiters will scale to their content.",
     
@@ -635,6 +688,14 @@ we recommend the more semantically oriented commands <kbd>\\dotsb</kbd>, <kbd>\\
     '3.17.example', "\\sup_{x}\\frac{1}{x}",
     '3.17.example', "\\Pr_{x}",
     
+    
+    '3.18', "\\mathrm{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathbf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathsf{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathit{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathcal{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathbb{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
+    '3.18', "\\mathfrak{ABCDEFGHIJklmnopqr\\alpha\\beta\\gamma\\delta\\epsilon\\varphi\\Delta\\Upsilon\\Xi}",
     '3.18', "\\mathrm{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathbf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathsf{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
@@ -642,7 +703,10 @@ we recommend the more semantically oriented commands <kbd>\\dotsb</kbd>, <kbd>\\
     '3.18', "\\mathcal{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathbb{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
     '3.18', "\\mathfrak{\\infty + 1 = \\infty; \\left\\{\\left\\{\\aleph_n\\right\\} : n \\in \\left\\{ 0, 1, 2, ...\\right\\}\\right\\}}",
-        
+    '3.18.note', "<kbd>\\mathrm</kbd>, <kbd>\\mathbf</kbd>, <kbd>\\mathsf</kbd>, <kbd>\\mathit</kbd> only affect roman letter (A-Z, a-z).",
+    '3.18.note', "Historically, <kbd>\\mathcal</kbd> and <kbd>\\mathbb</kbd> have only been applicable to uppercase roman letters (A-Z) \
+and have prduced random glyphs when applied to other characters. ",
+    
     '3.18.1', "\\mathcal{M}",
     '3.18.1', "\\mathcal{ABCDEFGHIJKLMNOPQRSTUVWXYZ}",
     '3.18.1', "\\mathcal{abcdefghijklmnopqrstuvwxyz}",
@@ -715,6 +779,16 @@ we recommend the more semantically oriented commands <kbd>\\dotsb</kbd>, <kbd>\\
     '4.5', "3\\negthinspace4",
     '4.5', "3\\negmedspace4",
     '4.5', "3\\negthickspace4",
+    '4.5.note', "Spacing is defined in terms of mu (math unit) which is 1/18em. <ol>\
+<li><kbd>\\thinspace</kbd> = <kbd>\\,</kbd> = 3mu</li>\
+<li><kbd>\\medspace</kbd> = <kbd>\\:</kbd> = 4mu; used around binary operators</li>\
+<li><kbd>\\thickspace</kbd> = <kbd>\\;</kbd> = 5 mu; used around relational operators</li>\
+<li><kbd>\\quad</kbd> = 18mu = 1em</li>\
+<li><kbd>\\qquad</kbd> = 36mu = 2em</li>\
+<li><kbd>\\negthinspace</kbd> = <kbd>\\!</kbd> = -3mu</li>\
+<li><kbd>\\negmedspace</kbd> = -4mu</li>\
+<li><kbd>\\negthickspace</kbd> = -5mu</li>\
+</ol>",
     
     '4.6', "A_1,A_2,\\dotsc",
     '4.6', "A_1A_2\\dotsm",
@@ -722,13 +796,13 @@ we recommend the more semantically oriented commands <kbd>\\dotsb</kbd>, <kbd>\\
 
     '4.6.note', "For preferred placement of ellipsis dots (raised or on-line) in various contexts \
 there is no general consensus. It may therefore be considered a matter of taste. By using \
-the semantically oriented commands<ol>\
+the semantically oriented commands<ul>\
 <li><kbd>\\dotsc</kbd> for \"dots with commas\"</li>\
 <li><kbd>\\dotsb</kbd> for \"dots with binary operators/relations\"</li>\
 <li><kbd>\\dotsm</kbd> for \"multiplication dots\"</li>\
 <li><kbd>\\dotsi</kbd> for \"dots with integrals\"</li>\
 <li><kbd>\\dotso</kbd> for \"other dots (none of the above)\"</li>\
-</ol>instead of <kbd>\\ldots</kbd> and <kbd>\\cdots</kbd>, you make it possible for your document to be adapted to \
+</ul>instead of <kbd>\\ldots</kbd> and <kbd>\\cdots</kbd>, you make it possible for your document to be adapted to \
 different conventions on the fly, in case (for example) you have to submit it to a publisher \
 who insists on following house tradition in this respect.",
 
@@ -778,9 +852,12 @@ use <kbd>\left</kbd> and <kbd>\right</kbd> prefixes for autosizing.",
     '7.1', "x \\pmod k",
     '7.1', "x \\pod k",
     
-    '7.1.example', "\\gcd(n,m\\bmod n);\\quad x\\equiv y\\pmod b;\\quad x\\equiv y\\mod c;\\quad x\\equiv y\\pod d",
+    '7.1.example', "\\gcd(n,m\\bmod n)",
+    '7.1.example', "x\\equiv y\\pmod b",
+    '7.1.example', "x\\equiv y\\mod cd",
+    '7.1.example', "x\\equiv y\\pod d",
     
-    '8.1', "\\int_{\\lvert x-x_z(t)\\rvert}}\\le X_0 z^6(t)\\phi(x)",
+    '8.1', "\\int_{\\lvert x-x_z(t)\\rvert}\\le X_0 z^6(t)\\phi(x)",
     '8.1', "\\int\\limits_{\\lvert x-x_z(t)\\rvert}\\le X_0  z^6(t)\\phi(x)",
     '8.1', "\\sum_{n = 0}^kn^2",
     '8.1', "\\sum\\nolimits_{n = 0}^kn^2",
@@ -797,7 +874,7 @@ symbol, means to use standard positioning as for the <kbd>\sum</kbd> command",
     '8.2', "\\iiiint_A f(x, y)dx dy",
     '8.2', "\\idotsint_A f(x, y)dx dy",
     
-    '8.3', "\\sum_{\\substack{ 0\le i\\le m\\\\ 0 \\le j \\le n}} P(i,j)",
+    '8.3', "\\sum_{\\substack{ 0\\le i\\le m\\\\ 0 \\le j \\le n}} P(i,j)",
     
     '8.4', "\\sideset{\\,}{\\prime}\\sum_{n\\le k,\\;\\text{n odd}} nE_n",
     '8.4', "\\sideset{a_+^+}{z_*^*}\\prod",
@@ -807,16 +884,20 @@ symbol, means to use standard positioning as for the <kbd>\sum</kbd> command",
 
 var sections = [
     // Numbering schemes and sections from ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf
+    "1", "Introduction", "",
+    "1.note", "", "",
     "3", "Math symbols and math fonts", "",
-    "3.3", "Latin letters and Arabic numerals", "col1",
+    "3.3", "Latin letters and Arabic numerals", "wide",
+    "3.3.note", "", "note",
     "3.3.a", "", "col3",
     "3.4", "Greek letters", "col5",
     "3.5", "Other alphabetic symbols", "col4",
     "3.6", "Miscellaneous simple symbols", "col4",
     "3.7", "Binary operator symbols", "col4",
+    "3.7.example", "", "wide",
     "3.7.synonyms", "Synonyms", "col3",
     "3.8", "Relation symbols: < = > \u227B \u223D  and variants", "col4",
-    "3.8.synonyms", "Synonyms", "col4",
+    "3.8.synonyms", "Synonyms", "col2",
     "3.9", "Relation symbols: arrows", "col3",
     "3.9.synonyms", "Synonyms", "col2",
     "3.10", "Relation symbols: miscellaneous", "col3",
@@ -835,13 +916,14 @@ var sections = [
     "3.16", "Accents", "col4", 
     "3.17", "Named operators", "col3", 
     "3.17.example", "", "", 
-    "3.18", "Math font switches", "col1",
-    "3.18.1", "Calligraphic letters", "col1", 
-    "3.18.2", "Blackboard letters", "col1", 
-    "3.18.3", "Fraktur letters", "col1", 
-    "3.18.4", "Script letters", "col1",         // part of the euscript package, installed with amsmath.
-    "3.18.5", "Roman letters", "col1",         // 
-    "3.18.6", "Teletype letters", "col1",         // 
+    "3.18", "Math font switches", "wide",
+    "3.18.note", "", "note",
+    "3.18.1", "Calligraphic letters", "wide", 
+    "3.18.2", "Blackboard letters", "wide", 
+    "3.18.3", "Fraktur letters", "wide", 
+    "3.18.4", "Script letters", "wide",         // part of the euscript package, installed with amsmath.
+    "3.18.5", "Roman letters", "wide",         // 
+    "3.18.6", "Teletype letters", "wide",         // 
     
 
     "4", "Notations", "",
@@ -851,6 +933,7 @@ var sections = [
     "4.3", "Affixing symbols to others", "col1",
     "4.4", "Matrices", "col1", 
     "4.5", "Math spacing commands", "col2",
+    "4.5.note", "", "",
     "4.6", "Dots", "col1",
     "4.6.note", "", "note",
     "4.7", "Nonbreaking dashes", "col1",
@@ -859,11 +942,11 @@ var sections = [
 
     "5", "Fractions and related constructions", "", 
     "5.1", "Fractions", "col3",
-    "5.1.example", "", "", 
+    "5.1.example", "", "wide", 
     "5.2", "Binomials", "col3",
-    "5.2.example", "", "",
+    "5.2.example", "", "wide",
     "5.3", "<kbd>\\genfrac</kbd>", "col1",
-    "5.4", "Continued fractions", "col1",
+    "5.4", "Continued fractions", "wide",
 
     "6", "Delimiters", "col1",
     "6.1", "Delimiter sizes", "col1",
@@ -872,7 +955,7 @@ var sections = [
     "6.2", "Vertical bar notation", "",
     "6.2.note", "", "note",
     
-    "7", "The <kbd>\\text</kbd> command", "",
+    "7", "The <kbd>\\text</kbd> command", "wide",
     "7.1", "<kbd>\\mod</kbd> and its relatives", "col2",
     "7.1.example", "", "",
     
@@ -907,14 +990,28 @@ var sections = [
                 }
                 j += 2;
             }
-        } else {
+        } else if (sections[i + 2] === 'wide') {
+            while (j < entries.length) {
+                if (entries[j] === sections[i]) {
+                    // entry matches the current section
+                    t += '<div class="wide-entry">';
+                    t += '<div><code>' + entries[j + 1] + '</code></div>';
+                    t += '<div class="mathquill-static-math">' + entries[j + 1] + '</div>';
+                    t += '<div class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></div>';
+                    t += '<div class="mathjax">$$' + entries[j + 1] + '$$</div>';
+                    t += '</div>';
+                }
+                j += 2;
+            }
+       } else {
             t += '<table>';
             while (j < entries.length) {
                 if (entries[j] === sections[i]) {
                     // entry matches the current section
                     t += '<tr>';
                     t += '<td class="mathquill-static-math">' + entries[j + 1] + '</td>';
-                    t += '<td><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
+                    t += '<td class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
+                    t += '<td class="mathjax">$$' + entries[j + 1] + '$$</td>';
                     t += '<td><code>' + entries[j + 1] + '</code></td>';
                     t += '</tr>';
                 }
@@ -927,7 +1024,7 @@ var sections = [
         i += 3;
     };
     
-    $('#table').html(t);
+    $('#document').html(t);
     $('.mathquill-static-math').each(function() { 
         MQ.StaticMath(this);
         if (this.textContent === '$$\u200B') {
