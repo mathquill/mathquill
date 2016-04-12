@@ -34,8 +34,10 @@ code {
 }
 
 .wide-entry {
-    border-bottom: 1px solid #999;
+    border-top: 1px solid #ddd;
+    margin-top: 1em;
     margin-bottom: .5em;
+    padding-top: .25em;
 }
 
 table {
@@ -133,8 +135,8 @@ div .note {
 
 </head>
 
-// Load a standard MathJax configuration, with typesetting on startup disabled.
-// We'll trigger the typesetting explicitly later.
+<!-- Load a standard MathJax configuration, with typesetting on startup disabled.
+ We'll trigger the typesetting explicitly later. -->
 <script type="text/javascript"
   src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML&skipStartupTypeset=true">
 </script>
@@ -651,6 +653,7 @@ as well as the special \".\" delimiter which is not displayed, therefore allowin
     '3.16', "\\tilde{x}",
     '3.16', "\\tilde{xxx}",
     '3.16', "\\bar{x}",
+    '3.16', "\\bar{xxx}",
     '3.16', "\\breve{x}",
     '3.16', "\\check{x}",
     '3.16', "\\hat{x}",
@@ -752,6 +755,10 @@ and have prduced random glyphs when applied to other characters. ",
     '3.18.6', "\\mathtt{C}",
     '3.18.6', "\\mathtt{ABCDEFGHIJKLMNOPQRSTUVWXYZ}",
     '3.18.6', "\\mathtt{abcdefghijklmnopqrstuvwxyz}",
+    '3.18.6.note', "<kbd>\\mathrm</kbd> should be use to represent <kbd>e</kbd>, the Euler constant, and <kbd>i</kbd>, the\
+imaginary root, <kbd>pi</kbd> and in general any other constant. It should also be used for operators, including the \
+differential operator, as in <kbd>\\frac{\\mathmrm{d}y}{\\mathrm{d}x} . \
+See <a href='http://www.tug.org/TUGboat/Articles/tb18-1/tb54becc.pdf'>discussion of ISO 31/X Standard</a> for details.",
 
     '4.1', "\\widetilde{xxx}",
     '4.1', "\\widehat{xxx}",
@@ -799,12 +806,12 @@ and have prduced random glyphs when applied to other characters. ",
     '4.5', "3\\negmedspace4",
     '4.5', "3\\negthickspace4",
     '4.5.note', "Spacing is defined in terms of mu (math unit) which is 1/18em. <ol>\
-<li><kbd>\\thinspace</kbd> = <kbd>\\,</kbd> = 3mu</li>\
+<li><kbd>\\thinspace</kbd> = <kbd>\\,</kbd> = 3mu; used to separate the <kbd>dx</kbd> term in an differential</li>\
 <li><kbd>\\medspace</kbd> = <kbd>\\:</kbd> = 4mu; used around binary operators</li>\
 <li><kbd>\\thickspace</kbd> = <kbd>\\;</kbd> = 5 mu; used around relational operators</li>\
 <li><kbd>\\quad</kbd> = 18mu = 1em</li>\
 <li><kbd>\\qquad</kbd> = 36mu = 2em</li>\
-<li><kbd>\\negthinspace</kbd> = <kbd>\\!</kbd> = -3mu</li>\
+<li><kbd>\\negthinspace</kbd> = <kbd>\\!</kbd> = -3mu<; often used between <kbd>\\int</kbd> and its argument./li>\
 <li><kbd>\\negmedspace</kbd> = -4mu</li>\
 <li><kbd>\\negthickspace</kbd> = -5mu</li>\
 </ol>",
@@ -862,9 +869,10 @@ use <kbd>\left</kbd> and <kbd>\right</kbd> prefixes for autosizing.",
     '6.2', "\\lvert a \\rvert",
     '6.2', "\\lVert a \\rVert",
     '6.2', "| a | = | -a | \\text{vs.} \\lvert a \\rvert = \\lvert -a \\rvert",
-    '6.2.note', "For proper spacing, do not use |",
+    '6.2.note', "For proper spacing, do not use <kbd>|</kbd>.",
 
     '7', "f_{[x_{i-1},x_i]} \\text{ is monotonic,} \\quad i = 1, ...,c+1",
+    '7', "\\left(\\text{if $r-j$ is even}\\right)",
 
     '7.1', "x \\mod k",
     '7.1', "x \\bmod k",
@@ -898,6 +906,184 @@ symbol, means to use standard positioning as for the <kbd>\sum</kbd> command",
     '8.4', "\\sideset{\\,}{\\prime}\\sum_{n\\le k,\\;\\text{n odd}} nE_n",
     '8.4', "\\sideset{a_+^+}{z_*^*}\\prod",
     
+    'Appendix A.blackboard', '\\R',         // \mathbb{R}
+    'Appendix A.blackboard', '\\reals',         // \mathbb{R}
+    'Appendix A.blackboard', '\\Reals',         // \mathbb{R}
+    'Appendix A.blackboard', '\\C',       // \mathbb{C}
+    'Appendix A.blackboard', '\\complex',       // \mathbb{C}
+    'Appendix A.blackboard', '\\Complex',       // \mathbb{C}
+    'Appendix A.blackboard', '\\complexes',       // \mathbb{C}
+    'Appendix A.blackboard', '\\Complexes',       // \mathbb{C}
+    'Appendix A.blackboard', '\\complexplane',       // \mathbb{C}
+    'Appendix A.blackboard', '\\Complexplane',       // \mathbb{C}
+    'Appendix A.blackboard', '\\ComplexPlane',       // \mathbb{C}
+    'Appendix A.blackboard', '\\N',                // \mathbb{N}
+    'Appendix A.blackboard', '\\Naturals',                // \mathbb{N}
+    'Appendix A.blackboard', '\\naturals',                // \mathbb{N}
+    'Appendix A.blackboard', '\\Z',                 // \mathbb{Z}
+    'Appendix A.blackboard', '\\integers',                 // \mathbb{Z}
+    'Appendix A.blackboard', '\\Integers',                 // \mathbb{Z}
+    'Appendix A.blackboard', '\\H',     // \mathbb{H}
+    'Appendix A.blackboard', '\\Hamiltonian',
+    'Appendix A.blackboard', '\\quaternions',
+    'Appendix A.blackboard', '\\Quaternions',
+    'Appendix A.blackboard', '\\Q',         // \mathbb{Q}
+    'Appendix A.blackboard', '\\rationals',         // \mathbb{Q}
+    'Appendix A.blackboard', '\\Rationals',         // \mathbb{Q}
+    'Appendix A.blackboard', '\\P',             // \mathbb{P}
+    'Appendix A.blackboard', '\\primes',             // \mathbb{P}
+    'Appendix A.blackboard', '\\Primes',             // \mathbb{P}
+    'Appendix A.blackboard', '\\projective',             // \mathbb{P}
+    'Appendix A.blackboard', '\\Projective',             // \mathbb{P}
+    'Appendix A.blackboard', '\\probability',             // \mathbb{P}
+    'Appendix A.blackboard', '\\Probability',             // \mathbb{P}
+    'Appendix A.operators', '\\gcf',
+    'Appendix A.operators', '\\hcf',
+    'Appendix A.operators', '\\lcm',
+    'Appendix A.operators', '\\proj',
+    'Appendix A.operators', '\\span',
+    'Appendix A.greek', '\\upsih',      // Upsilon with hook, a letter different from Upsilon
+    'Appendix A.greek', '\\Upsih',
+    'Appendix A.misc', '\\circledot',      // same as \\odot. See https://github.com/mathquill/mathquill/pull/552
+    'Appendix A.misc', '\\parallelogram',      // U+25B1 See https://github.com/mathquill/mathquill/pull/552
+    'Appendix A.misc', '\\degree',
+    'Appendix A.misc', '\\intersect',       // = \\cap
+    'Appendix A.misc', '\\intersection',    // = \\cap
+    'Appendix A.misc', '\\union',           // = \\cup
+    'Appendix A.misc', '\\deg',           // MathQuill defines it as \\degreee, but conflicts with standard \\deg
+    'Appendix A.misc', '\\nothing',        // = \\varnothing Non-standard. See http://tex.stackexchange.com/questions/28493/nothing-varnothing-and-emptyset
+    'Appendix A.misc', '\\Oslash',        // = \\oslash
+    'Appendix A.misc', '\\empty',        // = \\emptyset
+    'Appendix A.misc', '\\o',            // = \\emptyset
+    'Appendix A.misc', '\\O',            // = \\emptyset
+    'Appendix A.misc', '\\or',           // = \\lor
+    'Appendix A.misc', '\\and',          // = \\land
+    'Appendix A.misc', '\\nexist',          // = \\nexists
+    'Appendix A.misc', '\\xist',          // = \\exist
+    'Appendix A.misc', '\\xists',          // = \\exist
+    'Appendix A.misc', '\\alef',          // = \\aleph
+    'Appendix A.misc', '\\alefsym',          // = \\alpeh
+    'Appendix A.misc', '\\alephsym',          // = \\aleph
+    'Appendix A.misc', '\\infin',          // = \\infty
+    'Appendix A.misc', '\\infinity',          // = \\infty
+    'Appendix A.misc', '\\part',          // = \\partial
+    'Appendix A.misc', '\\imag',          // = \\Im
+    'Appendix A.misc', '\\image',          // = \\Im
+    'Appendix A.misc', '\\imagin',          // = \\Im
+    'Appendix A.misc', '\\imaginary',          // = \\Im
+    'Appendix A.misc', '\\Imaginary',          // = \\Im
+    'Appendix A.misc', '\\Real',          // = \\Re
+    'Appendix A.misc', '\\real',          // = \\Re
+    'Appendix A.misc', '\\hArr',          // = \\Leftrightarrow
+    'Appendix A.misc', '\\lrArr',          // = \\Leftrightarrow
+    'Appendix A.misc', '\\harr',          // = \\leftrightarrow
+    'Appendix A.misc', '\\lrarr',          // = \\leftrightarrow
+    'Appendix A.misc', '\\lArr',          // = \\Leftarrow
+    'Appendix A.misc', '\\impliedby',          // = \\Leftarrow (binary operator)
+    'Appendix A.misc', '\\larr',          // = \\leftarrow
+    'Appendix A.misc', '\\rarr',          // = \\rightarrow
+    'Appendix A.misc', '\\uarr',          // = \\uparrow
+    'Appendix A.misc', '\\diverges',          // = \\uparrow
+    'Appendix A.misc', '\\dnArrow',          // = \\Downarrow
+    'Appendix A.misc', '\\dArr',          // = \\Downarrow
+    'Appendix A.misc', '\\dnArr',          // = \\Downarrow
+    'Appendix A.misc', '\\converges',          // = \\downarrow
+    'Appendix A.misc', '\\dnarrow',          // = \\downarrow
+    'Appendix A.misc', '\\darr',          // = \\downarrow
+    'Appendix A.misc', '\\dnarr',          // = \\downarrow
+    'Appendix A.misc', '\\ellipsis',          // = \\dots
+    'Appendix A.misc', '\\…',            // = \\dots
+    'Appendix A.misc', '\\ellip',            // = \\dots
+    'Appendix A.misc', '\\hellip',            // = \\dots
+    'Appendix A.misc', '\\hellipsis',            // = \\dots
+    'Appendix A.misc', '\\¬',               // = \\neg
+    'Appendix A.misc', '\\not',               // = \\neg
+    'Appendix A.misc', '\\bull',               // = \\bullet
+    'Appendix A.misc', '\\circle',               // = \\circ
+    'Appendix A.misc', '\\ring',               // = \\circ
+    'Appendix A.misc', '\\AA',               // = \text\AA  - 8491
+    'Appendix A.misc', '\\Angstrom',               // = \text\AA  - 8491
+    'Appendix A.misc', '\\angstrom',               // = \text\AA  - 8491
+    'Appendix A.misc', '\\del',               // = \nabla
+    'Appendix A.misc', '\\perpendicular',               // = \perp
+    'Appendix A.misc', '\\nsupe',                   // = \nsupseteq
+    'Appendix A.misc', '\\nsupeq',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsupe',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsupeq',                   // = \nsupseteq
+    'Appendix A.misc', '\\nsupsete',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsupsete',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsupseteq',                   // = \nsupseteq
+    'Appendix A.misc', '\\nsupersete',                   // = \nsupseteq
+    'Appendix A.misc', '\\nsuperseteq',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsupersete',                   // = \nsupseteq
+    'Appendix A.misc', '\\notsuperseteq',                   // = \nsupseteq
+    'Appendix A.misc', '\\nsube',                   // = \nsubseteq
+    'Appendix A.misc', '\\nsubeq',                   // = \nsubseteq
+    'Appendix A.misc', '\\notsube',                   // = \nsubseteq
+    'Appendix A.misc', '\\notsubeq',                   // = \nsubseteq
+    'Appendix A.misc', '\\nsubsete',                   // = \nsubseteq
+    'Appendix A.misc', '\\nsubseteq',                   // = \nsubseteq
+    'Appendix A.misc', '\\notsubsete',                   // = \nsubseteq
+    'Appendix A.misc', '\\notsubseteq',                   // = \nsubseteq
+    'Appendix A.misc', '\\sube',                   // = \subseteq
+    'Appendix A.misc', '\\subeq',                   // = \subseteq
+    'Appendix A.misc', '\\subsete',                   // = \subseteq
+    'Appendix A.misc', '\\subseteq',                   // = \subseteq
+    'Appendix A.misc', '\\nsup',                   // = \nsupset
+    'Appendix A.misc', '\\notsup',                   // = \nsupset
+    'Appendix A.misc', '\\notsupset',                   // = \nsupset
+    'Appendix A.misc', '\\nsuperset',                   // = \nsupset
+    'Appendix A.misc', '\\notsuperset',                   // = \nsupset
+    'Appendix A.misc', '\\nsub',                   // = \nsubset
+    'Appendix A.misc', '\\notsub',                   // = \nsubset
+    'Appendix A.misc', '\\nsubset',                   // = \nsubset
+    'Appendix A.misc', '\\notsubset',                   // = \nsubset
+    'Appendix A.misc', '\\sup',                   // = \supset
+    'Appendix A.misc', '\\superset',                   // = \supset
+    'Appendix A.misc', '\\sub',                   // = \subset
+    'Appendix A.misc', '\\notni',                   // = \not\ni
+    'Appendix A.misc', '\\niton',                   // = \not\ni
+    'Appendix A.misc', '\\notcontains',                   // = \not\ni
+    'Appendix A.misc', '\\doesnotcontain',                   // = \not\ni
+    'Appendix A.misc', '\\contains',                   // = \ni
+    'Appendix A.misc', '\\isin',                   // = \in
+    'Appendix A.misc', '\\prop',                   // = \propto
+    'Appendix A.misc', '\\cuz',                   // = \because
+    'Appendix A.misc', '\\therefor',                   // = \therefore
+    'Appendix A.misc', '\\loast',                   // = \ast
+    'Appendix A.misc', '\\lowast',                   // = \ast
+    'Appendix A.commands', '\\textcolor{green}{x} = \\textcolor{#33f}{y^2}',
+    
+
+    'Appendix B.greek', '\\sigmaf',     // Unicode name, but not in W3C MathmML
+    
+    // See https://www.w3.org/TR/REC-MathML/chapter6.html
+    'Appendix C.6.2.3', '\\CapitalDifferentialD', 
+    'Appendix C.6.2.3', '\\DD',
+    'Appendix C.6.2.3', '\\DifferentialD', 
+    'Appendix C.6.2.3', '\\dd', 
+    'Appendix C.6.2.3', '\\ExponentialE', 
+    'Appendix C.6.2.3', '\\ee', 
+    'Appendix C.6.2.3', '\\false', 
+    'Appendix C.6.2.3', '\\ImaginaryI', 
+    'Appendix C.6.2.3', '\\ii', 
+    'Appendix C.6.2.3', '\\NotANumber', 
+    'Appendix C.6.2.3', '\\true', 
+
+    // See https://www.w3.org/TR/REC-MathML/chap6/ISOGRK31.html
+    'Appendix C.6.5.2', '\\epsiv', 
+    'Appendix C.6.5.2', '\\Gammad', 
+    'Appendix C.6.5.2', '\\gammad', 
+    'Appendix C.6.5.2', '\\kappav', 
+    'Appendix C.6.5.2', '\\phiv', 
+    'Appendix C.6.5.2', '\\piv', 
+    'Appendix C.6.5.2', '\\rhov', 
+    'Appendix C.6.5.2', '\\sigmav', 
+    'Appendix C.6.5.2', '\\thetav', 
+    'Appendix C.6.5.2', '\\Upsi', 
+    'Appendix C.6.5.2', '\\upsi', 
+    'Appendix C.6.5.2', '\\thetasym',   // Not in table ISOGRK3
+
 
     ];
 
@@ -983,6 +1169,19 @@ var sections = [
     "8.2", "Multiple integral signs", "",
     "8.3", "Multiple subscripts", "",
     "8.4", "The <kbd>\\sideset</kbd> command", "",
+    
+    "Appendix A", "Appendix A. MathQuill non-standard commands", "",
+    "Appendix A.operators", "Operators", "col3",
+    "Appendix A.blackboard", "Blackboard letters", "col2",
+    "Appendix A.greek", "Greek letters", "col3",
+    "Appendix A.misc", "Miscellaneous Symbols", "col2",
+    "Appendix A.commands", "Commands", "wide",
+    "Appendix B", "Appendix B. Elsevier and ISO 9573-13 specific commands", "col3",
+    "Appendix B.greek", "Greek letters", "col3",
+    "Appendix B.misc", "Miscelaneous symbols", "col3",
+    "Appendix C", "Appendix C. W3C", "col3",
+    "Appendix C.6.2.3", "", "col3",
+    "Appendix C.6.5.2", "Alternate Greek letters ISOGRK3", "col3", 
     
 ];
     var t = ''; // the output text
