@@ -138,7 +138,7 @@ var VANILLA_SYMBOLS = [
 'downarrow:2193', 'Downarrow:21d3',
 'updownarrow:2195', 'Updownarrow:21d5',
 
-// Basic math symbold
+// Basic math symbols
 'angle:2220', 'infty:221e', 'prime:2032', 'triangle:25b3', 
 
 'smallint:222b',
@@ -244,7 +244,7 @@ LatexCmds.converges =
     LatexCmds.darr = LatexCmds.dnarr = LatexCmds.dnarrow = LatexCmds.downarrow;
 LatexCmds.dArr = LatexCmds.dnArr = LatexCmds.dnArrow = LatexCmds.Downarrow;
 LatexCmds.diverges = LatexCmds.uarr = LatexCmds.uparrow;
-LatexCmds.Uparrow = LatexCmds.uArr;
+LatexCmds.uArr = LatexCmds.Uparrow;
 LatexCmds.rarr = LatexCmds.rightarrow;
 LatexCmds.rArr = LatexCmds.Rightarrow;
 LatexCmds.larr = LatexCmds.leftarrow;

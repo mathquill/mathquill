@@ -452,7 +452,9 @@ var BASIC_VANILLA_SYMBOLS = [
 'Upsi/Upsilon:03a5',
 
 'neg:00ac', 'lnot:00ac', 
-'top:22a4', 'bot:22a5'
+'top:22a4', 'bot:22a5',
+'vert:2223', 'Vert:2225',
+'bracevert:23AA', 'arrowvert:23D0', 'Arrowvert:2016'
 ];
 
 var VARIABLE_SYMBOLS = [

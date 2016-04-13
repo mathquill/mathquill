@@ -678,6 +678,8 @@ function bindNonpairedDelimiter(delimiter, replaceChar, command) {
 bindSimpleDelimiter('(', ')');
 bindSimpleDelimiter('[', ']');
 bindDelimiter('{', '}', '{', '}', '\\{', '\\}');
+
+/*
 // bindSimpleDelimiter('&lang;', '&rang;');
 bindDelimiter('\\{', '\\}', '{', '}', '\\{', '\\}');
 bindDelimiter('\\opencurlybrace', '\\closecurlybrace', '{', '}', '\\{', '\\}'); // Mathquill specific
@@ -696,25 +698,37 @@ bindDelimiter('lceil', 'rceil', '&#x2308;', '&#x2309;');
 bindDelimiter('langle', 'rangle', '&#x27e8;', '&#x27e9;');
 bindDelimiter('lvert', 'rvert', '&#x2223;', '&#x2223;');
 bindDelimiter('lVert', 'rVert', '&#x2225;', '&#x2225;');
+*/
 
-bindNonpairedDelimiter('vert', '&#x2223;');
-bindNonpairedDelimiter('Vert', '&#x2225;');
+// bindNonpairedDelimiter('vert', '&#x2223;');
+// bindNonpairedDelimiter('Vert', '&#x2225;');
 bindNonpairedDelimiter('|', '|', '|');
 
 // ---
-/*
-function bindCharBracketPair(open, ctrlSeq) {
-  var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
-  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
-  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
-}
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
-// LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-// LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-// CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
-*/
+/* LatexCmds["{"] = */ LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\{', '{');
+/* LatexCmds["}"] = */ LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\}', '}');
+LatexCmds.lmoustache = bind(VanillaSymbol, '\\lmoustache', '&#x23b0;');
+LatexCmds.rmoustache = bind(VanillaSymbol, '\\rmoustache', '&#x23b1;');
+LatexCmds.lgroup = bind(VanillaSymbol, '\\lgroup', '&#x27ee;');
+LatexCmds.rgroup = bind(VanillaSymbol, '\\rgroup', '&#x27ef;');
+LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace', '&#x007b;');
+LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace', '&#x007d;');
+LatexCmds.lbrack = bind(VanillaSymbol, '\\lbrack', '&#x005b;');
+LatexCmds.rbrack = bind(VanillaSymbol, '\\rbrack', '&#x005d;');
+LatexCmds.ulcorner = bind(VanillaSymbol, '\\ulcorner', '&#x250c;');
+LatexCmds.urcorner = bind(VanillaSymbol, '\\urcorner', '&#x2510;');
+LatexCmds.llcorner = bind(VanillaSymbol, '\\llcorner', '&#x2514;');
+LatexCmds.lrcorner = bind(VanillaSymbol, '\\lrcorner', '&#x2518;');
+LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor', '&#x230a;');
+LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor', '&#x230b;');
+LatexCmds.lceil = bind(VanillaSymbol, '\\lceil', '&#x2308;');
+LatexCmds.rceil = bind(VanillaSymbol, '\\rceil', '&#x2309;');
+LatexCmds.langle = bind(VanillaSymbol, '\\langle', '&#x27e8;');
+LatexCmds.rangle = bind(VanillaSymbol, '\\rangle', '&#x27e9;');
+LatexCmds.lvert = bind(VanillaSymbol, '\\lvert', '&#x2223;');
+LatexCmds.rvert = bind(VanillaSymbol, '\\rvert', '&#x2223;');
+LatexCmds.lVert = bind(VanillaSymbol, '\\lVert', '&#x2225;');
+LatexCmds.rVert = bind(VanillaSymbol, '\\rVert', '&#x2225;');
 
 // ---
 
