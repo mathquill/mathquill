@@ -1,26 +1,30 @@
 var Parser = P(function(_, super_, Parser) {
   // The Parser object is a wrapper for a parser function.
-  // Externally, you use one to parse a string by calling
-  //   var result = SomeParser.parse('Me Me Me! Parse Me!');
+  //
   // You should never call the constructor, rather you should
   // construct your Parser from the base parsers and the
   // parser combinator methods.
-
-  function parseError(stream, message) {
-    if (stream) {
-      stream = "'"+stream+"'";
-    }
-    else {
-      stream = 'EOF';
-    }
-
-    throw 'Parse Error: '+message+' at '+stream;
-  }
+  //
+  // This was a precursor to Parsimmon, its API was still rough.
+  // (TODO: Pull in upstream improvements to Parsimmon.)
+  //
+  // The base parsers and the parser combinator methods are great
+  // for general use throughout the containing project (which is
+  // key to commands being able to do custom parsing, like \left
+  // does, for example). However, the API to actually parse stuff
+  // is expected to be hidden from the containing project by an
+  // adapter layer (in MathQuill's case, latex.js), because it's
+  // so rough:
+  //
+  //   var result = SomeParser._parse('Me Me Me! Parse Me!');
+  //
+  // If parsing failed, `undefined` is returned.
+  // (TODO: failure handling)
 
   _.init = function(body) { this._ = body; };
 
-  _.parse = function(stream) {
-    return this.skip(eof)._(''+stream, success, parseError);
+  _._parse = function(stream) {
+    return this.skip(eof)._(''+stream, success, noop);
 
     function success(stream, result) { return result; }
   };

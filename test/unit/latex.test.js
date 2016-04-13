@@ -67,7 +67,7 @@ suite('latex', function() {
     assertParsesLatex('\\frac{1} 2', '\\frac{1}{2}');
     assertParsesLatex('\\frac{ 1 } 2', '\\frac{1}{2}');
 
-    assert.throws(function() { latexMathParser.parse('\\frac'); });
+    assert.equal(latexMathParser.parse('\\frac'), undefined);
   });
 
   test('whitespace', function() {

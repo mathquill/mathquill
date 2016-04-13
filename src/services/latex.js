@@ -96,6 +96,9 @@ var latexMathParser = (function() {
   });
   latexMath.latexText = mathMode.or(textChar).many();
 
+  latexMath.parse =
+  latexMath.latexText.parse = Parser.p._parse;
+
   return latexMath;
 })();
 
@@ -106,10 +109,7 @@ Controller.open(function(_, super_) {
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;
 
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    var block = latexMathParser.parse(latex);
 
     if (block && !block.isEmpty()) {
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
@@ -127,10 +127,7 @@ Controller.open(function(_, super_) {
   _.renderLatexMath = function(latex) {
     var root = this.root, cursor = this.cursor;
 
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    var block = latexMathParser.parse(latex);
 
     root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
@@ -163,7 +160,7 @@ Controller.open(function(_, super_) {
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
-    var commands = latexMathParser.latexText.skip(eof).or(all.result(false)).parse(latex);
+    var commands = latexMathParser.latexText.parse(latex);
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {

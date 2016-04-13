@@ -1,12 +1,5 @@
 suite('text', function() {
 
-  function fromLatex(latex) {
-    var block = latexMathParser.parse(latex);
-    block.jQize();
-
-    return block;
-  }
-
   function assertSplit(jQ, prev, next) {
     var dom = jQ[0];
 
@@ -28,9 +21,9 @@ suite('text', function() {
   }
 
   test('changes the text nodes as the cursor moves around', function() {
-    var block = fromLatex('\\text{abc}');
-    var ctrlr = Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    var ctrlr = Controller(MathBlock(), 0, Options()), cursor = ctrlr.cursor;
+    ctrlr.renderLatexMath('\\text{abc}');
+    ctrlr.root.jQize();
 
     ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'abc', null);
@@ -55,15 +48,15 @@ suite('text', function() {
   });
 
   test('does not change latex as the cursor moves around', function() {
-    var block = fromLatex('\\text{x}');
-    var ctrlr = Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    var ctrlr = Controller(MathBlock(), 0, Options()), cursor = ctrlr.cursor;
+    ctrlr.renderLatexMath('\\text{x}');
+    ctrlr.root.jQize();
 
     ctrlr.moveLeft();
     ctrlr.moveLeft();
     ctrlr.moveLeft();
 
-    assert.equal(block.latex(), '\\text{x}');
+    assert.equal(ctrlr.root.latex(), '\\text{x}');
   });
 
   test('stepping out of an empty block deletes it', function() {
