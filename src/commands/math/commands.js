@@ -369,20 +369,6 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['∑'] =
-LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
-
-LatexCmds['∏'] =
-LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
-
-LatexCmds.coprod =
-LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
-
-LatexCmds['∫'] =
-LatexCmds['int'] =
-LatexCmds.integral = bind(Symbol,'\\int ','<big>&int;</big>');
 
 var Fraction =
 LatexCmds.frac =
@@ -649,22 +635,74 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   };
 });
 
-var OPP_BRACKS = {
-  '(': ')',
-  ')': '(',
-  '[': ']',
-  ']': '[',
-  '{': '}',
-  '}': '{',
-  '\\{': '\\}',
-  '\\}': '\\{',
-  '&lang;': '&rang;',
-  '&rang;': '&lang;',
-  '\\langle ': '\\rangle ',
-  '\\rangle ': '\\langle ',
-  '|': '|'
-};
+// Associative table of open -> close delimiters and close -> open delimiters
+var OPP_BRACKS = {};
 
+function bindSimpleDelimiter(open, close) {
+  pray("simple delimiter not a character", open.length === 1);
+  CharCmds[open] = bind(Bracket, L, open, close, open, close);
+  CharCmds[close] = bind(Bracket, R, open, close, open, close);
+  OPP_BRACKS[open] = close;
+  OPP_BRACKS[close] = open;
+}
+
+function bindDelimiter(open, close, openReplaceChar, closeReplaceChar, openCommand, closeCommand) {
+  openCommand = openCommand ? openCommand : '\\' + open;
+  closeCommand = closeCommand ? closeCommand : '\\' + close;
+  if (open.length === 1) {
+    CharCmds[open] = bind(Bracket, L, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+    CharCmds[close] = bind(Bracket, R, openReplaceChar, closeReplaceChar, openCommand, closeCommand);      
+  } else {
+    LatexCmds[open] = bind(Bracket, L, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+    LatexCmds[close] = bind(Bracket, R, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+  }
+  OPP_BRACKS[open] = close;
+  OPP_BRACKS[close] = open;
+  OPP_BRACKS[openCommand] = closeCommand;
+  OPP_BRACKS[closeCommand] = openCommand;
+}
+
+function bindNonpairedDelimiter(delimiter, replaceChar, command) {
+    command = command ? command : '\\' + delimiter;
+    replaceChar = replaceChar ? replaceChar : delimiter;
+    if (delimiter.length === 1)
+    {
+        CharCmds[delimiter] = bind(Bracket, L, replaceChar, replaceChar, command, command);
+    } else {
+        LatexCmds[delimiter] = bind(Bracket, L, replaceChar, replaceChar, command, command);
+    }
+  OPP_BRACKS[delimiter] = delimiter;
+  OPP_BRACKS[command] = command;
+}
+
+bindSimpleDelimiter('(', ')');
+bindSimpleDelimiter('[', ']');
+bindDelimiter('{', '}', '{', '}', '\\{', '\\}');
+// bindSimpleDelimiter('&lang;', '&rang;');
+bindDelimiter('\\{', '\\}', '{', '}', '\\{', '\\}');
+bindDelimiter('\\opencurlybrace', '\\closecurlybrace', '{', '}', '\\{', '\\}'); // Mathquill specific
+
+// Large delimiters
+bindDelimiter('lmoustache', 'rmoustache', '&#x23b0;', '&#x23b1;');
+bindDelimiter('lgroup', 'rgroup', '&#x27ee;', '&#x27ef;');
+
+// AMS Delimiters
+bindDelimiter('lbrace', 'rbrace', '&#x007b;', '&#x007d;');
+bindDelimiter('lbrack', 'rbrack', '&#x005b;', '&#x005d;');
+bindDelimiter('ulcorner', 'urcorner', '&#x250c;', '&#x2510;');
+bindDelimiter('llcorner', 'lrcorner', '&#x2514;', '&#x2518;');
+bindDelimiter('lfloor', 'rfloor', '&#x230a;', '&#x230b;');
+bindDelimiter('lceil', 'rceil', '&#x2308;', '&#x2309;');
+bindDelimiter('langle', 'rangle', '&#x27e8;', '&#x27e9;');
+bindDelimiter('lvert', 'rvert', '&#x2223;', '&#x2223;');
+bindDelimiter('lVert', 'rVert', '&#x2225;', '&#x2225;');
+
+bindNonpairedDelimiter('vert', '&#x2223;');
+bindNonpairedDelimiter('Vert', '&#x2225;');
+bindNonpairedDelimiter('|', '|', '|');
+
+// ---
+/*
 function bindCharBracketPair(open, ctrlSeq) {
   var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
   CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
@@ -673,9 +711,12 @@ function bindCharBracketPair(open, ctrlSeq) {
 bindCharBracketPair('(');
 bindCharBracketPair('[');
 bindCharBracketPair('{', '\\{');
-LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+// LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+// LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+// CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+*/
+
+// ---
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -795,3 +836,24 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     ;
   };
 });
+
+var CUMULATIVE_OPERATORS = [
+'prod:220f', 'sum:2211', 'coprod:2210', 
+'int:222b', 'intop:222b', 'iint:222c', 'iiint:222d',
+'oint:222e',
+'bigvee:22c1', 'bigwedge:22c0', 'biguplus:2a04',
+'bigcap:22c2', 'bigcup:22c3',
+'bigotimes:2a02', 'bigoplus:2a01', 'bigodot:2a00',
+'bigsqcup:2a06',
+];
+
+for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
+    m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
+    LatexCmds[m[1]] = bind(SummationNotation, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]), '&#x' + m[3] +';');
+}
+
+// MathQuill synonyms
+LatexCmds['∑'] = LatexCmds.summation = LatexCmds.sum;
+LatexCmds['∏'] = LatexCmds.product = LatexCmds.prod
+LatexCmds.coproduct = LatexCmds.coprod;
+LatexCmds['∫'] = LatexCmds.integral = LatexCmds['int'] ;

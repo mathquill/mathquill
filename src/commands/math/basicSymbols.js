@@ -2,6 +2,35 @@
  * Symbols for Basic Mathematics
  ********************************/
 
+/*
+    The following classes encapsulate behavior when
+    rendering or when handling text input:
+    - MathElement
+        - MathBlock
+            - RootMathBlock
+       - MathCommand, e.g. subscripts, exponents, fractions
+            - LatexFragment
+            - SummationNotation e.g. \sum, etc...
+            - Style e.g. \mathit, but also \underline, etc...
+            - SubSup -- subscript and supscripts
+            - Bracket e.g. ( ) { } \lvert \rvert
+            - Symbol -- command without blocks of children
+                - VanillaSymbol -- enclosed by a <span> when rendered, upright.
+                                   e.g. uppercase Greek, forall, etc..
+                    - Digit
+                - NonSymbolaSymbol -- doesn't use Symbola font, 
+                                   e.g. &, @, %, pi and lambda
+                - Variable -- enclosed by a <var> when rendered, italic
+                              e.g. lowercase greek letters
+                    - Letter
+                        - f
+                - OperatorName
+                - BinaryOperator
+                    - PlusMinus
+                    - Inequality
+                    - Equality
+*/
+
 var Digit = P(VanillaSymbol, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (cursor.options.autoSubscriptNumerals
@@ -235,6 +264,7 @@ LatexCmds.f = P(Letter, function(_, super_) {
   };
 });
 
+
 // VanillaSymbol's
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
 
@@ -256,107 +286,8 @@ LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 
-//the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
-
-//lowercase Greek letter variables
-LatexCmds.alpha =
-LatexCmds.beta =
-LatexCmds.gamma =
-LatexCmds.delta =
-LatexCmds.zeta =
-LatexCmds.eta =
-LatexCmds.theta =
-LatexCmds.iota =
-LatexCmds.kappa =
-LatexCmds.mu =
-LatexCmds.nu =
-LatexCmds.xi =
-LatexCmds.rho =
-LatexCmds.sigma =
-LatexCmds.tau =
-LatexCmds.chi =
-LatexCmds.psi =
-LatexCmds.omega = P(Variable, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
-});
-
-//why can't anybody FUCKING agree on these
-LatexCmds.phi = //W3C or Unicode?
-  bind(Variable,'\\phi ','&#981;');
-
-LatexCmds.phiv = //Elsevier and 9573-13
-LatexCmds.varphi = //AMS and LaTeX
-  bind(Variable,'\\varphi ','&phi;');
-
-LatexCmds.epsilon = //W3C or Unicode?
-  bind(Variable,'\\epsilon ','&#1013;');
-
-LatexCmds.epsiv = //Elsevier and 9573-13
-LatexCmds.varepsilon = //AMS and LaTeX
-  bind(Variable,'\\varepsilon ','&epsilon;');
-
-LatexCmds.piv = //W3C/Unicode and Elsevier and 9573-13
-LatexCmds.varpi = //AMS and LaTeX
-  bind(Variable,'\\varpi ','&piv;');
-
-LatexCmds.sigmaf = //W3C/Unicode
-LatexCmds.sigmav = //Elsevier
-LatexCmds.varsigma = //LaTeX
-  bind(Variable,'\\varsigma ','&sigmaf;');
-
-LatexCmds.thetav = //Elsevier and 9573-13
-LatexCmds.vartheta = //AMS and LaTeX
-LatexCmds.thetasym = //W3C/Unicode
-  bind(Variable,'\\vartheta ','&thetasym;');
-
-LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
-LatexCmds.upsi = //Elsevier and 9573-13
-  bind(Variable,'\\upsilon ','&upsilon;');
-
-//these aren't even mentioned in the HTML character entity references
-LatexCmds.gammad = //Elsevier
-LatexCmds.Gammad = //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
-LatexCmds.digamma = //LaTeX
-  bind(Variable,'\\digamma ','&#989;');
-
-LatexCmds.kappav = //Elsevier
-LatexCmds.varkappa = //AMS and LaTeX
-  bind(Variable,'\\varkappa ','&#1008;');
-
-LatexCmds.rhov = //Elsevier and 9573-13
-LatexCmds.varrho = //AMS and LaTeX
-  bind(Variable,'\\varrho ','&#1009;');
-
-//Greek constants, look best in non-italicized Times New Roman
-LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
-LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
-
-//uppercase greek letters
-
-LatexCmds.Upsilon = //LaTeX
-LatexCmds.Upsi = //Elsevier and 9573-13
-LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
-LatexCmds.Upsih = //'cos it makes sense to me
-  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
-
-//other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.Gamma =
-LatexCmds.Delta =
-LatexCmds.Theta =
-LatexCmds.Lambda =
-LatexCmds.Xi =
-LatexCmds.Pi =
-LatexCmds.Sigma =
-LatexCmds.Phi =
-LatexCmds.Psi =
-LatexCmds.Omega =
-LatexCmds.forall = P(VanillaSymbol, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
-});
+// TODO: \colon should have different spacing, need to wrap in a CSS style
+LatexCmds.colon = bind(NonSymbolaSymbol, '\\colon', ':');
 
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
@@ -398,7 +329,7 @@ var LatexFragment = P(MathCommand, function(_) {
 // browsers and email clients treat the MIME charset of ISO-8859-1
 // as actually Windows-1252, behavior now standard in the HTML5 spec.)
 //
-// [1]: http://en.wikipedia.org/wiki/Unicode_subscripts_andsuper_scripts
+// [1]: http://en.wikipedia.org/wiki/Unicode_subscripts_and_superscripts
 // [2]: http://en.wikipedia.org/wiki/Number_Forms
 // [3]: http://en.wikipedia.org/wiki/ISO/IEC_8859-1
 // [4]: http://en.wikipedia.org/wiki/Windows-1252
@@ -431,7 +362,7 @@ LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;');
 
-CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
+CharCmds['*'] = LatexCmds.sdot =
   bind(BinaryOperator, '\\cdot ', '&middot;', '*');
 //semantically should be &sdot;, but &middot; looks better
 
@@ -491,3 +422,88 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
+
+
+
+var NON_SYMBOLA_SYMBOL = [
+// Basic LaTeX
+'ldots:2026', 'cdots:22EF', 'vdots:22ee', 'ddots:22f1',
+
+// amsmath (recommended)
+'dotsb:22ef', 'dotsc:2026', 'dotsi:22ef', 'dotsm:2026', 'dotso:2026',
+'dots:2026',    // TODO: dots is supposed to take into account the 
+// surrounding elements and render appropriately (i.e. baseline, midline, etc...)
+
+// Punctuation
+'ldotp:002e', 'cdotp:22c5',  'ddots:22f1', 'vdots:22ee',
+
+// AMS Hebrew
+'aleph:2135', 'beth:2136', 'daleth:2138', 'gimel:2137',
+
+// Greek constants look better upright
+'pi:03c0', 'lambda:03bb',   
+];
+
+var BASIC_VANILLA_SYMBOLS = [
+'Gamma:0393', 'Delta:0394', 'Theta:0398', 'Lambda:039b', 
+'Xi:039e', 'Pi:03a0', 'Sigma:03a3', 'Upsilon:03a5',
+'Phi:03a6', 'Psi:03a8', 'Omega:03a9',
+'Upsi/Upsilon:03a5',
+
+'neg:00ac', 'lnot:00ac', 
+'top:22a4', 'bot:22a5'
+];
+
+var VARIABLE_SYMBOLS = [
+// Greek letters
+'alpha:03b1', 'beta:03b2','gamma:03b3', 'delta:03b4', 'epsilon:03f5', 
+'zeta:03b6', 'eta:03b7', 'theta:03b8', 'iota:03b9', 'kappa:03ba',  
+'mu:03bc', 'nu:03bd', 'xi:03be', 'omicron:03bf', 'rho:03c1', 
+'sigma:03c3', 'tau:03c4', 'upsilon:03c5', 'phi:03d5','chi:03c7', 
+'psi:03c8', 'omega:03c9',
+
+// Greek variants
+'varepsilon:03b5', 'vartheta:03d1', 'varpi:03d6', 'varrho:03f1', 
+'varsigma:03c2', 'varphi:03c6',
+
+// AMS Greek
+'digamma:03dd', 'varkappa:03f0',
+
+// Synonyms. format: "textinput/latex:unicode"
+'sigmaf/varsigma:03c2', 'epsiv/varepsilon:03b5', 
+'Gammad/digamma:03dd', 'gammad/digamma:03dd',
+'kappav/varkappa:03f0', 'phiv/varphi:03c6', 'piv/varpi:03d6',
+'rhov/varrho:03f1', 'sigmav:03c2', 'thetav/vartheta:03d1',
+'upsi/upsilon:03c5', 'thetasym/vartheta:03d1',
+
+// Other variables
+'hbar:210f', 'ell:2113', 
+'imath:0131', 'jmath:0237',
+];
+
+var i = 0, m = [];
+
+for (i = 0; i < NON_SYMBOLA_SYMBOL.length; i++) {
+    m = NON_SYMBOLA_SYMBOL[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
+    LatexCmds[m[1]] = bind(NonSymbolaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+}
+
+for (i = 0; i < VARIABLE_SYMBOLS.length; i++) {
+    m = VARIABLE_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
+    LatexCmds[m[1]] = bind(Variable, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+}
+
+for (i = 0; i < BASIC_VANILLA_SYMBOLS.length; i++) {
+    m = BASIC_VANILLA_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
+    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+}
+
+LatexCmds['#'] = bind(VanillaSymbol, '\\# ', '#');
+LatexCmds['_'] = bind(VanillaSymbol, '\\_ ', '_');
+LatexCmds['|'] = LatexCmds.Vert;
+
+// MathQuill non-standard commands
+LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
+LatexCmds.Upsih = //'cos it makes sense to me
+   bind(Symbol,'\\Upsilon ','<var class="mq-nonSymbola">&upsih;</var>');
+LatexCmds.alef = LatexCmds.alefsym = LatexCmds.alephsym = LatexCmds.aleph;
