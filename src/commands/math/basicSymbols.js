@@ -29,6 +29,7 @@
                     - PlusMinus
                     - Inequality
                     - Equality
+                - Embed
 */
 
 var Digit = P(VanillaSymbol, function(_, super_) {

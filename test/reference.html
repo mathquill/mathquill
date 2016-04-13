@@ -878,6 +878,22 @@ use <kbd>\left</kbd> and <kbd>\right</kbd> prefixes for autosizing.",
 
     '7', "f_{[x_{i-1},x_i]} \\text{ is monotonic,} \\quad i = 1, ...,c+1",
     '7', "\\left(\\text{if $r-j$ is even}\\right)",
+    '7', "x = \\infty \\textnormal{ for large values.}",
+    '7', "x = \\infty \\textrm{ for large values.}",
+    '7', "x = \\infty \\textup{ for large values.}",
+    '7', "x = \\infty \\textmd{ for large values.}",
+    '7', "x = \\infty \\textit{ \\Omega }",
+    '7', "x = \\infty \\texttt{ Important! }",
+    '7', "x = \\infty \\textsc{ Important! }",
+    '7', "x = \\infty \\uppercase{ Important! }",
+    '7', "x = \\infty \\lowercase{ Important! }",
+    '7', "x = \\infty \\textsf{ Important! }",
+    
+    '7.note', "<kbd>\\textnormal</kbd>, <kbd>\\textrm</kbd> (roman, serif), <kbd>\\textup</kbd>\
+(not italic), <kbd>\\textmd</kbd> (not bold, medium weight), etc... are normally only effective in \
+text mode, not in math mode. Use <kbd>\\mathrm</kbd> instead.",
+    '7.note', "",
+
 
     '7.1', "x \\mod k",
     '7.1', "x \\bmod k",
@@ -1060,6 +1076,14 @@ symbol, means to use standard positioning as for the <kbd>\sum</kbd> command",
     'Appendix A.misc', '\\lowast',                   // = \ast
     'Appendix A.commands', '\\textcolor{green}{x} = \\textcolor{#33f}{y^2}',
     'Appendix A.commands', '\\class{css-large}{x} = 2^x',
+    'Appendix A.commands', "x = \\infty \\em{ important! }",
+    'Appendix A.commands', "x = \\infty \\emph{ important! }",
+    'Appendix A.commands', "x = \\infty \\italic{ important! }",
+    'Appendix A.commands', "x = \\infty \\italics{ important! }",
+    'Appendix A.commands', "x = \\infty \\strong{ important! }",
+    'Appendix A.commands', "x = \\infty \\bold{ important! }",
+    'Appendix A.commands', "x = \\infty \\tt{ Important! }",
+    'Appendix A.commands', "x = \\infty \\sf{ Important! }",
     
 
     'Appendix B.greek', '\\sigmaf',     // Unicode name, but not in W3C MathmML
@@ -1168,6 +1192,8 @@ var sections = [
     "6.2.note", "", "note",
     
     "7", "The <kbd>\\text</kbd> command", "wide",
+    "7.note", "", "wide",
+
     "7.1", "<kbd>\\mod</kbd> and its relatives", "col2",
     "7.1.example", "", "",
     
