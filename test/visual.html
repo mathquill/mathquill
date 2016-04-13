@@ -2,6 +2,7 @@
 <html>
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=624">
 
 <title>MathQuill Test Page</title>
@@ -103,7 +104,7 @@ td {
 
 <h3>Behavior Options</h3>
 
-<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
+<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}} + \biohazard</span></p>
 <p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
 
 <script>
@@ -117,7 +118,11 @@ $(function() {
     charsThatBreakOutOfSupSub: '+-=<>',
     autoSubscriptNumerals: true,
     autoCommands: 'pi theta sqrt sum',
-    autoOperatorNames: 'only'
+    autoOperatorNames: 'only',
+      customSymbols: {
+        snowman: { ch: '☃', kind: 'ord', italic: true },
+        biohazard: { ch:'☣', kind: 'bin' }
+      }
   });
 });
 </script>

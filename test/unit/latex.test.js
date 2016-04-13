@@ -2,7 +2,7 @@ suite('latex', function() {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
-    var result = latexMathParser.parse(str).postOrder('finalizeTree', Options.p).join('latex');
+    var result = latexMathParser.parse(str, LatexCmds).postOrder('finalizeTree', Options.p).join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );
@@ -67,7 +67,7 @@ suite('latex', function() {
     assertParsesLatex('\\frac{1} 2', '\\frac{1}{2}');
     assertParsesLatex('\\frac{ 1 } 2', '\\frac{1}{2}');
 
-    assert.equal(latexMathParser.parse('\\frac'), undefined);
+    assert.equal(latexMathParser.parse('\\frac', LatexCmds), undefined);
   });
 
   test('whitespace', function() {
@@ -77,7 +77,7 @@ suite('latex', function() {
   });
 
   test('parens', function() {
-    var tree = latexMathParser.parse('\\left(123\\right)');
+    var tree = latexMathParser.parse('\\left(123\\right)', LatexCmds);
 
     assert.ok(tree.ends[L] instanceof Bracket);
     var contents = tree.ends[L].ends[L].join('latex');

@@ -115,3 +115,62 @@ function bind(cons /*, args... */) {
 function pray(message, cond) {
   if (!cond) throw new Error('prayer failed: '+message);
 }
+
+/**
+ * Dynamically scoped variables implemented with shallow binding.
+ *
+ * These are like environment variables in shell languages, their value
+ * is determined by the environment where the function is being called;
+ * whereas the value of lexically scoped variables (normal JS variables)
+ * is determined by the closure where the function is defined, regardless
+ * of who calls it and where. Think of them as implicit named parameters.
+ *
+ * These are useful when you'd otherwise have to constantly pass around
+ * explicit parameters, like configuration settings (which is exactly how
+ * shell environment variables are used).
+ *
+ * Usage:
+ *   var useWidget = ENV_VAR();
+ *
+ *   function foo() {
+ *     if (useWidget.value) {
+ *       console.log('used widget');
+ *     }
+ *     else {
+ *       console.log('did not use widget');
+ *     }
+ *   }
+ *   function bar() {
+ *     foo();
+ *   }
+ *   function baz() {
+ *     bar();
+ *   }
+ *
+ *   // in a galaxy far, far away (but in the same codebase)
+ *   useWidget.let(true, function() {
+ *     baz(); // => 'used widget'
+ *   });
+ *
+ * Note that without an environment variable we'd have to pass `useWidget`
+ * to `baz()` and `bar()` just to get it to `foo()`.
+ *
+ * ----
+ *
+ * This is implemented by mutating global or high-scoped variables, which
+ * seems sketchy, but is totally legit, it's called "shallow binding":
+ *   http://c2.com/cgi/wiki?ShallowBinding
+ *
+ * It's reentrant, so that's great, but does only work synchronously.
+ */
+function ENV_VAR() {
+  return {
+    let: function(value, fn) {
+      var saved = this.value;
+      this.value = value;
+      var result = fn();
+      this.value = saved;
+      return result;
+    }
+  }
+}

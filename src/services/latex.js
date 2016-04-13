@@ -36,7 +36,7 @@ var latexMathParser = (function() {
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {
-      var cmdKlass = LatexCmds[ctrlSeq];
+      var cmdKlass = localLatexCmds.value[ctrlSeq];
 
       if (cmdKlass) {
         return cmdKlass(ctrlSeq).parser();
@@ -97,10 +97,64 @@ var latexMathParser = (function() {
   latexMath.latexText = mathMode.or(textChar).many();
 
   latexMath.parse =
-  latexMath.latexText.parse = Parser.p._parse;
+  latexMath.latexText.parse = function(latex, latexCmds) {
+    var parser = this;
+    return localLatexCmds.let(latexCmds, function() {
+      return parser._parse(latex);
+    });
+  };
+  var localLatexCmds = ENV_VAR(); // LaTeX commands during this parse
 
   return latexMath;
 })();
+
+/**
+ * Concise JSON Schema for `customSymbols` declarations:
+ *   {
+ *     "/[a-z]+/i": {
+ *       spacing: { $enum: ['ord', 'bin', 'rel'] },
+ *       $optional_italic: { $value: true } // only allowed if spacing === 'ord'
+ *     }
+ *   }
+ * (More about Concise JSON Schemas: https://git.io/vwI9k )
+ *
+ * This is based on two classifications TeX uses for typesetting:
+ *   - the type of atom ("ord, op, bin, rel, open, close, punct and inner")
+ *       + determines spacing and line-breaking
+ *   - the family of font (normal upright roman, italic, etc)
+ *
+ * https://github.com/Khan/KaTeX/wiki/Examining-TeX#group-types
+ * http://tex.stackexchange.com/a/38984
+ */
+Options.p.customSymbols = LatexCmds;
+optionProcessors.customSymbols = function(defs) {
+  latexCmds = mkLatexCmds();
+  for (var ctrlSeq in defs) if (defs.hasOwnProperty(ctrlSeq)) {
+    if (!/^[a-z]+$/i.test(ctrlSeq)) {
+      throw 'Control word must be all letters, got: "' + ctrlSeq + '"';
+    }
+    var def = defs[ctrlSeq];
+    if (def.spacing === 'ord') {
+      var kind = (def.italic ? Variable : VanillaSymbol);
+    }
+    else if (def.spacing === 'bin' || def.spacing === 'rel') {
+      if (def.italic) throw 'Custom '+def.spacing+' symbols cannot be italic';
+      var kind = BinaryOperator;
+    }
+    var cmd = latexCmds[ctrlSeq] = bind(spacing, '\\'+ctrlSeq+' ', def.ch);
+    if (def.aliases) {
+      if (!/^[a-z]+(?: [a-z]+)*$/i.test(def.aliases)) {
+        throw 'Control word aliases must be space-delimited list of only letters, '
+            + 'got: "' + def.aliases + '"';
+      }
+      var aliases = def.aliases.split(' ');
+      for (var i = 0; i < aliases.length; i += 1) {
+        latexCmds[aliases[i]] = cmd;
+      }
+    }
+  }
+  return latexCmds;
+};
 
 Controller.open(function(_, super_) {
   _.exportLatex = function() {
@@ -109,7 +163,7 @@ Controller.open(function(_, super_) {
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;
 
-    var block = latexMathParser.parse(latex);
+    var block = latexMathParser.parse(latex, this.options.customSymbols);
 
     if (block && !block.isEmpty()) {
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
@@ -127,7 +181,7 @@ Controller.open(function(_, super_) {
   _.renderLatexMath = function(latex) {
     var root = this.root, cursor = this.cursor;
 
-    var block = latexMathParser.parse(latex);
+    var block = latexMathParser.parse(latex, this.options.customSymbols);
 
     root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
@@ -160,7 +214,7 @@ Controller.open(function(_, super_) {
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
-    var commands = latexMathParser.latexText.parse(latex);
+    var commands = latexMathParser.latexText.parse(latex, this.options.customSymbols);
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
