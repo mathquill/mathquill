@@ -22,6 +22,7 @@ var latexMathParser = (function() {
   var optWhitespace = Parser.optWhitespace;
   var succeed = Parser.succeed;
   var fail = Parser.fail;
+  var eof = Parser.eof;
 
   // Parsers yielding either MathCommands, or Fragments of MathCommands
   //   (either way, something that can be adopted by a MathBlock)
@@ -67,9 +68,34 @@ var latexMathParser = (function() {
   ;
 
   var latexMath = mathSequence;
-
   latexMath.block = mathBlock;
   latexMath.optBlock = optMathBlock;
+
+  // for renderLatexText; TODO: refactor
+  // Parser RootMathCommand
+  var mathMode = string('$').then(latexMath)
+    // because TeX is insane, math mode doesn't necessarily
+    // have to end.  So we allow for the case that math mode
+    // continues to the end of the stream.
+    .skip(string('$').or(eof))
+    .map(function(block) {
+      // HACK FIXME: this shouldn't have to have access to cursor
+      var rootMathCommand = RootMathCommand();
+
+      rootMathCommand.createBlocks();
+      var rootMathBlock = rootMathCommand.ends[L];
+      block.children().adopt(rootMathBlock, 0, 0);
+
+      return rootMathCommand;
+    })
+  ;
+
+  var escapedDollar = string('\\$').result('$');
+  var textChar = escapedDollar.or(regex(/^[^$]/)).map(function(ch) {
+    return VanillaSymbol(ch); // wrap in fn 'cos in a service, no commands yet
+  });
+  latexMath.latexText = mathMode.or(textChar).many();
+
   return latexMath;
 })();
 
@@ -137,33 +163,7 @@ Controller.open(function(_, super_) {
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var eof = Parser.eof;
-    var all = Parser.all;
-
-    // Parser RootMathCommand
-    var mathMode = string('$').then(latexMathParser)
-      // because TeX is insane, math mode doesn't necessarily
-      // have to end.  So we allow for the case that math mode
-      // continues to the end of the stream.
-      .skip(string('$').or(eof))
-      .map(function(block) {
-        // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
-
-        rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
-
-        return rootMathCommand;
-      })
-    ;
-
-    var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+    var commands = latexMathParser.latexText.skip(eof).or(all.result(false)).parse(latex);
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {

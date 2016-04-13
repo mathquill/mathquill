@@ -328,11 +328,12 @@ LatexCmds.lowercase =
 
 
 var RootMathCommand = P(MathCommand, function(_, super_) {
-  _.init = function(cursor) {
-    super_.init.call(this, '$');
-    this.cursor = cursor;
-  };
+  _.ctrlSeq = '$';
   _.htmlTemplate = '<span class="mq-math-mode">&0</span>';
+  _.createLeftOf = function(cursor) {
+    this.cursor = cursor;
+    return super_.createLeftOf.apply(this, arguments);
+  };
   _.createBlocks = function() {
     super_.createBlocks.call(this);
 
@@ -366,7 +367,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
   _.write = function(cursor, ch) {
     cursor.show().deleteSelection();
     if (ch === '$')
-      RootMathCommand(cursor).createLeftOf(cursor);
+      RootMathCommand().createLeftOf(cursor);
     else {
       var html;
       if (ch === '<') html = '&lt;';
