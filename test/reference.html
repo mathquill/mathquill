@@ -138,10 +138,22 @@ div .note {
 
 </head>
 
-<!-- Load a standard MathJax configuration, with typesetting on startup disabled.
- We'll trigger the typesetting explicitly later. -->
+<!-- Load a custom MathJax configuration. -->
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  jax: ["input/TeX","output/CommonHTML"],
+  extensions: ["tex2jax.js"],
+  TeX: {
+    extensions: ["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]
+  },
+  "fast-preview": { disabled: true },
+  showProcessingMessages: false,
+  messageStyle: "none",
+  showMathMenu: false,
+}); 
+</script>
 <script type="text/javascript"
-  src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS_CHTML&skipStartupTypeset=true">
+  src="//cdn.mathjax.org/mathjax/latest/MathJax.js">
 </script>
 
 <body>
@@ -159,7 +171,6 @@ $(function() {
 var entries = [
     '1.note', "The sections in this document mirror those from the <a href='ftp://ftp.ams.org/pub/tex/doc/amsmath/short-math-guide.pdf'>AMS Short Math Guide</a>. \
 The commands and examples from each section are listed here, with a rendering from MathQuill, followed by a rendering from \
-<span class='codecogs'>LaTeX, via <a href='http://www.codecogs.com/'>codecogs.com</a></span>, a rendering from \
 <span class='mathjax'>MathJax</span> and finally the raw LaTeX command.\
 When MathQuill is unable to render, a <span style='color: white; background: red; padding-left: .5em; padding-right: .5em; '>?</span> is displayed.",
     '3.3', "abcdefghijklmnopqrstuvwxyz",
@@ -1249,7 +1260,7 @@ var sections = [
                     t += '<div><code>' + entries[j + 1] + '</code></div>';
                     t += '<div class="mathquill-static-math">' + entries[j + 1] + '</div>';
  //                   t += '<div class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></div>';
-                    t += '<div class="mathjax">$$' + entries[j + 1] + '$$</div>';
+                    t += '<div><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></div>';
                     t += '</div>';
                 }
                 j += 2;
@@ -1262,7 +1273,7 @@ var sections = [
                     t += '<tr>';
                     t += '<td class="mathquill-static-math">' + entries[j + 1] + '</td>';
 //                    t += '<td class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
-                    t += '<td class="mathjax">$$' + entries[j + 1] + '$$</td>';
+                    t += '<td><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></td>';
                     t += '<td><code>' + entries[j + 1] + '</code></td>';
                     t += '</tr>';
                 }
@@ -1285,13 +1296,6 @@ var sections = [
             this.innerHTML = '<span style="background:red; color: white; font-weight:bolder; padding-left:.5em; padding-right:.5em;">?</span>';
         }
     });
-    
-    // We've deferred the typeseting on startup. Do it explicitly now on each
-    // elements with a "mathjax" class.
-    $('.mathjax').each(function() { 
-        MathJax.Hub.Queue(["Typeset", MathJax.Hub, this]);
-    });
-
 });
 
 
