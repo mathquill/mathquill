@@ -56,23 +56,6 @@ var BINARY_OPERATOR = [
 'boxdot:22a1', 'bigtriangleup:25b3', 'bigtriangledown:25bd', 'dagger:2020',
 'diamond:22c4', 'star:22c6', 'triangleleft:25c3', 'triangleright:25b9',
 
-];
-
-var VANILLA_SYMBOLS = [
-// AMS Negated Binary Relations
-'nless:226e', 'nleqslant:e010', 'nleqq:e011', 'lneq:2a87', 'lneqq:2268', 'lvertneqq:e00c',
-'lnsim:22e6', 'lnapprox:2a89', 'nprec:2280', 'npreceq:22e0', 'precnsim:22e8',
-'precnapprox:2ab9', 'nsim:2241', 'nshortmid:e006', 'nmid:2224', 'nvdash:22ac',
-'nvDash:22ad', 'ntriangleleft:22ea', 'ntrianglelefteq:22ec', 'subsetneq:228a',
-'varsubsetneq:e01a', 'subsetneqq:2acb', 'varsubsetneqq:e017', 'ngtr:226f',
-'ngeqslant:e00f', 'ngeqq:e00e', 'gneq:2a88', 'gneqq:2269', 'gvertneqq:e00d',
-'gnsim:22e7', 'gnapprox:2a8a', 'nsucc:2281', 'nsucceq:22e1', 'succnsim:22e9',
-'succnapprox:2aba', 'ncong:2246', 'nshortparallel:e007', 'nparallel:2226',
-'nVDash:22af', 'ntriangleright:22eb', 'ntrianglerighteq:22ed', 'nsupseteqq:e018',
-'supsetneq:228b', 'varsupsetneq:e01b', 'supsetneqq:2acc', 'varsupsetneqq:e019',
-'nVdash:22ae', 'precneqq:2ab5', 'succneqq:2ab6', 'nsubseteqq:e016', 'unlhd:22b4',
-'unrhd:22b5',
-
 // AMS binary relations
 'leqq:2266', 'leqslant:2a7d', 'eqslantless:2a95', 'lesssim:2272',
 'lessapprox:2a85', 'approxeq:224a', 'lessdot:22d6', 'lll:22d8',
@@ -93,11 +76,28 @@ var VANILLA_SYMBOLS = [
 'blacktriangleright:25b6', 'because:2235', 'llless:22d8', 'gggtr:22d9',
 'lhd:22b2', 'rhd:22b3', 'eqsim:2242', 'Join:22c8', 'Doteq:2251',
 
+// AMS Negated Binary Relations
+'nless:226e', 'nleqslant:e010', 'nleqq:e011', 'lneq:2a87', 'lneqq:2268', 'lvertneqq:e00c',
+'lnsim:22e6', 'lnapprox:2a89', 'nprec:2280', 'npreceq:22e0', 'precnsim:22e8',
+'precnapprox:2ab9', 'nsim:2241', 'nshortmid:e006', 'nmid:2224', 'nvdash:22ac',
+'nvDash:22ad', 'ntriangleleft:22ea', 'ntrianglelefteq:22ec', 'subsetneq:228a',
+'varsubsetneq:e01a', 'subsetneqq:2acb', 'varsubsetneqq:e017', 'ngtr:226f',
+'ngeqslant:e00f', 'ngeqq:e00e', 'gneq:2a88', 'gneqq:2269', 'gvertneqq:e00d',
+'gnsim:22e7', 'gnapprox:2a8a', 'nsucc:2281', 'nsucceq:22e1', 'succnsim:22e9',
+'succnapprox:2aba', 'ncong:2246', 'nshortparallel:e007', 'nparallel:2226',
+'nVDash:22af', 'ntriangleright:22eb', 'ntrianglerighteq:22ed', 'nsupseteqq:e018',
+'supsetneq:228b', 'varsupsetneq:e01b', 'supsetneqq:2acc', 'varsupsetneqq:e019',
+'nVdash:22ae', 'precneqq:2ab5', 'succneqq:2ab6', 'nsubseteqq:e016', 'unlhd:22b4',
+'unrhd:22b5',
+];
+
+var VANILLA_SYMBOLS = [
 // Misc symbols
-'forall:2200', 'exists:2203', 'nabla:2207',
-'flat:266d', 'natural:266e', 'clubsuit:2663', 'wp:2118',
-'sharp:266f', 'diamondsuit:2662', 'Re:211c', 'heartsuit:2661', 'Im:2111', 'spadesuit:2660',
+'forall:2200', 'exists:2203', 'nabla:2207',  'wp:2118',
+'flat:266d', 'natural:266e', 'sharp:266f', 
+'clubsuit:2663', 'diamondsuit:2662', 'heartsuit:2661', 'spadesuit:2660',
 'emptyset:2205', 'varnothing:2205', 
+'Re:211c', 'Im:2111', 
 
 // Math and text
 'dag:2020', 'ddag:2021', 'space:00a0',
@@ -144,9 +144,12 @@ var VANILLA_SYMBOLS = [
 'smallint:222b',
 
 // Accents
-'acute:00b4', 'grave:0060', 'ddot:00a8', 'tilde:007e',
-'bar:00af', 'breve:02d8', 'check:02c7', 'hat:005e',
-'vec:20d7', 'dot:02d9',
+// TODO: properly display accents above their character. Will probably need a new class for this.
+// Note that \vec has its own custom handler (see var Vec = ...). That would be a 
+// candidate to be generalized for all accents.
+// 'acute:00b4', 'grave:0060', 'ddot:00a8', 'tilde:007e',
+// 'bar:00af', 'breve:02d8', 'check:02c7', 'hat:005e',
+// 'vec:20d7', 'dot:02d9',
 ];
 
 var i = 0, m = [];

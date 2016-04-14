@@ -863,7 +863,7 @@ var CUMULATIVE_OPERATORS = [
 
 for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
     m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(SummationNotation, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]), '&#x' + m[3] +';');
+    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]), '&#x' + m[3] +';');
 }
 
 // MathQuill synonyms

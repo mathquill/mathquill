@@ -502,11 +502,11 @@ for (i = 0; i < BASIC_VANILLA_SYMBOLS.length; i++) {
 }
 
 LatexCmds['#'] = bind(VanillaSymbol, '\\# ', '#');
-LatexCmds['_'] = bind(VanillaSymbol, '\\_ ', '_');
+// LatexCmds['_'] = bind(VanillaSymbol, '\\_ ', '_'); // TODO: Does not parse
 LatexCmds['|'] = LatexCmds.Vert;
 
 // MathQuill non-standard commands
 LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
-   bind(Symbol,'\\Upsilon ','<var class="mq-nonSymbola">&upsih;</var>');
+   bind(Symbol,'\\Upsilon ','<span class="mq-nonSymbola">&upsih;</span>');
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.alephsym = LatexCmds.aleph;
