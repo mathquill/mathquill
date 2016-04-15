@@ -243,3 +243,15 @@ Allows MathQuill to parse custom embedded objects from latex, where `options` is
 ## Note on Experimental Features
 
 Methods marked as experimental may be altered drastically or removed in future versions. They may also receive less maintenance than other non-experimental features.
+
+# Inner MathField methods
+
+Inner math fields have all of the [above](#editable-mathfield-methods) methods in addition to the ones listed here.
+
+## makeStatic()
+
+Converts the editable inner field into a static one.
+
+## makeEditable()
+
+Converts the static inner field into an editable one.
