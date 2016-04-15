@@ -1095,36 +1095,35 @@ symbol, means to use standard positioning as for the <kbd>\sum</kbd> command",
     'Appendix A.commands', "x = \\infty \\bold{ important! }",
     'Appendix A.commands', "x = \\infty \\tt{ Important! }",
     'Appendix A.commands', "x = \\infty \\sf{ Important! }",
-    
 
-    'Appendix B.greek', '\\sigmaf',     // Unicode name, but not in W3C MathmML
-    
-    // See https://www.w3.org/TR/REC-MathML/chapter6.html
-    'Appendix C.6.2.3', '\\CapitalDifferentialD', 
-    'Appendix C.6.2.3', '\\DD',
-    'Appendix C.6.2.3', '\\DifferentialD', 
-    'Appendix C.6.2.3', '\\dd', 
-    'Appendix C.6.2.3', '\\ExponentialE', 
-    'Appendix C.6.2.3', '\\ee', 
-    'Appendix C.6.2.3', '\\false', 
-    'Appendix C.6.2.3', '\\ImaginaryI', 
-    'Appendix C.6.2.3', '\\ii', 
-    'Appendix C.6.2.3', '\\NotANumber', 
-    'Appendix C.6.2.3', '\\true', 
-
+    'Appendix B.elsevier-greek', '\\sigmaf',     // Unicode name, but not in W3C MathmML
+ 
     // See https://www.w3.org/TR/REC-MathML/chap6/ISOGRK31.html
-    'Appendix C.6.5.2', '\\epsiv', 
-    'Appendix C.6.5.2', '\\Gammad', 
-    'Appendix C.6.5.2', '\\gammad', 
-    'Appendix C.6.5.2', '\\kappav', 
-    'Appendix C.6.5.2', '\\phiv', 
-    'Appendix C.6.5.2', '\\piv', 
-    'Appendix C.6.5.2', '\\rhov', 
-    'Appendix C.6.5.2', '\\sigmav', 
-    'Appendix C.6.5.2', '\\thetav', 
-    'Appendix C.6.5.2', '\\Upsi', 
-    'Appendix C.6.5.2', '\\upsi', 
-    'Appendix C.6.5.2', '\\thetasym',   // Not in table ISOGRK3
+    'Appendix B.6-5-2-greek', '\\epsiv', 
+    'Appendix B.6-5-2-greek', '\\Gammad', 
+    'Appendix B.6-5-2-greek', '\\gammad', 
+    'Appendix B.6-5-2-greek', '\\kappav', 
+    'Appendix B.6-5-2-greek', '\\phiv', 
+    'Appendix B.6-5-2-greek', '\\piv', 
+    'Appendix B.6-5-2-greek', '\\rhov', 
+    'Appendix B.6-5-2-greek', '\\sigmav', 
+    'Appendix B.6-5-2-greek', '\\thetav', 
+    'Appendix B.6-5-2-greek', '\\Upsi', 
+    'Appendix B.6-5-2-greek', '\\upsi', 
+    'Appendix B.6-5-2-greek', '\\thetasym',   // Not in table ISOGRK3
+
+   // See https://www.w3.org/TR/REC-MathML/chapter6.html
+    'Appendix B.6-2-3-misc', '\\CapitalDifferentialD', 
+    'Appendix B.6-2-3-misc', '\\DD',
+    'Appendix B.6-2-3-misc', '\\DifferentialD', 
+    'Appendix B.6-2-3-misc', '\\dd', 
+    'Appendix B.6-2-3-misc', '\\ExponentialE', 
+    'Appendix B.6-2-3-misc', '\\ee', 
+    'Appendix B.6-2-3-misc', '\\false', 
+    'Appendix B.6-2-3-misc', '\\ImaginaryI', 
+    'Appendix B.6-2-3-misc', '\\ii', 
+    'Appendix B.6-2-3-misc', '\\NotANumber', 
+    'Appendix B.6-2-3-misc', '\\true', 
 
 
     ];
@@ -1142,7 +1141,7 @@ var sections = [
     "3.6", "Miscellaneous simple symbols", "col2",
     "3.7", "Binary operator symbols", "col3",
     "3.7.example", "", "wide",
-    "3.7.synonyms", "Synonyms", "col3",
+    "3.7.synonyms", "Synonyms", "col2",
     "3.8", "Relation symbols: < = > \u227B \u223D  and variants", "col3",
     "3.8.synonyms", "Synonyms", "col2",
     "3.9", "Relation symbols: arrows", "col2",
@@ -1215,17 +1214,15 @@ var sections = [
     "8.4", "The <kbd>\\sideset</kbd> command", "",
     
     "Appendix A", "Appendix A. MathQuill non-standard commands", "",
-    "Appendix A.operators", "Operators", "col3",
+    "Appendix A.operators", "Operators", "col2",
     "Appendix A.blackboard", "Blackboard letters", "col2",
-    "Appendix A.greek", "Greek letters", "col3",
+    "Appendix A.greek", "Greek letters", "col1",
     "Appendix A.misc", "Miscellaneous Symbols", "col2",
     "Appendix A.commands", "Commands", "wide",
-    "Appendix B", "Appendix B. Elsevier and ISO 9573-13 specific commands", "col3",
-    "Appendix B.greek", "Greek letters", "col3",
-    "Appendix B.misc", "Miscelaneous symbols", "col3",
-    "Appendix C", "Appendix C. W3C", "col3",
-    "Appendix C.6.2.3", "", "col3",
-    "Appendix C.6.5.2", "Alternate Greek letters ISOGRK3", "col3", 
+    "Appendix B", "Appendix B. W3C and Elsevier", "col1",
+    "Appendix B.elsevier-greek", "Elsevier alternate Greek letters", "col3",
+    "Appendix B.6-5-2-greek", "Alternate Greek letters ISOGRK3", "col3", 
+    "Appendix B.6-2-3-misc", "Miscelaneous symbols", "col3",
     
 ];
     var t = ''; // the output text
@@ -1260,7 +1257,7 @@ var sections = [
                     t += '<div><code>' + entries[j + 1] + '</code></div>';
                     t += '<div class="mathquill-static-math">' + entries[j + 1] + '</div>';
  //                   t += '<div class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></div>';
-                    t += '<div><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></div>';
+                    t += '<div class="mathjax"><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></div>';
                     t += '</div>';
                 }
                 j += 2;
@@ -1273,7 +1270,7 @@ var sections = [
                     t += '<tr>';
                     t += '<td class="mathquill-static-math">' + entries[j + 1] + '</td>';
 //                    t += '<td class="codecogs"><img src="' + 'http://latex.codecogs.com/svg.latex?' + encodeURI(entries[j + 1]) + '"></td>';
-                    t += '<td><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></td>';
+                    t += '<td class="mathjax"><script type="math/tex; mode=display">' + entries[j + 1] + '</' + 'script></td>';
                     t += '<td><code>' + entries[j + 1] + '</code></td>';
                     t += '</tr>';
                 }
