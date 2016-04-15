@@ -19,7 +19,7 @@ case '!':
 //
 // Relation symbols (Sec 3.8)
 //
-var BINARY_OPERATOR = [
+var BINARY_OPERATORS = [
 // Relation Symbols
 'equiv:2261', 'prec:227a', 'succ:227b', 'sim:223c', 'perp:22a5', 
 'preceq:2aaf', 'succeq:2ab0','simeq:2243', 
@@ -89,18 +89,6 @@ var BINARY_OPERATOR = [
 'supsetneq:228b', 'varsupsetneq:e01b', 'supsetneqq:2acc', 'varsupsetneqq:e019',
 'nVdash:22ae', 'precneqq:2ab5', 'succneqq:2ab6', 'nsubseteqq:e016', 'unlhd:22b4',
 'unrhd:22b5',
-];
-
-var VANILLA_SYMBOLS = [
-// Misc symbols
-'forall:2200', 'exists:2203', 'nabla:2207',  'wp:2118',
-'flat:266d', 'natural:266e', 'sharp:266f', 
-'clubsuit:2663', 'diamondsuit:2662', 'heartsuit:2661', 'spadesuit:2660',
-'emptyset:2205', 'varnothing:2205', 
-'Re:211c', 'Im:2111', 
-
-// Math and text
-'dag:2020', 'ddag:2021', 'space:00a0',
 
 // Arrow symbols
 'longleftarrow:27f5', 'Leftarrow:21d0', 'Longleftarrow:27f8', 'longrightarrow:27f6',
@@ -113,14 +101,6 @@ var VANILLA_SYMBOLS = [
 // AMS Negated arrow
 'nleftarrow:219a', 'nrightarrow:219b', 'nLeftarrow:21cd', 'nRightarrow:21cf',
 'nleftrightarrow:21ae', 'nLeftrightarrow:21ce',
-
-// AMS Misc
-'vartriangle:25b3', 'hslash:210f', 'triangledown:25bd', 'lozenge:25ca', 'circledS:24c8',
-'circledR:00ae', 'measuredangle:2221', 'nexists:2204', 'mho:2127', 'Finv:2132', 'Game:2141',
-'Bbbk:006b', 'backprime:2035', 'blacktriangle:25b2', 'blacktriangledown:25bc',
-'blacksquare:25a0', 'blacklozenge:29eb', 'bigstar:2605', 'sphericalangle:2222',
-'complement:2201', 'eth:00f0', 'diagup:2571', 'diagdown:2572', 'square:25a1',
-'Box:25a1', 'Diamond:25ca', 'yen:00a5', 'checkmark:2713',
 
 // AMS Arrows
 'dashrightarrow:21e2', 'dashleftarrow:21e0', 'leftleftarrows:21c7', 'leftrightarrows:21c6',
@@ -137,6 +117,26 @@ var VANILLA_SYMBOLS = [
 'uparrow:2191', 'Uparrow:21d1',
 'downarrow:2193', 'Downarrow:21d3',
 'updownarrow:2195', 'Updownarrow:21d5',
+];
+
+var VANILLA_SYMBOLS = [
+// Misc symbols
+'forall:2200', 'exists:2203', 'nabla:2207',  'wp:2118',
+'flat:266d', 'natural:266e', 'sharp:266f', 
+'clubsuit:2663', 'diamondsuit:2662', 'heartsuit:2661', 'spadesuit:2660',
+'emptyset:2205', 'varnothing:2205', 
+'Re:211c', 'Im:2111', 
+
+// Math and text
+'dag:2020', 'ddag:2021', 'space:00a0',
+
+// AMS Misc
+'vartriangle:25b3', 'hslash:210f', 'triangledown:25bd', 'lozenge:25ca', 'circledS:24c8',
+'circledR:00ae', 'measuredangle:2221', 'nexists:2204', 'mho:2127', 'Finv:2132', 'Game:2141',
+'Bbbk:006b', 'backprime:2035', 'blacktriangle:25b2', 'blacktriangledown:25bc',
+'blacksquare:25a0', 'blacklozenge:29eb', 'bigstar:2605', 'sphericalangle:2222',
+'complement:2201', 'eth:00f0', 'diagup:2571', 'diagdown:2572', 'square:25a1',
+'Box:25a1', 'Diamond:25ca', 'yen:00a5', 'checkmark:2713',
 
 // Basic math symbols
 'angle:2220', 'infty:221e', 'prime:2032', 'triangle:25b3', 
@@ -154,14 +154,14 @@ var VANILLA_SYMBOLS = [
 
 var i = 0, m = [];
 
-for (i = 0; i < BINARY_OPERATOR.length; i++) {
-    m = BINARY_OPERATOR[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(BinaryOperator, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+for (i = 0; i < BINARY_OPERATORS.length; i++) {
+    m = BINARY_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(BinaryOperator, '\\' + m[1] + ' ', '&#x' + m[2] +';');
 }
 
 for (i = 0; i < VANILLA_SYMBOLS.length; i++) {
-    m = VANILLA_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+    m = VANILLA_SYMBOLS[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + m[1] + ' ', '&#x' + m[2] +';');
 }
 
 LatexCmds.iff = LatexCmds.Longleftrightarrow;

@@ -852,19 +852,32 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
 });
 
 var CUMULATIVE_OPERATORS = [
-'prod:220f', 'sum:2211', 'coprod:2210', 
-'int:222b', 'intop:222b', 'iint:222c', 'iiint:222d',
-'oint:222e',
-'bigvee:22c1', 'bigwedge:22c0', 'biguplus:2a04',
-'bigcap:22c2', 'bigcup:22c3',
-'bigotimes:2a02', 'bigoplus:2a01', 'bigodot:2a00',
-'bigsqcup:2a06',
+'prod:prod', 'sum:sum', 'coprod:#8720', 
 ];
 
 for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
-    m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]), '&#x' + m[3] +';');
+    m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1], '&' + m[2] +';');
 }
+
+// TODO: These CUMULATIVE_OPERATORS_EXTENDED should probably be merged with
+// CUMULATIVE_OPERATORS at some point. For now, keep them separate so we 
+// can keep them as Symbol for backward compatibility
+var CUMULATIVE_OPERATORS_EXTENDED = [
+'int:int', 'intop:int', 'iint:#x222c', 'iiint:#x222d',
+'oint:#x222e',
+'bigvee:#x22c1', 'bigwedge:#x22c0', 'biguplus:#x2a04',
+'bigcap:#x22c2', 'bigcup:#x22c3',
+'bigotimes:#x2a02', 'bigoplus:#x2a01', 'bigodot:#x2a00',
+'bigsqcup:#x2a06',
+];
+for (i = 0; i < CUMULATIVE_OPERATORS_EXTENDED.length; i++) {
+    m = CUMULATIVE_OPERATORS_EXTENDED[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1], '<big>&' + m[2] +';</big>');
+}
+
+
+
 
 // MathQuill synonyms
 LatexCmds['∑'] = LatexCmds.summation = LatexCmds.sum;

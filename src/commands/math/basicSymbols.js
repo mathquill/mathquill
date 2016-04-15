@@ -449,7 +449,7 @@ var BASIC_VANILLA_SYMBOLS = [
 'Gamma:0393', 'Delta:0394', 'Theta:0398', 'Lambda:039b', 
 'Xi:039e', 'Pi:03a0', 'Sigma:03a3', 'Upsilon:03a5',
 'Phi:03a6', 'Psi:03a8', 'Omega:03a9',
-'Upsi/Upsilon:03a5',
+'Upsi:03a5',
 
 'neg:00ac', 'lnot:00ac', 
 'top:22a4', 'bot:22a5',
@@ -487,18 +487,18 @@ var VARIABLE_SYMBOLS = [
 var i = 0, m = [];
 
 for (i = 0; i < NON_SYMBOLA_SYMBOL.length; i++) {
-    m = NON_SYMBOLA_SYMBOL[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(NonSymbolaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
+    m = NON_SYMBOLA_SYMBOL[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(NonSymbolaSymbol, '\\' + m[1] + ' ', '&#x' + m[2] +';');
+}
+
+for (i = 0; i < BASIC_VANILLA_SYMBOLS.length; i++) {
+    m = BASIC_VANILLA_SYMBOLS[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + m[1] + ' ', '&#x' + m[2] +';');
 }
 
 for (i = 0; i < VARIABLE_SYMBOLS.length; i++) {
     m = VARIABLE_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
     LatexCmds[m[1]] = bind(Variable, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
-}
-
-for (i = 0; i < BASIC_VANILLA_SYMBOLS.length; i++) {
-    m = BASIC_VANILLA_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
-    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
 }
 
 LatexCmds['#'] = bind(VanillaSymbol, '\\# ', '#');
@@ -510,3 +510,4 @@ LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
    bind(Symbol,'\\Upsilon ','<span class="mq-nonSymbola">&upsih;</span>');
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.alephsym = LatexCmds.aleph;
+LatexCmds['π'] = LatexCmds.pi;
