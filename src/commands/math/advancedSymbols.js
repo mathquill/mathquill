@@ -166,7 +166,6 @@ for (i = 0; i < VANILLA_SYMBOLS.length; i++) {
 
 LatexCmds.iff = LatexCmds.Longleftrightarrow;
 LatexCmds.implies = LatexCmds.Longrightarrow;
-LatexCmds.enspace = LatexCmds['\\;'];
 
 
 //
