@@ -857,7 +857,7 @@ var CUMULATIVE_OPERATORS = [
 
 for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
     m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1], '&' + m[2] +';');
+    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1] + ' ', '&' + m[2] +';');
 }
 
 // TODO: These CUMULATIVE_OPERATORS_EXTENDED should probably be merged with
@@ -873,7 +873,7 @@ var CUMULATIVE_OPERATORS_EXTENDED = [
 ];
 for (i = 0; i < CUMULATIVE_OPERATORS_EXTENDED.length; i++) {
     m = CUMULATIVE_OPERATORS_EXTENDED[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1], '<big>&' + m[2] +';</big>');
+    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1] + ' ', '<big>&' + m[2] +';</big>');
 }
 
 
