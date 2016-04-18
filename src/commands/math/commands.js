@@ -707,28 +707,28 @@ bindNonpairedDelimiter('|', '|', '|');
 // ---
 /* LatexCmds["{"] = */ LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\{', '{');
 /* LatexCmds["}"] = */ LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\}', '}');
-LatexCmds.lmoustache = bind(VanillaSymbol, '\\lmoustache', '&#x23b0;');
-LatexCmds.rmoustache = bind(VanillaSymbol, '\\rmoustache', '&#x23b1;');
-LatexCmds.lgroup = bind(VanillaSymbol, '\\lgroup', '&#x27ee;');
-LatexCmds.rgroup = bind(VanillaSymbol, '\\rgroup', '&#x27ef;');
-LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace', '&#x007b;');
-LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace', '&#x007d;');
-LatexCmds.lbrack = bind(VanillaSymbol, '\\lbrack', '&#x005b;');
-LatexCmds.rbrack = bind(VanillaSymbol, '\\rbrack', '&#x005d;');
-LatexCmds.ulcorner = bind(VanillaSymbol, '\\ulcorner', '&#x250c;');
-LatexCmds.urcorner = bind(VanillaSymbol, '\\urcorner', '&#x2510;');
-LatexCmds.llcorner = bind(VanillaSymbol, '\\llcorner', '&#x2514;');
-LatexCmds.lrcorner = bind(VanillaSymbol, '\\lrcorner', '&#x2518;');
-LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor', '&#x230a;');
-LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor', '&#x230b;');
-LatexCmds.lceil = bind(VanillaSymbol, '\\lceil', '&#x2308;');
-LatexCmds.rceil = bind(VanillaSymbol, '\\rceil', '&#x2309;');
-LatexCmds.langle = bind(VanillaSymbol, '\\langle', '&#x27e8;');
-LatexCmds.rangle = bind(VanillaSymbol, '\\rangle', '&#x27e9;');
-LatexCmds.lvert = bind(VanillaSymbol, '\\lvert', '&#x2223;');
-LatexCmds.rvert = bind(VanillaSymbol, '\\rvert', '&#x2223;');
-LatexCmds.lVert = bind(VanillaSymbol, '\\lVert', '&#x2225;');
-LatexCmds.rVert = bind(VanillaSymbol, '\\rVert', '&#x2225;');
+LatexCmds.lmoustache = bind(VanillaSymbol, '\\lmoustache ', '&#x23b0;');
+LatexCmds.rmoustache = bind(VanillaSymbol, '\\rmoustache ', '&#x23b1;');
+LatexCmds.lgroup = bind(VanillaSymbol, '\\lgroup ', '&#x27ee;');
+LatexCmds.rgroup = bind(VanillaSymbol, '\\rgroup ', '&#x27ef;');
+LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '&#x007b;');
+LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '&#x007d;');
+LatexCmds.lbrack = bind(VanillaSymbol, '[', '&#x005b;');
+LatexCmds.rbrack = bind(VanillaSymbol, ']', '&#x005d;');
+LatexCmds.ulcorner = bind(VanillaSymbol, '\\ulcorner ', '&#x250c;');
+LatexCmds.urcorner = bind(VanillaSymbol, '\\urcorner ', '&#x2510;');
+LatexCmds.llcorner = bind(VanillaSymbol, '\\llcorner ', '&#x2514;');
+LatexCmds.lrcorner = bind(VanillaSymbol, '\\lrcorner ', '&#x2518;');
+LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor ', '&#x230a;');
+LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor ', '&#x230b;');
+LatexCmds.lceil = bind(VanillaSymbol, '\\lceil ', '&#x2308;');
+LatexCmds.rceil = bind(VanillaSymbol, '\\rceil ', '&#x2309;');
+LatexCmds.langle = bind(VanillaSymbol, '\\langle ', '&#x27e8;');
+LatexCmds.rangle = bind(VanillaSymbol, '\\rangle ', '&#x27e9;');
+LatexCmds.lvert = bind(VanillaSymbol, '\\lvert ', '&#x2223;');
+LatexCmds.rvert = bind(VanillaSymbol, '\\rvert ', '&#x2223;');
+LatexCmds.lVert = bind(VanillaSymbol, '\\lVert ', '&#x2225;');
+LatexCmds.rVert = bind(VanillaSymbol, '\\rVert ', '&#x2225;');
 
 // ---
 
@@ -857,7 +857,7 @@ var CUMULATIVE_OPERATORS = [
 
 for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
     m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1], '&' + m[2] +';');
+    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1] + ' ', '&' + m[2] +';');
 }
 
 // TODO: These CUMULATIVE_OPERATORS_EXTENDED should probably be merged with
@@ -873,7 +873,7 @@ var CUMULATIVE_OPERATORS_EXTENDED = [
 ];
 for (i = 0; i < CUMULATIVE_OPERATORS_EXTENDED.length; i++) {
     m = CUMULATIVE_OPERATORS_EXTENDED[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1], '<big>&' + m[2] +';</big>');
+    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1] + ' ', '<big>&' + m[2] +';</big>');
 }
 
 
