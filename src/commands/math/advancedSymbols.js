@@ -32,20 +32,22 @@ var BINARY_OPERATORS = [
 'bigcirc:25ef', 'bullet:2219', 'ddagger:2021', 'wr:2240', 'amalg:2a3f',
 
 'cdot:22c5', 'circ:2218', 'div:00f7', 'pm:00b1', /* 'times:00d7', */ 'cap:2229',
-'cup:222a', 'setminus:2216', 'land:2227', 'lor:2228', 'wedge:2227',
-'vee:2228', 'surd:221a',
+'cup:222a',  
+'land/wedge:2227', 'wedge:2227',  /* NOTE: \land is a valid LaTex command, but we normalize it to \wedge */
+'lor/vee:2228', 'vee:2228',  /* NOTE: \lor is a valid LaTex command, but we normalize it to \vee */
+'surd:221a',
 'approx:2248', 'cong:2245', 'gets:2190',
 'in:2208', 'notin:2209',
 'subset:2282', 'supset:2283',
 'subseteq:2286', 'supseteq:2287',
 'nsubseteq:2288', 'nsupseteq:2289',
 'models:22a8', 'leftarrow:2190',
-'ne:2260', 'neq:2260',
+'ne:2260', 'neq/ne:2260', /* NOTE: \neq is a vaid Tex command, but we normalize it to \ne */
 'ngeq:2271', 'nleq:2270',
 'rightarrow:2192', 'to:2192',
 
 // AMS Binary Operators
-'dotplus:2214', 'smallsetminus:2216', 'Cap:22d2', 'Cup:22d3',
+'dotplus:2214', 'smallsetminus/setminus:2216', 'Cap:22d2', 'Cup:22d3',
 'doublebarwedge:2a5e', 'boxminus:229f', 'boxplus:229e', 'divideontimes:22c7',
 'ltimes:22c9', 'rtimes:22ca', 'leftthreetimes:22cb', 'rightthreetimes:22cc',
 'curlywedge:22cf', 'curlyvee:22ce', 'circleddash:229d', 'circledast:229b',
@@ -155,8 +157,8 @@ var VANILLA_SYMBOLS = [
 var i = 0, m = [];
 
 for (i = 0; i < BINARY_OPERATORS.length; i++) {
-    m = BINARY_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(BinaryOperator, '\\' + m[1] + ' ', '&#x' + m[2] +';');
+    m = BINARY_OPERATORS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
+    LatexCmds[m[1]] = bind(BinaryOperator, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
 }
 
 for (i = 0; i < VANILLA_SYMBOLS.length; i++) {
@@ -183,8 +185,7 @@ LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
 LatexCmds.intersect = LatexCmds.intersection =LatexCmds.cap;
 LatexCmds.union = LatexCmds.cup;
 LatexCmds.o = LatexCmds.O = LatexCmds.empty = LatexCmds.emptyset =
-// COMPAT: LatexCmds.oslash; This conflicts with an existing amsmath command.
-LatexCmds.Oslash = LatexCmds.nothing = LatexCmds.varnothing;
+LatexCmds.oslash = LatexCmds.Oslash = LatexCmds.nothing = LatexCmds.varnothing;
 LatexCmds.nexist = LatexCmds.nexists;
 
 LatexCmds.prop = LatexCmds.propto;

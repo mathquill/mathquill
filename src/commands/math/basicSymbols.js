@@ -449,11 +449,11 @@ var BASIC_VANILLA_SYMBOLS = [
 'Gamma:0393', 'Delta:0394', 'Theta:0398', 'Lambda:039b', 
 'Xi:039e', 'Pi:03a0', 'Sigma:03a3', 'Upsilon:03a5',
 'Phi:03a6', 'Psi:03a8', 'Omega:03a9',
-'Upsi:03a5',
+'Upsi/Upsilon:03a5',
 
 'neg:00ac', 'lnot:00ac', 
 'top:22a4', 'bot:22a5',
-'vert:2223', 'Vert:2225',
+'vert:007c', 'Vert:2225',
 'bracevert:23AA', 'arrowvert:23D0', 'Arrowvert:2016'
 ];
 
@@ -476,7 +476,7 @@ var VARIABLE_SYMBOLS = [
 'sigmaf/varsigma:03c2', 'epsiv/varepsilon:03b5', 
 'Gammad/digamma:03dd', 'gammad/digamma:03dd',
 'kappav/varkappa:03f0', 'phiv/varphi:03c6', 'piv/varpi:03d6',
-'rhov/varrho:03f1', 'sigmav:03c2', 'thetav/vartheta:03d1',
+'rhov/varrho:03f1', 'sigmav/varsigma:03c2', 'thetav/vartheta:03d1',
 'upsi/upsilon:03c5', 'thetasym/vartheta:03d1',
 
 // Other variables
@@ -492,22 +492,19 @@ for (i = 0; i < NON_SYMBOLA_SYMBOL.length; i++) {
 }
 
 for (i = 0; i < BASIC_VANILLA_SYMBOLS.length; i++) {
-    m = BASIC_VANILLA_SYMBOLS[i].match(/([a-zA-Z]+):(.+)/);
-    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + m[1] + ' ', '&#x' + m[2] +';');
-}
+    m = BASIC_VANILLA_SYMBOLS[i].match(/([a-zA-Z]+)\/?([^:]*):(\w+)/);
+    LatexCmds[m[1]] = bind(VanillaSymbol, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');}
 
 for (i = 0; i < VARIABLE_SYMBOLS.length; i++) {
     m = VARIABLE_SYMBOLS[i].match(/([a-zA-Z]+)\/?([a-zA-Z]*):(\w+)/);
     LatexCmds[m[1]] = bind(Variable, '\\' + (m[2] && m[2].length > 0 ? m[2] : m[1]) + ' ', '&#x' + m[3] +';');
 }
 
+LatexCmds['|'] = LatexCmds['Vert'];
 LatexCmds['#'] = bind(VanillaSymbol, '\\# ', '#');
 // LatexCmds['_'] = bind(VanillaSymbol, '\\_ ', '_'); // TODO: Does not parse
-LatexCmds['|'] = LatexCmds.Vert;
 
 // MathQuill non-standard commands
-LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
-LatexCmds.Upsih = //'cos it makes sense to me
-   bind(Symbol,'\\Upsilon ','<span class="mq-nonSymbola">&upsih;</span>');
+LatexCmds.upsih = LatexCmds.Upsih = LatexCmds.Upsilon;
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.alephsym = LatexCmds.aleph;
 LatexCmds['π'] = LatexCmds.pi;

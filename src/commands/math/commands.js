@@ -702,17 +702,23 @@ bindDelimiter('lVert', 'rVert', '&#x2225;', '&#x2225;');
 
 // bindNonpairedDelimiter('vert', '&#x2223;');
 // bindNonpairedDelimiter('Vert', '&#x2225;');
-bindNonpairedDelimiter('|', '|', '|');
+// bindNonpairedDelimiter('|', '|', '|');
+LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+OPP_BRACKS['\\langle'] = '\\rangle';
+OPP_BRACKS['&lang;'] = '&rang;';
+OPP_BRACKS['\\rangle'] = '\\langle';
+OPP_BRACKS['&rang;'] = '&lang;';
+CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+OPP_BRACKS['|'] = '|';
 
 // ---
-/* LatexCmds["{"] = */ LatexCmds.opencurlybrace = bind(VanillaSymbol, '\\{', '{');
-/* LatexCmds["}"] = */ LatexCmds.closecurlybrace = bind(VanillaSymbol, '\\}', '}');
 LatexCmds.lmoustache = bind(VanillaSymbol, '\\lmoustache ', '&#x23b0;');
 LatexCmds.rmoustache = bind(VanillaSymbol, '\\rmoustache ', '&#x23b1;');
 LatexCmds.lgroup = bind(VanillaSymbol, '\\lgroup ', '&#x27ee;');
 LatexCmds.rgroup = bind(VanillaSymbol, '\\rgroup ', '&#x27ef;');
-LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '&#x007b;');
-LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '&#x007d;');
+LatexCmds.opencurlybrace = LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '&#x007b;');
+LatexCmds.closecurlybrace = LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '&#x007d;');
 LatexCmds.lbrack = bind(VanillaSymbol, '[', '&#x005b;');
 LatexCmds.rbrack = bind(VanillaSymbol, ']', '&#x005d;');
 LatexCmds.ulcorner = bind(VanillaSymbol, '\\ulcorner ', '&#x250c;');
