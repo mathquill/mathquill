@@ -174,7 +174,7 @@ var Letter = P(Variable, function(_, super_) {
   }
 });
 var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
-  // are built-into LaTeX: http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.
+  // are built-into LaTeX, see Section 3.17 of the Short Math Guide: http://tinyurl.com/jm9okjc
   // MathQuill auto-unitalicizes some operator names not in that set, like 'hcf'
   // and 'arsinh', which must be exported as \operatorname{hcf} and
   // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
