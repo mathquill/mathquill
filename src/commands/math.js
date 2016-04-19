@@ -376,7 +376,7 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.mathspeak = function() {
     // first get mathspeak text of block elements and variables
     var retVal = this.foldChildren([], function(speechArray, cmd) {
-      if (cmd.isItalic === false || !isNaN(cmd.text())) { // Likely an auto operator or number, don't spell
+      if (cmd.isItalic === false || !isNaN(cmd.text()) || cmd.text() === '.') { // Likely an auto operator, number, or decimal. don't spell
         speechArray.push(cmd.mathspeak());
       }
       else {
