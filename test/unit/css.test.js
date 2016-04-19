@@ -81,4 +81,29 @@ suite('CSS', function() {
 
     $(mq.el()).remove();
   });
+
+  test('operator name spacing e.g. sin x', function() {
+    var mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
+
+    mq.typedText('sin');
+    var n = jQuery('#mock var.mq-operator-name:last');
+    assert.equal(n.text(), 'n');
+    assert.ok(!n.is('.mq-last'));
+
+    mq.typedText('x');
+    assert.ok(n.is('.mq-last'));
+
+    mq.keystroke('Left').typedText('(');
+    assert.ok(!n.is('.mq-last'));
+
+    mq.keystroke('Backspace').typedText('^');
+    assert.ok(!n.is('.mq-last'));
+    var supsub = jQuery('#mock .mq-supsub');
+    assert.ok(supsub.is('.mq-after-operator-name'));
+
+    mq.typedText('2').keystroke('Tab').typedText('(');
+    assert.ok(!supsub.is('.mq-after-operator-name'));
+
+    $(mq.el()).empty();
+  });
 });

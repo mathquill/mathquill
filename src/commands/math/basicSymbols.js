@@ -123,11 +123,18 @@ var Letter = P(Variable, function(_, super_) {
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
           if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
           if (!shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
-          if (!shouldOmitPadding(last[R]) && !(last[R] instanceof Bracket)) {
-            // also omit space between operator name and paren like in sin(x)
-            last.jQ.addClass('mq-last');
+          if (!shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
-              last.jQ.addClass('mq-followed-by-supsub');
+              var supsub = last[R]; // XXX monkey-patching, but what's the right thing here?
+              // Have operatorname-specific code in SupSub? A CSS-like language to style the
+              // math tree, but which ignores cursor and selection (which CSS can't)?
+              var respace = supsub.siblingCreated = supsub.siblingDeleted = function() {
+                supsub.jQ.toggleClass('mq-after-operator-name', !(supsub[R] instanceof Bracket));
+              };
+              respace();
+            }
+            else {
+              last.jQ.toggleClass('mq-last', !(last[R] instanceof Bracket));
             }
           }
 
