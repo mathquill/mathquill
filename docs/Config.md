@@ -77,7 +77,7 @@ For example, with `autoCommands` set to `'pi theta'`, the word 'pi' automaticall
 
 `autoOperatorNames` overrides the set of operator names that automatically become non-italicized when typing the letters without typing a backslash first, like `sin`, `log`, etc.
 
-This defaults to [the LaTeX built-in operator names](http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.) with additional trig operators like `sech`, `arcsec`, `arsinh`, etc. If you want some of these italicized after setting this property, you will have to add them to the list.
+This Defaults to the LaTeX built-in operator names ([Section +3.17 of the Short Math Guide](http://tinyurl.com/jm9okjc)) with additional trig operators like `sech`, `arcsec`, `arsinh`, etc. If you want some of these italicized after setting this property, you will have to add them to the list.
 
 Just like [`autoCommands`](http://mathquill.readthedocs.org/en/latest/Config/#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
 
