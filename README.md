@@ -1,6 +1,4 @@
-﻿#[Accessible MathQuill](https://www.github.com/sclower/mathquill)
-
-Based on [MathQuill](http://mathquill.github.com)
+﻿#[MathQuill](http://mathquill.github.com)
 
 by [Han][], [Jeanine][], and [Mary][] (maintainers@mathquill.com)
 
