@@ -15,7 +15,7 @@ To use the MathQuill API, load it with:
 var MQ = MathQuill.getInterface(2);
 ```
 
-All [API methods](http://mathquill.readthedocs.org/en/latest/Api_Methods/) will be called on `MQ`.
+All [API methods](http://mathquill.readthedocs.org/en/latest/Api_Methods/) will be called on [`MQ`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#api-interface).
 
 You can also [build from the source code](http://mathquill.readthedocs.org/en/latest/Contributing/#building-and-testing).
 
@@ -27,7 +27,7 @@ The below examples assume that MathQuill has been properly loaded and exposed as
 
 ## Render Static Math
 
-Call `MQ.StaticMath` on the HTML element.
+Call [`MQ.StaticMath`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqstaticmathhtml_element) on the HTML element.
 ```html
 <p>Solve <span id="problem">ax^2 + bx + c = 0</span></p>
 
@@ -39,7 +39,7 @@ Call `MQ.StaticMath` on the HTML element.
 
 ## Editable Math
 
-To create an editable math field, call `MQ.MathField` with the HTML element and the [config](http://mathquill.readthedocs.org/en/latest/Config/). The following example shows a mathfield created on the answer span with a handler to check the answer every time an edit may occur.
+To create an editable math field, call [`MQ.MathField`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config) with the HTML element and the [config](http://mathquill.readthedocs.org/en/latest/Config/). The following example shows a mathfield created on the answer span with a handler to check the answer every time an edit may occur.
 ```html
 <p><span id="answer">x=</span></p>
 
@@ -58,9 +58,9 @@ To create an editable math field, call `MQ.MathField` with the HTML element and 
 
 ## Get and Set Math
 
-The recommended way to retrieve and store the contents of the math field is to call `mathField.latex()`. `mathField.html()` can be used to retrieve the contents of the mathField as static HTML.
+The recommended way to retrieve and store the contents of the math field is to call [`mathField.latex()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latex). [`mathField.html()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#html) can be used to retrieve the contents of the mathField as static HTML.
 
-A mathField will be initialized with the text that was in the span, interpreted as LaTex. This can be updated later by calling `mathField.latex(latexString)`. Content can be added as it would be by someone typing with [`typedText()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#typedtexttext), 
+A mathField will be initialized with the text that was in the span, interpreted as LaTex. This can be updated later by calling [`mathField.latex(latexString)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latexlatex_string). Content can be added as it would be by someone typing with [`typedText(string)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#typedtexttext), 
 
 # Join the Community
 

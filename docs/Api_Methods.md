@@ -6,7 +6,7 @@ To use the MathQuill API, first get the latest version of the interface:
 var MQ = MathQuill.getInterface(2);
 ```
 
-MathQuill overwrites the global `MathQuill` variable when loaded. You can undo that with `.noConflict()` (similar to [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
+By default, MathQuill overwrites the global `MathQuill` variable when loaded. If you do not want this behavior, you can use `.noConflict()` (similar to [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
 
 ```html
 <script src="/path/to/first-mathquill.js"></script>
@@ -20,21 +20,21 @@ firstMQ.MathField(...);
 </script>
 ```
 
-(Warning: This lets different copies of MathQuill each power their own math fields, but using different copies on the same DOM element won't work. Anyway, .noConflict() is primarily to help you reduce globals.)
+This lets different copies of MathQuill each power their own math fields, but using different copies on the same DOM element won't work. `noConflict()` is intended to help you reduce globals.
 
 # Constructors
 
 ## MQ.StaticMath(html_element)
 
-Creates a non-editable MathQuill with the contents of the HTML element and returns a [static MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mathfield-methods).
+Creates a non-editable MathQuill initialized with the contents of the HTML element and returns a [static MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mathfield-methods).
 
-If the element is already a static MathField, this will return a new static Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
+If the given element is already a static MathField, this will return a new static Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
 
 ## MQ.MathField(html_element, config)
 
-Creates an editable MathQuill with the contents of the HTML element and returns an [editable MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#editable-mathfield-methods).
+Creates an editable MathQuill initialized with the contents of the HTML element and returns an [editable MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#editable-mathfield-methods).
 
-If the element is already an editable MathField, this will return a new editable Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
+If the given element is already an editable MathField, this will return a new editable Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
 
 ## MQ(html_element)
 
@@ -46,6 +46,10 @@ HTML element of a static math or math field, returns an API object for it
 MQ(mathFieldSpan) instanceof MQ.MathField // => true
 MQ(otherSpan) // => null
 ```
+
+## MQ.config(config)
+
+Globally updates the [configuration](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration) to the new config.
 
 # Comparing MathFields
 
@@ -86,18 +90,18 @@ MQ(mathFieldSpan).data.foo // => 'bar'
 
 # MathField Methods
 
-These are methods that every MathField has. These are the only methods that static fields have and a subset of the methods that editable fields have.
+The following are methods that every MathField has. These are the only methods that static fields have and a subset of the methods that editable fields have.
 
 ## revert()
 
-Any element that has been MathQuill-ified can be reverted:
+Any element that has been turned into a MathQuill element can be reverted:
 ```html
 <span id="revert-me" class="mathquill-static-math">
   some <code>HTML</code>
 </span>
 ```
 ```js
-MQ($('#revert-me')[0]).revert().html(); // => 'some <code>HTML</code>'
+mathfield.revert().html(); // => 'some <code>HTML</code>'
 ```
 
 ## reflow()
@@ -171,7 +175,7 @@ Move the cursor to the left/right end of the editable field, respectively. These
 
 ## movetoDirEnd(direction)
 
-Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants that obey the contract that `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](http://mathquill.readthedocs.org/en/latest/Config/#outof-handlers) when setting the [configuration of a mathField](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
+Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants, where `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](http://mathquill.readthedocs.org/en/latest/Config/#outof-handlers) when setting the [configuration of a mathField](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
 
 ```javascript
 var config = {
@@ -199,6 +203,10 @@ Simulates typing text, one character at a time from where the cursor currently i
 // Types part of the demo from mathquill.com without delays between keystrokes
 mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 ```
+
+## config(new_config)
+
+Changes the config of the mathField to the new [configuration](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
 
 ## dropEmbedded(pageX, pageY, options) **[Experimental](http://mathquill.readthedocs.org/en/latest/Api_Methods/#note-on-experimental-features)**
 

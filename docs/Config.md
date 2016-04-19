@@ -11,7 +11,7 @@ The configuration options for a given mathField has the following structure and 
   charsThatBreakOutOfSupSub: '+-=<>',
   autoSubscriptNumerals: true,
   autoCommands: 'pi theta sqrt sum',
-  autoOperatorNames: 'sin cos etc',
+  autoOperatorNames: 'sin cos',
   substituteTextarea: function() {
     return document.createElement('textarea');
   },
@@ -23,11 +23,11 @@ The configuration options for a given mathField has the following structure and 
 });
 ```
 
-On initialization, pass the configuration object, structured like the one above as the second argument to `MQ.MathField(HTML_ELEMENT, CONFIG)`.
+On initialization, pass the configuration object, structured like the one above as the second argument to [`MQ.MathField(html_element, config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config).
 
-To change the options later on, use `mathField.config(NEW_CONFIG)`.
+To change the options later on, use [`mathField.config(new_config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#confignewconfig).
 
-Global defaults for a page may be set with `MQ.config(NEW_CONFIG)`.
+Global defaults may be set with [`MQ.config(NEW_CONFIG)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqconfig).
 
 # Configuration Options
 
@@ -35,15 +35,19 @@ Global defaults for a page may be set with `MQ.config(NEW_CONFIG)`.
 
 If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave like {Shift-,}Tab escaping from the current block (as opposed to the default behavior of inserting a Space character).
 
+The animated demo on mathquill.com has this behavior.
+
 ## leftRightIntoCmdGoes
 
-By default, the Left and Right keys move the cursor through all possible cursor positions in a particular order: right into a fraction puts the cursor at the left end of the numerator, right out of the numerator puts the cursor at the left end of the denominator, right out of the denominator puts the cursor to the
-right of the fraction; symmetrically, left into a fraction puts the cursor at the right end of the denominator, etc. Note that right out of the numerator to the left end of the denominator is actually leftwards (and downwards, it's basically wrapped). If instead you want right to always go right, and left to always go left, you can set `leftRightIntoCmdGoes` to `'up'` or `'down'` so that left and right go up or down (respectively) into commands, e.g. `'up'` means that left into a fraction goes up into the numerator, skipping the denominator; symmetrically, right out of the numerator skips the denominator and puts the cursor to the right of the fraction, which unlike the default behavior is actually rightwards (the drawback is the denominator is always skipped, you can't get to it with just Left and Right, you have to press Down); which is the same behavior as the [Desmos calculator](https://www.desmos.com/calculator). `'down'` instead means it is the
-numerator that is always skipped, which is the same behavior as the Mac OS X built-in app Grapher.
+This allows you to change the way the left and right keys move the cursor when there are items of different height, like fractions.
+
+By default, the Left and Right keys move the cursor through all possible cursor positions in a particular order: right into a fraction puts the cursor at the left end of the numerator, right out of the numerator puts the cursor at the left end of the denominator, right out of the denominator puts the cursor to the right of the fraction. Symmetrically, left into a fraction puts the cursor at the right end of the denominator, etc.
+
+If instead you want right to always visually go right, and left to always go visually left, you can set `leftRightIntoCmdGoes` to `'up'` or `'down'` so that left and right go up or down (respectively) into commands. For example, `'up'` means that left into a fraction goes up into the numerator and right out of the numerator skips the denominator and puts the cursor to the right of the fraction. This behavior can be seen in the [Desmos calculator](https://www.desmos.com/calculator). If this property is set to `'down'` instead, the numerator is harder to navigate to, like in the Mac OS X built-in app Grapher.
 
 ## restrictMismatchedBrackets
 
-If `restrictMismatchedBrackets` is true then you can type [a,b) and [a,b), but if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or `\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise, you'd get `\left( \right| x \left| + 1 \right)`.
+If `restrictMismatchedBrackets` is true then you can type [a,b) and (a,b], but if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or `\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise, you'd get `\left( \right| x \left| + 1 \right)`.
 
 ## sumStartsWithNEquals
 
@@ -55,26 +59,37 @@ If `sumStartsWithNEquals` is true then when you type `\sum`, `\prod`, or `\copro
 
 ## charsThatBreakOutOfSupSub
 
-`charsThatBreakOutOfSupSub` sets the chars that when typed, "break out" of superscripts and subscripts: for example, typing `x^2n+y` normally results in the LaTeX `x^{2n+y}`, you have to hit Down or Tab (or Space if `spaceBehavesLikeTab` is true) to move the cursor out of the exponent and get
-the LaTeX `x^{2n}+y`; this option makes `+` "break out" of the exponent and type what you expect. Problem is, now you can't just type `x^n+m` to get the LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something. (Doesn't apply to the first character in a superscript or subscript, so typing
-`x^-6` still results in `x^{-6}`.)
+`charsThatBreakOutOfSupSub` takes a string of the chars that when typed, "break out" of superscripts and subscripts.
+
+Normally, to get out of a superscript or subscript, a user has to navigate out of it with the directional keys, a mouse click, tab, or Space if [`spaceBehavesLikeTab`](http://mathquill.readthedocs.org/en/latest/Config/#spacesbehavesliketab) is true. For example, typing `x^2n+y` normally results in the LaTeX `x^{2n+y}`. If you wanted to get the LaTeX `x^{2n}+y`, the user would have to manually move the cursor out of the exponent.
+
+If this option was set to `'+-'`, `+` and `-` would "break out" of the exponent. This doesn't apply to the first character in a superscript or subscript, so typing `x^-6` still results in `x^{-6}`. The downside to setting this options is that in order to type `x^{n+m}`, a workaround like typing `x^(n+m` and then deleting the `(` is required.
 
 ## autoCommands
 
-`autoCommands`, a space-delimited list of LaTeX control words (no backslash, letters only, min length 2), defines the (default empty) set of "auto-commands", commands automatically rendered by just typing the letters without typing a backslash first.
+`autoCommands` defines the set of commands automatically rendered by just typing the letters without typing a backslash first.
+
+This takes a string formatted as a space-delimited list of LaTeX commands. Each LaTeX command must be at least letters only with a minimum length of 2 characters.
+
+For example, with `autoCommands` set to `'pi theta'`, the word 'pi' automatically converts to the pi symbol and the word 'theta' automatically converts to the theta symbol.
 
 ## autoOperatorNames
 
-`autoOperatorNames`, a list of the same form (space-delimited letters-only each length>=2), and overrides the set of operator names that automatically become non-italicized when typing the letters without typing a backslash first, like `sin`, `log`, etc. (Defaults to [the LaTeX built-in operator names](http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.), but with additional trig operators like `sech`, `arcsec`, `arsinh`, etc.)
+`autoOperatorNames` overrides the set of operator names that automatically become non-italicized when typing the letters without typing a backslash first, like `sin`, `log`, etc.
+
+This defaults to [the LaTeX built-in operator names](http://latex.wikia.com/wiki/List_of_LaTeX_symbols#Named_operators:_sin.2C_cos.2C_etc.) with additional trig operators like `sech`, `arcsec`, `arsinh`, etc. If you want some of these italicized after setting this property, you will have to add them to the list.
+
+Just like [`autoCommands`](http://mathquill.readthedocs.org/en/latest/Config/#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
 
 ## substituteTextarea
 
-`substituteTextarea`, a function that creates a focusable DOM element, called when setting up a math field. It defaults to `<textarea autocorrect=off .../>`, but for example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabindex=0></span>` on iOS to suppress the built-in virtual keyboard in favor of a custom math keypad that
-calls the MathQuill API. Unfortunately there's no universal [check for a virtual keyboard](http://stackoverflow.com/q/2593139/362030), you can't even [detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/) (notably [Modernizr gave up](https://github.com/Modernizr/Modernizr/issues/548)) and even if you could, Windows 8 and ChromeOS devices have both physical keyboards and touchscreens and you can connect physical keyboards to iOS and Android devices with Bluetooth, so touchscreen != virtual keyboard. Desmos currently sniffs the user agent for iOS, so Bluetooth keyboards just don't work in Desmos on iOS, the trade offs are up to you.
+`substituteTextarea` is a function that creates a focusable DOM element that is called when setting up a math field. Overwriting this may be useful for hacks like suppressing built-in virtual keyboards. It defaults to `<textarea autocorrect=off .../>`.
+
+For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabindex=0></span>` on iOS to suppress the built-in virtual keyboard in favor of a custom math keypad that calls the MathQuill API. Unfortunately there's no universal [check for a virtual keyboard](http://stackoverflow.com/q/2593139/362030) or [way to detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/) and even if you could a touchscreen != virtual keyboard (Windows 8 and ChromeOS devices have both physical keyboards and touchscreens and iOS and Android devices can have Bluetooth keyboards). Desmos currently sniffs the user agent for iOS, so Bluetooth keyboards just don't work in Desmos on iOS. The trade offs are up to you.
 
 # Handlers
 
-Handlers are called directly on the `handlers` object passed in, preserving the `this` value, so you can do stuff like:
+Handlers are called after a specified event. They are called directly on the `handlers` object passed in, preserving the `this` value, so you can do stuff like:
 ```js
 var MathList = P(function(_) {
   _.init = function() {
@@ -111,7 +126,7 @@ var mathField = MQ.MathField($('#mathfield')[0], {
 
 `moveOutOf(direction, mathField)`, `deleteOutOf(direction, mathField)`, `selectOutOf(direction, mathField)`, `upOutOf(mathField)`, `downOutOf(mathField)`
 
-The `*OutOf` handlers are called when Left/Right/Up/Down/Backspace/Del/Shift-Left/Shift-Right is pressed but the cursor is at the left/right/top/bottom edge and so nothing happens within the math field. For example, when the cursor is at the left edge, pressing the Left key causes the `moveOutOf` handler to be called with `MQ.L` and the math field API object as arguments, and Backspace causes `deleteOutOf` to be called with `MQ.L` and the API object as arguments, etc.
+The `*OutOf` handlers are called when a cursor movement would cause the cursor to leave the MathQuill mathField. These let you integrate cursor movement seamlessly between your code and MathQuill. For example, when the cursor is at the right edge, pressing the Right key causes the `moveOutOf` handler to be called with `MQ.R` and the mathField API object. Pressing Backspace causes `deleteOutOf` to be called with `MQ.L` and the mathField.
 
 ## enter(mathField)
 
@@ -119,13 +134,15 @@ Called whenever Enter is pressed.
 
 ## edit(mathField)
 
-This is called when the contents of the field might have been changed by stuff being typed, or deleted, or written with the API, etc. (Deprecated aliases: `edited`, `reflow`.) Note that this may be called when nothing has actually changed.
+This is called when the contents of the field might have been changed. This will be called with any edit, such as something being typed, deleted, or written with the API. Note that this may be called when nothing has actually changed.
+
+Deprecated aliases: `edited`, `reflow`.
 
 # Changing Colors
 
-To change the foreground color, set both `color` and the `border-color` because some MathQuill symbols are implemented with borders, not text.
+To change the foreground color, set both `color` and the `border-color` because some MathQuill symbols are implemented with borders instead of pure text.
 
-For example, to style as white-on-black instead of black-on-white:
+For example, to style as white-on-black instead of black-on-white use:
 
     #my-math-input {
       color: white;
