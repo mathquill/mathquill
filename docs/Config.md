@@ -25,9 +25,9 @@ The configuration options for a given mathField has the following structure and 
 
 On initialization, pass the configuration object, structured like the one above as the second argument to [`MQ.MathField(html_element, config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config).
 
-To change the options later on, use [`mathField.config(new_config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#confignewconfig).
+To change the options later on, use [`mathField.config(new_config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#confignew_config).
 
-Global defaults may be set with [`MQ.config(NEW_CONFIG)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqconfig).
+Global defaults may be set with [`MQ.config(NEW_CONFIG)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqconfigconfig).
 
 # Configuration Options
 
@@ -41,7 +41,7 @@ The animated demo on mathquill.com has this behavior.
 
 This allows you to change the way the left and right keys move the cursor when there are items of different height, like fractions.
 
-By default, the Left and Right keys move the cursor through all possible cursor positions in a particular order: right into a fraction puts the cursor at the left end of the numerator, right out of the numerator puts the cursor at the left end of the denominator, right out of the denominator puts the cursor to the right of the fraction. Symmetrically, left into a fraction puts the cursor at the right end of the denominator, etc.
+By default, the Left and Right keys move the cursor through all possible cursor positions in a particular order: right into a fraction puts the cursor at the left end of the numerator, right out of the numerator puts the cursor at the left end of the denominator, and right out of the denominator puts the cursor to the right of the fraction. Symmetrically, left into a fraction puts the cursor at the right end of the denominator, etc.
 
 If instead you want right to always visually go right, and left to always go visually left, you can set `leftRightIntoCmdGoes` to `'up'` or `'down'` so that left and right go up or down (respectively) into commands. For example, `'up'` means that left into a fraction goes up into the numerator and right out of the numerator skips the denominator and puts the cursor to the right of the fraction. This behavior can be seen in the [Desmos calculator](https://www.desmos.com/calculator). If this property is set to `'down'` instead, the numerator is harder to navigate to, like in the Mac OS X built-in app Grapher.
 
