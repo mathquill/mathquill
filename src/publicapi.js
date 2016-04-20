@@ -139,7 +139,7 @@ function getInterface(v) {
       this.__controller.root.postOrder('reflow');
       return this;
     };
-  _.fastClick = function(target, clientX, clientY) {
+  _.clickAt = function(target, clientX, clientY) {
     var ctrlr = this.__controller, root = ctrlr.root;
     var el = document.elementFromPoint(clientX, clientY);
     if (!jQuery.contains(root.jQ[0], el)) el = root.jQ[0];
