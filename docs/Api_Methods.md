@@ -36,6 +36,15 @@ Creates an editable MathQuill initialized with the contents of the HTML element 
 
 If the given element is already an editable MathField, this will return a new editable Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
 
+## \\MathQuillMathField LaTeX command
+
+Entering `\MathQuillMathField` into an existing mathField will create an embedded mathField inside of the original mathField.
+
+This can be done programmatically with the [cmd method](http://mathquill.readthedocs.org/en/latest/Api_Methods/#cmdlatex_string):
+```javascript
+mathField.cmd('\\MathQuillMathField')
+```
+
 ## MQ(html_element)
 
 `MQ` itself is a function that takes an HTML element and, if it's the root
@@ -215,7 +224,7 @@ Insert a custom embedded element at the given coordinates, where `options` is an
 {
   htmlString: '<span class="custom-embed"></span>',
   text: function() { return 'custom_embed'; },
-  latex: function() { return '\customEmbed'; }
+  latex: function() { return '\\customEmbed'; }
 }
 ```
 
