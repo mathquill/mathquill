@@ -306,7 +306,7 @@ $('.math-container').on('touchstart', function() {
     });
     if (moved) return;
     var touch = e.originalEvent.changedTouches[0];
-    MathQuill($mq[0]).clickAt(touch.target, touch.clientX, touch.clientY);
+    MathQuill($mq[0]).clickAt(touch.clientX, touch.clientY, touch.target);
   });
 }).mousedown(function(e) {
   if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
