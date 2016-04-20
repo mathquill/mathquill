@@ -373,11 +373,11 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['?'] =
+LatexCmds['∏'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
 
-LatexCmds['?'] =
+LatexCmds['∑'] =
 LatexCmds.prod =
 LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 
@@ -455,7 +455,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
 
 var SquareRoot =
 LatexCmds.sqrt =
-LatexCmds['v'] = P(MathCommand, function(_, super_) {
+LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
