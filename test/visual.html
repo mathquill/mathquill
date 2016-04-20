@@ -296,7 +296,12 @@ $(function() {
 
 // test selecting from outside the mathquill editable
 var $mq = $('.math-container .mathquill-math-field');
-$('.math-container').on('touchstart', function() {
+$('.math-container').mousedown(function(e) {
+  if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
+  $mq.triggerHandler(e);
+})
+// test API for "fast touch taps" #622 & #403
+.on('touchstart', function() {
   var moved = false;
   $(this).on('touchmove.tmp', function() { moved = true; })
   .on('touchend.tmp', function(e) {
@@ -304,13 +309,13 @@ $('.math-container').on('touchstart', function() {
     MathQuill($mq[0]).ignoreNextMousedown(function() {
       return Date.now() < e.timeStamp + 1000;
     });
-    if (moved) return;
+    if (moved) return; // note that this happens after .ignoreNextMousedown()
+      // because even if the touch gesture doesn't 'count' as a tap to us,
+      // we still want to suppress the legacy mouse events, else we'd react
+      // fast to some taps and slow to others, that'd be weird
     var touch = e.originalEvent.changedTouches[0];
     MathQuill($mq[0]).clickAt(touch.clientX, touch.clientY, touch.target);
   });
-}).mousedown(function(e) {
-  if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
-  $mq.triggerHandler(e);
 });
 
 // Selection Tests
