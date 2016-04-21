@@ -13,6 +13,9 @@ Controller.open(function(_) {
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
+      e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
+      e.target.unselectable = true; // http://jsbin.com/yagekiji/1
+
       if (cursor.options.ignoreNextMousedown(e)) return;
       else cursor.options.ignoreNextMousedown = noop;
 
@@ -46,8 +49,6 @@ Controller.open(function(_) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
         textarea.focus();
       }
-      e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
-      e.target.unselectable = true; // http://jsbin.com/yagekiji/1
 
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();

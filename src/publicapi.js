@@ -145,6 +145,7 @@ function getInterface(v) {
     var ctrlr = this.__controller, root = ctrlr.root;
     if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
     ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
+    if (ctrlr.blurred) this.focus();
     return this;
   };
   _.ignoreNextMousedown = function(fn) {

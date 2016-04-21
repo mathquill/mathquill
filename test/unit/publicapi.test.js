@@ -779,7 +779,9 @@ suite('Public API', function() {
       var clientY = box.top + 40;
       var target = document.elementFromPoint(clientX, clientY);
 
+      assert.equal(document.activeElement, document.body);
       mq.clickAt(clientX, clientY, target).write('x');
+      assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
 
       assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
 
@@ -801,7 +803,9 @@ suite('Public API', function() {
       var clientX = box.left + 30;
       var clientY = box.top + 40;
 
+      assert.equal(document.activeElement, document.body);
       mq.clickAt(clientX, clientY).write('x');
+      assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
 
       assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
 
