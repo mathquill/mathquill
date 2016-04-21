@@ -139,19 +139,6 @@ function getInterface(v) {
       this.__controller.root.postOrder('reflow');
       return this;
     };
-  _.clickAt = function(clientX, clientY, target) {
-    target = target || document.elementFromPoint(clientX, clientY);
-
-    var ctrlr = this.__controller, root = ctrlr.root;
-    if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
-    ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
-    if (ctrlr.blurred) this.focus();
-    return this;
-  };
-  _.ignoreNextMousedown = function(fn) {
-    this.__controller.cursor.options.ignoreNextMousedown = fn;
-    return this;
-  };
   });
   MQ.prototype = AbstractMathQuill.prototype;
 
@@ -225,6 +212,19 @@ function getInterface(v) {
       this.__controller.seek($(el), pageX, pageY);
       var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
+    };
+    _.clickAt = function(clientX, clientY, target) {
+      target = target || document.elementFromPoint(clientX, clientY);
+
+      var ctrlr = this.__controller, root = ctrlr.root;
+      if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
+      ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
+      if (ctrlr.blurred) this.focus();
+      return this;
+    };
+    _.ignoreNextMousedown = function(fn) {
+      this.__controller.cursor.options.ignoreNextMousedown = fn;
+      return this;
     };
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
