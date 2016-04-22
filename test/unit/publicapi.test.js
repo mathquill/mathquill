@@ -762,6 +762,58 @@ suite('Public API', function() {
     });
   });
 
+  suite('clickAt', function() {
+    test('inserts at coordinates', function() {
+      // Insert filler so that the page is taller than the window so this test is deterministic
+      // Test that we use clientY instead of pageY
+      var windowHeight = $(window).height();
+      var filler = $('<div>').height(windowHeight);
+      filler.insertBefore('#mock');
+
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
+      mq.typedText("mmmm/mmmm");
+      mq.el().scrollIntoView();
+
+      var box = mq.el().getBoundingClientRect();
+      var clientX = box.left + 30;
+      var clientY = box.top + 40;
+      var target = document.elementFromPoint(clientX, clientY);
+
+      assert.equal(document.activeElement, document.body);
+      mq.clickAt(clientX, clientY, target).write('x');
+      assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
+
+      assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
+
+      filler.remove();
+      $(mq.el()).remove();
+    });
+    test('target is optional', function() {
+      // Insert filler so that the page is taller than the window so this test is deterministic
+      // Test that we use clientY instead of pageY
+      var windowHeight = $(window).height();
+      var filler = $('<div>').height(windowHeight);
+      filler.insertBefore('#mock');
+
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
+      mq.typedText("mmmm/mmmm");
+      mq.el().scrollIntoView();
+
+      var box = mq.el().getBoundingClientRect();
+      var clientX = box.left + 30;
+      var clientY = box.top + 40;
+
+      assert.equal(document.activeElement, document.body);
+      mq.clickAt(clientX, clientY).write('x');
+      assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
+
+      assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
+
+      filler.remove();
+      $(mq.el()).remove();
+    });
+  });
+
   suite('dropEmbedded', function() {
     test('inserts into empty', function() {
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
