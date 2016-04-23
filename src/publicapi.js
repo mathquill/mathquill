@@ -214,16 +214,26 @@ function getInterface(v) {
       var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
-
     _.setAriaLabel = function(ariaLabel) {
       if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
       else this.__controller.ariaLabel = 'MathQuill Input';
       return this;
     };
-
     _.setAriaPostLabel = function(ariaPostLabel) {
       if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') this.__controller.ariaPostLabel = ariaPostLabel;
       else this.__controller.ariaPostLabel = '';
+      return this;
+    };
+    _.clickAt = function(clientX, clientY, target) {
+      target = target || document.elementFromPoint(clientX, clientY);
+      var ctrlr = this.__controller, root = ctrlr.root;
+      if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
+      ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
+      if (ctrlr.blurred) this.focus();
+      return this;
+    };
+    _.ignoreNextMousedown = function(fn) {
+      this.__controller.cursor.options.ignoreNextMousedown = fn;
       return this;
     };
   });

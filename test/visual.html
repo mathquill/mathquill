@@ -77,7 +77,7 @@ td {
   <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-math-field">x_{very\ long\ thing}^2 + a_0 = 0</span></div>
+<p>Touch taps/clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center; -webkit-tap-highlight-color: rgba(0,0,0,0)"><span class="mathquill-math-field">x_{very\ long\ thing}^2 + a_0 = 0</span></div>
 
 <h3>Redrawing</h3>
 <p>
@@ -187,7 +187,7 @@ $(function() {
 <tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
 <tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
 <tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
-<tr><td><span class="mathquill-static-math">\sin^2 x</span></td><td><span>\sin^2 x</span>
+<tr><td><span class="mathquill-static-math">\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span></td><td><span>\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span>
 <tr><td><span class="mathquill-static-math">12a\sin b</span></td><td><span>12a\sin b</span>
 <tr><td><span class="mathquill-static-math">1a^2 \sin b</span></td><td><span>1a^2 \sin b</span>
 <tr><td><span class="mathquill-static-math">a + \sin b</span></td><td><span>a + \sin b</span>
@@ -297,7 +297,25 @@ $(function() {
 // test selecting from outside the mathquill editable
 var $mq = $('.math-container .mathquill-math-field');
 $('.math-container').mousedown(function(e) {
-  if (!jQuery.contains($mq[0], e.target)) $mq.triggerHandler(e);
+  if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
+  $mq.triggerHandler(e);
+})
+// test API for "fast touch taps" #622 & #403
+.on('touchstart', function() {
+  var moved = false;
+  $(this).on('touchmove.tmp', function() { moved = true; })
+  .on('touchend.tmp', function(e) {
+    $(this).off('.tmp');
+    MathQuill($mq[0]).ignoreNextMousedown(function() {
+      return Date.now() < e.timeStamp + 1000;
+    });
+    if (moved) return; // note that this happens after .ignoreNextMousedown()
+      // because even if the touch gesture doesn't 'count' as a tap to us,
+      // we still want to suppress the legacy mouse events, else we'd react
+      // fast to some taps and slow to others, that'd be weird
+    var touch = e.originalEvent.changedTouches[0];
+    MathQuill($mq[0]).clickAt(touch.clientX, touch.clientY, touch.target);
+  });
 });
 
 // Selection Tests
