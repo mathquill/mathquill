@@ -374,35 +374,27 @@ var MathBlock = P(MathElement, function(_, super_) {
     ;
   };
   _.mathspeak = function() {
-    // first get mathspeak text of block elements and variables
-    var tempText = '';
-    var retVal = this.foldChildren([], function(speechArray, cmd) {
+    var tempOp = '';
+    var autoOps = {};
+    if (this.controller) autoOps = this.controller.options.autoOperatorNames;
+    return this.foldChildren([], function(speechArray, cmd) {
       if (cmd.isItalic === false ) { // auto operator name
-        tempText += cmd.mathspeak();
+        tempOp += cmd.mathspeak();
       }
       else {
-        if(tempText!=='') {
-          speechArray.push(tempText+' ');
-          tempText = '';
+        if(tempOp!=='') {
+          if(autoOps !== {} && autoOps._maxLength > 0) {
+            var x = autoOps[tempOp.toLowerCase()];
+            if(typeof x === 'string') tempOp = x;
+          }
+          speechArray.push(tempOp+' ');
+          tempOp = '';
         }
         speechArray.push(cmd.mathspeak());
         if(isNaN(cmd.text()) || cmd.text() === '.') speechArray.push(' ');
       }
       return speechArray;
     }).join('');
-    // next go through expression and replace auto operator names with their mathspeak counterparts
-    var autoOps = {};
-    if (this.controller) autoOps = this.controller.options.autoOperatorNames;
-    if(autoOps === {} || autoOps._maxLength === 0) return retVal;
-
-    var re = new RegExp(Object.keys(autoOps).join("\\s|") + "\\s","gi");
-    return retVal.replace(re, function(matched){
-      var x = autoOps[matched.toLowerCase().trim()];
-      if(typeof x === 'string') return x;
-      else if(typeof x === 'number') return matched; // this happens if built-in op
-      else return matched;
-    });
-
   };
   _.ariaLabel = 'block';
 
