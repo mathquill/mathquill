@@ -101,4 +101,4 @@ test:
     - |-
       [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
   post:
-    - killall --wait sc; :  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
+    - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
