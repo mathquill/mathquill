@@ -395,11 +395,11 @@ var MathBlock = P(MathElement, function(_, super_) {
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
     if(autoOps === {} || autoOps._maxLength === 0) return retVal;
 
-    var re = new RegExp(Object.keys(autoOps).join("\b|"),"gi");
+    var re = new RegExp(Object.keys(autoOps).join("\\s|") + "\\s","gi");
     return retVal.replace(re, function(matched){
-      var x = autoOps[matched.trim().toLowerCase()];
-      if(typeof x === 'string') return x+' ';
-      else if(typeof x === 'number') return matched+' '; // this happens if built-in op
+      var x = autoOps[matched.toLowerCase().trim()];
+      if(typeof x === 'string') return x;
+      else if(typeof x === 'number') return matched; // this happens if built-in op
       else return matched;
     });
 
