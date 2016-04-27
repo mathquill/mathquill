@@ -397,7 +397,7 @@ var MathBlock = P(MathElement, function(_, super_) {
 
     var re = new RegExp(Object.keys(autoOps).join("\b|"),"gi");
     return retVal.replace(re, function(matched){
-      var x = autoOps[matched.toLowerCase()];
+      var x = autoOps[matched.trim().toLowerCase()];
       if(typeof x === 'string') return x+' ';
       else if(typeof x === 'number') return matched+' '; // this happens if built-in op
       else return matched;
