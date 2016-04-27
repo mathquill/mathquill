@@ -87,6 +87,7 @@ test:
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
     # finally, complain to Circle CI if there were nonzero test failures
-    - [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
+    - |-
+      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
   post:
     - killall --wait sc  # wait for Sauce Connect to close the tunnel
