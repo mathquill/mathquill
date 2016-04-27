@@ -375,12 +375,18 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.mathspeak = function() {
     // first get mathspeak text of block elements and variables
+    var tempText = '';
     var retVal = this.foldChildren([], function(speechArray, cmd) {
-      if (cmd.isItalic === false || !isNaN(cmd.text()) || cmd.text() === '.') { // Likely an auto operator, number, or decimal. don't spell
-        speechArray.push(cmd.mathspeak());
+      if (cmd.isItalic === false ) { // auto operator name
+        tempText += cmd.mathspeak();
       }
       else {
-        speechArray.push(cmd.mathspeak()+' ');
+        if(tempText!=='') {
+          speechArray.push(tempText+' ');
+          tempText = '';
+        }
+        speechArray.push(cmd.mathspeak());
+        if(isNaN(cmd.text()) || cmd.text() === '.') speechArray.push(' ');
       }
       return speechArray;
     }).join('');
@@ -389,7 +395,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
     if(autoOps === {} || autoOps._maxLength === 0) return retVal;
 
-    var re = new RegExp(Object.keys(autoOps).join("|"),"gi");
+    var re = new RegExp(Object.keys(autoOps).join("\b|"),"gi");
     return retVal.replace(re, function(matched){
       var x = autoOps[matched.toLowerCase()];
       if(typeof x === 'string') return x+' ';
