@@ -32,16 +32,25 @@
 # via https://circleci.com/docs/browser-testing-with-sauce-labs/
 
 dependencies:
-  post:
-    - wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-    - tar -xzf sc-latest-linux.tar.gz
+  cache_directories:
+    - ~/sauce-connect
+  pre:
+    - ? |-
+        cd ~/sauce-connect
+        if [ ! -x sc-*-linux/bin/sc ]
+        then
+          wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+          tar -xzf sc-latest-linux.tar.gz
+        fi
+        sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready
+      :
+        background: true
 
 test:
   override:
-    - cd sc-*-linux && ./bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready:
-        background: true
     - make server:
         background: true
+
     # Wait for tunnel to be ready (`make server` is much faster, no need to wait)
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
@@ -86,6 +95,7 @@ test:
         # because unexpected values should break rather than infinite loop
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
+
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
       [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
