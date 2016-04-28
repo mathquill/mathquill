@@ -94,6 +94,9 @@ function getInterface(v) {
     }
     EMBEDS[name] = options;
   };
+  MQ.bindVanillaSymbol = function(name, cmd, hex) {
+    LatexCmds[name] = bind(VanillaSymbol, cmd, hex);
+  };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
