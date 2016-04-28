@@ -94,8 +94,15 @@ function getInterface(v) {
     }
     EMBEDS[name] = options;
   };
-  MQ.bindVanillaSymbol = function(name, cmd, hex) {
-    LatexCmds[name] = bind(VanillaSymbol, cmd, hex);
+  MQ.bindVanillaSymbol = function(name, hex) {
+    LatexCmds[name] = bind(VanillaSymbol, '\\' + name, hex);
+  };
+  MQ.bindMathCommand = function(name, htmlTemplate) {
+    LatexCmds[name] = P(MathCommand, function(_, _super) {
+      _.ctrlSeq = '\\' + name;
+      _.htmlTemplate = htmlTemplate;
+      _.textTemplate = [name + '(', ')'];
+    });
   };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
