@@ -762,6 +762,20 @@ suite('Public API', function() {
 
       $(mq.el()).remove();
     });
+    test('integral still has empty limits', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        sumStartsWithNEquals: true
+      });
+      assert.equal(mq.latex(), '');
+
+      mq.cmd('\\int');
+      assert.equal(mq.latex(), '\\int_{ }^{ }');
+
+      mq.cmd('0');
+      assert.equal(mq.latex(), '\\int_0^{ }', 'cursor in the from block');
+
+      $(mq.el()).remove();
+    });
   });
 
   suite('substituteTextarea', function() {

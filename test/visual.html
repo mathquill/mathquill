@@ -24,6 +24,9 @@ h1 {
 td {
   width: 33%;
 }
+#static-latex-rendering-table td {
+  width: 50%;
+}
 #show-textareas-button {
   float: right;
 }
@@ -81,10 +84,10 @@ td {
 
 <h3>Redrawing</h3>
 <p>
-  <span id="reflowing-test">\sqrt{_0^1}</span>
+  <span id="reflowing-test">\sqrt{}</span>
   should look the same as
   <span class="mathquill-static-math">
-    \sqrt{\pi\sqrt\sqrt\frac12\int_0^1}
+    \sqrt{\pi\sqrt\sqrt\frac12}
   </span>
 </p>
 <script type="text/javascript">
@@ -96,7 +99,7 @@ td {
     var textarea = $('#reflowing-test textarea');
     // paste some stuff that needs resizing
     textarea.trigger('paste');
-    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
+    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
     setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
   });
 </script>
@@ -183,7 +186,7 @@ $(function() {
 </table>
 
 <h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
-<table>
+<table id="static-latex-rendering-table">
 <tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
 <tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
 <tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
@@ -208,6 +211,8 @@ $(function() {
 <tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 <tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
 <tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
+<tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
+<tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
 <tr><td colspan=2><span id="sixes"></span>
 <script>
 $(function() {
