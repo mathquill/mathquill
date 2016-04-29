@@ -94,12 +94,15 @@ function getInterface(v) {
     }
     EMBEDS[name] = options;
   };
-  MQ.bindVanillaSymbol = function(name, hex) {
-    LatexCmds[name] = bind(VanillaSymbol, '\\' + name, hex);
+  MQ.bindBinaryOperator = function(name, ctrlSeq, hex) {
+    LatexCmds[name] = find(BinaryOperator, ctrlSeq, hex)
   };
-  MQ.bindMathCommand = function(name, htmlTemplate) {
+  MQ.bindVanillaSymbol = function(name, ctrlSeq, hex) {
+    LatexCmds[name] = bind(VanillaSymbol, ctrlSeq, hex);
+  };
+  MQ.bindMathCommand = function(name, ctrlSeq, htmlTemplate) {
     LatexCmds[name] = P(MathCommand, function(_, _super) {
-      _.ctrlSeq = '\\' + name;
+      _.ctrlSeq = ctrlSeq;
       _.htmlTemplate = htmlTemplate;
       _.textTemplate = [name + '(', ')'];
     });
