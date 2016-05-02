@@ -256,7 +256,14 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (cursor[dir]) aria.queue(cursor[dir]);
+    var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
+    if(cursorEl && cursorEl instanceof Node) {
+      if(cursorEl.sides) {
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch));
+      } else aria.queue(cursorEl);
+    } else if(cursorElParent && cursorElParent instanceof Node) {
+      aria.queue(cursorElParent);
+    }
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
