@@ -1,18 +1,24 @@
 @import "./mixins/css3";
 
-.mathquill-editable, .mathquill-rendered-math {
-  .textarea {
+.mq-editable-field, .mq-math-mode {
+  .mq-textarea {
     position: relative;
 
     // TODO: why is this here?
     .user-select(text);
   }
 
-  .textarea textarea, .selectable {
+  .mq-textarea *, .mq-selectable {
     .user-select(text);
-    // the only way to hide the textarea
-    // *and the blinking insertion point* in IE
-    position: absolute;
-    clip: rect(1em 1em 1em 1em);
+
+    position: absolute; // the only way to hide the textarea *and* the
+    clip: rect(1em 1em 1em 1em); // blinking insertion point in IE
+
+    .transform(scale(0)); // the only way to hide the blinking blue cursor in iOS 8 #584
+
+    resize: none; // hotfix: https://code.google.com/p/chromium/issues/detail?id=355199#c1
+
+    width: 1px; // don't "stick out" invisibly from a math field,
+    height: 1px; // can affect ancestor's .scroll{Width,Height}
   }
 }

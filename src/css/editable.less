@@ -1,38 +1,35 @@
-.mathquill-editable {
+.mq-editable-field {
   .inline-block;
-  white-space: pre-wrap;
-
-  .cursor {
+  .mq-cursor {
     border-left: 1px solid black;
-    margin-right: -1px;
+    margin-left: -1px;
     position: relative;
     z-index: 1;
     padding: 0;
     .inline-block;
 
-    &.blink { visibility: hidden; }
+    &.mq-blink { visibility: hidden; }
   }
-
   // This is a workaround to override the
-  // styles on .mathquill-editable *.
+  // styles on .mq-math-mode *.
   // TODO: figure out a better way.
-  &, .mathquill-embedded-latex & {
+  &, .mq-math-mode & {
     border: 1px solid gray;
-    padding: 2px;
+
+    &.mq-focused {
+      .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
+      border-color: #709AC0;
+      border-radius: 1px;
+    }
   }
 // special styles for editables within static math
-  .mathquill-embedded-latex & {
+  .mq-math-mode & {
     margin: 1px;
-  }
-
-  // TODO: dasherize has-cursor
-  &.hasCursor, .hasCursor {
-    .box-shadow(#68B4DF 0 0 3px 2px);
   }
 
   ////
   // command input with \
-  .latex-command-input {
+  .mq-latex-command-input {
     color: inherit;
     font-family: @mono;
     border: 1px solid gray;
@@ -40,12 +37,12 @@
     margin-right: 1px;
     margin-left: 2px;
 
-    &.empty {
+    &.mq-empty {
       background: transparent;
     }
 
     // TODO: dasherize has-cursor
-    &.hasCursor {
+    &.mq-hasCursor {
       border-color: ActiveBorder;
     }
   }
@@ -54,22 +51,26 @@
 // Keeps blocks from collapsing to zero width/height
 // when empty by inserting invisible text.
 // TODO: find a way to unify the three concepts below.
-.mathquill-editable.empty:after,
-.mathquill-textbox:after,
-.mathquill-rendered-math .empty:after {
+.mq-editable-field.mq-empty:after,
+.mq-editable-field.mq-text-mode:after,
+.mq-math-mode .mq-empty:after {
   visibility: hidden;
   content: 'c';
 }
 
 // separated from above because unrecognized pseudoclasses
 // invalidate the entire selector
-.mathquill-editable .cursor:only-child:after,
-.mathquill-editable .textarea+.cursor:last-child:after {
+.mq-editable-field .mq-cursor:only-child:after,
+.mq-editable-field .mq-textarea+.mq-cursor:last-child:after {
   visibility: hidden;
   content: 'c';
 }
 
-.mathquill-textbox {
+.mq-editable-field .mq-text-mode .mq-cursor:only-child:after {
+  content: '';
+}
+
+.mq-editable-field.mq-text-mode {
   overflow-x: auto;
 
   // so IE8 won't show a vertical scrollbar

@@ -79,7 +79,12 @@ function run_make_test() {
   make_test.stdout.pipe(process.stdout, { end: false });
   make_test.stderr.pipe(process.stderr, { end: false });
   make_test.on('exit', function(code) {
-    if (code) console.error('Exit Code ' + code);
+    if (code) {
+      console.error('Exit Code ' + code);
+    } else {
+      console.log('\nMathQuill is now running on localhost:9292');
+      console.log('Open http://localhost:9292/test/demo.html\n');
+    }
     for (var i = 0; i < q.length; i += 1) q[i]();
     q = undefined;
   });
