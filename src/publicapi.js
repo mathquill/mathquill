@@ -95,7 +95,7 @@ function getInterface(v) {
     EMBEDS[name] = options;
   };
   MQ.bindBinaryOperator = function(name, ctrlSeq, hex) {
-    LatexCmds[name] = find(BinaryOperator, ctrlSeq, hex)
+    LatexCmds[name] = bind(BinaryOperator, ctrlSeq, hex)
   };
   MQ.bindVanillaSymbol = function(name, ctrlSeq, hex) {
     LatexCmds[name] = bind(VanillaSymbol, ctrlSeq, hex);
