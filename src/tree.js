@@ -1,5 +1,5 @@
 /*************************************************
- * Base classes of the MathQuill virtual DOM tree
+ * Base classes of edit tree-related objects
  *
  * Only doing tree node manipulation via these
  * adopt/ disown methods guarantees well-formedness
@@ -68,6 +68,10 @@ var Point = P(function(_) {
     this[L] = leftward;
     this[R] = rightward;
   };
+
+  this.copy = function(pt) {
+    return Point(pt.parent, pt[L], pt[R]);
+  };
 });
 
 /**
@@ -78,22 +82,98 @@ var Node = P(function(_) {
   _[R] = 0
   _.parent = 0;
 
+  var id = 0;
+  function uniqueNodeId() { return id += 1; }
+  this.byId = {};
+
   _.init = function() {
+    this.id = uniqueNodeId();
+    Node.byId[this.id] = this;
+
     this.ends = {};
     this.ends[L] = 0;
     this.ends[R] = 0;
+  };
+
+  _.dispose = function() { delete Node.byId[this.id]; };
+
+  _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
+
+  _.jQ = $();
+  _.jQadd = function(jQ) { return this.jQ = this.jQ.add(jQ); };
+  _.jQize = function(jQ) {
+    // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
+    var jQ = $(jQ || this.html());
+
+    function jQadd(el) {
+      if (el.getAttribute) {
+        var cmdId = el.getAttribute('mathquill-command-id');
+        var blockId = el.getAttribute('mathquill-block-id');
+        if (cmdId) Node.byId[cmdId].jQadd(el);
+        if (blockId) Node.byId[blockId].jQadd(el);
+      }
+      for (el = el.firstChild; el; el = el.nextSibling) {
+        jQadd(el);
+      }
+    }
+
+    for (var i = 0; i < jQ.length; i += 1) jQadd(jQ[i]);
+    return jQ;
+  };
+
+  _.createDir = function(dir, cursor) {
+    prayDirection(dir);
+    var node = this;
+    node.jQize();
+    node.jQ.insDirOf(dir, cursor.jQ);
+    cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    return node;
+  };
+  _.createLeftOf = function(el) { return this.createDir(L, el); };
+
+  _.selectChildren = function(leftEnd, rightEnd) {
+    return Selection(leftEnd, rightEnd);
+  };
+
+  _.bubble = iterator(function(yield_) {
+    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+      var result = yield_(ancestor);
+      if (result === false) break;
+    }
+
+    return this;
+  });
+
+  _.postOrder = iterator(function(yield_) {
+    (function recurse(descendant) {
+      descendant.eachChild(recurse);
+      yield_(descendant);
+    })(this);
+
+    return this;
+  });
+
+  _.isEmpty = function() {
+    return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
   _.children = function() {
     return Fragment(this.ends[L], this.ends[R]);
   };
 
-  _.eachChild = function(fn) {
-    return this.children().each(fn);
+  _.eachChild = function() {
+    var children = this.children();
+    children.each.apply(children, arguments);
+    return this;
   };
 
   _.foldChildren = function(fold, fn) {
     return this.children().fold(fold, fn);
+  };
+
+  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+    Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
+    return this;
   };
 
   _.adopt = function(parent, leftward, rightward) {
@@ -105,7 +185,33 @@ var Node = P(function(_) {
     Fragment(this, this).disown();
     return this;
   };
+
+  _.remove = function() {
+    this.jQ.remove();
+    this.postOrder('dispose');
+    return this.disown();
+  };
 });
+
+function prayWellFormed(parent, leftward, rightward) {
+  pray('a parent is always present', parent);
+  pray('leftward is properly set up', (function() {
+    // either it's empty and `rightward` is the left end child (possibly empty)
+    if (!leftward) return parent.ends[L] === rightward;
+
+    // or it's there and its [R] and .parent are properly set up
+    return leftward[R] === rightward && leftward.parent === parent;
+  })());
+
+  pray('rightward is properly set up', (function() {
+    // either it's empty and `leftward` is the right end child (possibly empty)
+    if (!rightward) return parent.ends[R] === leftward;
+
+    // or it's there and its [L] and .parent are properly set up
+    return rightward[L] === leftward && rightward.parent === parent;
+  })());
+}
+
 
 /**
  * An entity outside the virtual tree with one-way pointers (so it's only a
@@ -120,41 +226,45 @@ var Node = P(function(_) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 var Fragment = P(function(_) {
-  _.init = function(leftEnd, rightEnd) {
-    pray('no half-empty fragments', !leftEnd === !rightEnd);
+  _.init = function(withDir, oppDir, dir) {
+    if (dir === undefined) dir = L;
+    prayDirection(dir);
+
+    pray('no half-empty fragments', !withDir === !oppDir);
 
     this.ends = {};
 
-    if (!leftEnd) return;
+    if (!withDir) return;
 
-    pray('left end node is passed to Fragment', leftEnd instanceof Node);
-    pray('right end node is passed to Fragment', rightEnd instanceof Node);
-    pray('leftEnd and rightEnd have the same parent',
-         leftEnd.parent === rightEnd.parent);
+    pray('withDir is passed to Fragment', withDir instanceof Node);
+    pray('oppDir is passed to Fragment', oppDir instanceof Node);
+    pray('withDir and oppDir have the same parent',
+         withDir.parent === oppDir.parent);
 
-    this.ends[L] = leftEnd;
-    this.ends[R] = rightEnd;
+    this.ends[dir] = withDir;
+    this.ends[-dir] = oppDir;
+
+    // To build the jquery collection for a fragment, accumulate elements
+    // into an array and then call jQ.add once on the result. jQ.add sorts the
+    // collection according to document order each time it is called, so
+    // building a collection by folding jQ.add directly takes more than
+    // quadratic time in the number of elements.
+    //
+    // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
+    var accum = this.fold([], function (accum, el) {
+      accum.push.apply(accum, el.jQ.get());
+      return accum;
+    });
+
+    this.jQ = this.jQ.add(accum);
   };
+  _.jQ = $();
 
-  function prayWellFormed(parent, leftward, rightward) {
-    pray('a parent is always present', parent);
-    pray('leftward is properly set up', (function() {
-      // either it's empty and `rightward` is the left end child (possibly empty)
-      if (!leftward) return parent.ends[L] === rightward;
-
-      // or it's there and its [R] and .parent are properly set up
-      return leftward[R] === rightward && leftward.parent === parent;
-    })());
-
-    pray('rightward is properly set up', (function() {
-      // either it's empty and `leftward` is the right end child (possibly empty)
-      if (!rightward) return parent.ends[R] === leftward;
-
-      // or it's there and its [L] and .parent are properly set up
-      return rightward[L] === leftward && rightward.parent === parent;
-    })());
-  }
-
+  // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
+  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+    return (dir === L ? this.adopt(parent, withDir, oppDir)
+                      : this.adopt(parent, oppDir, withDir));
+  };
   _.adopt = function(parent, leftward, rightward) {
     prayWellFormed(parent, leftward, rightward);
 
@@ -222,17 +332,24 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.each = function(fn) {
+  _.remove = function() {
+    this.jQ.remove();
+    this.each('postOrder', 'dispose');
+    return this.disown();
+  };
+
+  _.each = iterator(function(yield_) {
     var self = this;
     var el = self.ends[L];
     if (!el) return self;
 
-    for (;el !== self.ends[R][R]; el = el[R]) {
-      if (fn.call(self, el) === false) break;
+    for (; el !== self.ends[R][R]; el = el[R]) {
+      var result = yield_(el);
+      if (result === false) break;
     }
 
     return self;
-  };
+  });
 
   _.fold = function(fold, fn) {
     this.each(function(el) {
@@ -242,3 +359,12 @@ var Fragment = P(function(_) {
     return fold;
   };
 });
+
+
+/**
+ * Registry of LaTeX commands and commands created when typing
+ * a single character.
+ *
+ * (Commands are all subclasses of Node.)
+ */
+var LatexCmds = {}, CharCmds = {};

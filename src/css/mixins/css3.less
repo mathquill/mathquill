@@ -5,6 +5,13 @@
   -o-transform-origin: @arguments;
   transform-origin: @arguments;
 }
+.transform (...) {
+  -webkit-transform: @arguments;
+  -moz-transform: @arguments;
+  -ms-transform: @arguments;
+  -o-transform: @arguments;
+  transform: @arguments;
+}
 
 .user-select (...) {
   -webkit-user-select: @arguments;
@@ -16,4 +23,10 @@
   -webkit-box-shadow: @arguments;
   -moz-box-shadow: @arguments;
   box-shadow: @arguments;
+}
+
+.box-sizing (...) {
+  -webkit-box-sizing: @arguments;
+  -moz-box-sizing: @arguments;
+  box-sizing: @arguments;
 }

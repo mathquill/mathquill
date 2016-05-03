@@ -1,23 +1,23 @@
 // All these !important's are unfortunately necessary, because
 // pages using MathQuill who change the background color have to
-// have rules setting the background color of .matrixed and
-// .matrixed-container, and we need to guarantee that our rules
+// have rules setting the background color of .mq-matrixed and
+// .mq-matrixed-container, and we need to guarantee that our rules
 // setting the background color of matrixed/containers inside
 // selections have higher specificity.
 
 // See http://github.com/laughinghan/mathquill/wiki/Transforms
 // for more details.
 
-.mathquill-rendered-math, .mathquill-editable {
-  .selection {
-    &, & .non-leaf, & .scaled {
+.mq-math-mode, .mq-editable-field {
+  .mq-selection {
+    &, & .mq-non-leaf, & .mq-scaled {
       background: #B4D5FE !important;
       background: Highlight !important;
       color: HighlightText;
       border-color: HighlightText;
     }
 
-    .matrixed {
+    .mq-matrixed {
       // The Chroma filter doesn't support the 'Highlight' keyword,
       // but is only used in IE 8 and below anyway, so just use the
       // default Windows highlight color. Even if the highlight color
@@ -38,18 +38,18 @@
 
       background: #39F !important;
     }
-    .matrixed-container {
+    .mq-matrixed-container {
       filter: progid:DXImageTransform.Microsoft.Chroma(color='#3399FF') !important;
     }
 
-    &.blur {
-      &, & .non-leaf, & .scaled, & .matrixed {
+    &.mq-blur {
+      &, & .mq-non-leaf, & .mq-scaled, & .mq-matrixed {
         background: #D4D4D4 !important;
         color: black;
         border-color: black;
       }
 
-      .matrixed-container {
+      .mq-matrixed-container {
         filter: progid:DXImageTransform.Microsoft.Chroma(color='#D4D4D4') !important;
       }
     }

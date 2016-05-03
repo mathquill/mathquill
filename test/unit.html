@@ -5,6 +5,13 @@
     <!-- allow fancy checkmarks to show up -->
     <meta charset="UTF-8">
 
+    <!-- complain about uncaught errors -->
+    <script type="text/javascript">
+    window.onerror = function() {
+      document.documentElement.style.background = 'red';
+    };
+    </script>
+
     <!-- better living through jQuery -->
     <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
 
@@ -23,6 +30,14 @@
     <!-- include the library with the tests inlined -->
     <script id="mathquill" type="text/javascript" src="../build/mathquill.test.js"
       onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')">
+    </script>
+
+    <!-- include MathQuill-basic -->
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
+    <script type="text/javascript" src="../build/mathquill-basic.js"></script>
+    <script type="text/javascript">
+      MQBasic = MathQuill.noConflict().getInterface(MathQuill.getInterface.MAX);
+      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
     </script>
 
   </head>

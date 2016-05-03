@@ -2,11 +2,18 @@ suite('latex', function() {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
-    var result = latexMathParser.parse(str).join('latex');
+    var result = latexMathParser.parse(str).postOrder('finalizeTree', Options.p).join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );
   }
+
+  test('empty LaTeX', function () {
+    assertParsesLatex('');
+    assertParsesLatex(' ', '');
+    assertParsesLatex('{}', '');
+    assertParsesLatex('   {}{} {{{}}  }', '');
+  });
 
   test('variables', function() {
     assertParsesLatex('xyz');
@@ -82,49 +89,216 @@ suite('latex', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
 
+  test('escaped whitespace', function() {
+    assertParsesLatex('\\ ', '\\ ');
+    assertParsesLatex('\\      ', '\\ ');
+    assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+    assertParsesLatex('\\space\\   \\   space  ', '\\ \\ \\ space');
+  });
+
   test('\\text', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
   });
 
-  suite('RootMathBlock::renderLatex', function() {
-    var el;
+  test('not real LaTex commands, but valid symbols', function() {
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ', '\\odot ');
+    assertParsesLatex('\\degree ');
+    assertParsesLatex('\\square ');
+  });
+
+  suite('public API', function() {
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
-    test('basic rendering', function() {
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    suite('.latex(...)', function() {
+      function assertParsesLatex(str, latex) {
+        if (arguments.length < 2) latex = str;
+        mq.latex(str);
+        assert.equal(mq.latex(), latex);
+      }
+
+      test('basic rendering', function() {
+        assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
+
+      test('re-rendering', function() {
+        assertParsesLatex('a x^2 + b x + c = 0', 'ax^2+bx+c=0');
+        assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+      });
+
+      test('empty LaTeX', function () {
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
+      });
+
+      test('coerces to a string', function () {
+        assertParsesLatex(undefined, 'undefined');
+        assertParsesLatex(null, 'null');
+        assertParsesLatex(0, '0');
+        assertParsesLatex(Infinity, 'Infinity');
+        assertParsesLatex(NaN, 'NaN');
+        assertParsesLatex(true, 'true');
+        assertParsesLatex(false, 'false');
+        assertParsesLatex({}, '[objectObject]'); // lol, the space gets ignored
+        assertParsesLatex({toString: function() { return 'thing'; }}, 'thing');
+      });
     });
 
-    test('re-rendering', function() {
-      el.mathquill('latex', 'a x^2 + b x + c = 0');
-      assert.equal(el.mathquill('latex'), 'ax^2+bx+c=0');
-      el.mathquill('latex', 'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }');
-      assert.equal(el.mathquill('latex'), 'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+    suite('.write(...)', function() {
+      test('empty LaTeX', function () {
+        function assertParsesLatex(str, latex) {
+          if (arguments.length < 2) latex = str;
+          mq.write(str);
+          assert.equal(mq.latex(), latex);
+        }
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
+      });
+
+      test('overflow triggers automatic horizontal scroll', function(done) {
+        var mqEl = mq.el();
+        var rootEl = mq.__controller.root.jQ[0];
+        var cursor = mq.__controller.cursor;
+
+        $(mqEl).width(10);
+        var previousScrollLeft = rootEl.scrollLeft;
+
+        mq.write("abc");
+        setTimeout(afterScroll, 150);
+
+        function afterScroll() {
+          cursor.show();
+
+          try {
+            assert.ok(rootEl.scrollLeft > previousScrollLeft, "scrolls on write");
+            assert.ok(mqEl.getBoundingClientRect().right > cursor.jQ[0].getBoundingClientRect().right,
+              "cursor right end is inside the field");
+          }
+          catch(error) {
+            done(error);
+            return;
+          }
+
+          done();
+        }
+      });
+
+      suite('\\sum', function() {
+        test('basic', function() {
+          mq.write('\\sum_{n=0}^5');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
+        });
+
+        test('only lower bound', function() {
+          mq.write('\\sum_{n=0}');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
+        });
+
+        test('only upper bound', function() {
+          mq.write('\\sum^5');
+          assert.equal(mq.latex(), '\\sum_{ }^5');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{ }^5x^n');
+        });
+      });
+    });
+  });
+
+  suite('\\MathQuillMathField', function() {
+    var outer, inner1, inner2;
+    setup(function() {
+      outer = MQ.StaticMath(
+        $('<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>')
+        .appendTo('#mock')[0]
+      );
+      inner1 = outer.innerFields[0];
+      inner2 = outer.innerFields[1];
+    });
+    teardown(function() {
+      $(outer.el()).remove();
+    });
+
+    test('initial latex', function() {
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2');
+      assert.equal(inner2.latex(), '3');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2}{3}');
+    });
+
+    test('setting latex', function() {
+      inner1.latex('\\sum_{i=0}^N x_i');
+      inner2.latex('N');
+      assert.equal(inner1.latex(), '\\sum_{i=0}^Nx_i');
+      assert.equal(inner2.latex(), 'N');
+      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^Nx_i}{N}');
+    });
+
+    test('writing latex', function() {
+      inner1.write('+ x_3');
+      inner2.write('+ 1');
+      assert.equal(inner1.latex(), 'x_0+x_1+x_2+x_3');
+      assert.equal(inner2.latex(), '3+1');
+      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+    });
+
+    test('optional inner field name', function() {
+      outer.latex('\\MathQuillMathField[mantissa]{}\\cdot\\MathQuillMathField[base]{}^{\\MathQuillMathField[exp]{}}');
+      assert.equal(outer.innerFields.length, 3);
+
+      var mantissa = outer.innerFields.mantissa;
+      var base = outer.innerFields.base;
+      var exp = outer.innerFields.exp;
+
+      assert.equal(mantissa, outer.innerFields[0]);
+      assert.equal(base, outer.innerFields[1]);
+      assert.equal(exp, outer.innerFields[2]);
+
+      mantissa.latex('1.2345');
+      base.latex('10');
+      exp.latex('8');
+      assert.equal(outer.latex(), '1.2345\\cdot10^8');
+    });
+
+    test('separate API object', function() {
+      var outer2 = MQ(outer.el());
+      assert.equal(outer2.innerFields.length, 2);
+      assert.equal(outer2.innerFields[0].id, inner1.id);
+      assert.equal(outer2.innerFields[1].id, inner2.id);
     });
   });
 
   suite('error handling', function() {
-    var el;
+    var mq;
     setup(function() {
-      el = $('<span></span>').appendTo('#mock').mathquill('editable');
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
     teardown(function() {
-      el.remove();
+      $(mq.el()).remove();
     });
 
     function testCantParse(title /*, latex...*/) {
       var latex = [].slice.call(arguments, 1);
       test(title, function() {
         for (var i = 0; i < latex.length; i += 1) {
-          el.mathquill('latex', latex[i]);
-          assert.equal(el.mathquill('latex'), '', "shouldn\'t parse '"+latex[i]+"'");
+          mq.latex(latex[i]);
+          assert.equal(mq.latex(), '', "shouldn\'t parse '"+latex[i]+"'");
         }
       });
     }

@@ -27,10 +27,11 @@ td {
 #show-textareas-button {
   float: right;
 }
-.show-textareas .mathquill-textbox {
+.show-textareas .mq-editable-field.mq-text-mode {
   overflow: visible;
 }
-.show-textareas .textarea textarea {
+.show-textareas .mq-textarea textarea {
+  font-size: inherit;
   clip: auto !important;
   resize: auto !important;
   height: auto !important;
@@ -39,14 +40,19 @@ td {
 }
 
 /* Non-white background test */
-.different-bgcolor.mathquill-editable,
-.different-bgcolor.mathquill-editable .matrixed {
+.different-bgcolor.mq-editable-field,
+.different-bgcolor.mq-editable-field .mq-matrixed {
   background: black;
   color: white;
 }
-.different-bgcolor.mathquill-editable .cursor {
+.different-bgcolor.mq-editable-field .cursor {
   border-color: white;
 }
+
+#overflow-test {
+  width: 100px;
+}
+
 </style>
 
 </head>
@@ -61,47 +67,65 @@ td {
 
 <h3>MathQuill Editables</h3>
 
+<p>In all editable fields, the selection should clear and ghost parens should solidify if you click outside, but not if you switch tabs/windows and switch back to this page.
+
 <table id="editables">
 <tr><th colspan=3>Initial LaTeX
 <tr>
-  <td><span class="mathquill-editable">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
-  <td><span class="mathquill-textbox">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
-  <td><span class="mathquill-embedded-latex">\sqrt{\editable{x^2+y^2}}</span>
+  <td><span class="mathquill-math-field">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
+  <td><span class="mathquill-text-field">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+  <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-editable">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-math-field">a_2 x^2 + a_1 x + a_0 = 0</span></div>
 
 <h3>Redrawing</h3>
 <p>
-  <span id="redrawing-test" class="mathquill-editable">\sqrt{}</span>
+  <span id="reflowing-test">\sqrt{_0^1}</span>
   should look the same as
-  <span class="mathquill-embedded-latex">
-    \sqrt{\pi\sqrt\sqrt\frac12}
+  <span class="mathquill-static-math">
+    \sqrt{\pi\sqrt\sqrt\frac12\int_0^1}
   </span>
 </p>
 <script type="text/javascript">
   $(function() {
-    setTimeout(function() {
-      var test = $('#redrawing-test');
-      var textarea = test.find('textarea');
-
-      // focus
-      test.focus();
-
-      // move left into the square root
-      textarea.trigger($.Event('keydown', { which: 37 }));
-
-      // paste some stuff that needs resizing
-      textarea.trigger('paste');
-      textarea.val('$\\pi\\sqrt{\\sqrt{\\frac12}}$');
-    });
+    var count = 0;
+    MQ.MathField($('#reflowing-test')[0], {
+      handlers: { edit: function() { count += 1; } }, // also test 'edit' hook
+    }).focus().moveToLeftEnd().keystroke('Right');
+    var textarea = $('#reflowing-test textarea');
+    // paste some stuff that needs resizing
+    textarea.trigger('paste');
+    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
+    setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
   });
+</script>
+
+<h3>Behavior Options</h3>
+
+<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
+<p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
+
+<script>
+$(function() {
+  MQ.MathField($('#custom-behavior')[0], {
+    spaceBehavesLikeTab: true,
+    leftRightIntoCmdGoes: 'up',
+    restrictMismatchedBrackets: true,
+    sumStartsWithNEquals: true,
+    supSubsRequireOperand: true,
+    charsThatBreakOutOfSupSub: '+-=<>',
+    autoSubscriptNumerals: true,
+    autoCommands: 'pi theta sqrt sum',
+    autoOperatorNames: 'only'
+  });
+});
 </script>
 
 <h3>Up/Down seeking and caching</h3>
 
 <p>
-  <span id="seek-test" class="mathquill-editable">
+  <span id="seek-test" class="mathquill-math-field">
     \frac{1}{\sqrt \sqrt \sqrt \sqrt \sqrt \sqrt x}
   </span>
 </p>
@@ -110,9 +134,29 @@ td {
 &uarr; If you hit down from next to the 1, you should end up inside one of the square roots. If you hit up from the right of the x and then hit down again, you should end up where you were.
 </p>
 
+<h3>Horizontal overflow</h3>
+
+<p>
+<span id="overflow-test">
+  \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
+</span>
+(for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
+</p>
+
+<script>
+$(function() {
+  var overflowTest = $('#overflow-test');
+  MQ.MathField(overflowTest[0]);
+  var width = overflowTest.outerWidth(true);
+  if (width !== 102) {
+    throw 'math field '+width+'px wide instead of 102px';
+  }
+});
+</script>
+
 <h3>Selection Tests</h3>
 
-<p id="selection-tests"><span class="mathquill-textbox different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
+<p id="selection-tests"><span class="mathquill-text-field different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
 
 <p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
 
@@ -130,24 +174,78 @@ td {
   <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
   <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
 </table>
-<table id="dynamic-redraw">
-<tr><th colspan=3><code>.mathquill('redraw')</code>
+<table id="dynamic-reflow">
+<tr><th colspan=3><code>MQ(...).reflow()</code>
 <tr>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
   <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
 </table>
 
-<h3>Static LaTeX rendering (<code>.mathquill-embedded-latex</code>) tests</h3>
+<h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
 <table>
-<tr><td><span class="mathquill-embedded-latex">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
-<tr><td><span class="mathquill-embedded-latex">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
-<tr><td><span class="mathquill-embedded-latex">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
-<tr><td><span class="mathquill-embedded-latex">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}}</span>
-<tr><td><span class="mathquill-embedded-latex" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
+<tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
+<tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
+<tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
+<tr><td><span class="mathquill-static-math">\theta + \sin 2\deg</span><td><span>\theta + \sin 2\deg</span>
+<tr><td><span class="mathquill-static-math">-1 + +-2</span><td><span>-1 + +-2</span>
+<tr><td><span class="mathquill-static-math">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
+<tr><td><span class="mathquill-static-math">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
+<tr><td><span class="mathquill-static-math" style="font-size:14.99px">\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span><td><span>\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span>
+<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left| a + \left| b \right| \right|</span><td><span>\left| a + \left| b \right| \right|</span>
+<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
+<tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
+<tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
+<tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
 </table>
 
-<p>There should be no space between here <span class="mathquill-embedded-latex">            </span>and here, even in IE8</p>
+<p id="paren-alignment">Parentheses vertical alignment at font sizes ranging from 10px to 24px: <button>Click Me</button></p>
+<script>
+$('#paren-alignment button').click(function() {
+  var html = '<div>';
+  for (var i = 10; i <= 24; i += 1) {
+    html += i+'px: <span class="mathquill-static-math" style="font-size:'+i+'px">\\left(\\left(\\left(\\left(\\left(\\left(\\left( \\right)\\right)\\right)\\right)\\right)\\right)\\right)+\\left(1\\right)+\\left(x\\right)+\\left(y\\right)+\\left(\\frac{1}{2}\\right)+\\left(\\frac{\\frac{1}{x}}{2}\\right)+\\left(\\frac{1}{\\frac{x}{2}}\\right)+\\left(\\frac{\\frac{\\frac{1}{2}}{\\frac{3}{4}}}{\\frac{\\frac{5}{6}}{\\frac{7}{8}}}\\right)</span><br>';
+  }
+  html += '</div>';
+  $(html).insertAfter('#paren-alignment').find('.mathquill-static-math').each(function() {
+    MQ.StaticMath(this);
+  });
+});
+</script>
+
+<h3>Dynamic rendering performance</h3>
+<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-math-field"></span></p>
+<p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mq-math-mode"></span></p>
+
+<p>There should be no space between here <span class="mathquill-static-math">            </span>and here, even in IE8</p>
+
+<h3>Textcolor</h3>
+
+<p>Colors should match their names:
+<span class="mathquill-static-math">
+  \textcolor{#0000FF}{blue} + \textcolor{red}{red}
+  = \textcolor { rgb(255, -10, 255) } {magenta}
+</span>
+</p>
+<p>Nested <code>\textcolor</code>: the 2 should be red, the "a+" green, the 4 blue, and the "+b" green again.
+<span class="mathquill-static-math">
+e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
+</span>
+</p>
+
+<h3>Adding CSS class</h3>
+<style type="text/css">
+  .testclass { background-color: #5A8; border-radius: 5px; padding: 4px; font-weight:bold;color:gold;}
+</style>
+<p>Second term should be styled like <span class='testclass'>this</span>:
+  <span class="mathquill-static-math">
+x+\class{testclass}{y}+z
+</span>
+</p>
+
+<h3>substituteTextarea</h3>
+
+<p>In Safari on iOS, this should be focusable but not bring up the on-screen keyboard; to test, try focusing anything else and confirm this blurs: <span id="no-kbd-math"></span> (confirmed working on iOS 6.1.3)</p>
 
 </div>
 <script type="text/javascript">
@@ -157,19 +255,30 @@ window.onerror = function() {
 </script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
+MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+
 $('#show-textareas-button').click(function() {
   $(document.body).toggleClass('show-textareas');
 });
 
+//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
+//elements according to their CSS class.
+$(function() {
+  $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.mathquill-math-field').each(function() { MQ.MathField(this); });
+  $('.mathquill-text-field').each(function() { MQ.TextField(this); });
+});
+
 // test selecting from outside the mathquill editable
+var $mq = $('.math-container .mathquill-math-field');
 $('.math-container').mousedown(function(e) {
-  $(this).find('.mathquill-editable').trigger(e);
+  if (!jQuery.contains($mq[0], e.target)) $mq.triggerHandler(e);
 });
 
 // Selection Tests
 document.body.onload = function() {
   setTimeout(function() {
-    $('#selection-tests .mathquill-textbox').each(function() {
+    $('#selection-tests .mathquill-text-field').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
       $('#selection-performance').html(new Date - start);
@@ -181,19 +290,113 @@ document.body.onload = function() {
 // Initial LaTeX
 $('#dynamic-initial tr').each(function() {
   var math = $('span', this);
-  math.eq(0).mathquill();
-  math.eq(1).mathquill('editable');
-  math.eq(2).mathquill('editable').mathquill('revert');
+  if (!math.length) return;
+
+  MQ.StaticMath(math[0]);
+  MQ.MathField(math[1]);
+  MQ.MathField(math[2]).revert();
 });
-// .mathquill('redraw')
-$('#dynamic-redraw tr').each(function() {
+// MQ(...).reflow()
+$('#dynamic-reflow tr').each(function() {
   var math = $('span', this), td;
+  if (!math.length) return;
+
   td = math.eq(0).parent();
-  math.eq(0).detach().mathquill().appendTo(td).mathquill('redraw');
+  math.eq(0).detach();
+  MQ.StaticMath(math[0]);
+  math.eq(0).appendTo(td);
+  MQ(math[0]).reflow();
+
   td = math.eq(1).parent();
-  math.eq(1).detach().mathquill('editable').appendTo(td).mathquill('redraw');
+  math.eq(1).detach();
+  MQ.MathField(math[1]);
+  math.eq(1).appendTo(td);
+  MQ(math[1]).reflow();
+
   td = math.eq(2).parent();
-  math.eq(2).detach().mathquill('editable').mathquill('revert').appendTo(td).mathquill('redraw');
+  math.eq(2).detach();
+  MQ.MathField(math[2]).revert();
+  math.eq(2).appendTo(td);
+  if (MQ(math[2])) throw 'should been have reverted';
+});
+
+// Dynamic rendering performance
+function Avgs() {
+  return {
+    avgs: {},
+    add: function(k, v) {
+      if (!this.avgs[k]) this.avgs[k] = { n: 0, avg: 0 };
+      var avgObj = this.avgs[k];
+      avgObj.avg = (avgObj.n*avgObj.avg + v) / (avgObj.n + 1);
+      avgObj.n += 1;
+      return avgObj.avg + 'ms (across ' + avgObj.n + ' trials)';
+    }
+  };
+}
+var performance = window.performance || Date;
+window.rawLogs = [];
+function timeAndLog(f) {
+  var currentLog = [];
+  $.fn.mathquill.setLogFn(function(msg) {
+    currentLog.push({ msg: msg, now: performance.now() });
+  });
+  var start = performance.now();
+  f();
+  var duration = performance.now() - start;
+  $.fn.mathquill.setLogFn($.noop);
+
+  var timeline = [], prev = 0;
+  for (var i = 0; i < currentLog.length; i += 1) {
+    var now = Math.round((currentLog[i].now - start)*1000);
+    timeline.push(now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg);
+    prev = now;
+  }
+  timeline = timeline.join('\n');
+
+  rawLogs.push({
+    start: start,
+    duration: duration,
+    log: currentLog,
+    timeline: timeline
+  });
+  if (timeline.length) {
+    // for tablets without a console
+    if (location.hash === '#alert') alert(timeline);
+    else console.log(timeline);
+  }
+  return duration;
+};
+(function() {
+  var textarea = $('#latex-render-perf textarea');
+  var mathquill = $('#latex-render-perf .mathquill-math-field');
+  var avgs = Avgs();
+  $('#latex-render-perf button').click(function() {
+    var latex = textarea.val();
+    var duration = timeAndLog(function() {
+      mathquill.mathquill('latex', latex);
+    });
+    $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
+    $('#html-render-perf textarea').val(mathquill.mathquill('html'));
+  });
+}());
+(function() {
+  var textarea = $('#html-render-perf textarea');
+  var span = $('#html-render-perf span');
+  var avgs = Avgs();
+  $('#html-render-perf button').click(function() {
+    var html = textarea.val();
+    var duration = timeAndLog(function() {
+      span.html(html);
+    });
+    $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
+      .insertAfter('#html-render-perf');
+  });
+}());
+
+MQ.MathField($('#no-kbd-math')[0], {
+  substituteTextarea: function() {
+    return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
+  }
 });
 </script>
 </body>
