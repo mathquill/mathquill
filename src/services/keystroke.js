@@ -16,7 +16,7 @@ Node.open(function(_) {
     switch (key) {
     case 'Ctrl-Shift-Backspace':
     case 'Ctrl-Backspace':
-      ctrlr.ctrlDeleteDir(L);
+      ctrlr.ctrlDeleteDir(L, ctrlr);
       break;
 
     case 'Shift-Backspace':
@@ -115,7 +115,7 @@ Node.open(function(_) {
 
     case 'Ctrl-Shift-Del':
     case 'Ctrl-Del':
-      ctrlr.ctrlDeleteDir(R);
+      ctrlr.ctrlDeleteDir(R, ctrlr);
       break;
 
     case 'Shift-Del':
@@ -238,10 +238,10 @@ Controller.open(function(_) {
 
     return this;
   };
-  _.ctrlDeleteDir = function(dir) {
+  _.ctrlDeleteDir = function(dir, ctrlr) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (!cursor[L] || cursor.selection) return ctrlr.deleteDir();
+    if (!cursor[L] || cursor.selection) return ctrlr.deleteDir(dir);
 
     this.notify('edit');
     Fragment(cursor.parent.ends[L], cursor[L]).remove();
