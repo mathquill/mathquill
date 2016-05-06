@@ -935,6 +935,22 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('autoCommandsMapping', function() {
+    setup(function() {
+      MQ.config({
+        autoCommands: 'sqrt',
+        autoCommandsMapping: {'sqrt': 'nthroot'}
+      });
+    });
+
+    test('maps autoCommand to a different control sequence', function() {
+      mq.typedText('sqrt');
+      mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
+      assertLatex('\\sqrt[n]{100}');
+      mq.keystroke('Ctrl-Backspace');
+    });
+  });
+
   suite('inequalities', function() {
     // assertFullyFunctioningInequality() checks not only that the inequality
     // has the right LaTeX and when you backspace it has the right LaTeX,

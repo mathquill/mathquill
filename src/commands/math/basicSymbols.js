@@ -56,6 +56,8 @@ optionProcessors.autoCommands = function(cmds) {
   return dict;
 };
 
+Options.p.autoCommandsMapping = {};
+
 var Letter = P(Variable, function(_, super_) {
   _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.createLeftOf = function(cursor) {
@@ -75,6 +77,11 @@ var Letter = P(Variable, function(_, super_) {
           for (var i = 1, l = this; i < str.length; i += 1, l = l[L]);
           Fragment(l, this).remove();
           cursor[L] = l[L];
+
+          // sometimes we want map typed letters to a different latex control sequence
+          if (cursor.options.autoCommandsMapping.hasOwnProperty(str)) {
+            return LatexCmds[cursor.options.autoCommandsMapping[str]](str).createLeftOf(cursor)
+          }
           return LatexCmds[str](str).createLeftOf(cursor);
         }
         str = str.slice(1);

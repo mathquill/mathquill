@@ -209,6 +209,7 @@ var mathField = MQ.MathField(el[0], {
   charsThatBreakOutOfSupSub: '+-=<>',
   autoSubscriptNumerals: true,
   autoCommands: 'pi theta sqrt sum',
+  autoCommandsMapping: {'sqrt': 'nthroot'},
   autoOperatorNames: 'sin cos etc',
   substituteTextarea: function() {
     return document.createElement('textarea');
@@ -276,6 +277,13 @@ LaTeX `x^{n+m}`, you have to type `x^(n+m` and delete the paren or something.
 letters only, min length 2), defines the (default empty) set of "auto-commands",
 commands automatically rendered by just typing the letters without typing a
 backslash first.
+
+`autoCommandsMapping`, an associative array of LaTeX control words (no
+backslash, letters only, min length 2) to different LaTeX control words. This
+allows you to override an `autoCommand` to map to an arbitrary control sequence
+rather than just the backslashed version. For example `{'sqrt': 'nthroot'}` maps
+typed 'sqrt' to `\nthroot` rather than `\sqrt` provided 'sqrt' is already
+defined as an `autoCommand`.
 
 `autoOperatorNames`, a list of the same form (space-delimited letters-only each
 length>=2), and overrides the set of operator names that automatically become
