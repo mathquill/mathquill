@@ -27,6 +27,12 @@ console.log(mathField.latex()); // Shows '2^{\frac{3}{2}}'
 
 Check out our [Getting Started Guide](http://mathquill.readthedocs.org/en/latest/Getting_Started/) for setup instructions and basic MathQuill usage.
 
+## Docs
+
+Most documentation for MathQuill is located on [ReadTheDocs](http://mathquill.readthedocs.io/en/latest/).
+
+Some older documentation still exists on the [Wiki](https://github.com/mathquill/mathquill/wiki).
+
 ## Open-Source License
 
 The Source Code Form of MathQuill is subject to the terms of the Mozilla Public
