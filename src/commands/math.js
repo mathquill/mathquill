@@ -488,5 +488,18 @@ API.InertMath = function(APIClasses) {
       super_.__mathquillify.call(this, 'mq-math-mode');
       return this;
     };
+    _.init = function() {
+      super_.init.apply(this, arguments);
+      this.__controller.root.postOrder(
+        'registerInnerField', this.innerFields = [], APIClasses.MathField);
+    };
+    _.latex = function() {
+      var returned = super_.latex.apply(this, arguments);
+      if (arguments.length > 0) {
+        this.__controller.root.postOrder(
+          'registerInnerField', this.innerFields = [], APIClasses.MathField);
+      }
+      return returned;
+    };
   });
 };
