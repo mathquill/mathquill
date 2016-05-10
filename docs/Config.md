@@ -1,6 +1,6 @@
 # Setting Configuration
 
-The configuration options for a given mathField has the following structure and [options](http://mathquill.readthedocs.org/en/latest/Config/#configuration-options):
+The configuration options object is of the following form:
 ```js
 {
   spaceBehavesLikeTab: true,
@@ -20,22 +20,22 @@ The configuration options for a given mathField has the following structure and 
     upOutOf: function(mathField) { ... },
     moveOutOf: function(dir, mathField) { if (dir === MQ.L) ... else ... }
   }
-});
+}
 ```
 
-On initialization, pass the configuration object, structured like the one above as the second argument to [`MQ.MathField(html_element, config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config).
+You can configure an editable math field by passing an options argument as the second argument to [the constructor (`MQ.MathField(html_element, config)`)](Api_Methods.md#mqmathfieldhtml_element-config), or by [calling `.config()` on the math field (`mathField.config(new_config)`)](Api_Methods.md#confignew_config).
 
-To change the options later on, use [`mathField.config(new_config)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#confignew_config).
+Global defaults may be set with [`MQ.config(global_config)`](Api_Methods.md#mqconfigconfig).
 
-Global defaults may be set with [`MQ.config(NEW_CONFIG)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqconfigconfig).
+
 
 # Configuration Options
 
 ## spacesBehavesLikeTab
 
-If `spaceBehavesLikeTab` is true the keystrokes {Shift-,}Spacebar will behave like {Shift-,}Tab escaping from the current block (as opposed to the default behavior of inserting a Space character).
+If `spaceBehavesLikeTab` is true the keystrokes `{Shift-,}Spacebar` will behave like `{Shift-,}Tab` escaping from the current block (as opposed to the default behavior of inserting a Space character).
 
-The animated demo on mathquill.com has this behavior.
+The animated demo on <mathquill.com> has this behavior.
 
 ## leftRightIntoCmdGoes
 
@@ -47,7 +47,7 @@ If instead you want right to always visually go right, and left to always go vis
 
 ## restrictMismatchedBrackets
 
-If `restrictMismatchedBrackets` is true then you can type [a,b) and (a,b], but if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or `\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise, you'd get `\left( \right| x \left| + 1 \right)`.
+If `restrictMismatchedBrackets` is true then you can type `[a,b)` and `(a,b]`, but if you try typing `[x}` or `\langle x|`, you'll get `[{x}]` or `\langle|x|\rangle` instead. This lets you type `(|x|+1)` normally; otherwise, you'd get `\left( \right| x \left| + 1 \right)`.
 
 ## sumStartsWithNEquals
 
@@ -55,15 +55,15 @@ If `sumStartsWithNEquals` is true then when you type `\sum`, `\prod`, or `\copro
 
 ## supSubsRequireOperand
 
-`supSubsRequireOperand` disables typing of superscripts and subscripts when there's nothing to the left of the cursor to be exponentiated or subscripted. Averts the especially confusing typo `x^^2`, which looks much like `x^2`.
+`supSubsRequireOperand` disables typing of superscripts and subscripts when there's nothing to the left of the cursor to be exponentiated or subscripted. Prevents the especially confusing typo `x^^2`, which looks much like `x^2`.
 
 ## charsThatBreakOutOfSupSub
 
 `charsThatBreakOutOfSupSub` takes a string of the chars that when typed, "break out" of superscripts and subscripts.
 
-Normally, to get out of a superscript or subscript, a user has to navigate out of it with the directional keys, a mouse click, tab, or Space if [`spaceBehavesLikeTab`](http://mathquill.readthedocs.org/en/latest/Config/#spacesbehavesliketab) is true. For example, typing `x^2n+y` normally results in the LaTeX `x^{2n+y}`. If you wanted to get the LaTeX `x^{2n}+y`, the user would have to manually move the cursor out of the exponent.
+Normally, to get out of a superscript or subscript, a user has to navigate out of it with the directional keys, a mouse click, tab, or Space if [`spaceBehavesLikeTab`](#spacesbehavesliketab) is true. For example, typing `x^2n+y` normally results in the LaTeX `x^{2n+y}`. If you wanted to get the LaTeX `x^{2n}+y`, the user would have to manually move the cursor out of the exponent.
 
-If this option was set to `'+-'`, `+` and `-` would "break out" of the exponent. This doesn't apply to the first character in a superscript or subscript, so typing `x^-6` still results in `x^{-6}`. The downside to setting this options is that in order to type `x^{n+m}`, a workaround like typing `x^(n+m` and then deleting the `(` is required.
+If this option was set to `'+-'`, `+` and `-` would "break out" of the exponent. This doesn't apply to the first character in a superscript or subscript, so typing `x^-6` still results in `x^{-6}`. The downside to setting this option is that in order to type `x^{n+m}`, a workaround like typing `x^(n+m` and then deleting the `(` is required.
 
 ## autoCommands
 
@@ -77,15 +77,17 @@ For example, with `autoCommands` set to `'pi theta'`, the word 'pi' automaticall
 
 `autoOperatorNames` overrides the set of operator names that automatically become non-italicized when typing the letters without typing a backslash first, like `sin`, `log`, etc.
 
-This Defaults to the LaTeX built-in operator names ([Section +3.17 of the Short Math Guide](http://tinyurl.com/jm9okjc)) with additional trig operators like `sech`, `arcsec`, `arsinh`, etc. If you want some of these italicized after setting this property, you will have to add them to the list.
+This defaults to the LaTeX built-in operator names ([Section 3.17 of the Short Math Guide](http://tinyurl.com/jm9okjc)) with additional trig operators like `sech`, `arcsec`, `arsinh`, etc. If you want some of these italicized after setting this property, you will have to add them to the list.
 
-Just like [`autoCommands`](http://mathquill.readthedocs.org/en/latest/Config/#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
+Just like [`autoCommands`](#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
 
 ## substituteTextarea
 
 `substituteTextarea` is a function that creates a focusable DOM element that is called when setting up a math field. Overwriting this may be useful for hacks like suppressing built-in virtual keyboards. It defaults to `<textarea autocorrect=off .../>`.
 
-For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabindex=0></span>` on iOS to suppress the built-in virtual keyboard in favor of a custom math keypad that calls the MathQuill API. Unfortunately there's no universal [check for a virtual keyboard](http://stackoverflow.com/q/2593139/362030) or [way to detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/) and even if you could a touchscreen != virtual keyboard (Windows 8 and ChromeOS devices have both physical keyboards and touchscreens and iOS and Android devices can have Bluetooth keyboards). Desmos currently sniffs the user agent for iOS, so Bluetooth keyboards just don't work in Desmos on iOS. The trade offs are up to you.
+For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabindex=0></span>` on iOS to suppress the built-in virtual keyboard in favor of a custom math keypad that calls the MathQuill API. Unfortunately there's no universal [check for a virtual keyboard](http://stackoverflow.com/q/2593139/362030) or [way to detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/), and even if you could, a touchscreen ≠ virtual keyboard (Windows 8 and ChromeOS devices have both physical keyboards and touchscreens and iOS and Android devices can have Bluetooth keyboards). Desmos currently sniffs the user agent for iOS, so Bluetooth keyboards just don't work in Desmos on iOS. The tradeoffs are up to you.
+
+
 
 # Handlers
 
@@ -111,7 +113,7 @@ var MathList = P(function(_) {
 });
 ```
 
-You can always ignore the last argument, like when the handlers close over the math field:
+It's common to just ignore the last argument, like if the handlers close over the math field:
 ```js
 var latex = '';
 var mathField = MQ.MathField($('#mathfield')[0], {
@@ -124,9 +126,9 @@ var mathField = MQ.MathField($('#mathfield')[0], {
 
 ## *OutOf handlers
 
-`moveOutOf(direction, mathField)`, `deleteOutOf(direction, mathField)`, `selectOutOf(direction, mathField)`, `upOutOf(mathField)`, `downOutOf(mathField)`
+`.moveOutOf(direction, mathField)`, `.deleteOutOf(direction, mathField)`, `.selectOutOf(direction, mathField)`, `.upOutOf(mathField)`, `.downOutOf(mathField)`
 
-The `*OutOf` handlers are called when a cursor movement would cause the cursor to leave the MathQuill mathField. These let you integrate cursor movement seamlessly between your code and MathQuill. For example, when the cursor is at the right edge, pressing the Right key causes the `moveOutOf` handler to be called with `MQ.R` and the mathField API object. Pressing Backspace causes `deleteOutOf` to be called with `MQ.L` and the mathField.
+The `*OutOf` handlers are called when a cursor movement would cause the cursor to leave the MathQuill mathField. These let you integrate cursor movement seamlessly between your code and MathQuill. For example, when the cursor is at the right edge, pressing the Right key causes the `moveOutOf` handler to be called with `MQ.R` and the math field API object. Pressing Backspace causes `deleteOutOf` to be called with `MQ.L` and the API object.
 
 ## enter(mathField)
 
