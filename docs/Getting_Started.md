@@ -1,35 +1,30 @@
 # Download and Load
 
-Download [the latest release](https://github.com/mathquill/mathquill/releases/latest).
-MathQuill depends on [jQuery 1.4.3+](http://jquery.com) and we recommend that you use the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
+Download [the latest release](https://github.com/mathquill/mathquill/releases/latest) or [build from source](Contributing/#building-and-testing).
 
-Then you can load MathQuill with something like (order matters):
+MathQuill depends on [jQuery 1.4.3+](http://jquery.com), we recommend the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
+
+load MathQuill with something like (order matters):
 ```html
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
-```
-
-To use the MathQuill API, load it with:
-```javascript
+<script>
 var MQ = MathQuill.getInterface(2);
+</script>
 ```
 
-All [API methods](http://mathquill.readthedocs.org/en/latest/Api_Methods/) will be called on [`MQ`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#api-interface).
-
-You can also [build from the source code](http://mathquill.readthedocs.org/en/latest/Contributing/#building-and-testing).
+Now you can call our [API methods](http://mathquill.readthedocs.org/en/latest/Api_Methods/) on `MQ`.
 
 # Basic Usage
 
-MathQuill instances can be created on HTML elements. For the full list of constructors and API methods, see [API Methods](http://mathquill.readthedocs.org/en/latest/Api_Methods).
+MathQuill instances are created from HTML elements. For the full list of constructors and API methods, see [API Methods](http://mathquill.readthedocs.org/en/latest/Api_Methods).
 
-The below examples assume that MathQuill has been properly loaded and exposed as `MQ` as shown [above](http://mathquill.readthedocs.org/en/latest/Getting_Started/#download-and-load).
+## Static Math Rendering
 
-## Render Static Math
-
-Call [`MQ.StaticMath`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqstaticmathhtml_element) on the HTML element.
+To statically render a formula, call [`MQ.StaticMath()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqstaticmathhtml_element) on an HTML element:
 ```html
-<p>Solve <span id="problem">ax^2 + bx + c = 0</span></p>
+<p>Solve <span id="problem">ax^2 + bx + c = 0</span>.</p>
 
 <script>
   var problemSpan = document.getElementById('problem');
@@ -37,9 +32,9 @@ Call [`MQ.StaticMath`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#m
 </script>
 ```
 
-## Editable Math
+## Editable Math Fields
 
-To create an editable math field, call [`MQ.MathField`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config) with the HTML element and the [config](http://mathquill.readthedocs.org/en/latest/Config/). The following example shows a mathfield created on the answer span with a handler to check the answer every time an edit may occur.
+To create an editable math field, call [`MQ.MathField()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mqmathfieldhtml_element-config) on an HTML element and, optionally, a [config options object](http://mathquill.readthedocs.org/en/latest/Config/). The following example features a math field with a handler to check the answer every time an edit may have occurred:
 ```html
 <p><span id="answer">x=</span></p>
 
@@ -48,7 +43,7 @@ To create an editable math field, call [`MQ.MathField`](http://mathquill.readthe
   var answerMathField = MQ.MathField(answerSpan, {
     handlers: {
       edit: function() {
-        var enteredMath = answerMathField.latex() // Retrieve entered math in LaTeX format
+        var enteredMath = answerMathField.latex(); // Get entered math in LaTeX format
         checkAnswer(enteredMath);
       }
     }
@@ -58,9 +53,9 @@ To create an editable math field, call [`MQ.MathField`](http://mathquill.readthe
 
 ## Get and Set Math
 
-The way to retrieve and store the contents of the math field is to call [`mathField.latex()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latex).
+To get and set the contents of a math field, use [`mathField.latex()`](Api_Methods/#latex).
 
-A mathField will be initialized with the text that was in the span, interpreted as LaTex. This can be updated later by calling [`mathField.latex(latexString)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latexlatex_string). Content can be added as it would be by someone typing with [`typedText(string)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#typedtexttext), 
+Math fields are initialized with the text that was in the span, parsed as LaTeX. This can be updated by calling [`mathField.latex(latexString)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latexlatex_string). To programmatically type text into a math field, use [`.typedText(string)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#typedtexttext),
 
 # Join the Community
 
