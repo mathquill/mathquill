@@ -4,7 +4,7 @@ Download [the latest release](https://github.com/mathquill/mathquill/releases/la
 
 MathQuill depends on [jQuery 1.4.3+](http://jquery.com), we recommend the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
 
-load MathQuill with something like (order matters):
+Load MathQuill with something like (order matters):
 ```html
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
