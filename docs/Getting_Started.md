@@ -58,7 +58,7 @@ To create an editable math field, call [`MQ.MathField`](http://mathquill.readthe
 
 ## Get and Set Math
 
-The recommended way to retrieve and store the contents of the math field is to call [`mathField.latex()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latex). [`mathField.html()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#html) can be used to retrieve the contents of the mathField as static HTML.
+The way to retrieve and store the contents of the math field is to call [`mathField.latex()`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latex).
 
 A mathField will be initialized with the text that was in the span, interpreted as LaTex. This can be updated later by calling [`mathField.latex(latexString)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#latexlatex_string). Content can be added as it would be by someone typing with [`typedText(string)`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#typedtexttext), 
 
