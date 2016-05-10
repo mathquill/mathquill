@@ -790,7 +790,7 @@ suite('Public API', function() {
 
       var box = mq.el().getBoundingClientRect();
       var clientX = box.left + 30;
-      var clientY = box.top + 40;
+      var clientY = box.top + 30;
       var target = document.elementFromPoint(clientX, clientY);
 
       assert.equal(document.activeElement, document.body);
@@ -815,7 +815,7 @@ suite('Public API', function() {
 
       var box = mq.el().getBoundingClientRect();
       var clientX = box.left + 30;
-      var clientY = box.top + 40;
+      var clientY = box.top + 30;
 
       assert.equal(document.activeElement, document.body);
       mq.clickAt(clientX, clientY).write('x');
@@ -858,7 +858,7 @@ suite('Public API', function() {
 
       mq.el().scrollIntoView();
 
-      mq.dropEmbedded(mqx + 30, mqy + 40, {
+      mq.dropEmbedded(mqx + 30, mqy + 30, {
         htmlString: '<span class="embedded-html"></span>',
         text: function () { return "embedded text" },
         latex: function () { return "embedded latex" }
