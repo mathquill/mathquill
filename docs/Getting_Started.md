@@ -60,4 +60,4 @@ Math fields are initialized with the text that was in the span, parsed as LaTeX.
 # Join the Community
 
 [<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
-[<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)
+(Prefer IRC? We're `#mathquill` on Freenode.)

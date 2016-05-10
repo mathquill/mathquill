@@ -1,13 +1,12 @@
 # [MathQuill](http://mathquill.github.com)
 
-by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (maintainers@mathquill.com)
+by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (<maintainers@mathquill.com>)
 
 MathQuill is a web formula editor designed to make typing math easy and beautiful. To view a demo, please view our [website](http://mathquill.com/). The MathQuill project is currently supported by its [partners](http://mathquill.com/partners.html). We are bound by a [Code of Conduct](http://docs.mathquill.com/en/latest/Code_of_Conduct/).
 
-MathQuill is actively developed and we're committed to getting things running smoothly. Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues) We'd love to hear from you.
-
+MathQuill is resuming active development and we're committed to getting things running smoothly. Find a dusty corner? Let us know in Slack:
 [<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
-[<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)
+(Prefer IRC? We're `#mathquill` on Freenode.)
 
 ## Getting Started
 
