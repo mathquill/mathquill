@@ -1,4 +1,4 @@
-# Api Interface
+# API Methods
 
 To use the MathQuill API, first get the latest version of the interface:
 
@@ -6,7 +6,7 @@ To use the MathQuill API, first get the latest version of the interface:
 var MQ = MathQuill.getInterface(2);
 ```
 
-By default, MathQuill overwrites the global `MathQuill` variable when loaded. If you do not want this behavior, you can use `.noConflict()` (similar to [`jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
+By default, MathQuill overwrites the global `MathQuill` variable when loaded. If you do not want this behavior, you can use `.noConflict()` ([similar to `jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
 
 ```html
 <script src="/path/to/first-mathquill.js"></script>
@@ -20,30 +20,38 @@ firstMQ.MathField(...);
 </script>
 ```
 
-This lets different copies of MathQuill each power their own math fields, but using different copies on the same DOM element won't work. `noConflict()` is intended to help you reduce globals.
+This lets different copies of MathQuill each power their own math fields, but using different copies on the same DOM element won't work. `.noConflict()` is primarily intended to help you reduce globals.
+
+
 
 # Constructors
 
 ## MQ.StaticMath(html_element)
 
-Creates a non-editable MathQuill initialized with the contents of the HTML element and returns a [static MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mathfield-methods).
+Creates a non-editable MathQuill initialized with the contents of the HTML element and returns a [StaticMath object](#mathquill-base-methods).
 
-If the given element is already a static MathField, this will return a new static Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
+If the given element is already a static math instance, this will return a new StaticMath object with the same `.id`. If the element is a different type of MathQuill, this will return `null`.
 
-## MQ.MathField(html_element, config)
+## MQ.MathField(html_element, [ config ])
 
-Creates an editable MathQuill initialized with the contents of the HTML element and returns an [editable MathField object](http://mathquill.readthedocs.org/en/latest/Api_Methods/#editable-mathfield-methods).
+Creates an editable MathQuill initialized with the contents of the HTML element and returns a [MathField object](#editable-mathfield-methods).
 
-If the given element is already an editable MathField, this will return a new editable Mathfield object with the same ID. If the element is a different type of MathQuill element, this will return null.
+If the given element is already an editable math field, this will return a new editable MathField object with the same `.id`. If the element is a different type of MathQuill, this will return `null`.
 
-## \\MathQuillMathField LaTeX command
+## \MathQuillMathField LaTeX command
 
-Entering `\MathQuillMathField` into an existing mathField will create an embedded mathField inside of the original mathField.
+`\MathQuillMathField` can be used to embed editable math fields inside static math, like:
 
-This can be done programmatically with the [cmd method](http://mathquill.readthedocs.org/en/latest/Api_Methods/#cmdlatex_string):
-```javascript
-mathField.cmd('\\MathQuillMathField')
+```html
+<span id="fill-in-the-blank">\sqrt{ \MathQuillMathField{x}^2 + \MathQuillMathField{y}^2 }</span>
+<script>
+  var fillInTheBlank = MQ.StaticMath(document.getElementById('#fill-in-the-blank'));
+  fillInTheBlank.innerFields[0].latex() // => 'x'
+  fillInTheBlank.innerFields[1].latex() // => 'y'
+</script>
 ```
+
+As you can see, they can be accessed on the StaticMath object via `.innerFields`.
 
 ## MQ(html_element)
 
@@ -58,7 +66,9 @@ MQ(otherSpan) // => null
 
 ## MQ.config(config)
 
-Globally updates the [configuration](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration) to the new config.
+Updates the global [configuration options](Config.md) (which can be overridden on a per-field basis).
+
+
 
 # Comparing MathFields
 
@@ -97,13 +107,15 @@ mathField.data.foo = 'bar';
 MQ(mathFieldSpan).data.foo // => 'bar'
 ```
 
-# MathField Methods
 
-The following are methods that every MathField has. These are the only methods that static fields have and a subset of the methods that editable fields have.
 
-## revert()
+# MathQuill base methods
 
-Any element that has been turned into a MathQuill element can be reverted:
+The following are methods that every MathQuill object has. These are the only methods that static math instances have and a subset of the methods that editable fields have.
+
+## .revert()
+
+Any element that has been turned into a MathQuill instance can be reverted:
 ```html
 <span id="revert-me" class="mathquill-static-math">
   some <code>HTML</code>
@@ -113,7 +125,7 @@ Any element that has been turned into a MathQuill element can be reverted:
 mathfield.revert().html(); // => 'some <code>HTML</code>'
 ```
 
-## reflow()
+## .reflow()
 
 MathQuill uses computed dimensions, so if they change (because an element was mathquill-ified before it was in the visible HTML DOM, or the font size changed), then you'll need to tell MathQuill to recompute:
 
@@ -124,75 +136,75 @@ mathFieldSpan.appendTo(document.body);
 mathField.reflow();
 ```
 
-## el()
+## .el()
 
-Returns the root HTML element of the mathField.
+Returns the root HTML element.
 
-## latex()
+## .latex()
 
-Returns the contents of the mathField as LaTeX.
+Returns the contents as LaTeX.
 
-## latex(latex_string)
+## .latex(latex_string)
 
-This will render the argument as LaTeX in the mathField.
+This will render the argument as LaTeX in the MathQuill instance.
 
-# Editable MathField Methods
 
-Editable MathFields have all of the [above](http://mathquill.readthedocs.org/en/latest/Api_Methods/#mathfield-methods) methods in addition to the ones listed here.
 
-## focus()
+# Editable MathField methods
+
+Editable math fields have all of the [above](#mathquill-base-methods) methods in addition to the ones listed here.
+
+## .focus()
 
 Puts the focus on the editable field.
 
-## blur()
+## .blur()
 
 Removes focus from the editable field.
 
-## write(latex_string)
+## .write(latex_string)
 
-Write the given LaTeX at the current cursor position. If the cursor does not have focus, it writes it to last position the cursor occupied in the mathField.
-
-```javascript
-mathField.write(' - 1'); // writes ' - 1' to mathField after the cursor position.
-```
-
-## cmd(latex_string)
-
-Enter a LaTeX command at the current cursor position or with the current selection. If the cursor does not have focus, it writes it to last position the cursor occupied in the mathField.
+Write the given LaTeX at the current cursor position. If the cursor does not have focus, writes to last position the cursor occupied in the editable field.
 
 ```javascript
-mathField.cmd('\\sqrt'); // writes a square root character after the cursor position.
+mathField.write(' - 1'); // writes ' - 1' to mathField at the cursor position
 ```
 
-## select()
+## .cmd(latex_string)
+
+Enter a LaTeX command at the current cursor position or with the current selection. If the cursor does not have focus, it writes it to last position the cursor occupied in the editable field.
+
+```javascript
+mathField.cmd('\\sqrt'); // writes a square root command at the cursor position
+```
+
+## .select()
 
 Selects the contents (just like [on `textarea`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622) and [on `input`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168)).
 
-To clear this selection, use [`clearSelection`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#clearselection)
+## .clearSelection()
 
-## clearSelection()
+Clears the selection.
 
-Clears the current selection in the mathField.
+## .moveToLeftEnd(), .moveToRightEnd()
 
-## moveToLeftEnd(), moveToRightEnd()
+Move the cursor to the left/right end of the editable field, respectively. These are shorthand for [`.moveToDirEnd(L/R)`](#movetodirenddirection), respectively.
 
-Move the cursor to the left/right end of the editable field, respectively. These are implemented in terms of [`moveToDirEnd`](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetodirenddirection).
+## .movetoDirEnd(direction)
 
-## movetoDirEnd(direction)
-
-Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants, where `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](http://mathquill.readthedocs.org/en/latest/Api_Methods/#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](http://mathquill.readthedocs.org/en/latest/Config/#outof-handlers) when setting the [configuration of a mathField](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
+Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants, where `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](Config.md#outof-handlers).
 
 ```javascript
 var config = {
   handlers: {
-    moveOutOf: function(direction, mathField) {
-      mathField.movetoDirEnd(direction);
+    moveOutOf: function(direction) {
+      nextMathFieldOver.movetoDirEnd(-direction);
     }
   }
 });
 ```
 
-## keystroke(keys)
+## .keystroke(keys)
 
 Simulates keystrokes given a string like `"Ctrl-Home Del"`, a whitespace-delimited list of [key inputs](http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes) with optional prefixes.
 
@@ -200,7 +212,7 @@ Simulates keystrokes given a string like `"Ctrl-Home Del"`, a whitespace-delimit
 mathField.keystroke('Shift-Left'); // Selects character before the current cursor position
 ```
 
-## typedText(text)
+## .typedText(text)
 
 Simulates typing text, one character at a time from where the cursor currently is. This is supposed to be identical to what would happen if a user were typing the text in.
 
@@ -209,11 +221,11 @@ Simulates typing text, one character at a time from where the cursor currently i
 mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 ```
 
-## config(new_config)
+## .config(new_config)
 
-Changes the config of the mathField to the new [configuration](http://mathquill.readthedocs.org/en/latest/Config/#setting-configuration).
+Changes the [configuration](Config.md) of just this math field.
 
-## dropEmbedded(pageX, pageY, options) **[Experimental](http://mathquill.readthedocs.org/en/latest/Api_Methods/#note-on-experimental-features)**
+## .dropEmbedded(pageX, pageY, options) **[ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ](#note-on-experimental-features)**
 
 Insert a custom embedded element at the given coordinates, where `options` is an object like:
 ```js
@@ -224,9 +236,9 @@ Insert a custom embedded element at the given coordinates, where `options` is an
 }
 ```
 
-## registerEmbed('name', function(id){return options}) **[Experimental](http://mathquill.readthedocs.org/en/latest/Api_Methods/#note-on-experimental-features)**
+.## registerEmbed('name', function(id){ return options; }) **[ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ](#note-on-experimental-features)**
 
-Allows MathQuill to parse custom embedded objects from latex, where `options` is an object like the one defined above in `.dropEmbedded`. This will parse the following latex into the embedded object you defined: `\embed{name}[id]}`.
+Allows MathQuill to parse custom embedded objects from latex, where `options` is an object like the one defined above in `.dropEmbedded()`. This will parse the following latex into the embedded object you defined: `\embed{name}[id]}`.
 
 ## Note on Experimental Features
 
