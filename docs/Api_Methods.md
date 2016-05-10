@@ -236,7 +236,7 @@ Insert a custom embedded element at the given coordinates, where `options` is an
 }
 ```
 
-.## registerEmbed('name', function(id){ return options; }) **[ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ](#note-on-experimental-features)**
+## .registerEmbed('name', function(id){ return options; }) **[ᴇxᴘᴇʀɪᴍᴇɴᴛᴀʟ](#note-on-experimental-features)**
 
 Allows MathQuill to parse custom embedded objects from latex, where `options` is an object like the one defined above in `.dropEmbedded()`. This will parse the following latex into the embedded object you defined: `\embed{name}[id]}`.
 
