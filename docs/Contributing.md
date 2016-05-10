@@ -22,7 +22,7 @@ All the CSS is in `src/css`. The choice of font isn't settled, and fractions are
 
 ## Architecture
 
-There's 2 thin layers sandwiching 2 broad, modularized layers. At the highest level, the public API is a thin wrapper around calls to [services](http://mathquill.readthedocs.org/en/latest/Contributing/#service) on the controller. These set event listeners that call methods on [commands](http://mathquill.readthedocs.org/en/latest/Contributing/#command) in the [edit tree](http://mathquill.readthedocs.org/en/latest/Contributing/#edit-tree). Those commands call tree and cursor manipulation methods to do actions like move the cursor or edit the tree.
+There's 2 thin layers sandwiching 2 broad, modularized layers. At the highest level, the public API is a thin wrapper around calls to [services](#service) on the controller. These set event listeners that call methods on [commands](#command) in the [edit tree](#edit-tree). Those commands call tree and cursor manipulation methods to do actions like move the cursor or edit the tree.
 
 ## Edit Tree
 
