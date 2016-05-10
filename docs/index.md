@@ -6,8 +6,8 @@ MathQuill is a web formula editor designed to make typing math easy and beautifu
 
 MathQuill is actively developed and we're committed to getting things running smoothly. Find a dusty corner? [Let us know.](https://github.com/mathquill/mathquill/issues) We'd love to hear from you.
 
-<big>[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
-[<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)</big>
+[<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
+[<img alt="freenode irc: #mathquill" src="https://img.shields.io/badge/%20freenode%20irc%20-%20%23mathquill%20-brightgreen.svg" align="top">](http://webchat.freenode.net/?channels=mathquill)
 
 ## Getting Started
 
