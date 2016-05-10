@@ -15,9 +15,7 @@ MathQuill has a simple interface. This brief example creates a MathQuill element
 ```javascript
 var htmlElement = document.getElementById('some_id');
 var config = {
-  handlers: {
-    edit: function(){ ... }
-  },
+  handlers: { edit: function(){ ... } },
   restrictMismatchedBrackets: true
 };
 var mathField = MQ.MathField(htmlElement, config);
