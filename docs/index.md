@@ -1,4 +1,4 @@
-# [MathQuill](http://mathquill.github.com)
+# [MathQuill](http://mathquill.com)
 
 by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (<maintainers@mathquill.com>)
 
