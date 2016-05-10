@@ -128,10 +128,6 @@ mathField.reflow();
 
 Returns the root HTML element of the mathField.
 
-## html()
-
-Returns the contents of the mathField as static HTML.
-
 ## latex()
 
 Returns the contents of the mathField as LaTeX.
