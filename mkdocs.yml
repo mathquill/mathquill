@@ -13,3 +13,6 @@ pages:
   - 'Config Options': Config.md
   - 'Under the Hood': Contributing.md
   - Code_of_Conduct.md
+
+extra_css:
+  - extra.css
