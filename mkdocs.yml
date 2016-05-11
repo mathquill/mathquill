@@ -14,5 +14,9 @@ pages:
   - 'Under the Hood': Contributing.md
   - Code_of_Conduct.md
 
+markdown_extensions:
+  - toc:
+    - permalink: True
+
 extra_css:
   - extra.css
