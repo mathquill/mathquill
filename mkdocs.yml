@@ -16,7 +16,7 @@ pages:
 
 markdown_extensions:
   - toc:
-    - permalink: True
+      permalink: True
 
 extra_css:
   - extra.css
