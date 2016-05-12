@@ -52,6 +52,9 @@ test:
     - make server:
         background: true
 
+    - node -e 'require("http").createServer(function(req, res) { res.setHeader("Access-Control-Allow-Origin", "*"); req.pipe(require("fs").createWriteStream("xunit")); req.on("end", res.end.bind(res)); }).listen(9000);':
+        background: true
+
     # Wait for tunnel to be ready (`make server` is much faster, no need to wait)
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
@@ -96,6 +99,10 @@ test:
         # because unexpected values should break rather than infinite loop
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
+
+    - mkdir -p $CIRCLE_TEST_REPORTS/mocha
+
+    - cat xunit > $CIRCLE_TEST_REPORTS/mocha/xunit.xml
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-

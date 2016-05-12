@@ -24,7 +24,23 @@
 
     <!-- configure mocha and chai -->
     <script type="text/javascript">
-      mocha.setup('tdd');
+      mocha.setup({
+        ui: 'tdd',
+        reporter: 'xunit'
+      });
+
+      var console_log = console.log;
+      var xunit = "";
+      console.log = function() {
+        var str = arguments[0];
+
+        if (str === 'stdout:') {
+          xunit += arguments[1];
+        }
+
+        return console_log.apply(console, arguments);
+      };
+
     </script>
 
     <!-- include the library with the tests inlined -->
@@ -66,9 +82,45 @@
 
         failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
       });
+
       runner.on('end', function() {
-        window.mochaResults = runner.stats;
-        window.mochaResults.reports = failedTests;
+        setTimeout(function(){
+          //var data = {
+          //  "description": "Mathquill test",
+          //  "public": true,
+          //  "files": {
+          //    "file1.txt": {
+          //      "content": xunit
+          //    }
+          //  }
+          //};
+
+          //$.ajax({
+          //  url: "https://localhost:9000/",
+          //  data: xunit,
+          //  type: 'POST',
+          //  headers: {Connection: 'close'}
+          //})
+          //  .then(function(gist) {
+          //    window.mochaResults = runner.stats;
+          //    window.mochaResults.reports = failedTests;
+          //  });
+
+          $.post("http://localhost:9000/", xunit)
+            .then(function(gist) {
+              window.mochaResults = runner.stats;
+              window.mochaResults.reports = failedTests;
+            });
+
+          //$.post("https://api.github.com/gists", JSON.stringify(data))
+          //  .then(function(gist) {
+          //    runner.stats.xunitURL = gist.files["file1.txt"].raw_url
+          //      console.log(runner.stats.xunitURL)
+          //      window.mochaResults = runner.stats;
+          //    window.mochaResults.reports = failedTests;
+          //  });
+        });
+
       });
     </script>
   </body>
