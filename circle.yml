@@ -52,10 +52,29 @@ test:
     - make server:
         background: true
 
-    - node -e 'require("http").createServer(function(req, res) { res.setHeader("Access-Control-Allow-Origin", "*"); req.pipe(require("fs").createWriteStream("xunit")); req.on("end", res.end.bind(res)); }).listen(9000);':
+    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
+    # file:
+    #   https://circleci.com/docs/test-metadata/
+    # Our unit tests are in a browser, so they can't write to a file, and Sauce
+    # apparently truncates custom data in their test result reports, so instead
+    # we POST to this trivial Node server on localhost:9000 that writes the
+    # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+    - ? |-
+        mkdir -p $CIRCLE_TEST_REPORTS/mocha
+        node << 'EOF' | tee $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+        require('http').createServer(function(req, res) {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          req.pipe(process.stdout);
+          req.on('end', res.end.bind(res));
+        })
+        .listen(9000);
+        console.log('Listening on localhost:9000');
+        EOF
+      :
         background: true
 
-    # Wait for tunnel to be ready (`make server` is much faster, no need to wait)
+    # Wait for tunnel to be ready (`make server` and the trivial Node server
+    # are much faster, no need to wait for them)
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
     # Run in-browser unit tests, based on:
@@ -99,10 +118,6 @@ test:
         # because unexpected values should break rather than infinite loop
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
-
-    - mkdir -p $CIRCLE_TEST_REPORTS/mocha
-
-    - cat xunit > $CIRCLE_TEST_REPORTS/mocha/xunit.xml
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
