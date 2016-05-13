@@ -93,7 +93,7 @@ test:
                    "circle-ci"
                  ],
                  "framework": "mocha",
-                 "url": "http://localhost:9292/test/unit.html",
+                 "url": "http://localhost:9292/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
       }' | tee js-tests
 

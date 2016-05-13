@@ -24,9 +24,11 @@
 
     <!-- configure mocha and chai -->
     <script type="text/javascript">
+      var post_xunit_to = Mocha.utils.parseQuery(location.search).post_xunit_to;
+
       mocha.setup({
         ui: 'tdd',
-        reporter: 'xunit'
+        reporter: post_xunit_to ? 'xunit' : 'html'
       });
 
       var xunit = '';
@@ -58,60 +60,31 @@
     <script type="text/javascript">
       var runner = mocha.run();
 
-      // the following is based on https://github.com/saucelabs-sample-scripts/JavaScript/blob/4946c5cf0ab7325dce5562881dba7c28e30989e5/reporting_mocha.js
-      var failedTests = [];
-      runner.on('fail', function(test, err) {
-        function flattenTitles(test) {
-          var titles = [];
-          while (test.parent.title) {
-            titles.push(test.parent.title);
-            test = test.parent;
+      if (post_xunit_to) {
+        // the following is based on https://github.com/saucelabs-sample-scripts/JavaScript/blob/4946c5cf0ab7325dce5562881dba7c28e30989e5/reporting_mocha.js
+        var failedTests = [];
+        runner.on('fail', function(test, err) {
+          function flattenTitles(test) {
+            var titles = [];
+            while (test.parent.title) {
+              titles.push(test.parent.title);
+              test = test.parent;
+            }
+            return titles.reverse();
           }
-          return titles.reverse();
-        }
 
-        failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
-      });
+          failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+        });
 
-      runner.on('end', function() {
-        setTimeout(function(){
-          //var data = {
-          //  "description": "Mathquill test",
-          //  "public": true,
-          //  "files": {
-          //    "file1.txt": {
-          //      "content": xunit
-          //    }
-          //  }
-          //};
-
-          //$.ajax({
-          //  url: "https://localhost:9000/",
-          //  data: xunit,
-          //  type: 'POST',
-          //  headers: {Connection: 'close'}
-          //})
-          //  .then(function(gist) {
-          //    window.mochaResults = runner.stats;
-          //    window.mochaResults.reports = failedTests;
-          //  });
-
-          $.post("http://localhost:9000/", xunit)
-            .then(function(gist) {
+        runner.on('end', function() {
+          setTimeout(function() {
+            $.post(post_xunit_to, xunit, function() {
               window.mochaResults = runner.stats;
               window.mochaResults.reports = failedTests;
             });
-
-          //$.post("https://api.github.com/gists", JSON.stringify(data))
-          //  .then(function(gist) {
-          //    runner.stats.xunitURL = gist.files["file1.txt"].raw_url
-          //      console.log(runner.stats.xunitURL)
-          //      window.mochaResults = runner.stats;
-          //    window.mochaResults.reports = failedTests;
-          //  });
+          });
         });
-
-      });
+      }
     </script>
   </body>
 </html>
