@@ -1,0 +1,125 @@
+# Okay so maybe everyone else already knows all this, but it took some time
+# for Michael and I [Han] to really see how everything fits together.
+#
+# Basically, what we're doing here is automated browser testing, so CircleCI
+# handles the automation, and Sauce Labs handles the browser testing.
+# Specifically, Sauce Labs offers a REST API to run tests in browsers in VMs,
+# and CircleCI can be configured to listen for git pushes and run local
+# servers and call out to REST APIs to test against these local servers.
+#
+# The flow goes like this:
+#   - CircleCI notices/is notified of a git push
+#   - they pull and checkout and magically know to install dependencies and shit
+#       + https://circleci.com/docs/manually/
+#   - their magic works fine for MathQuill's dependencies but to run the tests,
+#     it foolishly runs `make test`, what an inconceivable mistake
+#   - that's where we come in: `circle.yml` lets us override the test script.
+#       + https://circleci.com/docs/configuration/
+#   - our `circle.yml` first installs and runs a tunnel to Sauce Labs
+#   - and runs `make server`
+#   - then it calls out to Sauce Labs' REST API to open a browser that reaches
+#     back through the tunnel to access the unit test page on the local server
+#       + > Sauce Connect allows you to run a test server within the CircleCI
+#         > build container and expose it it (using a URL like `localhost:8080`)
+#         > to Sauce Labs’ browsers.
+#
+#         https://circleci.com/docs/browser-testing-with-sauce-labs/
+#
+#   - boom testing boom
+
+
+# this file is based on https://github.com/circleci/sauce-connect/blob/a65e41c91e02550ce56c75740a422bebc4acbf6f/circle.yml
+# via https://circleci.com/docs/browser-testing-with-sauce-labs/
+
+dependencies:
+  cache_directories:
+    - ~/sauce-connect
+  pre:
+    - ? |-
+        mkdir -p ~/sauce-connect
+        cd ~/sauce-connect
+        if [ ! -x sc-*-linux/bin/sc ]
+        then
+          wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+          tar -xzf sc-latest-linux.tar.gz
+        fi
+        sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready
+      :
+        background: true
+
+test:
+  override:
+    - make server:
+        background: true
+
+    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
+    # file:
+    #   https://circleci.com/docs/test-metadata/
+    # Our unit tests are in a browser, so they can't write to a file, and Sauce
+    # apparently truncates custom data in their test result reports, so instead
+    # we POST to this trivial Node server on localhost:9000 that writes the
+    # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+    - ? |-
+        mkdir -p $CIRCLE_TEST_REPORTS/mocha
+        node << 'EOF' | tee $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+        require('http').createServer(function(req, res) {
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          req.pipe(process.stdout);
+          req.on('end', res.end.bind(res));
+        })
+        .listen(9000);
+        EOF
+      :
+        background: true
+
+    # Wait for tunnel to be ready (`make server` and the trivial Node server
+    # are much faster, no need to wait for them)
+    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
+
+    # Run in-browser unit tests, based on:
+    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
+    # "build" and "tag" parameters from:
+    #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
+    - |-
+      curl -i https://saucelabs.com/rest/v1/mathquill/js-tests \
+           -X POST \
+           -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
+           -H 'Content-Type: application/json' \
+           -d '{
+                 "build": "'$(git rev-parse HEAD)'",
+                 "tags": [
+                   "after-v'$(node -p 'require("./package.json").version')'",
+                   "circle-ci"
+                 ],
+                 "framework": "mocha",
+                 "url": "http://localhost:9292/test/unit.html?post_xunit_to=http://localhost:9000",
+                 "platforms": [["", "Chrome", ""]]
+      }' | tee js-tests
+
+    # Wait for tests to finish:
+    #
+    #   > Make the request multiple times as the tests run until the response
+    #   > contains `completed: true` to the get the final results.
+    #
+    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
+    - |-
+      while true  # Bash has no do...while >:(
+      do
+        sleep 5
+        curl -i https://saucelabs.com/rest/v1/mathquill/js-tests/status \
+             -X POST \
+             -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
+             -H 'Content-Type: application/json' \
+             -d "$(tail -1 js-tests)" \
+        | tee status
+        tail -1 status > status.json
+        # deliberately do `... != false` rather than `... == true`
+        # because unexpected values should break rather than infinite loop
+        [ "$(node -p 'require("./status.json").completed')" != false ] && break
+      done
+
+    # finally, complain to Circle CI if there were nonzero test failures
+    - |-
+      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
+  post:
+    - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
