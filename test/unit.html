@@ -29,18 +29,8 @@
         reporter: 'xunit'
       });
 
-      var console_log = console.log;
-      var xunit = "";
-      console.log = function() {
-        var str = arguments[0];
-
-        if (str === 'stdout:') {
-          xunit += arguments[1];
-        }
-
-        return console_log.apply(console, arguments);
-      };
-
+      var xunit = '';
+      Mocha.process.stdout.write = function(line) { xunit += line; };
     </script>
 
     <!-- include the library with the tests inlined -->
