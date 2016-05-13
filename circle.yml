@@ -68,7 +68,6 @@ test:
           req.on('end', res.end.bind(res));
         })
         .listen(9000);
-        console.log('Listening on localhost:9000');
         EOF
       :
         background: true
