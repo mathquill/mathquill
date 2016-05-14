@@ -247,6 +247,7 @@ var TextPiece = P(Node, function(_, super_) {
     return this.deleteTowards(dir, cursor);
   };
 
+  _.mathspeak =
   _.latex = function() { return this.text; };
 
   _.deleteTowards = function(dir, cursor) {
