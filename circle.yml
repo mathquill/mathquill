@@ -76,6 +76,10 @@ test:
     # are much faster, no need to wait for them)
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
+    # Start taking screenshots in the background while the unit tests are running
+    - npm install wd && node script/screenshots.js http://localhost:9292/test/visual.html && touch ~/screenshots:
+        background: true
+
     # Run in-browser unit tests, based on:
     #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
     # "build" and "tag" parameters from:
@@ -117,6 +121,10 @@ test:
         # because unexpected values should break rather than infinite loop
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
+
+    # Wait for screenshots to be ready
+    - while [ ! -e ~/screenshots ]; do sleep 1; done:
+        timeout: 300
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-

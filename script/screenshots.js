@@ -25,14 +25,13 @@ var browserVersions = [
     'platform': 'OS X 10.11'
   },
   {
-    'browserName': 'safari',
-    'platform': 'OS X 10.11'
+    'browserName': 'safari'
+    // Adding platform here makes tests hang.
   }
 ];
 
-var browserDriver = wd.remote('ondemand.saucelabs.com', 80, username, accessKey);
-
 browserVersions.forEach(function(cfg) {
+  var browserDriver = wd.remote('ondemand.saucelabs.com', 80, username, accessKey);
   // The following is in the style of
   // https://github.com/admc/wd/blob/62f2b0060d36a402de5634477b26a5ed4c051967/examples/async/chrome.js#L25-L40
   browserDriver.init(cfg, function(err, _, cap) {
@@ -41,13 +40,14 @@ browserVersions.forEach(function(cfg) {
     browserDriver.get(url, function(err) {
       if (err) console.log(err);
 
-      var browser = cfg.browserName+'_'+cap.version
-      var platform = cap.platform.replace(/\s/g, '_')
+      var browser = cfg.browserName+(!!cap ? '_'+cap.version : '');
+      var platform = cap.platform.replace(/\s/g, '_');
 
       // saves file in the file `dir/browser_version_platform.png`
-      var filename = dir+'/'+browser+'_'+platform+'.png'
+      var filename = dir+'/'+browser+'_'+platform+'.png';
       browserDriver.saveScreenshot(filename, function(err) {
         if (err) console.log(err);
+        browserDriver.quit()
       });
     });
   });
