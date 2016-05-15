@@ -17,6 +17,8 @@ var jQuery = window.jQuery,
   min = Math.min,
   max = Math.max;
 
+if (!jQuery) throw 'MathQuill requires jQuery 1.4.3+ to be loaded first';
+
 function noop() {}
 
 /**
