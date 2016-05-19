@@ -17,8 +17,8 @@ var url = process.argv[2];
 
 var browserVersions = [
   {
-    'browserName': 'chrome',
-    'platform': 'OS X 10.11'
+    'browserName': 'Internet Explorer',
+    'platform': 'Windows XP'
   },
   {
     'browserName': 'firefox',
@@ -26,7 +26,11 @@ var browserVersions = [
   },
   {
     'browserName': 'safari'
-    // Adding platform here makes tests hang.
+    //'platform': 'OS X 10.10'
+  },
+  {
+    'browserName': 'chrome',
+    'platform': 'OS X 10.11'
   }
 ];
 
