@@ -30,6 +30,11 @@ var browserVersions = [
   }
 ];
 
+
+var widthScript  = 'return Math.max(document.body.scrollWidth, document.body.offsetWidth, document.documentElement.clientWidth, document.documentElement.scrollWidth, document.documentElement.offsetWidth);'
+var heightScript = 'return Math.max(document.body.scrollHeight, document.body.offsetHeight, document.documentElement.clientHeight, document.documentElement.scrollHeight, document.documentElement.offsetHeight);'
+
+
 browserVersions.forEach(function(cfg) {
   var browserDriver = wd.remote('ondemand.saucelabs.com', 80, username, accessKey);
   // The following is in the style of
@@ -39,15 +44,26 @@ browserVersions.forEach(function(cfg) {
 
     browserDriver.get(url, function(err) {
       if (err) console.log(err);
-
-      var browser = cfg.browserName+(!!cap ? '_'+cap.version : '');
-      var platform = cap.platform.replace(/\s/g, '_');
-
-      // saves file in the file `dir/browser_version_platform.png`
-      var filename = dir+'/'+browser+'_'+platform+'.png';
-      browserDriver.saveScreenshot(filename, function(err) {
+      browserDriver.safeExecute(widthScript, function(err,width) {
         if (err) console.log(err);
-        browserDriver.quit()
+        browserDriver.safeExecute(heightScript, function(err,height) {
+          if (err) console.log(err);
+
+          browserDriver.setWindowSize(width,height,function(err) {
+            if (err) console.log(err);
+
+            var browser = cfg.browserName+(!!cap ? '_'+cap.version : '');
+            var platform = cap.platform.replace(/\s/g, '_');
+
+            // saves file in the file `dir/browser_version_platform.png`
+            var filename = dir+'/'+browser+'_'+platform+'.png';
+            browserDriver.saveScreenshot(filename, function(err) {
+              if (err) console.log(err);
+              browserDriver.quit()
+            });
+          });
+
+        });
       });
     });
   });
