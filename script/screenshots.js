@@ -40,25 +40,50 @@ browserVersions.forEach(function(cfg) {
 
     browserDriver.get(url, function(err) {
       if (err) console.log(err);
-      browserDriver.safeExecute(widthScript, function(err,width) {
+      browserDriver.safeExecute('document.documentElement.scrollHeight', function(err,scrollHeight) {
         if (err) console.log(err);
-        browserDriver.safeExecute(heightScript, function(err,height) {
+        browserDriver.safeExecute('document.documentElement.clientHeight', function(err,windowHeight) {
           if (err) console.log(err);
 
-          browserDriver.setWindowSize(width,height,function(err) {
-            if (err) console.log(err);
+          var position = 0;
+          // loop generates the image(s). Firefox and Internet Explorer will take
+          // a screenshot of the entire webpage, but Opera, Safari, and Chrome
+          // do not. For those browsers we scroll through the page and take
+          // incremental screenshots.
+          (function loop() {
+            var browser = cfg.browserName.replace(/\s/g, '_')+(!!cap ? '_'+cap.version : '');
+            var platform = (cap ? cap : cfg).platform.replace(/\s/g, '_');
+            var shot = (position/windowHeight) + 1;
 
-            var browser = cfg.browserName+(!!cap ? '_'+cap.version : '');
-            var platform = cap.platform.replace(/\s/g, '_');
+            if (cfg.browserName == 'firefox' || cfg.browserName == 'Internet Explorer') {
+              // saves file in the file `dir/browser_version_platform.png`
+              var filename = dir+'/'+browser+'_'+platform+'.png';
+              browserDriver.saveScreenshot(filename, function(err) {
+                if (err) console.log(err);
 
-            // saves file in the file `dir/browser_version_platform.png`
-            var filename = dir+'/'+browser+'_'+platform+'.png';
-            browserDriver.saveScreenshot(filename, function(err) {
-              if (err) console.log(err);
-              browserDriver.quit()
-            });
-          });
+                browserDriver.quit();
+              });
+            } else {
+              // Use `window.scrollTo` because thats what jQuery does
+              // https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
+              browserDriver.safeEval('window.scrollTo(0,'+position+');', function(err) {
+                if (err) console.log(JSON.stringify(err));
 
+                // saves file in the file `dir/browser_version_platform_#.png`
+                var filename = dir+'/'+browser+'_'+platform+'_'+shot+'.png';
+                browserDriver.saveScreenshot(filename, function(err) {
+                  if (err) console.log(err);
+
+                  position += windowHeight;
+                  if (position >= scrollHeight) {
+                    browserDriver.quit();
+                  } else {
+                    loop();
+                  }
+                });
+              });
+            }
+          })();
         });
       });
     });
