@@ -35,6 +35,7 @@ dependencies:
   cache_directories:
     - ~/sauce-connect
   pre:
+    - sudo apt-get update; sudo apt-get install imagemagick
     - ? |-
         mkdir -p ~/sauce-connect
         cd ~/sauce-connect
