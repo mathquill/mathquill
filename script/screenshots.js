@@ -13,10 +13,9 @@ var wd = require('wd');
 var fs = require('fs');
 var username = process.env['SAUCE_USERNAME'];
 var accessKey = process.env['SAUCE_ACCESS_KEY'];
-var dir = process.env['CIRCLE_ARTIFACTS'] || '/tmp';
+var baseDir = process.env['CIRCLE_ARTIFACTS'] || '/tmp';
 var url = process.argv[2];
-
-dir = dir+'/imgs'
+var dir = baseDir+'/imgs'
 fs.mkdirSync(dir)
 
 var browserVersions = [
@@ -104,7 +103,9 @@ browserVersions.forEach(function(cfg) {
                             browserDriver.log('browser', function(err,logs) {
                               if (err) console.log(err);
 
-                              fs.writeFile(subDir+'.log',logs.join('\n'), function(err) {
+
+                              var logfile = baseDir+'/'+browser+'_'+platform+'.log'
+                              fs.writeFile(logfile,logs.join('\n'), function(err) {
                                 if (err) console.log(err);
 
                                 browserDriver.quit();
