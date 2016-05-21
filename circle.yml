@@ -127,6 +127,13 @@ test:
     - while [ ! -e ~/screenshots ]; do sleep 1; done:
         timeout: 300
 
+    - |-
+      dir=$CIRCLE_ARTIFACTS/imgs
+      for x in $(ls $dir)
+      do
+        convert $dir/$x/*.png -append $dir/$x.png
+      done
+
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
       [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
