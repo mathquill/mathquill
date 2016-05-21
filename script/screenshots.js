@@ -60,8 +60,6 @@ browserVersions.forEach(function(cfg) {
           // do not. For those browsers we scroll through the page and take
           // incremental screenshots.
           (function loop() {
-            //var browser = cfg.browserName.replace(/\s/g, '_')+(!!cap ? '_'+cap.version : '');
-            //var platform = (cap ? cap : cfg).platform.replace(/\s/g, '_');
             var shot = (position/viewportHeight) + 1;
 
             if (cfg.browserName == 'firefox' || cfg.browserName == 'Internet Explorer') {
@@ -107,12 +105,6 @@ browserVersions.forEach(function(cfg) {
                   } else {
                     loop();
                   }
-
-                  //if (position >= scrollHeight) {
-                  //  browserDriver.quit();
-                  //} else {
-                  //  loop();
-                  //}
                 });
               });
             }
