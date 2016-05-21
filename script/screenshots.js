@@ -24,17 +24,29 @@ var browserVersions = [
     'platform': 'Windows XP'
   },
   {
-    'browserName': 'firefox',
+    'browserName': 'Internet Explorer',
+    'platform': 'Windows 7'
+  },
+  {
+    'browserName': 'MicrosoftEdge',
+    'platform': 'Windows 10'
+  },
+  {
+    'browserName': 'Firefox',
     'platform': 'OS X 10.11'
   },
   {
-    'browserName': 'safari',
+    'browserName': 'Safari',
     'platform': 'OS X 10.11'
   },
   {
-    'browserName': 'chrome',
+    'browserName': 'Chrome',
     'platform': 'OS X 10.11'
-  }
+  },
+  {
+    'browserName': 'Firefox',
+    'platform': 'Linux'
+  },
 ];
 
 
@@ -65,7 +77,7 @@ browserVersions.forEach(function(cfg) {
           (function loop() {
             var shot = (position/viewportHeight) + 1;
 
-            if (cfg.browserName == 'firefox' || cfg.browserName == 'Internet Explorer') {
+            if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
               // saves file in the file `subDir/browser_version_platform.png`
               var filename = subDir+'/'+browser+'_'+platform+'.png';
               browserDriver.saveScreenshot(filename, function(err) {
@@ -103,8 +115,8 @@ browserVersions.forEach(function(cfg) {
                             browserDriver.log('browser', function(err,logs) {
                               if (err) console.log(err);
 
-
                               var logfile = baseDir+'/'+browser+'_'+platform+'.log'
+                              logs = logs ? logs : [];
                               fs.writeFile(logfile,logs.join('\n'), function(err) {
                                 if (err) console.log(err);
 
