@@ -35,12 +35,14 @@ function serveRequest(req, res) {
         }
       }
       else {
+        var ext = filepath.match(/\.[^.]+$/);
+        if (ext) res.setHeader('Content-Type', 'text/' + ext[0].slice(1));
         res.end(data);
       }
 
       console.log('[%s] %s %s /%s - %s%sms',
-        reqTime.toISOString(), res.statusCode, req.method, filepath,
-        (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
+                  reqTime.toISOString(), res.statusCode, req.method, filepath,
+                  (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
     });
   });
 }

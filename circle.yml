@@ -50,7 +50,9 @@ dependencies:
 
 test:
   override:
-    - make server:
+    # Sauce cant connect to Safari unless the server is ran on port 3000 or 4000
+    # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
+    - PORT=3000 make server:
         background: true
 
     # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
@@ -78,7 +80,7 @@ test:
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
     # Start taking screenshots in the background while the unit tests are running
-    - npm install wd && node script/screenshots.js http://localhost:9292/test/visual.html && touch ~/screenshots:
+    - npm install wd && node script/screenshots.js http://localhost:3000/test/visual.html && touch ~/screenshots:
         background: true
 
     # Run in-browser unit tests, based on:
@@ -97,7 +99,7 @@ test:
                    "circle-ci"
                  ],
                  "framework": "mocha",
-                 "url": "http://localhost:9292/test/unit.html?post_xunit_to=http://localhost:9000",
+                 "url": "http://localhost:3000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
       }' | tee js-tests
 

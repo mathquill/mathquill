@@ -29,6 +29,10 @@ var browserVersions = [
     'platform': 'OS X 10.11'
   },
   {
+    'browserName': 'safari',
+    'platform': 'OS X 10.11'
+  },
+  {
     'browserName': 'chrome',
     'platform': 'OS X 10.11'
   }
