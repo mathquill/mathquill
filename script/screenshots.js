@@ -63,7 +63,7 @@ browserVersions.forEach(function(cfg) {
             var shot = (position/viewportHeight) + 1;
 
             if (cfg.browserName == 'firefox' || cfg.browserName == 'Internet Explorer') {
-              // saves file in the file `dir/browser_version_platform.png`
+              // saves file in the file `subDir/browser_version_platform.png`
               var filename = subDir+'/'+browser+'_'+platform+'.png';
               browserDriver.saveScreenshot(filename, function(err) {
                 if (err) console.log(err);
@@ -76,7 +76,7 @@ browserVersions.forEach(function(cfg) {
               browserDriver.safeEval('window.scrollTo(0,'+position+');', function(err) {
                 if (err) console.log(JSON.stringify(err));
 
-                // saves file in the file `dir/browser_version_platform_#.png`
+                // saves file in the file `subDir/browser_version_platform/#.png`
                 var filename = subDir+'/'+shot+'.png';
                 browserDriver.saveScreenshot(filename, function(err) {
                   if (err) console.log(err);
