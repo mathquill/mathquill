@@ -100,7 +100,16 @@ browserVersions.forEach(function(cfg) {
                           var filename = subDir+'/'+shot+'.png';
                           browserDriver.saveScreenshot(filename, function(err) {
                             if (err) console.log(err);
-                            browserDriver.quit();
+
+                            browserDriver.log('browser', function(err,logs) {
+                              if (err) console.log(err);
+
+                              fs.writeFile(subDir+'.log',logs.join('\n'), function(err) {
+                                if (err) console.log(err);
+
+                                browserDriver.quit();
+                              });
+                            });
                           });
                         });
 
