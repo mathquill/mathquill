@@ -1,0 +1,8 @@
+/* default ReadTheDocs MkDocs theme's <code> font-size
+   much too small at 75%, override */
+body code {
+  font-size: 90%;
+}
+body pre code {
+  font-size: 100%;
+}
