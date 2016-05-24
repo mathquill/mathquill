@@ -246,7 +246,27 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   _.createLeftOf = noop;
   _.numBlocks = function() { return 1; };
   _.parser = function() {
-    return latexMathParser.block.map(function(b) { return b.children(); });
+    return latexMathParser.block.map(function(b) {
+      // If the block's children are letters that make up a known
+      // command, return it. Otherwise, return the children directly.
+      //
+      // Used for \operatorname{ans}
+      var isAllLetters = true;
+      var str = '';
+      var children = b.children();
+      children.each(function(child) {
+        if (child instanceof Letter) {
+          str += child.letter;
+        } else {
+          isAllLetters = false;
+        }
+      });
+      if (isAllLetters && LatexCmds[str]) {
+        return LatexCmds[str](str);
+      } else {
+        return children;
+      }
+    });
   };
 });
 
