@@ -91,9 +91,7 @@ Controller.open(function(_) {
     var oldBlockId = cursor.parent.id;
     cursor.parent.write(cursor, ch);
     var newCmd = cursor.parent.chToCmd(ch);
-    if (newCmd.ctrlSeq.search('frac') >= 0) aria.queue(cursor.parent, true);
-    else aria.queue(newCmd);
-    aria.alert();
+    aria.alert(newCmd.mathspeak({ createdLeftOf: cursor }));
     this.scrollHoriz();
   };
   _.paste = function(text) {

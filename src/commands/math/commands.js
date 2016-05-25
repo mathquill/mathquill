@@ -420,6 +420,14 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'NestedOver', ', EndNestedFraction'];
     else this.mathspeakTemplate = ['StartFraction, ', 'Over', ', EndFraction'];
   };
+  // TODO needs tests
+  _.mathspeak = function(opts) {
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      return cursor.parent.mathspeak();
+    }
+    return super_.mathspeak.apply(this, arguments);
+  };
 
   _.getFracDepth = function() {
     var level = 0;
