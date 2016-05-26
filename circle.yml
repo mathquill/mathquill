@@ -35,6 +35,8 @@ dependencies:
   cache_directories:
     - ~/sauce-connect
   pre:
+    # imagemagick is installed to give us access to the
+    # `convert` tool to stitch together the screenshots.
     - sudo apt-get update; sudo apt-get install imagemagick
     - ? |-
         mkdir -p ~/sauce-connect
@@ -80,7 +82,7 @@ test:
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
     # Start taking screenshots in the background while the unit tests are running
-    - npm install wd && node script/screenshots.js http://localhost:3000/test/visual.html && touch ~/screenshots:
+    - npm install wd && node script/screenshots.js http://localhost:3000/test/visual.html && touch ~/screenshots_are_ready:
         background: true
 
     # Run in-browser unit tests, based on:
@@ -126,7 +128,7 @@ test:
       done
 
     # Wait for screenshots to be ready
-    - while [ ! -e ~/screenshots ]; do sleep 1; done:
+    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done:
         timeout: 300
 
     - |-
