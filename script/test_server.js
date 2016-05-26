@@ -41,8 +41,8 @@ function serveRequest(req, res) {
       }
 
       console.log('[%s] %s %s /%s - %s%sms',
-                  reqTime.toISOString(), res.statusCode, req.method, filepath,
-                  (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
+        reqTime.toISOString(), res.statusCode, req.method, filepath,
+        (data ? (data.length >> 10) + 'kb, ' : ''), Date.now() - reqTime);
     });
   });
 }
