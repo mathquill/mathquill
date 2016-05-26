@@ -465,7 +465,11 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
 
 LatexCmds.ans = P(Symbol, function(_, super_) {
   _.init = function(ch) {
-    super_.init.call(this, '\\operatorname{ans}', '<span class="mq-ans">ans</span>');
+    super_.init.call(this,
+      '\\operatorname{ans}',
+      '<span class="mq-ans">ans</span>',
+      'ans'
+    );
   };
 });
 
