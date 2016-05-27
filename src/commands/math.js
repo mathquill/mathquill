@@ -453,6 +453,8 @@ var MathBlock = P(MathElement, function(_, super_) {
     var cmd = this.chToCmd(ch);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     cmd.createLeftOf(cursor.show());
+    // TODO needs tests
+    aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
   };
 
   _.focus = function() {

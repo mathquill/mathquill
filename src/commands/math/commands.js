@@ -190,11 +190,16 @@ var SupSub = P(MathCommand, function(_, super_) {
         var cmd = this.chToCmd(ch);
         if (cmd instanceof Symbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
-        return cmd.createLeftOf(cursor.show());
+        cmd.createLeftOf(cursor.show());
+        // TODO needs tests
+        aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
+        return;
       }
       if (cursor[L] && !cursor[R] && !cursor.selection
           && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
+        // TODO needs tests
+        aria.queue('Baseline');
       }
       MathBlock.p.write.apply(this, arguments);
     };

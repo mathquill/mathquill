@@ -88,10 +88,7 @@ Controller.open(function(_) {
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
-    var oldBlockId = cursor.parent.id;
     cursor.parent.write(cursor, ch);
-    var newCmd = cursor.parent.chToCmd(ch);
-    aria.alert(newCmd.mathspeak({ createdLeftOf: cursor }));
     this.scrollHoriz();
   };
   _.paste = function(text) {
