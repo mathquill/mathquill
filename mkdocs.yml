@@ -1,0 +1,22 @@
+site_name: MathQuill
+site_url: http://docs.mathquill.com
+repo_url: https://github.com/mathquill/mathquill
+site_description: Easily type math in your webapp
+site_author: Han, Jeanine, Mary
+site_favicon: http://mathquill.com/favicon.ico
+google_analytics: ['UA-73742753-3', 'docs.mathquill.com']
+
+pages:
+  - index.md
+  - Getting_Started.md
+  - 'API Methods': Api_Methods.md
+  - 'Config Options': Config.md
+  - 'Under the Hood': Contributing.md
+  - Code_of_Conduct.md
+
+markdown_extensions:
+  - toc:
+      permalink: True
+
+extra_css:
+  - extra.css
