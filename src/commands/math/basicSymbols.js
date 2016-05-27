@@ -16,6 +16,21 @@ var Digit = P(VanillaSymbol, function(_, super_) {
     }
     else super_.createLeftOf.call(this, cursor);
   };
+  _.mathspeak = function(opts) {
+    // TODO needs tests
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      if (cursor.options.autoSubscriptNumerals
+          && cursor.parent !== cursor.parent.parent.sub
+          && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
+              || (cursor[L] instanceof SupSub
+                  && cursor[L][L] instanceof Variable
+                  && cursor[L][L].isItalic !== false))) {
+        return 'Subscript ' + super_.mathspeak.call(this) + ' Baseline';
+      }
+    }
+    return super_.mathspeak.apply(this, arguments);
+  };
 });
 
 var Variable = P(Symbol, function(_, super_) {
