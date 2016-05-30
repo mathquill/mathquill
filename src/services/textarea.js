@@ -88,12 +88,7 @@ Controller.open(function(_) {
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
-    var oldBlockId = cursor.parent.id;
     cursor.parent.write(cursor, ch);
-    var newCmd = cursor.parent.chToCmd(ch);
-    if (newCmd.ctrlSeq.search('frac') >= 0) aria.queue(cursor.parent, true);
-    else aria.queue(newCmd);
-    aria.alert();
     this.scrollHoriz();
   };
   _.paste = function(text) {

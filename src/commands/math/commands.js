@@ -138,7 +138,7 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.createLeftOf = function(cursor) {
-    if (!cursor[L] && cursor.options.supSubsRequireOperand) return;
+    if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
     return super_.createLeftOf.apply(this, arguments);
   };
   _.contactWeld = function(cursor) {
@@ -190,11 +190,16 @@ var SupSub = P(MathCommand, function(_, super_) {
         var cmd = this.chToCmd(ch);
         if (cmd instanceof Symbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
-        return cmd.createLeftOf(cursor.show());
+        cmd.createLeftOf(cursor.show());
+        // TODO needs tests
+        aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
+        return;
       }
       if (cursor[L] && !cursor[R] && !cursor.selection
           && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
+        // TODO needs tests
+        aria.queue('Baseline');
       }
       MathBlock.p.write.apply(this, arguments);
     };
@@ -419,6 +424,14 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.ends[R].ariaLabel = 'denominator';
     if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'NestedOver', ', EndNestedFraction'];
     else this.mathspeakTemplate = ['StartFraction, ', 'Over', ', EndFraction'];
+  };
+  // TODO needs tests
+  _.mathspeak = function(opts) {
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      return cursor.parent.mathspeak();
+    }
+    return super_.mathspeak.apply(this, arguments);
   };
 
   _.getFracDepth = function() {

@@ -165,21 +165,28 @@ suite('Public API', function() {
     });
 
     test('.mathspeak()', function() {
+      function assertMathSpeakEqual(a, b) {
+        assert.equal(normalize(a), normalize(b));
+        function normalize(str) {
+          return str.replace(/\d(?!\d)/g, '$& ').split(/[ ,]+/).join(' ').trim();
+        }
+      }
+
       mq.latex('\\frac{d}{dx}\\sqrt{x}');
-      assert.equal(mq.mathspeak(), 'StartFraction d Over d x EndFraction StartRoot x EndRoot');
+      assertMathSpeakEqual(mq.mathspeak(), 'StartFraction d Over d x EndFraction StartRoot x EndRoot');
 
       mq.latex('1+2-3\\cdot\\frac{5}{6^7}=\\left(8+9\\right)');
-      assert.equal(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 Superscript 7 Baseline EndFraction equals left-parenthesis 8 plus 9 right-parenthesis');
+      assertMathSpeakEqual(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 Superscript 7 Baseline EndFraction equals left parenthesis 8 plus 9 right parenthesis');
 
       // Example 13 from http://www.gh-mathspeak.com/examples/quick-tutorial/index.php?verbosity=v&explicitness=2&interp=0
       mq.latex('d=\\sqrt{ \\left( x_2 - x_1 \\right)^2 - \\left( y_2 - y_1 \\right)^2 }');
-      assert.equal(mq.mathspeak(), 'd equals StartRoot left-parenthesis x Subscript 2 Baseline minus x Subscript 1 Baseline right-parenthesis Superscript 2 Baseline minus left-parenthesis y Subscript 2 Baseline minus y Subscript 1 Baseline right-parenthesis Superscript 2 Baseline EndRoot');
+      assertMathSpeakEqual(mq.mathspeak(), 'd equals StartRoot left parenthesis x Subscript 2 Baseline minus x Subscript 1 Baseline right parenthesis Superscript 2 Baseline minus left parenthesis y Subscript 2 Baseline minus y Subscript 1 Baseline right parenthesis Superscript 2 Baseline EndRoot');
 
       mq.latex('').typedText('\\langle').keystroke('Spacebar').typedText('u,v'); // .latex() doesn't work yet for angle brackets :(
-      assert.equal(mq.mathspeak(), 'left-angle-bracket u , v right-angle-bracket');
+      assertMathSpeakEqual(mq.mathspeak(), 'left angle-bracket u , v right angle-bracket');
 
       mq.latex('\\left| x \\right| + \\left( y \\right|');
-      assert.equal(mq.mathspeak(), 'StartAbsoluteValue x EndAbsoluteValue plus left-parenthesis y right-pipe');
+      assertMathSpeakEqual(mq.mathspeak(), 'StartAbsoluteValue x EndAbsoluteValue plus left parenthesis y right pipe');
     });
   });
 
@@ -808,7 +815,7 @@ suite('Public API', function() {
 
       var box = mq.el().getBoundingClientRect();
       var clientX = box.left + 30;
-      var clientY = box.top + 40;
+      var clientY = box.top + 30;
       var target = document.elementFromPoint(clientX, clientY);
 
       assert.equal(document.activeElement, document.body);
@@ -833,7 +840,7 @@ suite('Public API', function() {
 
       var box = mq.el().getBoundingClientRect();
       var clientX = box.left + 30;
-      var clientY = box.top + 40;
+      var clientY = box.top + 30;
 
       assert.equal(document.activeElement, document.body);
       mq.clickAt(clientX, clientY).write('x');
@@ -876,7 +883,7 @@ suite('Public API', function() {
 
       mq.el().scrollIntoView();
 
-      mq.dropEmbedded(mqx + 30, mqy + 40, {
+      mq.dropEmbedded(mqx + 30, mqy + 30, {
         htmlString: '<span class="embedded-html"></span>',
         text: function () { return "embedded text" },
         latex: function () { return "embedded latex" }
