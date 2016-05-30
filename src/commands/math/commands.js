@@ -292,7 +292,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
-  _.mathspeakTemplate = [ 'Subscript, ', ', Baseline'];
+  _.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
   _.ariaLabel = 'subscript';
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
@@ -311,7 +311,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeakTemplate = [ 'Superscript, ', ', Baseline'];
+  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
   _.ariaLabel = 'superscript';
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
@@ -422,8 +422,8 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'NestedOver', ', EndNestedFraction'];
-    else this.mathspeakTemplate = ['StartFraction, ', 'Over', ', EndFraction'];
+    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
+    else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
   };
   // TODO needs tests
   _.mathspeak = function(opts) {
@@ -487,7 +487,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
-  _.mathspeakTemplate = ['StartRoot, ', ', EndRoot'];
+  _.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
   _.ariaLabel = 'root';
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
@@ -577,7 +577,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.mathspeak = function() {
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
-      this.mathspeakTemplate = ['StartAbsoluteValue, ', ', EndAbsoluteValue'];
+      this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
       this.ariaLabel = 'absolute value';
     }
     else {
@@ -789,7 +789,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
-  _.mathspeakTemplate = ['StartBinomial, ', 'Choose', ', EndBinomial'];
+  _.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
   _.ariaLabel = 'binomial';
 });
 
