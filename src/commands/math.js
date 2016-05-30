@@ -391,7 +391,7 @@ var MathBlock = P(MathElement, function(_, super_) {
           tempOp = '';
         }
         speechArray.push(cmd.mathspeak());
-        if(isNaN(cmd.text()) || cmd.text() === '.') speechArray.push(' ');
+        if(isNaN(cmd.text()) && cmd.text() !== '.') speechArray.push(' ');
       }
       return speechArray;
     }).join('');
