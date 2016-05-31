@@ -66,11 +66,12 @@ Controller.open(function(_) {
       if (text) textarea.select();
     };
   };
+  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    var keyboardEventsShim = saneKeyboardEvents(textarea, this);
+    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
 
     this.container.prepend(textareaSpan)

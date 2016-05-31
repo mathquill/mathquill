@@ -776,6 +776,27 @@ suite('Public API', function() {
     });
   });
 
+  suite('substituteKeyboardEvents', function() {
+    test('can intercept key events', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        substituteKeyboardEvents: function(textarea, handlers) {
+          return MQ.saneKeyboardEvents(textarea, jQuery.extend({}, handlers, {
+            keystroke: function(_key, evt) {
+              key = _key;
+              return handlers.keystroke.apply(handlers, arguments);
+            }
+          }));
+        }
+      });
+      var key;
+
+      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      assert.equal(key, 'Left');
+
+      $(mq.el()).remove();
+    });
+  });
+
   suite('clickAt', function() {
     test('inserts at coordinates', function() {
       // Insert filler so that the page is taller than the window so this test is deterministic
