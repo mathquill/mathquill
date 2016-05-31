@@ -229,6 +229,8 @@ var saneKeyboardEvents = (function() {
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
+      cut: function(e) { handlers.cut(e); },
+      copy: function(e) { handlers.copy(e); },
       paste: onPaste
     });
 
