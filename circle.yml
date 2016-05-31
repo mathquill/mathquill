@@ -81,7 +81,7 @@ test:
     # "build" and "tag" parameters from:
     #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
     - |-
-      curl -i https://saucelabs.com/rest/v1/mathquill/js-tests \
+      curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
            -X POST \
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
            -H 'Content-Type: application/json' \
@@ -106,7 +106,7 @@ test:
       while true  # Bash has no do...while >:(
       do
         sleep 5
-        curl -i https://saucelabs.com/rest/v1/mathquill/js-tests/status \
+        curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
              -X POST \
              -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
              -H 'Content-Type: application/json' \
