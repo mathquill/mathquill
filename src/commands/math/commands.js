@@ -595,11 +595,18 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
-  _.mathspeak = function() {
+  _.mathspeak = function(opts) {
+    // TODO needs tests
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
       this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
       this.ariaLabel = 'absolute value';
+    }
+    else if (opts && opts.createdLeftOf && this.side) {
+      var ch = '';
+      if (this.side === L) ch = this.textTemplate[0];
+      else if (this.side === R) ch = this.textTemplate[1];
+      return (this.side === L ? 'left ' : 'right ') + BRACKET_NAMES[ch];
     }
     else {
       this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open]+',', ', right ' + BRACKET_NAMES[close]];

@@ -27,16 +27,7 @@ var Aria = P(function(_) {
         else if (item.ariaLabel) item = item.ariaLabel+' '+item.mathspeak();
         else item = item.mathspeak();
       }
-      else {
-        if(item.side) {
-          var ch = '';
-          if(item.side === L) ch = item.textTemplate[0];
-          else if(item.side === R) ch = item.textTemplate[1];
-          this.queueOpenCloseDirOf(item.side);
-          item = BRACKET_NAMES[ch];
-        }
-        else item = item.mathspeak();
-      }
+      else item = item.mathspeak();
 
     }
     this.items.push(item);
@@ -50,10 +41,7 @@ var Aria = P(function(_) {
     prayDirection(dir);
     return this.queue(dir === L ? 'beginning of' : 'end of');
   };
-  _.queueOpenCloseDirOf = function(dir) {
-    prayDirection(dir);
-    return this.queue(dir === L ? 'left' : 'right');
-  };
+
   _.alert = function(t) {
     if (t) this.queue(t);
     if (this.items.length) this.jQ.empty().text(this.items.join(' ').replace(/ +(?= )/g,''));
