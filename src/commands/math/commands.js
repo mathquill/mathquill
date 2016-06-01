@@ -484,11 +484,7 @@ var DiacriticAbove = P(MathCommand, function(_, super_) {
     super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
   };
 });
-
-var Vec =
 LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
-
-var Tilde =
 LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
 
 function DelimsMixin(_, super_) {
