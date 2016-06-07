@@ -794,6 +794,51 @@ suite('Public API', function() {
     });
   });
 
+  suite('substituteKeyboardEvents', function() {
+    test('can intercept key events', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        substituteKeyboardEvents: function(textarea, handlers) {
+          return MQ.saneKeyboardEvents(textarea, jQuery.extend({}, handlers, {
+            keystroke: function(_key, evt) {
+              key = _key;
+              return handlers.keystroke.apply(handlers, arguments);
+            }
+          }));
+        }
+      });
+      var key;
+
+      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      assert.equal(key, 'Left');
+
+      $(mq.el()).remove();
+    });
+    test('cut is async', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        substituteKeyboardEvents: function(textarea, handlers) {
+          return MQ.saneKeyboardEvents(textarea, jQuery.extend({}, handlers, {
+            cut: function() {
+              count += 1;
+              return handlers.cut.apply(handlers, arguments);
+            }
+          }));
+        }
+      });
+      var count = 0;
+
+      $(mq.el()).find('textarea').trigger('cut');
+      assert.equal(count, 0);
+
+      $(mq.el()).find('textarea').trigger('input');
+      assert.equal(count, 1);
+
+      $(mq.el()).find('textarea').trigger('keyup');
+      assert.equal(count, 1);
+
+      $(mq.el()).remove();
+    });
+  });
+
   suite('clickAt', function() {
     test('inserts at coordinates', function() {
       // Insert filler so that the page is taller than the window so this test is deterministic

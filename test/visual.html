@@ -277,6 +277,12 @@ x+\class{testclass}{y}+z
 
 <p>In Safari on iOS, this should be focusable but not bring up the on-screen keyboard; to test, try focusing anything else and confirm this blurs: <span id="no-kbd-math"></span> (confirmed working on iOS 6.1.3)</p>
 
+<h3>substituteKeyboardEvents</h3>
+
+<p>Should be able to prevent cut, typing, and pasting in this field: <span id="disable-typing">1+2+3</span></p>
+
+<p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing">1+2+3</span></p>
+
 </div>
 <script type="text/javascript">
 window.onerror = function() {
@@ -444,6 +450,29 @@ function timeAndLog(f) {
 MQ.MathField($('#no-kbd-math')[0], {
   substituteTextarea: function() {
     return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
+  }
+});
+
+MQ.MathField($('#disable-typing')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      cut: $.noop,
+      paste: $.noop,
+      keystroke: $.noop,
+      typedText: $.noop
+    }));
+  }
+});
+
+MQ.MathField($('#wrap-typing')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      typedText: function (text) {
+        handlers.typedText('<');
+        handlers.typedText(text);
+        handlers.typedText('>');
+      }
+    }));
   }
 });
 </script>
