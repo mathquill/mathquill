@@ -261,7 +261,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
           isAllLetters = false;
         }
       });
-      if (isAllLetters && LatexCmds[str]) {
+      if (isAllLetters && LatexCmds[str] && LatexCmds[str] !== OperatorName) {
         return LatexCmds[str](str);
       } else {
         return children;
