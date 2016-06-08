@@ -101,6 +101,8 @@ suite('latex', function() {
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
     assertParsesLatex('\\text{}', '');
+    assertParsesLatex('\\rightleftharpoons ');
+    assertParsesLatex('\\leftrightharpoons ');
   });
 
   test('not real LaTex commands, but valid symbols', function() {
