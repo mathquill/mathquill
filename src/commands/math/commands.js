@@ -494,7 +494,7 @@ var DiacriticAbove = P(MathCommand, function(_, super_) {
     var htmlTemplate =
       '<span class="mq-non-leaf">'
       +   '<span class="mq-diacritic-above">'+symbol+'</span>'
-      +   '<span class="mq-diacritic-stem">&0</span>'
+      +   '<span class="mq-diacritic-stem mq-inset">&0</span>'
       + '</span>'
     ;
 

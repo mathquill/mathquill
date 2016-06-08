@@ -69,7 +69,7 @@ var TextBlock = P(Node, function(_, super_) {
   };
   _.html = function() {
     return (
-        '<span class="mq-text-mode" mathquill-command-id='+this.id+'>'
+        '<span class="mq-text-mode mq-inset" mathquill-command-id='+this.id+'>'
       +   this.textContents()
       + '</span>'
     );

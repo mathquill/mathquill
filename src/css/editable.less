@@ -46,6 +46,16 @@
       border-color: ActiveBorder;
     }
   }
+
+  ////
+  // text blocks, diacritics, etc that otherwise have no visible boundary
+  .mq-inset.mq-hasCursor {
+    box-shadow: inset darkgray 0 .1em .2em;
+    padding: 0 .1em;
+    margin: 0 -.1em;
+
+    min-width: 1ex;
+  }
 }
 
 // Keeps blocks from collapsing to zero width/height
