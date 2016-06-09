@@ -237,7 +237,7 @@ var saneKeyboardEvents = (function() {
       keypress: onKeypress,
       focusout: onBlur,
       cut: function() { checkTextareaOnce(function() { handlers.cut(); }); },
-      copy: function() { checkTextareaOnce(function() { handlers.copy(); }); },
+      copy: function() { handlers.copy(); },
       paste: onPaste
     });
 
