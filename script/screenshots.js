@@ -25,32 +25,39 @@ var browserVersions = [
   {
     // Expecting IE 8
     'browserName': 'Internet Explorer',
-    'platform': 'Windows XP'
+    'platform': 'Windows XP',
+    'pinned': 'PINNED'
   },
   {
     // Expecting IE 11
     'browserName': 'Internet Explorer',
-    'platform': 'Windows 7'
+    'platform': 'Windows 7',
+    'pinned': 'PINNED'
   },
   {
     'browserName': 'MicrosoftEdge',
-    'platform': 'Windows 10'
+    'platform': 'Windows 10',
+    'pinned': 'EVERGREEN'
   },
   {
     'browserName': 'Firefox',
-    'platform': 'OS X 10.11'
+    'platform': 'OS X 10.11',
+    'pinned': 'EVERGREEN'
   },
   {
     'browserName': 'Safari',
-    'platform': 'OS X 10.11'
+    'platform': 'OS X 10.11',
+    'pinned': 'EVERGREEN'
   },
   {
     'browserName': 'Chrome',
-    'platform': 'OS X 10.11'
+    'platform': 'OS X 10.11',
+    'pinned': 'EVERGREEN'
   },
   {
     'browserName': 'Firefox',
-    'platform': 'Linux'
+    'platform': 'Linux',
+    'pinned': 'EVERGREEN'
   },
 ];
 
@@ -62,7 +69,7 @@ browserVersions.forEach(function(cfg) {
   browserDriver.init(cfg, function(err, _, capabilities) {
     if (err) console.log(err);
 
-    var browser = cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_'+capabilities.version : '');
+    var browser = cfg.pinned+'_'+cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_'+capabilities.version : '');
     var platform = (capabilities || cfg).platform.replace(/\s/g, '_');
     var piecesDir = allImgsDir+'/'+browser+'_'+platform;
     fs.mkdirSync(piecesDir);
