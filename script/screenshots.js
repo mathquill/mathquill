@@ -1,7 +1,7 @@
 // This script assumes the following:
 //   1. You've installed wd with `npm install wd'.
 //   2. You've set the environment variables $SAUCE_USERNAME and $SAUCE_ACCESS_KEY.
-//   3. If the environment variable $CIRCLE_ARTIFACTS is not set imanges will be saved in /tmp
+//   3. If the environment variable $CIRCLE_ARTIFACTS is not set images will be saved in /tmp
 //
 // This scripts creates following files for each browser in browserVersions:
 //    $CIRCLE_ARTIFACTS/imgs/{browser_version_platform}/#.png
@@ -9,8 +9,8 @@
 // The intention of this script is that it will be ran from CircleCI
 //
 // Example usage:
-// node screenshots.js http://localhost:9292/test/visual.html
-// node screenshots.js http://google.com
+//   node screenshots.js http://localhost:9292/test/visual.html
+//   node screenshots.js http://google.com
 
 var wd = require('wd');
 var fs = require('fs');
