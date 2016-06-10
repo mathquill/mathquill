@@ -137,6 +137,8 @@ test:
       do
         convert $dir/$x/*.png -append $dir/$x.png
       done
+      # Remove all directories in $CIRCLE_ARTIFACTS/img
+      rm -R -- $dir/*/
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
