@@ -139,6 +139,10 @@ test:
       done
       # Remove all directories in $CIRCLE_ARTIFACTS/img
       rm -R -- $dir/*/
+      # cURL for the latest mathquill artifacts.
+      curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts > latest_artifacts.json
+      # Download the previous screenshots.
+      node script/download_latest_screenshots.js latest_artifacts.json
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
