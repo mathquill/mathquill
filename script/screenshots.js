@@ -23,53 +23,68 @@ fs.mkdirSync(allImgsDir);
 
 var browserVersions = [
   {
-    // Expecting IE 8
-    'browserName': 'Internet Explorer',
-    'platform': 'Windows XP',
+    'version': {
+      // Expecting IE 8
+      'browserName': 'Internet Explorer',
+      'platform': 'Windows XP'
+    },
     'pinned': 'PINNED'
   },
   {
-    // Expecting IE 11
-    'browserName': 'Internet Explorer',
-    'platform': 'Windows 7',
+    'version': {
+      // Expecting IE 11
+      'browserName': 'Internet Explorer',
+      'platform': 'Windows 7'
+    },
     'pinned': 'PINNED'
   },
   {
-    'browserName': 'MicrosoftEdge',
-    'platform': 'Windows 10',
+    'version': {
+      'browserName': 'MicrosoftEdge',
+      'platform': 'Windows 10'
+    },
     'pinned': 'EVERGREEN'
   },
   {
-    'browserName': 'Firefox',
-    'platform': 'OS X 10.11',
+    'version': {
+      'browserName': 'Firefox',
+      'platform': 'OS X 10.11'
+    },
     'pinned': 'EVERGREEN'
   },
   {
-    'browserName': 'Safari',
-    'platform': 'OS X 10.11',
+    'version': {
+      'browserName': 'Safari',
+      'platform': 'OS X 10.11'
+    },
     'pinned': 'EVERGREEN'
   },
   {
-    'browserName': 'Chrome',
-    'platform': 'OS X 10.11',
+    'version': {
+      'browserName': 'Chrome',
+      'platform': 'OS X 10.11'
+    },
     'pinned': 'EVERGREEN'
   },
   {
-    'browserName': 'Firefox',
-    'platform': 'Linux',
+    'version': {
+      'browserName': 'Firefox',
+      'platform': 'Linux'
+    },
     'pinned': 'EVERGREEN'
   },
 ];
 
 
-browserVersions.forEach(function(cfg) {
+browserVersions.forEach(function(obj) {
+  var cfg = obj.version;
   var browserDriver = wd.remote('ondemand.saucelabs.com', 80, username, accessKey);
   // The following is in the style of
   // https://github.com/admc/wd/blob/62f2b0060d36a402de5634477b26a5ed4c051967/examples/async/chrome.js#L25-L40
   browserDriver.init(cfg, function(err, _, capabilities) {
     if (err) console.log(err);
 
-    var browser = cfg.pinned+'_'+cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_'+capabilities.version : '');
+    var browser = obj.pinned+'_'+cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_'+capabilities.version : '');
     var platform = (capabilities || cfg).platform.replace(/\s/g, '_');
     var piecesDir = allImgsDir+'/'+browser+'_'+platform;
     fs.mkdirSync(piecesDir);
