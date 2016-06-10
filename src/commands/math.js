@@ -26,6 +26,43 @@ var MathElement = P(Node, function(_, super_) {
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble('reflow');
   };
+  // If the maxDepth option is set, make sure
+  // deeply nested content is truncated. Just return
+  // false if the cursor is already too deep.
+  _.prepareInsertionAt = function(cursor) {
+    var maxDepth = cursor.options.maxDepth;
+    if (maxDepth !== undefined) {
+      var cursorDepth = cursor.depth();
+      if (cursorDepth > maxDepth) {
+        return false;
+      }
+      this.removeNodesDeeperThan(maxDepth-cursorDepth);
+    }
+    return true;
+  };
+  // Remove nodes that are more than `cutoff`
+  // blocks deep from this node.
+  _.removeNodesDeeperThan = function (cutoff) {
+    var depth = 0;
+    var queue = [[this, depth]];
+    var current;
+
+    // Do a breadth-first search of this node's descendants
+    // down to cutoff, removing anything deeper.
+    while (queue.length) {
+      current = queue.shift();
+      current[0].children().each(function (child) {
+        var i = (child instanceof MathBlock) ? 1 : 0;
+        depth = current[1]+i;
+
+        if (depth <= cutoff) {
+          queue.push([child, depth]);
+        } else {
+          (i ? child.children() : child).remove();
+        }
+      });
+    }
+  };
 });
 
 /**
@@ -78,6 +115,8 @@ var MathCommand = P(MathElement, function(_, super_) {
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
+      cmd.placeCursor(cursor);
+      cmd.prepareInsertionAt(cursor);
     }
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
@@ -414,7 +453,9 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.write = function(cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
-    cmd.createLeftOf(cursor.show());
+    if (!cursor.isTooDeep()) {
+      cmd.createLeftOf(cursor.show());
+    }
   };
 
   _.focus = function() {

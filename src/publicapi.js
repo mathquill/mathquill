@@ -171,7 +171,7 @@ function getInterface(v) {
     };
     _.cmd = function(cmd) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
-      if (/^\\[a-z]+$/i.test(cmd)) {
+      if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
         var klass = LatexCmds[cmd];
         if (klass) {

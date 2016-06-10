@@ -467,7 +467,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
           leftward = leftward[R];
       }
 
-      if (leftward !== cursor[L]) {
+      if (leftward !== cursor[L] && !cursor.isTooDeep(1)) {
         this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
         cursor[L] = leftward;
       }
