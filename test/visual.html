@@ -280,7 +280,8 @@ x+\class{testclass}{y}+z
 
 </div>
 <script type="text/javascript">
-window.onerror = function() {
+window.onerror = function(err) {
+  console.log(err); // to show up in Selenium WebDriver logs
   $('html').css('background', 'red');
 };
 </script>
