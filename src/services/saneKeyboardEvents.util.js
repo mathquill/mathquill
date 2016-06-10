@@ -111,9 +111,9 @@ var saneKeyboardEvents = (function() {
     }
     function checkTextareaOnce(checker) {
       checkTextareaFor(function(e) {
-        checker(e);
         checkTextarea = noop;
         clearTimeout(timeoutId);
+        checker(e);
       });
     }
     target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
