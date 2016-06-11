@@ -138,6 +138,7 @@ test:
         convert $dir/$x/*.png -append $dir/$x.png
       done
       # Remove all directories in $CIRCLE_ARTIFACTS/img
+      cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
       rm -R -- $dir/*/
       # Install utility we need
       npm install -g json
