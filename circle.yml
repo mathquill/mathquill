@@ -146,6 +146,20 @@ test:
               | json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
               | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")
+      cd $CIRCLE_ARTIFACTS/imgs/
+
+      for file in $(ls PINNED*); do
+        prev=PREV_$file
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
+
+      for file in $(ls EVERGREEN*); do
+        file_prefix=$(echo $file | sed 's/VERSION.*png$//')
+        prev=$(ls PREV_$file_prefix*)
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
