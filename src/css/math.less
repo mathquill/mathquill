@@ -286,15 +286,29 @@
     padding-top: 1px;
   }
 
-  .mq-diacritic-above {
-    display: block;
-    text-align: center;
-    line-height: .4em;
-  }
+  .mq-diacritic {
+    position: relative;
 
-  .mq-diacritic-stem {
-    display: block;
+    padding-top: .2em;
+    &.mq-diacritic-low {
+      padding-top: 0;
+      &.mq-diacritic-t {
+        padding: .1em;
+      }
+    }
+  }
+  .mq-diacritic-above {
+    position: absolute;
+    left: 0;
+    right: 0;
     text-align: center;
+
+    top: .06em; // yes, really, .05em isn't low enough in Chrome,
+                             // .07em is too low in Firefox & Safari
+  }
+  .mq-diacritic-low > .mq-diacritic-above {
+    left: -.1em;
+    right: .1em;
   }
 
   .mq-large-operator {
