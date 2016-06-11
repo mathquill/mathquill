@@ -145,7 +145,7 @@ test:
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
               | json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
-              | grep -V 'PREV' \
+              | grep -v 'PREV' \
               | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")
       cd $CIRCLE_ARTIFACTS/imgs/
 
