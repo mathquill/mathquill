@@ -145,7 +145,7 @@ test:
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
               | json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
-              | sed 's:\$CIRCLE_ARTIFACTS/imgs/:-o /tmp/PREV_:')
+              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
