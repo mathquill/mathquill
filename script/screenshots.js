@@ -84,9 +84,9 @@ browserVersions.forEach(function(obj) {
   browserDriver.init(cfg, function(err, _, capabilities) {
     if (err) console.log(err);
 
-    var browser = obj.pinned+'_'+cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_'+capabilities.version : '');
+    var browser = cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_VERSION'+capabilities.version : '');
     var platform = (capabilities || cfg).platform.replace(/\s/g, '_');
-    var piecesDir = allImgsDir+'/'+browser+'_'+platform;
+    var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
     fs.mkdirSync(piecesDir);
 
     browserDriver.get(url, function(err) {
