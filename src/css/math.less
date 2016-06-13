@@ -129,7 +129,8 @@
     border-top: 1px solid black;
     margin-top: 1px;
   }
-  .mq-underline {
+  .mq-underline,
+  .mq-underarrow {
     border-bottom: 1px solid black;
     margin-bottom: 1px;
   }
@@ -329,15 +330,18 @@
     font-family: @symbola;
   }
 
-  .mq-overarrow {
+  .mq-overarrow,
+  .mq-underarrow {
     text-align: center;
     position: relative;
 
     &:before,
     &:after {
+      position: absolute;
       display: block;
       line-height: 1px;
       font-size: 0.8em;
+      min-width: 0.8em;
     }
     &.mq-arrow-left:before,
     &.mq-arrow-leftright:before {
@@ -351,23 +355,37 @@
       text-align: right;
       right: -1px;
     }
-    &.mq-arrow-leftright:after {
-      position: absolute;
-      top: 0;
-    }
     &.mq-empty .mq-inner:before {
       content: 'c';
       visibility: hidden;
+    }
+  }
+  .mq-overarrow {
+    &:before,
+    &:after {
+      top: -1px;
+    }
+  }
+  .mq-underarrow {
+    &:before,
+    &:after {
+      bottom: -1px;
     }
   }
 
   // @supports hack for Firefox ≥ 30
   // from http://browserhacks.com/
   @supports (-moz-appearance:meterbar) and (background-blend-mode:difference,normal) {
-    .mq-overarrow {
+    .mq-overarrow,
+    .mq-underarrow {
       &:before,
       &:after {
         line-height: 0;
+      }
+    }
+    .mq-overarrow {
+      &:before,
+      &:after {
         top: 0;
       }
     }

@@ -80,7 +80,7 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 
-var OverArrow = P(MathCommand, function(_, super_) {
+var OverUnderArrow = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, attrs) {
     super_.init.call(
       this,
@@ -90,9 +90,12 @@ var OverArrow = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds.overrightarrow = bind(OverArrow, '\\overrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
-LatexCmds.overleftarrow = bind(OverArrow, '\\overleftarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
-LatexCmds.overleftrightarrow = bind(OverArrow, '\\overleftrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"');
+LatexCmds.overrightarrow = bind(OverUnderArrow, '\\overrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(OverUnderArrow, '\\overleftarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(OverUnderArrow, '\\overleftrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"');
+LatexCmds.underrightarrow = bind(OverUnderArrow, '\\underrightarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-right"');
+LatexCmds.underleftarrow = bind(OverUnderArrow, '\\underleftarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-left"');
+LatexCmds.underleftrightarrow = bind(OverUnderArrow, '\\underleftrightarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-leftright"');
 
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
