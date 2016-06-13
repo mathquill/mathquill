@@ -339,15 +339,21 @@
       line-height: 1px;
       font-size: 0.8em;
     }
-    &.mq-arrow-left:before {
+    &.mq-arrow-left:before,
+    &.mq-arrow-leftright:before {
       content: '\2190';
       text-align: left;
       left: -1px;
     }
-    &.mq-arrow-right:before {
+    &.mq-arrow-right:before,
+    &.mq-arrow-leftright:after {
       content: '\2192';
       text-align: right;
       right: -1px;
+    }
+    &.mq-arrow-leftright:after {
+      position: absolute;
+      top: 0;
     }
     &.mq-empty .mq-inner:before {
       content: 'c';

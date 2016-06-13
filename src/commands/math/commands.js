@@ -92,6 +92,8 @@ var OverArrow = P(MathCommand, function(_, super_) {
 
 LatexCmds.overrightarrow = bind(OverArrow, '\\overrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(OverArrow, '\\overleftarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(OverArrow, '\\overleftrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"');
+
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
