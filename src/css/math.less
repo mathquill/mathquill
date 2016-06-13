@@ -124,7 +124,8 @@
     font-family: monospace, Symbola, serif;
   }
 
-  .mq-overline {
+  .mq-overline,
+  .mq-overarrow {
     border-top: 1px solid black;
     margin-top: 1px;
   }
@@ -329,26 +330,40 @@
   }
 
   .mq-overarrow {
-    border-top: 1px solid black;
-    margin-top: 1px;
-    padding-top: 0.2em;
+    text-align: center;
+    position: relative;
 
-    &:before {
+    &:before,
+    &:after {
       display: block;
-      position: relative;
-      top: -0.34em;
-      font-size: 0.5em;
-      line-height: 0em;
-      content: '\27A4';
-      text-align: right;
+      line-height: 1px;
+      font-size: 0.8em;
     }
     &.mq-arrow-left:before {
-      -moz-transform: scaleX(-1);
-      -o-transform: scaleX(-1);
-      -webkit-transform: scaleX(-1);
-      transform: scaleX(-1);
-      filter: FlipH;
-      -ms-filter: "FlipH";
+      content: '\2190';
+      text-align: left;
+      left: -1px;
+    }
+    &.mq-arrow-right:before {
+      content: '\2192';
+      text-align: right;
+      right: -1px;
+    }
+    &.mq-empty .mq-inner:before {
+      content: 'c';
+      visibility: hidden;
+    }
+  }
+
+  // @supports hack for Firefox ≥ 30
+  // from http://browserhacks.com/
+  @supports (-moz-appearance:meterbar) and (background-blend-mode:difference,normal) {
+    .mq-overarrow {
+      &:before,
+      &:after {
+        line-height: 0;
+        top: 0;
+      }
     }
   }
 }
