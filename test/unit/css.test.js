@@ -104,7 +104,7 @@ suite('CSS', function() {
     mq.typedText('2').keystroke('Tab').typedText('(');
     assert.ok(!supsub.is('.mq-after-operator-name'));
 
-    $(mq.el()).empty();
+    $(mq.el()).remove();
   });
 
   test('padding for diacritic not affected by cursor/selection', function() {
