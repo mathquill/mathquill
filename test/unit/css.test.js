@@ -106,4 +106,23 @@ suite('CSS', function() {
 
     $(mq.el()).empty();
   });
+
+  test('padding for diacritic not affected by cursor/selection', function() {
+    var mq = MathQuill.MathField($('<span>\\vec A + \\vec B</span>').appendTo(mock)[0]);
+
+    mq.focus();
+    var width = $(mq.el()).width();
+    assert.ok(width > 6); // there's intrinsically 2px padding and 1px border on each side
+
+    mq.keystroke('Left');
+    assert.equal($(mq.el()).width(), width, 'width with and without cursor');
+
+    mq.keystroke('Shift-Right');
+    assert.equal($(mq.el()).width(), width, 'width selected and unselected');
+
+    mq.keystroke('Left Left Shift-Left');
+    assert.equal($(mq.el()).width(), width, 'width of selected inner diacritic');
+
+    $(mq.el()).remove();
+  });
 });

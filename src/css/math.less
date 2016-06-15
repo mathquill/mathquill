@@ -297,6 +297,17 @@
       }
     }
   }
+  .mq-root-block { // see test 'padding for diacritic not affected by cursor/selection
+    > .mq-diacritic, > .mq-selection:last-child > .mq-diacritic {
+      &:last-child, & + .mq-cursor:last-child {
+        border-right: solid transparent .2em;
+        // has to be transparent border: not padding, which would affect size of
+        // padding box which diacritic is absolutely positioned relative to, not
+        // margin because selection is `display:inline` and the line box is
+        // shorter than the diacritic so extra selected space is ugly: https://git.io/voRA5
+      }
+    }
+  }
   .mq-diacritic-above {
     position: absolute;
     left: 0;
