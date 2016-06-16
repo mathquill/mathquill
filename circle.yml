@@ -132,12 +132,17 @@ test:
     - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done:
         timeout: 300
 
+    # Stitch together images
+    # TODO: Split this into multiple yaml lines. I (Michael)
+    #       niavely tried to split this into mutiple yaml lines
+    #       but was unsucessful in doing do.
     - |-
-      dir=$CIRCLE_ARTIFACTS/imgs
-      for x in $(ls $dir)
+      img_dir=$CIRCLE_ARTIFACTS/imgs/
+      for x in $(ls $img_dir)
       do
-        convert $dir/$x/*.png -append $dir/$x.png
+        convert $img_dir/$x/*.png -append $img_dir/$x.png
       done
+
       # Remove all directories in $CIRCLE_ARTIFACTS/img
       # Currently the pieces aren't kept around. If it's
       # desirable to keep them around, we should use
@@ -145,17 +150,20 @@ test:
       # The reason the image pieces aren't currently kept
       # around is that it was leading to a problem and didn't
       # want to sink too much time into the problem at the moment.
-      rm -R -- $dir/*/
+      rm -R -- $img_dir/*/
+
       # Install utility we need
       npm install -g json
+
       # Download the latest mathquill artifacts.
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
               | json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
               | grep -v 'PREV' \
-              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")
-      cd $CIRCLE_ARTIFACTS/imgs/
+              | sed "s:\$img_dir/:-o $img_dir/PREV_:")
 
+      # Generate image diffs.
+      cd $img_dir
       for file in $(ls PINNED*); do
         prev=PREV_$file
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
@@ -167,6 +175,8 @@ test:
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
         composite -alpha on raw_diff.png $prev DIFF_$file
       done
+
+      rm raw_diff.png
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
