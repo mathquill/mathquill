@@ -95,10 +95,10 @@ browserVersions.forEach(function(obj) {
       console.log(cfg.browserName,cfg.platform,'get')
       browserDriver.safeExecute('document.documentElement.scrollHeight', function(err,scrollHeight) {
         if (err) console.log(err);
-        console.log(cfg.browserName,cfg.platform,'safeExecute 1')
+        console.log(cfg.browserName,cfg.platform,'get scrollHeight')
         browserDriver.safeExecute('document.documentElement.clientHeight', function(err,viewportHeight) {
           if (err) console.log(err);
-          console.log(cfg.browserName,cfg.platform,'safeExecute 2')
+          console.log(cfg.browserName,cfg.platform,'get clientHeight')
 
           // Firefox and Internet Explorer will take a screenshot of the entire webpage,
           if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
