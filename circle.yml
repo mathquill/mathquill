@@ -52,9 +52,10 @@ dependencies:
 
 test:
   override:
-    # Sauce cant connect to Safari unless the server is ran on port 3000 or 4000
+    # Sauce can connect to Safari on ports 3000, 4000, 7000, and 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
-    - PORT=3000 make server:
+    # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
+    - PORT=8000 make server:
         background: true
 
     # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
@@ -82,7 +83,7 @@ test:
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
     # Start taking screenshots in the background while the unit tests are running
-    - npm install wd && node script/screenshots.js http://localhost:3000/test/visual.html && touch ~/screenshots_are_ready:
+    - npm install wd && node script/screenshots.js http://localhost:8000/test/visual.html && touch ~/screenshots_are_ready:
         background: true
 
     # Run in-browser unit tests, based on:
@@ -101,7 +102,7 @@ test:
                    "circle-ci"
                  ],
                  "framework": "mocha",
-                 "url": "http://localhost:3000/test/unit.html?post_xunit_to=http://localhost:9000",
+                 "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
       }' | tee js-tests
 
@@ -131,12 +132,54 @@ test:
     - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done:
         timeout: 300
 
+    # Stitch together images
+    # TODO: Split this into multiple yaml lines. I (Michael)
+    #       niavely tried to split this into mutiple yaml lines
+    #       but was unsucessful in doing do.
     - |-
-      dir=$CIRCLE_ARTIFACTS/imgs
-      for x in $(ls $dir)
+      img_dir=$CIRCLE_ARTIFACTS/imgs/
+      for x in $(ls $img_dir)
       do
-        convert $dir/$x/*.png -append $dir/$x.png
+        convert $img_dir/$x/*.png -append $img_dir/$x.png
       done
+
+      # Remove all directories in $CIRCLE_ARTIFACTS/img
+      # Currently the pieces aren't kept around. If it's
+      # desirable to keep them around, we should use
+      #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
+      # The reason the image pieces aren't currently kept
+      # around is that it was leading to a problem. Specifically,
+      # when we get the previous images, we niavely grab any *.png,
+      # including the pieces images. This compounded so that each
+      # iteration of a test run would have all of the images from
+      # the previous test run plus whichever new images were generated.
+      rm -R -- $img_dir/*/
+
+      # Install utility we need
+      npm install -g json
+
+      # Download the latest mathquill artifacts.
+      curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
+              | json -a url pretty_path -d '\n\t' \
+              | grep '\.png$' \
+              | grep -v 'PREV' \
+              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
+
+      # Generate image diffs.
+      cd $img_dir
+      for file in $(ls PINNED*); do
+        prev=PREV_$file
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
+
+      for file in $(ls EVERGREEN*); do
+        prev=$(ls PREV_$file*)
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
+
+      rm raw_diff.png
 
     # finally, complain to Circle CI if there were nonzero test failures
     - |-
