@@ -52,9 +52,10 @@ dependencies:
 
 test:
   override:
-    # Sauce cant connect to Safari unless the server is ran on port 3000 or 4000
+    # Sauce can connect to Safari on ports 3000, 4000, 7000, and 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
-    - PORT=3000 make server:
+    # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
+    - PORT=8000 make server:
         background: true
 
     # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
@@ -82,7 +83,7 @@ test:
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
 
     # Start taking screenshots in the background while the unit tests are running
-    - npm install wd && node script/screenshots.js http://localhost:3000/test/visual.html && touch ~/screenshots_are_ready:
+    - npm install wd && node script/screenshots.js http://localhost:8000/test/visual.html && touch ~/screenshots_are_ready:
         background: true
 
     # Run in-browser unit tests, based on:
@@ -101,7 +102,7 @@ test:
                    "circle-ci"
                  ],
                  "framework": "mocha",
-                 "url": "http://localhost:3000/test/unit.html?post_xunit_to=http://localhost:9000",
+                 "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
       }' | tee js-tests
 
@@ -138,7 +139,12 @@ test:
         convert $dir/$x/*.png -append $dir/$x.png
       done
       # Remove all directories in $CIRCLE_ARTIFACTS/img
-      cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
+      # Currently the pieces aren't kept around. If it's
+      # desirable to keep them around, we should use
+      #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
+      # The reason the image pieces aren't currently kept
+      # around is that it was leading to a problem and didn't
+      # want to sink too much time into the problem at the moment.
       rm -R -- $dir/*/
       # Install utility we need
       npm install -g json
