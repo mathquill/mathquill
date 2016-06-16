@@ -148,8 +148,11 @@ test:
       # desirable to keep them around, we should use
       #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
       # The reason the image pieces aren't currently kept
-      # around is that it was leading to a problem and didn't
-      # want to sink too much time into the problem at the moment.
+      # around is that it was leading to a problem. Specifically,
+      # when we get the previous images, we niavely grab any *.png,
+      # including the pieces images. This compounded so that each
+      # iteration of a test run would have all of the images from
+      # the previous test run plus whichever new images were generated.
       rm -R -- $img_dir/*/
 
       # Install utility we need
@@ -160,7 +163,7 @@ test:
               | json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
               | grep -v 'PREV' \
-              | sed "s:\$img_dir/:-o $img_dir/PREV_:")
+              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
 
       # Generate image diffs.
       cd $img_dir
