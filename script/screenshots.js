@@ -85,8 +85,8 @@ browserVersions.forEach(function(obj) {
     if (err) console.log(err);
     console.log(cfg.browserName,cfg.platform,'init')
 
-    var browser = cfg.browserName.replace(/\s/g, '_')+(capabilities ? '_VERSION'+capabilities.version : '');
-    var platform = (capabilities || cfg).platform.replace(/\s/g, '_');
+    var browser = cfg.browserName.replace(/\s/g, '_');
+    var platform = cfg.platform.replace(/\s/g, '_');
     var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
     fs.mkdirSync(piecesDir);
 

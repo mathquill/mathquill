@@ -163,8 +163,7 @@ test:
       done
 
       for file in $(ls EVERGREEN*); do
-        file_prefix=$(echo $file | sed 's/VERSION.*png$//')
-        prev=$(ls PREV_$file_prefix*)
+        prev=$(ls PREV_$file*)
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
         composite -alpha on raw_diff.png $prev DIFF_$file
       done
