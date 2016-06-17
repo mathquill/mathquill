@@ -46,7 +46,8 @@ dependencies:
           wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
           tar -xzf sc-latest-linux.tar.gz
         fi
-        sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready
+        sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+          || echo ERROR > ~/sauce_is_ready
       :
         background: true
 
@@ -80,10 +81,14 @@ test:
 
     # Wait for tunnel to be ready (`make server` and the trivial Node server
     # are much faster, no need to wait for them)
-    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
+    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; test "$(<~/sauce_is_ready)" != ERROR
 
     # Start taking screenshots in the background while the unit tests are running
-    - npm install wd && node script/screenshots.js http://localhost:8000/test/visual.html && touch ~/screenshots_are_ready:
+    - ? |-
+        npm install wd
+        node script/screenshots.js http://localhost:8000/test/visual.html \
+          && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
+      :
         background: true
 
     # Run in-browser unit tests, based on:
@@ -129,7 +134,7 @@ test:
       done
 
     # Wait for screenshots to be ready
-    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done:
+    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test "$(<~/screenshots_are_ready)" != ERROR:
         timeout: 300
 
     # Stitch together images
