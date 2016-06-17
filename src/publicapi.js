@@ -2,7 +2,7 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
+var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {};
 
 /**
  * Interface Versioning (#459, #495) to allow us to virtually guarantee
@@ -15,7 +15,7 @@ var API = {}, Options = P(), optionProcessors = {}, Progenote = P();
 function insistOnInterVer() {
   if (window.console) console.warn(
     'You are using the MathQuill API without specifying an interface version, ' +
-    'which will fail in v1.0.0. You can fix this easily by doing this before ' +
+    'which will fail in v1.0.0. Easiest fix is to do the following before ' +
     'doing anything else:\n' +
     '\n' +
     '    MathQuill = MathQuill.getInterface(1);\n' +
@@ -88,6 +88,12 @@ function getInterface(v) {
     }
   }
   MQ.config = function(opts) { config(Options.p, opts); return this; };
+  MQ.registerEmbed = function(name, options) {
+    if (!/^[a-z][a-z0-9]*$/i.test(name)) {
+      throw 'Embed name must start with letter and be only letters and digits';
+    }
+    EMBEDS[name] = options;
+  };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
@@ -204,9 +210,22 @@ function getInterface(v) {
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
-      var cmd = Embed(options);
+      var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
-    }
+    };
+    _.clickAt = function(clientX, clientY, target) {
+      target = target || document.elementFromPoint(clientX, clientY);
+
+      var ctrlr = this.__controller, root = ctrlr.root;
+      if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
+      ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
+      if (ctrlr.blurred) this.focus();
+      return this;
+    };
+    _.ignoreNextMousedown = function(fn) {
+      this.__controller.cursor.options.ignoreNextMousedown = fn;
+      return this;
+    };
   });
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;

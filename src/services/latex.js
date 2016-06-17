@@ -1,6 +1,6 @@
-// Parser MathCommand
+// Parser MathBlock
 var latexMathParser = (function() {
-  function commandToBlock(cmd) {
+  function commandToBlock(cmd) { // can also take in a Fragment
     var block = MathBlock();
     cmd.adopt(block, 0, 0);
     return block;
@@ -23,7 +23,8 @@ var latexMathParser = (function() {
   var succeed = Parser.succeed;
   var fail = Parser.fail;
 
-  // Parsers yielding MathCommands
+  // Parsers yielding either MathCommands, or Fragments of MathCommands
+  //   (either way, something that can be adopted by a MathBlock)
   var variable = letter.map(function(c) { return Letter(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
