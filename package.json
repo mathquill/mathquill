@@ -1,17 +1,17 @@
 {
   "name": "mathquill",
   "description": "Easily type math in your webapp",
-  "version": "0.10.0",
+  "version": "0.10.1",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mathquill/mathquill.git"
   },
   "dependencies": {
-    "pjs": "3.x"
+    "pjs": ">=3.1.0 <5.0.0"
   },
   "devDependencies": {
-    "mocha": "*",
+    "mocha": ">=2.4.1",
     "uglify-js": "2.x",
     "less": ">=1.5.1"
   }

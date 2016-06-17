@@ -56,6 +56,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('\\asdf+');
       assertLatex('\\text{asdf}+');
     });
+
+    test('dollar sign', function() {
+      mq.typedText('$');
+      assertLatex('\\$');
+    });
   });
 
   suite('auto-expanding parens', function() {
@@ -813,6 +818,7 @@ suite('typing with auto-replaces', function() {
   suite('autoCommands', function() {
     setup(function() {
       MQ.config({
+        autoOperatorNames: 'sin pp',
         autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
       });
     });
@@ -878,6 +884,13 @@ suite('typing with auto-replaces', function() {
       assertLatex('s\\pi pin\\pi');
       mq.keystroke('Del').keystroke('Backspace');
       assertLatex('\\sin\\pi');
+    });
+
+    test('has lower "precedence" than operator names', function() {
+      mq.typedText('ppi');
+      assertLatex('\\operatorname{pp}i');
+      mq.keystroke('Left Left').typedText('i');
+      assertLatex('\\pi pi');
     });
 
     test('command contains non-letters', function() {
@@ -1026,6 +1039,9 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('^').latex(), 'x^{^{ }}');
       assert.equal(mq.typedText('2').latex(), 'x^{^2}');
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
+      mq.latex('');
+      assert.equal(mq.typedText('2').latex(), '2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
 
       mq.latex('');
       MQ.config({ supSubsRequireOperand: true });
@@ -1044,6 +1060,9 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('2').latex(), 'x^2');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('2').latex(), '2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
     });
   });
 });

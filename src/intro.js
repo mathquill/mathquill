@@ -1,5 +1,5 @@
 /**
- * MathQuill v0.10.0               http://mathquill.com
+ * MathQuill v0.10.1               http://mathquill.com
  * by Han, Jeanine, and Mary  maintainers@mathquill.com
  *
  * This Source Code Form is subject to the terms of the
@@ -16,6 +16,8 @@ var jQuery = window.jQuery,
   mqBlockId = 'mathquill-block-id',
   min = Math.min,
   max = Math.max;
+
+if (!jQuery) throw 'MathQuill requires jQuery 1.4.3+ to be loaded first';
 
 function noop() {}
 

@@ -79,6 +79,8 @@ LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
+LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -136,7 +138,7 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.createLeftOf = function(cursor) {
-    if (!cursor[L] && cursor.options.supSubsRequireOperand) return;
+    if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
     return super_.createLeftOf.apply(this, arguments);
   };
   _.contactWeld = function(cursor) {
@@ -179,7 +181,6 @@ var SupSub = P(MathCommand, function(_, super_) {
         break;
       }
     }
-    this.respace();
   };
   Options.p.charsThatBreakOutOfSupSub = '';
   _.finalizeTree = function() {
@@ -227,10 +228,6 @@ var SupSub = P(MathCommand, function(_, super_) {
       return block ? prefix + (l.length === 1 ? l : '{' + (l || ' ') + '}') : '';
     }
     return latex('_', this.sub) + latex('^', this.sup);
-  };
-  _.respace = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
-    if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ.toggleClass('mq-limit', this[L].ctrlSeq === '\\int ');
   };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
@@ -378,6 +375,26 @@ LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 LatexCmds.coprod =
 LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
 
+LatexCmds['∫'] =
+LatexCmds['int'] =
+LatexCmds.integral = P(SummationNotation, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+      '<span class="mq-int mq-non-leaf">'
+    +   '<big>&int;</big>'
+    +   '<span class="mq-supsub mq-non-leaf">'
+    +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
+    +     '<span class="mq-sub">&0</span>'
+    +     '<span style="display:inline-block;width:0">&#8203</span>'
+    +   '</span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
+  };
+  // FIXME: refactor rather than overriding
+  _.createLeftOf = MathCommand.p.createLeftOf;
+});
+
 var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
@@ -457,17 +474,6 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   };
 });
 
-var Vec = LatexCmds.vec = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\vec';
-  _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-vector-prefix">&rarr;</span>'
-    +   '<span class="mq-vector-stem">&0</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['vec(', ')'];
-});
-
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
@@ -482,6 +488,21 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
 });
+
+var DiacriticAbove = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, symbol, textTemplate) {
+    var htmlTemplate =
+      '<span class="mq-non-leaf">'
+      +   '<span class="mq-diacritic-above">'+symbol+'</span>'
+      +   '<span class="mq-diacritic-stem">&0</span>'
+      + '</span>'
+    ;
+
+    super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
+  };
+});
+LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
+LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
 
 function DelimsMixin(_, super_) {
   _.jQadd = function() {
@@ -758,12 +779,34 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.text = function(){ return this.ends[L].text(); };
 });
 
-var Embed = P(Symbol, function(_, super_) {
-  _.init = function(options) {
-    super_.init.call(this);
+// Embed arbitrary things
+// Probably the closest DOM analogue would be an iframe?
+// From MathQuill's perspective, it's a Symbol, it can be
+// anywhere and the cursor can go around it but never in it.
+// Create by calling public API method .dropEmbedded(),
+// or by calling the global public API method .registerEmbed()
+// and rendering LaTeX like \embed{registeredName} (see test).
+var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
+  _.setOptions = function(options) {
     function noop () { return ""; }
     this.text = options.text || noop;
     this.htmlTemplate = options.htmlString || "";
     this.latex = options.latex || noop;
-  }
+    return this;
+  };
+  _.parser = function() {
+    var self = this;
+      string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
+    return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
+      .then(function(name) {
+        // the chars allowed in the optional data block are arbitrary other than
+        // excluding curly braces and square brackets (which'd be too confusing)
+        return string('[').then(regex(/^[-\w\s]*/)).skip(string(']'))
+          .or(succeed()).map(function(data) {
+            return self.setOptions(EMBEDS[name](data));
+          })
+        ;
+      })
+    ;
+  };
 });

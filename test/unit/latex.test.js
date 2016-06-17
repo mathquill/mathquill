@@ -100,6 +100,14 @@ suite('latex', function() {
     assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex('\\text{apples} \\ne \\text{oranges}',
                       '\\text{apples}\\ne \\text{oranges}');
+    assertParsesLatex('\\text{}', '');
+  });
+
+  test('not real LaTex commands, but valid symbols', function() {
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ', '\\odot ');
+    assertParsesLatex('\\degree ');
+    assertParsesLatex('\\square ');
   });
 
   suite('public API', function() {

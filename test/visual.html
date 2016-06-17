@@ -24,6 +24,9 @@ h1 {
 td {
   width: 33%;
 }
+#static-latex-rendering-table td {
+  width: 50%;
+}
 #show-textareas-button {
   float: right;
 }
@@ -77,14 +80,14 @@ td {
   <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
 </table>
 
-<p>Clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center"><span class="mathquill-math-field">a_2 x^2 + a_1 x + a_0 = 0</span></div>
+<p>Touch taps/clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center; -webkit-tap-highlight-color: rgba(0,0,0,0)"><span class="mathquill-math-field">x_{very\ long\ thing}^2 + a_0 = 0</span></div>
 
 <h3>Redrawing</h3>
 <p>
-  <span id="reflowing-test">\sqrt{_0^1}</span>
+  <span id="reflowing-test">\sqrt{}</span>
   should look the same as
   <span class="mathquill-static-math">
-    \sqrt{\pi\sqrt\sqrt\frac12\int_0^1}
+    \sqrt{\pi\sqrt\sqrt\frac12}
   </span>
 </p>
 <script type="text/javascript">
@@ -96,7 +99,7 @@ td {
     var textarea = $('#reflowing-test textarea');
     // paste some stuff that needs resizing
     textarea.trigger('paste');
-    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}\\int');
+    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
     setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
   });
 </script>
@@ -158,8 +161,6 @@ $(function() {
 
 <p id="selection-tests"><span class="mathquill-text-field different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
 
-<p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
-
 <p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
 <h3>Dynamic mathquill-ification</h3>
@@ -183,11 +184,22 @@ $(function() {
 </table>
 
 <h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
-<table>
+<table id="static-latex-rendering-table">
 <tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
 <tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
 <tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
-<tr><td><span class="mathquill-static-math">\theta + \sin 2\deg</span><td><span>\theta + \sin 2\deg</span>
+<tr><td><span class="mathquill-static-math">\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span></td><td><span>\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span>
+<tr><td><span class="mathquill-static-math">12a\sin b</span></td><td><span>12a\sin b</span>
+<tr><td><span class="mathquill-static-math">1a^2 \sin b</span></td><td><span>1a^2 \sin b</span>
+<tr><td><span class="mathquill-static-math">a + \sin b</span></td><td><span>a + \sin b</span>
+<tr><td><span class="mathquill-static-math">a + b</span></td><td><span>a + b</span>
+<tr><td><span class="mathquill-static-math">\sum\sin</span></td><td><span>\sum\sin</span>
+<tr><td><span class="mathquill-static-math">\sum a</span></td><td><span>\sum a</span>
+<tr><td><span class="mathquill-static-math">(\sin)</span></td><td><span>(\sin)</span>
+<tr><td><span class="mathquill-static-math">\left(\sin\right)</span></td><td><span>\left(\sin\right)</span>
+<tr><td><span class="mathquill-static-math">(x)\sin(x)</span></td><td><span>(x)\sin(x)</span>
+<tr><td><span class="mathquill-static-math">\left(x\right)\sin\left(x\right)</span></td><td><span>\left(x\right)\sin\left(x\right)</span>
+<tr><td><span class="mathquill-static-math">a \sin b</span></td><td><span>a \sin b</span>
 <tr><td><span class="mathquill-static-math">-1 + +-2</span><td><span>-1 + +-2</span>
 <tr><td><span class="mathquill-static-math">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
 <tr><td><span class="mathquill-static-math">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
@@ -197,6 +209,23 @@ $(function() {
 <tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 <tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
 <tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
+<tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
+<tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
+<tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
+<tr><td colspan=2><span id="sixes"></span>
+<script>
+$(function() {
+    var i,
+        sixes = '',
+        start = 10,
+        end = 40;
+    for (i = start; i <= end; i++) {
+        sixes += '<span style="font-size: ' + i + 'px" class="mathquill-math-field">6<\/span>';
+    }
+    $('#sixes').html(sixes);
+    $('#sixes .mathquill-math-field').each(function() { MQ.MathField(this); });
+});
+</script>
 </table>
 
 <p id="paren-alignment">Parentheses vertical alignment at font sizes ranging from 10px to 24px: <button>Click Me</button></p>
@@ -249,7 +278,8 @@ x+\class{testclass}{y}+z
 
 </div>
 <script type="text/javascript">
-window.onerror = function() {
+window.onerror = function(err) {
+  console.log(err); // to show up in Selenium WebDriver logs
   $('html').css('background', 'red');
 };
 </script>
@@ -272,7 +302,25 @@ $(function() {
 // test selecting from outside the mathquill editable
 var $mq = $('.math-container .mathquill-math-field');
 $('.math-container').mousedown(function(e) {
-  if (!jQuery.contains($mq[0], e.target)) $mq.triggerHandler(e);
+  if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
+  $mq.triggerHandler(e);
+})
+// test API for "fast touch taps" #622 & #403
+.on('touchstart', function() {
+  var moved = false;
+  $(this).on('touchmove.tmp', function() { moved = true; })
+  .on('touchend.tmp', function(e) {
+    $(this).off('.tmp');
+    MathQuill($mq[0]).ignoreNextMousedown(function() {
+      return Date.now() < e.timeStamp + 1000;
+    });
+    if (moved) return; // note that this happens after .ignoreNextMousedown()
+      // because even if the touch gesture doesn't 'count' as a tap to us,
+      // we still want to suppress the legacy mouse events, else we'd react
+      // fast to some taps and slow to others, that'd be weird
+    var touch = e.originalEvent.changedTouches[0];
+    MathQuill($mq[0]).clickAt(touch.clientX, touch.clientY, touch.target);
+  });
 });
 
 // Selection Tests
@@ -281,7 +329,7 @@ document.body.onload = function() {
     $('#selection-tests .mathquill-text-field').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-      $('#selection-performance').html(new Date - start);
+      console.log('Time taken to Select All (should be &lt;50ms):',new Date - start);
     });
   });
 };

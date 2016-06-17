@@ -56,7 +56,8 @@ var Cursor = P(Point, function(_) {
     this[-dir] = oppDir;
     // by contract, .blur() is called after all has been said and done
     // and the cursor has actually been moved
-    if (oldParent !== parent && oldParent.blur) oldParent.blur();
+    // FIXME pass cursor to .blur() so text can fix cursor pointers when removing itself
+    if (oldParent !== parent && oldParent.blur) oldParent.blur(this);
   };
   _.insDirOf = function(dir, el) {
     prayDirection(dir);
