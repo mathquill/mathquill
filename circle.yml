@@ -41,17 +41,20 @@ dependencies:
     - "test $SAUCE_USERNAME && test $SAUCE_ACCESS_KEY
        # Sauce Labs credentials required. Sign up here: https://saucelabs.com/opensauce/"
     - ? |-
-        mkdir -p ~/sauce-connect
-        cd ~/sauce-connect
-        if [ ! -x sc-*-linux/bin/sc ]
-        then
-          wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-          tar -xzf sc-latest-linux.tar.gz
-        fi
-        # Sauce Connect randomly fails so try twice
-        sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-          || sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-          || echo ERROR > ~/sauce_is_ready
+        {
+          mkdir -p ~/sauce-connect
+          cd ~/sauce-connect
+          if [ -x sc-*-linux/bin/sc ]; then
+            echo Using cached sc-*-linux/bin/sc
+          else
+            wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+            tar -xzf sc-latest-linux.tar.gz
+          fi
+          # Sauce Connect randomly fails so try twice
+          sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+            || sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+            || echo ERROR > ~/sauce_is_ready
+        } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
         background: true
 
@@ -60,7 +63,7 @@ test:
     # Sauce can connect to Safari on ports 3000, 4000, 7000, and 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
-    - PORT=8000 make server:
+    - PORT=8000 make server >$CIRCLE_ARTIFACTS/make_server.log 2>&1:
         background: true
 
     # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
@@ -71,15 +74,18 @@ test:
     # we POST to this trivial Node server on localhost:9000 that writes the
     # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
     - ? |-
-        mkdir -p $CIRCLE_TEST_REPORTS/mocha
-        node << 'EOF' | tee $CIRCLE_TEST_REPORTS/mocha/xunit.xml
-        require('http').createServer(function(req, res) {
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          req.pipe(process.stdout);
-          req.on('end', res.end.bind(res));
-        })
-        .listen(9000);
-        EOF
+        {
+          mkdir -p $CIRCLE_TEST_REPORTS/mocha
+          node << 'EOF'
+          require('http').createServer(function(req, res) {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            req.pipe(process.stdout);
+            req.on('end', res.end.bind(res));
+          })
+          .listen(9000);
+          console.error('listening on http://0.0.0.0:9000/');
+          EOF
+        } >$CIRCLE_TEST_REPORTS/mocha/xunit.xml 2>$CIRCLE_ARTIFACTS/mocha-test-report.log
       :
         background: true
 
@@ -89,9 +95,11 @@ test:
 
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
-        test -d node_modules/wd || npm install wd
-        node script/screenshots.js http://localhost:8000/test/visual.html \
-          && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
+        {
+          test -d node_modules/wd || npm install wd
+          node script/screenshots.js http://localhost:8000/test/visual.html \
+            && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
+        } >$CIRCLE_ARTIFACTS/screenshots.log 2>&1
       :
         background: true
 
