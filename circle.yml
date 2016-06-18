@@ -46,7 +46,9 @@ dependencies:
           wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
           tar -xzf sc-latest-linux.tar.gz
         fi
+        # Sauce Connect randomly fails so try twice
         sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+          || sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
           || echo ERROR > ~/sauce_is_ready
       :
         background: true
