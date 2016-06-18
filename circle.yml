@@ -47,12 +47,12 @@ dependencies:
           if [ -x sc-*-linux/bin/sc ]; then
             echo Using cached sc-*-linux/bin/sc
           else
-            wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-            tar -xzf sc-latest-linux.tar.gz
+            time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+            time tar -xzf sc-latest-linux.tar.gz
           fi
           # Sauce Connect randomly fails so try twice
-          sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-            || sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+            || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
             || echo ERROR > ~/sauce_is_ready
         } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
@@ -96,8 +96,8 @@ test:
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
         {
-          test -d node_modules/wd || npm install wd
-          node script/screenshots.js http://localhost:8000/test/visual.html \
+          time { test -d node_modules/wd || npm install wd; }
+          time node script/screenshots.js http://localhost:8000/test/visual.html \
             && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
         } >$CIRCLE_ARTIFACTS/screenshots.log 2>&1
       :
