@@ -85,7 +85,7 @@ test:
 
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
-        npm install wd
+        test -d node_modules/wd || npm install wd
         node script/screenshots.js http://localhost:8000/test/visual.html \
           && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
       :
