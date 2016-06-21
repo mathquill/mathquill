@@ -7,7 +7,7 @@ site_favicon: http://mathquill.com/favicon.ico
 google_analytics: ['UA-73742753-3', 'docs.mathquill.com']
 
 pages:
-  - 'Home': README.md
+  - index.md
   - Getting_Started.md
   - 'API Methods': Api_Methods.md
   - 'Config Options': Config.md
