@@ -325,3 +325,61 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
+
+
+var CursorPlaceholder = P(Symbol, function(_, super_) {
+    _.init = function(id) {
+	super_.init.call(this, '\\cursor ', '<span id="'+id+'">&#9731;</span>');
+	console.log("cursor placeholder",this);
+    };
+    _.createDir = function(dir, cursor) {
+	console.error("createDir");
+    };
+    _.createLeftOf = function(cursor) {
+	console.log("cursor",cursor);
+    };
+});
+
+var Macro = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, latex) {
+    this.latexCode = latex;
+    super_.init.call(this, ctrlSeq, "<invalid>", [ "<invalid>" ]);
+  };
+  _.replaces = function(replacedFragment) {
+    replacedFragment.remove(); 
+    // TODO: If replacedFragment is present, replace \cursor by it
+  };
+  _.createLeftOf = function(cursor) {
+      // Bind \cursor to a command that renders as an HTML element with id cursorId (to be able to find it later)
+      var cursorId = "cursor-"+Math.random();
+      LatexCmds.cursor = bind(CursorPlaceholder, cursorId); // for the time of parsing only
+
+      // parse latex code
+      var block = latexMathParser.skip(Parser.eof).parse(this.latexCode);
+console.log(block);
+
+      // Remove \cursor command (should not interfere with normal editing/parsing)
+      LatexCmds.cursor = undefined;
+
+      // Insert "block" at cursor
+      // (copied from Controller.writeLatex without understanding it)
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+
+      // find \cursor-command and, if present, put the cursor there
+      var placeholder = document.getElementById(cursorId);
+      if (placeholder!==null) {
+	  console.log("ph",placeholder);
+	  placeholder = Node.byId[placeholder.getAttribute("mathquill-command-id")];
+	  console.log("ph",placeholder);
+	  cursor.insLeftOf(placeholder);
+	  placeholder.deleteTowards(R,cursor);
+      }
+  };
+});
+
