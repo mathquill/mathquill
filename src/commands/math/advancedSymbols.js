@@ -345,16 +345,26 @@ var CursorPlaceholder = P(Symbol, function(_, super_) {
     cursor should be after insertion.  E.g.,
     bind(Macro,"abs","\\left|\\cursor\\right|")
 
-    TODO: It should work when inserting LaTeX, too (so far only when typed directly).
+    (Use the API-function MQ.addMacro to add macros.)
+
+    Note: Macros with arguments (that would parse correctly in LaTeX)
+    are not supported. So parsing \abs{x} will not work (it will
+    produce "| |x"). Since macros are intended to abbreviate typing,
+    this should not be a problem.
 */
 var Macro = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, latex) {
     this.latexCode = latex;
-    super_.init.call(this, ctrlSeq, "<invalid>", [ "<invalid>" ]);
   };
   _.replaces = function(replacedFragment) {
     replacedFragment.remove(); 
     // TODO: If replacedFragment is present, replace \cursor by it
+  };
+  _.parser = function() {
+    LatexCmds.cursor = bind(LatexFragment, ""); // for the time of parsing only
+    var frag = latexMathParser.parse(this.latexCode).children();
+    LatexCmds.cursor = undefined;
+    return Parser.succeed(frag);
   };
   _.createLeftOf = function(cursor) {
       // Bind \cursor to a command that renders as an HTML element with id cursorId (to be able to find it later)
@@ -362,10 +372,10 @@ var Macro = P(MathCommand, function(_, super_) {
       LatexCmds.cursor = bind(CursorPlaceholder, cursorId); // for the time of parsing only
 
       // parse latex code
-      var block = latexMathParser.skip(Parser.eof).parse(this.latexCode);
+      var block = latexMathParser.parse(this.latexCode);
 console.log(block);
 
-      // Remove \cursor command (should not interfere with normal editing/parsing)
+      // Remove \cursor command (because it should not interfere with normal editing/parsing)
       LatexCmds.cursor = undefined;
 
       // Insert "block" at cursor
@@ -377,6 +387,7 @@ console.log(block);
       block.finalizeInsert(cursor.options, cursor);
       if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
       if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+      cursor.parent.bubble('reflow');
 
       // find \cursor-command and, if present, put the cursor there
       var placeholder = document.getElementById(cursorId);
@@ -389,4 +400,3 @@ console.log(block);
       }
   };
 });
-
