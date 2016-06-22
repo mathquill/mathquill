@@ -1,6 +1,8 @@
 suite('saneKeyboardEvents', function() {
   var el;
-  var Event = jQuery.Event
+  var Event = function(type, props) {
+    return jQuery.extend(jQuery.Event(type), props);
+  };
 
   function supportsSelectionAPI() {
     return 'selectionStart' in el[0];

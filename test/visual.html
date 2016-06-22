@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="support/home.css">
 <link rel="stylesheet" type="text/css" href="../build/mathquill.css">
 
-<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="support/jquery-1.5.2.js"></script>
 
 <style type="text/css">
 body {
@@ -306,10 +306,10 @@ $('.math-container').mousedown(function(e) {
   $mq.triggerHandler(e);
 })
 // test API for "fast touch taps" #622 & #403
-.on('touchstart', function() {
+.bind('touchstart', function() {
   var moved = false;
-  $(this).on('touchmove.tmp', function() { moved = true; })
-  .on('touchend.tmp', function(e) {
+  $(this).bind('touchmove.tmp', function() { moved = true; })
+  .bind('touchend.tmp', function(e) {
     $(this).off('.tmp');
     MathQuill($mq[0]).ignoreNextMousedown(function() {
       return Date.now() < e.timeStamp + 1000;
