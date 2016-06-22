@@ -326,20 +326,27 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
 
-
+/** A special symbol that is used internally as a placeholder for the
+desired cursor position in macros. It simply inserts a span with the
+ID given as argument, this allows us to find it later to replace it with the cursor. */
 var CursorPlaceholder = P(Symbol, function(_, super_) {
-    _.init = function(id) {
-	super_.init.call(this, '\\cursor ', '<span id="'+id+'">&#9731;</span>');
-	console.log("cursor placeholder",this);
-    };
-    _.createDir = function(dir, cursor) {
-	console.error("createDir");
-    };
-    _.createLeftOf = function(cursor) {
-	console.log("cursor",cursor);
-    };
+  _.init = function(id) {
+    super_.init.call(this, '\\cursor ', '<span id="'+id+'">&#9731;</span>');
+  };
 });
 
+/** A macro for inserting complex LaTeX with a single command.
+    
+    bind(Macro,"example","x^2") will define a macro \example that gets
+    replace by x^2 automatically (only in typed input, not in parsed
+    latex)
+    
+    Put \cursor somewhere in the macro code to indicate where the
+    cursor should be after insertion.  E.g.,
+    bind(Macro,"abs","\\left|\\cursor\\right|")
+
+    TODO: It should work when inserting LaTeX, too (so far only when typed directly).
+*/
 var Macro = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, latex) {
     this.latexCode = latex;
