@@ -84,7 +84,7 @@ test:
           })
           .listen(9000);
           console.error('listening on http://0.0.0.0:9000/');
-          EOF
+        EOF
         } >$CIRCLE_TEST_REPORTS/mocha/xunit.xml 2>$CIRCLE_ARTIFACTS/mocha-test-report.log
       :
         background: true
