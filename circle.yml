@@ -73,10 +73,10 @@ test:
     # apparently truncates custom data in their test result reports, so instead
     # we POST to this trivial Node server on localhost:9000 that writes the
     # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+    - mkdir -p $CIRCLE_TEST_REPORTS/mocha
     - ? |-
-        {
-          mkdir -p $CIRCLE_TEST_REPORTS/mocha
-          node << 'EOF'
+        node << 'EOF' >$CIRCLE_TEST_REPORTS/mocha/xunit.xml \
+                      2>$CIRCLE_ARTIFACTS/mocha-test-report.log
           require('http').createServer(function(req, res) {
             res.setHeader('Access-Control-Allow-Origin', '*');
             req.pipe(process.stdout);
@@ -85,7 +85,6 @@ test:
           .listen(9000);
           console.error('listening on http://0.0.0.0:9000/');
         EOF
-        } >$CIRCLE_TEST_REPORTS/mocha/xunit.xml 2>$CIRCLE_ARTIFACTS/mocha-test-report.log
       :
         background: true
 
