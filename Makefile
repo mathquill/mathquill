@@ -80,12 +80,6 @@ BASIC_CSS = $(BUILD_DIR)/mathquill-basic.css
 BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
 UGLY_JS = $(BUILD_DIR)/mathquill.min.js
 UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
-CLEAN += $(BUILD_DIR)/*
-
-DISTDIR = ./mathquill-$(VERSION)
-DISTTAR = $(DISTDIR).tgz
-DISTZIP = $(DISTDIR).zip
-CLEAN += $(DISTTAR) $(DISTZIP)
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
@@ -111,7 +105,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all basic dev js uglify css font dist clean
+.PHONY: all basic dev js uglify css font clean
 all: font css uglify
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
@@ -121,7 +115,7 @@ uglify: $(UGLY_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
 clean:
-	rm -rf $(CLEAN)
+	rm -rf $(BUILD_DIR)
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
@@ -158,13 +152,6 @@ $(BUILD_DIR_EXISTS):
 $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 	rm -rf $@
 	cp -r $< $@
-
-dist: $(UGLY_JS) $(BUILD_JS) $(BUILD_CSS) $(FONT_TARGET)
-	rm -rf $(DISTDIR)
-	cp -r $(BUILD_DIR) $(DISTDIR)
-	zip -r -X $(DISTZIP) $(DISTDIR)
-	tar -czf $(DISTTAR) $(DISTDIR)
-	rm -r $(DISTDIR)
 
 #
 # -*- Test tasks -*-
