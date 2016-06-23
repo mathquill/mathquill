@@ -111,9 +111,9 @@ var saneKeyboardEvents = (function() {
     }
     function checkTextareaOnce(checker) {
       checkTextareaFor(function(e) {
-        checker(e);
         checkTextarea = noop;
         clearTimeout(timeoutId);
+        checker(e);
       });
     }
     target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
@@ -237,7 +237,7 @@ var saneKeyboardEvents = (function() {
       keypress: onKeypress,
       focusout: onBlur,
       cut: function() { checkTextareaOnce(function() { handlers.cut(); }); },
-      copy: function() { handlers.copy(); },
+      copy: function() { checkTextareaOnce(function() { handlers.copy(); }); },
       paste: onPaste
     });
 
