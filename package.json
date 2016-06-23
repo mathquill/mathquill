@@ -9,7 +9,8 @@
   },
   "files": [
     "build/mathquill.{css,js,min.js}",
-    "build/font/Symbola.*"
+    "build/font/Symbola.*",
+    "quickstart.html"
   ],
   "devDependencies": {
     "pjs": ">=3.1.0 <5.0.0",
