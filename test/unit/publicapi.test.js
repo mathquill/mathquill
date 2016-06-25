@@ -304,6 +304,23 @@ suite('Public API', function() {
       });
     }
   });
+  
+  suite('edit handler', function() {
+    test('fires when closing a bracket expression', function() {
+      var count = 0;
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        handlers: {
+          edit: function() {
+            count += 1;
+          }
+        }
+      });
+      mq.typedText('(3, 4');
+      var countBeforeClosingBracket = count;
+      mq.typedText(']');
+      assert.equal(count, countBeforeClosingBracket + 1);
+    });
+  });
 
   suite('.cmd(...)', function() {
     var mq;
