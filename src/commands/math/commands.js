@@ -588,8 +588,8 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
-        brack.bubble('reflow');
       }
+      brack.bubble('reflow');
     }
     else {
       brack = this, side = brack.side;
