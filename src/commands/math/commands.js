@@ -364,37 +364,6 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['∑'] =
-LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
-
-LatexCmds['∏'] =
-LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
-
-LatexCmds.coprod =
-LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
-
-LatexCmds['∫'] =
-LatexCmds['int'] =
-LatexCmds.integral = P(SummationNotation, function(_, super_) {
-  _.init = function() {
-    var htmlTemplate =
-      '<span class="mq-int mq-non-leaf">'
-    +   '<big>&int;</big>'
-    +   '<span class="mq-supsub mq-non-leaf">'
-    +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
-    +     '<span class="mq-sub">&0</span>'
-    +     '<span style="display:inline-block;width:0">&#8203</span>'
-    +   '</span>'
-    + '</span>'
-    ;
-    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
-  };
-  // FIXME: refactor rather than overriding
-  _.createLeftOf = MathCommand.p.createLeftOf;
-});
-
 var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
@@ -675,33 +644,108 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   };
 });
 
-var OPP_BRACKS = {
-  '(': ')',
-  ')': '(',
-  '[': ']',
-  ']': '[',
-  '{': '}',
-  '}': '{',
-  '\\{': '\\}',
-  '\\}': '\\{',
-  '&lang;': '&rang;',
-  '&rang;': '&lang;',
-  '\\langle ': '\\rangle ',
-  '\\rangle ': '\\langle ',
-  '|': '|'
-};
+// Associative table of open -> close delimiters and close -> open delimiters
+var OPP_BRACKS = {};
 
-function bindCharBracketPair(open, ctrlSeq) {
-  var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
-  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
-  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+function bindSimpleDelimiter(open, close) {
+  pray("simple delimiter not a character", open.length === 1);
+  CharCmds[open] = bind(Bracket, L, open, close, open, close);
+  CharCmds[close] = bind(Bracket, R, open, close, open, close);
+  OPP_BRACKS[open] = close;
+  OPP_BRACKS[close] = open;
 }
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
+
+function bindDelimiter(open, close, openReplaceChar, closeReplaceChar, openCommand, closeCommand) {
+  openCommand = openCommand ? openCommand : '\\' + open;
+  closeCommand = closeCommand ? closeCommand : '\\' + close;
+  if (open.length === 1) {
+    CharCmds[open] = bind(Bracket, L, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+    CharCmds[close] = bind(Bracket, R, openReplaceChar, closeReplaceChar, openCommand, closeCommand);      
+  } else {
+    LatexCmds[open] = bind(Bracket, L, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+    LatexCmds[close] = bind(Bracket, R, openReplaceChar, closeReplaceChar, openCommand, closeCommand);
+  }
+  OPP_BRACKS[open] = close;
+  OPP_BRACKS[close] = open;
+  OPP_BRACKS[openCommand] = closeCommand;
+  OPP_BRACKS[closeCommand] = openCommand;
+}
+
+function bindNonpairedDelimiter(delimiter, replaceChar, command) {
+    command = command ? command : '\\' + delimiter;
+    replaceChar = replaceChar ? replaceChar : delimiter;
+    if (delimiter.length === 1)
+    {
+        CharCmds[delimiter] = bind(Bracket, L, replaceChar, replaceChar, command, command);
+    } else {
+        LatexCmds[delimiter] = bind(Bracket, L, replaceChar, replaceChar, command, command);
+    }
+  OPP_BRACKS[delimiter] = delimiter;
+  OPP_BRACKS[command] = command;
+}
+
+bindSimpleDelimiter('(', ')');
+bindSimpleDelimiter('[', ']');
+bindDelimiter('{', '}', '{', '}', '\\{', '\\}');
+
+/*
+// bindSimpleDelimiter('&lang;', '&rang;');
+bindDelimiter('\\{', '\\}', '{', '}', '\\{', '\\}');
+bindDelimiter('\\opencurlybrace', '\\closecurlybrace', '{', '}', '\\{', '\\}'); // Mathquill specific
+
+// Large delimiters
+bindDelimiter('lmoustache', 'rmoustache', '&#x23b0;', '&#x23b1;');
+bindDelimiter('lgroup', 'rgroup', '&#x27ee;', '&#x27ef;');
+
+// AMS Delimiters
+bindDelimiter('lbrace', 'rbrace', '&#x007b;', '&#x007d;');
+bindDelimiter('lbrack', 'rbrack', '&#x005b;', '&#x005d;');
+bindDelimiter('ulcorner', 'urcorner', '&#x250c;', '&#x2510;');
+bindDelimiter('llcorner', 'lrcorner', '&#x2514;', '&#x2518;');
+bindDelimiter('lfloor', 'rfloor', '&#x230a;', '&#x230b;');
+bindDelimiter('lceil', 'rceil', '&#x2308;', '&#x2309;');
+bindDelimiter('langle', 'rangle', '&#x27e8;', '&#x27e9;');
+bindDelimiter('lvert', 'rvert', '&#x2223;', '&#x2223;');
+bindDelimiter('lVert', 'rVert', '&#x2225;', '&#x2225;');
+*/
+
+// bindNonpairedDelimiter('vert', '&#x2223;');
+// bindNonpairedDelimiter('Vert', '&#x2225;');
+// bindNonpairedDelimiter('|', '|', '|');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+OPP_BRACKS['\\langle'] = '\\rangle';
+OPP_BRACKS['&lang;'] = '&rang;';
+OPP_BRACKS['\\rangle'] = '\\langle';
+OPP_BRACKS['&rang;'] = '&lang;';
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+OPP_BRACKS['|'] = '|';
+
+// ---
+LatexCmds.lmoustache = bind(VanillaSymbol, '\\lmoustache ', '&#x23b0;');
+LatexCmds.rmoustache = bind(VanillaSymbol, '\\rmoustache ', '&#x23b1;');
+LatexCmds.lgroup = bind(VanillaSymbol, '\\lgroup ', '&#x27ee;');
+LatexCmds.rgroup = bind(VanillaSymbol, '\\rgroup ', '&#x27ef;');
+LatexCmds.opencurlybrace = LatexCmds.lbrace = bind(VanillaSymbol, '\\lbrace ', '&#x007b;');
+LatexCmds.closecurlybrace = LatexCmds.rbrace = bind(VanillaSymbol, '\\rbrace ', '&#x007d;');
+LatexCmds.lbrack = bind(VanillaSymbol, '[', '&#x005b;');
+LatexCmds.rbrack = bind(VanillaSymbol, ']', '&#x005d;');
+LatexCmds.ulcorner = bind(VanillaSymbol, '\\ulcorner ', '&#x250c;');
+LatexCmds.urcorner = bind(VanillaSymbol, '\\urcorner ', '&#x2510;');
+LatexCmds.llcorner = bind(VanillaSymbol, '\\llcorner ', '&#x2514;');
+LatexCmds.lrcorner = bind(VanillaSymbol, '\\lrcorner ', '&#x2518;');
+LatexCmds.lfloor = bind(VanillaSymbol, '\\lfloor ', '&#x230a;');
+LatexCmds.rfloor = bind(VanillaSymbol, '\\rfloor ', '&#x230b;');
+LatexCmds.lceil = bind(VanillaSymbol, '\\lceil ', '&#x2308;');
+LatexCmds.rceil = bind(VanillaSymbol, '\\rceil ', '&#x2309;');
+LatexCmds.langle = bind(VanillaSymbol, '\\langle ', '&#x27e8;');
+LatexCmds.rangle = bind(VanillaSymbol, '\\rangle ', '&#x27e9;');
+LatexCmds.lvert = bind(VanillaSymbol, '\\lvert ', '&#x2223;');
+LatexCmds.rvert = bind(VanillaSymbol, '\\rvert ', '&#x2223;');
+LatexCmds.lVert = bind(VanillaSymbol, '\\lVert ', '&#x2225;');
+LatexCmds.rVert = bind(VanillaSymbol, '\\rVert ', '&#x2225;');
+
+// ---
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -821,3 +865,55 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     ;
   };
 });
+
+var CUMULATIVE_OPERATORS = [
+'prod:prod', 'sum:sum', 'coprod:#8720', 
+];
+
+for (i = 0; i < CUMULATIVE_OPERATORS.length; i++) {
+    m = CUMULATIVE_OPERATORS[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(SummationNotation, '\\' + m[1] + ' ', '&' + m[2] +';');
+}
+
+LatexCmds.int = P(SummationNotation, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+      '<span class="mq-int mq-non-leaf">'
+    +   '<big>&int;</big>'
+    +   '<span class="mq-supsub mq-non-leaf">'
+    +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
+    +     '<span class="mq-sub">&0</span>'
+    +     '<span style="display:inline-block;width:0">&#8203</span>'
+    +   '</span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
+  };
+  // FIXME: refactor rather than overriding
+  _.createLeftOf = MathCommand.p.createLeftOf;
+});
+
+// TODO: These CUMULATIVE_OPERATORS_EXTENDED should probably be merged with
+// CUMULATIVE_OPERATORS at some point. For now, keep them separate so we 
+// can keep them as Symbol for backward compatibility
+var CUMULATIVE_OPERATORS_EXTENDED = [
+'intop:int', 'iint:#x222c', 'iiint:#x222d',
+'oint:#x222e',
+'bigvee:#x22c1', 'bigwedge:#x22c0', 'biguplus:#x2a04',
+'bigcap:#x22c2', 'bigcup:#x22c3',
+'bigotimes:#x2a02', 'bigoplus:#x2a01', 'bigodot:#x2a00',
+'bigsqcup:#x2a06',
+];
+for (i = 0; i < CUMULATIVE_OPERATORS_EXTENDED.length; i++) {
+    m = CUMULATIVE_OPERATORS_EXTENDED[i].match(/([a-zA-Z]+):(.+)/);
+    LatexCmds[m[1]] = bind(Symbol, '\\' + m[1] + ' ', '<big>&' + m[2] +';</big>');
+}
+
+
+
+
+// MathQuill synonyms
+LatexCmds['∑'] = LatexCmds.summation = LatexCmds.sum;
+LatexCmds['∏'] = LatexCmds.product = LatexCmds.prod
+LatexCmds.coproduct = LatexCmds.coprod;
+LatexCmds['∫'] = LatexCmds.integral = LatexCmds.int ;
