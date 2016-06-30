@@ -659,8 +659,8 @@ var OPP_BRACKS = {
   '\\langle ': '\\rangle ',
   '\\rangle ': '\\langle ',
   '|': '|',
-  '\\lVert' : '\\rVert',
-  '\\rVert' : '\\lVert',
+  '\\lVert ' : '\\rVert ',
+  '\\rVert ' : '\\lVert ',
 };
 
 function bindCharBracketPair(open, ctrlSeq) {
@@ -687,14 +687,14 @@ LatexCmds.left = P(MathCommand, function(_) {
     return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle|\\lVert)/))
       .then(function(ctrlSeq) {
         var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
-	if (ctrlSeq=="\\langle") open = '&lang;';
-	if (ctrlSeq=="\\lVert") open = '&#8741;';
+	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
+	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
             .then(regex(/^(?:[\])|]|\\\}|\\rangle|\\rVert)/)).map(function(end) {
               var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
-	      if (end=="\\rangle") close = '&rang;';
-	      if (end=="\\rVert") close = '&#8741;';
+	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
+	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
               var cmd = Bracket(0, open, close, ctrlSeq, end);
               cmd.blocks = [ block ];
               block.adopt(cmd, 0, 0);
