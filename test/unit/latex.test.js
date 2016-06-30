@@ -85,6 +85,24 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left(123\\right)');
   });
 
+  test('langle/rangle (issue #508)', function() {
+    var tree = latexMathParser.parse('\\left\\langle 123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle123\\right\\rangle)');
+  });
+
+  test('lVert/rVert', function() {
+    var tree = latexMathParser.parse('\\left\\lVert 123\\right\\rVert)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\lVert123\\right\\rVert)');
+  });
+
   test('parens with whitespace', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
