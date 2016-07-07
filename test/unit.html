@@ -78,7 +78,7 @@
 
         runner.on('end', function() {
           setTimeout(function() {
-            $.post(post_xunit_to, xunit, function() {
+            $.post(post_xunit_to, xunit).always(function() {
               window.mochaResults = runner.stats;
               window.mochaResults.reports = failedTests;
             });
