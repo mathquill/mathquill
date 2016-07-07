@@ -325,5 +325,7 @@ suite('latex', function() {
     testCantParse('unmatched close brace', '}', ' 1 + 2 } ', '1 - {2 + 3} }', '\\sqrt{ x }} + \\sqrt{y}');
     testCantParse('unmatched open brace', '{', '1 * { 2 + 3', '\\frac{ \\sqrt x }{{ \\sqrt y}');
     testCantParse('unmatched \\left/\\right', '\\left ( 1 + 2 )', ' [ 1, 2 \\right ]');
+    testCantParse('langlerfish/ranglerfish (checking for confusion with langle/rangle)',
+		    '\\left\\langlerfish 123\\right\\ranglerfish)');
   });
 });
