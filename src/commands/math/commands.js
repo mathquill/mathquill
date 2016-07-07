@@ -684,14 +684,14 @@ LatexCmds.left = P(MathCommand, function(_) {
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle|\\lVert)/))
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
       .then(function(ctrlSeq) {
         var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
 	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
 	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
-            .then(regex(/^(?:[\])|]|\\\}|\\rangle|\\rVert)/)).map(function(end) {
+            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
               var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
 	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
