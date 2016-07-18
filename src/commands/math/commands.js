@@ -814,7 +814,7 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     return this;
   };
   _.parser = function() {
-    var self = this;
+    var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
       .then(function(name) {
