@@ -134,9 +134,6 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
       })
     ;
   };
-  _.isStyleBlock = function() {
-    return true;
-  };
   _.latex = function() {
     return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
   };
