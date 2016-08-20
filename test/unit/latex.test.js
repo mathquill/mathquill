@@ -121,6 +121,15 @@ suite('latex', function() {
     assertParsesLatex('\\text{}', '');
   });
 
+  test('\\textcolor', function() {
+    assertParsesLatex('\\textcolor{blue}{8}', '\\textcolor{blue}{8}');
+  });
+
+  test('\\class', function() {
+    assertParsesLatex('\\class{name}{8}', '\\class{name}{8}');
+    assertParsesLatex('\\class{name}{8-4}', '\\class{name}{8-4}');
+  });
+
   test('not real LaTex commands, but valid symbols', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
