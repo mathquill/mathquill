@@ -41,6 +41,22 @@ LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 
+// special norwegian chars
+var NorwegianChar = P(Symbol, function (_, super_) {
+  _.init = function (ch, html) {
+    super_.init.call(this, ch, '<span class="mq-nonSymbola IA-nonSymbola">' + (html || ch) + '</span>');
+  };
+});
+
+var addNorwegianCharsToLatexCmds = function() {
+  var norwegianChars = ['å', 'Å', 'æ', 'Æ', 'ø', 'Ø', 'â', 'Â', 'é', 'É', 'É', 'è', 'È', 'ê', 'Ê', 'ó', 'Ó', 'ò', 'Ò', 'ô', 'Ô'];
+  for (var i = 0; i < norwegianChars.length; i++) {
+    var char = norwegianChars[i];
+    LatexCmds[char] = bind(NorwegianChar, '\\' + char, char);
+  }
+}
+addNorwegianCharsToLatexCmds();
+
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
 //lowercase Greek letter variables
