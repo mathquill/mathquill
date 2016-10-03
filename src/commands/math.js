@@ -446,6 +446,8 @@ var MathBlock = P(MathElement, function(_, super_) {
       return Digit(ch);
     else if (options && options.useDivisionSymbol && ch == '/')
       return LatexCmds['÷'](ch);
+    else if (options && options.useMultiplicationSymbol && ch == '*')
+      return LatexCmds['×'](ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
     else
