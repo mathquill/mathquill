@@ -74,7 +74,7 @@ Controller.open(function(_) {
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
 
     this.container.prepend(textareaSpan)
-    .on('cut', function(e) {
+    .bind('cut', function(e) {
       if (cursor.selection) {
         setTimeout(function() {
           ctrlr.notify('edit'); // deletes selection if present
