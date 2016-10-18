@@ -200,11 +200,17 @@ suite('Public API', function() {
     testHandlers('MQ.MathField() constructor', function(options) {
       return MQ.MathField($('<span></span>').appendTo('#mock')[0], options);
     });
+    testHandlers('MQ.StaticMath() constructor', function(options) {
+      return MQ.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0], options).innerFields[0];
+    });
     testHandlers('MQ.MathField::config()', function(options) {
       return MQ.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
     });
-    testHandlers('.config() on \\MathQuillMathField{} in a MQ.StaticMath', function(options) {
-      return MQ.MathField($('<span></span>').appendTo('#mock')[0]).config(options);
+    testHandlers('MQ.StaticMath::config() for \\MathQuillMathField{} inner field', function(options) {
+      return MQ.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0]).config(options).innerFields[0];
+    });
+    testHandlers('\\MathQuillMathField{}::config()', function(options) {
+      return MQ.StaticMath($('<span>\\MathQuillMathField{}</span>').appendTo('#mock')[0]).innerFields[0].config(options);
     });
     suite('global MQ.config()', function() {
       testHandlers('a MQ.MathField', function(options) {
