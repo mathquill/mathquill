@@ -20,5 +20,10 @@
 
     width: 1px; // don't "stick out" invisibly from a math field,
     height: 1px; // can affect ancestor's .scroll{Width,Height}
+
+    // Needed to fix a Safari 10 bug where box-sizing: border-box is
+    // preventing text from being copied.
+    // https://github.com/mathquill/mathquill/issues/686
+    box-sizing: content-box;
   }
 }
