@@ -161,8 +161,6 @@ $(function() {
 
 <p id="selection-tests"><span class="mathquill-text-field different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
 
-<p>Time taken to Select All (should be &lt;50ms): <span id="selection-performance"></span>
-
 <p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
 <h3>Dynamic mathquill-ification</h3>
@@ -280,7 +278,8 @@ x+\class{testclass}{y}+z
 
 </div>
 <script type="text/javascript">
-window.onerror = function() {
+window.onerror = function(err) {
+  console.log(err); // to show up in Selenium WebDriver logs
   $('html').css('background', 'red');
 };
 </script>
@@ -330,7 +329,7 @@ document.body.onload = function() {
     $('#selection-tests .mathquill-text-field').each(function() {
       var start = +new Date;
       $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-      $('#selection-performance').html(new Date - start);
+      console.log('Time taken to Select All (should be &lt;50ms):',new Date - start);
     });
   });
 };

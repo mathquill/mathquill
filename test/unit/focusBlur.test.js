@@ -80,7 +80,7 @@ suite('focusBlur', function() {
           $(mq.el()).remove();
           done();
         });
-      }, 10);
+      }, 100);
     });
   });
 });

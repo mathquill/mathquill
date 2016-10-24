@@ -114,6 +114,9 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
       })
     ;
   };
+  _.isStyleBlock = function() {
+    return true;
+  };
 });
 
 // Very similar to the \textcolor command, but will add the given CSS class.
@@ -132,6 +135,9 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
         return super_.parser.call(self);
       })
     ;
+  };
+  _.isStyleBlock = function() {
+    return true;
   };
 });
 
@@ -474,6 +480,17 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   };
 });
 
+var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\hat';
+  _.htmlTemplate =
+      '<span class="mq-non-leaf">'
+    +   '<span class="mq-hat-prefix">^</span>'
+    +   '<span class="mq-hat-stem">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['hat(', ')'];
+});
+
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
@@ -577,8 +594,8 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
-        brack.bubble('reflow');
       }
+      brack.bubble('reflow');
     }
     else {
       brack = this, side = brack.side;
@@ -677,7 +694,9 @@ var OPP_BRACKS = {
   '&rang;': '&lang;',
   '\\langle ': '\\rangle ',
   '\\rangle ': '\\langle ',
-  '|': '|'
+  '|': '|',
+  '\\lVert ' : '\\rVert ',
+  '\\rVert ' : '\\lVert ',
 };
 
 function bindCharBracketPair(open, ctrlSeq) {
@@ -691,6 +710,8 @@ bindCharBracketPair('{', '\\{');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
+LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -699,13 +720,17 @@ LatexCmds.left = P(MathCommand, function(_) {
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
-      .then(function(ctrlSeq) { // TODO: \langle, \rangle
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
+      .then(function(ctrlSeq) {
         var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
+	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
+	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
-            .then(regex(/^(?:[\])|]|\\\})/)).map(function(end) {
+            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
               var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
+	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
+	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
               var cmd = Bracket(0, open, close, ctrlSeq, end);
               cmd.blocks = [ block ];
               block.adopt(cmd, 0, 0);
@@ -795,7 +820,7 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     return this;
   };
   _.parser = function() {
-    var self = this;
+    var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
       .then(function(name) {
