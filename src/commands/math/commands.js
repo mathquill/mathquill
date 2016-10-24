@@ -114,6 +114,9 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
       })
     ;
   };
+  _.isStyleBlock = function() {
+    return true;
+  };
 });
 
 // Very similar to the \textcolor command, but will add the given CSS class.
@@ -132,6 +135,9 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
         return super_.parser.call(self);
       })
     ;
+  };
+  _.isStyleBlock = function() {
+    return true;
   };
 });
 
@@ -817,7 +823,7 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
     return this;
   };
   _.parser = function() {
-    var self = this;
+    var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
       .then(function(name) {
