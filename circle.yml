@@ -119,7 +119,7 @@ test:
            -H 'Content-Type: application/json' \
            -d '{
                  "build": "'"$build_name"'",
-                 "customData": {"build_url": "'"$CIRCLE_BUILD_URL"'"}
+                 "customData": {"build_url": "'"$CIRCLE_BUILD_URL"'"},
                  "framework": "mocha",
                  "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
