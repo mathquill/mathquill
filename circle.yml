@@ -17,8 +17,8 @@
 #       + https://circleci.com/docs/configuration/
 #   - our `circle.yml` first installs and runs a tunnel to Sauce Labs
 #   - and runs `make server`
-#   - then it calls out to Sauce Labs' REST API to open a browser that reaches
-#     back through the tunnel to access the unit test page on the local server
+#   - then it calls out to Sauce Labs' REST API to open browsers that reach
+#     back through the tunnel to access test pages on the local server
 #       + > Sauce Connect allows you to run a test server within the CircleCI
 #         > build container and expose it it (using a URL like `localhost:8080`)
 #         > to Sauce Labs’ browsers.
@@ -47,7 +47,7 @@ dependencies:
             time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
             time tar -xzf sc-latest-linux.tar.gz
           fi
-          # Sauce Connect randomly fails so try twice
+          # Sauce Connect randomly fails so try twice https://git.io/vPN8v
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
             || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
             || echo ERROR > ~/sauce_is_ready
@@ -57,19 +57,18 @@ dependencies:
 
 test:
   override:
-    # Sauce can connect to Safari on ports 3000, 4000, 7000, and 8000. Edge needs port 7000 or 8000.
+    # Safari on Sauce can only connect to port 3000, 4000, 7000, or 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
     - PORT=8000 make server >$CIRCLE_ARTIFACTS/make_server.log 2>&1:
         background: true
 
-    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
-    # file:
+    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
     #   https://circleci.com/docs/test-metadata/
     # Our unit tests are in a browser, so they can't write to a file, and Sauce
-    # apparently truncates custom data in their test result reports, so instead
-    # we POST to this trivial Node server on localhost:9000 that writes the
-    # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+    # apparently truncates custom data in their test result reports, so instead we
+    # POST to this trivial Node server on localhost:9000 that writes the body of
+    # any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
     - mkdir -p $CIRCLE_TEST_REPORTS/mocha
     - ? |-
         node << 'EOF' >$CIRCLE_TEST_REPORTS/mocha/xunit.xml \
