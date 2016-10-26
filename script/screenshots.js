@@ -92,7 +92,7 @@ browserVersions.forEach(function(obj) {
   // The following is in the style of
   // https://github.com/admc/wd/blob/62f2b0060d36a402de5634477b26a5ed4c051967/examples/async/chrome.js#L25-L40
   browserDriver.init(cfg, function(err, _, capabilities) {
-    if (err) console.log(err);
+    if (err) log(err);
     console.log(cfg.browserName,cfg.platform,'init')
 
     var browser = cfg.browserName.replace(/\s/g, '_');
@@ -101,13 +101,13 @@ browserVersions.forEach(function(obj) {
     fs.mkdirSync(piecesDir);
 
     browserDriver.get(url, function(err) {
-      if (err) console.log(err);
+      if (err) log(err);
       console.log(cfg.browserName,cfg.platform,'get')
       browserDriver.safeExecute('document.documentElement.scrollHeight', function(err,scrollHeight) {
-        if (err) console.log(err);
+        if (err) log(err);
         console.log(cfg.browserName,cfg.platform,'get scrollHeight')
         browserDriver.safeExecute('document.documentElement.clientHeight', function(err,viewportHeight) {
-          if (err) console.log(err);
+          if (err) log(err);
           console.log(cfg.browserName,cfg.platform,'get clientHeight')
 
           // Firefox and Internet Explorer will take a screenshot of the entire webpage,
@@ -115,17 +115,17 @@ browserVersions.forEach(function(obj) {
             // saves file in the file `piecesDir/browser_version_platform/*.png`
             var filename = piecesDir+'/'+browser+'_'+platform+'.png';
             browserDriver.saveScreenshot(filename, function(err) {
-              if (err) console.log(err);
+              if (err) log(err);
               console.log(cfg.browserName,cfg.platform,'saveScreenshot');
 
               browserDriver.log('browser', function(err,logs) {
-                if (err) console.log(err);
+                if (err) log(err);
                 console.log(cfg.browserName,cfg.platform,'log');
 
                 var logfile = baseDir+'/'+browser+'_'+platform+'.log'
                 logs = logs || [];
                 fs.writeFile(logfile,logs.join('\n'), function(err) {
-                  if (err) console.log(err);
+                  if (err) log(err);
 
                   browserDriver.quit();
                 });
@@ -147,44 +147,44 @@ browserVersions.forEach(function(obj) {
               // `window.scrollTo` was used instead of jQuery because jQuery was
               // causing a stackoverflow in Safari.
               browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');', function(err) {
-                if (err) console.log(JSON.stringify(err));
+                if (err) log(err);
                 console.log(cfg.browserName,cfg.platform,'safeEval 1');
 
                 // saves file in the file `piecesDir/browser_version_platform/#.png`
                 var filename = piecesDir+'/'+index+'.png';
                 browserDriver.saveScreenshot(filename, function(err) {
-                  if (err) console.log(err);
+                  if (err) log(err);
                   console.log(cfg.browserName,cfg.platform,'saveScreenshot');
 
                   scrollTop += viewportHeight;
                   if (scrollTop + viewportHeight > scrollHeight) {
                     browserDriver.getWindowSize(function(err,size) {
-                      if (err) console.log(err);
+                      if (err) log(err);
                       console.log(cfg.browserName,cfg.platform,'getWindowSize');
                       // account for the viewport offset
                       var extra = size.height - viewportHeight;
                       browserDriver.setWindowSize(size.width, (scrollHeight-scrollTop)+extra, function(err) {
-                        if (err) console.log(err);
+                        if (err) log(err);
                         console.log(cfg.browserName,cfg.platform,'setWindowSize');
 
                         browserDriver.safeEval('window.scrollTo(0,'+scrollHeight+');', function(err) {
-                          if (err) console.log(JSON.stringify(err));
+                          if (err) log(err);
                           console.log(cfg.browserName,cfg.platform,'safeEval 2');
 
                           index++;
                           var filename = piecesDir+'/'+index+'.png';
                           browserDriver.saveScreenshot(filename, function(err) {
-                            if (err) console.log(err);
+                            if (err) log(err);
                             console.log(cfg.browserName,cfg.platform,'saveScreenshot Final');
 
                             browserDriver.log('browser', function(err,logs) {
-                              if (err) console.log(err);
+                              if (err) log(err);
                               console.log(cfg.browserName,cfg.platform,'log');
 
                               var logfile = baseDir+'/'+browser+'_'+platform+'.log'
                               logs = logs || [];
                               fs.writeFile(logfile,logs.join('\n'), function(err) {
-                                if (err) console.log(err);
+                                if (err) log(err);
                                 console.log(cfg.browserName,cfg.platform,'writeFile');
 
                                 browserDriver.quit();
@@ -207,3 +207,7 @@ browserVersions.forEach(function(obj) {
     });
   });
 });
+
+function log(obj) {
+  console.log(JSON.stringify(obj, null, 2));
+}
