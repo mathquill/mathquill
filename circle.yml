@@ -140,6 +140,10 @@ test:
         [ "$(node -p 'require("./status.json").completed')" != false ] && break
       done
 
+    # Complain to Circle CI if any unit tests failed
+    - |-
+      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
+
     # Wait for screenshots to be ready
     - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test "$(<~/screenshots_are_ready)" != ERROR:
         timeout: 300
@@ -192,9 +196,5 @@ test:
       done
 
       rm raw_diff.png
-
-    # finally, complain to Circle CI if there were nonzero test failures
-    - |-
-      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
