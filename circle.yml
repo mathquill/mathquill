@@ -100,18 +100,26 @@ test:
 
     # Run in-browser unit tests, based on:
     #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
-    # "build" and "tag" parameters from:
+    # "build" and "customData" parameters from:
     #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
+    # CircleCI environment variables from:
+    #   https://circleci.com/docs/environment-variables/
     - |-
+      build_name="CircleCI build #$CIRCLE_BUILD_NUM"
+      if [ $CIRCLE_PR_NUMBER ]; then
+        build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
+        [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
+      else
+        build_name="$build_name: $CIRCLE_BRANCH"
+      fi
+      build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+
       curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
            -H 'Content-Type: application/json' \
            -d '{
-                 "build": "'$(git rev-parse HEAD)'",
-                 "tags": [
-                   "after-v'$(node -p 'require("./package.json").version')'",
-                   "circle-ci"
-                 ],
+                 "build": "'$build_name'",
+                 "customData": {"build_url": "'$CIRCLE_BUILD_URL'"}
                  "framework": "mocha",
                  "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
