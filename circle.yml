@@ -103,8 +103,7 @@ test:
     # "build" and "tag" parameters from:
     #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
     - |-
-      curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
-           -X POST \
+      curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
            -H 'Content-Type: application/json' \
            -d '{
