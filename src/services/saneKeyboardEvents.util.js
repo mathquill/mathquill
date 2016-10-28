@@ -95,6 +95,9 @@ var saneKeyboardEvents = (function() {
     var textarea = jQuery(el);
     var target = jQuery(handlers.container || textarea);
 
+    var deadkey = false;
+    var deadkeyChar = "";
+
     // checkTextareaFor() is called after keypress or paste events to
     // say "Hey, I think something was just typed" or "pasted" (resp.),
     // so that at all subsequent opportune times (next event or timeout),
@@ -193,6 +196,26 @@ var saneKeyboardEvents = (function() {
       var text = textarea.val();
       if (text.length === 1) {
         textarea.val('');
+
+        // We always remove the character from the textarea because on Chrome and newer Safari versions
+        // this triggers compositionend when a dead key has been typed. On Firefox and older Safari versions
+        // it does not trigger however, and older Safari versions will even break if the character is removed.
+        // So, if after we've removed it we're still in 'deadkey' state, we put the character back.
+        // See https://github.com/mathquill/mathquill/issues/205
+        //
+        // After the current input event, Firefox will trigger compositionend and an additional input event which
+        // replaces the first character. Older Safari versions triggers the first input event before the keydown
+        // event for dead keys, followed by compositionend and a second input event which replaces the first
+        // character (this is where it breaks if the first character is suddenly gone). In both these cases we
+        // need to identify duplicate dead key characters (deadkeyChar) and ignore them.
+        if (deadkey) {
+          textarea.val(text);
+          deadkeyChar = text;
+        }
+        else if (deadkeyChar === text) {
+          text = deadkeyChar = "";
+        }
+
         handlers.typedText(text);
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
@@ -224,12 +247,17 @@ var saneKeyboardEvents = (function() {
       if (text) handlers.paste(text);
     }
 
+    function onCompositionStart() { deadkey = true; }
+    function onCompositionEnd() { deadkey = false; }
+
     // -*- attach event handlers -*- //
     target.bind({
       keydown: onKeydown,
       keypress: onKeypress,
       focusout: onBlur,
-      paste: onPaste
+      paste: onPaste,
+      compositionstart: onCompositionStart,
+      compositionend: onCompositionEnd
     });
 
     // -*- export public methods -*- //
