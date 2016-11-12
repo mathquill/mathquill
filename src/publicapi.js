@@ -77,6 +77,7 @@ function getInterface(v) {
 
   MQ.L = L;
   MQ.R = R;
+  MQ.saneKeyboardEvents = saneKeyboardEvents;
 
   function config(currentOptions, newOptions) {
     if (newOptions && newOptions.handlers) {

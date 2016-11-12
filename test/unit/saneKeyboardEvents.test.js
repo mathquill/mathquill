@@ -410,4 +410,17 @@ suite('saneKeyboardEvents', function() {
       el.trigger('input');
     });
   });
+
+  suite('copy', function() {
+    test('only runs handler once even if handler synchronously selects', function() {
+      // ...which MathQuill does and resulted in a stack overflow: https://git.io/vosm0
+      var shim = saneKeyboardEvents(el, {
+        copy: function() {
+          shim.select();
+        }
+      });
+
+      el.trigger('copy');
+    });
+  });
 });
