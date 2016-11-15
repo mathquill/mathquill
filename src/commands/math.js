@@ -343,15 +343,6 @@ var Symbol = P(MathCommand, function(_, super_) {
 });
 var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html, mathspeak) {
-    // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
-    // some strange pronunciation given certain expressions,
-    // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
-    // Not an ideal work-around, but placing quotation marks around
-    // non-numeric vanilla symbols works. This will be reported to Apple.
-    // Using slightly modified regex found here: http://stackoverflow.com/questions/8359566/regex-to-match-symbols
-    if (/[-!$%^*()_+|~=`{}\[\]:";'<>?,\/]/.test(ch)) {
-      mathspeak = '"' + mathspeak + '"';
-    }
     super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
 });
@@ -399,7 +390,16 @@ var MathBlock = P(MathElement, function(_, super_) {
           speechArray.push(tempOp+' ');
           tempOp = '';
         }
-        speechArray.push(cmd.mathspeak());
+        var mathspeakText = cmd.mathspeak();
+        // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
+        // some strange pronunciation given certain expressions,
+        // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
+        // Not an ideal work-around, but placing quotation marks around
+        // non-numeric text blocks works. This will be reported to Apple.
+        if (/^[A-Za-z]*$/.test(cmd.text())) {
+          mathspeakText = '"' + mathspeakText + '"';
+        }
+        speechArray.push(mathspeakText);
         if(isNaN(cmd.text()) && cmd.text() !== '.') speechArray.push(' ');
       }
       return speechArray;
