@@ -119,6 +119,7 @@ test:
       fi
       build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
 
+      set -o pipefail
       curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
            -H 'Content-Type: application/json' \
