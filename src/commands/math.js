@@ -348,7 +348,8 @@ var VanillaSymbol = P(Symbol, function(_, super_) {
     // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
     // Not an ideal work-around, but placing quotation marks around
     // non-numeric vanilla symbols works. This will be reported to Apple.
-    if (isNaN(ch)) {
+    // Using slightly modified regex found here: http://stackoverflow.com/questions/8359566/regex-to-match-symbols
+    if (/[-!$%^*()_+|~=`{}\[\]:";'<>?,\/]/.test(ch)) {
       mathspeak = '"' + mathspeak + '"';
     }
     super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
