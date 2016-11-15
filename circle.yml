@@ -185,7 +185,7 @@ test:
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
               | $json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
-              | grep -v 'PREV' \
+              | grep -v 'PREV_' \
               | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
 
       # Generate image diffs.
