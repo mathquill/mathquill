@@ -398,9 +398,13 @@ var MathBlock = P(MathElement, function(_, super_) {
         // non-numeric text blocks works. This will be reported to Apple.
         if (/^[A-Za-z]*$/.test(cmd.text())) {
           mathspeakText = '"' + mathspeakText + '"';
+        } else if (isNaN(cmd.text())) {
+          mathspeakText  =' ' + mathspeakText;
+          if(cmd.text() !== '.') {
+            mathspeakText += ' ';
+          }
         }
-        speechArray.push(mathspeakText);
-        if(isNaN(cmd.text()) && cmd.text() !== '.') speechArray.push(' ');
+        speechArray.push(mathspeakText.replace(/ +(?= )/g,''));
       }
       return speechArray;
     }).join('');
