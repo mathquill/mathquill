@@ -128,7 +128,7 @@ test:
                  "framework": "mocha",
                  "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
-      }' | tee js-tests
+      }' | tee /dev/stderr | tail -1 > js-tests.json
 
     # Wait for tests to finish:
     #
@@ -144,17 +144,16 @@ test:
              -X POST \
              -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
              -H 'Content-Type: application/json' \
-             -d "$(tail -1 js-tests)" \
-        | tee status
-        tail -1 status > status.json
+             -d @js-tests.json \
+        | tee /dev/stderr | tail -1 > status.json
+
         # deliberately do `... != false` rather than `... == true`
         # because unexpected values should break rather than infinite loop
-        [ "$(node -p 'require("./status.json").completed')" != false ] && break
+        [ "$($json completed <status.json)" != false ] && break
       done
 
     # Complain to Circle CI if any unit tests failed
-    - |-
-      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
+    - test "$($json 'js tests'.0.result.failures <status.json)" = 0
 
     # Wait for screenshots to be ready
     - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test -z "$(<~/screenshots_are_ready)":
