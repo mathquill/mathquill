@@ -140,8 +140,7 @@ test:
       while true  # Bash has no do...while >:(
       do
         sleep 5
-        curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
-             -X POST \
+        curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
              -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
              -H 'Content-Type: application/json' \
              -d @js-tests.json \
