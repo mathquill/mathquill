@@ -343,6 +343,14 @@ var Symbol = P(MathCommand, function(_, super_) {
 });
 var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html, mathspeak) {
+    // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
+    // some strange pronunciation given certain expressions,
+    // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
+    // Not an ideal work-around, but placing quotation marks around
+    // non-numeric vanilla symbols works. This will be reported to Apple.
+    if (isNaN(ch)) {
+      mathspeak = '"' + mathspeak + '"';
+    }
     super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
 });
