@@ -50,7 +50,7 @@ dependencies:
           # Sauce Connect randomly fails so try twice https://git.io/vPN8v
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
             || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-            || echo ERROR > ~/sauce_is_ready
+            || echo EXIT STATUS $? | tee /dev/stderr > ~/sauce_is_ready
         } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
         background: true
@@ -86,14 +86,14 @@ test:
 
     # Wait for tunnel to be ready (`make server` and the trivial Node server
     # are much faster, no need to wait for them)
-    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; test "$(<~/sauce_is_ready)" != ERROR
+    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; test -z "$(<~/sauce_is_ready)"
 
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
         {
           time { test -d node_modules/wd || npm install wd; }
           time node script/screenshots.js http://localhost:8000/test/visual.html \
-            && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
+            && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
         } >$CIRCLE_ARTIFACTS/screenshots.log 2>&1
       :
         background: true
@@ -152,7 +152,7 @@ test:
       [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
 
     # Wait for screenshots to be ready
-    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test "$(<~/screenshots_are_ready)" != ERROR:
+    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test -z "$(<~/screenshots_are_ready)":
         timeout: 300
 
     # Stitch together images
