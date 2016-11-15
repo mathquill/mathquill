@@ -31,6 +31,10 @@
 # this file is based on https://github.com/circleci/sauce-connect/blob/a65e41c91e02550ce56c75740a422bebc4acbf6f/circle.yml
 # via https://circleci.com/docs/browser-testing-with-sauce-labs/
 
+machine:
+  environment:
+    json: ~/node_modules/.bin/json
+
 dependencies:
   cache_directories:
     - ~/sauce-connect
@@ -54,6 +58,7 @@ dependencies:
         } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
         background: true
+    - test -x $json || npm install json
 
 test:
   override:
@@ -178,12 +183,9 @@ test:
       # the previous test run plus whichever new images were generated.
       rm -R -- $img_dir/*/
 
-      # Install utility we need
-      npm install -g json
-
       # Download the latest mathquill artifacts.
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
-              | json -a url pretty_path -d '\n\t' \
+              | $json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
               | grep -v 'PREV' \
               | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
