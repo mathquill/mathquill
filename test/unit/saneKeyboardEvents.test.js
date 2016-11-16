@@ -33,6 +33,25 @@ suite('saneKeyboardEvents', function() {
     el.val('a');
   });
 
+  test('normal keys without keypress', function(done) {
+    var counter = 0;
+    saneKeyboardEvents(el, {
+      keystroke: noop,
+      typedText: function(text) {
+        counter += 1;
+        assert.ok(counter <= 1, 'callback is only called once');
+        assert.equal(text, 'a', 'text comes back as a');
+        assert.equal(el.val(), '', 'the textarea remains empty');
+
+        done();
+      }
+    });
+
+    el.trigger(Event('keydown', { which: 97 }));
+    el.trigger(Event('keyup', { which: 97 }));
+    el.val('a');
+  });
+
   test('one keydown only', function(done) {
     var counter = 0;
 
