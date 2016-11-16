@@ -60,7 +60,7 @@ dependencies:
         } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
         background: true
-    - test -x $json || npm install json
+    - test -x $json || { cd; npm install json; }
 
 test:
   override:
