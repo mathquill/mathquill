@@ -52,9 +52,11 @@ dependencies:
             time tar -xzf sc-latest-linux.tar.gz
           fi
           # Sauce Connect randomly fails so try twice https://git.io/vPN8v
-          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-            || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
-            || echo EXIT STATUS $? | tee /dev/stderr > ~/sauce_is_ready
+          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready
+          test -e sauce_is_ready \
+            || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready
+          test -e sauce_is_ready \
+            || echo 'ERROR: Exited twice without creating readyfile' | tee /dev/stderr > ~/sauce_is_ready
         } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
       :
         background: true
