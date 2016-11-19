@@ -431,7 +431,8 @@ var MathBlock = P(MathElement, function(_, super_) {
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
-    _.__mathquillify = function() {
+    _.__mathquillify = function(opts, interfaceVersion) {
+      this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
       this.__controller.delegateMouseEvents();
       this.__controller.staticMathTextareaEvents();
