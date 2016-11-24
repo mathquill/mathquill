@@ -402,9 +402,9 @@ var MathBlock = P(MathElement, function(_, super_) {
       return Letter(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
-    else if (options && options.useDivisionSymbol && ch == '/')
+    else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')
       return LatexCmds['÷'](ch);
-    else if (options && options.useMultiplicationSymbol && ch == '*')
+    else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
       return LatexCmds['×'](ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
