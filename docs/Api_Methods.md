@@ -45,7 +45,7 @@ If the given element is already an editable math field, this will return a new e
 ```html
 <span id="fill-in-the-blank">\sqrt{ \MathQuillMathField{x}^2 + \MathQuillMathField{y}^2 }</span>
 <script>
-  var fillInTheBlank = MQ.StaticMath(document.getElementById('#fill-in-the-blank'));
+  var fillInTheBlank = MQ.StaticMath(document.getElementById('fill-in-the-blank'));
   fillInTheBlank.innerFields[0].latex() // => 'x'
   fillInTheBlank.innerFields[1].latex() // => 'y'
 </script>

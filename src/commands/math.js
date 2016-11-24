@@ -457,9 +457,9 @@ var MathBlock = P(MathElement, function(_, super_) {
       return Letter(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
-    else if (options && options.useDivisionSymbol && ch == '/')
+    else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')
       return LatexCmds['÷'](ch);
-    else if (options && options.useMultiplicationSymbol && ch == '*')
+    else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
       return LatexCmds['×'](ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
@@ -490,7 +490,8 @@ var MathBlock = P(MathElement, function(_, super_) {
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
-    _.__mathquillify = function() {
+    _.__mathquillify = function(opts, interfaceVersion) {
+      this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
       this.__controller.delegateMouseEvents();
       this.__controller.staticMathTextareaEvents();
