@@ -1065,4 +1065,25 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
     });
   });
+
+  suite('alternative symbols when typing / and *', function() {
+    test('typingSlashWritesDivisionSymbol', function() {
+      mq.typedText('/');
+      assertLatex('\\frac{ }{ }');
+
+      mq.config({ typingSlashWritesDivisionSymbol: true });
+
+      mq.keystroke('Backspace').typedText('/');
+      assertLatex('\\div');
+    });
+    test('typingAsteriskWritesTimesSymbol', function() {
+      mq.typedText('*');
+      assertLatex('\\cdot');
+
+      mq.config({ typingAsteriskWritesTimesSymbol: true });
+
+      mq.keystroke('Backspace').typedText('*');
+      assertLatex('\\times');
+    });
+  });
 });
