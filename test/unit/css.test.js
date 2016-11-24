@@ -82,6 +82,37 @@ suite('CSS', function() {
     $(mq.el()).remove();
   });
 
+  test('proper unary/binary within style block', function () {
+    var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq.latex('\\class{dummy}{-}2\\class{dummy}{+}4');
+    var spans = $(mq.el()).find('.mq-root-block').find('span');
+    assert.equal(spans.length, 6, 'PlusMinus expression parsed incorrectly');
+
+    function isBinaryOperator(i) { return $(spans[i]).hasClass('mq-binary-operator'); }
+    function assertBinaryOperator(i, s) { assert.ok(isBinaryOperator(i), '"' + s + '" should be binary'); }
+    function assertUnaryOperator(i, s) { assert.ok(!isBinaryOperator(i), '"' + s + '" should be unary'); }
+
+    assertUnaryOperator(1, '\\class{dummy}{-}');
+    assertBinaryOperator(4, '\\class{dummy}{-}2\\class{dummy}{+}');
+
+    mq.latex('\\textcolor{red}{-}2\\textcolor{green}{+}4');
+    spans = $(mq.el()).find('.mq-root-block').find('span');
+    assert.equal(spans.length, 6, 'PlusMinus expression parsed incorrectly');
+
+    assertUnaryOperator(1, '\\textcolor{red}{-}');
+    assertBinaryOperator(4, '\\textcolor{red}{-}2\\textcolor{green}{+}');
+
+    //test recursive depths
+    mq.latex('\\textcolor{red}{\\class{dummy}{-}}2\\textcolor{green}{\\class{dummy}{+}}4');
+    spans = $(mq.el()).find('.mq-root-block').find('span');
+    assert.equal(spans.length, 8, 'PlusMinus expression parsed incorrectly');
+
+    assertUnaryOperator(2, '\\textcolor{red}{\\class{dummy}{-}}');
+    assertBinaryOperator(6, '\\textcolor{red}{\\class{dummy}{-}}2\\textcolor{green}{\\class{dummy}{+}}');
+
+    $(mq.el()).remove();
+  });
+
   test('operator name spacing e.g. sin x', function() {
     var mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
 

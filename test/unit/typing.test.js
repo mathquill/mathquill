@@ -56,6 +56,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('\\asdf+');
       assertLatex('\\text{asdf}+');
     });
+
+    test('dollar sign', function() {
+      mq.typedText('$');
+      assertLatex('\\$');
+    });
   });
 
   suite('auto-expanding parens', function() {
@@ -1034,6 +1039,9 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('^').latex(), 'x^{^{ }}');
       assert.equal(mq.typedText('2').latex(), 'x^{^2}');
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
+      mq.latex('');
+      assert.equal(mq.typedText('2').latex(), '2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
 
       mq.latex('');
       MQ.config({ supSubsRequireOperand: true });
@@ -1052,6 +1060,9 @@ suite('typing with auto-replaces', function() {
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('2').latex(), 'x^2');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
+      mq.latex('');
+      assert.equal(mq.typedText('2').latex(), '2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
     });
   });
 });

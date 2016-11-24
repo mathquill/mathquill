@@ -1,6 +1,6 @@
 suite('focusBlur', function() {
   function assertHasFocus(mq, name, invert) {
-    assert.ok(!!invert ^ $(mq.el()).find('textarea').is(':focus'), name + (invert ? ' does not have focus' : ' has focus'));
+    assert.ok(!!invert ^ ($(mq.el()).find('textarea')[0] === document.activeElement), name + (invert ? ' does not have focus' : ' has focus'));
   }
 
   suite('handlers can shift focus away', function() {
@@ -80,7 +80,7 @@ suite('focusBlur', function() {
           $(mq.el()).remove();
           done();
         });
-      }, 10);
+      }, 100);
     });
   });
 });
