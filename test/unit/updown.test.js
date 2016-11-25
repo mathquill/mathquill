@@ -175,7 +175,7 @@ suite('up/down', function() {
   });
 
   test('\\MathQuillMathField{} in a fraction', function() {
-    var outer = MQ.MathField(
+    var outer = MQ.StaticMath(
       $('<span>\\frac{\\MathQuillMathField{n}}{2}</span>').appendTo('#mock')[0]
     );
     var inner = MQ($(outer.el()).find('.mq-editable-field')[0]);
