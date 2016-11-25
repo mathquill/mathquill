@@ -156,7 +156,7 @@ suite('saneKeyboardEvents', function() {
           'clicked on something in the Developer Tools or on the page itself. ' +
           'Click the page, or close the Developer Tools, and Refresh.'
         );
-        el.remove(); // LOL next line skips teardown https://git.io/vaUWq
+        $('#mock').empty(); // LOL next line skips teardown https://git.io/vaUWq
         this.skip();
       }
 
