@@ -58,6 +58,7 @@
     <div id="mock"></div>
 
     <script type="text/javascript">
+      teardown(function() { $('#mock').empty(); });
       var runner = mocha.run();
 
       if (post_xunit_to) {

@@ -17,9 +17,6 @@ suite('focusBlur', function() {
       mq2 = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
       wasUpOutOfCalled = false;
     });
-    teardown(function() {
-      $(mq.el()).add(mq2.el()).remove();
-    });
 
     function triggerUpOutOf(mq) {
       $(mq.el()).find('textarea').trigger(jQuery.Event('keydown', { which: 38 }));
@@ -76,8 +73,6 @@ suite('focusBlur', function() {
         mq.keystroke('Shift-Left');
         setTimeout(function() {
           assert.equal($(mq.el()).find('textarea').val(), 'd');
-
-          $(mq.el()).remove();
           done();
         });
       }, 100);

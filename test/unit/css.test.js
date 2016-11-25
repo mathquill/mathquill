@@ -12,7 +12,6 @@ suite('CSS', function() {
     assert.equal(mock.scrollHeight, 25);
     assert.equal(mock.scrollWidth, 25);
 
-    $(mq.el()).remove();
     $(mock).css({
       fontSize: '',
       height: '',
@@ -27,8 +26,6 @@ suite('CSS', function() {
 
     assert.ok(rootEl.hasClass('mq-empty'), 'Empty root block should have the mq-empty class name.');
     assert.ok(rootEl.height() > 0, 'Empty root block height should be above 0.');
-
-    testEl.remove();
   });
 
   test('empty block does not collapse', function() {
@@ -38,8 +35,6 @@ suite('CSS', function() {
 
     assert.ok(numeratorEl.hasClass('mq-empty'), 'Empty numerator should have the mq-empty class name.');
     assert.ok(numeratorEl.height() > 0, 'Empty numerator height should be above 0.');
-
-    testEl.remove();
   });
 
   test('test florin spacing', function () {
@@ -52,8 +47,6 @@ suite('CSS', function() {
     var mqF = $(mq.el()).find('.mq-f');
     var testVal = parseFloat(mqF.css('margin-right')) - parseFloat(mqF.css('margin-left'));
     assert.ok(testVal > 0, 'this should be truthy') ;
-
-    $(mq.el()).remove();
   });
 
   test('unary PlusMinus before separator', function () {
@@ -78,8 +71,6 @@ suite('CSS', function() {
     assertUnaryOperator(28, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm');
     assertBinaryOperator(30, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm');
     assertBinaryOperator(33, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm1)\pm');
-
-    $(mq.el()).remove();
   });
 
   test('proper unary/binary within style block', function () {
@@ -109,8 +100,6 @@ suite('CSS', function() {
 
     assertUnaryOperator(2, '\\textcolor{red}{\\class{dummy}{-}}');
     assertBinaryOperator(6, '\\textcolor{red}{\\class{dummy}{-}}2\\textcolor{green}{\\class{dummy}{+}}');
-
-    $(mq.el()).remove();
   });
 
   test('operator name spacing e.g. sin x', function() {

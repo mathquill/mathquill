@@ -10,10 +10,6 @@ suite('saneKeyboardEvents', function() {
     el = $('<textarea>').appendTo('#mock');
   });
 
-  teardown(function() {
-    el.remove();
-  });
-
   test('normal keys', function(done) {
     var counter = 0;
     saneKeyboardEvents(el, {

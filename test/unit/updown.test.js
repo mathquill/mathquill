@@ -6,9 +6,6 @@ suite('up/down', function() {
     controller = mq.__controller;
     cursor = controller.cursor;
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   test('up/down in out of exponent', function() {
     controller.renderLatexMath('x^{nm}');
@@ -183,7 +180,5 @@ suite('up/down', function() {
     assert.equal(inner.__controller.cursor.parent, inner.__controller.root);
     inner.keystroke('Down');
     assert.equal(inner.__controller.cursor.parent, inner.__controller.root);
-
-    $(outer.el()).remove();
   });
 });
