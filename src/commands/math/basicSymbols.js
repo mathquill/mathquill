@@ -29,7 +29,7 @@ var Variable = P(Symbol, function(_, super_) {
         text = text.slice(1, text.length);
       }
       else if (text[text.length-1] == ' ') {
-        text = text.slice (0, text.length-1);
+        text = text.slice (0, -1);
       }
     } else {
       if (this[L] && !(this[L] instanceof Variable)

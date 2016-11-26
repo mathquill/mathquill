@@ -14,6 +14,13 @@ suite('autoOperatorNames', function() {
     );
   }
 
+  function assertText(input, expected) {
+    var result = mq.text();
+    assert.equal(result, expected,
+      input+', got \''+result+'\', expected \''+expected+'\''
+    );
+  }
+
   test('simple LaTeX parsing, typing', function() {
     function assertAutoOperatorNamesWork(str, latex) {
       var count = 0;
@@ -45,6 +52,16 @@ suite('autoOperatorNames', function() {
     assertAutoOperatorNamesWork('arcosecant', 'ar\\operatorname{cosec}ant');
     assertAutoOperatorNamesWork('cscscscscscsc', '\\csc s\\csc s\\csc sc');
     assertAutoOperatorNamesWork('scscscscscsc', 's\\csc s\\csc s\\csc');
+  });
+
+  test('text() output', function(){
+    function assertTranslatedCorrectly(latexStr, text) {
+      mq.latex(latexStr);
+      assertText('outputting ' + latexStr, text);
+    }
+
+    assertTranslatedCorrectly('\\sin', 'sin');
+    assertTranslatedCorrectly('\\sin\\left(xy\\right)', 'sin(x*y)');
   });
 
   test('deleting', function() {
