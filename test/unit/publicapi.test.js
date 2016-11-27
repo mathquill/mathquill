@@ -811,7 +811,7 @@ suite('Public API', function() {
       // Test that we use clientY instead of pageY
       var windowHeight = $(window).height();
       var filler = $('<div>').height(windowHeight);
-      filler.insertBefore('#mock');
+      filler.prependTo('#mock');
 
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
       mq.typedText("mmmm/mmmm");
@@ -827,15 +827,13 @@ suite('Public API', function() {
       assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
 
       assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
-
-      filler.remove();
     });
     test('target is optional', function() {
       // Insert filler so that the page is taller than the window so this test is deterministic
       // Test that we use clientY instead of pageY
       var windowHeight = $(window).height();
       var filler = $('<div>').height(windowHeight);
-      filler.insertBefore('#mock');
+      filler.prependTo('#mock');
 
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
       mq.typedText("mmmm/mmmm");
@@ -850,8 +848,6 @@ suite('Public API', function() {
       assert.equal(document.activeElement, $(mq.el()).find('textarea')[0]);
 
       assert.equal(mq.latex(), "\\frac{mmmm}{mmxmm}");
-
-      filler.remove();
     });
   });
 
@@ -873,7 +869,7 @@ suite('Public API', function() {
       // Test that we use clientY instead of pageY
       var windowHeight = $(window).height();
       var filler = $('<div>').height(windowHeight);
-      filler.insertBefore('#mock');
+      filler.prependTo('#mock');
 
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0]);
       mq.typedText("mmmm/mmmm");
@@ -892,8 +888,6 @@ suite('Public API', function() {
       assert.ok(jQuery('.embedded-html').length);
       assert.equal(mq.text(), "(m*m*m*m)/(m*m*embedded text*m*m)");
       assert.equal(mq.latex(), "\\frac{mmmm}{mmembedded latexmm}");
-
-      filler.remove();
     });
   });
 
