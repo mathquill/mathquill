@@ -3,9 +3,6 @@ suite('autoOperatorNames', function() {
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function assertLatex(input, expected) {
     var result = mq.latex();
