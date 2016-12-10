@@ -166,49 +166,47 @@ test:
         timeout: 300
 
     # Stitch together images
-    # TODO: Split this into multiple yaml lines. I (Michael)
-    #       niavely tried to split this into mutiple yaml lines
-    #       but was unsucessful in doing do.
     - |-
-      img_dir=$CIRCLE_ARTIFACTS/imgs/
-      for x in $(ls $img_dir)
-      do
-        convert $img_dir/$x/*.png -append $img_dir/$x.png
+      for img in $(ls $CIRCLE_ARTIFACTS/imgs/); do
+        convert $CIRCLE_ARTIFACTS/imgs/$img/*.png -append $CIRCLE_ARTIFACTS/imgs/$img.png
       done
 
-      # Remove all directories in $CIRCLE_ARTIFACTS/img
-      # Currently the pieces aren't kept around. If it's
-      # desirable to keep them around, we should use
-      #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
-      # The reason the image pieces aren't currently kept
-      # around is that it was leading to a problem. Specifically,
-      # when we get the previous images, we niavely grab any *.png,
-      # including the pieces images. This compounded so that each
-      # iteration of a test run would have all of the images from
-      # the previous test run plus whichever new images were generated.
-      rm -R -- $img_dir/*/
+    # Remove all directories in $CIRCLE_ARTIFACTS/img
+    # Currently the pieces aren't kept around. If it's
+    # desirable to keep them around, we should use
+    #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
+    # The reason the image pieces aren't currently kept
+    # around is that it was leading to a problem. Specifically,
+    # when we get the previous images, we niavely grab any *.png,
+    # including the pieces images. This compounded so that each
+    # iteration of a test run would have all of the images from
+    # the previous test run plus whichever new images were generated.
+    - rm -R -- $CIRCLE_ARTIFACTS/imgs/*/
 
-      # Download the latest mathquill artifacts.
+    # Download the latest mathquill artifacts.
+    - |-
       curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
               | $json -a url pretty_path -d '\n\t' \
               | grep '\.png$' \
               | grep -v 'PREV_' \
-              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
+              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")
 
-      # Generate image diffs.
-      cd $img_dir
+    # Generate image diffs.
+    - |-
+      cd $CIRCLE_ARTIFACTS/imgs/
       for file in $(ls PINNED*); do
         prev=PREV_$file
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
         composite -alpha on raw_diff.png $prev DIFF_$file
       done
 
+    - |-
       for file in $(ls EVERGREEN*); do
         prev=$(ls PREV_$file*)
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
         composite -alpha on raw_diff.png $prev DIFF_$file
       done
 
-      rm raw_diff.png
+    - rm raw_diff.png
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
