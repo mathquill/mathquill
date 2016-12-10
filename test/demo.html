@@ -60,7 +60,7 @@ code span {
 <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };">MQ.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
 
 </div>
-<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="support/jquery-1.5.2.js"></script>
 <script type="text/javascript" src="../build/mathquill.js"></script>
 <script type="text/javascript">
 MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);

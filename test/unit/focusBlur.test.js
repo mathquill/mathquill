@@ -19,7 +19,7 @@ suite('focusBlur', function() {
     });
 
     function triggerUpOutOf(mq) {
-      $(mq.el()).find('textarea').trigger(jQuery.Event('keydown', { which: 38 }));
+      $(mq.el()).find('textarea').trigger(jQuery.extend(jQuery.Event('keydown'), { which: 38 }));
       assert.ok(wasUpOutOfCalled);
     }
 
@@ -76,6 +76,23 @@ suite('focusBlur', function() {
           done();
         });
       }, 100);
+    });
+  });
+
+  test('blur event fired when math field loses focus', function(done) {
+    var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+
+    mq.focus();
+    assertHasFocus(mq, 'math field');
+
+    var textarea = $('<textarea>').appendTo('#mock').focus();
+    assert.ok(textarea[0] === document.activeElement, 'textarea has focus');
+
+    setTimeout(function() {
+      assert.ok(!$(mq.el()).hasClass('mq-focused'), 'math field is visibly blurred');
+
+      $('#mock').empty();
+      done();
     });
   });
 });

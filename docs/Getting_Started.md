@@ -2,7 +2,7 @@
 
 Download [the latest release](https://github.com/mathquill/mathquill/releases/latest) or [build from source](Contributing.md#building-and-testing).
 
-MathQuill depends on [jQuery 1.4.3+](http://jquery.com), we recommend the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
+MathQuill depends on [jQuery 1.5.2+](http://jquery.com), we recommend the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
 
 Load MathQuill with something like (order matters):
 ```html
