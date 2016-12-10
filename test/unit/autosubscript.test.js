@@ -6,9 +6,6 @@ suite('autoSubscript', function() {
     controller = mq.__controller;
     cursor = controller.cursor;
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   test('auto subscripting variables', function() {
     mq.latex('x');
