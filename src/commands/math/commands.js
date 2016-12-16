@@ -506,6 +506,37 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+//Dutch notation for logarithm: notation like: {}^3 log{9}. 
+//we will use nonstandard latex-like notation: lognl[3]{9}
+var LogNL =
+LatexCmds.lognl = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\lognl';
+  _.htmlTemplate =
+      '<sup class="mq-scaled mq-non-leaf">&0</sup>'
+    + '<span class="mq-scaled">'
+    +   '<span class="mq-scaled">log</span>'
+    +   '<span class="mq-paren mq-scaled">(</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-paren mq-scaled">)</span>'
+    + '</span>'
+  ;
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var lognl = LogNL();
+        lognl.blocks = [ optBlock, block ];
+        optBlock.adopt(lognl, 0, 0);
+        block.adopt(lognl, optBlock, 0);
+        return lognl;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['lognl[', '](', ')'];
+  _.latex = function() {
+    return '\\lognl['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  };
+});
+
 var DiacriticAbove = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, symbol, textTemplate) {
     var htmlTemplate =
