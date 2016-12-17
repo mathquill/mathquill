@@ -201,12 +201,13 @@ test:
       done
 
     - |-
+      cd $CIRCLE_ARTIFACTS/imgs/
       for file in $(ls EVERGREEN*); do
         prev=$(ls PREV_$file*)
         metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
         composite -alpha on raw_diff.png $prev DIFF_$file
       done
 
-    - rm raw_diff.png
+    - rm $CIRCLE_ARTIFACTS/imgs/raw_diff.png
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
