@@ -185,13 +185,23 @@ test:
 
     # Download the latest mathquill artifacts.
     - |-
-      prev_imgs="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
-                    | tee /dev/stderr \
+      artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts)"
+      echo
+      echo '/latest/artifacts:'
+      echo
+      echo "$artifacts_json"
+      echo
+
+      prev_imgs="$(echo "$artifacts_json" \
                     | $json -a url pretty_path -d '\n\t' \
                     | grep '\.png$' \
                     | grep -v 'PREV_' \
-                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:" \
-                    | tee /dev/stderr)"
+                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")"
+      echo 'Previous image URLs and files:'
+      echo
+      echo "$prev_imgs"
+      echo
+
       test -z "$prev_imgs" || curl $prev_imgs
 
     # Generate image diffs.
