@@ -183,11 +183,11 @@ test:
     # the previous test run plus whichever new images were generated.
     - rm -R -- $CIRCLE_ARTIFACTS/imgs/*/
 
-    # Download the latest mathquill artifacts.
+    # Download the latest mathquill artifacts from master.
     - |-
-      artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts)"
+      artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=master)"
       echo
-      echo '/latest/artifacts:'
+      echo '/latest/artifacts?branch=master:'
       echo
       echo "$artifacts_json"
       echo
