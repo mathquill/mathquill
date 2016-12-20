@@ -31,6 +31,7 @@ function MathQuill(el) {
   return MQ1(el);
 };
 MathQuill.prototype = Progenote.p;
+MathQuill.VERSION = "{VERSION}";
 MathQuill.interfaceVersion = function(v) {
   // shim for #459-era interface versioning (ended with #495)
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
@@ -77,6 +78,7 @@ function getInterface(v) {
 
   MQ.L = L;
   MQ.R = R;
+  MQ.saneKeyboardEvents = saneKeyboardEvents;
 
   function config(currentOptions, newOptions) {
     if (newOptions && newOptions.handlers) {

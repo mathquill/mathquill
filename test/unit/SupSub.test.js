@@ -3,9 +3,6 @@ suite('SupSub', function() {
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
 

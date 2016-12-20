@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MathQuill Quickstart</title>
+    <link rel="stylesheet" type="text/css" href="build/mathquill.css">
+  </head>
+  <body>
+    <p>Static math span: <span id="static-math">x = \frac{ -b \pm \sqrt{b^2-4ac} }{ 2a }</span>
+    <p>Editable math field: <span id="math-field">x^2</span></p>
+    <p>LaTeX of what you typed: <code id="latex">x^2</code></p>
+    <p><a href="http://docs.mathquill.com/en/latest/Getting_Started/">MathQuill&rsquo;s Getting
+      Started Guide</a></p>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.js"></script>
+    <script src="build/mathquill.js"></script>
+    <script>
+      var staticMathSpan = document.getElementById('static-math');
+      var mathFieldSpan = document.getElementById('math-field');
+      var latexSpan = document.getElementById('latex');
+
+      var MQ = MathQuill.getInterface(2); // keeps the API stable
+
+      // easily create static or editable math from a DOM element by calling the
+      // appropriate constructor: http://docs.mathquill.com/en/latest/Api_Methods/
+      MQ.StaticMath(staticMathSpan);
+
+      // you may pass in an options object:
+      var mathField = MQ.MathField(mathFieldSpan, {
+        spaceBehavesLikeTab: true, // an example config option, for more see:
+                                   //   http://docs.mathquill.com/en/latest/Config/
+        handlers: {
+          edit: function() {
+            // retrieve, in LaTeX format, the math that was typed:
+            latexSpan.textContent = mathField.latex();
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
