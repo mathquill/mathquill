@@ -221,10 +221,16 @@ function getInterface(v) {
       else this.__controller.ariaLabel = 'MathQuill Input';
       return this;
     };
+    _getAriaLabel = function () {
+      return this.__controller.ariaLabel || 'MathQuill Input';
+    };
     _.setAriaPostLabel = function(ariaPostLabel) {
       if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') this.__controller.ariaPostLabel = ariaPostLabel;
       else this.__controller.ariaPostLabel = '';
       return this;
+    };
+    _getAriaPostLabel = function () {
+      return this.__controller.ariaPostLabel || '';
     };
     _.clickAt = function(clientX, clientY, target) {
       target = target || document.elementFromPoint(clientX, clientY);

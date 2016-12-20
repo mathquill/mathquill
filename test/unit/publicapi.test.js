@@ -158,6 +158,17 @@ suite('Public API', function() {
       assert.equal(mq.__controller.cursor[R], 0);
     });
 
+    test('ARIA labels', function() {
+      mq.setAriaLabel('ARIA label');
+      mq.setAriaPostLabel('ARIA post-label');
+      assert.equal(mq.getAriaLabel(), 'ARIA label');
+      assert.equal(mq.getAriaPostLabel(), 'ARIA post-label');
+      mq.setAriaLabel('');
+      mq.setAriaPostLabel('');
+      assert.equal(mq.getAriaLabel(), 'MathQuill Input');
+      assert.equal(mq.getAriaPostLabel(), '');
+    });
+
     test('.mathspeak()', function() {
       function assertMathSpeakEqual(a, b) {
         assert.equal(normalize(a), normalize(b));
