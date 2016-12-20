@@ -813,7 +813,7 @@ suite('typing with auto-replaces', function() {
 
   suite('autoCommands', function() {
     setup(function() {
-      MQ.config({
+      mq.config({
         autoOperatorNames: 'sin pp',
         autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
       });
