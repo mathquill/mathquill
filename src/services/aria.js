@@ -5,11 +5,10 @@
  * WAI-ARIA is still catching on, thus only more recent browsers support it, and even then to varying degrees.
  * The below implementation attempts to be as broad as possible and may not conform precisely to the spec. But, neither do any browsers or adaptive technologies at this point.
  * At time of writing, IE 11, FF 44, and Safari 8.0.8 work. Older versions of these browsers should speak as well, but haven't tested precisely which earlier editions pass.
- * Todo: find out why Chrome refuses to speak.
 
  * Tested AT: on Windows, Window-Eyes, ZoomText Fusion, NVDA, and JAWS (all supported).
  * VoiceOver on Mac platforms also supported (only tested with OSX 10.10.5 and iOS 9.2.1+).
- * Android is hit or miss, Firefox seems to work more predictably than Chrome when tested against Talkback.
+ * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
 var Aria = P(function(_) {
@@ -57,7 +56,7 @@ var Aria = P(function(_) {
   };
   _.alert = function(t) {
     if (t) this.queue(t);
-    if (this.items.length) this.jQ.empty().html(this.items.join(' ').replace(/ +(?= )/g,''));
+    if (this.items.length) this.jQ.empty().text(this.items.join(' ').replace(/ +(?= )/g,''));
     return this.clear();
   };
 
