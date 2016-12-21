@@ -1,5 +1,5 @@
 // ARIA alert tests
-// note: we introduce a 100ms delay before checking the value of the alert because it takes a small amount of time for the alert to render for a screen reader
+// Proof of concept at this point.
 
 suite('aria', function() {
   var mq, $aria;
@@ -56,6 +56,20 @@ suite('aria', function() {
     assertAriaEqual('over');
     mq.keystroke('Backspace');
     assertAriaEqual('1');
+  });
+
+  test('navigating a fraction', function() {
+    mq.typedText('1');
+    assertAriaEqual('1');
+    mq.typedText('/');
+    assertAriaEqual('over');
+    mq.typedText('2');
+    assertAriaEqual('2');
+    mq.keystroke('Up');
+    assertAriaEqual('numerator 1');
+    mq.keystroke('Down');
+    assertAriaEqual('denominator 2');
+    mq.latex('');
   });
 
   test('typing and backspacing through parenthesies', function() {
