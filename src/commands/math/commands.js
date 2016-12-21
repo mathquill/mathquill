@@ -602,7 +602,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
       this.ariaLabel = 'absolute value';
     }
-    else if (this.side) {
+    else if (opts && opts.createdLeftOf && this.side) {
       var ch = '';
       if (this.side === L) ch = this.textTemplate[0];
       else if (this.side === R) ch = this.textTemplate[1];

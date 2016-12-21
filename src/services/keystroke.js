@@ -259,10 +259,14 @@ Controller.open(function(_) {
     var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
     if(cursorEl && cursorEl instanceof Node) {
       if(cursorEl.sides) {
-        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch));
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
       } else aria.queue(cursorEl);
     } else if(cursorElParent && cursorElParent instanceof Node) {
-      aria.queue(cursorElParent);
+      if(cursorElParent.sides) {
+        aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
+      } else {
+        aria.queue(cursorElParent);
+      }
     }
 
     var hadSelection = cursor.selection;
