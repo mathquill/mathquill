@@ -467,13 +467,15 @@ var MathBlock = P(MathElement, function(_, super_) {
       return VanillaSymbol(ch);
   };
   _.write = function(cursor, ch) {
-    // special-case the slash so that fractions are voiced while typing
-    if (ch === '/') ch = '÷';
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     cmd.createLeftOf(cursor.show());
-    // TODO needs tests
-    aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+    // special-case the slash so that fractions are voiced while typing
+    if (ch === '/') {
+      aria.alert('over');
+    } else {
+      aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+    }
   };
 
   _.focus = function() {
