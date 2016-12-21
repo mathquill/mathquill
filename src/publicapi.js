@@ -221,7 +221,7 @@ function getInterface(v) {
       else this.__controller.ariaLabel = 'MathQuill Input';
       return this;
     };
-    _getAriaLabel = function () {
+    _.getAriaLabel = function () {
       return this.__controller.ariaLabel || 'MathQuill Input';
     };
     _.setAriaPostLabel = function(ariaPostLabel) {
@@ -229,7 +229,7 @@ function getInterface(v) {
       else this.__controller.ariaPostLabel = '';
       return this;
     };
-    _getAriaPostLabel = function () {
+    _.getAriaPostLabel = function () {
       return this.__controller.ariaPostLabel || '';
     };
     _.clickAt = function(clientX, clientY, target) {
