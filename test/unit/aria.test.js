@@ -1,24 +1,12 @@
-// ARIA alert tests
-// Proof of concept at this point.
-
 suite('aria', function() {
-  var mq, $aria;
+  var mq;
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    $aria = $('body').find('.mq-aria-alert');
   });
 
   function assertAriaEqual(alertText) {
-    setTimeout(function() {
-      return assert.equal(alertText, $aria.text());
-    }.bind(this), 100);
+    assert.equal(alertText, mq.__controller.aria.msg);
   }
-
-  test('aria alert element exists', function() {
-    setTimeout(function() {
-      assert.ok($aria.length, 1);
-    }.bind(this),100);
-  });
 
   test('typing and backspacing over simple expression', function() {
     mq.typedText('1');
@@ -53,7 +41,7 @@ suite('aria', function() {
     mq.keystroke('Backspace');
     assertAriaEqual('2');
     mq.keystroke('Backspace');
-    assertAriaEqual('over');
+    assertAriaEqual('StartFraction, 1 Over , EndFraction');
     mq.keystroke('Backspace');
     assertAriaEqual('1');
   });
@@ -96,15 +84,15 @@ suite('aria', function() {
   });
 
   test('testing beginning and end alerts', function() {
-    mq.latex('sqrt(x)');
+    mq.typedText('sqrt(x)');
     mq.keystroke('Home');
-    assertAriaEqual('beginning of block s q r t "x');
+    assertAriaEqual('beginning of block s q r t left parenthesis, "x" , right parenthesis');
     mq.keystroke('End');
-    assertAriaEqual('end of block s q r t "x');
+    assertAriaEqual('end of block s q r t left parenthesis, "x" , right parenthesis');
     mq.keystroke('Ctrl-Home');
-    assertAriaEqual('beginning of MathQuill Input s q r t "x"');
+    assertAriaEqual('beginning of MathQuill Input s q r t left parenthesis, "x" , right parenthesis');
     mq.keystroke('Ctrl-End');
-    assertAriaEqual('end of MathQuill Input s q r t "x"');
+    assertAriaEqual('end of MathQuill Input s q r t left parenthesis, "x" , right parenthesis');
   });
 
 });

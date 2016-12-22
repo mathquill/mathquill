@@ -18,6 +18,7 @@ var Aria = P(function(_) {
     if (!jQuery(el).length) jQuery('body').append("<div aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></div>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
     this.jQ = jQuery(el);
     this.items = [];
+    this.msg = '';
   };
 
   _.queue = function(item, shouldDescribe) {
@@ -44,7 +45,10 @@ var Aria = P(function(_) {
 
   _.alert = function(t) {
     if (t) this.queue(t);
-    if (this.items.length) this.jQ.empty().text(this.items.join(' ').replace(/ +(?= )/g,''));
+    if (this.items.length) {
+      this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
+      this.jQ.empty().text(this.msg);
+    }
     return this.clear();
   };
 
@@ -58,6 +62,7 @@ var Aria = P(function(_) {
 var aria = Aria();
 
 Controller.open(function(_) {
+  _.aria = aria;
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/
   _.exportMathSpeak = function() { return this.root.mathspeak(); };
