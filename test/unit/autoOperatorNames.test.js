@@ -76,7 +76,7 @@ suite('autoOperatorNames', function() {
 
   suite('override autoOperatorNames', function() {
     test('basic', function() {
-      MQ.config({ autoOperatorNames: 'sin lol' });
+      mq.config({ autoOperatorNames: 'sin lol' });
       mq.typedText('arcsintrololol');
       assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
     });
