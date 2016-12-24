@@ -88,126 +88,119 @@ var browserVersions = [
 browserVersions.forEach(function(obj) {
   var cfg = obj.version;
   cfg.build = build_name;
-  var browserDriver = wd.remote('ondemand.saucelabs.com', 80, username, accessKey);
-  // The following is in the style of
-  // https://github.com/admc/wd/blob/62f2b0060d36a402de5634477b26a5ed4c051967/examples/async/chrome.js#L25-L40
-  browserDriver.init(cfg, function(err, _, capabilities) {
-    if (err) log(err);
-    console.log(cfg.browserName,cfg.platform,'init')
+  var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
+  return browserDriver.init(cfg)
+  .then(function(_, capabilities) {
+    console.log(cfg.browserName,cfg.platform,'init');
 
     var browser = cfg.browserName.replace(/\s/g, '_');
     var platform = cfg.platform.replace(/\s/g, '_');
     var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
     fs.mkdirSync(piecesDir);
 
-    browserDriver.get(url, function(err) {
-      if (err) log(err);
-      console.log(cfg.browserName,cfg.platform,'get')
-      browserDriver.safeExecute('document.documentElement.scrollHeight', function(err,scrollHeight) {
-        if (err) log(err);
-        console.log(cfg.browserName,cfg.platform,'get scrollHeight')
-        browserDriver.safeExecute('document.documentElement.clientHeight', function(err,viewportHeight) {
-          if (err) log(err);
-          console.log(cfg.browserName,cfg.platform,'get clientHeight')
+    return browserDriver;
+  })
+  .get(url)
+  .then(function() {
+    console.log(cfg.browserName,cfg.platform,'get');
+    return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
+            browserDriver.safeExecute('document.documentElement.clientHeight')];
+  })
+  .spread(function(scrollHeight, viewportHeight) {
+    console.log(cfg.browserName,cfg.platform,'get scrollHeight, clientHeight');
 
-          // Firefox and Internet Explorer will take a screenshot of the entire webpage,
-          if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
-            // saves file in the file `piecesDir/browser_version_platform/*.png`
-            var filename = piecesDir+'/'+browser+'_'+platform+'.png';
-            browserDriver.saveScreenshot(filename, function(err) {
-              if (err) log(err);
-              console.log(cfg.browserName,cfg.platform,'saveScreenshot');
+    // Firefox and Internet Explorer will take a screenshot of the entire webpage,
+    if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
+      // saves file in the file `piecesDir/browser_version_platform/*.png`
+      var filename = piecesDir+'/'+browser+'_'+platform+'.png';
+      return browserDriver.saveScreenshot(filename)
+      .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot'))
+      .log('browser')
+      .then(function(logs) {
+        console.log(cfg.browserName,cfg.platform,'log');
 
-              browserDriver.log('browser', function(err,logs) {
-                if (err) log(err);
-                console.log(cfg.browserName,cfg.platform,'log');
+        var logfile = baseDir+'/'+browser+'_'+platform+'.log'
+        logs = logs || [];
+        return new Promise(function(resolve, reject) {
+          fs.writeFile(logfile,logs.join('\n'), function(err) {
+            if (err) return reject(err);
 
-                var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-                logs = logs || [];
-                fs.writeFile(logfile,logs.join('\n'), function(err) {
-                  if (err) log(err);
-
-                  browserDriver.quit();
-                });
-              });
-
-            });
-          } else {
-            var scrollTop = 0;
-
-            // loop generates the images. Firefox and Internet Explorer will take
-            // a screenshot of the entire webpage, but Opera, Safari, and Chrome
-            // do not. For those browsers we scroll through the page and take
-            // incremental screenshots.
-            (function loop() {
-              var index = (scrollTop/viewportHeight) + 1;
-
-              // Use `window.scrollTo` because thats what jQuery does
-              // https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
-              // `window.scrollTo` was used instead of jQuery because jQuery was
-              // causing a stackoverflow in Safari.
-              browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');', function(err) {
-                if (err) log(err);
-                console.log(cfg.browserName,cfg.platform,'safeEval 1');
-
-                // saves file in the file `piecesDir/browser_version_platform/#.png`
-                var filename = piecesDir+'/'+index+'.png';
-                browserDriver.saveScreenshot(filename, function(err) {
-                  if (err) log(err);
-                  console.log(cfg.browserName,cfg.platform,'saveScreenshot');
-
-                  scrollTop += viewportHeight;
-                  if (scrollTop + viewportHeight > scrollHeight) {
-                    browserDriver.getWindowSize(function(err,size) {
-                      if (err) log(err);
-                      console.log(cfg.browserName,cfg.platform,'getWindowSize');
-                      // account for the viewport offset
-                      var extra = size.height - viewportHeight;
-                      browserDriver.setWindowSize(size.width, (scrollHeight-scrollTop)+extra, function(err) {
-                        if (err) log(err);
-                        console.log(cfg.browserName,cfg.platform,'setWindowSize');
-
-                        browserDriver.safeEval('window.scrollTo(0,'+scrollHeight+');', function(err) {
-                          if (err) log(err);
-                          console.log(cfg.browserName,cfg.platform,'safeEval 2');
-
-                          index++;
-                          var filename = piecesDir+'/'+index+'.png';
-                          browserDriver.saveScreenshot(filename, function(err) {
-                            if (err) log(err);
-                            console.log(cfg.browserName,cfg.platform,'saveScreenshot Final');
-
-                            browserDriver.log('browser', function(err,logs) {
-                              if (err) log(err);
-                              console.log(cfg.browserName,cfg.platform,'log');
-
-                              var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-                              logs = logs || [];
-                              fs.writeFile(logfile,logs.join('\n'), function(err) {
-                                if (err) log(err);
-                                console.log(cfg.browserName,cfg.platform,'writeFile');
-
-                                browserDriver.quit();
-                              });
-                            });
-                          });
-                        });
-
-                      });
-                    });
-                  } else {
-                    loop();
-                  }
-                });
-              });
-            })();
-          }
+            return resolve(browserDriver.quit());
+          });
         });
       });
-    });
-  });
-});
+    } else {
+      var scrollTop = 0;
 
-function log(obj) {
-  console.log(JSON.stringify(obj, null, 2));
-}
+      // loop generates the images. Firefox and Internet Explorer will take
+      // a screenshot of the entire webpage, but Opera, Safari, and Chrome
+      // do not. For those browsers we scroll through the page and take
+      // incremental screenshots.
+      return (function loop() {
+        var index = (scrollTop/viewportHeight) + 1;
+        // saves file in the file `piecesDir/browser_version_platform/#.png`
+        var filename = piecesDir+'/'+index+'.png';
+
+        // Use `window.scrollTo` because thats what jQuery does
+        // https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
+        // `window.scrollTo` was used instead of jQuery because jQuery was
+        // causing a stackoverflow in Safari.
+        return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
+        .then(willLog(cfg.browserName,cfg.platform,'safeEval 1'))
+        .saveScreenshot(filename)
+        .then(function() {
+          console.log(cfg.browserName,cfg.platform,'saveScreenshot');
+
+          scrollTop += viewportHeight;
+          if (scrollTop + viewportHeight > scrollHeight) {
+            return browserDriver.getWindowSize()
+            .then(function(size) {
+              console.log(cfg.browserName,cfg.platform,'getWindowSize');
+              // account for the viewport offset
+              var extra = size.height - viewportHeight;
+              return browserDriver.setWindowSize(size.width, (scrollHeight-scrollTop)+extra)
+              .then(willLog(cfg.browserName,cfg.platform,'setWindowSize'))
+              .safeEval('window.scrollTo(0,'+scrollHeight+');')
+              .then(function() {
+                console.log(cfg.browserName,cfg.platform,'safeEval 2');
+
+                index++;
+                var filename = piecesDir+'/'+index+'.png';
+                return browserDriver.saveScreenshot(filename)
+                .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot Final'))
+                .log('browser')
+                .then(function(logs) {
+                  console.log(cfg.browserName,cfg.platform,'log');
+
+                  var logfile = baseDir+'/'+browser+'_'+platform+'.log'
+                  logs = logs || [];
+                  return new Promise(function(resolve, reject) {
+                    fs.writeFile(logfile,logs.join('\n'), function(err) {
+                      if (err) return reject(err);
+                      console.log(cfg.browserName,cfg.platform,'writeFile');
+
+                      return resolve(browserDriver.quit());
+                    });
+                  });
+                });
+              });
+            });
+          } else {
+            return loop();
+          }
+        });
+      })();
+    }
+  })
+  .fail(function(err) {
+    console.log(JSON.stringify(obj, null, 2));
+  });
+
+  function willLog() {
+    var msg = [].join.call(arguments);
+    return function() {
+      console.log(msg);
+      return browserDriver;
+    };
+  }
+});
