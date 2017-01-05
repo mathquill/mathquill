@@ -39,11 +39,13 @@ Node.open(function(_) {
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
+      aria.queue("end of").queue(cursor.parent, true);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
+      aria.queue("end of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -53,21 +55,23 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-End -> select to the end of the root block.
+    // Ctrl-Shift-End -> select all the way to the end of the root block.
     case 'Ctrl-Shift-End':
       while (cursor[R] || cursor.parent !== ctrlr.root) {
         ctrlr.selectRight();
       }
       break;
 
-    // Home -> move to the start of the root block or the current block.
+    // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
+      aria.queue("beginning of").queue(cursor.parent, true);
       break;
 
-    // Ctrl-Home -> move to the start of the current block.
+    // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
+      aria.queue("beginning of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -77,7 +81,7 @@ Node.open(function(_) {
       }
       break;
 
-    // Ctrl-Shift-Home -> move to the start of the root block.
+    // Ctrl-Shift-Home -> select all the way to the start of the root block.
     case 'Ctrl-Shift-Home':
       while (cursor[L] || cursor.parent !== ctrlr.root) {
         ctrlr.selectLeft();
@@ -129,9 +133,36 @@ Node.open(function(_) {
       while (cursor[L]) ctrlr.selectLeft();
       break;
 
+    // These remaining hotkeys are only of benefit to people running screen readers.
+    case 'Ctrl-Alt-Up': // speak parent block that has focus
+      if(cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
+      else aria.queue('nothing above');
+      break;
+
+    case 'Ctrl-Alt-Down': // speak current block that has focus
+      if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
+      else aria.queue('block is empty');
+      break;
+
+    case 'Ctrl-Alt-Left': // speak left-adjacent block
+      if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L]);
+      else aria.queue('nothing to the left');
+      break;
+
+    case 'Ctrl-Alt-Right': // speak right-adjacent block
+      if(cursor.parent.parent.ends[R] && cursor.parent.parent.ends[R] instanceof Node) aria.queue(cursor.parent.parent.ends[R]);
+      else aria.queue('nothing to the right');
+      break;
+
+    case 'Ctrl-Alt-Shift-Down': // speak selection
+      if(cursor.selection) aria.queue(cursor.selection.join('mathspeak')+' selected');
+      else aria.queue('nothing selected');
+      break;
+
     default:
       return;
     }
+    aria.alert();
     e.preventDefault();
     ctrlr.scrollHoriz();
   };
@@ -162,6 +193,7 @@ Controller.open(function(_) {
     if (cursor.parent === this.root) return;
 
     cursor.parent.moveOutOf(dir, cursor);
+    aria.alert();
     return this.notify('move');
   };
 
@@ -224,6 +256,18 @@ Controller.open(function(_) {
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
+    var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
+    if(cursorEl && cursorEl instanceof Node) {
+      if(cursorEl.sides) {
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
+      } else aria.queue(cursorEl);
+    } else if(cursorElParent && cursorElParent instanceof Node) {
+      if(cursorElParent.sides) {
+        aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
+      } else {
+        aria.queue(cursorElParent);
+      }
+    }
 
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
@@ -244,7 +288,9 @@ Controller.open(function(_) {
     if (!cursor[L] || cursor.selection) return this.deleteDir();
 
     this.notify('edit');
-    Fragment(cursor.parent.ends[L], cursor[L]).remove();
+    var fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+    aria.queue(fragRemoved);
+    fragRemoved.remove();
     cursor.insAtDirEnd(L, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
@@ -277,6 +323,7 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
+    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
   };
   _.selectLeft = function() { return this.selectDir(L); };
   _.selectRight = function() { return this.selectDir(R); };

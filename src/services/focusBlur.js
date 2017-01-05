@@ -3,6 +3,8 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
+      aria.jQ.empty();
+      ctrlr.textarea.attr('aria-label', ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim());
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
       ctrlr.container.addClass('mq-focused');
@@ -15,6 +17,8 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function() {
+      aria.jQ.empty();
+      ctrlr.textarea.attr('aria-label', ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim());
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder('intentionalBlur'); // none, intentional blur: #264

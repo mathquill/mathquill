@@ -1,4 +1,4 @@
-# API Methods
+﻿# API Methods
 
 To use the MathQuill API, first get the latest version of the interface:
 
@@ -220,6 +220,24 @@ Simulates typing text, one character at a time from where the cursor currently i
 // Types part of the demo from mathquill.com without delays between keystrokes
 mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 ```
+
+## .setAriaLabel(ariaLabel)
+
+Specify an [ARIA label][`aria-label`] for this field, for screen readers. The actual [`aria-label`] includes this label followed by the math content of the field as speech. Default: `'MathQuill Input'`
+
+## .getAriaLabel()
+
+Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'MathQuill Input'` is returned.
+
+## .setAriaPostLabel(ariaPostLabel)
+
+Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
+
+## .getAriaPostLabel()
+
+Returns the suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. If no ARIA post-label has been specified, `''` (empty string) is returned.
+
+[`aria-label`]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-label_attribute
 
 ## .config(new_config)
 

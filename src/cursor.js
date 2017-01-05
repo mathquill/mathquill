@@ -98,6 +98,7 @@ var Cursor = P(Point, function(_) {
       var pageX = self.offset().left;
       to.seek(pageX, self);
     }
+    aria.queue(to, true);
   };
   _.offset = function() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()

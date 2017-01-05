@@ -16,6 +16,21 @@ var Digit = P(VanillaSymbol, function(_, super_) {
     }
     else super_.createLeftOf.call(this, cursor);
   };
+  _.mathspeak = function(opts) {
+    // TODO needs tests
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      if (cursor.options.autoSubscriptNumerals
+          && cursor.parent !== cursor.parent.parent.sub
+          && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
+              || (cursor[L] instanceof SupSub
+                  && cursor[L][L] instanceof Variable
+                  && cursor[L][L].isItalic !== false))) {
+        return 'Subscript ' + super_.mathspeak.call(this) + ' Baseline';
+      }
+    }
+    return super_.mathspeak.apply(this, arguments);
+  };
 });
 
 var Variable = P(Symbol, function(_, super_) {
@@ -199,9 +214,13 @@ var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
     AutoOpNames[moreNonstandardOps[i]] = 1;
   }
 }());
+
 optionProcessors.autoOperatorNames = function(cmds) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
-    throw '"'+cmds+'" not a space-delimited list of only letters';
+  if(typeof cmds !== 'string') {
+    throw '"'+cmds+'" not a space-delimited list';
+  }
+  if (!/^[a-z\|\-]+(?: [a-z\|\-]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of letters or "|"';
   }
   var list = cmds.split(' '), dict = {}, maxLength = 0;
   for (var i = 0; i < list.length; i += 1) {
@@ -209,8 +228,21 @@ optionProcessors.autoOperatorNames = function(cmds) {
     if (cmd.length < 2) {
       throw '"'+cmd+'" not minimum length of 2';
     }
-    dict[cmd] = 1;
-    maxLength = max(maxLength, cmd.length);
+    if(cmd.indexOf('|') < 0) { // normal auto operator
+      dict[cmd] = cmd;
+      maxLength = max(maxLength, cmd.length);
+    }
+    else { // this item has a speech-friendly alternative
+      var cmdArray = cmd.split('|');
+      if(cmdArray.length > 2) {
+        throw '"'+cmd+'" has more than 1 mathspeak delimiter';
+      }
+      if (cmdArray[0].length < 2) {
+        throw '"'+cmd[0]+'" not minimum length of 2';
+      }
+      dict[cmdArray[0]] = cmdArray[1].replace(/-/g, ' '); // convert dashes to spaces for the sake of speech
+      maxLength = max(maxLength, cmdArray[0].length);
+    }
   }
   dict._maxLength = maxLength;
   return dict;
@@ -254,15 +286,15 @@ LatexCmds.f = P(Letter, function(_, super_) {
 });
 
 // VanillaSymbol's
-LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
+LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;', 'space');
 
-LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
-LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;');
+LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;', 'prime');
+LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;', 'double prime');
 
-LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
+LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\', 'backslash');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
 
-LatexCmds.$ = bind(VanillaSymbol, '\\$', '$');
+LatexCmds.$ = bind(VanillaSymbol, '\\$', '$', 'dollar');
 
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
@@ -272,8 +304,8 @@ var NonSymbolaSymbol = P(Symbol, function(_, super_) {
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
-LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
-LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
+LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;', 'and');
+LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%', 'percent');
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
@@ -303,54 +335,54 @@ LatexCmds.omega = P(Variable, function(_, super_) {
 
 //why can't anybody FUCKING agree on these
 LatexCmds.phi = //W3C or Unicode?
-  bind(Variable,'\\phi ','&#981;');
+  bind(Variable,'\\phi ','&#981;', 'phi');
 
 LatexCmds.phiv = //Elsevier and 9573-13
 LatexCmds.varphi = //AMS and LaTeX
-  bind(Variable,'\\varphi ','&phi;');
+  bind(Variable,'\\varphi ','&phi;', 'phi');
 
 LatexCmds.epsilon = //W3C or Unicode?
-  bind(Variable,'\\epsilon ','&#1013;');
+  bind(Variable,'\\epsilon ','&#1013;', 'epsilon');
 
 LatexCmds.epsiv = //Elsevier and 9573-13
 LatexCmds.varepsilon = //AMS and LaTeX
-  bind(Variable,'\\varepsilon ','&epsilon;');
+  bind(Variable,'\\varepsilon ','&epsilon;', 'epsilon');
 
 LatexCmds.piv = //W3C/Unicode and Elsevier and 9573-13
 LatexCmds.varpi = //AMS and LaTeX
-  bind(Variable,'\\varpi ','&piv;');
+  bind(Variable,'\\varpi ','&piv;', 'piv');
 
 LatexCmds.sigmaf = //W3C/Unicode
 LatexCmds.sigmav = //Elsevier
 LatexCmds.varsigma = //LaTeX
-  bind(Variable,'\\varsigma ','&sigmaf;');
+  bind(Variable,'\\varsigma ','&sigmaf;', 'sigma');
 
 LatexCmds.thetav = //Elsevier and 9573-13
 LatexCmds.vartheta = //AMS and LaTeX
 LatexCmds.thetasym = //W3C/Unicode
-  bind(Variable,'\\vartheta ','&thetasym;');
+  bind(Variable,'\\vartheta ','&thetasym;', 'theta');
 
 LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
 LatexCmds.upsi = //Elsevier and 9573-13
-  bind(Variable,'\\upsilon ','&upsilon;');
+  bind(Variable,'\\upsilon ','&upsilon;', 'upsilon');
 
 //these aren't even mentioned in the HTML character entity references
 LatexCmds.gammad = //Elsevier
 LatexCmds.Gammad = //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
 LatexCmds.digamma = //LaTeX
-  bind(Variable,'\\digamma ','&#989;');
+  bind(Variable,'\\digamma ','&#989;', 'gamma');
 
 LatexCmds.kappav = //Elsevier
 LatexCmds.varkappa = //AMS and LaTeX
-  bind(Variable,'\\varkappa ','&#1008;');
+  bind(Variable,'\\varkappa ','&#1008;', 'kappa');
 
 LatexCmds.rhov = //Elsevier and 9573-13
 LatexCmds.varrho = //AMS and LaTeX
-  bind(Variable,'\\varrho ','&#1009;');
+  bind(Variable,'\\varrho ','&#1009;', 'rho');
 
 //Greek constants, look best in non-italicized Times New Roman
-LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
-LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
+LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;', 'pi');
+LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;', 'lambda');
 
 //uppercase greek letters
 
@@ -358,7 +390,7 @@ LatexCmds.Upsilon = //LaTeX
 LatexCmds.Upsi = //Elsevier and 9573-13
 LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
-  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
+  bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>', 'capital upsilon'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
 //other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.Gamma =
@@ -391,6 +423,7 @@ var LatexFragment = P(MathCommand, function(_) {
     if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
     cursor.parent.bubble('reflow');
   };
+  _.mathspeak = function() { return latexMathParser.parse(this.latex).mathspeak(); };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();
     return Parser.succeed(frag);
@@ -458,17 +491,16 @@ var PlusMinus = P(BinaryOperator, function(_) {
   };
 });
 
-LatexCmds['+'] = bind(PlusMinus, '+', '+');
+LatexCmds['+'] = bind(PlusMinus, '+', '+', 'plus');
 //yes, these are different dashes, I think one is an en dash and the other is a hyphen
-LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;');
+LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;', 'minus');
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
-  bind(PlusMinus,'\\pm ','&plusmn;');
+  bind(PlusMinus,'\\pm ','&plusmn;', 'plus-or-minus');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
-  bind(PlusMinus,'\\mp ','&#8723;');
+  bind(PlusMinus,'\\mp ','&#8723;', 'minus-or-plus');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;', '*');
-//semantically should be &sdot;, but &middot; looks better
+  bind(BinaryOperator, '\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {
@@ -507,7 +539,7 @@ LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, fals
 
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
-    super_.init.call(this, '=', '=');
+    super_.init.call(this, '=', '=', '=', 'equals');
   };
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
@@ -520,9 +552,9 @@ var Equality = P(BinaryOperator, function(_, super_) {
 });
 LatexCmds['='] = Equality;
 
-LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
+LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]', 'times');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;', '[/]');
+  bind(BinaryOperator,'\\div ','&divide;', '[/]', 'over');
 
-CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
+CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~', 'tilde');

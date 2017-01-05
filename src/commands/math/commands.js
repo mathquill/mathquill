@@ -200,11 +200,16 @@ var SupSub = P(MathCommand, function(_, super_) {
         var cmd = this.chToCmd(ch, cursor.options);
         if (cmd instanceof Symbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
-        return cmd.createLeftOf(cursor.show());
+        cmd.createLeftOf(cursor.show());
+        // TODO needs tests
+        aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
+        return;
       }
       if (cursor[L] && !cursor[R] && !cursor.selection
           && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
+        // TODO needs tests
+        aria.queue('Baseline');
       }
       MathBlock.p.write.apply(this, arguments);
     };
@@ -297,6 +302,8 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
+  _.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
+  _.ariaLabel = 'subscript';
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
@@ -314,6 +321,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
+  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
+  _.ariaLabel = 'superscript';
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -374,11 +383,11 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['∑'] =
+LatexCmds['∏'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
 
-LatexCmds['∏'] =
+LatexCmds['∑'] =
 LatexCmds.prod =
 LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
 
@@ -399,12 +408,11 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
     +   '</span>'
     + '</span>'
     ;
-    Symbol.prototype.init.call(this, '\\int ', htmlTemplate);
+    Symbol.prototype.init.call(this, '\\int ', htmlTemplate, 'integral');
   };
   // FIXME: refactor rather than overriding
   _.createLeftOf = MathCommand.p.createLeftOf;
 });
-
 var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
@@ -422,6 +430,28 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
+    this.ends[L].ariaLabel = 'numerator';
+    this.ends[R].ariaLabel = 'denominator';
+    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
+    else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
+  };
+  // TODO needs tests
+  _.mathspeak = function(opts) {
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      return cursor.parent.mathspeak();
+    }
+    return super_.mathspeak.apply(this, arguments);
+  };
+
+  _.getFracDepth = function() {
+    var level = 0;
+    var walkUp = function(item, level) {
+      if(item instanceof Node && item.ctrlSeq && item.ctrlSeq.toLowerCase().search('frac') >= 0) level += 1;
+      if(item.parent) return walkUp(item.parent, level);
+      else return level;
+    };
+    return walkUp(this, level);
   };
 });
 
@@ -467,6 +497,8 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
+  _.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
+  _.ariaLabel = 'root';
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
@@ -566,6 +598,25 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   };
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
+  };
+  _.mathspeak = function(opts) {
+    // TODO needs tests
+    var open = this.sides[L].ch, close = this.sides[R].ch;
+    if (open === '|' && close === '|') {
+      this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
+      this.ariaLabel = 'absolute value';
+    }
+    else if (opts && opts.createdLeftOf && this.side) {
+      var ch = '';
+      if (this.side === L) ch = this.textTemplate[0];
+      else if (this.side === R) ch = this.textTemplate[1];
+      return (this.side === L ? 'left ' : 'right ') + BRACKET_NAMES[ch];
+    }
+    else {
+      this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open]+',', ', right ' + BRACKET_NAMES[close]];
+      this.ariaLabel = BRACKET_NAMES[open]+' block';
+    }
+    return super_.mathspeak.call(this);
   };
   _.matchBrack = function(opts, expectedSide, node) {
     // return node iff it's a matching 1-sided bracket of expected side (if any)
@@ -706,19 +757,27 @@ var OPP_BRACKS = {
   '\\rVert ' : '\\lVert ',
 };
 
-function bindCharBracketPair(open, ctrlSeq) {
+var BRACKET_NAMES = {
+  '&lang;': 'angle-bracket',
+  '&rang;': 'angle-bracket',
+  '|': 'pipe'
+};
+
+function bindCharBracketPair(open, ctrlSeq, name) {
   var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
   CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
   CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+  BRACKET_NAMES[open] = BRACKET_NAMES[close] = name;
 }
-bindCharBracketPair('(');
-bindCharBracketPair('[');
-bindCharBracketPair('{', '\\{');
+bindCharBracketPair('(', null, 'parenthesis');
+bindCharBracketPair('[', null, 'bracket');
+bindCharBracketPair('{', '\\{', 'brace');
 LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
 LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+
 
 LatexCmds.left = P(MathCommand, function(_) {
   _.parser = function() {
@@ -773,6 +832,8 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
+  _.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
+  _.ariaLabel = 'binomial';
 });
 
 var Choose =
