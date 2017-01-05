@@ -1,6 +1,8 @@
 suite('saneKeyboardEvents', function() {
   var el;
-  var Event = jQuery.Event
+  var Event = function(type, props) {
+    return jQuery.extend(jQuery.Event(type), props);
+  };
 
   function supportsSelectionAPI() {
     return 'selectionStart' in el[0];
@@ -8,10 +10,6 @@ suite('saneKeyboardEvents', function() {
 
   setup(function() {
     el = $('<textarea>').appendTo('#mock');
-  });
-
-  teardown(function() {
-    el.remove();
   });
 
   test('normal keys', function(done) {
@@ -30,6 +28,25 @@ suite('saneKeyboardEvents', function() {
 
     el.trigger(Event('keydown', { which: 97 }));
     el.trigger(Event('keypress', { which: 97 }));
+    el.val('a');
+  });
+
+  test('normal keys without keypress', function(done) {
+    var counter = 0;
+    saneKeyboardEvents(el, {
+      keystroke: noop,
+      typedText: function(text) {
+        counter += 1;
+        assert.ok(counter <= 1, 'callback is only called once');
+        assert.equal(text, 'a', 'text comes back as a');
+        assert.equal(el.val(), '', 'the textarea remains empty');
+
+        done();
+      }
+    });
+
+    el.trigger(Event('keydown', { which: 97 }));
+    el.trigger(Event('keyup', { which: 97 }));
     el.val('a');
   });
 
@@ -160,7 +177,7 @@ suite('saneKeyboardEvents', function() {
           'clicked on something in the Developer Tools or on the page itself. ' +
           'Click the page, or close the Developer Tools, and Refresh.'
         );
-        el.remove(); // LOL next line skips teardown https://git.io/vaUWq
+        $('#mock').empty(); // LOL next line skips teardown https://git.io/vaUWq
         this.skip();
       }
 
@@ -408,6 +425,19 @@ suite('saneKeyboardEvents', function() {
       // this synthesizes the keypress timeout calling handleText()
       // before the paste timeout happens.
       el.trigger('input');
+    });
+  });
+
+  suite('copy', function() {
+    test('only runs handler once even if handler synchronously selects', function() {
+      // ...which MathQuill does and resulted in a stack overflow: https://git.io/vosm0
+      var shim = saneKeyboardEvents(el, {
+        copy: function() {
+          shim.select();
+        }
+      });
+
+      el.trigger('copy');
     });
   });
 });

@@ -35,9 +35,6 @@ dependencies:
   cache_directories:
     - ~/sauce-connect
   pre:
-    # imagemagick is installed to give us access to the
-    # `convert` tool to stitch together the screenshots.
-    - sudo apt-get update; sudo apt-get install imagemagick
     - "test $SAUCE_USERNAME && test $SAUCE_ACCESS_KEY
        # Sauce Labs credentials required. Sign up here: https://saucelabs.com/opensauce/"
     - ? |-

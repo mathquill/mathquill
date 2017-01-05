@@ -13,7 +13,7 @@
     </script>
 
     <!-- better living through jQuery -->
-    <script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+    <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
 
     <!-- mocha test framework -->
     <script type="text/javascript" src="../node_modules/mocha/mocha.js"></script>
@@ -52,12 +52,11 @@
 
   <body>
     <h1>Unit Tests</h1>
-    <div id="mocha">
-    </div>
-
+    <div id="mocha"></div>
     <div id="mock"></div>
 
     <script type="text/javascript">
+      teardown(function() { $('#mock').empty(); });
       var runner = mocha.run();
 
       if (post_xunit_to) {
@@ -78,7 +77,7 @@
 
         runner.on('end', function() {
           setTimeout(function() {
-            $.post(post_xunit_to, xunit).always(function() {
+            $.post(post_xunit_to, xunit).complete(function() {
               window.mochaResults = runner.stats;
               window.mochaResults.reports = failedTests;
             });

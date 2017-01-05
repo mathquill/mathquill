@@ -3,9 +3,6 @@ suite('autoOperatorNames', function() {
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function assertLatex(input, expected) {
     var result = mq.latex();
@@ -79,7 +76,7 @@ suite('autoOperatorNames', function() {
 
   suite('override autoOperatorNames', function() {
     test('basic', function() {
-      MQ.config({ autoOperatorNames: 'sin lol' });
+      mq.config({ autoOperatorNames: 'sin lol' });
       mq.typedText('arcsintrololol');
       assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
     });

@@ -241,7 +241,7 @@ Controller.open(function(_) {
   _.ctrlDeleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (!cursor[L] || cursor.selection) return ctrlr.deleteDir();
+    if (!cursor[L] || cursor.selection) return this.deleteDir();
 
     this.notify('edit');
     Fragment(cursor.parent.ends[L], cursor[L]).remove();

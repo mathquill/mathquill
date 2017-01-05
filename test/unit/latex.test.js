@@ -142,9 +142,6 @@ suite('latex', function() {
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
 
     suite('.latex(...)', function() {
       function assertParsesLatex(str, latex) {
@@ -260,9 +257,6 @@ suite('latex', function() {
       inner1 = outer.innerFields[0];
       inner2 = outer.innerFields[1];
     });
-    teardown(function() {
-      $(outer.el()).remove();
-    });
 
     test('initial latex', function() {
       assert.equal(inner1.latex(), 'x_0+x_1+x_2');
@@ -316,9 +310,6 @@ suite('latex', function() {
     var mq;
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    });
-    teardown(function() {
-      $(mq.el()).remove();
     });
 
     function testCantParse(title /*, latex...*/) {
