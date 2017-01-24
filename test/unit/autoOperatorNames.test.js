@@ -3,12 +3,16 @@ suite('autoOperatorNames', function() {
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function assertLatex(input, expected) {
     var result = mq.latex();
+    assert.equal(result, expected,
+      input+', got \''+result+'\', expected \''+expected+'\''
+    );
+  }
+
+  function assertText(input, expected) {
+    var result = mq.text();
     assert.equal(result, expected,
       input+', got \''+result+'\', expected \''+expected+'\''
     );
@@ -47,6 +51,16 @@ suite('autoOperatorNames', function() {
     assertAutoOperatorNamesWork('scscscscscsc', 's\\csc s\\csc s\\csc');
   });
 
+  test('text() output', function(){
+    function assertTranslatedCorrectly(latexStr, text) {
+      mq.latex(latexStr);
+      assertText('outputting ' + latexStr, text);
+    }
+
+    assertTranslatedCorrectly('\\sin', 'sin');
+    assertTranslatedCorrectly('\\sin\\left(xy\\right)', 'sin(x*y)');
+  });
+
   test('deleting', function() {
     var count = 0;
     var _autoUnItalicize = Letter.prototype.autoUnItalicize;
@@ -79,7 +93,7 @@ suite('autoOperatorNames', function() {
 
   suite('override autoOperatorNames', function() {
     test('basic', function() {
-      MQ.config({ autoOperatorNames: 'sin lol' });
+      mq.config({ autoOperatorNames: 'sin lol' });
       mq.typedText('arcsintrololol');
       assert.equal(mq.latex(), 'arc\\sin tro\\operatorname{lol}ol');
     });

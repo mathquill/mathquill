@@ -3,9 +3,6 @@ suite('typing with auto-replaces', function() {
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
   function assertLatex(latex) {
@@ -27,7 +24,6 @@ suite('typing with auto-replaces', function() {
       var mq_basic = MQBasic.MathField($('<span></span>').appendTo('#mock')[0]);
       mq_basic.typedText('1/2');
       assert.equal(mq_basic.latex(), '\\frac{1}{2}');
-      $(mq_basic.el()).remove();
     });
   });
 
@@ -817,7 +813,7 @@ suite('typing with auto-replaces', function() {
 
   suite('autoCommands', function() {
     setup(function() {
-      MQ.config({
+      mq.config({
         autoOperatorNames: 'sin pp',
         autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
       });

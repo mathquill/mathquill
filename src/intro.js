@@ -1,6 +1,6 @@
 /**
- * MathQuill v0.10.1               http://mathquill.com
- * by Han, Jeanine, and Mary  maintainers@mathquill.com
+ * MathQuill {VERSION}, by Han, Jeanine, and Mary
+ * http://mathquill.com | maintainers@mathquill.com
  *
  * This Source Code Form is subject to the terms of the
  * Mozilla Public License, v. 2.0. If a copy of the MPL
@@ -17,7 +17,7 @@ var jQuery = window.jQuery,
   min = Math.min,
   max = Math.max;
 
-if (!jQuery) throw 'MathQuill requires jQuery 1.4.3+ to be loaded first';
+if (!jQuery) throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
 
 function noop() {}
 
