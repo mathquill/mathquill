@@ -107,12 +107,13 @@ browserVersions.forEach(function(obj) {
             browserDriver.safeExecute('document.documentElement.clientHeight')];
   })
   .spread(function(scrollHeight, viewportHeight) {
-    console.log(cfg.browserName,cfg.platform,'get scrollHeight, clientHeight');
+    console.log(cfg.browserName, cfg.platform, 'get scrollHeight, clientHeight', scrollHeight, viewportHeight);
 
     // Firefox and Internet Explorer will take a screenshot of the entire webpage,
     if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
       // saves file in the file `piecesDir/browser_version_platform/*.png`
       var filename = piecesDir+'/'+browser+'_'+platform+'.png';
+      console.log(cfg.browserName, cfg.platform, 'about to saveScreenshot');
       return browserDriver.saveScreenshot(filename)
       .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot'))
       .log('browser')
