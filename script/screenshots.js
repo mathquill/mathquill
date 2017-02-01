@@ -87,15 +87,16 @@ var browserVersions = [
 
 browserVersions.forEach(function(obj) {
   var cfg = obj.version;
+  var browser = cfg.browserName.replace(/\s/g, '_');
+  var platform = cfg.platform.replace(/\s/g, '_');
+  var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
+
   cfg.build = build_name;
   var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
   return browserDriver.init(cfg)
   .then(function(_, capabilities) {
     console.log(cfg.browserName,cfg.platform,'init');
 
-    var browser = cfg.browserName.replace(/\s/g, '_');
-    var platform = cfg.platform.replace(/\s/g, '_');
-    var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
     fs.mkdirSync(piecesDir);
 
     return browserDriver;
@@ -116,12 +117,16 @@ browserVersions.forEach(function(obj) {
       console.log(cfg.browserName, cfg.platform, 'about to saveScreenshot');
       return browserDriver.saveScreenshot(filename)
       .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot'))
-      .log('browser')
+      .then(function() {
+        return browserDriver.log('browser')
+        .then(willLog(cfg.browserName,cfg.platform,'log'), function(err) {
+          // the Edge/Internet Explorer drivers don't support logs, but the others do
+          console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
+          return [];
+        });
+      })
       .then(function(logs) {
-        console.log(cfg.browserName,cfg.platform,'log');
-
         var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-        logs = logs || [];
         return new Promise(function(resolve, reject) {
           fs.writeFile(logfile,logs.join('\n'), function(err) {
             if (err) return reject(err);
@@ -169,12 +174,16 @@ browserVersions.forEach(function(obj) {
                 var filename = piecesDir+'/'+index+'.png';
                 return browserDriver.saveScreenshot(filename)
                 .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot Final'))
-                .log('browser')
+                .then(function() {
+                  return browserDriver.log('browser')
+                  .then(willLog(cfg.browserName,cfg.platform,'log'), function(err) {
+                    // the Edge/Internet Explorer drivers don't support logs, but the others do
+                    console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
+                    return [];
+                  });
+                })
                 .then(function(logs) {
-                  console.log(cfg.browserName,cfg.platform,'log');
-
                   var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-                  logs = logs || [];
                   return new Promise(function(resolve, reject) {
                     fs.writeFile(logfile,logs.join('\n'), function(err) {
                       if (err) return reject(err);
@@ -194,14 +203,15 @@ browserVersions.forEach(function(obj) {
     }
   })
   .fail(function(err) {
-    console.log(JSON.stringify(obj, null, 2));
+    console.log('ERROR:', cfg.browserName, cfg.platform);
+    console.log(JSON.stringify(err, null, 2));
   });
 
   function willLog() {
-    var msg = [].join.call(arguments);
-    return function() {
+    var msg = [].join.call(arguments, ' ');
+    return function(value) {
       console.log(msg);
-      return browserDriver;
+      return value;
     };
   }
 });
