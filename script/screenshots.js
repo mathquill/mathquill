@@ -19,14 +19,7 @@ var accessKey = process.env['SAUCE_ACCESS_KEY'];
 var baseDir = process.env['CIRCLE_ARTIFACTS'] || '/tmp';
 var url = process.argv[2];
 var allImgsDir = baseDir+'/imgs';
-var build_name = 'CircleCI build #' + process.env.CIRCLE_BUILD_NUM;
-if (process.env.CIRCLE_PR_NUMBER) {
-  build_name += ': PR #' + process.env.CIRCLE_PR_NUMBER;
-  if (process.env.CIRCLE_BRANCH) build_name += ' (' + process.env.CIRCLE_BRANCH + ')';
-} else {
-  build_name += ': ' + process.env.CIRCLE_BRANCH;
-}
-build_name += ' @ ' + process.env.CIRCLE_SHA1.slice(0, 7);
+var build_name = process.env.MQ_CI_BUILD_NAME;
 
 fs.mkdirSync(allImgsDir);
 

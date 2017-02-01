@@ -102,6 +102,16 @@ test:
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
         {
+          build_name="CircleCI build #$CIRCLE_BUILD_NUM"
+          if [ $CIRCLE_PR_NUMBER ]; then
+            build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
+            [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
+          else
+            build_name="$build_name: $CIRCLE_BRANCH"
+          fi
+          build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+          export MQ_CI_BUILD_NAME="$build_name"
+
           time { test -d node_modules/wd || npm install wd; }
           time node script/screenshots.js http://localhost:8000/test/visual.html \
             && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
