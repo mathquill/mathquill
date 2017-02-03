@@ -78,9 +78,9 @@ browsers.forEach(function(browser) {
   browser.config.build = build_name;
   var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
   return browserDriver.init(browser.config)
-  .then(function(sessionID, capabilities) {
-    var cfg = capabilities || browser.config;
-    console.log(cfg.browserName, cfg.version, cfg.platform, 'init', sessionID);
+  .then(function(args) {
+    var cfg = args[1] || browser.config;
+    console.log(cfg.browserName, cfg.version, cfg.platform, 'init', args);
 
     var pinned = browser.pinned ? 'PINNED' : 'EVERGREEN';
     var filename = [pinned, cfg.platform, cfg.browserName].join('_').replace(/ /g, '_');
