@@ -207,20 +207,13 @@ test:
     # Generate image diffs.
     - |-
       cd $CIRCLE_ARTIFACTS/imgs/
-      for file in $(ls PINNED*); do
-        prev=PREV_$file
-        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
-        composite -alpha on raw_diff.png $prev DIFF_$file
+      for file in $(ls *.png | grep -v '^PREV_'); do
+        # if evergreen browser, browser version of previous screenshot may not match,
+        # so replace previous browser version with glob
+        prev=PREV_"$(sh -c "ls $(echo $file | sed 's/[^_]*_(evergreen)/*/')")"
+        metric_diff=$(compare -metric AE -compose src $prev $file RAW_DIFF_$file)
+        echo "Metric diff for $file: $metric_diff"
+        composite -alpha on RAW_DIFF_$file $prev DIFF_$file
       done
-
-    - |-
-      cd $CIRCLE_ARTIFACTS/imgs/
-      for file in $(ls EVERGREEN*); do
-        prev=$(ls PREV_$file*)
-        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
-        composite -alpha on raw_diff.png $prev DIFF_$file
-      done
-
-    - rm $CIRCLE_ARTIFACTS/imgs/raw_diff.png
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup

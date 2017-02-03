@@ -102,12 +102,12 @@ browsers.forEach(function(browser) {
 
       // the easy case: Firefox and IE return a screenshot of the entire webpage
       if (cfg.browserName === 'Firefox' || cfg.browserName === 'Internet Explorer') {
-        return browserDriver.saveScreenshot(baseDir + '/imgs/' + filename + '.png')
+        return browserDriver.saveScreenshot(baseDir + '/imgs/' + fileName + '.png')
         .then(willLog(sessionName, 'saveScreenshot'))
       // the hard case: for Chrome, Safari, and Edge, scroll through the page and
       // take screenshots of each piece; circle.yml will stitch them together
       } else {
-        var piecesDir = baseDir + '/imgs/pieces/' + filename + '/';
+        var piecesDir = baseDir + '/imgs/pieces/' + fileName + '/';
         fs.mkdirSync(piecesDir);
 
         var scrollTop = 0;
