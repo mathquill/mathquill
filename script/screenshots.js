@@ -24,6 +24,7 @@ if (!baseDir) {
   process.exit(1);
 }
 fs.mkdirSync(baseDir+'/imgs');
+fs.mkdirSync(baseDir+'/imgs/pieces');
 
 var browsers = [
   {
@@ -101,7 +102,7 @@ browsers.forEach(function(browser) {
       // the hard case: for Chrome, Safari, and Edge, scroll through the page and
       // take screenshots of each piece; circle.yml will stitch them together
       } else {
-        var piecesDir = baseDir + '/imgs/' + filename + '/';
+        var piecesDir = baseDir + '/imgs/pieces/' + filename + '/';
         fs.mkdirSync(piecesDir);
 
         var scrollTop = 0;
