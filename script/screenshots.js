@@ -155,21 +155,23 @@ browsers.forEach(function(browser) {
         })();
       }
     })
-    .log('browser')
-    .then(function(logs) {
-      var logfile = baseDir + '/browser_logs/' + sessionName.replace(/ /g, '_') + '.log';
-      return new Promise(function(resolve, reject) {
-        fs.writeFile(logfile, JSON.stringify(logs, null, 2), function(err) {
-          if (err) return reject(err);
-          console.log(sessionName, 'writeFile');
+    .then(function() {
+      return browserDriver.log('browser')
+      .then(function(logs) {
+        var logfile = baseDir + '/browser_logs/' + sessionName.replace(/ /g, '_') + '.log';
+        return new Promise(function(resolve, reject) {
+          fs.writeFile(logfile, JSON.stringify(logs, null, 2), function(err) {
+            if (err) return reject(err);
+            console.log(sessionName, 'writeFile');
 
-          return resolve(browserDriver.quit());
+            return resolve(browserDriver.quit());
+          });
         });
+      }, function(err) {
+        // the Edge/Internet Explorer drivers don't support logs, but the others do
+        console.log(sessionName, 'Error fetching logs:', JSON.stringify(err, null, 2));
+        return [];
       });
-    }, function(err) {
-      // the Edge/Internet Explorer drivers don't support logs, but the others do
-      console.log(sessionName, 'Error fetching logs:', JSON.stringify(err, null, 2));
-      return [];
     });
   })
   .fail(function(err) {
