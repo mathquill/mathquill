@@ -191,30 +191,32 @@ test:
       echo "$artifacts_json"
       echo
 
-      prev_imgs="$(echo "$artifacts_json" \
+      mkdir $CIRCLE_ARTIFACTS/imgs/baseline/
+      baseline_imgs="$(echo "$artifacts_json" \
                     | $json -a url pretty_path -d '\n\t' \
                     | grep '\.png$' \
-                    | grep -v '/PREV_' \
-                    | grep -v '/DIFF_' \
                     | grep -v '/pieces/' \
-                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")"
+                    | grep -v '/baseline/' \
+                    | grep -v '/raw_diffs/' \
+                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/baseline/:")"
       echo 'Baseline image URLs and files:'
       echo
-      echo "$prev_imgs"
+      echo "$baseline_imgs"
       echo
 
-      test -z "$prev_imgs" || curl $prev_imgs
+      test -z "$baseline_imgs" || curl $baseline_imgs
 
     # Generate image diffs.
     - |-
       cd $CIRCLE_ARTIFACTS/imgs/
-      for file in $(ls *.png | grep -v '^PREV_'); do
+      mkdir raw_diffs/
+      for file in $(ls *.png); do
         # if evergreen browser, browser version of previous screenshot may not match,
         # so replace previous browser version with glob
-        prev=PREV_"$(sh -c "ls $(echo $file | sed 's/[^_]*_(evergreen)/*/')")"
-        metric_diff=$(compare -metric AE -compose src $prev $file RAW_DIFF_$file)
+        baseline=baseline/"$(sh -c "ls $(echo $file | sed 's/[^_]*_(evergreen)/*/')")"
+        metric_diff=$(compare -metric AE -compose src $baseline $file raw_diffs/$file)
         echo "Metric diff for $file: $metric_diff"
-        composite -alpha on RAW_DIFF_$file $prev DIFF_$file
+        composite -alpha on raw_diffs/$file $prev ${file/%.png/_DIFF.png}
       done
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
