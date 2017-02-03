@@ -181,7 +181,7 @@ test:
         convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
       done
 
-    # Download the latest mathquill artifacts from master.
+    # Download the latest screenshots from master.
     - |-
       artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=master)"
       echo
@@ -197,7 +197,7 @@ test:
                     | grep -v '/DIFF_' \
                     | grep -v '/pieces/' \
                     | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")"
-      echo 'Previous image URLs and files:'
+      echo 'Baseline image URLs and files:'
       echo
       echo "$prev_imgs"
       echo
