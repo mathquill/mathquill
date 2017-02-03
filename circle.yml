@@ -214,8 +214,8 @@ test:
         # if evergreen browser, browser version of previous screenshot may not match,
         # so replace previous browser version with glob
         baseline=baseline/"$(sh -c "ls $(echo $file | sed 's/[^_]*_(evergreen)/*/')")"
-        metric_diff=$(compare -metric AE -compose src $baseline $file raw_diffs/$file)
-        echo "Metric diff for $file: $metric_diff"
+        echo "Metric diff for $file:"
+        compare -metric AE -compose src $baseline $file raw_diffs/$file
         composite -alpha on raw_diffs/$file $prev ${file/%.png/_DIFF.png}
       done
   post:
