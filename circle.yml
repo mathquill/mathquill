@@ -178,7 +178,7 @@ test:
     # Stitch together images
     - |-
       for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
-        convert $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png -append $CIRCLE_ARTIFACTS/imgs/$img.png
+        convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
       done
 
     # Download the latest mathquill artifacts from master.
