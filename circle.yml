@@ -194,6 +194,7 @@ test:
                     | $json -a url pretty_path -d '\n\t' \
                     | grep '\.png$' \
                     | grep -v '/PREV_' \
+                    | grep -v '/DIFF_' \
                     | grep -v '/pieces/' \
                     | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/PREV_:")"
       echo 'Previous image URLs and files:'
