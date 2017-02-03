@@ -23,180 +23,148 @@ if (!baseDir) {
   console.error('No $CIRCLE_ARTIFACTS found, for testing do something like `CIRCLE_ARTIFACTS=/tmp script/screenshots.js`');
   process.exit(1);
 }
-var allImgsDir = baseDir+'/imgs';
-fs.mkdirSync(allImgsDir);
+fs.mkdirSync(baseDir+'/imgs');
 
-var browserVersions = [
+var browsers = [
   {
-    'version': {
-      // Expecting IE 8
-      'browserName': 'Internet Explorer',
-      'platform': 'Windows XP'
+    config: {
+      browserName: 'Internet Explorer',
+      platform: 'Windows XP'
     },
-    'pinned': 'PINNED'
+    pinned: true // should be pinned to IE 8
   },
   {
-    'version': {
+    config: {
       // Expecting IE 11
-      'browserName': 'Internet Explorer',
-      'platform': 'Windows 7'
+      browserName: 'Internet Explorer',
+      platform: 'Windows 7'
     },
-    'pinned': 'PINNED'
+    pinned: true // should be pinned to IE 11
   },
   {
-    'version': {
-      'browserName': 'MicrosoftEdge',
-      'platform': 'Windows 10'
-    },
-    'pinned': 'EVERGREEN'
+    config: {
+      browserName: 'MicrosoftEdge',
+      platform: 'Windows 10'
+    }
   },
   {
-    'version': {
-      'browserName': 'Firefox',
-      'platform': 'OS X 10.11'
-    },
-    'pinned': 'EVERGREEN'
+    config: {
+      browserName: 'Firefox',
+      platform: 'OS X 10.11'
+    }
   },
   {
-    'version': {
-      'browserName': 'Safari',
-      'platform': 'OS X 10.11'
-    },
-    'pinned': 'EVERGREEN'
+    config: {
+      browserName: 'Safari',
+      platform: 'OS X 10.11'
+    }
   },
   {
-    'version': {
-      'browserName': 'Chrome',
-      'platform': 'OS X 10.11'
-    },
-    'pinned': 'EVERGREEN'
+    config: {
+      browserName: 'Chrome',
+      platform: 'OS X 10.11'
+    }
   },
   {
-    'version': {
-      'browserName': 'Firefox',
-      'platform': 'Linux'
-    },
-    'pinned': 'EVERGREEN'
-  },
+    config: {
+      browserName: 'Firefox',
+      platform: 'Linux'
+    }
+  }
 ];
 
 
-browserVersions.forEach(function(obj) {
-  var cfg = obj.version;
-  var browser = cfg.browserName.replace(/\s/g, '_');
-  var platform = cfg.platform.replace(/\s/g, '_');
-  var piecesDir = allImgsDir+'/'+obj.pinned+'_'+platform+'_'+browser;
-
-  cfg.build = build_name;
+browsers.forEach(function(browser) {
+  browser.config.build = build_name;
   var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
-  return browserDriver.init(cfg)
-  .then(function(_, capabilities) {
-    console.log(cfg.browserName,cfg.platform,'init');
+  return browserDriver.init(browser.config)
+  .then(function(sessionID, capabilities) {
+    var cfg = capabilities || browser.config;
+    console.log(cfg.browserName, cfg.version, cfg.platform, 'init', sessionID);
 
-    fs.mkdirSync(piecesDir);
+    var pinned = browser.pinned ? 'PINNED' : 'EVERGREEN';
+    var filename = [pinned, cfg.platform, cfg.browserName].join('_').replace(/ /g, '_');
 
-    return browserDriver;
-  })
-  .get(url)
-  .then(function() {
-    console.log(cfg.browserName,cfg.platform,'get');
-    return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
-            browserDriver.safeExecute('document.documentElement.clientHeight')];
-  })
-  .spread(function(scrollHeight, viewportHeight) {
-    console.log(cfg.browserName, cfg.platform, 'get scrollHeight, clientHeight', scrollHeight, viewportHeight);
+    return browserDriver.get(url)
+    .then(function() {
+      console.log(cfg.browserName, cfg.version, cfg.platform, 'get');
+      return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
+              browserDriver.safeExecute('document.documentElement.clientHeight')];
+    })
+    .spread(function(scrollHeight, viewportHeight) {
+      console.log(cfg.browserName, cfg.version,  cfg.platform, 'get scrollHeight, clientHeight', scrollHeight, viewportHeight);
 
-    // Firefox and Internet Explorer will take a screenshot of the entire webpage,
-    if (cfg.browserName != 'Safari' && cfg.browserName != 'Chrome' && cfg.browserName != 'MicrosoftEdge') {
-      // saves file in the file `piecesDir/browser_version_platform/*.png`
-      var filename = piecesDir+'/'+browser+'_'+platform+'.png';
-      console.log(cfg.browserName, cfg.platform, 'about to saveScreenshot');
-      return browserDriver.saveScreenshot(filename)
-      .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot'))
-      .then(function() {
-        return browserDriver.log('browser')
-        .then(willLog(cfg.browserName,cfg.platform,'log'), function(err) {
-          // the Edge/Internet Explorer drivers don't support logs, but the others do
-          console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
-          return [];
-        });
-      })
-      .then(function(logs) {
-        var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-        return new Promise(function(resolve, reject) {
-          fs.writeFile(logfile,logs.join('\n'), function(err) {
-            if (err) return reject(err);
+      // the easy case: Firefox and IE return a screenshot of the entire webpage
+      if (cfg.browserName === 'Firefox' || cfg.browserName === 'Internet Explorer') {
+        return browserDriver.saveScreenshot(baseDir + '/imgs/' + filename + '.png')
+        .then(willLog(cfg.browserName, cfg.version, cfg.platform, 'saveScreenshot'))
+      // the hard case: for Chrome, Safari, and Edge, scroll through the page and
+      // take screenshots of each piece; circle.yml will stitch them together
+      } else {
+        var piecesDir = baseDir + '/imgs/' + filename + '/';
+        fs.mkdirSync(piecesDir);
 
-            return resolve(browserDriver.quit());
-          });
-        });
-      });
-    } else {
-      var scrollTop = 0;
+        var scrollTop = 0;
+        var index = 1;
+        return (function loop() {
+          return browserDriver.saveScreenshot(piecesDir + index + '.png')
+          .then(function() {
+            console.log(cfg.browserName, cfg.version, cfg.platform, 'saveScreenshot');
 
-      // loop generates the images. Firefox and Internet Explorer will take
-      // a screenshot of the entire webpage, but Opera, Safari, and Chrome
-      // do not. For those browsers we scroll through the page and take
-      // incremental screenshots.
-      return (function loop() {
-        var index = (scrollTop/viewportHeight) + 1;
-        // saves file in the file `piecesDir/browser_version_platform/#.png`
-        var filename = piecesDir+'/'+index+'.png';
+            scrollTop += viewportHeight;
+            index += 1;
 
-        // Use `window.scrollTo` because thats what jQuery does
-        // https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
-        // `window.scrollTo` was used instead of jQuery because jQuery was
-        // causing a stackoverflow in Safari.
-        return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
-        .then(willLog(cfg.browserName,cfg.platform,'safeEval 1'))
-        .saveScreenshot(filename)
-        .then(function() {
-          console.log(cfg.browserName,cfg.platform,'saveScreenshot');
+            // if the viewport hasn't passed the bottom edge of the page yet,
+            // scroll down and take another screenshot
+            if (scrollTop + viewportHeight <= scrollHeight) {
+              // Use `window.scrollTo` because thats what jQuery does:
+              //   https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
+              // Use `window.scrollTo` instead of jQuery because jQuery was
+              // causing a stackoverflow in Safari.
+              return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
+              .then(willLog(cfg.browserName, cfg.version, cfg.platform, 'scrollTo()'))
+              .then(loop);
+            } else { // we are past the bottom edge of the page, reduce window size to
+              // fit only the part of the page that hasn't been screenshotted.
 
-          scrollTop += viewportHeight;
-          if (scrollTop + viewportHeight > scrollHeight) {
-            return browserDriver.getWindowSize()
-            .then(function(size) {
-              console.log(cfg.browserName,cfg.platform,'getWindowSize');
-              // account for the viewport offset
-              var extra = size.height - viewportHeight;
-              return browserDriver.setWindowSize(size.width, (scrollHeight-scrollTop)+extra)
-              .then(willLog(cfg.browserName,cfg.platform,'setWindowSize'))
-              .safeEval('window.scrollTo(0,'+scrollHeight+');')
-              .then(function() {
-                console.log(cfg.browserName,cfg.platform,'safeEval 2');
+              // If there is no remaining part of the page, we're done, short-circuit
+              if (scrollTop === scrollHeight) return browserDriver;
 
-                index++;
-                var filename = piecesDir+'/'+index+'.png';
-                return browserDriver.saveScreenshot(filename)
-                .then(willLog(cfg.browserName,cfg.platform,'saveScreenshot Final'))
-                .then(function() {
-                  return browserDriver.log('browser')
-                  .then(willLog(cfg.browserName,cfg.platform,'log'), function(err) {
-                    // the Edge/Internet Explorer drivers don't support logs, but the others do
-                    console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
-                    return [];
-                  });
-                })
-                .then(function(logs) {
-                  var logfile = baseDir+'/'+browser+'_'+platform+'.log'
-                  return new Promise(function(resolve, reject) {
-                    fs.writeFile(logfile,logs.join('\n'), function(err) {
-                      if (err) return reject(err);
-                      console.log(cfg.browserName,cfg.platform,'writeFile');
-
-                      return resolve(browserDriver.quit());
-                    });
-                  });
-                });
+              return browserDriver.getWindowSize()
+              .then(function(windowSize) {
+                console.log(cfg.browserName, cfg.version, cfg.platform, 'getWindowSize');
+                // window size is a little bigger than the viewport because of address
+                // bar and scrollbars and stuff
+                var windowPadding = windowSize.height - viewportHeight;
+                var newWindowHeight = scrollHeight - scrollTop + windowPadding;
+                return browserDriver.setWindowSize(windowSize.width, newWindowHeight)
+                .then(willLog(cfg.browserName, cfg.version, cfg.platform, 'setWindowSize'))
+                .safeEval('window.scrollTo(0,'+scrollHeight+');')
+                .then(willLog(cfg.browserName, cfg.version, cfg.platform, 'scrollTo() Final'))
+                .saveScreenshot(piecesDir + index + '.png')
+                .then(willLog(cfg.browserName, cfg.version, cfg.platform, 'saveScreenshot Final'));
               });
-            });
-          } else {
-            return loop();
-          }
-        });
-      })();
-    }
+            }
+          });
+        })();
+      }
+    })
+  })
+  .log('browser')
+  .then(function(logs) {
+    var logfile = baseDir+'/'+browserName+'_'+platform+'.log'
+    return new Promise(function(resolve, reject) {
+      fs.writeFile(logfile,logs.join('\n'), function(err) {
+        if (err) return reject(err);
+        console.log(cfg.browserName,cfg.platform,'writeFile');
+
+        return resolve(browserDriver.quit());
+      });
+    });
+  }, function(err) {
+    // the Edge/Internet Explorer drivers don't support logs, but the others do
+    console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
+    return [];
   })
   .fail(function(err) {
     console.log('ERROR:', cfg.browserName, cfg.platform);
