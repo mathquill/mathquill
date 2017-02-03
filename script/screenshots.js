@@ -82,12 +82,13 @@ browsers.forEach(function(browser) {
   return browserDriver.init(browser.config)
   .then(function(args) {
     var cfg = browser.config, capabilities = args[1];
-    var sessionName = [cfg.browserName, capabilities.version, cfg.platform].join(' ');
+    var version = capabilities.version || capabilities.browserVersion;
+    var sessionName = [cfg.browserName, version, cfg.platform].join(' ');
     if (capabilities.platformVersion) sessionName += ' ' + capabilities.platformVersion;
     console.log(sessionName, 'init', args);
 
     var evergreen = browser.pinned ? '' : '_(evergreen)';
-    var fileName = [cfg.browserName, capabilities.version + evergreen, cfg.platform].join('_');
+    var fileName = [cfg.browserName, version + evergreen, cfg.platform].join('_');
     if (capabilities.platformVersion) fileName += ' ' + capabilities.platformVersion;
     fileName = fileName.replace(/ /g, '_');
 
