@@ -25,6 +25,7 @@ if (!baseDir) {
 }
 fs.mkdirSync(baseDir+'/imgs');
 fs.mkdirSync(baseDir+'/imgs/pieces');
+fs.mkdirSync(baseDir+'/browser_logs');
 
 var browsers = [
   {
