@@ -151,7 +151,7 @@ browsers.forEach(function(browser) {
     })
     .log('browser')
     .then(function(logs) {
-      var logfile = baseDir + '/' + [cfg.browserName, cfg.version, cfg.platform].join('_').replace(/ /g, '_');
+      var logfile = baseDir + '/browser_logs/' + [cfg.browserName, cfg.version, cfg.platform].join('_').replace(/ /g, '_') + '.log';
       return new Promise(function(resolve, reject) {
         fs.writeFile(logfile, logs.join('\n'), function(err) {
           if (err) return reject(err);
