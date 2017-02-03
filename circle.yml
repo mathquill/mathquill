@@ -54,10 +54,10 @@ dependencies:
           # Sauce Connect randomly fails so try twice https://git.io/vPN8v
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
             --readyfile ~/sauce_is_ready
-          test -e ~/sauce_is_ready && exit
+          test -e ~/sauce_was_ready && exit
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
             --readyfile ~/sauce_is_ready
-          test -e ~/sauce_is_ready && exit
+          test -e ~/sauce_was_ready && exit
           echo 'ERROR: Exited twice without creating readyfile' \
             | tee /dev/stderr > ~/sauce_is_ready
           exit 1
@@ -97,7 +97,7 @@ test:
 
     # Wait for tunnel to be ready (`make server` and the trivial Node server
     # are much faster, no need to wait for them)
-    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; test -z "$(<~/sauce_is_ready)"
+    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; touch ~/sauce_was_ready; test -z "$(<~/sauce_is_ready)"
 
     # Start taking screenshots in the background while the unit tests are running
     - ? |-
