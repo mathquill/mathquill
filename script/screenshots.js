@@ -14,13 +14,16 @@
 
 var wd = require('wd');
 var fs = require('fs');
-var username = process.env['SAUCE_USERNAME'];
-var accessKey = process.env['SAUCE_ACCESS_KEY'];
-var baseDir = process.env['CIRCLE_ARTIFACTS'] || '/tmp';
 var url = process.argv[2];
-var allImgsDir = baseDir+'/imgs';
+var username = process.env.SAUCE_USERNAME;
+var accessKey = process.env.SAUCE_ACCESS_KEY;
 var build_name = process.env.MQ_CI_BUILD_NAME;
-
+var baseDir = process.env.CIRCLE_ARTIFACTS;
+if (!baseDir) {
+  console.error('No $CIRCLE_ARTIFACTS found, for testing do something like `CIRCLE_ARTIFACTS=/tmp script/screenshots.js`');
+  process.exit(1);
+}
+var allImgsDir = baseDir+'/imgs';
 fs.mkdirSync(allImgsDir);
 
 var browserVersions = [
