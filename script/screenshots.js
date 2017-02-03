@@ -149,22 +149,22 @@ browsers.forEach(function(browser) {
         })();
       }
     })
-  })
-  .log('browser')
-  .then(function(logs) {
-    var logfile = baseDir+'/'+browserName+'_'+platform+'.log'
-    return new Promise(function(resolve, reject) {
-      fs.writeFile(logfile,logs.join('\n'), function(err) {
-        if (err) return reject(err);
-        console.log(cfg.browserName,cfg.platform,'writeFile');
+    .log('browser')
+    .then(function(logs) {
+      var logfile = baseDir + '/' + [cfg.browserName, cfg.version, cfg.platform].join('_').replace(/ /g, '_');
+      return new Promise(function(resolve, reject) {
+        fs.writeFile(logfile, logs.join('\n'), function(err) {
+          if (err) return reject(err);
+          console.log(cfg.browserName, cfg.version, cfg.platform, 'writeFile');
 
-        return resolve(browserDriver.quit());
+          return resolve(browserDriver.quit());
+        });
       });
+    }, function(err) {
+      // the Edge/Internet Explorer drivers don't support logs, but the others do
+      console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
+      return [];
     });
-  }, function(err) {
-    // the Edge/Internet Explorer drivers don't support logs, but the others do
-    console.log(cfg.browserName, cfg.platform, 'Error fetching logs:', JSON.stringify(err, null, 2));
-    return [];
   })
   .fail(function(err) {
     console.log('ERROR:', cfg.browserName, cfg.platform);
