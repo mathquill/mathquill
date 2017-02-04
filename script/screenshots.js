@@ -93,8 +93,10 @@ browsers.forEach(function(browser) {
     fileName = fileName.replace(/ /g, '_');
 
     return browserDriver.get(url)
+    .then(willLog(sessionName, 'get'))
+    .safeExecute('document.body.focus()') // blur anything that's auto-focused
     .then(function() {
-      console.log(sessionName, 'get');
+      console.log(sessionName, 'document.body.focus()');
       return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
               browserDriver.safeExecute('document.documentElement.clientHeight')];
     })
@@ -114,7 +116,9 @@ browsers.forEach(function(browser) {
         var scrollTop = 0;
         var index = 1;
         return (function loop() {
-          return browserDriver.saveScreenshot(piecesDir + index + '.png')
+          return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
+          .then(willLog(sessionName, 'scrollTo()'))
+          .saveScreenshot(piecesDir + index + '.png')
           .then(function() {
             console.log(sessionName, 'saveScreenshot');
 
@@ -128,9 +132,7 @@ browsers.forEach(function(browser) {
               //   https://github.com/jquery/jquery/blob/1.12.3/src/offset.js#L186
               // Use `window.scrollTo` instead of jQuery because jQuery was
               // causing a stackoverflow in Safari.
-              return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
-              .then(willLog(sessionName, 'scrollTo()'))
-              .then(loop);
+              return loop();
             } else { // we are past the bottom edge of the page, reduce window size to
               // fit only the part of the page that hasn't been screenshotted.
 
