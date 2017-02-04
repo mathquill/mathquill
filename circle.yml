@@ -212,8 +212,8 @@ test:
         # if evergreen browser, browser version of previous screenshot may not match,
         # so replace previous browser version with glob
         baseline=baseline/"$(sh -c "ls $(echo $file | sed 's/[^_]*_(evergreen)/*/')")"
-        echo "Diff metrics for $file:"
-        compare -list metric $baseline $file ${file/%.png/_DIFF.png}
+        echo "Number of different pixels from baseline in $file:"
+        compare -metric AE $baseline $file ${file/%.png/_DIFF.png}
       done
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
