@@ -95,8 +95,10 @@ browsers.forEach(function(browser) {
     return browserDriver.get(url)
     .then(willLog(sessionName, 'get'))
     .safeExecute('document.body.focus()') // blur anything that's auto-focused
+    .then(willLog(sessionName, 'document.body.focus()'))
+    .safeExecute('document.documentElement.style.overflow = "hidden"') // hide scrollbars
+    .then(willLog(sessionName, 'hide scrollbars'))
     .then(function() {
-      console.log(sessionName, 'document.body.focus()');
       return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
               browserDriver.safeExecute('document.documentElement.clientHeight')];
     })
