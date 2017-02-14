@@ -195,8 +195,9 @@ test:
       baseline_imgs="$(echo "$artifacts_json" \
                     | $json -a url pretty_path -d '\n\t' \
                     | grep '\.png$' \
-                    | grep -v '/pieces/' \
-                    | grep -v '/baseline/' \
+                    | grep -v '_DIFF\.png$' \
+                    | grep -vF '/pieces/' \
+                    | grep -vF '/baseline/' \
                     | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/baseline/:")"
       echo 'Baseline image URLs and files:'
       echo
