@@ -115,7 +115,19 @@ browsers.forEach(function(browser) {
 
         var scrollTop = 0;
         var index = 1;
-        return (function loop() {
+
+        // Microsoft Edge starts out with illegally big window: https://git.io/vD63O
+        if (cfg.browserName === 'MicrosoftEdge') {
+          return browserDriver.getWindowSize()
+          .then(function(size) {
+            return browserDriver.setWindowSize(size.width, size.height)
+          })
+          .then(willLog(sessionName, 'reset window size (Edge-only workaround)'))
+          .then(loop);
+        } else {
+          return loop();
+        }
+        function loop() {
           return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
           .then(willLog(sessionName, 'scrollTo()'))
           .saveScreenshot(piecesDir + index + '.png')
@@ -155,7 +167,7 @@ browsers.forEach(function(browser) {
               });
             }
           });
-        })();
+        }
       }
     })
     .then(function() {
