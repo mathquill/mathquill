@@ -99,6 +99,16 @@ browsers.forEach(function(browser) {
     .safeExecute('document.documentElement.style.overflow = "hidden"') // hide scrollbars
     .then(willLog(sessionName, 'hide scrollbars'))
     .then(function() {
+      // Microsoft Edge starts out with illegally big window: https://git.io/vD63O
+      if (cfg.browserName === 'MicrosoftEdge') {
+        return browserDriver.getWindowSize()
+        .then(function(size) {
+          return browserDriver.setWindowSize(size.width, size.height)
+        })
+        .then(willLog(sessionName, 'reset window size (Edge-only workaround)'))
+      }
+    })
+    .then(function() {
       return [browserDriver.safeExecute('document.documentElement.scrollHeight'),
               browserDriver.safeExecute('document.documentElement.clientHeight')];
     })
@@ -118,18 +128,7 @@ browsers.forEach(function(browser) {
         var scrollTop = 0;
         var index = 1;
 
-        // Microsoft Edge starts out with illegally big window: https://git.io/vD63O
-        if (cfg.browserName === 'MicrosoftEdge') {
-          return browserDriver.getWindowSize()
-          .then(function(size) {
-            return browserDriver.setWindowSize(size.width, size.height)
-          })
-          .then(willLog(sessionName, 'reset window size (Edge-only workaround)'))
-          .then(loop);
-        } else {
-          return loop();
-        }
-        function loop() {
+        return (function loop() {
           return browserDriver.safeEval('window.scrollTo(0,'+scrollTop+');')
           .then(willLog(sessionName, 'scrollTo()'))
           .saveScreenshot(piecesDir + index + '.png')
@@ -169,7 +168,7 @@ browsers.forEach(function(browser) {
               });
             }
           });
-        }
+        }());
       }
     })
     .then(function() {
