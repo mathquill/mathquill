@@ -78,6 +78,8 @@ var browsers = [
 
 browsers.forEach(function(browser) {
   browser.config.build = build_name;
+  browser.config.name = 'Visual tests, ' + browser.config.browserName + ' on ' + browser.config.platform;
+  browser.config.customData = {build_url: process.env.CIRCLE_BUILD_URL};
   var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
   return browserDriver.init(browser.config)
   .then(function(args) {

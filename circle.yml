@@ -140,6 +140,7 @@ test:
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
            -H 'Content-Type: application/json' \
            -d '{
+                 "name": "Unit tests, Mocha",
                  "build": "'"$build_name"'",
                  "customData": {"build_url": "'"$CIRCLE_BUILD_URL"'"},
                  "framework": "mocha",
