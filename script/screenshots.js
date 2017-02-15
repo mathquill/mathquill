@@ -179,19 +179,17 @@ browsers.forEach(function(browser) {
         var logfile = baseDir + '/browser_logs/' + sessionName.replace(/ /g, '_') + '.log';
         return new Promise(function(resolve, reject) {
           fs.writeFile(logfile, JSON.stringify(logs, null, 2), function(err) {
-            if (err) return reject(err);
-            console.log(sessionName, 'writeFile');
-
-            return resolve(browserDriver.quit());
+            err ? reject(err) : resolve();
           });
-        });
+        })
+        .then(willLog(sessionName, 'writeFile'));
       }, function(err) {
-        // the Edge/Internet Explorer drivers don't support logs, but the others do
+        // the Edge, IE, and Firefox-on-macOS drivers don't support logs, but the others do
         console.log(sessionName, 'Error fetching logs:', JSON.stringify(err, null, 2));
-        return [];
       });
     });
   })
+  .quit()
   .fail(function(err) {
     console.log('ERROR:', browser.config.browserName, browser.config.platform);
     console.log(JSON.stringify(err, null, 2));
