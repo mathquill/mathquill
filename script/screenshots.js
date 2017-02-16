@@ -189,11 +189,12 @@ browsers.forEach(function(browser) {
       });
     });
   })
-  .quit()
+  .sauceJobStatus(true)
   .fail(function(err) {
     console.log('ERROR:', browser.config.browserName, browser.config.platform);
     console.log(JSON.stringify(err, null, 2));
-  });
+  })
+  .quit();
 
   function willLog() {
     var msg = [].join.call(arguments, ' ');
