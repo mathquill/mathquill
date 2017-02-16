@@ -213,7 +213,7 @@ test:
       for file in $(ls *.png); do
         # if evergreen browser, browser version of previous screenshot may not match,
         # so replace previous browser version with glob
-        baseline="$(echo baseline/$(echo $file | sed 's/[^_]*_(evergreen)/*/'))"
+        baseline="$(echo baseline/$(echo $file | sed 's/[^_]*_(evergreen)/*/; s/OS_X_[^.]*/OS_X_*/' | tee /dev/stderr) | tee /dev/stderr)"
         echo "Number of different pixels from baseline in $file:"
         compare -metric AE $baseline $file ${file/%.png/_DIFF.png}
       done
