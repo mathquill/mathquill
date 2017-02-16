@@ -33,15 +33,14 @@ var browsers = [
       browserName: 'Internet Explorer',
       platform: 'Windows XP'
     },
-    pinned: true // should be pinned to IE 8
+    pinned: true // assume pinned to IE 8
   },
   {
     config: {
-      // Expecting IE 11
       browserName: 'Internet Explorer',
       platform: 'Windows 7'
     },
-    pinned: true // should be pinned to IE 11
+    pinned: true // assume pinned to IE 11
   },
   {
     config: {
