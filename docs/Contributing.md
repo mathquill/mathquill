@@ -8,7 +8,7 @@ For developing on MathQuill, run `make dev`. This will skip minifying MathQuill,
 
 `make basic` builds a stripped-down version of MathQuill for basic mathematics, without advanced LaTeX commands. This version doesn't allow typed LaTeX backslash commands with `\` or text blocks with `$`, and also won't render any LaTeX commands that can't by typed without `\`. This version of MathQuill's JS is only somewhat smaller, but the font is like 100x smaller.
 
-To run this smaller version, serve and load `mathquill-basic.{js,min.js,css}` and `font/Symbola-basic.{eot,ttf}` instead.
+To run this smaller version, serve and load `mathquill-basic.{js,min.js,css}` and `fonts/Symbola-basic.{eot,ttf}` instead.
 
 # Testing
 
