@@ -85,11 +85,11 @@ test:
         mkdir -p $CIRCLE_TEST_REPORTS/mocha
 
         # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
-        #   https://circleci.com/docs/test-metadata/
+        #   https://circleci.com/docs/test-metadata/#a-namemochajsamocha-for-nodejs
         # Our unit tests are in a browser, so they can't write to a file, and Sauce
         # apparently truncates custom data in their test result reports, so instead we
         # POST to this trivial Node server on localhost:9000 that writes the body of
-        # any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+        # any POST request to $CIRCLE_TEST_REPORTS/junit/test-results.xml
         node -e '
           require("http").createServer(function(req, res) {
             res.setHeader("Access-Control-Allow-Origin", "*");
@@ -98,7 +98,7 @@ test:
           })
           .listen(9000);
           console.error("listening on http://0.0.0.0:9000/");
-        ' 2>&1 >$CIRCLE_TEST_REPORTS/mocha/xunit.xml | {
+        ' 2>&1 >$CIRCLE_TEST_REPORTS/junit/test-results.xml | {
           # ^ note: `2>&1` must precede `>$CIRCLE_TEST_REPORTS/...` because
           # shell redirect is like assignment; if it came after, then both
           # stdout and stderr would be written to `xunit.xml` and nothing
