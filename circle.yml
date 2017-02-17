@@ -181,12 +181,10 @@ test:
       # Stitch together screenshots and diff against master
 
       echo '0. Wait for screenshots to be ready'
-      echo
       while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
       test -z "$(<~/screenshots_are_ready)" || exit 1
 
       echo '1. Stitch together pieces'
-      echo
       for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
         convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
       done
@@ -217,6 +215,7 @@ test:
 
       test -z "$baseline_imgs" && { echo 'No baseline images to download'; exit; }
       curl $baseline_imgs
+      echo
 
       echo '3.  Generate image diffs'
       echo
@@ -227,6 +226,7 @@ test:
         baseline="$(echo baseline/$(echo $file | sed 's/[^_]*_(evergreen)/*/; s/OS_X_.*/OS_X_*.png/' | tee /dev/stderr) | tee /dev/stderr)"
         echo "Number of different pixels from baseline in $file:"
         compare -metric AE $baseline $file ${file/%.png/_DIFF.png}
+        echo
       done
       true  # ignore errors like "image widths or heights differ"
 
