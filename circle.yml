@@ -39,69 +39,74 @@ dependencies:
   cache_directories:
     - ~/sauce-connect
   pre:
-    - "test $SAUCE_USERNAME && test $SAUCE_ACCESS_KEY
-       # Sauce Labs credentials required. Sign up here: https://saucelabs.com/opensauce/"
     - ? |-
-        {
-          mkdir -p ~/sauce-connect
-          cd ~/sauce-connect
-          if [ -x sc-*-linux/bin/sc ]; then
-            echo Using cached sc-*-linux/bin/sc
-          else
-            time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-            time tar -xzf sc-latest-linux.tar.gz
-          fi
-          # Sauce Connect randomly fails so try twice https://git.io/vPN8v
-          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
-            --readyfile ~/sauce_is_ready
-          test -e ~/sauce_was_ready && exit
-          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
-            --readyfile ~/sauce_is_ready
-          test -e ~/sauce_was_ready && exit
-          echo 'ERROR: Exited twice without creating readyfile' \
-            | tee /dev/stderr > ~/sauce_is_ready
+        # SauceConnect: download if not cached, and launch with retry
+        test $SAUCE_USERNAME && test $SAUCE_ACCESS_KEY || {
+          echo 'Sauce Labs credentials required. Sign up here: https://saucelabs.com/opensauce/'
           exit 1
-        } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
+        }
+
+        mkdir -p ~/sauce-connect
+        cd ~/sauce-connect
+        if [ -x sc-*-linux/bin/sc ]; then
+          echo Using cached sc-*-linux/bin/sc
+        else
+          time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+          time tar -xzf sc-latest-linux.tar.gz
+        fi
+        # Sauce Connect randomly fails so try twice https://git.io/vPN8v
+        time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
+          --readyfile ~/sauce_is_ready
+        test -e ~/sauce_was_ready && exit
+        time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
+          --readyfile ~/sauce_is_ready
+        test -e ~/sauce_was_ready && exit
+        echo 'ERROR: Exited twice without creating readyfile' \
+          | tee /dev/stderr > ~/sauce_is_ready
+        exit 1
       :
         background: true
     - test -x $json || npm install json
 
 test:
-  override:
+  pre:
     # Safari on Sauce can only connect to port 3000, 4000, 7000, or 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
-    - PORT=8000 make server >$CIRCLE_ARTIFACTS/make_server.log 2>&1:
+    - PORT=8000 make server:
         background: true
 
-    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
-    #   https://circleci.com/docs/test-metadata/
-    # Our unit tests are in a browser, so they can't write to a file, and Sauce
-    # apparently truncates custom data in their test result reports, so instead we
-    # POST to this trivial Node server on localhost:9000 that writes the body of
-    # any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
-    - mkdir -p $CIRCLE_TEST_REPORTS/mocha
-    - ? |-
-        node << 'EOF' >$CIRCLE_TEST_REPORTS/mocha/xunit.xml \
-                      2>$CIRCLE_ARTIFACTS/mocha-test-report.log
-          require('http').createServer(function(req, res) {
-            res.setHeader('Access-Control-Allow-Origin', '*');
-            req.pipe(process.stdout);
-            req.on('end', res.end.bind(res));
-          })
-          .listen(9000);
-          console.error('listening on http://0.0.0.0:9000/');
-        EOF
-      :
-        background: true
-
-    # Wait for tunnel to be ready (`make server` and the trivial Node server
-    # are much faster, no need to wait for them)
+    # Wait for tunnel to be ready (`make server` is much faster, no need to wait for it)
     - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; touch ~/sauce_was_ready; test -z "$(<~/sauce_is_ready)"
 
-    # Start taking screenshots in the background while the unit tests are running
+  override:
     - ? |-
-        {
+        # Screenshots: capture in the background while running unit tests
+        mkdir -p $CIRCLE_TEST_REPORTS/mocha
+
+        # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
+        #   https://circleci.com/docs/test-metadata/
+        # Our unit tests are in a browser, so they can't write to a file, and Sauce
+        # apparently truncates custom data in their test result reports, so instead we
+        # POST to this trivial Node server on localhost:9000 that writes the body of
+        # any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+        node -e '
+          require("http").createServer(function(req, res) {
+            res.setHeader("Access-Control-Allow-Origin", "*");
+            req.pipe(process.stdout);
+            req.on("end", res.end.bind(res));
+          })
+          .listen(9000);
+          console.error("listening on http://0.0.0.0:9000/");
+        ' 2>&1 >$CIRCLE_TEST_REPORTS/mocha/xunit.xml | {
+          # ^ note: `2>&1` must precede `>$CIRCLE_TEST_REPORTS/...` because
+          # shell redirect is like assignment; if it came after, then both
+          # stdout and stderr would be written to `xunit.xml` and nothing
+          # would be  piped into here
+
+          head -1 # wait for "listening on ..." to be logged
+
+          # https://circleci.com/docs/environment-variables/
           build_name="CircleCI build #$CIRCLE_BUILD_NUM"
           if [ $CIRCLE_PR_NUMBER ]; then
             build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
@@ -115,17 +120,17 @@ test:
           time { test -d node_modules/wd || npm install wd; }
           time node script/screenshots.js http://localhost:8000/test/visual.html \
             && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
-        } >$CIRCLE_ARTIFACTS/screenshots.log 2>&1
+        }
       :
         background: true
 
-    # Run in-browser unit tests, based on:
-    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
-    # "build" and "customData" parameters from:
-    #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
-    # CircleCI environment variables from:
-    #   https://circleci.com/docs/environment-variables/
     - |-
+      # Unit tests in the browser
+
+      echo '1. Launch tests'
+      echo
+
+      # https://circleci.com/docs/environment-variables/
       build_name="CircleCI build #$CIRCLE_BUILD_NUM"
       if [ $CIRCLE_PR_NUMBER ]; then
         build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
@@ -135,6 +140,8 @@ test:
       fi
       build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
 
+      # "build" and "customData" parameters from:
+      #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
       set -o pipefail
       curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
            -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
@@ -148,13 +155,11 @@ test:
                  "platforms": [["", "Chrome", ""]]
       }' | tee /dev/stderr | tail -1 > js-tests.json
 
-    # Wait for tests to finish:
-    #
-    #   > Make the request multiple times as the tests run until the response
-    #   > contains `completed: true` to the get the final results.
-    #
-    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
-    - |-
+      echo '2. Wait for tests to finish:'
+      echo
+      #   > Make the request multiple times as the tests run until the response
+      #   > contains `completed: true` to the get the final results.
+      # https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
       while true  # Bash has no do...while >:(
       do
         sleep 5
@@ -169,21 +174,26 @@ test:
         [ "$($json completed <status.json)" != false ] && break
       done
 
-    # Complain to Circle CI if any unit tests failed
-    - test "$($json 'js tests'.0.result.failures <status.json)" = 0
+      echo '3. Exit with non-zero status code if any unit tests failed'
+      exit "$($json 'js tests'.0.result.failures <status.json)"
 
-    # Wait for screenshots to be ready
-    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test -z "$(<~/screenshots_are_ready)":
-        timeout: 300
-
-    # Stitch together images
     - |-
+      # Stitch together screenshots and diff against master
+
+      echo '0. Wait for screenshots to be ready'
+      echo
+      while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
+      test -z "$(<~/screenshots_are_ready)" || exit 1
+
+      echo '1. Stitch together pieces'
+      echo
       for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
         convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
       done
 
-    # Download the latest screenshots from master.
-    - |-
+      echo '2. Download the latest screenshots from master'
+      echo
+
       artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=ci.cleanup)"
       #when done testing, restore: artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=master)"
       echo
@@ -205,10 +215,11 @@ test:
       echo "$baseline_imgs"
       echo
 
-      test -z "$baseline_imgs" || curl $baseline_imgs
+      test -z "$baseline_imgs" && { echo 'No baseline images to download'; exit; }
+      curl $baseline_imgs
 
-    # Generate image diffs.
-    - |-
+      echo '3.  Generate image diffs'
+      echo
       cd $CIRCLE_ARTIFACTS/imgs/
       for file in $(ls *.png); do
         # if evergreen browser, browser version of previous screenshot may not match,
@@ -218,5 +229,6 @@ test:
         compare -metric AE $baseline $file ${file/%.png/_DIFF.png}
       done
       true  # ignore errors like "image widths or heights differ"
+
   post:
     - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
