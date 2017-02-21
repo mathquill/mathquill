@@ -820,6 +820,102 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.text = function(){ return this.ends[L].text(); };
 });
 
+// xRightArrow - right arrow with under and over script
+var xrightarrow =
+LatexCmds.xrightarrow = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xrightarrow';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xrightarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['xrightarrow[', '](', ')'];
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+  _.latex = function() {
+    return '\\xrightarrow['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  };
+});
+
+// xRightArrowUpper - right arrow with over script
+var xrightarrowupper =
+LatexCmds.xrightarrowupper = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xrightarrowupper';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xrightarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    + '</span>'
+  ;
+  _.latex = function() {
+    return '\\xrightarrow{'+this.ends[L].latex()+'}';
+  };
+});
+
+// xRightArrowLower - right arrow with under script
+var xrightarrowlower =
+LatexCmds.xrightarrowlower = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xrightarrowlower';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xrightarrow">'
+    +   '<span class="mq-xarrowinner mq-xarrow-inner-bottom">&0</span>'
+    + '</span>'
+  ;
+  _.latex = function() {
+    return '\\xrightarrow['+this.ends[L].latex()+']{}';
+  };
+});
+
+// xLeftArrow - left arrow with under and over script
+var xleftarrow =
+LatexCmds.xleftarrow = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xleftarrow';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xleftarrow">' //mq-fraction mq-non-leaf
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>' //mq-numerator
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>' //mq-denominator
+    + '</span>'
+  ;
+  _.textTemplate = ['xleftarrow[', '](', ')'];
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+  _.latex = function() {
+    return '\\xleftarrow['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  };
+});
+
+// xLeftArrowUpper - left arrow with over script
+var xleftarrowupper =
+LatexCmds.xleftarrowupper = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xleftarrowupper';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xleftarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    + '</span>'
+  ;
+  _.latex = function() {
+    return '\\xleftarrow{'+this.ends[L].latex()+'}';
+  };
+});
+
+// xLeftArrowLower - left arrow with under script
+var xleftarrowlower =
+LatexCmds.xleftarrowlower = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xleftarrowlower';
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xleftarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&0</span>'
+    + '</span>'
+  ;
+  _.latex = function() {
+    return '\\xleftarrow['+this.ends[L].latex()+']{}';
+  };
+});
+
 // Embed arbitrary things
 // Probably the closest DOM analogue would be an iframe?
 // From MathQuill's perspective, it's a Symbol, it can be

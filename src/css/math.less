@@ -309,7 +309,7 @@
     display: block;
     text-align: center;
   }
-  
+
   .mq-hat-prefix {
     display: block;
     text-align: center;
@@ -370,5 +370,62 @@
       filter: FlipH;
       -ms-filter: "FlipH";
     }
+  }
+
+    // xarrows
+  .mq-xarrow {
+    display:inline-block;
+    text-align:center;
+    min-width:20px;
+  }
+
+  .mq-xarrow-inner {
+    display:block;
+    position:relative;
+    padding: 5px 0;
+  }
+
+  .mq-xarrow-inner:first-child:after {
+    position:absolute;
+    content: '';
+    width: 0;
+    height: 0;
+    border-style: solid;
+  }
+
+  .mq-xrightarrow .mq-xarrow-inner:first-child:after {
+    border-width: 5px 0 5px 5px;
+    border-color: transparent transparent transparent #000;
+    right: 0;
+  }
+
+  .mq-xleftarrow .mq-xarrow-inner:first-child:after {
+    border-width: 5px 5px 5px 0;
+    border-color: transparent #000 transparent;
+    left: 0;
+  }
+
+  .mq-xarrow-inner-top {
+      margin-bottom: 5px;
+
+      &:first-child {
+          border-bottom:1px solid #000;
+
+          &:after {
+              bottom: -5px;
+          }
+      }
+  }
+
+  .mq-xarrow-inner-bottom {
+      margin-top: 5px;
+
+      &:first-child {
+          border-top:1px solid #000;
+
+          &:after {
+              top: -5px;
+          }
+      }
   }
 }
