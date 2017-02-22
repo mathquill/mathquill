@@ -821,98 +821,66 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
 });
 
 // xRightArrow - right arrow with under and over script
-var xrightarrow =
+var xRightArrow =
 LatexCmds.xrightarrow = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\xrightarrow';
+  _.textTemplate = ['xrightarrow[', '](', ')'];
   _.htmlTemplate =
       '<span class="mq-xarrow mq-xrightarrow">'
     +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-middle"></span>'
     +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>'
     + '</span>'
   ;
-  _.textTemplate = ['xrightarrow[', '](', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
   };
-  _.latex = function() {
-    return '\\xrightarrow['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var xrightarrow = xRightArrow();
+        xrightarrow.blocks = [ block, optBlock ];
+        optBlock.adopt(xrightarrow, 0, 0);
+        block.adopt(xrightarrow, 0, optBlock);
+        return xrightarrow;
+      });
+    }).or(super_.parser.call(this));
   };
-});
-
-// xRightArrowUpper - right arrow with over script
-var xrightarrowupper =
-LatexCmds.xrightarrowupper = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\xrightarrowupper';
-  _.htmlTemplate =
-      '<span class="mq-xarrow mq-xrightarrow">'
-    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
-    + '</span>'
-  ;
   _.latex = function() {
-    return '\\xrightarrow{'+this.ends[L].latex()+'}';
-  };
-});
-
-// xRightArrowLower - right arrow with under script
-var xrightarrowlower =
-LatexCmds.xrightarrowlower = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\xrightarrowlower';
-  _.htmlTemplate =
-      '<span class="mq-xarrow mq-xrightarrow">'
-    +   '<span class="mq-xarrowinner mq-xarrow-inner-bottom">&0</span>'
-    + '</span>'
-  ;
-  _.latex = function() {
-    return '\\xrightarrow['+this.ends[L].latex()+']{}';
+    return '\\xrightarrow['+this.ends[R].latex()+']{'+this.ends[L].latex()+'}';
   };
 });
 
 // xLeftArrow - left arrow with under and over script
-var xleftarrow =
+var xLeftArrow =
 LatexCmds.xleftarrow = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\xleftarrow';
+  _.textTemplate = ['xleftarrow[', '](', ')'];
   _.htmlTemplate =
-      '<span class="mq-xarrow mq-xleftarrow">' //mq-fraction mq-non-leaf
-    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>' //mq-numerator
-    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>' //mq-denominator
+      '<span class="mq-xarrow mq-xleftarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-middle"></span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>'
     + '</span>'
   ;
-  _.textTemplate = ['xleftarrow[', '](', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
   };
-  _.latex = function() {
-    return '\\xleftarrow['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var xleftarrow = xLeftArrow();
+        xleftarrow.blocks = [ block, optBlock ];
+        optBlock.adopt(xleftarrow, 0, 0);
+        block.adopt(xleftarrow, 0, optBlock);
+        return xleftarrow;
+      });
+    }).or(super_.parser.call(this));
   };
-});
-
-// xLeftArrowUpper - left arrow with over script
-var xleftarrowupper =
-LatexCmds.xleftarrowupper = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\xleftarrowupper';
-  _.htmlTemplate =
-      '<span class="mq-xarrow mq-xleftarrow">'
-    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
-    + '</span>'
-  ;
   _.latex = function() {
-    return '\\xleftarrow{'+this.ends[L].latex()+'}';
-  };
-});
-
-// xLeftArrowLower - left arrow with under script
-var xleftarrowlower =
-LatexCmds.xleftarrowlower = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\xleftarrowlower';
-  _.htmlTemplate =
-      '<span class="mq-xarrow mq-xleftarrow">'
-    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&0</span>'
-    + '</span>'
-  ;
-  _.latex = function() {
-    return '\\xleftarrow['+this.ends[L].latex()+']{}';
+    return '\\xleftarrow['+this.ends[R].latex()+']{'+this.ends[L].latex()+'}';
   };
 });
 
