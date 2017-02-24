@@ -187,8 +187,7 @@ test:
       echo '2. Download the latest screenshots from master'
       echo
 
-      artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=ci.cleanup)"
-      #when done testing, restore: artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=master)"
+      artifacts_json="$(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts?branch=master)"
       echo
       echo '/latest/artifacts?branch=master:'
       echo
