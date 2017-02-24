@@ -192,6 +192,7 @@ browsers.forEach(function(browser) {
   .fail(function(err) {
     console.log('ERROR:', browser.config.browserName, browser.config.platform);
     console.log(JSON.stringify(err, null, 2));
+    return browserDriver.sauceJobStatus(false);
   })
   .quit();
 
