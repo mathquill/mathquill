@@ -31,10 +31,6 @@
 # this file is based on https://github.com/circleci/sauce-connect/blob/a65e41c91e02550ce56c75740a422bebc4acbf6f/circle.yml
 # via https://circleci.com/docs/browser-testing-with-sauce-labs/
 
-machine:
-  environment:
-    json: node_modules/.bin/json
-
 dependencies:
   cache_directories:
     - ~/sauce-connect
@@ -66,7 +62,6 @@ dependencies:
         exit 1
       :
         background: true
-    - test -x $json || npm install json
 
 test:
   pre:
@@ -171,11 +166,11 @@ test:
 
         # deliberately do `... != false` rather than `... == true`
         # because unexpected values should break rather than infinite loop
-        [ "$($json completed <status.json)" != false ] && break
+        [ "$(jq .completed <status.json)" != false ] && break
       done
 
       echo '3. Exit with non-zero status code if any unit tests failed'
-      exit "$($json 'js tests'.0.result.failures <status.json)"
+      exit "$(jq '.["js tests"][0].result.failures' <status.json)"
 
     - |-
       # Stitch together screenshots and diff against master
@@ -202,12 +197,12 @@ test:
 
       mkdir $CIRCLE_ARTIFACTS/imgs/baseline/
       baseline_imgs="$(echo "$artifacts_json" \
-                    | $json -a url pretty_path -d '\n\t' \
+                    | jq -r '.[] | .url + " -o " + .pretty_path' \
                     | grep '\.png$' \
                     | grep -v '_DIFF\.png$' \
                     | grep -vF '/pieces/' \
                     | grep -vF '/baseline/' \
-                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $CIRCLE_ARTIFACTS/imgs/baseline/:")"
+                    | sed "s:\$CIRCLE_ARTIFACTS/imgs/:$CIRCLE_ARTIFACTS/imgs/baseline/:")"
       echo 'Baseline image URLs and files:'
       echo
       echo "$baseline_imgs"
