@@ -159,7 +159,8 @@ test:
                  "framework": "mocha",
                  "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
-      }' | tee /dev/stderr | tail -1 > js-tests.json
+               }' \
+      | tee /dev/stderr | tail -1 > js-tests.json
 
       echo '2. Wait for tests to finish:'
       echo
