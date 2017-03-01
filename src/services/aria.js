@@ -14,8 +14,9 @@
 
 var Aria = P(function(_) {
   _.init = function() {
+    this.jQ = jQuery([]); // empty element
     // Add the alert DOM element only after the page has loaded.
-    $(window).load(function() {
+    jQuery(window).load(function() {
       var el = '.mq-aria-alert';
       // No matter how many Mathquill instances exist, we only need one alert object to say something.
       if (!jQuery(el).length) jQuery('body').append("<div aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></div>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
