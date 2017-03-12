@@ -35,6 +35,8 @@ function serveRequest(req, res) {
         }
       }
       else {
+        var ext = filepath.match(/\.[^.]+$/);
+        if (ext) res.setHeader('Content-Type', 'text/' + ext[0].slice(1));
         res.end(data);
       }
 

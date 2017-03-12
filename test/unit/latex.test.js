@@ -85,6 +85,24 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left(123\\right)');
   });
 
+  test('langle/rangle (issue #508)', function() {
+    var tree = latexMathParser.parse('\\left\\langle 123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
+  });
+
+  test('lVert/rVert', function() {
+    var tree = latexMathParser.parse('\\left\\lVert 123\\right\\rVert)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\lVert 123\\right\\rVert )');
+  });
+
   test('parens with whitespace', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
@@ -103,6 +121,15 @@ suite('latex', function() {
     assertParsesLatex('\\text{}', '');
   });
 
+  test('\\textcolor', function() {
+    assertParsesLatex('\\textcolor{blue}{8}', '\\textcolor{blue}{8}');
+  });
+
+  test('\\class', function() {
+    assertParsesLatex('\\class{name}{8}', '\\class{name}{8}');
+    assertParsesLatex('\\class{name}{8-4}', '\\class{name}{8-4}');
+  });
+
   test('not real LaTex commands, but valid symbols', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
@@ -114,9 +141,6 @@ suite('latex', function() {
     var mq;
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    });
-    teardown(function() {
-      $(mq.el()).remove();
     });
 
     suite('.latex(...)', function() {
@@ -233,9 +257,6 @@ suite('latex', function() {
       inner1 = outer.innerFields[0];
       inner2 = outer.innerFields[1];
     });
-    teardown(function() {
-      $(outer.el()).remove();
-    });
 
     test('initial latex', function() {
       assert.equal(inner1.latex(), 'x_0+x_1+x_2');
@@ -290,9 +311,6 @@ suite('latex', function() {
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
 
     function testCantParse(title /*, latex...*/) {
       var latex = [].slice.call(arguments, 1);
@@ -308,5 +326,7 @@ suite('latex', function() {
     testCantParse('unmatched close brace', '}', ' 1 + 2 } ', '1 - {2 + 3} }', '\\sqrt{ x }} + \\sqrt{y}');
     testCantParse('unmatched open brace', '{', '1 * { 2 + 3', '\\frac{ \\sqrt x }{{ \\sqrt y}');
     testCantParse('unmatched \\left/\\right', '\\left ( 1 + 2 )', ' [ 1, 2 \\right ]');
+    testCantParse('langlerfish/ranglerfish (checking for confusion with langle/rangle)',
+		    '\\left\\langlerfish 123\\right\\ranglerfish)');
   });
 });

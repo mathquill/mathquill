@@ -1,0 +1,201 @@
+# Okay so maybe everyone else already knows all this, but it took some time
+# for Michael and I [Han] to really see how everything fits together.
+#
+# Basically, what we're doing here is automated browser testing, so CircleCI
+# handles the automation, and Sauce Labs handles the browser testing.
+# Specifically, Sauce Labs offers a REST API to run tests in browsers in VMs,
+# and CircleCI can be configured to listen for git pushes and run local
+# servers and call out to REST APIs to test against these local servers.
+#
+# The flow goes like this:
+#   - CircleCI notices/is notified of a git push
+#   - they pull and checkout and magically know to install dependencies and shit
+#       + https://circleci.com/docs/manually/
+#   - their magic works fine for MathQuill's dependencies but to run the tests,
+#     it foolishly runs `make test`, what an inconceivable mistake
+#   - that's where we come in: `circle.yml` lets us override the test script.
+#       + https://circleci.com/docs/configuration/
+#   - our `circle.yml` first installs and runs a tunnel to Sauce Labs
+#   - and runs `make server`
+#   - then it calls out to Sauce Labs' REST API to open a browser that reaches
+#     back through the tunnel to access the unit test page on the local server
+#       + > Sauce Connect allows you to run a test server within the CircleCI
+#         > build container and expose it it (using a URL like `localhost:8080`)
+#         > to Sauce Labs’ browsers.
+#
+#         https://circleci.com/docs/browser-testing-with-sauce-labs/
+#
+#   - boom testing boom
+
+
+# this file is based on https://github.com/circleci/sauce-connect/blob/a65e41c91e02550ce56c75740a422bebc4acbf6f/circle.yml
+# via https://circleci.com/docs/browser-testing-with-sauce-labs/
+
+dependencies:
+  cache_directories:
+    - ~/sauce-connect
+  pre:
+    - "test $SAUCE_USERNAME && test $SAUCE_ACCESS_KEY
+       # Sauce Labs credentials required. Sign up here: https://saucelabs.com/opensauce/"
+    - ? |-
+        {
+          mkdir -p ~/sauce-connect
+          cd ~/sauce-connect
+          if [ -x sc-*-linux/bin/sc ]; then
+            echo Using cached sc-*-linux/bin/sc
+          else
+            time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+            time tar -xzf sc-latest-linux.tar.gz
+          fi
+          # Sauce Connect randomly fails so try twice
+          time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+            || time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY --readyfile ~/sauce_is_ready \
+            || echo ERROR > ~/sauce_is_ready
+        } >$CIRCLE_ARTIFACTS/sauce-connect.log 2>&1
+      :
+        background: true
+
+test:
+  override:
+    # Sauce can connect to Safari on ports 3000, 4000, 7000, and 8000. Edge needs port 7000 or 8000.
+    # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
+    # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
+    - PORT=8000 make server >$CIRCLE_ARTIFACTS/make_server.log 2>&1:
+        background: true
+
+    # CircleCI expects test results to be reported in an JUnit/xUnit-style XML
+    # file:
+    #   https://circleci.com/docs/test-metadata/
+    # Our unit tests are in a browser, so they can't write to a file, and Sauce
+    # apparently truncates custom data in their test result reports, so instead
+    # we POST to this trivial Node server on localhost:9000 that writes the
+    # body of any POST request to $CIRCLE_TEST_REPORTS/mocha/xunit.xml
+    - mkdir -p $CIRCLE_TEST_REPORTS/mocha
+    - ? |-
+        node << 'EOF' >$CIRCLE_TEST_REPORTS/mocha/xunit.xml \
+                      2>$CIRCLE_ARTIFACTS/mocha-test-report.log
+          require('http').createServer(function(req, res) {
+            res.setHeader('Access-Control-Allow-Origin', '*');
+            req.pipe(process.stdout);
+            req.on('end', res.end.bind(res));
+          })
+          .listen(9000);
+          console.error('listening on http://0.0.0.0:9000/');
+        EOF
+      :
+        background: true
+
+    # Wait for tunnel to be ready (`make server` and the trivial Node server
+    # are much faster, no need to wait for them)
+    - while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; test "$(<~/sauce_is_ready)" != ERROR
+
+    # Start taking screenshots in the background while the unit tests are running
+    - ? |-
+        {
+          time { test -d node_modules/wd || npm install wd; }
+          time node script/screenshots.js http://localhost:8000/test/visual.html \
+            && touch ~/screenshots_are_ready || echo ERROR > ~/screenshots_are_ready:
+        } >$CIRCLE_ARTIFACTS/screenshots.log 2>&1
+      :
+        background: true
+
+    # Run in-browser unit tests, based on:
+    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
+    # "build" and "tag" parameters from:
+    #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
+    - |-
+      curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
+           -X POST \
+           -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
+           -H 'Content-Type: application/json' \
+           -d '{
+                 "build": "'$(git rev-parse HEAD)'",
+                 "tags": [
+                   "after-v'$(node -p 'require("./package.json").version')'",
+                   "circle-ci"
+                 ],
+                 "framework": "mocha",
+                 "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
+                 "platforms": [["", "Chrome", ""]]
+      }' | tee js-tests
+
+    # Wait for tests to finish:
+    #
+    #   > Make the request multiple times as the tests run until the response
+    #   > contains `completed: true` to the get the final results.
+    #
+    #   https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
+    - |-
+      while true  # Bash has no do...while >:(
+      do
+        sleep 5
+        curl -i https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
+             -X POST \
+             -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
+             -H 'Content-Type: application/json' \
+             -d "$(tail -1 js-tests)" \
+        | tee status
+        tail -1 status > status.json
+        # deliberately do `... != false` rather than `... == true`
+        # because unexpected values should break rather than infinite loop
+        [ "$(node -p 'require("./status.json").completed')" != false ] && break
+      done
+
+    # Wait for screenshots to be ready
+    - while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done; test "$(<~/screenshots_are_ready)" != ERROR:
+        timeout: 300
+
+    # Stitch together images
+    # TODO: Split this into multiple yaml lines. I (Michael)
+    #       niavely tried to split this into mutiple yaml lines
+    #       but was unsucessful in doing do.
+    - |-
+      img_dir=$CIRCLE_ARTIFACTS/imgs/
+      for x in $(ls $img_dir)
+      do
+        convert $img_dir/$x/*.png -append $img_dir/$x.png
+      done
+
+      # Remove all directories in $CIRCLE_ARTIFACTS/img
+      # Currently the pieces aren't kept around. If it's
+      # desirable to keep them around, we should use
+      #    cp -r $dir $CIRCLE_ARTIFACTS/img_pieces
+      # The reason the image pieces aren't currently kept
+      # around is that it was leading to a problem. Specifically,
+      # when we get the previous images, we niavely grab any *.png,
+      # including the pieces images. This compounded so that each
+      # iteration of a test run would have all of the images from
+      # the previous test run plus whichever new images were generated.
+      rm -R -- $img_dir/*/
+
+      # Install utility we need
+      npm install -g json
+
+      # Download the latest mathquill artifacts.
+      curl $(curl https://circleci.com/api/v1/project/mathquill/mathquill/latest/artifacts \
+              | json -a url pretty_path -d '\n\t' \
+              | grep '\.png$' \
+              | grep -v 'PREV' \
+              | sed "s:\$CIRCLE_ARTIFACTS/imgs/:-o $img_dir/PREV_:")
+
+      # Generate image diffs.
+      cd $img_dir
+      for file in $(ls PINNED*); do
+        prev=PREV_$file
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
+
+      for file in $(ls EVERGREEN*); do
+        prev=$(ls PREV_$file*)
+        metric_diff=$(compare -metric AE -compose src $prev $file raw_diff.png)
+        composite -alpha on raw_diff.png $prev DIFF_$file
+      done
+
+      rm raw_diff.png
+
+    # finally, complain to Circle CI if there were nonzero test failures
+    - |-
+      [ "$(node -p 'require("./status.json")["js tests"][0].result.failures')" == 0 ]
+  post:
+    - killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
