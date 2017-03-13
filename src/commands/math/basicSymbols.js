@@ -320,7 +320,7 @@ LatexCmds['∥'] = LatexCmds.parallel =
   bind(StixSymbol, '\\parallel ', '&#x2225;', 'parallel');
 
 LatexCmds['∦'] =
-  bind(StixSymbol, '\\∦ ', '&#x2226;', 'not parallel');
+  bind(StixSymbol, '\\nparallel ', '&#x2226;', 'not parallel');
 
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
