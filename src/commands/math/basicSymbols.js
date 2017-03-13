@@ -308,6 +308,21 @@ LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;', 'and');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%', 'percent');
 
+// special characters that should use the stix font [for AIR]
+// characters are parallel and not-parallel
+var StixSymbol = P(Symbol, function(_, super_) {
+  _.init = function(ch, html) {
+    super_.init.call(this, ch, '<span class="mq-stix">'+(html || ch)+'</span>');
+  };
+});
+
+LatexCmds['∥'] = LatexCmds.parallel =
+  bind(StixSymbol, '\\parallel ', '&#x2225;', 'parallel');
+
+LatexCmds['∦'] =
+  bind(StixSymbol, '\\∦ ', '&#x2226;', 'not parallel');
+
+
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
 //lowercase Greek letter variables
