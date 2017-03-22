@@ -515,7 +515,7 @@ suite('Public API', function() {
       });
       test('backslashes', function() {
         assertPaste('something \\pi something \\asdf',
-                    '\\text{something \\pi something \\asdf}');
+                    '\\text{something \\backslash pi something \\backslash asdf}');
       });
       // TODO: braces (currently broken)
       test('actual math LaTeX wrapped in dollar signs', function() {

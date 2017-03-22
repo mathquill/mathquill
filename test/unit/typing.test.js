@@ -60,7 +60,7 @@ suite('typing with auto-replaces', function() {
 
     test('\\text followed by command', function() {
       mq.typedText('\\text{');
-      assertLatex('\\text{{}');
+      assertLatex('\\text{\\{}');
     });
   });
 
