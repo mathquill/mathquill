@@ -57,6 +57,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('$');
       assertLatex('\\$');
     });
+
+    test('\\text followed by command', function() {
+      mq.typedText('\\text{');
+      assertLatex('\\text{{}');
+    });
   });
 
   suite('auto-expanding parens', function() {
