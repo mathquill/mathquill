@@ -73,7 +73,7 @@ test:
                  "context": "ci/many-worlds",
                  "state": "success",
                  "description": "Try the tests on the Many-Worlds build of this commit:",
-                 "target_url": "http://many-worlds.gomix.me/mathquill/mathquill/commit/'$CIRCLE_SHA1'/test/"
+                 "target_url": "http://many-worlds.glitch.me/mathquill/mathquill/commit/'$CIRCLE_SHA1'/test/"
                }'
 
     # Safari on Sauce can only connect to port 3000, 4000, 7000, or 8000. Edge needs port 7000 or 8000.
