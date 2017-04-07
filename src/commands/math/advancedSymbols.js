@@ -2,7 +2,6 @@
  * Symbols for Advanced Mathematics
  ***********************************/
 
-LatexCmds.notin =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
@@ -28,6 +27,8 @@ LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
 LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
 
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
+
+LatexCmds.notin = LatexCmds.nisin = LatexCmds.nin = bind(BinaryOperator,'\\notin ','&notin;');
 
 LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
 
