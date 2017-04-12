@@ -329,4 +329,18 @@ suite('latex', function() {
     testCantParse('langlerfish/ranglerfish (checking for confusion with langle/rangle)',
 		    '\\left\\langlerfish 123\\right\\ranglerfish)');
   });
+
+  suite('selectable span', function() {
+    setup(function() {
+      MQ.StaticMath($('<span>2&lt;x</span>').appendTo('#mock')[0]);
+    });
+
+    function selectableContent() {
+      return document.querySelector('#mock .mq-selectable').textContent;
+    }
+
+    test('escapes < in textContent', function () {
+      assert.equal(selectableContent(), '$2<x$');
+    });
+  });
 });
