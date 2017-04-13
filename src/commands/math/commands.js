@@ -326,7 +326,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
 });
 
 var SummationNotation = P(MathCommand, function(_, super_) {
-  _.init = function(ch, html) {
+  _.init = function(ch, html, ariaLabel) {
+    _.ariaLabel = ariaLabel || ctrlSeq;
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="mq-to"><span>&1</span></span>'
@@ -349,6 +350,10 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     }
     return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
       '^' + simplify(this.ends[R].latex());
+  };
+  _.mathspeak = function() {
+    return 'Start ' + this.ariaLabel + ' from ' + this.ends[L].mathspeak() +
+      ' to ' + this.ends[R].mathspeak() + ', end ' + this.ariaLabel + ', ';
   };
   _.parser = function() {
     var string = Parser.string;
@@ -380,19 +385,20 @@ var SummationNotation = P(MathCommand, function(_, super_) {
 
 LatexCmds['∏'] =
 LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
+LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;', 'sum');
 
 LatexCmds['∑'] =
 LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
+LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;', 'product');
 
 LatexCmds.coprod =
-LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
+LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;', 'co product');
 
 LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = P(SummationNotation, function(_, super_) {
   _.init = function() {
+    _.ariaLabel = 'integral';
     var htmlTemplate =
       '<span class="mq-int mq-non-leaf">'
     +   '<big>&int;</big>'
