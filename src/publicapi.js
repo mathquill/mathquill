@@ -96,6 +96,19 @@ function getInterface(v) {
     }
     EMBEDS[name] = options;
   };
+  MQ.bindBinaryOperator = function(name, ctrlSeq, hex) {
+    LatexCmds[name] = bind(BinaryOperator, ctrlSeq, hex)
+  };
+  MQ.bindVanillaSymbol = function(name, ctrlSeq, hex) {
+    LatexCmds[name] = bind(VanillaSymbol, ctrlSeq, hex);
+  };
+  MQ.bindMathCommand = function(name, ctrlSeq, htmlTemplate) {
+    LatexCmds[name] = P(MathCommand, function(_, _super) {
+      _.ctrlSeq = ctrlSeq;
+      _.htmlTemplate = htmlTemplate;
+      _.textTemplate = [name + '(', ')'];
+    });
+  };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
