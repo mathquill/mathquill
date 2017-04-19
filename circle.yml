@@ -57,7 +57,7 @@ dependencies:
         test -e ~/sauce_was_ready && exit
 
         echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
-        rm -rf .
+        rm -rf *
         time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
         time tar -xzf sc-latest-linux.tar.gz
 
