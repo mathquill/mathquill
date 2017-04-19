@@ -106,7 +106,7 @@ td {
 
 <h3>Behavior Options</h3>
 
-<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
+<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}} + \vec{A}</span></p>
 <p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
 
 <script>
@@ -209,10 +209,13 @@ $(function() {
 <tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
 <tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
 <tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
-<tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
+<tr><td><span class="mathquill-static-math">\dot a \dot c \dot e \dot g \dot m \dot n \dot o \dot p \dot q \dot r \dot s \dot u \dot v \dot w \dot x \dot y \dot z \dot t  \dot A \dot B \dot C \dot i \dot j \dot b \dot d \dot f \dot h \dot k \dot l</span><td><span>\dot a \dot c \dot e \dot g \dot m \dot n \dot o \dot p \dot q \dot r \dot s \dot u \dot v \dot w \dot x \dot y \dot z \dot t  \dot A \dot B \dot C \dot i \dot j \dot b \dot d \dot f \dot h \dot k \dot l</span>^M
+<tr><td><span class="mathquill-static-math">\dot \alpha \dot \gamma \dot \eta \dot \iota \dot  \kappa \dot \mu \dot \nu \dot \rho \dot \sigma \dot \tau \dot \chi \dot \omega \dot \varphi \dot \epsilon \dot \varepsilon \dot \pi \dot \varpi \dot \varsigma \dot \upsilon \dot \digamma \dot \varkappa \dot \varrho \dot \psi \dot t \dot A \dot \delta \dot \Delta \dot \Sigma \dot \Psi \dot \beta \dot \zeta \dot \theta \dot \xi \dot \phi \dot \lambda \dot \vartheta</span><td><span>\dot \alpha \dot \gamma \dot \eta \dot \iota \dot  \kappa \dot \mu \dot \nu \dot \rho \dot \sigma \dot \tau \dot \chi \dot \omega \dot \varphi \dot \epsilon \dot \varepsilon \dot \pi \dot \varpi \dot \varsigma \dot \upsilon \dot \digamma \dot \varkappa \dot \varrho \dot \psi \dot t \dot A \dot \delta \dot \Delta \dot \Sigma \dot \Psi \dot \beta \dot \zeta \dot \theta \dot \xi \dot \phi \dot \lambda \dot \vartheta</span>^M
+<tr><td><span class="mathquill-static-math">\sqrt{a\vec x} + \tilde x + \sqrt{\vec A B \vec X} + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\sqrt{a\vec x} + \tilde x + \sqrt{\vec A B \vec X} + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
 <tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
 <tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
 <tr><td colspan=2><span id="sixes"></span>
+<tr><td colspan=2><span id="diacritics"></span>
 <script>
 $(function() {
     var i,
@@ -220,10 +223,21 @@ $(function() {
         start = 10,
         end = 40;
     for (i = start; i <= end; i++) {
-        sixes += '<span style="font-size: ' + i + 'px" class="mathquill-math-field">6<\/span>';
+        sixes += '<span style="font-size: ' + i + 'px" class="mathquill-math-field">6</span>';
     }
     $('#sixes').html(sixes);
     $('#sixes .mathquill-math-field').each(function() { MQ.MathField(this); });
+
+    var i,
+        diacritics = '',
+        start = 12,
+        end = 20;
+    for (i = start; i <= end; i++) {
+        var fontSize = (i+'').slice(0,-1) + '.' + (i+'').slice(-1);
+        diacritics += '<span style="font-size: ' + fontSize + 'em" class="mathquill-math-field">\\sqrt{A\\vec X}</span>';
+    }
+    $('#diacritics').html(diacritics);
+    $('#diacritics .mathquill-math-field').each(function() { MQ.MathField(this); });
 });
 </script>
 </table>

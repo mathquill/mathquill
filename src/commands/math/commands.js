@@ -493,17 +493,6 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   };
 });
 
-var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\hat';
-  _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-hat-prefix">^</span>'
-    +   '<span class="mq-hat-stem">&0</span>'
-    + '</span>'
-  ;
-  _.textTemplate = ['hat(', ')'];
-});
-
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
@@ -519,20 +508,54 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+// the Short Math Guide to LaTeX calls these "Accents"
+//   (Section 3.17: http://tinyurl.com/gq4c4od )
+// but Wikipedia says only some diacritical marks like acute and grave are accents
 var DiacriticAbove = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, symbol, textTemplate) {
     var htmlTemplate =
-      '<span class="mq-non-leaf">'
-      +   '<span class="mq-diacritic-above">'+symbol+'</span>'
-      +   '<span class="mq-diacritic-stem">&0</span>'
+        '<span class="mq-diacritic mq-non-leaf">'
+      +   '<span class="mq-diacritic-above">'+symbol+'&nbsp;</span>'
+      +   '<span class="mq-non-leaf mq-inset">&0</span>'
       + '</span>'
     ;
 
     super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
   };
+  _.reflow = function() {
+    var block = this.ends[L], allLow = !block.isEmpty(), anyTs = false;
+    if (allLow) block.eachChild(function(cmd) {
+      if (!(cmd.ctrlSeq in LOW_LETTERS)) allLow = false;
+      if (cmd.ctrlSeq === 't') anyTs = true;
+    });
+    this.jQ.toggleClass('mq-diacritic-low', allLow)
+           .toggleClass('mq-diacritic-t', anyTs);
+  };
+  var LOW_ROMAN_LETTERS = 'acegmnopqrstuvwxyz';
+  var LOW_GREEK_LETTERS = 'alpha gamma eta iota kappa mu nu rho sigma tau chi omega varphi epsilon varepsilon pi varpi varsigma upsilon digamma varkappa varrho psi'.split(' ');
+
+  var LOW_LETTERS = {};
+  for (var i = 0; i < LOW_ROMAN_LETTERS.length; i += 1) {
+    LOW_LETTERS[LOW_ROMAN_LETTERS.charAt(i)] = 1;
+  }
+  for (var i = 0; i < LOW_GREEK_LETTERS.length; i += 1) {
+    LOW_LETTERS['\\'+LOW_GREEK_LETTERS[i]+' '] = 1;
+  }
 });
-LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
-LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
+// Unicode "Combining Diacritical Marks"
+LatexCmds.grave = bind(DiacriticAbove, '\\grave', '&#x0300;', ['grave(', ')']);
+LatexCmds.acute = bind(DiacriticAbove, '\\acute', '&#x0301;', ['acute(', ')']);
+LatexCmds.hat = bind(DiacriticAbove, '\\hat', '&#x0302;', ['hat(', ')']); // aka circumflex
+LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '&#x0303;', ['tilde(', ')']);
+LatexCmds.bar = bind(DiacriticAbove, '\\bar', '&#x0304;', ['bar(', ')']); // aka macron/overline
+LatexCmds.breve = bind(DiacriticAbove, '\\breve', '&#x0306;', ['breve(', ')']);
+LatexCmds.dot = bind(DiacriticAbove, '\\dot', '&#x0307;', ['dot(', ')']);
+LatexCmds.ddot = bind(DiacriticAbove, '\\ddot', '&#x0307;', ['ddot(', ')']); // aka diaeresis/umlaut
+LatexCmds.check = bind(DiacriticAbove, '\\check', '&#x030C', ['check(', ')']); // aka caron/hacek
+// Unicode "Combining Diacritical Marks for Symbols"
+LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&#x20D7;', ['vec(', ')']);
+LatexCmds.dddot = bind(DiacriticAbove, '\\dddots', '&#x20DB;', ['dddot(', ')']);
+LatexCmds.ddddot = bind(DiacriticAbove, '\\dddots', '&#x20DC;', ['ddddot(', ')']);
 
 function DelimsMixin(_, super_) {
   _.jQadd = function() {

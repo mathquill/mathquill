@@ -47,16 +47,8 @@
     background: transparent;
   }
 
-
   .mq-text-mode {
     display: inline-block;
-  }
-  .mq-text-mode.mq-hasCursor {
-    box-shadow: inset darkgray 0 .1em .2em;
-    padding: 0 .1em;
-    margin: 0 -.1em;
-
-    min-width: 1ex;
   }
 
   .mq-font {
@@ -299,15 +291,40 @@
     padding-top: 1px;
   }
 
-  .mq-diacritic-above {
-    display: block;
-    text-align: center;
-    line-height: .4em;
-  }
+  .mq-diacritic {
+    position: relative;
 
-  .mq-diacritic-stem {
-    display: block;
+    padding-top: .2em;
+    &.mq-diacritic-low {
+      padding-top: 0;
+      &.mq-diacritic-t {
+        padding-top: .1em;
+      }
+    }
+  }
+  .mq-root-block { // see test 'padding for diacritic not affected by cursor/selection
+    > .mq-diacritic, > .mq-selection:last-child > .mq-diacritic {
+      &:last-child, & + .mq-cursor:last-child {
+        border-right: solid transparent .2em;
+        // has to be transparent border: not padding, which would affect size of
+        // padding box which diacritic is absolutely positioned relative to, not
+        // margin because selection is `display:inline` and the line box is
+        // shorter than the diacritic so extra selected space is ugly: https://git.io/voRA5
+      }
+    }
+  }
+  .mq-diacritic-above {
+    position: absolute;
+    left: 0;
+    right: 0;
     text-align: center;
+
+    top: .06em; // yes, really, .05em isn't low enough in Chrome,
+                             // .07em is too low in Firefox & Safari
+  }
+  .mq-diacritic-low > .mq-diacritic-above {
+    left: -.1em;
+    right: .1em;
   }
   
   .mq-hat-prefix {
