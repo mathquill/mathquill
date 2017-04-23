@@ -159,12 +159,6 @@ var Cursor = P(Point, function(_) {
   };
   _.startSelection = function() {
     var anticursor = this.anticursor = Point.copy(this);
-    var ancestors = anticursor.ancestors = {}; // a map from each ancestor of
-      // the anticursor, to its child that is also an ancestor; in other words,
-      // the anticursor's ancestor chain in reverse order
-    for (var ancestor = anticursor; ancestor.parent; ancestor = ancestor.parent) {
-      ancestors[ancestor.parent.id] = ancestor;
-    }
   };
   _.endSelection = function() {
     delete this.anticursor;

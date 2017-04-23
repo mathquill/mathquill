@@ -50,6 +50,9 @@ Controller.open(function(_) {
         textarea.focus();
       }
 
+      // In case we just made a selection we need to ensure that the previous anticursor is removed.
+      cursor.endSelection();
+
       cursor.blink = noop;
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
