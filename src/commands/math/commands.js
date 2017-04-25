@@ -820,6 +820,70 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
   _.text = function(){ return this.ends[L].text(); };
 });
 
+// xRightArrow - right arrow with under and over script
+var xRightArrow =
+LatexCmds.xrightarrow = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xrightarrow';
+  _.textTemplate = ['xrightarrow[', '](', ')'];
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xrightarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-middle"></span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>'
+    + '</span>'
+  ;
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var xrightarrow = xRightArrow();
+        xrightarrow.blocks = [ block, optBlock ];
+        optBlock.adopt(xrightarrow, 0, 0);
+        block.adopt(xrightarrow, 0, optBlock);
+        return xrightarrow;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.latex = function() {
+    return '\\xrightarrow['+this.ends[R].latex()+']{'+this.ends[L].latex()+'}';
+  };
+});
+
+// xLeftArrow - left arrow with under and over script
+var xLeftArrow =
+LatexCmds.xleftarrow = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xleftarrow';
+  _.textTemplate = ['xleftarrow[', '](', ')'];
+  _.htmlTemplate =
+      '<span class="mq-xarrow mq-xleftarrow">'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-top">&0</span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-middle"></span>'
+    +   '<span class="mq-xarrow-inner mq-xarrow-inner-bottom">&1</span>'
+    + '</span>'
+  ;
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var xleftarrow = xLeftArrow();
+        xleftarrow.blocks = [ block, optBlock ];
+        optBlock.adopt(xleftarrow, 0, 0);
+        block.adopt(xleftarrow, 0, optBlock);
+        return xleftarrow;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.latex = function() {
+    return '\\xleftarrow['+this.ends[R].latex()+']{'+this.ends[L].latex()+'}';
+  };
+});
+
 // Embed arbitrary things
 // Probably the closest DOM analogue would be an iframe?
 // From MathQuill's perspective, it's a Symbol, it can be
