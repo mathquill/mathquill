@@ -352,6 +352,9 @@ LatexCmds.varrho = //AMS and LaTeX
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;');
 LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;');
 
+// Currency symbols
+LatexCmds.euro = LatexCmds['\u20AC'] = bind(NonSymbolaSymbol,'\\euro ','&#8364;');
+
 //uppercase greek letters
 
 LatexCmds.Upsilon = //LaTeX
