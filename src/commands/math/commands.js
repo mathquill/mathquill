@@ -372,7 +372,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
           blocks[i].ariaLabel = 'upper bound';
           break;
         default:  // Presumably we shouldn't hit this, but one never knows.
-          blocks[i].ariaLabel = 'Blobk ' + i;
+          blocks[i].ariaLabel = 'block ' + i;
           break;
       }
       blocks[i].adopt(self, self.ends[R], 0);
