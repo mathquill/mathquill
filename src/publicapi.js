@@ -160,7 +160,7 @@ function getInterface(v) {
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     };
-    _.empty = _.clear = function() {
+    _.empty = function() {
       this.select().__controller.backspace();
       return this;
     };
