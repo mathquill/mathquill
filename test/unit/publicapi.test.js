@@ -158,12 +158,6 @@ suite('Public API', function() {
       assert.equal(mq.__controller.cursor[R], 0);
     });
 
-    test('.clear()', function() {
-      mq.latex('xyz');
-      mq.clear();
-      assert.equal(mq.latex(), '');
-    });
-
     test('.empty()', function() {
       mq.latex('xyz');
       mq.empty();
