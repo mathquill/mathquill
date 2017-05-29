@@ -51,21 +51,17 @@ code span {
 
 <p>You could actually just copy-and-paste this HTML into any element with <code>class="mq-math-mode"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully, like this: <span class="mq-math-mode" id="html-transplant-example"></span></p>
 
-<p>Any element with <code>class="mathquill-static-math"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
+<p>If you simply want to display some non-interactive math, you can use MathQuill's StaticMath API: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. If you select and copy static math, by default it will copy LaTeX source to the clipboard.</p>
+
+<p>You can also make static math non-selectable: <span class="static-math-no-mouse-events">sin^2\theta + cos^2\theta = 1</span>.</p>
+
+<p>Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
 
 <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-text-field">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
 
 <p>LaTeX math can also have textboxes inside: <span class="mathquill-static-math">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
 
 <p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };">MQ.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
-
-<p>
-  Insert using inertMath <button class="insert-trigger" data-latex="\sqrt{4}"><span class="mathquill-inert-math">\sqrt{4}</span></button> inside formulas below:<br>
-  Insert using inertMath with innerFields <button class="insert-trigger" data-latex="\sqrt{4}\frac{1}{\MathQuillMathField{\sqrt{4}}}"><span class="mathquill-inert-math">\sqrt{4}\frac{1}{\MathQuillMathField{\sqrt{4}}}</span></button> inside formulas below:<br>
-  <span class="mathquill-math-field"></span><br>
-  or here: <span class="mathquill-math-field">\frac{2}{3}</span><br>
-  Now insert using staticMath <button class="insert-trigger" data-latex="\sqrt{4}"><span class="mathquill-static-math">\sqrt{4}</span></button> to the same formulas above, and notice that you can select all the text within a button.<br>
-</p>
 
 </div>
 <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
@@ -77,7 +73,7 @@ MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
-  $('.mathquill-inert-math').each(function() { MQ.InertMath(this); });
+  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents:false }); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });

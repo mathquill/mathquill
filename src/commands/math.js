@@ -432,14 +432,17 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 });
 
+Options.p.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
     _.__mathquillify = function(opts, interfaceVersion) {
       this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
-      this.__controller.delegateMouseEvents();
-      this.__controller.staticMathTextareaEvents();
+      if (this.__options.mouseEvents) {
+        this.__controller.delegateMouseEvents();
+        this.__controller.staticMathTextareaEvents();
+      }
       return this;
     };
     _.init = function() {
@@ -468,38 +471,6 @@ API.MathField = function(APIClasses) {
       super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
       delete this.__controller.root.reflow;
       return this;
-    };
-  });
-};
-
-/**
- * This is almost the same as StaticMath, except we don't
- * bind any mouse events (which give us selectability and move
- * around an invisible cursor).
- *
- * Otherwise, if you have a button that contains a rendered StaticMath symbol
- * which causes something to be written into an editable mathquill,
- * the mouseup event will hijack focus.
- */
-API.InertMath = function(APIClasses) {
-  return P(APIClasses.AbstractMathQuill, function(_, super_) {
-    this.RootBlock = MathBlock;
-    _.__mathquillify = function() {
-      super_.__mathquillify.call(this, 'mq-math-mode');
-      return this;
-    };
-    _.init = function() {
-      super_.init.apply(this, arguments);
-      this.__controller.root.postOrder(
-        'registerInnerField', this.innerFields = [], APIClasses.MathField);
-    };
-    _.latex = function() {
-      var returned = super_.latex.apply(this, arguments);
-      if (arguments.length > 0) {
-        this.__controller.root.postOrder(
-          'registerInnerField', this.innerFields = [], APIClasses.MathField);
-      }
-      return returned;
     };
   });
 };
