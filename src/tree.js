@@ -95,8 +95,6 @@ var Node = P(function(_) {
     this.ends[R] = 0;
   };
 
-  _.dispose = function() { delete Node.byId[this.id]; };
-
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
   _.jQ = $();
@@ -192,7 +190,6 @@ var Node = P(function(_) {
 
   _.remove = function() {
     this.jQ.remove();
-    this.postOrder('dispose');
     return this.disown();
   };
 });
@@ -338,7 +335,6 @@ var Fragment = P(function(_) {
 
   _.remove = function() {
     this.jQ.remove();
-    this.each('postOrder', 'dispose');
     return this.disown();
   };
 
