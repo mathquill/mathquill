@@ -70,8 +70,8 @@ function getInterface(v) {
   function MQ(el) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
-    var ctrlr = blockId && Node.byId[blockId].controller;
+    var blockNode = Node.blockByElement($(el).children('.mq-root-block'));
+    var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
   var APIClasses = {};
@@ -112,6 +112,9 @@ function getInterface(v) {
       root.jQ =
         $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
       this.latex(contents.text());
+
+      var blockNode = Node._tempById[root.id]
+      root.jQ[0].mqBlockNode = blockNode;
 
       this.revert = function() {
         return el.empty().unbind('.mathquill')

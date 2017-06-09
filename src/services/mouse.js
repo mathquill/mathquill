@@ -9,7 +9,7 @@ Controller.open(function(_) {
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function(e) {
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+      var root = Node.blockByElement(rootjQ) || Node.blockByElement(ultimateRootjQ);
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
@@ -66,15 +66,24 @@ Controller.open(function(_) {
 Controller.open(function(_) {
   _.seek = function(target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
+    var node;
 
+    // try to find the node by the target
     if (target) {
-      var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
-      if (!nodeId) {
+      node = Node.blockByElement(target) || Node.cmdByElement(target);
+
+      // if that didn't work find the node by the target's parent
+      if (!node) {
         var targetParent = target.parent();
-        nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
+        node = Node.blockByElement(targetParent) || Node.cmdByElement(targetParent);
       }
     }
-    var node = nodeId ? Node.byId[nodeId] : this.root;
+
+    // if that didn't work then the root is the node
+    if (!node) {
+      node = this.root;
+    }
+
     pray('nodeId is the id of some Node that exists', node);
 
     // don't clear selection until after getting node from target, in case

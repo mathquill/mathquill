@@ -74,6 +74,11 @@ var Point = P(function(_) {
   };
 });
 
+// keep clearing this out
+setInterval(function () {
+  Node._tempById = {};
+}, 1000);
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
@@ -84,11 +89,24 @@ var Node = P(function(_) {
 
   var id = 0;
   function uniqueNodeId() { return id += 1; }
-  this.byId = {};
+
+  this._tempById = {};
+
+  this.cmdByElement = function ($el) {
+    if (!$el) return;
+    if ($el[0]) $el = $el[0];
+    if ($el) return $el.mqCmdNode;
+  };
+
+  this.blockByElement = function ($el) {
+    if (!$el) return;
+    if ($el[0]) $el = $el[0];
+    if ($el) return $el.mqBlockNode;
+  };
 
   _.init = function() {
     this.id = uniqueNodeId();
-    Node.byId[this.id] = this;
+    Node._tempById[id] = this;
 
     this.ends = {};
     this.ends[L] = 0;
@@ -104,11 +122,20 @@ var Node = P(function(_) {
     var jQ = $(jQ || this.html());
 
     function jQadd(el) {
+
       if (el.getAttribute) {
         var cmdId = el.getAttribute('mathquill-command-id');
         var blockId = el.getAttribute('mathquill-block-id');
-        if (cmdId) Node.byId[cmdId].jQadd(el);
-        if (blockId) Node.byId[blockId].jQadd(el);
+        if (cmdId) {
+          var cmdNode = Node._tempById[cmdId]
+          cmdNode.jQadd(el);
+          el.mqCmdNode = cmdNode;
+        }
+        if (blockId) {
+          var blockNode = Node._tempById[blockId]
+          blockNode.jQadd(el);
+          el.mqBlockNode = blockNode;
+        }
       }
       for (el = el.firstChild; el; el = el.nextSibling) {
         jQadd(el);
