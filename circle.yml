@@ -44,19 +44,27 @@ dependencies:
 
         mkdir -p ~/sauce-connect
         cd ~/sauce-connect
+
         if [ -x sc-*-linux/bin/sc ]; then
           echo Using cached sc-*-linux/bin/sc
         else
           time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
           time tar -xzf sc-latest-linux.tar.gz
         fi
-        # Sauce Connect randomly fails so try twice https://git.io/vPN8v
+
         time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
           --readyfile ~/sauce_is_ready
         test -e ~/sauce_was_ready && exit
+
+        echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
+        rm -rf *
+        time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
+        time tar -xzf sc-latest-linux.tar.gz
+
         time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
           --readyfile ~/sauce_is_ready
         test -e ~/sauce_was_ready && exit
+
         echo 'ERROR: Exited twice without creating readyfile' \
           | tee /dev/stderr > ~/sauce_is_ready
         exit 1
@@ -65,6 +73,17 @@ dependencies:
 
 test:
   pre:
+    - |-
+      # Generate link to Many-Worlds build and add to GitHub Commit Status
+      curl -i -X POST https://api.github.com/repos/mathquill/mathquill/statuses/$CIRCLE_SHA1 \
+           -u MathQuillBot:$GITHUB_STATUS_API_KEY \
+           -d '{
+                 "context": "ci/many-worlds",
+                 "state": "success",
+                 "description": "Try the tests on the Many-Worlds build of this commit:",
+                 "target_url": "http://many-worlds.glitch.me/mathquill/mathquill/commit/'$CIRCLE_SHA1'/test/"
+               }'
+
     # Safari on Sauce can only connect to port 3000, 4000, 7000, or 8000. Edge needs port 7000 or 8000.
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
@@ -148,7 +167,8 @@ test:
                  "framework": "mocha",
                  "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
                  "platforms": [["", "Chrome", ""]]
-      }' | tee /dev/stderr | tail -1 > js-tests.json
+               }' \
+      | tee /dev/stderr | tail -1 > js-tests.json
 
       echo '2. Wait for tests to finish:'
       echo
