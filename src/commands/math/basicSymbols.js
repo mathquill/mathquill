@@ -16,6 +16,21 @@ var Digit = P(VanillaSymbol, function(_, super_) {
     }
     else super_.createLeftOf.call(this, cursor);
   };
+  _.mathspeak = function(opts) {
+    // TODO needs tests
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      if (cursor.options.autoSubscriptNumerals
+          && cursor.parent !== cursor.parent.parent.sub
+          && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
+              || (cursor[L] instanceof SupSub
+                  && cursor[L][L] instanceof Variable
+                  && cursor[L][L].isItalic !== false))) {
+        return 'Subscript ' + super_.mathspeak.call(this) + ' Baseline';
+      }
+    }
+    return super_.mathspeak.apply(this, arguments);
+  };
 });
 
 var Variable = P(Symbol, function(_, super_) {
@@ -290,7 +305,7 @@ LatexCmds.f = P(Letter, function(_, super_) {
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;', 'space');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;', 'prime');
-LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;');
+LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;', 'double prime');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\', 'backslash');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
@@ -439,6 +454,7 @@ var LatexFragment = P(MathCommand, function(_) {
     if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
     cursor.parent.bubble('reflow');
   };
+  _.mathspeak = function() { return latexMathParser.parse(this.latex).mathspeak(); };
   _.parser = function() {
     var frag = latexMathParser.parse(this.latex).children();
     return Parser.succeed(frag);
@@ -515,7 +531,7 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;', 'minus-or-plus');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;', 'times'); //semantically should be &sdot;, but &middot; looks better
+  bind(BinaryOperator, '\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {

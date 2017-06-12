@@ -5,11 +5,10 @@
  * WAI-ARIA is still catching on, thus only more recent browsers support it, and even then to varying degrees.
  * The below implementation attempts to be as broad as possible and may not conform precisely to the spec. But, neither do any browsers or adaptive technologies at this point.
  * At time of writing, IE 11, FF 44, and Safari 8.0.8 work. Older versions of these browsers should speak as well, but haven't tested precisely which earlier editions pass.
- * Todo: find out why Chrome refuses to speak.
 
  * Tested AT: on Windows, Window-Eyes, ZoomText Fusion, NVDA, and JAWS (all supported).
  * VoiceOver on Mac platforms also supported (only tested with OSX 10.10.5 and iOS 9.2.1+).
- * Android is hit or miss, Firefox seems to work more predictably than Chrome when tested against Talkback.
+ * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
 var Aria = P(function(_) {
@@ -23,6 +22,7 @@ var Aria = P(function(_) {
       this.jQ = jQuery(el);
     }.bind(this));
     this.items = [];
+    this.msg = '';
   };
 
   _.queue = function(item, shouldDescribe) {
@@ -32,16 +32,7 @@ var Aria = P(function(_) {
         else if (item.ariaLabel) item = item.ariaLabel+' '+item.mathspeak();
         else item = item.mathspeak();
       }
-      else {
-        if(item.side) {
-          var ch = '';
-          if(item.side === L) ch = item.textTemplate[0];
-          else if(item.side === R) ch = item.textTemplate[1];
-          this.queueOpenCloseDirOf(item.side);
-          item = BRACKET_NAMES[ch];
-        }
-        else item = item.mathspeak();
-      }
+      else item = item.mathspeak();
 
     }
     this.items.push(item);
@@ -55,13 +46,13 @@ var Aria = P(function(_) {
     prayDirection(dir);
     return this.queue(dir === L ? 'beginning of' : 'end of');
   };
-  _.queueOpenCloseDirOf = function(dir) {
-    prayDirection(dir);
-    return this.queue(dir === L ? 'left' : 'right');
-  };
+
   _.alert = function(t) {
     if (t) this.queue(t);
-    if (this.items.length) this.jQ.empty().text(this.items.join(' ').replace(/ +(?= )/g,''));
+    if (this.items.length) {
+      this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
+      this.jQ.empty().text(this.msg);
+    }
     return this.clear();
   };
 
@@ -75,6 +66,7 @@ var Aria = P(function(_) {
 var aria = Aria();
 
 Controller.open(function(_) {
+  _.aria = aria;
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/
   _.exportMathSpeak = function() { return this.root.mathspeak(); };

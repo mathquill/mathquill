@@ -81,6 +81,8 @@ This defaults to the LaTeX built-in operator names ([Section 3.17 of the Short M
 
 Just like [`autoCommands`](#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
 
+You can also specify a speech-friendly representation of the operator name by supplying the operator name, a `|` and its speech alternative (separate multiple words with a `-`). For example, `'sin|sine cos|cosine tan|tangent sinh|hyperbolic-sine'`.
+
 ## substituteTextarea
 
 `substituteTextarea` is a function that creates a focusable DOM element that is called when setting up a math field. Overwriting this may be useful for hacks like suppressing built-in virtual keyboards. It defaults to `<textarea autocorrect=off .../>`.

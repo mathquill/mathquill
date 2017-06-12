@@ -259,10 +259,24 @@ Controller.open(function(_) {
     var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
     if(cursorEl && cursorEl instanceof Node) {
       if(cursorEl.sides) {
-        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch));
-      } else aria.queue(cursorEl);
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
+      } else if (!cursorEl.blocks) {
+        aria.queue(cursorEl);
+      }
     } else if(cursorElParent && cursorElParent instanceof Node) {
-      aria.queue(cursorElParent);
+      if(cursorElParent.sides) {
+        aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
+      } else if (cursorElParent.blocks && cursorElParent.mathspeakTemplate) {
+        if (cursorElParent.upInto && cursorElParent.downInto) { // likely a fraction, and we just backspaced over the slash
+          aria.queue(cursorElParent.mathspeakTemplate[1]);
+        } else {
+          var mst = cursorElParent.mathspeakTemplate;
+          var textToQueue = dir === L ? mst[0] : mst[mst.length - 1];
+          aria.queue(textToQueue);
+        }
+      } else {
+        aria.queue(cursorElParent);
+      }
     }
 
     var hadSelection = cursor.selection;

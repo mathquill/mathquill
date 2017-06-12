@@ -223,13 +223,21 @@ mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 
 ## .setAriaLabel(ariaLabel)
 
-Where `ariaLabel` is the label of the editable field which will be announced by screen readers.
-This text is not shown on screen. If not set, the default of `MathQuill Input` is used.
+Specify an [ARIA label][`aria-label`] for this field, for screen readers. The actual [`aria-label`] includes this label followed by the math content of the field as speech. Default: `'MathQuill Input'`
+
+## .getAriaLabel()
+
+Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'MathQuill Input'` is returned.
 
 ## .setAriaPostLabel(ariaPostLabel)
 
-Where `ariaPostLabel` is the text to proceed the editable field contents (such as error messages) which will be announced by screen readers.
-This text is not shown on screen. If not set, the default of `''` is used.
+Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
+
+## .getAriaPostLabel()
+
+Returns the suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. If no ARIA post-label has been specified, `''` (empty string) is returned.
+
+[`aria-label`]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-label_attribute
 
 ## .config(new_config)
 
