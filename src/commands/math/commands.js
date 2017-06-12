@@ -201,14 +201,12 @@ var SupSub = P(MathCommand, function(_, super_) {
         if (cmd instanceof Symbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
         cmd.createLeftOf(cursor.show());
-        // TODO needs tests
         aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
         return;
       }
       if (cursor[L] && !cursor[R] && !cursor.selection
           && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
-        // TODO needs tests
         aria.queue('Baseline');
       }
       MathBlock.p.write.apply(this, arguments);
@@ -452,7 +450,6 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
     else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
   };
-  // TODO needs tests
   _.mathspeak = function(opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
@@ -627,7 +624,6 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
   _.mathspeak = function(opts) {
-    // TODO needs tests
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
       this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];

@@ -17,7 +17,6 @@ var Digit = P(VanillaSymbol, function(_, super_) {
     else super_.createLeftOf.call(this, cursor);
   };
   _.mathspeak = function(opts) {
-    // TODO needs tests
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
       if (cursor.options.autoSubscriptNumerals
