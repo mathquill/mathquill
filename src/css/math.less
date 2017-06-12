@@ -50,7 +50,9 @@
 
   .mq-text-mode {
     display: inline-block;
+    white-space: pre;  
   }
+
   .mq-text-mode.mq-hasCursor {
     box-shadow: inset darkgray 0 .1em .2em;
     padding: 0 .1em;
@@ -259,7 +261,7 @@
     display: inline-block;
   }
 
-  .mq-numerator, .mq-denominator {
+  .mq-numerator, .mq-denominator, .mq-dot-recurring {
     display: block;
   }
 
@@ -272,6 +274,11 @@
     float: right; // take out of normal flow to manipulate baseline
     width: 100%;
     padding: 0.1em;
+  }
+
+  .mq-dot-recurring {
+    text-align: center;
+    height: 0.3em;
   }
 
   ////

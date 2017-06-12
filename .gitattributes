@@ -2,4 +2,4 @@
 * text=lf
 
 # don't mess with fonts
-src/font/* text=binary
+src/fonts/* text=binary

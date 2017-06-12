@@ -121,6 +121,15 @@ suite('latex', function() {
     assertParsesLatex('\\text{}', '');
   });
 
+  test('\\textcolor', function() {
+    assertParsesLatex('\\textcolor{blue}{8}', '\\textcolor{blue}{8}');
+  });
+
+  test('\\class', function() {
+    assertParsesLatex('\\class{name}{8}', '\\class{name}{8}');
+    assertParsesLatex('\\class{name}{8-4}', '\\class{name}{8-4}');
+  });
+
   test('not real LaTex commands, but valid symbols', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
@@ -132,9 +141,6 @@ suite('latex', function() {
     var mq;
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    });
-    teardown(function() {
-      $(mq.el()).remove();
     });
 
     suite('.latex(...)', function() {
@@ -251,9 +257,6 @@ suite('latex', function() {
       inner1 = outer.innerFields[0];
       inner2 = outer.innerFields[1];
     });
-    teardown(function() {
-      $(outer.el()).remove();
-    });
 
     test('initial latex', function() {
       assert.equal(inner1.latex(), 'x_0+x_1+x_2');
@@ -308,9 +311,6 @@ suite('latex', function() {
     setup(function() {
       mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
 
     function testCantParse(title /*, latex...*/) {
       var latex = [].slice.call(arguments, 1);
@@ -328,5 +328,19 @@ suite('latex', function() {
     testCantParse('unmatched \\left/\\right', '\\left ( 1 + 2 )', ' [ 1, 2 \\right ]');
     testCantParse('langlerfish/ranglerfish (checking for confusion with langle/rangle)',
 		    '\\left\\langlerfish 123\\right\\ranglerfish)');
+  });
+
+  suite('selectable span', function() {
+    setup(function() {
+      MQ.StaticMath($('<span>2&lt;x</span>').appendTo('#mock')[0]);
+    });
+
+    function selectableContent() {
+      return document.querySelector('#mock .mq-selectable').textContent;
+    }
+
+    test('escapes < in textContent', function () {
+      assert.equal(selectableContent(), '$2<x$');
+    });
   });
 });
