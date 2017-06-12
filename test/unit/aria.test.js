@@ -41,7 +41,7 @@ suite('aria', function() {
     mq.keystroke('Backspace');
     assertAriaEqual('2');
     mq.keystroke('Backspace');
-    assertAriaEqual('StartFraction, 1 Over , EndFraction');
+    assertAriaEqual('Over');
     mq.keystroke('Backspace');
     assertAriaEqual('1');
   });
