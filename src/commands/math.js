@@ -394,8 +394,8 @@ var MathBlock = P(MathElement, function(_, super_) {
         // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
         // some strange pronunciation given certain expressions,
         // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
-        // Not an ideal work-around, but placing quotation marks around
-        // non-numeric text blocks works. This will be reported to Apple.
+        // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
+        // This bug has been acknowledged by Apple.
         if (/^[A-Za-z]*$/.test(cmd.text())) {
           mathspeakText = '"' + mathspeakText + '"';
         } else if (isNaN(cmd.text())) {
@@ -470,6 +470,12 @@ var MathBlock = P(MathElement, function(_, super_) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     cmd.createLeftOf(cursor.show());
+    // special-case the slash so that fractions are voiced while typing
+    if (ch === '/') {
+      aria.alert('over');
+    } else {
+      aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+    }
   };
 
   _.focus = function() {

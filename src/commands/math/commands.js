@@ -200,11 +200,14 @@ var SupSub = P(MathCommand, function(_, super_) {
         var cmd = this.chToCmd(ch, cursor.options);
         if (cmd instanceof Symbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
-        return cmd.createLeftOf(cursor.show());
+        cmd.createLeftOf(cursor.show());
+        aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
+        return;
       }
       if (cursor[L] && !cursor[R] && !cursor.selection
           && cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1) {
         cursor.insRightOf(this.parent);
+        aria.queue('Baseline');
       }
       MathBlock.p.write.apply(this, arguments);
     };
@@ -297,7 +300,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '_' ];
-  _.mathspeakTemplate = [ 'Subscript, ', ', Baseline'];
+  _.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
   _.ariaLabel = 'subscript';
   _.finalizeTree = function() {
     this.downInto = this.sub = this.ends[L];
@@ -316,7 +319,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeakTemplate = [ 'Superscript, ', ', Baseline'];
+  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
   _.ariaLabel = 'superscript';
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
@@ -444,8 +447,15 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction, ', 'NestedOver', ', EndNestedFraction'];
-    else this.mathspeakTemplate = ['StartFraction, ', 'Over', ', EndFraction'];
+    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
+    else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
+  };
+  _.mathspeak = function(opts) {
+    if (opts && opts.createdLeftOf) {
+      var cursor = opts.createdLeftOf;
+      return cursor.parent.mathspeak();
+    }
+    return super_.mathspeak.apply(this, arguments);
   };
 
   _.getFracDepth = function() {
@@ -511,7 +521,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
-  _.mathspeakTemplate = ['StartRoot, ', ', EndRoot'];
+  _.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
   _.ariaLabel = 'root';
   _.parser = function() {
     return latexMathParser.optBlock.then(function(optBlock) {
@@ -613,11 +623,17 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
-  _.mathspeak = function() {
+  _.mathspeak = function(opts) {
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
-      this.mathspeakTemplate = ['StartAbsoluteValue, ', ', EndAbsoluteValue'];
+      this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
       this.ariaLabel = 'absolute value';
+    }
+    else if (opts && opts.createdLeftOf && this.side) {
+      var ch = '';
+      if (this.side === L) ch = this.textTemplate[0];
+      else if (this.side === R) ch = this.textTemplate[1];
+      return (this.side === L ? 'left ' : 'right ') + BRACKET_NAMES[ch];
     }
     else {
       this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open]+',', ', right ' + BRACKET_NAMES[close]];
@@ -839,7 +855,7 @@ LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
-  _.mathspeakTemplate = ['StartBinomial, ', 'Choose', ', EndBinomial'];
+  _.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
   _.ariaLabel = 'binomial';
 });
 

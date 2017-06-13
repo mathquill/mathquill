@@ -33,9 +33,8 @@ var TextBlock = P(Node, function(_, super_) {
 
     cursor.insAtRightEnd(textBlock);
 
-    if (textBlock.replacedText)
-      for (var i = 0; i < textBlock.replacedText.length; i += 1)
-        textBlock.write(cursor, textBlock.replacedText.charAt(i));
+    // TODO needs tests
+    if (textBlock.replacedText) textBlock.write(cursor, textBlock.replacedText);
   };
 
   _.parser = function() {
@@ -116,6 +115,8 @@ var TextBlock = P(Node, function(_, super_) {
       cursor.insLeftOf(this);
       super_.createLeftOf.call(leftBlock, cursor);
     }
+    // TODO needs tests
+    aria.alert(ch);
   };
 
   _.seek = function(pageX, cursor) {
@@ -247,6 +248,7 @@ var TextPiece = P(Node, function(_, super_) {
     return this.deleteTowards(dir, cursor);
   };
 
+  _.mathspeak =
   _.latex = function() { return this.text; };
 
   _.deleteTowards = function(dir, cursor) {

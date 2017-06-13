@@ -16,7 +16,6 @@ LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&
 
 LatexCmds['∗'] = LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
   bind(BinaryOperator,'\\ast ','&lowast;', 'low asterisk');
-
 LatexCmds.therefor = LatexCmds.therefore =
   bind(BinaryOperator,'\\therefore ','&there4;', 'therefore');
 
