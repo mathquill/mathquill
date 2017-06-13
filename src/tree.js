@@ -125,13 +125,16 @@ var Node = P(function(_) {
 
       if (el.getAttribute) {
         var cmdId = el.getAttribute('mathquill-command-id');
-        var blockId = el.getAttribute('mathquill-block-id');
         if (cmdId) {
+          el.removeAttribute('mathquill-command-id');
           var cmdNode = Node._tempById[cmdId]
           cmdNode.jQadd(el);
           el.mqCmdNode = cmdNode;
         }
+
+        var blockId = el.getAttribute('mathquill-block-id');
         if (blockId) {
+          el.removeAttribute('mathquill-block-id');
           var blockNode = Node._tempById[blockId]
           blockNode.jQadd(el);
           el.mqBlockNode = blockNode;

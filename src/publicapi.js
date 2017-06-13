@@ -109,12 +109,10 @@ function getInterface(v) {
       ctrlr.createTextarea();
 
       var contents = el.addClass(classNames).contents().detach();
-      root.jQ =
-        $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
-      this.latex(contents.text());
-
+      root.jQ = $('<span class="mq-root-block"/>').appendTo(el);
       var blockNode = Node._tempById[root.id]
       root.jQ[0].mqBlockNode = blockNode;
+      this.latex(contents.text());
 
       this.revert = function() {
         return el.empty().unbind('.mathquill')
