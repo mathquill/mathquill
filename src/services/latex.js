@@ -132,7 +132,6 @@ Controller.open(function(_, super_) {
     var root = this.root, cursor = this.cursor;
 
     root.jQ.children().slice(1).remove();
-    root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);

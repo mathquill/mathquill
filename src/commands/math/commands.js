@@ -246,16 +246,19 @@ var SupSub = P(MathCommand, function(_, super_) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
-      block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).prependTo(this.jQ);
+      block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children()).prependTo(this.jQ);
+      Node.linkElementByBlockNode(block.jQ[0], block);
     }
     else {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
-        .attr(mqBlockId, block.id).appendTo(this.jQ.removeClass('mq-sup-only'));
+        .appendTo(this.jQ.removeClass('mq-sup-only'));
+      Node.linkElementByBlockNode(block.jQ[0], block);
       this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
     }
+
+
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
       cmd[supsub].deleteOutOf = function(dir, cursor) {

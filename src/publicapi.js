@@ -70,8 +70,8 @@ function getInterface(v) {
   function MQ(el) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
-    var ctrlr = blockId && Node.byId[blockId].controller;
+    var blockNode = Node.getNodeOfElement($(el).children('.mq-root-block')[0]);
+    var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
   var APIClasses = {};
@@ -109,8 +109,8 @@ function getInterface(v) {
       ctrlr.createTextarea();
 
       var contents = el.addClass(classNames).contents().detach();
-      root.jQ =
-        $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
+      root.jQ = $('<span class="mq-root-block"/>').appendTo(el);
+      Node.linkElementByBlockId(root.jQ[0], root.id);
       this.latex(contents.text());
 
       this.revert = function() {
