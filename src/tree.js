@@ -74,12 +74,58 @@ var Point = P(function(_) {
   };
 });
 
-var TempByIdDict = {};
+/*
+  Mathquill used to create a global dictionary that held onto
+  all nodes ever created. It was up to the mathquill instances
+  to call .dispose() on all of the nodes they created. That .dispose()
+  method would remove the node from the global dictionary. That
+  leaked memory for these reasons:
+  1) mathField.revert() didn't actually call the .dispose() method
+     on ANY of the nodes.
+  2) parts of the code create temporary nodes that never get linked
+     to anything. So they definitely didn't get their dispose() method
+     called.
+  3) even if everything above worked it's really common for users of
+     mathquill to forget to tear it down correctly.
 
-// keep clearing this out
-setInterval(function () {
+  It turns out mathquill always uses the Node and the Element as pairs. So we
+  can store the Node on the Element and the Element on the Node. That makes it
+  possible to get one from the other. This also has the added benefit of meaning
+  the Node isn't stored in a global dictionary. If you lose all references to
+  the Element, then you'll also lose all references to the Node. This means the
+  browser can garbage collect all of mathquill's internals when the DOM is destroyed.
+
+  There's only 1 small gotcha. The linking between Element and Node is a little clumsy.
+  1) All of the Nodes will be created.
+  2) Then all of the Elements will be created.
+  3) Then the two will be linked
+
+  The problem is that the linking step only has access to the elements. It doesn't have
+  access to the nodes. That means we need to store the id of the node we want on the element
+  at creation time. Then we need to lookup that Node by id during the linking step. This
+  means we still need a dictionary. But at least it can be a temporary dictionary.
+  Steps 1 - 3 happen synchronously. So after those steps we can simply clean out the
+  temporary dictionary and remove all hard references to the Nodes.
+
+  Any time we create a Node we schedule a task to clean all Nodes out of the dictionary
+  on the next frame. That's safe because there's no opportunity for nodes to be created
+  and NOT linked between the time we schedule the cleaning step and actually do it.
+*/
+
+var TempByIdDict = {};
+var cleaningScheduled = false;
+
+function scheduleDictionaryCleaning () {
+  if (!cleaningScheduled) {
+    cleaningScheduled = true;
+    setTimeout(cleanDictionary);
+  }
+}
+
+function cleanDictionary () {
+  cleaningScheduled = false;
   TempByIdDict = {};
-}, 1000);
+}
 
 /**
  * MathQuill virtual-DOM tree-node abstract base class
@@ -113,6 +159,7 @@ var Node = P(function(_) {
   _.init = function() {
     this.id = uniqueNodeId();
     TempByIdDict[id] = this;
+    scheduleDictionaryCleaning(id, this);
 
     this.ends = {};
     this.ends[L] = 0;
