@@ -74,9 +74,11 @@ var Point = P(function(_) {
   };
 });
 
+var TempByIdDict = {};
+
 // keep clearing this out
 setInterval(function () {
-  Node._tempById = {};
+  TempByIdDict = {};
 }, 1000);
 
 /**
@@ -90,8 +92,6 @@ var Node = P(function(_) {
   var id = 0;
   function uniqueNodeId() { return id += 1; }
 
-  this._tempById = {};
-
   this.getNodeOfElement = function (el) {
     if (!el) return;
     if (!el.nodeType) throw new Error('must pass an HTMLElement to Node.getNodeOfElement')
@@ -99,7 +99,7 @@ var Node = P(function(_) {
   }
 
   this.linkElementByBlockId = function (elm, id) {
-    Node.linkElementByBlockNode(elm, Node._tempById[id]);
+    Node.linkElementByBlockNode(elm, TempByIdDict[id]);
   };
 
   this.linkElementByBlockNode = function (elm, blockNode) {
@@ -112,7 +112,7 @@ var Node = P(function(_) {
 
   _.init = function() {
     this.id = uniqueNodeId();
-    Node._tempById[id] = this;
+    TempByIdDict[id] = this;
 
     this.ends = {};
     this.ends[L] = 0;
@@ -133,7 +133,7 @@ var Node = P(function(_) {
         var cmdId = el.getAttribute('mathquill-command-id');
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
-          var cmdNode = Node._tempById[cmdId]
+          var cmdNode = TempByIdDict[cmdId]
           cmdNode.jQadd(el);
           Node.linkElementByCmdNode(el, cmdNode);
         }
@@ -141,7 +141,7 @@ var Node = P(function(_) {
         var blockId = el.getAttribute('mathquill-block-id');
         if (blockId) {
           el.removeAttribute('mathquill-block-id');
-          var blockNode = Node._tempById[blockId]
+          var blockNode = TempByIdDict[blockId]
           blockNode.jQadd(el);
           Node.linkElementByBlockNode(el, blockNode);
         }
