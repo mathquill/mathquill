@@ -247,14 +247,14 @@ var SupSub = P(MathCommand, function(_, super_) {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
       block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children()).prependTo(this.jQ);
-      block.jQ[0].mqBlockNode = block;
+      Node.linkElementByBlockNode(block.jQ[0], block);
     }
     else {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
         .appendTo(this.jQ.removeClass('mq-sup-only'));
-      block.jQ[0].mqBlockNode = block;
+      Node.linkElementByBlockNode(block.jQ[0], block);
       this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
     }
 

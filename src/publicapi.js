@@ -110,8 +110,7 @@ function getInterface(v) {
 
       var contents = el.addClass(classNames).contents().detach();
       root.jQ = $('<span class="mq-root-block"/>').appendTo(el);
-      var blockNode = Node._tempById[root.id]
-      root.jQ[0].mqBlockNode = blockNode;
+      Node.linkElementByBlockId(root.jQ[0], root.id);
       this.latex(contents.text());
 
       this.revert = function() {

@@ -104,6 +104,18 @@ var Node = P(function(_) {
     if ($el) return $el.mqBlockNode;
   };
 
+  this.linkElementByBlockId = function (elm, id) {
+    Node.linkElementByBlockNode(elm, Node._tempById[id]);
+  };
+
+  this.linkElementByBlockNode = function (elm, blockNode) {
+    elm.mqBlockNode = blockNode;
+  };
+
+  this.linkElementByCmdNode = function (elm, cmdNode) {
+    elm.mqCmdNode = cmdNode;
+  };
+
   _.init = function() {
     this.id = uniqueNodeId();
     Node._tempById[id] = this;
@@ -129,7 +141,7 @@ var Node = P(function(_) {
           el.removeAttribute('mathquill-command-id');
           var cmdNode = Node._tempById[cmdId]
           cmdNode.jQadd(el);
-          el.mqCmdNode = cmdNode;
+          Node.linkElementByCmdNode(el, cmdNode);
         }
 
         var blockId = el.getAttribute('mathquill-block-id');
@@ -137,7 +149,7 @@ var Node = P(function(_) {
           el.removeAttribute('mathquill-block-id');
           var blockNode = Node._tempById[blockId]
           blockNode.jQadd(el);
-          el.mqBlockNode = blockNode;
+          Node.linkElementByBlockNode(el, blockNode);
         }
       }
       for (el = el.firstChild; el; el = el.nextSibling) {
