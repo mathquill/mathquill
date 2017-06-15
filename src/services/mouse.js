@@ -9,7 +9,7 @@ Controller.open(function(_) {
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function(e) {
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = Node.blockByElement(rootjQ) || Node.blockByElement(ultimateRootjQ);
+      var root = Node.getNodeOfElement(rootjQ[0]) || Node.getNodeOfElement(ultimateRootjQ[0]);
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
@@ -67,15 +67,15 @@ Controller.open(function(_) {
   _.seek = function(target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
     var node;
+    var targetElm = target && target[0];
 
     // try to find the node by the target
-    if (target) {
-      node = Node.blockByElement(target) || Node.cmdByElement(target);
+    if (targetElm) {
+      node = Node.getNodeOfElement(targetElm);
 
       // if that didn't work find the node by the target's parent
       if (!node) {
-        var targetParent = target.parent();
-        node = Node.blockByElement(targetParent) || Node.cmdByElement(targetParent);
+        node = Node.getNodeOfElement(target.parentElement);
       }
     }
 

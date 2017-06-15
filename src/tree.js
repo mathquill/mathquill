@@ -92,17 +92,11 @@ var Node = P(function(_) {
 
   this._tempById = {};
 
-  this.cmdByElement = function ($el) {
-    if (!$el) return;
-    if ($el[0]) $el = $el[0];
-    if ($el) return $el.mqCmdNode;
-  };
-
-  this.blockByElement = function ($el) {
-    if (!$el) return;
-    if ($el[0]) $el = $el[0];
-    if ($el) return $el.mqBlockNode;
-  };
+  this.getNodeOfElement = function (el) {
+    if (!el) return;
+    if (!el.nodeType) throw new Error('must pass an HTMLElement to Node.getNodeOfElement')
+    return el.mqBlockNode || el.mqCmdNode;
+  }
 
   this.linkElementByBlockId = function (elm, id) {
     Node.linkElementByBlockNode(elm, Node._tempById[id]);

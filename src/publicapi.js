@@ -70,7 +70,7 @@ function getInterface(v) {
   function MQ(el) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockNode = Node.blockByElement($(el).children('.mq-root-block'));
+    var blockNode = Node.getNodeOfElement($(el).children('.mq-root-block')[0]);
     var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
