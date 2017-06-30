@@ -322,20 +322,14 @@ LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;', 'and');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%', 'percent');
 
-// special characters that should use the stix font [for AIR]
-// characters are parallel and not-parallel
-var StixSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span class="mq-stix">'+(html || ch)+'</span>');
-  };
-});
-
 LatexCmds['∥'] = LatexCmds.parallel =
-  bind(StixSymbol, '\\parallel ', '&#x2225;', 'parallel');
+  bind(VanillaSymbol, '\\parallel ', '&#x2225;', 'parallel');
 
-LatexCmds['∦'] =
-  bind(StixSymbol, '\\nparallel ', '&#x2226;', 'not parallel');
+LatexCmds['∦'] = LatexCmds.nparallel =
+  bind(VanillaSymbol, '\\nparallel ', '&#x2226;', 'not parallel');
 
+LatexCmds['⟂'] = LatexCmds.perp =
+  bind(VanillaSymbol, '\\perp ', '&#x27C2;', 'perpendicular');
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
@@ -514,7 +508,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
       return 'mq-binary-operator';
     };
-    
+
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = determineOpClassType(this);
     return this;
