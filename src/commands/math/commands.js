@@ -519,6 +519,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+//MSLO
 //Dutch notation for logarithm: notation like: {}^3 log{9}. 
 //we will use nonstandard latex-like notation: lognl[3]{9}
 var LogNL =
@@ -549,6 +550,316 @@ LatexCmds.lognl = P(MathCommand, function(_, super_) {
     return '\\lognl['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
 });
+
+//Dutch notation for open interval <-1, 1>
+var IntervalNlExEx =
+LatexCmds.IntervalNlExEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalNlExEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">&lt;</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">&gt;</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalNlExEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalNlExEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalNlExEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//Belgium notation for open interval ]-1, 1[
+var IntervalBeExEx =
+LatexCmds.IntervalBeExEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalBeExEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">]</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">[</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalBeExEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalBeExEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalBeExEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//English notation for open interval (-1, 1)
+var IntervalEnExEx =
+LatexCmds.IntervalEnExEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalBeExEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">(</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">,</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">)</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalEnExEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalEnExEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalEnExEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+
+//Dutch notation for half-open interval <-1, 1]
+var IntervalNlExIn =
+LatexCmds.IntervalNlExIn = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalNlExIn';
+  _.htmlTemplate =
+        '<span class="mq-scaled">&lt;</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">]</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalNlExIn();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalNlExIn[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalNlExIn{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//Belgium notation for open interval ]-1, 1]
+var IntervalBeExIn =
+LatexCmds.IntervalBeExIn = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalBeExIn';
+  _.htmlTemplate =
+        '<span class="mq-scaled">]</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">]</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalBeExIn();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalBeExIn[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalBeExIn{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//English notation for open interval (-1, 1]
+var IntervalEnExIn =
+LatexCmds.IntervalEnExIn = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalEnExIn';
+  _.htmlTemplate =
+        '<span class="mq-scaled">(</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">,</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">]</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalEnExIn();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalEnExIn[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalEnExIn{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//Dutch notation for half open interval [-1, 1>
+var IntervalNlInEx =
+LatexCmds.IntervalNlInEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalNlExEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">[</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">&gt;</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalNlInEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalNlInEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalNlInEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//Belgium notation for open interval [-1, 1[
+var IntervalBeInEx =
+LatexCmds.IntervalBeInEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalBeInEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">[</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">[</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalBeInEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalBeInEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalBeInEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//English notation for open interval [-1, 1)
+var IntervalEnInEx =
+LatexCmds.IntervalEnInEx = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalBeExEx';
+  _.htmlTemplate =
+        '<span class="mq-scaled">[</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">,</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">)</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalEnInEx();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalEnInEx[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalEnInEx{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+//Dutch/Belgium notation for closed interval [-1; 1]
+var IntervalNlInIn =
+LatexCmds.IntervalNlInIn = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalEnInIn';
+  _.htmlTemplate =
+        '<span class="mq-scaled">[</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">;</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">]</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalNlInIn();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalNlInIn[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalNlInIn{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+//English notation for closed interval [-1, 1]
+var IntervalEnInIn =
+LatexCmds.IntervalEnInIn = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\IntervalEnInIn';
+  _.htmlTemplate =
+        '<span class="mq-scaled">[</span>'
+    +   '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-scaled">,</span>'
+    +   '<span class="mq-non-leaf">&1</span>'
+    +   '<span class="mq-scaled">]</span>';
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = IntervalEnInIn();
+        elm.blocks = [ block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.textTemplate = ['IntervalEnInIn[', ';', ']'];
+  _.latex = function() {
+    return '\\IntervalEnInIn{'+this.ends[L].latex()+'}{'+this.ends[R].latex()+'}';
+  };
+});
+
+
 
 var DiacriticAbove = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, symbol, textTemplate) {
@@ -731,7 +1042,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
 var OPP_BRACKS = {
   '(': ')',
   ')': '(',
-  '[': ']',
+  '[': ']', 
   ']': '[',
   '{': '}',
   '}': '{',
@@ -751,6 +1062,7 @@ function bindCharBracketPair(open, ctrlSeq) {
   CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
   CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
 }
+
 bindCharBracketPair('(');
 bindCharBracketPair('[');
 bindCharBracketPair('{', '\\{');
