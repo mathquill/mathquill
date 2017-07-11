@@ -178,9 +178,9 @@ $(function() {
 <table id="dynamic-reflow">
 <tr><th colspan=3><code>MQ(...).reflow()</code>
 <tr>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
 </table>
 
 <h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
@@ -212,6 +212,7 @@ $(function() {
 <tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
 <tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
 <tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
+<tr><td><span class="mathquill-static-math">\begin{Vmatrix}x&amp;y\\1&amp;2\end{Vmatrix}</span><td><span>\begin{Vmatrix}x&amp;y\\1&amp;2\end{Vmatrix}</span>
 <tr><td colspan=2><span id="sixes"></span>
 <script>
 $(function() {
