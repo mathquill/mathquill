@@ -350,10 +350,24 @@
     font-family: @symbola;
   }
 
+  .mq-overarc {
+    border-top: 1px solid black;
+    -webkit-border-top-right-radius: 50% .3em;
+    -moz-border-radius-topright: 50% .3em;
+    border-top-right-radius: 50% .3em;
+    -webkit-border-top-left-radius: 50% .3em;
+    -moz-border-radius-topleft: 50% .3em;
+    border-top-left-radius: 50% .3em;
+    margin-top: 1px;
+    padding-top: 0.15em;
+  }
+
   .mq-overarrow {
+    min-width: .5em;
     border-top: 1px solid black;
     margin-top: 1px;
     padding-top: 0.2em;
+    text-align: center;
 
     &:before {
       display: block;
@@ -371,6 +385,35 @@
       transform: scaleX(-1);
       filter: FlipH;
       -ms-filter: "FlipH";
+    }
+    &.mq-arrow-both {
+      vertical-align: text-bottom;
+
+      &.mq-empty {
+        min-height: 1.23em;
+
+        &:after {
+          top: -0.34em;
+        }
+      }
+      &:before{
+        -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
+      }
+      &:after {
+        display: block;
+        position: relative;
+        top: -2.3em;
+        font-size: 0.5em;
+        line-height: 0em;
+        content: '\27A4';
+        visibility: visible; //must override .mq-editable-field.mq-empty:after
+        text-align: right;
+      }
     }
   }
 }
