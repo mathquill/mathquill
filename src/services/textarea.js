@@ -48,7 +48,7 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    this.container.prepend('<span class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
     textarea.bind('cut paste', false)
     .bind('copy', function() { ctrlr.setTextareaSelection(); })
@@ -65,6 +65,7 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
+    ctrlr.container.attr('aria-label', root.mathspeak());
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {

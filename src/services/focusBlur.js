@@ -4,7 +4,7 @@ Controller.open(function(_) {
     var blurTimeout;
     ctrlr.textarea.focus(function() {
       aria.jQ.empty();
-      ctrlr.textarea.attr('aria-label', ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim());
+      updateAria();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
       ctrlr.container.addClass('mq-focused');
@@ -17,8 +17,7 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function() {
-      aria.jQ.empty();
-      ctrlr.textarea.attr('aria-label', ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim());
+      updateAria();
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder('intentionalBlur'); // none, intentional blur: #264
@@ -36,6 +35,11 @@ Controller.open(function(_) {
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
       ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
+    }
+    function updateAria() {
+      var mqAria = ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim();
+      ctrlr.textarea.attr('aria-label', mqAria);
+      ctrlr.container.attr('aria-label', mqAria);
     }
     ctrlr.blurred = true;
     cursor.hide().parent.blur();

@@ -106,7 +106,7 @@ suite('Public API', function() {
 
     test('.html() trivial case', function() {
       mq.latex('x+y');
-      assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
+      assert.equal(mq.html(), '<var aria-hidden="true">x</var><span aria-hidden="true" class="mq-binary-operator">+</span><var aria-hidden="true">y</var>');
     });
     
     test('.text() with incomplete commands', function() {

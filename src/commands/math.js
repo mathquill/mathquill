@@ -268,7 +268,8 @@ var MathCommand = P(MathElement, function(_, super_) {
     }
     return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
       return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
-    });
+    // Hide symbols through ARIA because we provide an aria-label of mathspeak elsewhere.
+    }).replace(/(<[A-Za-z]+)(\s|\/?>)/g, '$1 aria-hidden="true"$2');
   };
 
   // methods to export a string representation of the math tree
