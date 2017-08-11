@@ -1082,4 +1082,26 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\times');
     });
   });
+
+  suite('typingPercentWritesPercentOf', function () {
+    test('typingSlashWritesDivisionSymbol', function () {
+      mq.typedText('%');
+      assertLatex('\\%');
+      mq.keystroke('Backspace');
+
+      mq.config({ typingPercentWritesPercentOf: true });
+
+      mq.typedText('%');
+      assertLatex('\\%\\operatorname{of}');
+      mq.keystroke('Backspace');
+      assertLatex('');
+    });
+
+    test('percentof round trips correctly through serializing and parsing', function () {
+      mq.latex('\\%\\operatorname{of}');
+      assertLatex('\\%\\operatorname{of}');
+    });
+  });
 });
+
+
