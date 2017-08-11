@@ -3,7 +3,6 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
-      aria.jQ.empty();
       updateAria();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
@@ -38,6 +37,7 @@ Controller.open(function(_) {
     }
     function updateAria() {
       var mqAria = ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim();
+      aria.jQ.empty();
       ctrlr.textarea.attr('aria-label', mqAria);
       ctrlr.container.attr('aria-label', mqAria);
     }
