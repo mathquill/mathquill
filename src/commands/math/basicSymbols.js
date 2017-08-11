@@ -320,7 +320,26 @@ var NonSymbolaSymbol = P(Symbol, function(_, super_) {
 
 LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;', 'and');
-LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%', 'percent');
+LatexCmds['%'] = P(NonSymbolaSymbol, function(_, super_) {
+  _.init = function () {
+    super_.init.call(this, '\\%', '%', 'percent');
+  };
+  _.parser = function () {
+    var optWhitespace = Parser.optWhitespace;
+    var string = Parser.string;
+
+    // Parse `\%\operatorname{of}` as special `percentof` node so that
+    // it will be serialized properly and deleted as a unit.
+    return optWhitespace
+      .then(
+        string('\\operatorname{of}')
+        .map(function () {
+          return LatexCmds.percentof();
+        })
+      ).or(super_.parser.call(this))
+    ;
+  }
+});
 
 LatexCmds['∥'] = LatexCmds.parallel =
   bind(VanillaSymbol, '\\parallel ', '&#x2225;', 'parallel');
