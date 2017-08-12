@@ -179,6 +179,7 @@ var Node = P(function(_) {
       if (el.getAttribute) {
         var cmdId = el.getAttribute('mathquill-command-id');
         if (cmdId) {
+          el.setAttribute('aria-hidden', true);
           el.removeAttribute('mathquill-command-id');
           var cmdNode = TempByIdDict[cmdId]
           cmdNode.jQadd(el);
@@ -187,6 +188,7 @@ var Node = P(function(_) {
 
         var blockId = el.getAttribute('mathquill-block-id');
         if (blockId) {
+          el.setAttribute('aria-hidden', true);
           el.removeAttribute('mathquill-block-id');
           var blockNode = TempByIdDict[blockId]
           blockNode.jQadd(el);
