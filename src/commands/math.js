@@ -238,17 +238,19 @@ var MathCommand = P(MathElement, function(_, super_) {
 
     pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
-    // add cmdId to all top-level tags
+    // add cmdId and aria-hidden (for screen reader users) to all top-level tags
+    // Note: with the RegExp search/replace approach, it's possible that an element which is both a command and block may contain redundant aria-hidden attributes.
+    // In practice this doesn't appear to cause problems for screen readers.
     for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
       // top-level self-closing tags
       if (token.slice(-2) === '/>') {
-        tokens[i] = token.slice(0,-2) + cmdId + '/>';
+        tokens[i] = token.slice(0,-2) + cmdId + ' aria-hidden="true"/>';
       }
       // top-level open tags
       else if (token.charAt(0) === '<') {
         pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
 
-        tokens[i] = token.slice(0,-1) + cmdId + '>';
+        tokens[i] = token.slice(0,-1) + cmdId + ' aria-hidden="true">';
 
         // skip matching top-level close tag and all tag pairs in between
         var nesting = 1;
@@ -267,7 +269,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       }
     }
     return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
-      return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
+      return ' mathquill-block-id=' + blocks[$1].id + ' aria-hidden="true">' + blocks[$1].join('html');
     });
   };
 
