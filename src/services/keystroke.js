@@ -295,13 +295,19 @@ Controller.open(function(_) {
   _.ctrlDeleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (!cursor[L] || cursor.selection) return this.deleteDir();
+    if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
 
     this.notify('edit');
-    var fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+    var fragRemoved;
+    if (dir === L) {
+      fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+    } else {
+      fragRemoved = Fragment(cursor[R], cursor.parent.ends[R]);
+    }
     aria.queue(fragRemoved);
     fragRemoved.remove();
-    cursor.insAtDirEnd(L, cursor.parent);
+
+    cursor.insAtDirEnd(dir, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
