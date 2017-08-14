@@ -36,7 +36,7 @@ Controller.open(function(_) {
       $(window).unbind('blur', windowBlur);
     }
     function updateAria() {
-      var mqAria = ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel.trim();
+      var mqAria = (ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel).trim();
       aria.jQ.empty();
       ctrlr.textarea.attr('aria-label', mqAria);
       ctrlr.container.attr('aria-label', mqAria);

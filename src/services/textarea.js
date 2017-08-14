@@ -65,7 +65,7 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
-    ctrlr.container.attr('aria-label', root.mathspeak());
+    ctrlr.container.attr('aria-label', root.mathspeak().trim());
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
