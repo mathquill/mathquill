@@ -293,7 +293,7 @@ LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;');
 LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bind(VanillaSymbol,'\\infty ','&infin;');
 
-LatexCmds.pound = LatexCmds.pounds = bind(VanillaSymbol,'\\pounds ','&pound;');
+LatexCmds.pounds = bind(VanillaSymbol,'\\pounds ','&pound;');
 
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
   bind(VanillaSymbol,'\\aleph ','&alefsym;');
