@@ -116,8 +116,8 @@ browsers.forEach(function(browser) {
     .spread(function(scrollHeight, viewportHeight) {
       console.log(sessionName, 'get scrollHeight, clientHeight', scrollHeight, viewportHeight);
 
-      // the easy case: Firefox and IE return a screenshot of the entire webpage
-      if (cfg.browserName === 'Firefox' || cfg.browserName === 'Internet Explorer') {
+      // the easy case: IE and Firefox on Linux return a screenshot of the entire webpage
+      if (cfg.browserName === 'Internet Explorer'|| (cfg.browserName === 'Firefox' && cfg.platform === 'Linux')) {
         return browserDriver.saveScreenshot(baseDir + '/imgs/' + fileName + '.png')
         .then(willLog(sessionName, 'saveScreenshot'))
       // the hard case: for Chrome, Safari, and Edge, scroll through the page and
