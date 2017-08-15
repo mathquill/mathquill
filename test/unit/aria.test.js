@@ -1,98 +1,106 @@
 suite('aria', function() {
-  var mq;
+  var mathField;
   setup(function() {
-    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    mathField = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
 
   function assertAriaEqual(alertText) {
-    assert.equal(alertText, mq.__controller.aria.msg);
+    assert.equal(alertText, mathField.__controller.aria.msg);
   }
 
   test('typing and backspacing over simple expression', function() {
-    mq.typedText('1');
+    mathField.typedText('1');
     assertAriaEqual('1');
-    mq.typedText('+');
+    mathField.typedText('+');
     assertAriaEqual('plus');
-    mq.typedText('1');
+    mathField.typedText('1');
     assertAriaEqual('1');
-    mq.typedText('=');
+    mathField.typedText('=');
     assertAriaEqual('equals');
-    mq.typedText('2');
+    mathField.typedText('2');
     assertAriaEqual('2');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('2');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('equals');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('1');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('plus');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('1');
   });
 
   test('typing and backspacing a fraction', function() {
-    mq.typedText('1');
+    mathField.typedText('1');
     assertAriaEqual('1');
-    mq.typedText('/');
+    mathField.typedText('/');
     assertAriaEqual('over');
-    mq.typedText('2');
+    mathField.typedText('2');
     assertAriaEqual('2');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('2');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('Over');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('1');
   });
 
   test('navigating a fraction', function() {
-    mq.typedText('1');
+    mathField.typedText('1');
     assertAriaEqual('1');
-    mq.typedText('/');
+    mathField.typedText('/');
     assertAriaEqual('over');
-    mq.typedText('2');
+    mathField.typedText('2');
     assertAriaEqual('2');
-    mq.keystroke('Up');
+    mathField.keystroke('Up');
     assertAriaEqual('numerator 1');
-    mq.keystroke('Down');
+    mathField.keystroke('Down');
     assertAriaEqual('denominator 2');
-    mq.latex('');
+    mathField.latex('');
   });
 
   test('typing and backspacing through parenthesies', function() {
-    mq.typedText('(');
+    mathField.typedText('(');
     assertAriaEqual('left parenthesis');
-    mq.typedText('1');
+    mathField.typedText('1');
     assertAriaEqual('1');
-    mq.typedText('*');
+    mathField.typedText('*');
     assertAriaEqual('times');
-    mq.typedText('2');
+    mathField.typedText('2');
     assertAriaEqual('2');
-    mq.typedText(')');
+    mathField.typedText(')');
     assertAriaEqual('right parenthesis');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('right parenthesis');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('2');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('times');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('1');
-    mq.keystroke('Backspace');
+    mathField.keystroke('Backspace');
     assertAriaEqual('left parenthesis');
   });
 
   test('testing beginning and end alerts', function() {
-    mq.typedText('sqrt(x)');
-    mq.keystroke('Home');
+    mathField.typedText('sqrt(x)');
+    mathField.keystroke('Home');
     assertAriaEqual('beginning of block s q r t left parenthesis, "x" , right parenthesis');
-    mq.keystroke('End');
+    mathField.keystroke('End');
     assertAriaEqual('end of block s q r t left parenthesis, "x" , right parenthesis');
-    mq.keystroke('Ctrl-Home');
+    mathField.keystroke('Ctrl-Home');
     assertAriaEqual('beginning of MathQuill Input s q r t left parenthesis, "x" , right parenthesis');
-    mq.keystroke('Ctrl-End');
+    mathField.keystroke('Ctrl-End');
     assertAriaEqual('end of MathQuill Input s q r t left parenthesis, "x" , right parenthesis');
+  });
+
+  test('testing aria-label for interactive and static math', function() {
+    mathField.typedText('sqrt(x)');
+    mathField.blur();
+    assert.equal('MathQuill Input:  s  q  r  t  left parenthesis, "x" , right parenthesis', mathField.__controller.container.attr('aria-label'));
+    var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
+    assert.equal('"y" equals  StartFraction, 2 x Over 3 y , EndFraction', staticMath.__controller.container.attr('aria-label'));
   });
 
 });
