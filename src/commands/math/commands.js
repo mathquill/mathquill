@@ -513,6 +513,17 @@ LatexCmds.ans = P(Symbol, function(_, super_) {
   };
 });
 
+LatexCmds.percentof = P(Symbol, function (_, super_) {
+  _.init = function () {
+    super_.init.call(
+      this,
+      '\\%\\operatorname{of}',
+      '<span class="mq-nonSymbola mq-operator-name">% of </span>',
+      'percent of'
+    )
+  };
+});
+
 var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {

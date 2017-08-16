@@ -463,6 +463,8 @@ var MathBlock = P(MathElement, function(_, super_) {
       return LatexCmds['÷'](ch);
     else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
       return LatexCmds['×'](ch);
+    else if (options && options.typingPercentWritesPercentOf && ch === '%')
+      return LatexCmds.percentof(ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
     else
