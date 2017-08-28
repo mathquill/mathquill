@@ -159,6 +159,12 @@ Node.open(function(_) {
       else aria.queue('nothing selected');
       break;
 
+    case 'Ctrl-Alt-=':
+    case 'Ctrl-Alt-Shift-Right': // speak ARIA post label (evaluation or error)
+      if(ctrlr.ariaPostLabel.length) aria.queue(ctrlr.ariaPostLabel);
+      else aria.queue('no answer');
+      break;
+
     default:
       return;
     }
