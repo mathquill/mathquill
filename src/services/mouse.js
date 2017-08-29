@@ -4,6 +4,14 @@
 
 Controller.open(function(_) {
   Options.p.ignoreNextMousedown = noop;
+
+  // Whenever edits to the tree occur, in-progress selection events
+  // must be invalidated and selection changes must not be applied to
+  // the edited tree. cursorInvalidated tracks whether any edits have
+  // occurred since the start of a selection.
+  var cursorInvalidated = false;
+  this.onNotify(function (e) { if (e === 'edit') cursorInvalidated = true; });
+
   _.delegateMouseEvents = function() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
@@ -18,10 +26,15 @@ Controller.open(function(_) {
 
       if (cursor.options.ignoreNextMousedown(e)) return;
       else cursor.options.ignoreNextMousedown = noop;
+      // Mark cursor as valid
+      cursorInvalidated = false;
 
       var target;
       function mousemove(e) { target = $(e.target); }
       function docmousemove(e) {
+        // An edit has happened while the mouse is down. Don't attempt
+        // to manipulate the selection
+        if (cursorInvalidated) return;
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
         if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
