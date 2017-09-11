@@ -298,6 +298,7 @@ function insLeftOfMeUnlessAtEnd(cursor) {
   cursor.insRightOf(cmd);
 }
 
+/*
 LatexCmds.subscript =
 LatexCmds._ = P(SupSub, function(_, super_) {
   _.supsub = 'sub';
@@ -314,6 +315,7 @@ LatexCmds._ = P(SupSub, function(_, super_) {
     super_.finalizeTree.call(this);
   };
 });
+*/
 
 LatexCmds.superscript =
 LatexCmds.supscript =
@@ -438,7 +440,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  _.textTemplate = ['(', ')/(', ')'];
+  _.textTemplate = ['FRACTION(', ',', ')'];
   _.finalizeTree = function() {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
@@ -456,7 +458,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
           leftward instanceof BinaryOperator ||
           leftward instanceof (LatexCmds.text || noop) ||
           leftward instanceof SummationNotation ||
-          leftward.ctrlSeq === '\\ ' ||
+          //leftward.ctrlSeq === '\\ ' ||
           /^[,;:]$/.test(leftward.ctrlSeq)
         ) //lookbehind for operator
       ) leftward = leftward[L];

@@ -38,7 +38,7 @@ var Variable = P(Symbol, function(_, super_) {
         text = '*' + text;
       if (this[R] && !(this[R] instanceof BinaryOperator)
           && !(this[R] instanceof SupSub))
-        text += '*';
+        text += '';
     }
     return text;
   };
@@ -243,6 +243,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   };
 });
 
+/*
 LatexCmds.f = P(Letter, function(_, super_) {
   _.init = function() {
     Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
@@ -252,8 +253,9 @@ LatexCmds.f = P(Letter, function(_, super_) {
     return super_.italicize.apply(this, arguments);
   };
 });
+*/
 
-// VanillaSymbol's
+// VanillaSymbols
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
@@ -495,9 +497,9 @@ var Inequality = P(BinaryOperator, function(_, super_) {
   };
 });
 
-var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
+var less = { ctrlSeq: '\\le ', html: '&le;', text: '<=',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
-var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
+var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '>=',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
 
 LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
@@ -520,9 +522,9 @@ var Equality = P(BinaryOperator, function(_, super_) {
 });
 LatexCmds['='] = Equality;
 
-LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]');
+LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '*');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;', '[/]');
+  bind(BinaryOperator,'\\div ','&divide;', '/');
 
 CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
