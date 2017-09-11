@@ -243,6 +243,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
   };
 });
 
+/*
 LatexCmds.f = P(Letter, function(_, super_) {
   _.init = function() {
     Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
@@ -252,8 +253,9 @@ LatexCmds.f = P(Letter, function(_, super_) {
     return super_.italicize.apply(this, arguments);
   };
 });
+*/
 
-// VanillaSymbol's
+// VanillaSymbols
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
