@@ -1007,11 +1007,48 @@ Environments.matrix = P(Environment, function(_, super_) {
     table.toggleClass('mq-rows-1', table.find('tr').length === 1);
     this.relink();
   };
+  // Enter the matrix at the top or bottom row if updown is configured.
+  _.getEntryPoint = function(dir, cursor, updown) {
+    if (updown === 'up') {
+      if (dir === L) {
+        return this.blocks[this.rowSize - 1];
+      } else {
+        return this.blocks[0];
+      }
+    } else { // updown === 'down'
+      if (dir === L) {
+        return this.blocks[this.blocks.length - 1];
+      } else {
+        return this.blocks[this.blocks.length - this.rowSize];
+      }
+    }
+  };
+  // Exit the matrix at the first and last columns if updown is configured.
+  _.atExitPoint = function(dir, cursor) {
+      // Which block are we in?
+      var i = this.blocks.indexOf(cursor.parent);
+      if (dir === L) {
+        // If we're on the left edge and moving left, we should exit.
+        return i % this.rowSize === 0;
+      } else {
+        // If we're on the right edge and moving right, we should exit.
+        return (i + 1) % this.rowSize === 0;
+      }
+  };
+  _.moveTowards = function(dir, cursor, updown) {
+    var entryPoint = updown && this.getEntryPoint(dir, cursor, updown);
+    cursor.insAtDirEnd(-dir, entryPoint || this.ends[-dir]);
+  };
+
   // Set up directional pointers between cells
   _.relink = function() {
     var blocks = this.blocks;
     var rows = [];
     var row, column, cell;
+
+    // The row size will be used by other functions down the track.
+    // Begin by assuming we're a one-row matrix, and we'll overwrite this if we find another row.
+    this.rowSize = blocks.length;
 
     // Use a for loop rather than eachChild
     // as we're still making sure children()
@@ -1019,6 +1056,10 @@ Environments.matrix = P(Environment, function(_, super_) {
     for (var i=0; i<blocks.length; i+=1) {
       cell = blocks[i];
       if (row !== cell.row) {
+        if (cell.row === 1) {
+          // We've just finished iterating the first row.
+          this.rowSize = column;
+        }
         row = cell.row;
         rows[row] = [];
         column = 0;
@@ -1296,5 +1337,11 @@ var MatrixCell = P(MathBlock, function(_, super_) {
       // called when last cell gets deleted
       return super_.deleteOutOf.apply(self, args);
     });
-  }
+  };
+  _.moveOutOf = function(dir, cursor, updown) {
+    var atExitPoint = updown && this.parent.atExitPoint(dir, cursor);
+    // Step out of the matrix if we've moved past an edge column
+    if (!atExitPoint && this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
+    else cursor.insDirOf(dir, this.parent);
+  };
 });

@@ -1119,6 +1119,62 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\begin{matrix}&&\\\\b&c&\\\\a&d&\\end{matrix}');
     });
 
+    test('passes over matrices when leftRightIntoCmdGoes is set to up', function() {
+      mq.config({ leftRightIntoCmdGoes: 'up' });
+
+      // 1 2 3
+      // 4 5 6
+      // 7 8 9
+      mq.write('\\begin{matrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{matrix}');
+
+      mq.keystroke('Left Left Left Left Left Left Left').typedText('a')
+        .keystroke('Right Right Right Right Right Right Right').typedText('b')
+        .keystroke('Left Left Left Left').typedText('c');
+
+      // It should've entered the top of the matrix and exited at either end, leading to
+      //   1  2c 3
+      // a 4  5  6 b
+      //   7  8  9
+      assertLatex('a\\begin{matrix}1&2c&3\\\\4&5&6\\\\7&8&9\\end{matrix}b');
+    });
+
+    test('passes under matrices when leftRightIntoCmdGoes is set to down', function() {
+      mq.config({ leftRightIntoCmdGoes: 'down' });
+
+      // 1 2 3
+      // 4 5 6
+      // 7 8 9
+      mq.write('\\begin{matrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{matrix}');
+
+      mq.keystroke('Left Left Left Left Left Left Left').typedText('a')
+        .keystroke('Right Right Right Right Right Right Right').typedText('b')
+        .keystroke('Left Left Left Left').typedText('c');
+
+      // It should've entered the bottom of the matrix and exited at either end, leading to
+      //   1  2  3
+      // a 4  5  6 b
+      //   7  8c 9
+      assertLatex('a\\begin{matrix}1&2&3\\\\4&5&6\\\\7&8c&9\\end{matrix}b');
+    });
+
+    test('exits out of matrices on their edges when leftRightIntoCmdGoes is set', function() {
+      mq.config({ leftRightIntoCmdGoes: 'up' });
+
+      // 1 2 3
+      // 4 5 6
+      // 7 8 9
+      mq.write('\\begin{matrix}1&2&3\\\\4&5&6\\\\7&8&9\\end{matrix}');
+
+      mq.keystroke('Left Left Left Down').typedText('a')
+        .keystroke('Right Right Right').typedText('b')
+
+      // It should've entered the top of the matrix and exited out the side, leading to
+      // 1  2  3
+      // 4  5a 6 b
+      // 7  8  9
+      assertLatex('\\begin{matrix}1&2&3\\\\4&5a&6\\\\7&8&9\\end{matrix}b');
+    });
+
     test('delete key removes empty matrix row/column', function() {
       mq.write('\\begin{matrix}a&&b\\\\&c&d\\\\&e&f\\end{matrix}');
 
