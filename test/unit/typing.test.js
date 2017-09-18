@@ -835,7 +835,7 @@ suite('typing with auto-replaces', function() {
     setup(function() {
       mq.config({
         autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot percent'
       });
     });
 
@@ -879,6 +879,11 @@ suite('typing with auto-replaces', function() {
       mq.typedText('Gamma');
       assertLatex('\\Gamma');
       mq.keystroke('Backspace');
+
+      mq.typedText('percent');
+      assertLatex('\\%\\operatorname{of}');
+      mq.keystroke('Backspace');
+
     });
 
     test('sequences of auto-commands and other assorted characters', function() {
