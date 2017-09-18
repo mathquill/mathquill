@@ -513,6 +513,7 @@ LatexCmds.ans = P(Symbol, function(_, super_) {
   };
 });
 
+LatexCmds.percent =
 LatexCmds.percentof = P(Symbol, function (_, super_) {
   _.init = function () {
     super_.init.call(
