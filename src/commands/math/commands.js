@@ -285,6 +285,27 @@ var SupSub = P(MathCommand, function(_, super_) {
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
+  _.reflow = function() {
+    var $block = this.jQ ;//mq-supsub
+    var $prev = $block.prev() ;
+
+    if ( !$prev.length ) {
+        //we cant normalize it without having prev. element (which is base)
+        return ;
+    }
+
+    var $sup = $block.children( '.mq-sup' );//mq-supsub -> mq-sup
+    if ( $sup.length ) {
+        var h = $prev.innerHeight() ;
+        var sh = parseInt( $sup.css('font-size') ) ;
+        var ph = parseInt( $prev.css('font-size') ) ;
+        //we want bottom of 0.7 of char-height of sup to be aligned with 0.5 (=middle) of base
+        //this way it related to base, but not to much in case sub is a fraction
+        h -= 0.5*ph + 0.7*sh ;
+        $sup.css( 'margin-bottom',  h + 'px' ) ;
+    }
+
+  } ;
 });
 
 function insLeftOfMeUnlessAtEnd(cursor) {
@@ -330,15 +351,6 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
     super_.finalizeTree.call(this);
   };
-  _.reflow = function() {
-     var $block = this.jQ;//mq-supsub
-
-     var h = $block.prev().innerHeight() ;
-     h *= 0.6 ;
-
-     $block.css( 'vertical-align',  h + 'px' ) ;
-
-  } ;
 });
 
 var SummationNotation = P(MathCommand, function(_, super_) {
