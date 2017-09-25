@@ -296,16 +296,17 @@ var SupSub = P(MathCommand, function(_, super_) {
 
     var $sup = $block.children( '.mq-sup' );//mq-supsub -> mq-sup
     if ( $sup.length ) {
-        var h = $prev.innerHeight() ;
-        var sh = parseInt( $sup.css('font-size') ) ;
-        var ph = parseInt( $prev.css('font-size') ) ;
-        //we want bottom of 0.7 of char-height of sup to be aligned with 0.5 (=middle) of base
-        //this way it related to base, but not to much in case sub is a fraction
-        h -= 0.5*ph + 0.7*sh ;
-        $sup.css( 'margin-bottom',  h + 'px' ) ;
+        var sup_fontsize = parseInt( $sup.css('font-size') ) ;
+        var sup_bottom = $sup.offset().top + $sup.height() ;
+        //we want that superscript overlaps top of base on 0.7 of its font-size
+        //this way small superscripts like x^2 look ok, but big ones like x^(1/2/3) too
+        var needed = sup_bottom - $prev.offset().top  - 0.7*sup_fontsize ;
+        var cur_margin = parseInt( $sup.css('margin-bottom' ) ) ;
+        //we lift it up with margin-bottom
+        $sup.css( 'margin-bottom', cur_margin + needed ) ;
     }
-
   } ;
+
 });
 
 function insLeftOfMeUnlessAtEnd(cursor) {
