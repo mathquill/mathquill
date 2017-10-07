@@ -311,6 +311,9 @@ if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
 
 LatexCmds.$ = bind(VanillaSymbol, '\\$', '$', 'dollar');
 
+LatexCmds.square = bind(VanillaSymbol, '\\square ', '\u25A1', 'square');
+LatexCmds.mid = bind(VanillaSymbol, '\\mid ', '\u2223', 'mid');
+
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
