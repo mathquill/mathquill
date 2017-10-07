@@ -74,8 +74,12 @@ var latexMathParser = (function() {
 })();
 
 Controller.open(function(_, super_) {
+  _.cleanLatex = function (latex) {
+    //prune unnecessary spaces
+    return latex.replace(/(\\[a-z]+) (?![a-z])/ig,'$1')
+  }
   _.exportLatex = function() {
-    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+    return this.cleanLatex(this.root.latex());
   };
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;

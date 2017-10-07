@@ -36,7 +36,8 @@ Controller.open(function(_) {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
-      latex = this.cursor.selection.join('latex');
+      //cleanLatex prunes unnecessary spaces. defined in latex.js
+      latex = this.cleanLatex(this.cursor.selection.join('latex'));
       if (this.options.statelessClipboard) {
         // FIXME: like paste, only this works for math fields; should ask parent
         latex = '$' + latex + '$';
