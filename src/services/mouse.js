@@ -4,6 +4,15 @@
 
 Controller.open(function(_) {
   Options.p.ignoreNextMousedown = noop;
+
+  // Whenever edits to the tree occur, in-progress selection events
+  // must be invalidated and selection changes must not be applied to
+  // the edited tree. onNotifyEdit takes care of this.
+  var onNotifyEdit;
+  this.onNotify(function (e) {
+    if (e === 'edit' && onNotifyEdit) onNotifyEdit();
+  });
+
   _.delegateMouseEvents = function() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
@@ -30,26 +39,49 @@ Controller.open(function(_) {
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
 
-      function mouseup(e) {
-        cursor.blink = blink;
-        if (!cursor.selection) {
-          if (ctrlr.editable) {
-            cursor.show();
-            aria.queue(cursor.parent).alert();
-          }
-          else {
-            textareaSpan.detach();
-          }
-        }
-
+      function unbindListeners (e) {
         // delete the mouse handlers now that we're not dragging anymore
         rootjQ.unbind('mousemove', mousemove);
         $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+        onNotifyEdit = undefined;
+      }
+
+      function updateCursor () {
+        if (ctrlr.editable) {
+          cursor.show();
+          aria.queue(cursor.parent).alert();
+        }
+        else {
+          textareaSpan.detach();
+        }
+      }
+
+      function mouseup(e) {
+        cursor.blink = blink;
+        if (!cursor.selection) updateCursor();
+        unbindListeners(e);
+      }
+
+      var wasEdited;
+      onNotifyEdit = function () {
+        // If an edit happens while the mouse is down, the existing
+        // selection is no longer valid. Clear it and unbind listeners,
+        // similar to what happens on mouseup.
+        wasEdited = true;
+        cursor.blink = blink;
+        cursor.clearSelection();
+        updateCursor();
+        unbindListeners(e);
       }
 
       if (ctrlr.blurred) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
         textarea.focus();
+        // focus call may bubble to clients, who may then write to
+        // mathquill, triggering onNotifyEdit. If that happens, we
+        // don't want to stop the cursor blink or bind listeners,
+        // so return early.
+        if (wasEdited) return;
       }
 
       cursor.blink = noop;
