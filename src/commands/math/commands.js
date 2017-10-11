@@ -456,7 +456,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.reflow = function() {
     var block = this.ends[R].jQ;
     // reflow called before dom was ready
-    if (block.innerHeight() > 0) {
+    if (block.innerHeight() > 1) {
       scale(block.prev(), 1, block.innerHeight() / +block.css('fontSize').slice(0, -2) - .1);
     }
   };
