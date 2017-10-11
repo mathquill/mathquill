@@ -81,8 +81,9 @@ optionProcessors.autoCommands = function(cmds) {
 
 var Letter = P(Variable, function(_, super_) {
   _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
+
+  _.checkAutoCmds = function (cursor) {
+    //handle autoCommands
     var autoCmds = cursor.options.autoCommands, maxLength = autoCmds._maxLength;
     if (maxLength > 0) {
       // want longest possible autocommand, so join together longest
@@ -103,6 +104,29 @@ var Letter = P(Variable, function(_, super_) {
         str = str.slice(1);
       }
     }
+  }
+
+  _.autoParenthesize = function (cursor) {
+    //handle autoParenthesized functions
+    autoParenthesizedFunctions = ["sin", "cos"]
+    var str = '', l = this, i = 0;
+    while (l instanceof Letter && i < maxLength) {
+      str = l.letter + str, l = l[L], i += 1;
+    }
+    // check for an autocommand, going thru substrings longest to shortest
+    while (str.length) {
+      if (autoParenthesizedFunctions.indexOf(str) >= 0) {
+        return cursor.parent.write(cursor, '(');
+      }
+      str = str.slice(1);
+    }
+  }
+
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+
+    this.checkAutoCmds(cursor);
+    this.autoParenthesize(cursor);
   };
   _.italicize = function(bool) {
     this.isItalic = bool;
