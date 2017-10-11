@@ -79,6 +79,24 @@ optionProcessors.autoCommands = function(cmds) {
   return dict;
 };
 
+Options.p.autoParenthesizedFunctions = {_maxLength: 0};
+optionProcessors.autoParenthesizedFunctions = function (cmds) {
+  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+    throw '"'+cmds+'" not a space-delimited list of only letters';
+  }
+  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  for (var i = 0; i < list.length; i += 1) {
+    var cmd = list[i];
+    if (cmd.length < 2) {
+      throw 'autocommand "'+cmd+'" not minimum length of 2';
+    }
+    dict[cmd] = 1;
+    maxLength = max(maxLength, cmd.length);
+  }  
+  dict._maxLength = maxLength;
+  return dict;
+}
+
 var Letter = P(Variable, function(_, super_) {
   _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
 
@@ -108,14 +126,16 @@ var Letter = P(Variable, function(_, super_) {
 
   _.autoParenthesize = function (cursor) {
     //handle autoParenthesized functions
-    autoParenthesizedFunctions = ["sin", "cos"]
     var str = '', l = this, i = 0;
+
+    var autoParenthesizedFunctions = cursor.options.autoParenthesizedFunctions, maxLength = autoParenthesizedFunctions._maxLength;
+    
     while (l instanceof Letter && i < maxLength) {
       str = l.letter + str, l = l[L], i += 1;
     }
     // check for an autocommand, going thru substrings longest to shortest
     while (str.length) {
-      if (autoParenthesizedFunctions.indexOf(str) >= 0) {
+      if (autoParenthesizedFunctions.hasOwnProperty(str)) {
         return cursor.parent.write(cursor, '(');
       }
       str = str.slice(1);
