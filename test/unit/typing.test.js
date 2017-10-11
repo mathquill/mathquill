@@ -831,6 +831,43 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+
+  suite('autoParenthesizedFunctions', function() {
+    setup(function() {
+      mq.config({
+        autoParenthesizedFunctions: 'sin cos tan ln',
+        autoOperatorNames: 'sin ln'
+      });
+    });
+
+    test('individual commands', function(){
+      //autoParenthesized and also operatored
+      mq.typedText('sin')
+      assertLatex('\\sin\\left(\\right)');
+      mq.latex('')
+      //not parenthesized
+      mq.typedText('cot')
+      assertLatex('cot');
+      mq.latex('')
+      //we don't autoparenthesize non-autocommands
+      mq.typedText('tan')
+      assertLatex('tan');
+      mq.latex('')
+      //doesn't parenthesize when the middle is completed
+      mq.typedText('tn')
+      mq.keystroke('Left')
+      mq.typedText('a')
+      assertLatex('tan');
+
+      mq.latex('')
+      //doesn't parenthesize when the middle is completed, but does autoFn
+      mq.typedText('sn')
+      mq.keystroke('Left')
+      mq.typedText('i')
+      assertLatex('\\sin');
+    });
+  });
+
   suite('autoCommands', function() {
     setup(function() {
       mq.config({
