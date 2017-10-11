@@ -849,9 +849,9 @@ suite('typing with auto-replaces', function() {
       mq.typedText('cot')
       assertLatex('cot');
       mq.latex('')
-      //parenthesized but not operatored
+      //we don't autoparenthesize non-autocommands
       mq.typedText('tan')
-      assertLatex('tan\\left(\\right)');
+      assertLatex('tan');
       mq.latex('')
       //doesn't parenthesize when the middle is completed
       mq.typedText('tn')

@@ -129,13 +129,14 @@ var Letter = P(Variable, function(_, super_) {
     var str = '', l = this, i = 0;
 
     var autoParenthesizedFunctions = cursor.options.autoParenthesizedFunctions, maxLength = autoParenthesizedFunctions._maxLength;
-    
+    var autoOperatorNames = cursor.options.autoOperatorNames
     while (l instanceof Letter && i < maxLength) {
       str = l.letter + str, l = l[L], i += 1;
     }
-    // check for an autocommand, going thru substrings longest to shortest
+    // check for an autoParenthesized functions, going thru substrings longest to shortest
+    // only allow autoParenthesized functions that are also autoOperatorNames
     while (str.length) {
-      if (autoParenthesizedFunctions.hasOwnProperty(str)) {
+      if (autoParenthesizedFunctions.hasOwnProperty(str) && autoOperatorNames.hasOwnProperty(str)) {
         return cursor.parent.write(cursor, '(');
       }
       str = str.slice(1);
