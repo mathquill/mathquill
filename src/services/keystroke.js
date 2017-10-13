@@ -258,7 +258,14 @@ Controller.open(function(_) {
   }
   this.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
 
-  this.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
+  this.onNotify(function(e) {
+    if (e === 'edit') {
+      // Only show the cursor here if it has previously been shown.
+      // Don't want an edit call to insert the cursor too early.
+      if (this.wasShown()) this.show();
+      this.deleteSelection();
+    }
+  });
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
