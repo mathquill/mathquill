@@ -22,11 +22,9 @@ var Cursor = P(Point, function(_) {
     this.upDownCache = {};
   };
 
-  _.wasShown = function () { return 'intervalId' in this; }
-
   _.show = function() {
     this.jQ = this._jQ.removeClass('mq-blink');
-    if (this.wasShown()) //already was shown, just restart interval
+    if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
@@ -43,7 +41,7 @@ var Cursor = P(Point, function(_) {
     return this;
   };
   _.hide = function() {
-    if (this.wasShown())
+    if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
     this.jQ.detach();
