@@ -10,7 +10,7 @@ Controller.open(function(_) {
   // the edited tree. onNotifyEdit takes care of this.
   var onNotifyEdit;
   this.onNotify(function (e) {
-    if ((e === 'edit' || e === 'write') && onNotifyEdit) onNotifyEdit();
+    if ((e === 'edit' || e === 'replace') && onNotifyEdit) onNotifyEdit();
   });
 
   _.delegateMouseEvents = function() {

@@ -103,7 +103,7 @@ Controller.open(function(_, super_) {
     return this;
   };
   _.renderLatexMath = function(latex) {
-    this.notify('write');
+    this.notify('replace');
     var root = this.root, cursor = this.cursor;
 
     var all = Parser.all;
