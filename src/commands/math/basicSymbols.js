@@ -98,8 +98,8 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 }
 
 var Letter = P(Variable, function(_, super_) {
-  _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
 
+  _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.checkAutoCmds = function (cursor) {
     //handle autoCommands
     var autoCmds = cursor.options.autoCommands, maxLength = autoCmds._maxLength;

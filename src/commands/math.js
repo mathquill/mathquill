@@ -362,9 +362,10 @@ var BinaryOperator = P(Symbol, function(_, super_) {
  * ancestor operators.
  */
 var MathBlock = P(MathElement, function(_, super_) {
-  _.join = function(methodName) {
+  _.join = function(methodName, opts) {
+    var separator = opts && opts.separator ? opts.separator : '';
     return this.foldChildren('', function(fold, child) {
-      return fold + child[methodName]();
+      return fold + child[methodName]() + separator;
     });
   };
   _.html = function() { return this.join('html'); };
@@ -376,40 +377,10 @@ var MathBlock = P(MathElement, function(_, super_) {
     ;
   };
   _.mathspeak = function() {
-    var tempOp = '';
-    var autoOps = {};
-    if (this.controller) autoOps = this.controller.options.autoOperatorNames;
-    return this.foldChildren([], function(speechArray, cmd) {
-      if (cmd.isItalic === false ) { // auto operator name
-        tempOp += cmd.mathspeak();
-      }
-      else {
-        if(tempOp!=='') {
-          if(autoOps !== {} && autoOps._maxLength > 0) {
-            var x = autoOps[tempOp.toLowerCase()];
-            if(typeof x === 'string') tempOp = x;
-          }
-          speechArray.push(tempOp+' ');
-          tempOp = '';
-        }
-        var mathspeakText = cmd.mathspeak();
-        // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
-        // some strange pronunciation given certain expressions,
-        // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
-        // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
-        // This bug has been acknowledged by Apple.
-        if (/^[A-Za-z]*$/.test(cmd.text())) {
-          mathspeakText = '"' + mathspeakText + '"';
-        } else if (isNaN(cmd.text())) {
-          mathspeakText  =' ' + mathspeakText;
-          if(cmd.text() !== '.') {
-            mathspeakText += ' ';
-          }
-        }
-        speechArray.push(mathspeakText.replace(/ +(?= )/g,''));
-      }
-      return speechArray;
-    }).join('');
+    return (this.ends[L] === this.ends[R] && this.ends[L] !== 0) ?
+      this.ends[L].mathspeak() :
+      this.join('mathspeak', {separator: ' '}).replace(/ +(?= )/g,'')
+    ;
   };
   _.ariaLabel = 'block';
 
