@@ -285,7 +285,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       if (text && cmd.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
         return text + child_text.slice(1, -1) + cmd.textTemplate[i];
-      return text + child.text() + (cmd.textTemplate[i] || '');
+      return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
 });
