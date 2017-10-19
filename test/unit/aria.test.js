@@ -95,11 +95,12 @@ suite('aria', function() {
     assertAriaEqual('end of MathQuill Input "s""q""r""t" left parenthesis, "x" , right parenthesis');
   });
 
-  test('testing aria-label for interactive and static math', function() {
+  test('testing aria-label for interactive and static math', function(done) {
     mathField.typedText('sqrt(x)');
     mathField.blur();
     setTimeout(function() {
       assert.equal('MathQuill Input: "s""q""r""t" left parenthesis, "x" , right parenthesis', mathField.__controller.container.attr('aria-label'));
+      done();
     });
     var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
     assert.equal('"y" equals StartFraction, 2"x" Over 3"y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
