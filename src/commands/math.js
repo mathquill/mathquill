@@ -362,10 +362,9 @@ var BinaryOperator = P(Symbol, function(_, super_) {
  * ancestor operators.
  */
 var MathBlock = P(MathElement, function(_, super_) {
-  _.join = function(methodName, opts) {
-    var separator = opts && opts.separator ? opts.separator : '';
+  _.join = function(methodName) {
     return this.foldChildren('', function(fold, child) {
-      return fold + child[methodName]() + separator;
+      return fold + child[methodName]();
     });
   };
   _.html = function() { return this.join('html'); };
@@ -394,23 +393,26 @@ var MathBlock = P(MathElement, function(_, super_) {
           tempOp = '';
         }
         var mathspeakText = cmd.mathspeak();
+        var cmdText = cmd.ctrlSeq;
         // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
         // some strange pronunciation given certain expressions,
         // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
         // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
         // This bug has been acknowledged by Apple.
-        if (/^[A-Za-z]*$/.test(mathspeakText)) {
+        if (cmdText.length === 1 && /[A-Za-z]/.test(cmdText)) {
           mathspeakText = '"' + mathspeakText + '"';
-        } else if (isNaN(mathspeakText)) {
-          mathspeakText  =' ' + mathspeakText;
-          if (mathspeakText !== '.') {
+        } else if (isNaN(cmdText)) {
+          mathspeakText  = ' ' + mathspeakText;
+          if (cmdText !== '.') {
             mathspeakText += ' ';
           }
         }
-        speechArray.push(mathspeakText.replace(/ +(?= )/g,''));
+        speechArray.push(mathspeakText);
       }
       return speechArray;
-    }).join('');
+    })
+    .join('')
+    .replace(/ +(?= )/g,'');
   };
   _.ariaLabel = 'block';
 
