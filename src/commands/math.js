@@ -288,7 +288,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       if (text && cmd.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
         return text + child_text.slice(1, -1) + cmd.textTemplate[i];
-      return text + child.text() + (cmd.textTemplate[i] || '');
+      return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
   _.mathspeakTemplate = [];
@@ -380,7 +380,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     var autoOps = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
     return this.foldChildren([], function(speechArray, cmd) {
-      if (cmd.isItalic === false ) { // auto operator name
+      if (cmd.isPartOfOperator) {
         tempOp += cmd.mathspeak();
       }
       else {
@@ -393,23 +393,26 @@ var MathBlock = P(MathElement, function(_, super_) {
           tempOp = '';
         }
         var mathspeakText = cmd.mathspeak();
+        var cmdText = cmd.ctrlSeq;
         // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
         // some strange pronunciation given certain expressions,
         // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
         // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
         // This bug has been acknowledged by Apple.
-        if (/^[A-Za-z]*$/.test(cmd.text())) {
+        if (cmdText.length === 1 && /[A-Za-z]/.test(cmdText)) {
           mathspeakText = '"' + mathspeakText + '"';
-        } else if (isNaN(cmd.text())) {
-          mathspeakText  =' ' + mathspeakText;
-          if(cmd.text() !== '.') {
+        } else if (isNaN(cmdText)) {
+          mathspeakText  = ' ' + mathspeakText;
+          if (cmdText !== '.') {
             mathspeakText += ' ';
           }
         }
-        speechArray.push(mathspeakText.replace(/ +(?= )/g,''));
+        speechArray.push(mathspeakText);
       }
       return speechArray;
-    }).join('');
+    })
+    .join('')
+    .replace(/ +(?= )/g,'');
   };
   _.ariaLabel = 'block';
 

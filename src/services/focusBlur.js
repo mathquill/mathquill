@@ -16,12 +16,12 @@ Controller.open(function(_) {
       else
         cursor.show();
     }).blur(function() {
-      updateAria();
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder('intentionalBlur'); // none, intentional blur: #264
         cursor.clearSelection().endSelection();
         blur();
+        updateAria();
       });
       $(window).bind('blur', windowBlur);
     });
