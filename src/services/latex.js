@@ -111,7 +111,8 @@ Controller.open(function(_, super_) {
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    root.eachChild('postOrder', 'dispose');
+    root.eachChild(function (node) { node.postOrder('dispose') });
+
     root.ends[L] = root.ends[R] = 0;
 
     if (block) {

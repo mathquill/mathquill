@@ -127,6 +127,27 @@ function cleanDictionary () {
   TempByIdDict = {};
 }
 
+function eachNode (ends, yield_) {
+  var el = ends[L];
+  if (!el) return;
+
+  for (; el !== ends[R][R]; el = el[R]) {
+    var result = yield_(el);
+    if (result === false) break;
+  }
+}
+
+function foldNodes (ends, fold, yield_) {
+  var el = ends[L];
+  if (!el) return fold;
+
+  for (; el !== ends[R][R]; el = el[R]) {
+    fold = yield_(fold, el);
+  }
+
+  return fold;
+}
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
@@ -237,7 +258,7 @@ var Node = P(function(_) {
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-  
+
   _.isStyleBlock = function() {
     return false;
   };
@@ -246,14 +267,13 @@ var Node = P(function(_) {
     return Fragment(this.ends[L], this.ends[R]);
   };
 
-  _.eachChild = function() {
-    var children = this.children();
-    children.each.apply(children, arguments);
+  _.eachChild = function(yield_) {
+    eachNode(this.ends, yield_);
     return this;
   };
 
-  _.foldChildren = function(fold, fn) {
-    return this.children().fold(fold, fn);
+  _.foldChildren = function (fold, yield_) {
+    return foldNodes(this.ends, fold, yield_);
   };
 
   _.withDirAdopt = function(dir, parent, withDir, oppDir) {
@@ -421,25 +441,13 @@ var Fragment = P(function(_) {
     return this.disown();
   };
 
-  _.each = iterator(function(yield_) {
-    var self = this;
-    var el = self.ends[L];
-    if (!el) return self;
+  _.each = function (yield_) {
+    eachNode(this.ends, yield_);
+    return this;
+  };
 
-    for (; el !== self.ends[R][R]; el = el[R]) {
-      var result = yield_(el);
-      if (result === false) break;
-    }
-
-    return self;
-  });
-
-  _.fold = function(fold, fn) {
-    this.each(function(el) {
-      fold = fn.call(this, fold, el);
-    });
-
-    return fold;
+  _.fold = function (fold, yield_) {
+    return foldNodes(this.ends, fold, yield_);
   };
 });
 
