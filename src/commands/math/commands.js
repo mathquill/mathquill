@@ -691,7 +691,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
       }
-      brack.bubble('reflow');
+      brack.bubble(function (node) { node.reflow(); });
     }
     else {
       brack = this, side = brack.side;

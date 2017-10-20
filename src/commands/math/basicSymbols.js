@@ -92,7 +92,7 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
     }
     dict[cmd] = 1;
     maxLength = max(maxLength, cmd.length);
-  }  
+  }
   dict._maxLength = maxLength;
   return dict;
 }
@@ -512,7 +512,7 @@ var LatexFragment = P(MathCommand, function(_) {
     block.finalizeInsert(cursor.options, cursor);
     if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
     if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-    cursor.parent.bubble('reflow');
+    cursor.parent.bubble(function (node) { node.reflow(); });
   };
   _.mathspeak = function() { return latexMathParser.parse(this.latex).mathspeak(); };
   _.parser = function() {
@@ -611,7 +611,7 @@ var Inequality = P(BinaryOperator, function(_, super_) {
   _.deleteTowards = function(dir, cursor) {
     if (dir === L && !this.strict) {
       this.swap(true);
-      this.bubble('reflow');
+      this.bubble(function (node) { node.reflow(); });
       return;
     }
     super_.deleteTowards.apply(this, arguments);
@@ -635,7 +635,7 @@ var Equality = P(BinaryOperator, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
       cursor[L].swap(false);
-      cursor[L].bubble('reflow');
+      cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
     super_.createLeftOf.apply(this, arguments);

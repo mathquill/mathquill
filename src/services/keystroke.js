@@ -294,7 +294,7 @@ Controller.open(function(_) {
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble('reflow');
+    cursor.parent.bubble(function (node) { node.reflow(); });
 
     return this;
   };
@@ -317,7 +317,7 @@ Controller.open(function(_) {
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble('reflow');
+    cursor.parent.bubble(function (node) { node.reflow(); });
 
     return this;
   };

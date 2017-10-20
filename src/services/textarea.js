@@ -88,7 +88,7 @@ Controller.open(function(_) {
     if (cursor.selection) {
       setTimeout(function() {
         ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble('reflow');
+        cursor.parent.bubble(function (node) { node.reflow(); });
       });
     }
   };
