@@ -237,23 +237,23 @@ var Node = P(function(_) {
     return Selection(leftEnd, rightEnd);
   };
 
-  _.bubble = iterator(function(yield_) {
+  _.bubble = function (yield_) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
     }
 
     return this;
-  });
+  };
 
-  _.postOrder = iterator(function(yield_) {
+  _.postOrder = function(yield_) {
     (function recurse(descendant) {
       descendant.eachChild(recurse);
       yield_(descendant);
     })(this);
 
     return this;
-  });
+  };
 
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
@@ -295,6 +295,15 @@ var Node = P(function(_) {
     this.jQ.remove();
     return this.disown();
   };
+
+  // Overridden by child classes
+  _.finalizeTree = function () { };
+  _.contactWeld = function () { };
+  _.blur = function () { };
+  _.intentionalBlur = function () { };
+  _.reflow = function () { };
+  _.dispose = function () { };
+  _.registerInnerField = function () { };
 });
 
 function prayWellFormed(parent, leftward, rightward) {

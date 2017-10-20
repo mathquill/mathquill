@@ -18,7 +18,7 @@ Controller.open(function(_) {
     }).blur(function() {
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
-        root.postOrder('intentionalBlur'); // none, intentional blur: #264
+        root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
         cursor.clearSelection().endSelection();
         blur();
         updateAria();

@@ -97,7 +97,7 @@ Controller.open(function(_, super_) {
       block.finalizeInsert(cursor.options, cursor);
       if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
       if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-      cursor.parent.bubble('reflow');
+      cursor.parent.bubble(function (node) { node.reflow(); });
     }
 
     return this;
@@ -111,7 +111,9 @@ Controller.open(function(_, super_) {
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    root.eachChild(function (node) { node.postOrder('dispose') });
+    root.eachChild(function (node) {
+      node.postOrder(function (node) { node.dispose(); });
+    });
 
     root.ends[L] = root.ends[R] = 0;
 

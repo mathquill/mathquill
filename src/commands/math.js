@@ -12,19 +12,19 @@ var MathElement = P(Node, function(_, super_) {
       // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
       // see ea7307eb4fac77c149a11ffdf9a831df85247693
     var self = this;
-    self.postOrder('finalizeTree', options);
-    self.postOrder('contactWeld', cursor);
+    self.postOrder(function (node) { node.finalizeTree(options) });
+    self.postOrder(function (node) { node.contactWeld(cursor) });
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly by 'reflow' handlers.
-    self.postOrder('blur');
+    self.postOrder(function (node) { node.blur(); });
 
-    self.postOrder('reflow');
+    self.postOrder(function (node) { node.reflow(); });
     if (self[R].siblingCreated) self[R].siblingCreated(options, L);
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
-    self.bubble('reflow');
+    self.bubble(function (node) { node.reflow(); });
   };
 });
 
@@ -512,14 +512,18 @@ API.StaticMath = function(APIClasses) {
     };
     _.init = function() {
       super_.init.apply(this, arguments);
-      this.__controller.root.postOrder(
-        'registerInnerField', this.innerFields = [], APIClasses.MathField);
+      var innerFields = this.innerFields = [];
+      this.__controller.root.postOrder(function (node) {
+        node.registerInnerField(innerFields, APIClasses.MathField);
+      });
     };
     _.latex = function() {
       var returned = super_.latex.apply(this, arguments);
       if (arguments.length > 0) {
-        this.__controller.root.postOrder(
-          'registerInnerField', this.innerFields = [], APIClasses.MathField);
+        var innerFields = this.innerFields = [];
+        this.__controller.root.postOrder(function (node) {
+          node.registerInnerField(innerFields, APIClasses.MathField);
+        });
       }
       return returned;
     };
