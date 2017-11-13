@@ -278,9 +278,10 @@ var Selection = P(Fragment, function(_, super_) {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  _.join = function(methodName) {
+  _.join = function(methodName, separatorToken) {
+    var separator = separatorToken || '';
     return this.fold('', function(fold, child) {
-      return fold + child[methodName]();
+      return fold + separator + child[methodName]();
     });
   };
 });
