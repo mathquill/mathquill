@@ -178,7 +178,7 @@ suite('Public API', function() {
       }
 
       mq.latex('\\frac{d}{dx}\\sqrt{x}');
-      assertMathSpeakEqual(mq.mathspeak(), 'StartFraction "d" Over "d""x" EndFraction StartRoot "x" EndRoot');
+      assertMathSpeakEqual(mq.mathspeak(), 'StartFraction "d" Over "d" "x" EndFraction StartRoot "x" EndRoot');
 
       mq.latex('1+2-3\\cdot\\frac{5}{6^7}=\\left(8+9\\right)');
       assertMathSpeakEqual(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 Superscript 7 Baseline EndFraction equals left parenthesis 8 plus 9 right parenthesis');
