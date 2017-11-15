@@ -56,6 +56,19 @@ var Variable = P(Symbol, function(_, super_) {
     }
     return text;
   };
+  _.mathspeak = function() {
+    var text = this.ctrlSeq;
+    if (this.isPartOfOperator || text.length !== 1) {
+      return super_.mathspeak.call(this);
+    } else {
+      // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
+      // some strange pronunciation given certain expressions,
+      // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
+      // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
+      // This bug has been acknowledged by Apple.
+      return '"' + text + '"';
+    }
+  };
 });
 
 Options.p.autoCommands = { _maxLength: 0 };

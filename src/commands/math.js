@@ -394,14 +394,7 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
-        // some strange pronunciation given certain expressions,
-        // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
-        // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
-        // This bug has been acknowledged by Apple.
-        if (cmdText.length === 1 && /[A-Za-z]/.test(cmdText)) {
-          mathspeakText = '"' + mathspeakText + '"';
-        } else if (isNaN(cmdText)) {
+        if (isNaN(cmdText)) {
           mathspeakText  = ' ' + mathspeakText;
           if (cmdText !== '.') {
             mathspeakText += ' ';
