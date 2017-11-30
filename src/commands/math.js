@@ -395,20 +395,24 @@ var MathBlock = P(MathElement, function(_, super_) {
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };
-  _.chToCmd = function(ch) {
+  _.chToCmd = function(ch, options) {
     var cons;
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
     else if (/^\d$/.test(ch))
       return Digit(ch);
+    else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')
+      return LatexCmds['÷'](ch);
+    else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
+      return LatexCmds['×'](ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
     else
       return VanillaSymbol(ch);
   };
   _.write = function(cursor, ch) {
-    var cmd = this.chToCmd(ch);
+    var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     cmd.createLeftOf(cursor.show());
   };
@@ -431,7 +435,8 @@ var MathBlock = P(MathElement, function(_, super_) {
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
-    _.__mathquillify = function() {
+    _.__mathquillify = function(opts, interfaceVersion) {
+      this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
       this.__controller.delegateMouseEvents();
       this.__controller.staticMathTextareaEvents();

@@ -24,13 +24,22 @@ var Variable = P(Symbol, function(_, super_) {
   };
   _.text = function() {
     var text = this.ctrlSeq;
-    if (this[L] && !(this[L] instanceof Variable)
-        && !(this[L] instanceof BinaryOperator)
-        && this[L].ctrlSeq !== "\\ ")
-      text = '*' + text;
-    if (this[R] && !(this[R] instanceof BinaryOperator)
-        && !(this[R] instanceof SupSub))
-      text += '*';
+    if (this.isPartOfOperator) {
+      if (text[0] == '\\') {
+        text = text.slice(1, text.length);
+      }
+      else if (text[text.length-1] == ' ') {
+        text = text.slice (0, -1);
+      }
+    } else {
+      if (this[L] && !(this[L] instanceof Variable)
+          && !(this[L] instanceof BinaryOperator)
+          && this[L].ctrlSeq !== '\\ ')
+        text = '*' + text;
+      if (this[R] && !(this[R] instanceof BinaryOperator)
+          && !(this[R] instanceof SupSub))
+        text += '*';
+    }
     return text;
   };
 });
@@ -83,6 +92,7 @@ var Letter = P(Variable, function(_, super_) {
   };
   _.italicize = function(bool) {
     this.isItalic = bool;
+    this.isPartOfOperator = !bool;
     this.jQ.toggleClass('mq-operator-name', !bool);
     return this;
   };
@@ -247,6 +257,7 @@ LatexCmds.f = P(Letter, function(_, super_) {
 LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;');
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;');
+LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;');
 
 LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
@@ -421,12 +432,28 @@ var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
+    function determineOpClassType(node) {
+      if (node[L]) {
+        // If the left sibling is a binary operator or a separator (comma, semicolon, colon)
+        // or an open bracket (open parenthesis, open square bracket)
+        // consider the operator to be unary
+        if (node[L] instanceof BinaryOperator || /^[,;:\(\[]$/.test(node[L].ctrlSeq)) {
+          return '';
+        }
+      } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
+        //if we are in a style block at the leftmost edge, determine unary/binary based on
+        //the style block
+        //this allows style blocks to be transparent for unary/binary purposes
+        return determineOpClassType(node.parent.parent);
+      } else {
+        return '';
+      }
+
+      return 'mq-binary-operator';
+    };
+    
     if (dir === R) return; // ignore if sibling only changed on the right
-    // If the left sibling is a binary operator or a separator (comma, semicolon, colon)
-    // or an open bracket (open parenthesis, open square bracket)
-    // consider the operator to be unary, otherwise binary
-    this.jQ[0].className =
-      (!this[L] || this[L] instanceof BinaryOperator || /^[,;:\(\[]$/.test(this[L].ctrlSeq) ? '' : 'mq-binary-operator');
+    this.jQ[0].className = determineOpClassType(this);
     return this;
   };
 });

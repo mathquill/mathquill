@@ -6,9 +6,6 @@ suite('backspace', function() {
     controller = mq.__controller;
     cursor = controller.cursor;
   });
-  teardown(function() {
-    $(mq.el()).remove();
-  });
 
   function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
   function assertLatex(latex) {

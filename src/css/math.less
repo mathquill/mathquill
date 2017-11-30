@@ -50,7 +50,9 @@
 
   .mq-text-mode {
     display: inline-block;
+    white-space: pre;  
   }
+
   .mq-text-mode.mq-hasCursor {
     box-shadow: inset darkgray 0 .1em .2em;
     padding: 0 .1em;
@@ -259,7 +261,7 @@
     display: inline-block;
   }
 
-  .mq-numerator, .mq-denominator {
+  .mq-numerator, .mq-denominator, .mq-dot-recurring {
     display: block;
   }
 
@@ -272,6 +274,11 @@
     float: right; // take out of normal flow to manipulate baseline
     width: 100%;
     padding: 0.1em;
+  }
+
+  .mq-dot-recurring {
+    text-align: center;
+    height: 0.3em;
   }
 
   ////
@@ -294,15 +301,29 @@
     padding-top: 1px;
   }
 
-  .mq-vector-prefix {
+  .mq-diacritic-above {
     display: block;
     text-align: center;
-    line-height: .25em;
-    margin-bottom: -.1em;
-    font-size: 0.75em;
+    line-height: .4em;
   }
 
-  .mq-vector-stem {
+  .mq-diacritic-stem {
+    display: block;
+    text-align: center;
+  }
+  
+  .mq-hat-prefix {
+    display: block;
+    text-align: center;
+    line-height: .95em;
+    margin-bottom: -.7em;
+    transform: scaleX(1.5);
+    -moz-transform: scaleX(1.5);
+    -o-transform: scaleX(1.5);
+    -webkit-transform: scaleX(1.5);
+  }
+
+  .mq-hat-stem {
     display: block;
   }
 
@@ -329,10 +350,24 @@
     font-family: @symbola;
   }
 
+  .mq-overarc {
+    border-top: 1px solid black;
+    -webkit-border-top-right-radius: 50% .3em;
+    -moz-border-radius-topright: 50% .3em;
+    border-top-right-radius: 50% .3em;
+    -webkit-border-top-left-radius: 50% .3em;
+    -moz-border-radius-topleft: 50% .3em;
+    border-top-left-radius: 50% .3em;
+    margin-top: 1px;
+    padding-top: 0.15em;
+  }
+
   .mq-overarrow {
+    min-width: .5em;
     border-top: 1px solid black;
     margin-top: 1px;
     padding-top: 0.2em;
+    text-align: center;
 
     &:before {
       display: block;
@@ -350,6 +385,35 @@
       transform: scaleX(-1);
       filter: FlipH;
       -ms-filter: "FlipH";
+    }
+    &.mq-arrow-both {
+      vertical-align: text-bottom;
+
+      &.mq-empty {
+        min-height: 1.23em;
+
+        &:after {
+          top: -0.34em;
+        }
+      }
+      &:before{
+        -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
+      }
+      &:after {
+        display: block;
+        position: relative;
+        top: -2.3em;
+        font-size: 0.5em;
+        line-height: 0em;
+        content: '\27A4';
+        visibility: visible; //must override .mq-editable-field.mq-empty:after
+        text-align: right;
+      }
     }
   }
 

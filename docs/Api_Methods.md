@@ -45,7 +45,7 @@ If the given element is already an editable math field, this will return a new e
 ```html
 <span id="fill-in-the-blank">\sqrt{ \MathQuillMathField{x}^2 + \MathQuillMathField{y}^2 }</span>
 <script>
-  var fillInTheBlank = MQ.StaticMath(document.getElementById('#fill-in-the-blank'));
+  var fillInTheBlank = MQ.StaticMath(document.getElementById('fill-in-the-blank'));
   fillInTheBlank.innerFields[0].latex() // => 'x'
   fillInTheBlank.innerFields[1].latex() // => 'y'
 </script>
@@ -190,7 +190,7 @@ Clears the selection.
 
 Move the cursor to the left/right end of the editable field, respectively. These are shorthand for [`.moveToDirEnd(L/R)`](#movetodirenddirection), respectively.
 
-## .movetoDirEnd(direction)
+## .moveToDirEnd(direction)
 
 Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants, where `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](Config.md#outof-handlers).
 
