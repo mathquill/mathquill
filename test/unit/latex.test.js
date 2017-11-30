@@ -94,6 +94,17 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
   });
 
+  test('langle/rangle (without whitespace)', function() {
+    var tree = latexMathParser.parse('\\left\\langle123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
+  });
+
+
+
   test('lVert/rVert', function() {
     var tree = latexMathParser.parse('\\left\\lVert 123\\right\\rVert)');
 
