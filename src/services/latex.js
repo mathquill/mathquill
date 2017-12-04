@@ -102,18 +102,171 @@ Controller.open(function(_, super_) {
 
     return this;
   };
-  _.renderLatexMath = function(latex) {
-    this.notify('replace');
-    var root = this.root, cursor = this.cursor;
+  _.classifyLatexForEfficientUpdate = function (latex) {
+    if (typeof latex !== 'string') return;
 
+    var matches = latex.match(/-?[0-9.]+$/g);
+    if (matches && matches.length === 1) {
+      return {
+        latex: latex,
+        prefix: latex.substr(0, latex.length - matches[0].length),
+        digits: matches[0]
+      };
+    }
+  };
+  _.renderLatexMathEfficiently = function (latex) {
+    var oldLatex, oldClassification;
+    var classification = this.classifyLatexForEfficientUpdate(latex);
+    if (classification) {
+      oldLatex = this.exportLatex();
+      oldClassification = this.classifyLatexForEfficientUpdate(oldLatex);
+      if (!oldClassification || oldClassification.prefix !== classification.prefix) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+    var root = this.root;
+
+    // check if minus sign is changing
+    var oldDigits = oldClassification.digits;
+    var newDigits = classification.digits;
+    var oldMinusSign = false;
+    var newMinusSign = false;
+    if (oldDigits[0] === '-') {
+      oldMinusSign = true;
+      oldDigits = oldDigits.substr(1);
+    }
+    if (newDigits[0] === '-') {
+      newMinusSign = true;
+      newDigits = newDigits.substr(1);
+    }
+
+    // start at the very end
+    var charNode = this.root.ends[R];
+    var oldCharNodes = [];
+    for (var i= oldDigits.length - 1; i >= 0; i--) {
+      // the tree does not match what we expect
+      if (charNode.ctrlSeq !== oldDigits[i]) {
+        return false;
+      }
+
+      // the trailing digits are not just under the root. We require the root
+      // to be the parent so that we can be sure we do not need a reflow to
+      // grow parens.
+      if (charNode.parent !== root) {
+        return false;
+      }
+
+      // push to the start. We're traversing backwards
+      oldCharNodes.unshift(charNode);
+
+      // move left one character
+      charNode = charNode[L];
+    }
+
+    // remove the minus sign
+    if (oldMinusSign && !newMinusSign) {
+      var oldMinusNode = charNode;
+      if (oldMinusNode.ctrlSeq !== '-') return false;
+      if (oldMinusNode[R] !== oldCharNodes[0]) return false;
+      if (oldMinusNode.parent !== root) return false;
+      if (oldMinusNode[L] && oldMinusNode[L].parent !== root) return false;
+
+      oldCharNodes[0][L] = oldMinusNode[L];
+
+      if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
+      if (oldMinusNode[L]) oldMinusNode[L][R] = oldCharNodes[0];
+
+      oldMinusNode.jQ.remove();
+    }
+
+    // add a minus sign
+    if (!oldMinusSign && newMinusSign) {
+      var newMinusNode = PlusMinus('-');
+      var minusSpan = document.createElement('span');
+      minusSpan.textContent = '-';
+      newMinusNode.jQ = $(minusSpan);
+
+      if (oldCharNodes[0][L]) oldCharNodes[0][L][R] = newMinusNode;
+      if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
+
+      newMinusNode.parent = root;
+      newMinusNode[L] = oldCharNodes[0][L];
+      newMinusNode[R] = oldCharNodes[0];
+      oldCharNodes[0][L] = newMinusNode;
+
+      newMinusNode.contactWeld(); // decide if binary operator
+      newMinusNode.jQ.insertBefore(oldCharNodes[0].jQ);
+    }
+
+    // update the text of the current nodes
+    var commonLength = Math.min(oldDigits.length, newDigits.length);
+    for (i=0; i < commonLength; i++) {
+      var newText = newDigits[i];
+      charNode = oldCharNodes[i];
+      if (charNode.ctrlSeq !== newText) {
+        charNode.ctrlSeq = newText;
+        charNode.jQ[0].textContent = newText;
+        charNode.mathspeakName = newText;
+      }
+    }
+
+    // remove the extra digits at the end
+    if (oldDigits.length > newDigits.length) {
+      charNode = oldCharNodes[newDigits.length - 1];
+      root.ends[R] = charNode;
+      charNode[R] = 0;
+
+      for (i = oldDigits.length - 1; i >= commonLength; i--) {
+        oldCharNodes[i].jQ.remove();
+      }
+    }
+
+    // add new digits after the existing ones
+    if (newDigits.length > oldDigits.length) {
+      var frag = document.createDocumentFragment();
+
+      for (i = commonLength; i < newDigits.length; i++) {
+        var span = document.createElement('span');
+        span.textContent = newDigits[i];
+
+        var newNode = Digit(newDigits[i]);
+        newNode.parent = root;
+        newNode.jQ = $(span);
+        frag.appendChild(span);
+
+        // splice this node in
+        newNode[L] = root.ends[R];
+        newNode[R] = 0;
+        newNode[L][R] = newNode;
+        root.ends[R] = newNode;
+      }
+
+      root.jQ[0].appendChild(frag);
+    }
+
+    var currentLatex = this.exportLatex();
+    if (currentLatex !== latex) {
+      console.warn('tried updating latex efficiently but did not work. Attempted: ' + latex + ' but wrote: ' + currentLatex);
+      return false;
+    }
+
+    // set cursor to end
+    if (this.cursor.selection) {
+      this.cursor.clearSelection();
+    }
+    this.cursor[R] = 0;
+    this.cursor[L] = root.ends[R];
+    return true;
+  };
+  _.renderLatexMathFromScratch = function (latex) {
+    var root = this.root, cursor = this.cursor;
     var all = Parser.all;
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
-
-    root.eachChild(function (node) {
-      node.postOrder(function (node) { node.dispose(); });
-    });
 
     root.ends[L] = root.ends[R] = 0;
 
@@ -136,6 +289,12 @@ Controller.open(function(_, super_) {
 
     delete cursor.selection;
     cursor.insAtRightEnd(root);
+  };
+  _.renderLatexMath = function(latex) {
+    this.notify('replace');
+
+    if (this.renderLatexMathEfficiently(latex)) return;
+    this.renderLatexMathFromScratch(latex);
   };
   _.renderLatexText = function(latex) {
     var root = this.root, cursor = this.cursor;

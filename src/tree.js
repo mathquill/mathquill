@@ -302,7 +302,6 @@ var Node = P(function(_) {
   _.blur = function () { };
   _.intentionalBlur = function () { };
   _.reflow = function () { };
-  _.dispose = function () { };
   _.registerInnerField = function () { };
 });
 
