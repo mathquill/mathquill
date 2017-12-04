@@ -114,7 +114,7 @@ Controller.open(function(_, super_) {
       };
     }
   };
-  _.renderLatexMathEfficently = function (latex) {
+  _.renderLatexMathEfficiently = function (latex) {
     var oldLatex, oldClassification;
     var classification = this.classifyLatexForEfficientUpdate(latex);
     if (classification) {
@@ -249,7 +249,7 @@ Controller.open(function(_, super_) {
 
     var currentLatex = this.exportLatex();
     if (currentLatex !== latex) {
-      console.warn('tried updating latex efficently but did not work. Attempted: ' + latex + ' but wrote: ' + currentLatex);
+      console.warn('tried updating latex efficiently but did not work. Attempted: ' + latex + ' but wrote: ' + currentLatex);
       return false;
     }
 
@@ -293,7 +293,7 @@ Controller.open(function(_, super_) {
   _.renderLatexMath = function(latex) {
     this.notify('replace');
 
-    if (this.renderLatexMathEfficently(latex)) return;
+    if (this.renderLatexMathEfficiently(latex)) return;
     this.renderLatexMathFromScratch(latex);
   };
   _.renderLatexText = function(latex) {
