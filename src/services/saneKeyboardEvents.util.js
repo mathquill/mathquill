@@ -152,6 +152,8 @@ var saneKeyboardEvents = (function() {
 
     // -*- event handlers -*- //
     function onKeydown(e) {
+      if (e.target !== textarea[0]) return;
+
       keydown = e;
       keypress = null;
 
@@ -167,6 +169,8 @@ var saneKeyboardEvents = (function() {
     }
 
     function onKeypress(e) {
+      if (e.target !== textarea[0]) return;
+
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
       // after keydown.  In that case, there will be
@@ -178,6 +182,8 @@ var saneKeyboardEvents = (function() {
       checkTextareaFor(typedText);
     }
     function onKeyup(e) {
+      if (e.target !== textarea[0]) return;
+
       // Handle case of no keypress event being sent
       if (!!keydown && !keypress) checkTextareaFor(typedText);
     }
@@ -213,6 +219,8 @@ var saneKeyboardEvents = (function() {
     function onBlur() { keydown = keypress = null; }
 
     function onPaste(e) {
+      if (e.target !== textarea[0]) return;
+
       // browsers are dumb.
       //
       // In Linux, middle-click pasting causes onPaste to be called,
