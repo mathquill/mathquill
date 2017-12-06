@@ -524,7 +524,7 @@ API.StaticMath = function(APIClasses) {
       if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
       else this.__controller.ariaLabel = '';
       var prependedLabel = this.__controller.ariaLabel !== 'MathQuill Input' ? this.__controller.ariaLabel + ': ' : '';
-      this.__controller.container.attr('aria-label', prependedLabel + root.mathspeak().trim());
+      this.__controller.container.attr('aria-label', prependedLabel + this.__controller.root.mathspeak().trim());
       return this;
     };
     _.getAriaLabel = function () {
