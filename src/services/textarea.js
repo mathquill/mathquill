@@ -66,7 +66,8 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
-    ctrlr.container.attr('aria-label', root.mathspeak().trim());
+    var ariaLabel = ctrlr.ariaLabel !== 'MathQuill Input' ? ctrlr.ariaLabel + ': ' : '';
+    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
