@@ -520,6 +520,14 @@ API.StaticMath = function(APIClasses) {
       }
       return returned;
     };
+    _.setAriaLabel = function(ariaLabel) {
+      if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
+      else this.__controller.ariaLabel = '';
+      return this;
+    };
+    _.getAriaLabel = function () {
+      return this.__controller.ariaLabel || '';
+    };
   });
 };
 
