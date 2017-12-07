@@ -138,6 +138,12 @@ var Letter = P(Variable, function(_, super_) {
   }
 
   _.autoParenthesize = function (cursor) {
+    //exit early if already parenthesized
+    var right = cursor.parent.ends[R]
+    if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
+      return
+    }
+
     //handle autoParenthesized functions
     var str = '', l = this, i = 0;
 
