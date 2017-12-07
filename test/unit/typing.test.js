@@ -866,6 +866,17 @@ suite('typing with auto-replaces', function() {
       mq.typedText('i')
       assertLatex('\\sin');
     });
+
+    test('does not double parenthesize if parenthesized', function () {
+      //autoParenthesized and also operatored
+      mq.typedText('sin')
+      assertLatex('\\sin\\left(\\right)');
+      mq.keystroke('Left')
+      mq.keystroke('Backspace')
+      mq.typedText('n')
+      assertLatex('\\sin\\left(\\right)');
+    })
+
   });
 
   suite('autoCommands', function() {
