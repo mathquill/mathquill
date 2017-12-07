@@ -478,16 +478,18 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) {
       var leftward = cursor[L];
-      while (leftward &&
-        !(
-          leftward instanceof BinaryOperator ||
-          leftward instanceof (LatexCmds.text || noop) ||
-          leftward instanceof SummationNotation ||
-          leftward.ctrlSeq === '\\ ' ||
-          /^[,;:]$/.test(leftward.ctrlSeq)
-        ) //lookbehind for operator
-      ) leftward = leftward[L];
 
+      if (!cursor.options.typingSlashCreatesNewFraction) {
+        while (leftward &&
+          !(
+            leftward instanceof BinaryOperator ||
+            leftward instanceof (LatexCmds.text || noop) ||
+            leftward instanceof SummationNotation ||
+            leftward.ctrlSeq === '\\ ' ||
+            /^[,;:]$/.test(leftward.ctrlSeq)
+          ) //lookbehind for operator
+        ) leftward = leftward[L];
+      }
       if (leftward instanceof SummationNotation && leftward[R] instanceof SupSub) {
         leftward = leftward[R];
         if (leftward[R] instanceof SupSub && leftward[R].ctrlSeq != leftward.ctrlSeq)

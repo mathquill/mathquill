@@ -831,7 +831,6 @@ suite('typing with auto-replaces', function() {
     });
   });
 
-
   suite('autoParenthesizedFunctions', function() {
     setup(function() {
       mq.config({
@@ -865,6 +864,20 @@ suite('typing with auto-replaces', function() {
       mq.keystroke('Left')
       mq.typedText('i')
       assertLatex('\\sin');
+    });
+  });
+
+  suite('typingSlashCreatesNewFraction', function() {
+    setup(function() {
+      mq.config({
+        typingSlashCreatesNewFraction: true
+      });
+    });
+
+    test('typing slash creates new fraction', function(){
+      //autoParenthesized and also operatored
+      mq.typedText('1/')
+      assertLatex('1\\frac{ }{ }');
     });
   });
 
