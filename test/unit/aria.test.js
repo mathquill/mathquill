@@ -108,6 +108,8 @@ suite('aria', function() {
     staticMath.setAriaLabel('Static Label');
     assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
     assert.equal('Static Label', staticMath.getAriaLabel());
+    staticMath.latex('2+2');
+    assert.equal('Static Label: 2 plus 2', staticMath.__controller.container.attr('aria-label'));
   });
 
 });
