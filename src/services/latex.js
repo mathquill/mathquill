@@ -285,7 +285,8 @@ Controller.open(function(_, super_) {
     else {
       jQ.empty();
     }
-    this.container.attr('aria-label', root.mathspeak().trim());
+    var prependedLabel = this.ariaLabel && this.ariaLabel !== 'MathQuill Input' ? this.ariaLabel + ': ' : '';
+    this.container.attr('aria-label', prependedLabel + root.mathspeak().trim());
 
     delete cursor.selection;
     cursor.insAtRightEnd(root);
