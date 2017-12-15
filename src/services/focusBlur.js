@@ -7,14 +7,15 @@ Controller.open(function(_) {
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
       ctrlr.container.addClass('mq-focused');
-      if (!cursor.parent)
-        cursor.insAtRightEnd(root);
+      if (!cursor.parent) cursor.insAtRightEnd(root);
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('mq-blur');
         ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
-      }
-      else
+      } else {
         cursor.show();
+      }
+      ctrlr.setOverflowClasses();
+
     }).blur(function() {
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
