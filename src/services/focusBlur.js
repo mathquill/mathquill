@@ -22,6 +22,7 @@ Controller.open(function(_) {
         cursor.clearSelection().endSelection();
         blur();
         updateAria();
+        ctrlr.scrollHoriz();
       });
       $(window).bind('blur', windowBlur);
     });
