@@ -5,17 +5,20 @@
 
 Controller.open(function(_) {
   _.setOverflowClasses = function () {
-    var $root = this.root.jQ;
-    if (this.cursor.jQ[0]) {
-      var width = $root.outerWidth();
-      var scrollWidth = $root[0].scrollWidth;
-      var scroll = $root.scrollLeft();
-      $root.toggleClass('mq-editing-overflow-right', (scrollWidth > width + scroll));
-      $root.toggleClass('mq-editing-overflow-left', (scroll > 0));
-    } else {
-      $root.removeClass('mq-editing-overflow-right');
-      $root.removeClass('mq-editing-overflow-left');
+    var root = this.root.jQ[0];
+    var shouldHaveOverflowRight = false;
+    var shouldHaveOverflowLeft = false;
+    if (!this.blurred) {
+      var width = root.getBoundingClientRect().width;
+      var scrollWidth = root.scrollWidth;
+      var scroll = root.scrollLeft;
+      shouldHaveOverflowRight = (scrollWidth > width + scroll);
+      shouldHaveOverflowLeft = (scroll > 0);
     }
+    if (root.classList.contains('mq-editing-overflow-right') !== shouldHaveOverflowRight)
+      root.classList.toggle('mq-editing-overflow-right')
+    if (root.classList.contains('mq-editing-overflow-left') !== shouldHaveOverflowLeft)
+      root.classList.toggle('mq-editing-overflow-left')
   }
   _.scrollHoriz = function() {
     var cursor = this.cursor, seln = cursor.selection;
@@ -51,6 +54,10 @@ Controller.open(function(_) {
         else return;
       }
     }
+
+    var root = this.root.jQ[0]
+    if (scrollBy < 0 && root.scrollLeft === 0) return
+    if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width) return
     this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy}, 100, function () {
       this.setOverflowClasses();
     }.bind(this));
