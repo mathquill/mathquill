@@ -170,12 +170,12 @@ function getInterface(v) {
           cmd = klass(cmd);
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());
           cmd.createLeftOf(cursor.show());
-          this.__controller.scrollHoriz();
         }
         else /* TODO: API needs better error reporting */;
       }
       else cursor.parent.write(cursor, cmd);
       if (ctrlr.blurred) cursor.hide().parent.blur();
+      ctrlr.scrollHoriz();
       return this;
     };
     _.select = function() {
