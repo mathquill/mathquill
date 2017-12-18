@@ -69,11 +69,10 @@ Controller.open(function(_) {
     var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'MathQuill Input' ? ctrlr.ariaLabel + ': ' : '';
     ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
   };
-  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
     var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
+    var keyboardEventsShim = saneKeyboardEvents(textarea, this);
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
@@ -90,6 +89,9 @@ Controller.open(function(_) {
       setTimeout(function() {
         ctrlr.notify('edit'); // deletes selection if present
         cursor.parent.bubble(function (node) { node.reflow(); });
+        if (ctrlr.options && ctrlr.options.onCut) {
+          ctrlr.options.onCut();
+        }
       });
     }
   };
@@ -112,5 +114,8 @@ Controller.open(function(_) {
     }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
     this.writeLatex(text).cursor.show();
+    if (this.options && this.options.onPaste) {
+      this.options.onPaste();
+    }
   };
 });
