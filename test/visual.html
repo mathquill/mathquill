@@ -283,6 +283,15 @@ x+\class{testclass}{y}+z
 
 <p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing">1+2+3</span></p>
 
+<p>
+  <ul>
+      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
+      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+
+  </ul
+  ><span id="select-all-right-arrow">3</span>
+</p>
+
 </div>
 <script type="text/javascript">
 window.onerror = function(err) {
@@ -465,13 +474,23 @@ MQ.MathField($('#disable-typing')[0], {
   }
 });
 
-MQ.MathField($('#wrap-typing')[0], {
+var SKEMQ1 = MQ.MathField($('#wrap-typing')[0], {
   substituteKeyboardEvents: function(textarea, handlers) {
     return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
       typedText: function (text) {
-        handlers.typedText('<');
-        handlers.typedText(text);
-        handlers.typedText('>');
+        SKEMQ1.typedText('<');
+        SKEMQ1.typedText(text);
+        SKEMQ1.typedText('>');
+      }
+    }));
+  }
+});
+
+var SKEMQ2 = MQ.MathField($('#select-all-right-arrow')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      keystroke: function (key) {
+        SKEMQ2.keystroke(key);
       }
     }));
   }
