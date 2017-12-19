@@ -17,6 +17,10 @@ Controller.open(function(_) {
       ctrlr.setOverflowClasses();
 
     }).blur(function() {
+      if (ctrlr.textareaSelectionTimeout) {
+        clearTimeout(ctrlr.textareaSelectionTimeout);
+        ctrlr.textareaSelectionTimeout = undefined;
+      }
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
