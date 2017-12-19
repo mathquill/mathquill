@@ -200,10 +200,10 @@ function getInterface(v) {
     _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
     _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
 
-    _.keystroke = function(keys) {
+    _.keystroke = function(keys, evt) {
       var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
-        this.__controller.keystroke(keys[i], { preventDefault: noop });
+        this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
       }
       return this;
     };
