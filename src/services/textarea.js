@@ -26,6 +26,8 @@ Controller.open(function(_) {
     // throttle calls to setTextareaSelection(), because setting textarea.value
     // and/or calling textarea.select() can have anomalously bad performance:
     // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
+    //
+    // Note, this timeout may be cleared by the blur handler in focusBlur.js
     if (ctrlr.textareaSelectionTimeout === undefined) {
       ctrlr.textareaSelectionTimeout = setTimeout(function() {
         ctrlr.setTextareaSelection();
