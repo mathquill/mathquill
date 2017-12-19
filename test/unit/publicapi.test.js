@@ -108,7 +108,7 @@ suite('Public API', function() {
       mq.latex('x+y');
       assert.equal(mq.html(), '<var aria-hidden="true">x</var><span aria-hidden="true" class="mq-binary-operator">+</span><var aria-hidden="true">y</var>');
     });
-    
+
     test('.text() with incomplete commands', function() {
       assert.equal(mq.text(), '');
       mq.typedText('\\');
@@ -340,7 +340,7 @@ suite('Public API', function() {
       });
     }
   });
-  
+
   suite('edit handler', function() {
     test('fires when closing a bracket expression', function() {
       var count = 0;
@@ -800,16 +800,12 @@ suite('Public API', function() {
     });
   });
 
-  suite('substituteKeyboardEvents', function() {
+  suite('overrideKeystroke', function() {
     test('can intercept key events', function() {
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
-        substituteKeyboardEvents: function(textarea, handlers) {
-          return MQ.saneKeyboardEvents(textarea, jQuery.extend({}, handlers, {
-            keystroke: function(_key, evt) {
-              key = _key;
-              return handlers.keystroke.apply(handlers, arguments);
-            }
-          }));
+        overrideKeystroke: function (_key, evt) {
+          key = _key;
+          return mq.keystroke.apply(mq, arguments);
         }
       });
       var key;
@@ -817,27 +813,30 @@ suite('Public API', function() {
       $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
       assert.equal(key, 'Left');
     });
-    test('cut is async', function() {
+    test('cut is async', function(done) {
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
-        substituteKeyboardEvents: function(textarea, handlers) {
-          return MQ.saneKeyboardEvents(textarea, jQuery.extend({}, handlers, {
-            cut: function() {
-              count += 1;
-              return handlers.cut.apply(handlers, arguments);
-            }
-          }));
+        onCut: function() {
+          count += 1;
         }
       });
       var count = 0;
+
+      mq.latex('a=2');
+      mq.select();
 
       $(mq.el()).find('textarea').trigger('cut');
       assert.equal(count, 0);
 
       $(mq.el()).find('textarea').trigger('input');
-      assert.equal(count, 1);
+      assert.equal(count, 0);
 
       $(mq.el()).find('textarea').trigger('keyup');
-      assert.equal(count, 1);
+      assert.equal(count, 0);
+
+      setTimeout(function () {
+        assert.equal(count, 1);
+        done();
+      }, 100)
     });
   });
 

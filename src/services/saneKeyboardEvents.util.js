@@ -88,12 +88,12 @@ var saneKeyboardEvents = (function() {
 
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function saneKeyboardEvents(el, handlers) {
+  return function saneKeyboardEvents(el, controller) {
     var keydown = null;
     var keypress = null;
 
     var textarea = jQuery(el);
-    var target = jQuery(handlers.container || textarea);
+    var target = jQuery(controller.container || textarea);
 
     // checkTextareaFor() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,
@@ -147,7 +147,11 @@ var saneKeyboardEvents = (function() {
     }
 
     function handleKey() {
-      handlers.keystroke(stringify(keydown), keydown);
+      if (controller.options && controller.options.overrideKeystroke) {
+        controller.options.overrideKeystroke(stringify(keydown), keydown);
+      } else {
+        controller.keystroke(stringify(keydown), keydown);
+      }
     }
 
     // -*- event handlers -*- //
@@ -166,6 +170,21 @@ var saneKeyboardEvents = (function() {
       handleKey();
     }
 
+    function isArrowKey (e) {
+      if (!e || !e.originalEvent) return false;
+
+      // The keyPress event in FF reports which=0 for some reason. The new
+      // .key property seems to report reasonable results, so we're using that
+      switch (e.originalEvent.key) {
+        case 'ArrowRight':
+        case 'ArrowLeft':
+        case 'ArrowDown':
+        case 'ArrowUp':
+          return true;
+      }
+
+      return false;
+    }
     function onKeypress(e) {
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -175,11 +194,26 @@ var saneKeyboardEvents = (function() {
 
       keypress = e;
 
-      checkTextareaFor(typedText);
+      // only check for typed text if this key can type text. Otherwise
+      // you can end up with mathquill thinking text was typed if you
+      // use the mq.keystroke('Right') command while a single character
+      // is selected. Only detected in FF.
+      if (!isArrowKey(e)) {
+        checkTextareaFor(typedText);
+      }
     }
     function onKeyup(e) {
       // Handle case of no keypress event being sent
-      if (!!keydown && !keypress) checkTextareaFor(typedText);
+      if (!!keydown && !keypress) {
+
+        // only check for typed text if this key can type text. Otherwise
+        // you can end up with mathquill thinking text was typed if you
+        // use the mq.keystroke('Right') command while a single character
+        // is selected. Only detected in FF.
+        if (!isArrowKey(e)) {
+          checkTextareaFor(typedText);
+        }
+      }
     }
     function typedText() {
       // If there is a selection, the contents of the textarea couldn't
@@ -204,7 +238,11 @@ var saneKeyboardEvents = (function() {
       var text = textarea.val();
       if (text.length === 1) {
         textarea.val('');
-        handlers.typedText(text);
+        if (controller.options && controller.options.overrideTypedText) {
+          controller.options.overrideTypedText(text);
+        } else {
+          controller.typedText(text);
+        }
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
       else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
@@ -232,7 +270,7 @@ var saneKeyboardEvents = (function() {
     function pastedText() {
       var text = textarea.val();
       textarea.val('');
-      if (text) handlers.paste(text);
+      if (text) controller.paste(text);
     }
 
     // -*- attach event handlers -*- //
@@ -241,8 +279,8 @@ var saneKeyboardEvents = (function() {
       keypress: onKeypress,
       keyup: onKeyup,
       focusout: onBlur,
-      cut: function() { checkTextareaOnce(function() { handlers.cut(); }); },
-      copy: function() { checkTextareaOnce(function() { handlers.copy(); }); },
+      cut: function() { checkTextareaOnce(function() { controller.cut(); }); },
+      copy: function() { checkTextareaOnce(function() { controller.copy(); }); },
       paste: onPaste
     });
 
