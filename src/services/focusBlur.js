@@ -36,6 +36,12 @@ Controller.open(function(_) {
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
       ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
+
+      if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {
+        cursor.clearSelection();
+        cursor[R] = 0;
+        cursor[L] = ctrlr.root.ends[R];
+      }
     }
     function updateAria() {
       var mqAria = (ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel).trim();
