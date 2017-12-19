@@ -170,6 +170,21 @@ var saneKeyboardEvents = (function() {
       handleKey();
     }
 
+    function isArrowKey (e) {
+      if (!e || !e.originalEvent) return false;
+
+      // The keyPress event in FF reports which=0 for some reason. The new
+      // .key property seems to report reasonable results, so we're using that
+      switch (e.originalEvent.key) {
+        case 'ArrowRight':
+        case 'ArrowLeft':
+        case 'ArrowDown':
+        case 'ArrowUp':
+          return true;
+      }
+
+      return false;
+    }
     function onKeypress(e) {
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -179,11 +194,26 @@ var saneKeyboardEvents = (function() {
 
       keypress = e;
 
-      checkTextareaFor(typedText);
+      // only check for typed text if this key can type text. Otherwise
+      // you can end up with mathquill thinking text was typed if you
+      // use the mq.keystroke('Right') command while a single character
+      // is selected. Only detected in FF.
+      if (!isArrowKey(e)) {
+        checkTextareaFor(typedText);
+      }
     }
     function onKeyup(e) {
       // Handle case of no keypress event being sent
-      if (!!keydown && !keypress) checkTextareaFor(typedText);
+      if (!!keydown && !keypress) {
+
+        // only check for typed text if this key can type text. Otherwise
+        // you can end up with mathquill thinking text was typed if you
+        // use the mq.keystroke('Right') command while a single character
+        // is selected. Only detected in FF.
+        if (!isArrowKey(e)) {
+          checkTextareaFor(typedText);
+        }
+      }
     }
     function typedText() {
       // If there is a selection, the contents of the textarea couldn't
