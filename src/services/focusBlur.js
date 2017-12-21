@@ -42,9 +42,7 @@ Controller.open(function(_) {
       $(window).unbind('blur', windowBlur);
 
       if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {
-        cursor.clearSelection();
-        cursor[R] = 0;
-        cursor[L] = ctrlr.root.ends[R];
+        cursor.resetToEnd(ctrlr);
       }
     }
     function updateAria() {

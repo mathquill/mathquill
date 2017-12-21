@@ -253,12 +253,7 @@ Controller.open(function(_, super_) {
       return false;
     }
 
-    // set cursor to end
-    if (this.cursor.selection) {
-      this.cursor.clearSelection();
-    }
-    this.cursor[R] = 0;
-    this.cursor[L] = root.ends[R];
+    this.cursor.resetToEnd(this);
     return true;
   };
   _.renderLatexMathFromScratch = function (latex) {

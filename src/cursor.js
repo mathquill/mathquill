@@ -233,7 +233,13 @@ var Cursor = P(Point, function(_) {
     this.selectionChanged();
     return true;
   };
-
+  _.resetToEnd = function (controller) {
+    this.clearSelection();
+    var root = controller.root;
+    this[R] = 0;
+    this[L] = root.ends[R];
+    this.parent = root;
+  };
   _.clearSelection = function() {
     if (this.selection) {
       this.selection.clear();
