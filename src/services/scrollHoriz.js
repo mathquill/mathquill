@@ -23,7 +23,7 @@ Controller.open(function(_) {
   _.scrollHoriz = function() {
     var cursor = this.cursor, seln = cursor.selection;
     var rootRect = this.root.jQ[0].getBoundingClientRect();
-    if (!cursor.jQ[0]) {
+    if (!cursor.jQ[0] && !seln) {
       this.root.jQ.stop().animate({scrollLeft: 0}, 100, function () {
         this.setOverflowClasses();
       }.bind(this));
