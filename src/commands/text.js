@@ -64,7 +64,7 @@ var TextBlock = P(Node, function(_, super_) {
   _.latex = function() {
     var contents = this.textContents();
     if (contents.length === 0) return '';
-    return '\\text{' + contents + '}';
+    return this.ctrlSeq + '{' + contents + '}';
   };
   _.html = function() {
     return (
