@@ -10,6 +10,13 @@ suite('typing with auto-replaces', function() {
     assert.equal(mq.latex(), latex);
   }
 
+  function assertMathspeak(mathspeak) {
+    assert.equal(normalize(mq.mathspeak()), normalize(mathspeak));
+    function normalize(str) {
+      return str.replace(/\d(?!\d)/g, '$& ').split(/[ ,]+/).join(' ').trim();
+    }
+  }
+
   suite('LiveFraction', function() {
     test('full MathQuill', function() {
       mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
@@ -1023,55 +1030,62 @@ suite('typing with auto-replaces', function() {
     // but also that when you backspace you get the right state such that
     // you can either type = again to get the non-strict inequality again,
     // or backspace again and it'll delete correctly.
-    function assertFullyFunctioningInequality(nonStrict, strict) {
+    function assertFullyFunctioningInequality(nonStrict, strict, nonStrictMathspeak, strictMathspeak) {
       assertLatex(nonStrict);
+      assertMathspeak(nonStrictMathspeak);
       mq.keystroke('Backspace');
       assertLatex(strict);
+      assertMathspeak(strictMathspeak);
       mq.typedText('=');
       assertLatex(nonStrict);
+      assertMathspeak(nonStrictMathspeak);
       mq.keystroke('Backspace');
       assertLatex(strict);
+      assertMathspeak(strictMathspeak);
       mq.keystroke('Backspace');
       assertLatex('');
+      assertMathspeak('');
     }
     test('typing and backspacing <= and >=', function() {
       mq.typedText('<');
       assertLatex('<');
+      assertMathspeak('less than');
       mq.typedText('=');
-      assertFullyFunctioningInequality('\\le', '<');
+      assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
       mq.typedText('>');
       assertLatex('>');
       mq.typedText('=');
-      assertFullyFunctioningInequality('\\ge', '>');
+      assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
 
       mq.typedText('<<>>==>><<==');
       assertLatex('<<>\\ge=>><\\le=');
+      assertMathspeak('less than less than greater than greater than or equal to equals greater than greater than less than less than or equal to equals');
     });
 
     test('typing ≤ and ≥ chars directly', function() {
       mq.typedText('≤');
-      assertFullyFunctioningInequality('\\le', '<');
+      assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
       mq.typedText('≥');
-      assertFullyFunctioningInequality('\\ge', '>');
+      assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
     });
 
     suite('rendered from LaTeX', function() {
       test('control sequences', function() {
         mq.latex('\\le');
-        assertFullyFunctioningInequality('\\le', '<');
+        assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
         mq.latex('\\ge');
-        assertFullyFunctioningInequality('\\ge', '>');
+        assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
       });
 
       test('≤ and ≥ chars', function() {
         mq.latex('≤');
-        assertFullyFunctioningInequality('\\le', '<');
+        assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
         mq.latex('≥');
-        assertFullyFunctioningInequality('\\ge', '>');
+        assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
       });
     });
   });
