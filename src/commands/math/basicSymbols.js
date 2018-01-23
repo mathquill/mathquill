@@ -618,7 +618,7 @@ var Inequality = P(BinaryOperator, function(_, super_) {
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
     super_.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
-                     data['text'+strictness]);
+                     data['text'+strictness], data['mathspeak'+strictness]);
   };
   _.swap = function(strict) {
     this.strict = strict;
@@ -626,6 +626,7 @@ var Inequality = P(BinaryOperator, function(_, super_) {
     this.ctrlSeq = this.data['ctrlSeq'+strictness];
     this.jQ.html(this.data['html'+strictness]);
     this.textTemplate = [ this.data['text'+strictness] ];
+    this.mathspeakName = this.data['mathspeak'+strictness];
   };
   _.deleteTowards = function(dir, cursor) {
     if (dir === L && !this.strict) {
@@ -637,10 +638,10 @@ var Inequality = P(BinaryOperator, function(_, super_) {
   };
 });
 
-var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
-             ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
-var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
-                ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
+var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than or equal to',
+             ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<', mathspeakStrict: 'less than'};
+var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater than or equal to',
+                ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>', mathspeakStrict: 'greater than'};
 
 LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
 LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
