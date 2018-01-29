@@ -73,13 +73,21 @@ var TextBlock = P(Node, function(_, super_) {
       + '</span>'
     );
   };
-  _.mathspeak = function() { return { speech: this.text() }; };
+  _.mathspeakTemplate = ['StartText', 'EndText'];
+  _.mathspeak = function() { return this.mathspeakTemplate[0]+', '+this.text() +', '+this.mathspeakTemplate[1] };
+  _.ariaLabel = 'text';
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this); };
-  _.moveOutOf = function(dir, cursor) { cursor.insDirOf(dir, this); };
+  _.moveTowards = function(dir, cursor) {
+    cursor.insAtDirEnd(-dir, this);
+    aria.queueDirEndOf(-dir).queue(cursor.parent, true);
+  };
+  _.moveOutOf = function(dir, cursor) {
+    cursor.insDirOf(dir, this);
+    aria.queueDirOf(dir).queue(this);
+  };
   _.unselectInto = _.moveTowards;
 
   // TODO: make these methods part of a shared mixin or something.
@@ -244,7 +252,7 @@ var TextPiece = P(Node, function(_, super_) {
     var from = this[-dir];
     if (from) from.insTextAtDirEnd(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
-
+    aria.queue(ch);
     return this.deleteTowards(dir, cursor);
   };
 
@@ -253,16 +261,20 @@ var TextPiece = P(Node, function(_, super_) {
 
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
+      var deletedChar = '';
       if (dir === R) {
         this.dom.deleteData(0, 1);
+        deletedChar = this.text[0];
         this.text = this.text.slice(1);
       }
       else {
         // note that the order of these 2 lines is annoyingly important
         // (the second line mutates this.text.length)
         this.dom.deleteData(-1 + this.text.length, 1);
+        deletedChar = this.text[this.text.length - 1];
         this.text = this.text.slice(0, -1);
       }
+      aria.queue(deletedChar);
     }
     else {
       this.remove();
