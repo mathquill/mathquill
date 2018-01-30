@@ -266,7 +266,7 @@ Controller.open(function(_) {
     if(cursorEl && cursorEl instanceof Node) {
       if(cursorEl.sides) {
         aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
-      } else if (!cursorEl.blocks) {
+      } else if (!cursorEl.blocks && (!cursorEl.text || cursorEl.text.length === 1)) {
         aria.queue(cursorEl);
       }
     } else if(cursorElParent && cursorElParent instanceof Node) {
