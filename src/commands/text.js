@@ -321,7 +321,7 @@ function makeTextBlock(latex, ariaLabel, tagName, attrs) {
   return P(TextBlock, {
     ctrlSeq: latex,
     ariaLabel: ariaLabel,
-      mathspeakTemplate: ['Start'+ariaLabel, 'End'+ariaLabel],
+    mathspeakTemplate: ['Start'+ariaLabel, 'End'+ariaLabel],
     htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
   });
 }
