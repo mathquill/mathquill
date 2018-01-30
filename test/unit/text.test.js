@@ -96,4 +96,10 @@ suite('text', function() {
     mq.typedText('$');
     assert.equal(mq.latex(), '\\text{as}\\text{df}');
   });
+
+
+  test('HTML for subclassed text blocks', function() {
+    var block = fromLatex('\\text{abc}\\textit{def}');
+    assert.equal(block.html(), '<span class="mq-text-mode" mathquill-command-id=3510>abc</span><i class="mq-text-mode" mathquill-command-id=3513>def</i>');
+  });
 });
