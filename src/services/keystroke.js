@@ -266,7 +266,12 @@ Controller.open(function(_) {
     if(cursorEl && cursorEl instanceof Node) {
       if(cursorEl.sides) {
         aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
-      } else if (!cursorEl.blocks && (!cursorEl.text || cursorEl.text.length === 1)) {
+      } else if (!cursorEl.blocks &&
+        // If deleting in within a text command, don't speak here if text length > 1
+        // as the related deleteTowards method for that block is responsible
+        // for generating speech for individual text fragments.
+        (cursorEl.parent.ctrlSeq !== '\\text' || cursorEl.text.length === 1)
+      ) {
         aria.queue(cursorEl);
       }
     } else if(cursorElParent && cursorElParent instanceof Node) {
