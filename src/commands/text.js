@@ -252,7 +252,6 @@ var TextPiece = P(Node, function(_, super_) {
     var from = this[-dir];
     if (from) from.insTextAtDirEnd(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
-    aria.queue(ch);
     return this.deleteTowards(dir, cursor);
   };
 
@@ -261,7 +260,7 @@ var TextPiece = P(Node, function(_, super_) {
 
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
-      var deletedChar = '';
+      var deletedChar;
       if (dir === R) {
         this.dom.deleteData(0, 1);
         deletedChar = this.text[0];
@@ -280,6 +279,7 @@ var TextPiece = P(Node, function(_, super_) {
       this.remove();
       this.jQ.remove();
       cursor[dir] = this[dir];
+      aria.queue(this.text);
     }
   };
 
