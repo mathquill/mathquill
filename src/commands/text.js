@@ -322,7 +322,10 @@ function makeTextBlock(latex, ariaLabel, tagName, attrs) {
     ctrlSeq: latex,
     ariaLabel: ariaLabel,
     mathspeakTemplate: ['Start'+ariaLabel, 'End'+ariaLabel],
-    htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
+    html: function() {
+      var cmdId = 'mathquill-command-id=' + this.id;
+      return '<'+tagName+' '+attrs+' '+cmdId+'>'+this.textContents()+'</'+tagName+'>';
+      }
   });
 }
 
