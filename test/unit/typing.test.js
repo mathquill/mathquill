@@ -926,6 +926,7 @@ suite('typing with auto-replaces', function() {
       mq.typedText('nthroot');
       mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
       assertLatex('\\sqrt[n]{100}');
+      assertMathspeak('Start "n" Root 100 End Root');
       mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('pi');

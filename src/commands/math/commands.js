@@ -581,6 +581,11 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.latex = function() {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
+  _.mathspeak = function() {
+    this.ends[L].ariaLabel = 'Index';
+    this.ends[R].ariaLabel = 'Radicand';
+    return 'Start '+this.ends[L].mathspeak()+' Root, '+this.ends[R].mathspeak()+', End Root';
+  };
 });
 
 var DiacriticAbove = P(MathCommand, function(_, super_) {
