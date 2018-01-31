@@ -266,7 +266,10 @@ Controller.open(function(_) {
     if(cursorEl && cursorEl instanceof Node) {
       if(cursorEl.sides) {
         aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
-      } else if (!cursorEl.blocks) {
+      // generally, speak the current element if it has no blocks,
+      // but don't for text block commands as the deleteTowards method
+      // in the TextCommand class is responsible for speaking the new character under the cursor.
+      } else if (!cursorEl.blocks && cursorEl.parent.ctrlSeq !== '\\text') {
         aria.queue(cursorEl);
       }
     } else if(cursorElParent && cursorElParent instanceof Node) {

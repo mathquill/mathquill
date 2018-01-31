@@ -10,6 +10,7 @@
  */
 var TextBlock = P(Node, function(_, super_) {
   _.ctrlSeq = '\\text';
+  _.ariaLabel = 'Text';
 
   _.replaces = function(replacedText) {
     if (replacedText instanceof Fragment)
@@ -73,13 +74,20 @@ var TextBlock = P(Node, function(_, super_) {
       + '</span>'
     );
   };
-  _.mathspeak = function() { return { speech: this.text() }; };
+  _.mathspeakTemplate = ['Start'+_.ariaLabel, 'End'+_.ariaLabel];
+  _.mathspeak = function() { return this.mathspeakTemplate[0]+', '+this.text() +', '+this.mathspeakTemplate[1] };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) { cursor.insAtDirEnd(-dir, this); };
-  _.moveOutOf = function(dir, cursor) { cursor.insDirOf(dir, this); };
+  _.moveTowards = function(dir, cursor) {
+    cursor.insAtDirEnd(-dir, this);
+    aria.queueDirEndOf(-dir).queue(cursor.parent, true);
+  };
+  _.moveOutOf = function(dir, cursor) {
+    cursor.insDirOf(dir, this);
+    aria.queueDirOf(dir).queue(this);
+  };
   _.unselectInto = _.moveTowards;
 
   // TODO: make these methods part of a shared mixin or something.
@@ -244,7 +252,6 @@ var TextPiece = P(Node, function(_, super_) {
     var from = this[-dir];
     if (from) from.insTextAtDirEnd(ch, dir);
     else TextPiece(ch).createDir(-dir, cursor);
-
     return this.deleteTowards(dir, cursor);
   };
 
@@ -253,21 +260,26 @@ var TextPiece = P(Node, function(_, super_) {
 
   _.deleteTowards = function(dir, cursor) {
     if (this.text.length > 1) {
+      var deletedChar;
       if (dir === R) {
         this.dom.deleteData(0, 1);
+        deletedChar = this.text[0];
         this.text = this.text.slice(1);
       }
       else {
         // note that the order of these 2 lines is annoyingly important
         // (the second line mutates this.text.length)
         this.dom.deleteData(-1 + this.text.length, 1);
+        deletedChar = this.text[this.text.length - 1];
         this.text = this.text.slice(0, -1);
       }
+      aria.queue(deletedChar);
     }
     else {
       this.remove();
       this.jQ.remove();
       cursor[dir] = this[dir];
+      aria.queue(this.text);
     }
   };
 
@@ -305,28 +317,33 @@ LatexCmds.textrm =
 LatexCmds.textup =
 LatexCmds.textmd = TextBlock;
 
-function makeTextBlock(latex, tagName, attrs) {
+function makeTextBlock(latex, ariaLabel, tagName, attrs) {
   return P(TextBlock, {
     ctrlSeq: latex,
-    htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
+    ariaLabel: ariaLabel,
+    mathspeakTemplate: ['Start'+ariaLabel, 'End'+ariaLabel],
+    html: function() {
+      var cmdId = 'mathquill-command-id=' + this.id;
+      return '<'+tagName+' '+attrs+' '+cmdId+'>'+this.textContents()+'</'+tagName+'>';
+      }
   });
 }
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
 LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="mq-text-mode"');
+  makeTextBlock('\\textit', 'Italic', 'i', 'class="mq-text-mode"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
-  makeTextBlock('\\textbf', 'b', 'class="mq-text-mode"');
+  makeTextBlock('\\textbf', 'Bold', 'b', 'class="mq-text-mode"');
 LatexCmds.sf = LatexCmds.textsf =
-  makeTextBlock('\\textsf', 'span', 'class="mq-sans-serif mq-text-mode"');
+  makeTextBlock('\\textsf', 'Sans serif font', 'span', 'class="mq-sans-serif mq-text-mode"');
 LatexCmds.tt = LatexCmds.texttt =
-  makeTextBlock('\\texttt', 'span', 'class="mq-monospace mq-text-mode"');
+  makeTextBlock('\\texttt', 'Mono space font', 'span', 'class="mq-monospace mq-text-mode"');
 LatexCmds.textsc =
-  makeTextBlock('\\textsc', 'span', 'style="font-variant:small-caps" class="mq-text-mode"');
+  makeTextBlock('\\textsc', 'Variable font', 'span', 'style="font-variant:small-caps" class="mq-text-mode"');
 LatexCmds.uppercase =
-  makeTextBlock('\\uppercase', 'span', 'style="text-transform:uppercase" class="mq-text-mode"');
+  makeTextBlock('\\uppercase', 'Uppercase', 'span', 'style="text-transform:uppercase" class="mq-text-mode"');
 LatexCmds.lowercase =
-  makeTextBlock('\\lowercase', 'span', 'style="text-transform:lowercase" class="mq-text-mode"');
+  makeTextBlock('\\lowercase', 'Lowercase', 'span', 'style="text-transform:lowercase" class="mq-text-mode"');
 
 
 var RootMathCommand = P(MathCommand, function(_, super_) {
