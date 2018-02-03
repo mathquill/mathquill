@@ -304,7 +304,7 @@
     display: block;
     text-align: center;
   }
-  
+
   .mq-hat-prefix {
     display: block;
     text-align: center;
@@ -347,17 +347,26 @@
     border-top: 1px solid black;
     margin-top: 1px;
     padding-top: 0.2em;
+    position: relative;
 
-    &:before {
-      display: block;
-      position: relative;
-      top: -0.34em;
+    &:after {
+      position: absolute;
+      right: -0.1em;
+      top: -0.48em;
       font-size: 0.5em;
-      line-height: 0em;
       content: '\27A4';
-      text-align: right;
     }
-    &.mq-arrow-left:before {
+    //really wish I could use :not here, but less doesn't seem to be happy with that
+    &.mq-arrow-left:after {
+      content: '';
+      display: none;
+    }
+    &.mq-arrow-left:before, &.mq-arrow-leftright:before {
+      position: absolute;
+      top: -0.48em;
+      left: -0.1em;
+      font-size: 0.5em;
+      content: '\27A4';
       -moz-transform: scaleX(-1);
       -o-transform: scaleX(-1);
       -webkit-transform: scaleX(-1);
