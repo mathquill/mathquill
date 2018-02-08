@@ -1140,7 +1140,7 @@ Environments.matrix = P(Environment, function(_, super_) {
   _.addRow = function(afterCell) {
     var previous = [], newCells = [], next = [];
     var newRow = $('<tr></tr>'), row = afterCell.row;
-    var columns = 0, block, column;
+    var columns = 0, block;
 
     this.eachChild(function (cell) {
       // Cache previous rows
@@ -1149,7 +1149,6 @@ Environments.matrix = P(Environment, function(_, super_) {
       }
       // Work out how many columns
       if (cell.row === row) {
-        if (cell === afterCell) column = columns;
         columns+=1;
       }
       // Cache cells after new row
@@ -1174,7 +1173,7 @@ Environments.matrix = P(Environment, function(_, super_) {
     // Insert the new row
     this.jQ.find('tr').eq(row).after(newRow);
     this.blocks = previous.concat(newCells, next);
-    return newCells[column];
+    return newCells[0];
   };
   _.addColumn = function(afterCell) {
     var rows = [], newCells = [];
@@ -1300,12 +1299,43 @@ var MatrixCell = P(MathBlock, function(_, super_) {
   };
   _.keystroke = function(key, e, ctrlr) {
     switch (key) {
-    case 'Shift-Spacebar':
-      e.preventDefault();
-      return this.parent.insert('addColumn', this);
+    case 'Tab':
+      // Work out how many columns
+      var currentCell = this;
+      var columns = 0;
+      var currentColumn;
+      this.parent.eachChild(function(cell) {
+        if (cell.row === currentCell.row) {
+          if (cell === currentCell) currentColumn = columns;
+          columns += 1;
+        }
+      });
+      // Only add new column if this is the rightmost column
+      if (currentColumn === columns - 1) {
+        e.preventDefault();
+        return this.parent.insert('addColumn', this);
+      }
       break;
-    case 'Shift-Enter':
+    case 'Enter':
+      // Add a row below the current one, unless the next row is already empty
+      var nextRow = this.row + 1;
+      var nextRowIsEmpty = true;
+      var nextRowFirstCell;
+      this.parent.eachChild(function(cell) {
+        if (cell.row === nextRow) {
+          if (!nextRowFirstCell) {
+            nextRowFirstCell = cell;
+          }
+          if (!cell.isEmpty()) {
+            nextRowIsEmpty = false;
+          }
+        }
+      });
       e.preventDefault();
+      if (nextRowFirstCell && nextRowIsEmpty) {
+        ctrlr.cursor.insAtDirEnd(L, nextRowFirstCell);
+        break;
+      }
       return this.parent.insert('addRow', this);
       break;
     }
