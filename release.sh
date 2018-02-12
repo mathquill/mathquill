@@ -15,10 +15,13 @@ if [ $? -eq 0 ] || [ $(git tag -l "$VERSION") ]; then
 fi
 
 set -e
+git checkout gh-pages
+git reset --hard master
 make
 git add -f build
 git commit -m "Add distributable files for version $VERSION"
 git tag "$VERSION"
+git push --force-with-lease
 git push --tags
-git reset --hard HEAD~1
+git checkout -
 echo "Created and pushed the version tag '$VERSION'."
