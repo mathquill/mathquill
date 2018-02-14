@@ -53,9 +53,13 @@ Controller.open(function(_) {
 
     this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
-    textarea.bind('cut paste', false)
-    .bind('copy', function() { ctrlr.setTextareaSelection(); })
-    .focus(function() { ctrlr.blurred = false; }).blur(function() {
+    textarea.bind('cut paste', false);
+    if (ctrlr.options.disableCopyPaste) {
+      textarea.bind('copy', false);
+    } else {
+      textarea.bind('copy', function() { ctrlr.setTextareaSelection(); })
+    }
+    textarea.focus(function() { ctrlr.blurred = false; }).blur(function() {
       if (cursor.selection) cursor.selection.clear();
       setTimeout(detach); //detaching during blur explodes in WebKit
     });

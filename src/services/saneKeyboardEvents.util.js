@@ -274,15 +274,28 @@ var saneKeyboardEvents = (function() {
     }
 
     // -*- attach event handlers -*- //
-    target.bind({
-      keydown: onKeydown,
-      keypress: onKeypress,
-      keyup: onKeyup,
-      focusout: onBlur,
-      cut: function() { checkTextareaOnce(function() { controller.cut(); }); },
-      copy: function() { checkTextareaOnce(function() { controller.copy(); }); },
-      paste: onPaste
-    });
+
+    if (controller.options.disableCopyPaste) {
+      target.bind({
+        keydown: onKeydown,
+        keypress: onKeypress,
+        keyup: onKeyup,
+        focusout: onBlur,
+        copy: function(e) { e.preventDefault(); },
+        cut: function(e) { e.preventDefault(); },
+        paste: function(e) { e.preventDefault(); }
+      });  
+    } else {
+      target.bind({
+        keydown: onKeydown,
+        keypress: onKeypress,
+        keyup: onKeyup,
+        focusout: onBlur,
+        cut: function() { checkTextareaOnce(function() { controller.cut(); }); },
+        copy: function() { checkTextareaOnce(function() { controller.copy(); }); },
+        paste: onPaste
+      });  
+    }
 
     // -*- export public methods -*- //
     return {
