@@ -120,6 +120,7 @@ Controller.open(function(_) {
     }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
     this.writeLatex(text).cursor.show();
+    this.scrollHoriz();
     if (this.options && this.options.onPaste) {
       this.options.onPaste();
     }
