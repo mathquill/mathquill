@@ -981,14 +981,14 @@ Environments.matrix = P(Environment, function(_, super_) {
     this.eachChild(function (cell) {
       if (typeof row !== 'undefined') {
         latex += (row !== cell.row) ?
-          delimiters.row :
+          (delimiters.row + '\n') :
           delimiters.column;
       }
       row = cell.row;
       latex += cell.latex();
     });
 
-    return this.wrappers().join(latex);
+    return this.wrappers().join('\n' + latex + '\n');
   };
   _.html = function() {
     var cells = [], trs = '', i=0, row;
