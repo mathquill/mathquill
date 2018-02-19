@@ -336,7 +336,7 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-  
+
 LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;');
 
@@ -361,3 +361,4 @@ LatexCmds.deg = LatexCmds.degree = bind(VanillaSymbol,'\\degree ','&deg;');
 
 LatexCmds.ang = LatexCmds.angle = bind(VanillaSymbol,'\\angle ','&ang;');
 LatexCmds.measuredangle = bind(VanillaSymbol,'\\measuredangle ','&#8737;');
+LatexCmds.sphericalangle = bind(VanillaSymbol,'\\sphericalangle ','&#8738;');
