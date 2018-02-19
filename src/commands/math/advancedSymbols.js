@@ -27,6 +27,8 @@ LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;');
 
 LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;');
 
+LatexCmds['≢'] = LatexCmds.notequiv = LatexCmds.nequiv = bind(BinaryOperator,'\\not\\equiv ','&#8802;');
+
 LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;');
 
 LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;');
@@ -244,6 +246,7 @@ LatexCmds.not = P(VanillaSymbol, function(_, super_) {
   // If one of these appears immediately after not, the
   // parser returns a different symbol.
   _.suffixes = {
+    '\\equiv':    'notequiv',
     '\\ni':       'notni',
     '\\subset':   'notsubset',
     '\\subseteq': 'notsubseteq',
