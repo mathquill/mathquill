@@ -522,7 +522,8 @@ LatexCmds.integralsubstitution = P(SummationNotation, function(_, super_) {
       self.blocks[i].adopt(self, self.ends[R], 0);
     }
 
-    return string('/_{\\!\\!\\!\\!\\!')
+    return string('/_{')
+      .then(string('\\!').many())
       .then(latexMathParser)
       .then(function(block) {
         block.children().adopt(self.blocks[0], self.blocks[0].ends[R], 0);
