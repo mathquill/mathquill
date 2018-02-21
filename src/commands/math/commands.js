@@ -1044,20 +1044,28 @@ Environments.matrix = P(Environment, function(_, super_) {
     }
   };
   _.latex = function() {
+    var hline = this.hline;
     var latex = '';
     var row;
 
     this.eachChild(function (cell) {
       if (typeof row !== 'undefined') {
-        latex += (row !== cell.row) ?
-          (delimiters.row + '\n') :
-          delimiters.column;
+        if (row !== cell.row) {
+          latex += delimiters.row + '\n';
+          if (hline) {
+            latex += '\\hline\n';
+            hline = false;
+          }
+        } else {
+          latex += delimiters.column;
+        }
       }
       row = cell.row;
       latex += cell.latex();
     });
 
-    return this.wrappers().join('\n' + latex + '\n');
+    var options = this.options ? '{' + this.options + '}' : '';
+    return this.wrappers().join(options + '\n' + latex + '\n');
   };
   _.html = function() {
     var cells = [], trs = '', i=0, row;
@@ -1080,7 +1088,7 @@ Environments.matrix = P(Environment, function(_, super_) {
     });
 
     this.htmlTemplate =
-        '<span class="mq-matrix mq-non-leaf">'
+        '<span class="mq-matrix mq-matrix-' + this.environment + ' mq-non-leaf">'
       +   parenHtml(this.parentheses.left)
       +   '<table class="mq-non-leaf">'
       +     trs.replace(/\$tds/g, function () {
@@ -1106,10 +1114,17 @@ Environments.matrix = P(Environment, function(_, super_) {
     var self = this;
     var optWhitespace = Parser.optWhitespace;
     var string = Parser.string;
+    var regex = Parser.regex;
 
-    return optWhitespace
+    return regex(/^({[^}]*})?/)
+    .then(function(options) {
+      if (!self.options) self.options = options.slice(1, -1);
+      return Parser.succeed(self);
+    })
+    .skip(optWhitespace)
     .then(string(delimiters.column)
       .or(string(delimiters.row))
+      .or(optWhitespace.then(string('\\hline')).skip(optWhitespace))
       .or(latexMathParser.block))
     .many()
     .skip(optWhitespace)
@@ -1126,6 +1141,8 @@ Environments.matrix = P(Environment, function(_, super_) {
       for (var i=0; i<items.length; i+=1) {
         if (items[i] instanceof MathBlock) {
           blocks.push(items[i]);
+        } else if (items[i] === '\\hline') {
+          self.hline = true;
         } else {
           addCell();
           if (items[i] === delimiters.row) row+=1;
@@ -1404,6 +1421,16 @@ Environments.cases = P(Matrix, function(_, super_) {
     left: '{',
     right: null
   };
+});
+
+Environments.array = P(Matrix, function(_, super_) {
+  _.environment = 'array';
+  _.parentheses = {
+    left: null,
+    right: null
+  };
+  _.hline = true;
+  _.options = 'l|l';
 });
 
 // Replacement for mathblocks inside matrix cells
