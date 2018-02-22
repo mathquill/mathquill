@@ -147,9 +147,24 @@ LatexCmds.mathbb = P(MathCommand, function(_, super_) {
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"');
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
-LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
-LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
-LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-both"');
+
+var OverUnderArrow = P(MathCommand, function(_, super_) {
+  _.init = function(ctrlSeq, attrs) {
+    super_.init.call(
+      this,
+      ctrlSeq,
+      '<span '+attrs+'><span class="mq-arrow-inner">&0</span></span>'
+    );
+  };
+});
+
+LatexCmds.overrightarrow = bind(OverUnderArrow, '\\overrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
+LatexCmds.overleftarrow = bind(OverUnderArrow, '\\overleftarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(OverUnderArrow, '\\overleftrightarrow', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"');
+LatexCmds.underrightarrow = bind(OverUnderArrow, '\\underrightarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-right"');
+LatexCmds.underleftarrow = bind(OverUnderArrow, '\\underleftarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-left"');
+LatexCmds.underleftrightarrow = bind(OverUnderArrow, '\\underleftrightarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-leftright"');
+
 LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
 LatexCmds.dot = P(MathCommand, function(_, super_) {
     _.init = function() {
