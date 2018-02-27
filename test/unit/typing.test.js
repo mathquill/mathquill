@@ -34,6 +34,15 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('EquivalentMinus', function() {
+    test('different minus symbols', function() {
+      //these 4 are all different characters (!!)
+      mq.typedText('−—–-');
+      //these 4 are all the same character
+      assertLatex('----');
+    });
+  });
+
   suite('LatexCommandInput', function() {
     test('basic', function() {
       mq.typedText('\\sqrt-x');
