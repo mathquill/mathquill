@@ -135,33 +135,49 @@ Node.open(function(_) {
 
     // These remaining hotkeys are only of benefit to people running screen readers.
     case 'Ctrl-Alt-Up': // speak parent block that has focus
-      if(cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
+      if (cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
       else aria.queue('nothing above');
       break;
 
     case 'Ctrl-Alt-Down': // speak current block that has focus
-      if(cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
+      if (cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
       else aria.queue('block is empty');
       break;
 
     case 'Ctrl-Alt-Left': // speak left-adjacent block
-      if(cursor.parent.parent.ends[L] && cursor.parent.parent.ends[L] instanceof Node) aria.queue(cursor.parent.parent.ends[L]);
-      else aria.queue('nothing to the left');
+      if (
+        cursor.parent.parent &&
+        cursor.parent.parent.ends &&
+        cursor.parent.parent.ends[L] &&
+        cursor.parent.parent.ends[L] instanceof Node
+      ) {
+        aria.queue(cursor.parent.parent.ends[L]);
+      } else {
+        aria.queue('nothing to the left');
+      }
       break;
 
     case 'Ctrl-Alt-Right': // speak right-adjacent block
-      if(cursor.parent.parent.ends[R] && cursor.parent.parent.ends[R] instanceof Node) aria.queue(cursor.parent.parent.ends[R]);
-      else aria.queue('nothing to the right');
+      if (
+        cursor.parent.parent &&
+        cursor.parent.parent.ends &&
+        cursor.parent.parent.ends[R] &&
+        cursor.parent.parent.ends[R] instanceof Node
+      ) {
+        aria.queue(cursor.parent.parent.ends[R]);
+      } else {
+        aria.queue('nothing to the right');
+      }
       break;
 
     case 'Ctrl-Alt-Shift-Down': // speak selection
-      if(cursor.selection) aria.queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected');
+      if (cursor.selection) aria.queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected');
       else aria.queue('nothing selected');
       break;
 
     case 'Ctrl-Alt-=':
     case 'Ctrl-Alt-Shift-Right': // speak ARIA post label (evaluation or error)
-      if(ctrlr.ariaPostLabel.length) aria.queue(ctrlr.ariaPostLabel);
+      if (ctrlr.ariaPostLabel.length) aria.queue(ctrlr.ariaPostLabel);
       else aria.queue('no answer');
       break;
 
