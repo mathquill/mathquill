@@ -275,7 +275,7 @@ var saneKeyboardEvents = (function() {
 
     // -*- attach event handlers -*- //
 
-    if (controller.options.disableCopyPaste) {
+    if (controller.options && controller.options.disableCopyPaste) {
       target.bind({
         keydown: onKeydown,
         keypress: onKeypress,
