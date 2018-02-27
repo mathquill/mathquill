@@ -602,8 +602,8 @@ var PlusMinus = P(BinaryOperator, function(_) {
 });
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+', 'plus');
-//yes, these are different dashes, I think one is an en dash and the other is a hyphen
-LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;', 'minus');
+//yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
+LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;', 'minus');
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   bind(PlusMinus,'\\pm ','&plusmn;', 'plus-or-minus');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
