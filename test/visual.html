@@ -292,6 +292,21 @@ x+\class{testclass}{y}+z
   ><span id="select-all-right-arrow">3</span>
 </p>
 
+<h3>substituteKeyboardEvents (legacy, use overrideKeystroke and overrideTypedText instead)</h3>
+
+<p>Should be able to prevent cut, typing, and pasting in this field: <span id="disable-typing-ske">1+2+3</span></p>
+
+<p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing-ske">1+2+3</span></p>
+
+<p>
+  <ul>
+      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
+      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+
+  </ul
+  ><span id="select-all-right-arrow-ske">3</span>
+</p>
+
 </div>
 <script type="text/javascript">
 window.onerror = function(err) {
@@ -467,17 +482,50 @@ MQ.MathField($('#disable-typing')[0], {
   overrideTypedText: $.noop,
 });
 
-var SKEMQ1 = MQ.MathField($('#wrap-typing')[0], {
+var OTTMQ = MQ.MathField($('#wrap-typing')[0], {
   overrideTypedText: function (text) {
-    SKEMQ1.typedText('<');
-    SKEMQ1.typedText(text);
-    SKEMQ1.typedText('>');
+    OTTMQ.typedText('<');
+    OTTMQ.typedText(text);
+    OTTMQ.typedText('>');
   }
 });
 
-var SKEMQ2 = MQ.MathField($('#select-all-right-arrow')[0], {
+var OKSMQ = MQ.MathField($('#select-all-right-arrow')[0], {
   overrideKeystroke: function (key) {
-    SKEMQ2.keystroke(key);
+    OKSMQ.keystroke(key);
+  }
+});
+
+MQ.MathField($('#disable-typing-ske')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      cut: $.noop,
+      paste: $.noop,
+      keystroke: $.noop,
+      typedText: $.noop
+    }));
+  }
+});
+
+var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      typedText: function (text) {
+        SKEMQ1.typedText('<');
+        SKEMQ1.typedText(text);
+        SKEMQ1.typedText('>');
+      }
+    }));
+  }
+});
+
+var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      keystroke: function (key) {
+        SKEMQ2.keystroke(key);
+      }
+    }));
   }
 });
 </script>
