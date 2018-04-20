@@ -413,15 +413,6 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
     super_.finalizeTree.call(this);
   };
-  _.reflow = function() {
-     var $block = this.jQ;//mq-supsub
-
-     var h = $block.prev().innerHeight() ;
-     h *= 0.6 ;
-
-     $block.css( 'vertical-align',  h + 'px' ) ;
-
-  } ;
 });
 
 var SummationNotation = P(MathCommand, function(_, super_) {
