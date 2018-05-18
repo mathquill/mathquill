@@ -222,11 +222,11 @@ function getInterface(v) {
     };
     _.setAriaLabel = function(ariaLabel) {
       if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
-      else this.__controller.ariaLabel = 'MathQuill Input';
+      else this.__controller.ariaLabel = 'Math Input';
       return this;
     };
     _.getAriaLabel = function () {
-      return this.__controller.ariaLabel || 'MathQuill Input';
+      return this.__controller.ariaLabel || 'Math Input';
     };
     _.setAriaPostLabel = function(ariaPostLabel) {
       if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') this.__controller.ariaPostLabel = ariaPostLabel;
