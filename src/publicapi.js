@@ -244,6 +244,7 @@ function getInterface(v) {
         }
         controller.ariaPostLabel = ariaPostLabel;
       } else {
+        if (this.ariaAlertTimeout) clearTimeout(this.ariaAlertTimeout);
         controller.ariaPostLabel = '';
       }
       return this;
