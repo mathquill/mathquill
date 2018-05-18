@@ -229,9 +229,11 @@ Specify an [ARIA label][`aria-label`] for this field, for screen readers. The ac
 
 Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'Math Input'` is returned.
 
-## .setAriaPostLabel(ariaPostLabel)
+## .setAriaPostLabel(ariaPostLabel, timeout)
 
 Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
+
+If a timeout (in ms) is supplied, the content of the MathQuill and the suffix will be spoken aloud by a screen reader if the field has keyboard focus.
 
 ## .getAriaPostLabel()
 
