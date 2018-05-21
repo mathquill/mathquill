@@ -522,7 +522,7 @@ API.StaticMath = function(APIClasses) {
     };
     _.setAriaLabel = function(ariaLabel) {
       this.__controller.ariaLabel = typeof ariaLabel === 'string' ? ariaLabel : '';
-      var prependedLabel = this.__controller.ariaLabel !== 'MathQuill Input' ? this.__controller.ariaLabel + ': ' : '';
+      var prependedLabel = this.__controller.ariaLabel !== 'Math Input' ? this.__controller.ariaLabel + ': ' : '';
       this.__controller.container.attr('aria-label', prependedLabel + this.__controller.root.mathspeak().trim());
       return this;
     };

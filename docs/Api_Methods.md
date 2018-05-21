@@ -223,15 +223,17 @@ mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 
 ## .setAriaLabel(ariaLabel)
 
-Specify an [ARIA label][`aria-label`] for this field, for screen readers. The actual [`aria-label`] includes this label followed by the math content of the field as speech. Default: `'MathQuill Input'`
+Specify an [ARIA label][`aria-label`] for this field, for screen readers. The actual [`aria-label`] includes this label followed by the math content of the field as speech. Default: `'Math Input'`
 
 ## .getAriaLabel()
 
-Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'MathQuill Input'` is returned.
+Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'Math Input'` is returned.
 
-## .setAriaPostLabel(ariaPostLabel)
+## .setAriaPostLabel(ariaPostLabel, timeout)
 
 Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
+
+If a timeout (in ms) is supplied, and the math field has keyboard focus when the time has elapsed, an ARIA alert will fire which will cause a screen reader to read the content of the field along with the ARIA post-label. This is useful if the post-label contains an evaluation, error message, or other text that the user needs to know about.
 
 ## .getAriaPostLabel()
 

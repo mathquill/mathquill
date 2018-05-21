@@ -90,21 +90,21 @@ suite('aria', function() {
     mathField.keystroke('End');
     assertAriaEqual('end of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
     mathField.keystroke('Ctrl-Home');
-    assertAriaEqual('beginning of MathQuill Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual('beginning of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
     mathField.keystroke('Ctrl-End');
-    assertAriaEqual('end of MathQuill Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual('end of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
   });
 
   test('testing aria-label for interactive and static math', function(done) {
     mathField.typedText('sqrt(x)');
     mathField.blur();
     setTimeout(function() {
-      assert.equal(mathField.__controller.container.attr('aria-label'), 'MathQuill Input:  "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+      assert.equal(mathField.__controller.container.attr('aria-label'), 'Math Input:  "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
       done();
     });
     var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
     assert.equal('"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
-    assert.equal('MathQuill Input', staticMath.getAriaLabel());
+    assert.equal('Math Input', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
     assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
     assert.equal('Static Label', staticMath.getAriaLabel());

@@ -72,7 +72,7 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
-    var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'MathQuill Input' ? ctrlr.ariaLabel + ': ' : '';
+    var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
     ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
