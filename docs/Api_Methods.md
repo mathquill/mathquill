@@ -233,7 +233,7 @@ Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no
 
 Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
 
-If a timeout (in ms) is supplied, the content of the MathQuill and the suffix will be spoken aloud by a screen reader if the field has keyboard focus.
+If a timeout (in ms) is supplied, and the math field has keyboard focus when the time has elapsed, an ARIA alert will fire which will cause a screen reader to read the content of the field along with the ARIA post-label. This is useful if the post-label contains an evaluation, error message, or other text that the user needs to know about.
 
 ## .getAriaPostLabel()
 
