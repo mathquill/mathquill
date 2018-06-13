@@ -1,4 +1,4 @@
-@omit-font-face:;
+@omit-font-face:~"";
 .font-face;
 .font-face() when not (@omit-font-face) {
   @font-face {
@@ -7,7 +7,7 @@
   }
 }
 
-@basic:;
+@basic:~"";
 .font-srcs() when not (@basic) {
   src: url(fonts/Symbola.eot);
   src:
