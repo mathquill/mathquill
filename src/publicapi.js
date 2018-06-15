@@ -131,6 +131,12 @@ jQuery.fn.mathquill = function(cmd, latex) {
         if (cursor)
           cursor.allowSpace = latex;
       });
+  case 'isCursorInFraction':
+    var blockId = $(this).attr(mqBlockId),
+      block = blockId && MathElement[blockId],
+      cursor = block && block.cursor;
+    var parent;
+    return (typeof cursor !== "undefined" && cursor !== null ? (parent = cursor.parent) != null ? parent.parent : void 0 : void 0) instanceof LatexCmds.fraction;
   default:
     var textbox = cmd === 'textbox',
       editable = textbox || cmd === 'editable',
