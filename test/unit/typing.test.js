@@ -1111,17 +1111,17 @@ suite('typing with auto-replaces', function() {
   suite('Matrices', function() {
     test('add matrix via mq.write', function() {
       mq.write('\\begin{matrix}x&y\\\\1&2\\end{matrix}');
-      assertLatex('\\begin{matrix}x&y\\\\1&2\\end{matrix}');
+      assertLatex('\\begin{matrix}\nx&y\\\\\n1&2\n\\end{matrix}');
     });
 
     test('key bindings add rows and columns to matrix', function() {
       mq.write('\\begin{matrix}x\\end{matrix}').keystroke('Left');
 
       mq.keystroke('Shift-Spacebar');
-      assertLatex('\\begin{matrix}x&\\end{matrix}');
+      assertLatex('\\begin{matrix}\nx\n\\end{matrix}');
 
       mq.keystroke('Shift-Enter');
-      assertLatex('\\begin{matrix}x&\\\\&\\end{matrix}');
+      assertLatex('\\begin{matrix}\nx\n\\end{matrix}');
     });
 
     test('key sequence populates matrix', function() {
@@ -1130,7 +1130,7 @@ suite('typing with auto-replaces', function() {
         .keystroke('Right').typedText('b')
         .keystroke('Up').typedText('y');
 
-      assertLatex('\\begin{matrix}x&y\\\\a&b\\end{matrix}');
+      assertLatex('\\begin{matrix}\nx&y\\\\\na&b\n\\end{matrix}');
     });
 
     test('cursor keys navigate around matrix', function() {
@@ -1141,7 +1141,7 @@ suite('typing with auto-replaces', function() {
         .keystroke('Right').typedText('c')
         .keystroke('Down').typedText('d');
 
-      assertLatex('\\begin{matrix}&&\\\\b&c&\\\\a&d&\\end{matrix}');
+      assertLatex('\\begin{matrix}\n&&\\\\\nb&c&\\\\\na&d&\n\\end{matrix}');
     });
 
     test('delete key removes empty matrix row/column', function() {
@@ -1149,15 +1149,15 @@ suite('typing with auto-replaces', function() {
 
       // Row is not yet deleted as there was content
       mq.keystroke('Left Backspace Left');
-      assertLatex('\\begin{matrix}a&&b\\\\&c&d\\\\&e&\\end{matrix}');
+      assertLatex('\\begin{matrix}\na&&b\\\\\n&c&d\\\\\n&e&\n\\end{matrix}');
 
       // Row is now deleted (delete e, then row)
       mq.keystroke('Backspace Backspace');
-      assertLatex('\\begin{matrix}a&&b\\\\&c&d\\end{matrix}');
+      assertLatex('\\begin{matrix}\na&&b\\\\\n&c&d\n\\end{matrix}');
 
       // Column is now deleted (delete c, then column)
       mq.keystroke('Left Left Backspace Backspace');
-      assertLatex('\\begin{matrix}a&b\\\\&d\\end{matrix}');
+      assertLatex('\\begin{matrix}\na&b\\\\\n&d\n\\end{matrix}');
     });
 
     test('brackets are scaled immediately', function() {
