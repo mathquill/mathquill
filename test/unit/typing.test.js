@@ -58,6 +58,11 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\$');
     });
 
+    test('$ sign', function() {
+      mq.typedText('#');
+      assertLatex('\\#');
+    })
+
     test('\\text followed by command', function() {
       mq.typedText('\\text{');
       assertLatex('\\text{\\{}');

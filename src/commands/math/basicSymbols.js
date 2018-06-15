@@ -273,6 +273,7 @@ var NonSymbolaSymbol = P(Symbol, function(_, super_) {
 });
 
 LatexCmds['@'] = NonSymbolaSymbol;
+LatexCmds['#'] = bind(NonSymbolaSymbol, '\\#', '#');
 LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;');
 LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 
@@ -469,7 +470,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
       return 'mq-binary-operator';
     };
-    
+
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = determineOpClassType(this);
     return this;
