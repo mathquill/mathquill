@@ -1166,7 +1166,7 @@ suite('typing with auto-replaces', function() {
         return $(mq.el()).find('.mq-matrix .mq-paren.mq-scaled')[0].getBoundingClientRect().height;
       }
       var height = bracketHeight();
-      mq.keystroke('Left Shift-Enter');
+      mq.keystroke('Left Enter');
 
       assert.ok(bracketHeight() > height,
         'matrix bracket height should be increased when new row is added');
