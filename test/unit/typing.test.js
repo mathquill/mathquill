@@ -149,11 +149,11 @@ suite('typing with auto-replaces', function() {
         });
         test('normal matching pairs {f(n), [a,b]} work', function() {
           mq.typedText('{f(n), [a,b]}');
-          assertLatex('\\left\\{f\\left(n\\right),\\ \\left[a,b\\right]\\right\\}');
+          assertLatex('\\left\\{f\\left(n\\right){,}\\ \\left[a{,}b\\right]\\right\\}');
         });
         test('[a,b) and (a,b] still work', function() {
           mq.typedText('[a,b) + (a,b]');
-          assertLatex('\\left[a,b\\right)\\ +\\ \\left(a,b\\right]');
+          assertLatex('\\left[a{,}b\\right)\\ +\\ \\left(a{,}b\\right]');
         });
       });
     });

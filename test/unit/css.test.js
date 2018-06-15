@@ -54,7 +54,7 @@ suite('CSS', function() {
     function assertUnaryOperator(i, s) { assert.ok(!isBinaryOperator(i), '"' + s + '" should be unary'); }
 
     assertUnaryOperator(1, '(-');
-    assertUnaryOperator(4, '(-1,-');
+    assertBinaryOperator(4, '(-1,-');
     assertBinaryOperator(6, '(-1,-1-');
     assertBinaryOperator(9, '(-1,-1-1)-');
     assertUnaryOperator(13, '(-1,-1-1)-1,(+');
@@ -62,7 +62,7 @@ suite('CSS', function() {
     assertBinaryOperator(18, '(-1,-1-1)-1,(+1;+1+');
     assertBinaryOperator(21, '(-1,-1-1)-1,(+1;+1+1)+');
     assertUnaryOperator(25, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm');
-    assertUnaryOperator(28, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm');
+    assertBinaryOperator(28, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm');
     assertBinaryOperator(30, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm');
     assertBinaryOperator(33, '(-1,-1-1)-1,(+1;+1+1)+1,(\pm1,\pm1\pm1)\pm');
   });
