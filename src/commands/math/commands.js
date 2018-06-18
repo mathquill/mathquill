@@ -165,6 +165,53 @@ LatexCmds.underrightarrow = bind(OverUnderArrow, '\\underrightarrow', 'class="mq
 LatexCmds.underleftarrow = bind(OverUnderArrow, '\\underleftarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-left"');
 LatexCmds.underleftrightarrow = bind(OverUnderArrow, '\\underleftrightarrow', 'class="mq-non-leaf mq-underarrow mq-arrow-leftright"');
 
+var Harpoons = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\xrightleftharpoons'
+  _.htmlTemplate =
+      '<span class="mq-harpoons mq-harpoons-rightleft mq-non-leaf">'
+        + '<span class="mq-harpoons-numerator">&0</span>'
+        + '<span class="mq-harpoons-harpoons">&#x21cc;</span>'
+        + '<span class="mq-harpoons-harpoons-helper">&#x21cc;</span>'
+    + '</span>';
+});
+
+// Not sure if there is a better way to handle optional arguments. Nthroot and
+// Squareroot handle them in a similar manner (separate classes and templates),
+// so perhaps not?
+var AboveAndBelowHarpoons = LatexCmds.xrightleftharpoons = P(Harpoons, function (_, super_) {
+  _.ctrlSeq = '\\xrightleftharpoons'
+  _.htmlTemplate =
+    '<span class="mq-harpoons mq-harpoons-rightleft mq-non-leaf">'
+    + '<span class="mq-harpoons-numerator">&1</span>'
+    + '<span class="mq-harpoons-harpoons">&#x21cc;</span>'
+    + '<span class="mq-harpoons-harpoons-helper">&#x21cc;</span>'
+    + '<span class="mq-harpoons-denominator">&0</span>'
+    + '</span>';
+  _.parser = function () {
+    // Specify the below content with an optional argument like in chemarr, so
+    // the correct syntax is \xrightleftharpoons[below]{above} instead of
+    // \xrightleftharpoons{below}{above}.
+
+    return latexMathParser.optBlock.then(function (optBlock) {
+      return latexMathParser.block.map(function (block) {
+        var harpoons = AboveAndBelowHarpoons();
+        harpoons.blocks = [optBlock, block];
+        optBlock.adopt(harpoons, 0, 0);
+        block.adopt(harpoons, optBlock, 0);
+        return harpoons;
+      });
+    }).or(latexMathParser.block.map(function (block) {
+      var harpoons = Harpoons()
+      harpoons.blocks = [block]
+      block.adopt(harpoons, 0, 0)
+      return harpoons
+    }));
+  };
+  _.latex = function () {
+    return this.ctrlSeq + '[' + this.ends[L].latex() + ']{' + this.ends[R].latex() + '}';
+  };
+});
+
 LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
 LatexCmds.dot = P(MathCommand, function(_, super_) {
     _.init = function() {
