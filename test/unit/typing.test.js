@@ -1176,6 +1176,14 @@ suite('typing with auto-replaces', function() {
       assert.ok(bracketHeight() > height,
         'matrix bracket height should be increased when new row is added');
     });
+
+    test('clicking on a matrix does not strip commas', function () {
+      var latex = '\\begin{matrix}\n1{,}0\n\\end{matrix}'
+      mq.write(latex)
+      mq.focus()
+      mq.blur()
+      assertLatex(latex)
+    })
   });
 
   suite('Mathbb font', function() {

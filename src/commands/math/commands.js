@@ -1121,18 +1121,22 @@ Environments.matrix = P(Environment, function(_, super_) {
     var optWhitespace = Parser.optWhitespace;
     var string = Parser.string;
     var regex = Parser.regex;
+    // https://en.wikibooks.org/wiki/LaTeX/Tables#Using_array
+    var arrayOptions = regex(/^({[clr](\|?[clr])*})?/)
 
-    return regex(/^({[^}]*})?/)
+    return arrayOptions
     .then(function(options) {
-      if (!self.options) self.options = options.slice(1, -1);
+      if (options && !self.options) self.options = options.slice(1, -1);
       return Parser.succeed(self);
     })
-    .skip(optWhitespace)
-    .then(string(delimiters.column)
-      .or(string(delimiters.row))
-      .or(optWhitespace.then(string('\\hline')).skip(optWhitespace))
-      .or(latexMathParser.block))
-    .many()
+    .then(
+      optWhitespace.then(
+        string(delimiters.column)
+        .or(string(delimiters.row))
+        .or(string('\\hline'))
+        .or(latexMathParser.block))
+      .many()
+    )
     .skip(optWhitespace)
     .then(function(items) {
       var blocks = [];
