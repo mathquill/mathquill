@@ -171,7 +171,6 @@ var Harpoons = P(MathCommand, function(_, super_) {
       '<span class="mq-harpoons mq-harpoons-rightleft mq-non-leaf">'
         + '<span class="mq-harpoons-numerator">&0</span>'
         + '<span class="mq-harpoons-harpoons">&#x21cc;</span>'
-        + '<span class="mq-harpoons-harpoons-helper">&#x21cc;</span>'
     + '</span>';
 });
 
@@ -184,7 +183,6 @@ var AboveAndBelowHarpoons = LatexCmds.xrightleftharpoons = P(Harpoons, function 
     '<span class="mq-harpoons mq-harpoons-rightleft mq-non-leaf">'
     + '<span class="mq-harpoons-numerator">&1</span>'
     + '<span class="mq-harpoons-harpoons">&#x21cc;</span>'
-    + '<span class="mq-harpoons-harpoons-helper">&#x21cc;</span>'
     + '<span class="mq-harpoons-denominator">&0</span>'
     + '</span>';
   _.parser = function () {
