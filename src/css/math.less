@@ -411,6 +411,29 @@
     }
   }
 
+  .mq-harpoons {
+    text-align: center;
+    position: relative;
+  }
+
+  .mq-harpoons-numerator, .mq-harpoons-denominator, .mq-harpoons-harpoons {
+    display: block;
+  }
+
+  .mq-harpoons-numerator, .mq-harpoons-denominator {
+    font-size: 70%;
+  }
+
+  .mq-harpoons-numerator {
+    padding: 0 0.1em;
+  }
+
+  .mq-harpoons-denominator {
+    float: right;
+    width: 100%;
+    padding: 0.1em;
+  }
+
   // @supports hack for Firefox ≥ 30
   // from http://browserhacks.com/
   @supports (-moz-appearance:meterbar) and (background-blend-mode:difference,normal) {

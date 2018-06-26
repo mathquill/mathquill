@@ -138,15 +138,15 @@ suite('latex', function() {
   });
 
   test('matrices', function() {
-    assertParsesLatex('\\begin{matrix}x\\end{matrix}');
-    assertParsesLatex('\\begin{pmatrix}x\\end{pmatrix}');
-    assertParsesLatex('\\begin{Bmatrix}x\\end{Bmatrix}');
-    assertParsesLatex('\\begin{vmatrix}x&y\\\\1&2\\end{vmatrix}');
-    assertParsesLatex('\\begin{bmatrix}x&y&z&123&x^2\\\\23&s&\\sin \\theta &1&x\\\\e&h&a&1&y\\end{bmatrix}');
+    assertParsesLatex('\\begin{matrix}\nx\n\\end{matrix}');
+    assertParsesLatex('\\begin{pmatrix}\nx\n\\end{pmatrix}');
+    assertParsesLatex('\\begin{Bmatrix}\nx\n\\end{Bmatrix}');
+    assertParsesLatex('\\begin{vmatrix}\nx&y\\\\\n1&2\n\\end{vmatrix}');
+    assertParsesLatex('\\begin{bmatrix}\nx&y&z&123&x^2\\\\\n23&s&\\sin \\theta &1&x\\\\\ne&h&a&1&y\n\\end{bmatrix}');
 
     // Adds missing cells
-    assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}x&y\\\\1&\\end{Vmatrix}');
-    assertParsesLatex('\\begin{Vmatrix}x\\\\x&y\\\\x\\end{Vmatrix}', '\\begin{Vmatrix}x&\\\\x&y\\\\x&\\end{Vmatrix}');
+    assertParsesLatex('\\begin{Vmatrix}x&y\\\\1\\end{Vmatrix}', '\\begin{Vmatrix}\nx&y\\\\\n1&\n\\end{Vmatrix}');
+    assertParsesLatex('\\begin{Vmatrix}x\\\\x&y\\\\x\\end{Vmatrix}', '\\begin{Vmatrix}\nx&\\\\\nx&y\\\\\nx&\n\\end{Vmatrix}');
   });
 
   test('compound symbols beginning with \\not', function() {
