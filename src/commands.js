@@ -242,6 +242,45 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   };
 });
 
+var MixedFraction =
+LatexCmds.mfrac =
+LatexCmds.mixedfraction = P(Fraction, function(_, _super) {
+  _.ctrlSeq = '\\mfrac';
+  _.textTemplate = ['(','(', '/', '))'];
+  _.htmlTemplate =
+      '<span class="mixed-fraction non-leaf">'
+    +   '<span class="whole-number">&0</span>'
+    +   '<span class="fraction mixed-fraction non-leaf">'
+    +     '<span class="numerator">&1</span>'
+    +     '<span class="denominator">&2</span>'
+    +     '<span style="display:inline-block;width:0">&nbsp;</span>'
+    +   '</span>'
+    + '</span>'
+  ;
+  _.charCountBehavior = 'nr';
+  _.finalizeTree = function() {
+    var number = this.endChild[L];
+    var numerator = this.endChild[L][R];
+    var denominator = this.endChild[R];
+    this.up = number;
+    this.down = denominator;
+    number.down = numerator;
+    numerator.up = number;
+    numerator.down = denominator;
+    denominator.up = numerator;
+  };
+  _.charCount = function() {
+    var number = this.endChild[L].charCount();
+    var numerator = this.endChild[L][R].charCount();
+    var denominator = this.endChild[R].charCount();
+    if (numerator > denominator) {
+      return number + numerator;
+    } else {
+      return number + denominator;
+    }
+  };
+});
+
 var LiveFraction =
 LatexCmds.over =
 CharCmds['/'] = P(Fraction, function(_, _super) {
