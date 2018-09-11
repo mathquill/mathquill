@@ -124,6 +124,51 @@ suite('up/down', function() {
     assert.equal(cursor[L], 0, 'cursor down from left of fraction inserts at left end of denominator');
   });
 
+  test('up/down into and within mixed fraction', function() {
+    rootBlock.renderLatex('\\mfrac{12}{34}{56}');
+    var mfrac = rootBlock.endChild[L],
+      whole = mfrac.endChild[L],
+      numer = mfrac.endChild[L][R],
+      denom = mfrac.endChild[R];
+    assert.equal(mfrac.latex(), '\\mfrac{12}{34}{56}', 'mixed fraction is in root block');
+    assert.equal(mfrac, rootBlock.endChild[R], 'mixed fraction is sole child of root block');
+    assert.equal(whole.latex(), '12', 'whole number is left end child of mixed fraction');
+    assert.equal(numer.latex(), '34', 'numerator is middle child of mixed fraction');
+    assert.equal(denom.latex(), '56', 'denominator is right end child of mixed fraction');
+
+    move('Up');
+    assert.equal(cursor.parent, whole, 'cursor up goes into whole number');
+    assert.equal(cursor[R], 0, 'cursor up from right of fraction inserts at right end of whole number');
+
+    move('Down');
+    assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
+    assert.equal(cursor[L], 0, 'cursor down from numerator inserts at left end of numerator');
+
+    move('Down');
+    assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
+    assert.equal(cursor[L], 0, 'cursor down from numerator inserts at left end of denominator');
+
+    move('Up');
+    assert.equal(cursor.parent, numer, 'cursor up goes into numerator');
+    assert.equal(cursor[L], 0, 'cursor up from denominator inserts at left end of numerator');
+
+    move('Left Left Left Left');
+    assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
+    assert.equal(cursor[R], mfrac, 'cursor before fraction');
+
+    move('Up');
+    assert.equal(cursor.parent, whole, 'cursor up goes into whole number');
+    assert.equal(cursor[L], 0, 'cursor up from left of fraction inserts at left end of whole number');
+
+    move('Left');
+    assert.equal(cursor.parent, rootBlock, 'cursor outside fraction');
+    assert.equal(cursor[R], mfrac, 'cursor before fraction');
+
+    move('Down');
+    assert.equal(cursor.parent, denom, 'cursor down goes into denominator');
+    assert.equal(cursor[L], 0, 'cursor down from left of fraction inserts at left end of denominator');
+  });
+
   test('nested subscripts and fractions', function() {
     rootBlock.renderLatex('\\frac{d}{dx_{\\frac{24}{36}0}}\\sqrt{x}=x^{\\frac{1}{2}}');
     var exp = rootBlock.endChild[R],
