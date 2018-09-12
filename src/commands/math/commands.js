@@ -372,17 +372,6 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     var self = this;
     var blocks = self.blocks = [ MathBlock(), MathBlock() ];
     for (var i = 0; i < blocks.length; i += 1) {
-      switch(i) {
-        case 0:
-          blocks[i].ariaLabel = 'lower bound';
-          break;
-        case 1:
-          blocks[i].ariaLabel = 'upper bound';
-          break;
-        default:  // Presumably we shouldn't hit this, but one never knows.
-          blocks[i].ariaLabel = 'block ' + i;
-          break;
-      }
       blocks[i].adopt(self, self.ends[R], 0);
     }
 
@@ -395,6 +384,8 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     }).many().result(self);
   };
   _.finalizeTree = function() {
+    this.ends[L].ariaLabel = 'lower bound';
+    this.ends[R].ariaLabel = 'upper bound';
     this.downInto = this.ends[L];
     this.upInto = this.ends[R];
     this.ends[L].upOutOf = this.ends[R];
