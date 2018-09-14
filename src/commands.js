@@ -257,6 +257,12 @@ LatexCmds.mixedfraction = P(Fraction, function(_, _super) {
     +   '</span>'
     + '</span>'
   ;
+  _.latex = function() {
+    var number = this.endChild[L].latex();
+    var numerator = this.endChild[L][R].latex();
+    var denominator = this.endChild[R].latex();
+    return number + '\\frac{' + numerator + '}{' + denominator + '}';
+  };
   _.charCountBehavior = 'nr';
   _.finalizeTree = function() {
     var number = this.endChild[L];

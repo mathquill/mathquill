@@ -130,7 +130,7 @@ suite('up/down', function() {
       whole = mfrac.endChild[L],
       numer = mfrac.endChild[L][R],
       denom = mfrac.endChild[R];
-    assert.equal(mfrac.latex(), '\\mfrac{12}{34}{56}', 'mixed fraction is in root block');
+    assert.equal(mfrac.latex(), '12\\frac{34}{56}', 'mixed fraction is latex as fraction with whole number');
     assert.equal(mfrac, rootBlock.endChild[R], 'mixed fraction is sole child of root block');
     assert.equal(whole.latex(), '12', 'whole number is left end child of mixed fraction');
     assert.equal(numer.latex(), '34', 'numerator is middle child of mixed fraction');
