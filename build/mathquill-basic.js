@@ -8,10 +8,9 @@
  * one at http://mozilla.org/MPL/2.0/.
  */
 
-(function() {
+var jQuery = require('jquery');
 
-var jQuery = window.jQuery,
-  undefined,
+var undefined,
   mqCmdId = 'mathquill-command-id',
   mqBlockId = 'mathquill-block-id',
   min = Math.min,
@@ -1140,11 +1139,8 @@ function getInterface(v) {
 }
 
 MathQuill.noConflict = function() {
-  window.MathQuill = origMathQuill;
   return MathQuill;
 };
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
 
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
@@ -3132,7 +3128,7 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-  
+
 LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;');
 
@@ -4467,4 +4463,4 @@ for (var key in MQ1) (function(key, val) {
   else MathQuill[key] = val;
 }(key, MQ1[key]));
 
-}());
+module.exports = MathQuill;
