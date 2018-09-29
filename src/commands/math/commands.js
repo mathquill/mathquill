@@ -551,6 +551,95 @@ LatexCmds.lognl = P(MathCommand, function(_, super_) {
   };
 });
 
+// mslob: endpoint evaluation of definite integrals [F(x)]_a^b
+// general subsub notation is handled in SummationNotation
+LatexCmds.BoundaryEvaluation = P(SummationNotation, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+           '<span class="mq-scaled">[</span>'
+    +      '<span style="display:inline-block;width:0">&#8203</span>'
+    +      '<span class="mq-scaled">]</span>'
+    
+    + '<span class="mq-non-leaf">'
+    +   '<span class="mq-supsub mq-non-leaf">'
+    +     '<span class="mq-sup">&1</span>'
+    +     '<span class="mq-sub">&0</span>'
+    +   '</span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, ']', htmlTemplate);
+  };
+  // FIXME: refactor rather than overriding
+  _.createLeftOf = MathCommand.p.createLeftOf;
+});
+
+//LatexCmds.BoundaryEvaluation = bind(SummationNotation,'] ',']');
+
+var Cases =
+LatexCmds.cases = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\cases';
+  _.htmlTemplate =
+      '<span class="mq-cases mq-non-leaf">'
+    +   '<span class="mq-cases-item">&0</span>'
+    +   '<span class="mq-cases-item mq-cases-item-last">&1</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['{', ',', '}'];
+  _.latex = function() {
+    return '\\begin{cases}'+this.ends[L].latex()+'\\\\'+this.ends[R].latex()+'\\end{cases}';
+  };
+  _.parser = function() {
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this;
+    var blocks = self.blocks = [];
+    var parent = this;
+    var left = 0;
+    return block.then(function(block){
+        blocks.push(block);
+        block.adopt(parent, left,0);
+        left = block;
+        return succeed(self);
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.upInto = this.ends[R].upOutOf = this.ends[L];
+    this.downInto = this.ends[L].downOutOf = this.ends[R];
+  };
+});
+
+//mslob: Template for mixed fractions
+var MixedFraction =
+LatexCmds.MixedFraction = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\MixedFraction';
+  _.htmlTemplate =
+        '<span class="mq-non-leaf">&0</span>'
+    +   '<span class="mq-fraction mq-non-leaf">'
+    +   '<span class="mq-numerator">&1</span>'
+    +   '<span class="mq-denominator">&2</span>'
+    +   '<span style="display:inline-block;width:0">&#8203;</span>'
+    + '</span>';
+  _.textTemplate = ['MixedFraction[', '(', ')/(', ')]'];
+
+  _.parser = function() {
+    return latexMathParser.optBlock.then(function(optBlock) {
+      return latexMathParser.block.map(function(block) {
+        var elm = MixedFraction();
+        elm.blocks = [ block, block, block ];
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        block.adopt(elm, 0, 0);
+        return elm;
+      });
+    }).or(super_.parser.call(this));
+  };
+  _.latex = function() {
+    return '{'+this.blocks[0].latex()+'\\ \\frac{'+this.blocks[1].latex()+'}{'+this.blocks[2].latex()+'}}';
+  };
+});
+
 //Dutch notation for open interval <-1, 1>
 var IntervalNlExEx =
 LatexCmds.IntervalNlExEx = P(MathCommand, function(_, super_) {
@@ -610,7 +699,7 @@ LatexCmds.IntervalBeExEx = P(MathCommand, function(_, super_) {
 //English notation for open interval (-1, 1)
 var IntervalEnExEx =
 LatexCmds.IntervalEnExEx = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\IntervalBeExEx';
+  _.ctrlSeq = '\\IntervalEnExEx';
   _.htmlTemplate =
         '<span class="mq-scaled">(</span>'
     +   '<span class="mq-non-leaf">&0</span>'
@@ -723,7 +812,7 @@ LatexCmds.IntervalEnExIn = P(MathCommand, function(_, super_) {
 //Dutch notation for half open interval [-1, 1>
 var IntervalNlInEx =
 LatexCmds.IntervalNlInEx = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\IntervalNlExEx';
+  _.ctrlSeq = '\\IntervalNlInEx';
   _.htmlTemplate =
         '<span class="mq-scaled">[</span>'
     +   '<span class="mq-non-leaf">&0</span>'
@@ -779,7 +868,7 @@ LatexCmds.IntervalBeInEx = P(MathCommand, function(_, super_) {
 //English notation for open interval [-1, 1)
 var IntervalEnInEx =
 LatexCmds.IntervalEnInEx = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\IntervalBeExEx';
+  _.ctrlSeq = '\\IntervalEnInEx';
   _.htmlTemplate =
         '<span class="mq-scaled">[</span>'
     +   '<span class="mq-non-leaf">&0</span>'
@@ -806,7 +895,7 @@ LatexCmds.IntervalEnInEx = P(MathCommand, function(_, super_) {
 //Dutch/Belgium notation for closed interval [-1; 1]
 var IntervalNlInIn =
 LatexCmds.IntervalNlInIn = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\IntervalEnInIn';
+  _.ctrlSeq = '\\IntervalNlInIn';
   _.htmlTemplate =
         '<span class="mq-scaled">[</span>'
     +   '<span class="mq-non-leaf">&0</span>'

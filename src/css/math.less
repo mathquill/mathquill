@@ -276,6 +276,31 @@
     padding: 0.1em;
   }
 
+ .mq-cases {
+    text-align: center;
+    padding: 0 .2em;
+
+    border-style:solid;
+    border-width:1px 0 1px 15px;
+    /*border-image:url(http://opbokken.nu/meuk/curly.png) 1 20 stretch;*/
+
+    border-image-source: url("data:image/svg+xml,%3Csvg viewBox='-0.6 -0.6 46.667 167.666' width='46.667' height='167.666' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath transform='matrix(-1,0,0,1,44.655574,0.8894748)' d='M 19.8,25.8 C 19.8,11.2 15.6,2.2 0,0.4 L 0.4,0 C 23,0.4 29.2,7.2 29.2,29 L 29.2,59.2 C 29.2,72.6 30.6,79 45.2,82.6 L 45.2,83 C 30.8,86.6 29.2,93 29.2,106.2 L 29.2,138.4 C 29.2,159.4 21.4,165.4 0.4,166 L 0,165.601 C 16,163.201 19.8,155.201 19.8,140 L 19.8,107.8 C 19.8,94.2 21.6,86.4 36.6,83 L 36.6,82.6 C 21.4,79 19.8,70.6 19.8,57 L 19.8,25.8 z'/%3E%3C/svg%3E");;
+    border-image-slice: 1 50;
+    border-image-repeat: stretch;
+    padding-left:0.5em;
+  }
+
+  .mq-cases .mq-cases-item {
+    display: block;
+    padding: 0 0.1em;
+    margin-bottom:0.1em;
+  } 
+  
+  .mq-cases .mq-cases-item-last {
+      float:right;
+      margin-bottom:0;
+  }
+
   .mq-dot-recurring {
     text-align: center;
     height: 0.3em;
