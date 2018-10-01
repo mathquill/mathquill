@@ -1139,8 +1139,11 @@ function getInterface(v) {
 }
 
 MathQuill.noConflict = function() {
+  window.MathQuill = origMathQuill;
   return MathQuill;
 };
+var origMathQuill = window.MathQuill;
+window.MathQuill = MathQuill;
 
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
