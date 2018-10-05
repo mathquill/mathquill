@@ -393,11 +393,11 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
 });
 
-LatexCmds['∏'] =
+LatexCmds['∑'] =
 LatexCmds.sum =
 LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;', 'sum');
 
-LatexCmds['∑'] =
+LatexCmds['∏'] =
 LatexCmds.prod =
 LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;', 'product');
 
