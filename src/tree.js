@@ -259,6 +259,12 @@ var Node = P(function(_) {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
+  _.isEmptyParens = function () {
+    if (!this.isEmpty()) return false;
+    if (!this.parent) return false;
+    return this.parent.ctrlSeq === '\\left(';
+  }
+
   _.isStyleBlock = function() {
     return false;
   };
