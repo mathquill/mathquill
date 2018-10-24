@@ -486,9 +486,12 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.blur = function() {
     this.jQ.removeClass('mq-hasCursor');
-    if (this.isEmpty())
+    if (this.isEmpty()) {
       this.jQ.addClass('mq-empty');
-
+      if (this.isEmptyParens()) {
+        this.jQ.addClass('mq-empty-parens');
+      }
+    }
     return this;
   };
 });
