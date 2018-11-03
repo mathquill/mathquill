@@ -1,3 +1,14 @@
+# MathQuill Fork
+
+As current Mathquill development progress appears to be slow, this fork merges several features.
+
+* Matrix mode from [Learnosity](https://github.com/Learnosity/mathquill/tree/matrix)
+
+  * Adds `\matrix`, `\pmatrix`, `\bmatrix`, `\Bmatrix`, `\vMatrix`, and `\VMatrix`
+  * `ctrl-space` to add a column, `ctrl-enter` to add a row
+
+Alternative formula editor that looks promising is [guppy-js](), but not sure it supports as many features as MathQuill currently.
+
 # [MathQuill](http://mathquill.com)
 
 by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (<maintainers@mathquill.com>) [<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
