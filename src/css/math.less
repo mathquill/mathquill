@@ -7,12 +7,7 @@
   overflow: hidden;
   vertical-align: middle;
 }
-.mq-root-block svg {
-  // svg symbols are sometimes used for autoscaling brackets and
-  // square root symbols. This piece of css magic allows you to copy
-  // over the current value of the font color to the svg symbols.
-  fill: currentColor;
-}
+
 .mq-math-mode {
   font-variant: normal;
   font-weight: normal;
@@ -29,6 +24,17 @@
   var, .mq-text-mode, .mq-nonSymbola {
     font-family: @times;
     line-height: .9;
+  }
+
+  svg {
+    // svg symbols are sometimes used for autoscaling brackets and
+    // square root symbols. This piece of css magic allows you to copy
+    // over the current value of the font color to the svg symbols.
+    fill: currentColor;
+
+    // the svg symbols fill their container
+    width: 100%;
+    height: 100%;
   }
 
   * {
