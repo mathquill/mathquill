@@ -64,14 +64,14 @@ var SVG_SYMBOLS = {
         '<path d="M3.2 0 L3.2 54 L4 54 L4 0 M6.8 0 L6.8 54 L6 54 L6 0" />' +
       '</svg>'
   },
-  '&rang;': {
+  '&lang;': {
     width: '.55em',
     html:
       '<svg style="width:100%; height: 100%" preserveAspectRatio="none" viewBox="0 0 10 54">' +
         '<path d="M6.8 0 L3.2 27 L6.8 54 L7.8 54 L4.2 27 L7.8 0" />' +
       '</svg>'
   },
-  '&lang;': {
+  '&rang;': {
     width: '.55em',
     html:
       '<svg style="width:100%; height: 100%" preserveAspectRatio="none" viewBox="0 0 10 54">' +
