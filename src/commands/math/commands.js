@@ -630,24 +630,28 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
     this.sides = {};
     this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
     this.sides[R] = { ch: close, ctrlSeq: end };
-
-    this.leftSymbol = SVG_SYMBOLS[open];
-    this.rightSymbol = SVG_SYMBOLS[close];
   };
   _.numBlocks = function() { return 1; };
-  _.html = function() { // wait until now so that .side may
+  _.html = function() {
+    var leftSymbol = this.getSymbol(L);
+    var rightSymbol = this.getSymbol(R);
+
+                        // wait until now so that .side may
     this.htmlTemplate = // be set by createLeftOf or parser
         '<span class="mq-non-leaf mq-bracket-container">'
-      +   '<span style="width:'+ this.leftSymbol.width +'" class="mq-scaled mq-bracket mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
-      +     this.leftSymbol.html
+      +   '<span style="width:'+ leftSymbol.width +'" class="mq-scaled mq-bracket-l mq-paren'+(this.side === R ? ' mq-ghost' : '')+'">'
+      +     leftSymbol.html
       +   '</span>'
-      +   '<span style="margin-left:'+ this.leftSymbol.width +';margin-right:'+ this.rightSymbol.width +'" class="mq-bracket-middle mq-non-leaf">&0</span>'
-      +   '<span style="right:0;width:'+ this.rightSymbol.width +'" class="mq-scaled mq-bracket mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
-      +     this.rightSymbol.html
+      +   '<span style="margin-left:'+ leftSymbol.width +';margin-right:'+ rightSymbol.width +'" class="mq-bracket-middle mq-non-leaf">&0</span>'
+      +   '<span style="width:'+ rightSymbol.width +'" class="mq-scaled mq-bracket-r mq-paren'+(this.side === L ? ' mq-ghost' : '')+'">'
+      +     rightSymbol.html
       +   '</span>'
       + '</span>'
     ;
     return super_.html.call(this);
+  };
+  _.getSymbol = function (side) {
+    return SVG_SYMBOLS[this.sides[side || R].ch] || {width: '0', html: ''};
   };
   _.latex = function() {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
@@ -680,9 +684,9 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
   _.closeOpposing = function(brack) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
-    var jq = brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
+    var $brack = brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
       .removeClass('mq-ghost');
-    this.rebuildSymbol(jq, this.side);
+    this.replaceBracket($brack, this.side);
   };
   _.createLeftOf = function(cursor) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
@@ -758,9 +762,9 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       else { // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = { ch: OPP_BRACKS[this.sides[this.side].ch],
                              ctrlSeq: OPP_BRACKS[this.sides[this.side].ctrlSeq] };
-        var $jq = this.delimjQs.removeClass('mq-ghost')
+        var $brack = this.delimjQs.removeClass('mq-ghost')
           .eq(side === L ? 0 : 1).addClass('mq-ghost');
-        this.rebuildSymbol($jq, side);
+        this.replaceBracket($brack, side);
       }
       if (sib) { // auto-expand so ghost is at far end
         var origEnd = this.ends[L].ends[side];
@@ -774,13 +778,14 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
                     : cursor.insAtDirEnd(side, this.ends[L]));
     }
   };
-  _.rebuildSymbol = function ($brack, side) {
+  _.replaceBracket = function ($brack, side) {
+    var symbol = this.getSymbol(side);
+    $brack.html(symbol.html).css('width', symbol.width);
+
     if (side === L) {
-      $brack.html(this.leftSymbol.html).css('width', this.leftSymbol.width);
-      $brack.next().css('margin-left', this.leftSymbol.width);
+      $brack.next().css('margin-left', symbol.width);
     } else {
-      $brack.html(this.rightSymbol.html).css('width', this.rightSymbol.width);
-      $brack.prev().css('margin-right', this.rightSymbol.width);
+      $brack.prev().css('margin-right', symbol.width);
     }
   };
   _.deleteTowards = function(dir, cursor) {
