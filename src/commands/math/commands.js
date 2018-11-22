@@ -886,17 +886,24 @@ LatexCmds.right = P(MathCommand, function(_) {
 var Binomial =
 LatexCmds.binom =
 LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
+  var leftSymbol = SVG_SYMBOLS['('];
+  var rightSymbol = SVG_SYMBOLS[')'];
+
   _.ctrlSeq = '\\binom';
   _.htmlTemplate =
-      '<span class="mq-non-leaf">'
-    +   '<span class="mq-paren mq-scaled">(</span>'
-    +   '<span class="mq-non-leaf">'
+      '<span class="mq-non-leaf mq-bracket-container">'
+    +   '<span style="width:'+ leftSymbol.width +'" class="mq-paren mq-bracket-l mq-scaled">'
+    +     leftSymbol.html
+    +   '</span>'
+    +   '<span style="margin-left:'+ leftSymbol.width +'; margin-right:'+ rightSymbol.width +';" class="mq-non-leaf mq-bracket-middle">'
     +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
     +   '</span>'
-    +   '<span class="mq-paren mq-scaled">)</span>'
+    +   '<span style="width:'+ rightSymbol.width +'" class="mq-paren mq-bracket-r mq-scaled">'
+    +     rightSymbol.html
+    +   '</span>'
     + '</span>'
   ;
   _.textTemplate = ['choose(',',',')'];
