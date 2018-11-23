@@ -7,6 +7,7 @@
   overflow: hidden;
   vertical-align: middle;
 }
+
 .mq-math-mode {
   font-variant: normal;
   font-weight: normal;
@@ -23,6 +24,17 @@
   var, .mq-text-mode, .mq-nonSymbola {
     font-family: @times;
     line-height: .9;
+  }
+
+  svg {
+    // svg symbols are sometimes used for autoscaling brackets and
+    // square root symbols. This piece of css magic allows you to copy
+    // over the current value of the font color to the svg symbols.
+    fill: currentColor;
+
+    // the svg symbols fill their container
+    width: 100%;
+    height: 100%;
   }
 
   * {
@@ -196,21 +208,24 @@
 
   ////
   // parentheses
-  .mq-paren {
-    padding: 0 .1em;
-    vertical-align: top;
-    -webkit-transform-origin: center .06em;
-    -moz-transform-origin: center .06em;
-    -ms-transform-origin: center .06em;
-    -o-transform-origin: center .06em;
-    transform-origin: center .06em;
-
-    &.mq-ghost { color: rgba(0,0,0, .2) }
-
-    + span {
-      margin-top: .1em;
-      margin-bottom: .1em;
-    }
+  .mq-ghost svg { opacity: .2 }
+  .mq-bracket-middle {
+    margin-top: .1em;
+    margin-bottom: .1em;
+  }
+  .mq-bracket-l, .mq-bracket-r {
+    position: absolute;
+    top: 0;
+    bottom: 2px;
+  }
+  .mq-bracket-l {
+    left: 0;
+  }
+  .mq-bracket-r {
+    right:0;
+  }
+  .mq-bracket-container {
+    position: relative;
   }
 
   .mq-array {
@@ -280,16 +295,20 @@
   // \sqrt
   // square roots
   .mq-sqrt-prefix {
-    padding-top: 0;
+    position: absolute;
+    top: 1px;
+    bottom: 0.15em;
+    width: 0.95em;
+  }
+
+  .mq-sqrt-container {
     position: relative;
-    top: 0.1em;
-    vertical-align: top;
-    .transform-origin(top);
   }
 
   .mq-sqrt-stem {
     border-top: 1px solid;
     margin-top: 1px;
+    margin-left: 0.9em;
     padding-left: .15em;
     padding-right: .2em;
     margin-right: .1em;

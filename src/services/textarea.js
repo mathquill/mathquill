@@ -21,7 +21,6 @@ Controller.open(function(_) {
   };
   _.selectionChanged = function() {
     var ctrlr = this;
-    forceIERedraw(ctrlr.container[0]);
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
     // and/or calling textarea.select() can have anomalously bad performance:
