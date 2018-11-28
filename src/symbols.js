@@ -236,10 +236,10 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
 LatexCmds['='] = bind(BinaryOperator, '=', '=');
 LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
 LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
-LatexCmds.notsimilar = bind(BinaryOperator, '\\notsimilar', '&#8769;');
-LatexCmds.notapprox = bind(BinaryOperator, '\\notapprox', '&#8777;');
-LatexCmds.notcongruent = bind(BinaryOperator, '\\notcongruent', '&#8774;');
-LatexCmds.parallelogram = bind(BinaryOperator, '\\parallelogram', '&#9649;');
+LatexCmds.notsimilar = bind(VanillaSymbol, '\\notsimilar ', '&#8769;');
+LatexCmds.notapprox = bind(VanillaSymbol, '\\notapprox ', '&#8777;');
+LatexCmds.notcongruent = bind(VanillaSymbol, '\\notcongruent ', '&#8774;');
+LatexCmds.parallelogram = bind(VanillaSymbol, '\\parallelogram ', '&#9649;');
 
 LatexCmds.notin =
 LatexCmds.sim =
