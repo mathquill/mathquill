@@ -118,6 +118,16 @@ var saneKeyboardEvents = (function() {
     }
     target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
 
+    function guardedTextareaSelect () {
+      try {
+        // IE can throw an 'Incorrect Function' error if you
+        // try to select a textarea that is hidden. It seems
+        // likely that we don't really care if the selection
+        // fails to happen in this case. Why would the textarea
+        // be hidden? And who would even be able to tell?
+        textarea[0].select();
+      } catch (e) {};
+    }
 
     // -*- public methods -*- //
     function select(text) {
@@ -129,7 +139,7 @@ var saneKeyboardEvents = (function() {
       clearTimeout(timeoutId);
 
       textarea.val(text);
-      if (text && textarea[0].select) textarea[0].select();
+      if (text) guardedTextareaSelect();
       shouldBeSelected = !!text;
     }
     var shouldBeSelected = false;
@@ -160,10 +170,10 @@ var saneKeyboardEvents = (function() {
       keypress = null;
 
       if (shouldBeSelected) checkTextareaOnce(function(e) {
-        if (!(e && e.type === 'focusout') && textarea[0].select) {
+        if (!(e && e.type === 'focusout')) {
           // re-select textarea in case it's an unrecognized key that clears
           // the selection, then never again, 'cos next thing might be blur
-          textarea[0].select();
+          guardedTextareaSelect()
         }
       });
 
@@ -245,7 +255,7 @@ var saneKeyboardEvents = (function() {
         }
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
-      else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
+      else if (text) guardedTextareaSelect(); // re-select if that's why we're here
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -284,7 +294,7 @@ var saneKeyboardEvents = (function() {
         copy: function(e) { e.preventDefault(); },
         cut: function(e) { e.preventDefault(); },
         paste: function(e) { e.preventDefault(); }
-      });  
+      });
     } else {
       target.bind({
         keydown: onKeydown,
@@ -294,7 +304,7 @@ var saneKeyboardEvents = (function() {
         cut: function() { checkTextareaOnce(function() { controller.cut(); }); },
         copy: function() { checkTextareaOnce(function() { controller.copy(); }); },
         paste: onPaste
-      });  
+      });
     }
 
     // -*- export public methods -*- //
