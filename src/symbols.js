@@ -491,8 +491,10 @@ LatexCmds.hbar = bind(VanillaSymbol,'\\hbar ','&#8463;');
 LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
   bind(VanillaSymbol,'\\text\\AA ','&#8491;');
 
-LatexCmds.ring = LatexCmds.circ = LatexCmds.circle =
+LatexCmds.ring = LatexCmds.circ =
   bind(VanillaSymbol,'\\circ ','&#8728;');
+LatexCmds.circle =
+  bind(VanillaSymbol,'\\circle ','&#8857;');
 
 LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
 
@@ -633,4 +635,3 @@ LatexCmds.lim = NonItalicizedMultiCharFunction;
       NonItalicizedMultiCharFunction;
   }
 }());
-
