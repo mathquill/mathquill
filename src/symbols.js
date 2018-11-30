@@ -493,6 +493,8 @@ LatexCmds.AA = LatexCmds.Angstrom = LatexCmds.angstrom =
 
 LatexCmds.ring = LatexCmds.circ = LatexCmds.circle =
   bind(VanillaSymbol,'\\circ ','&#8728;');
+LatexCmds.circleddot =
+  bind(VanillaSymbol,'\\circleddot ','&#8857;');
 
 LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
 
@@ -633,4 +635,3 @@ LatexCmds.lim = NonItalicizedMultiCharFunction;
       NonItalicizedMultiCharFunction;
   }
 }());
-
