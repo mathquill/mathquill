@@ -238,8 +238,9 @@ LatexCmds['<'] = bind(BinaryOperator, '<', '&lt;');
 LatexCmds['>'] = bind(BinaryOperator, '>', '&gt;');
 LatexCmds.notsimilar = bind(VanillaSymbol, '\\notsimilar ', '&#8769;');
 LatexCmds.notapprox = bind(VanillaSymbol, '\\notapprox ', '&#8777;');
-LatexCmds.notcongruent = bind(VanillaSymbol, '\\notcongruent ', '&#8774;');
+LatexCmds.notcongruent = bind(VanillaSymbol, '\\notcongruent ', '&#8775;');
 LatexCmds.parallelogram = bind(VanillaSymbol, '\\parallelogram ', '&#9649;');
+LatexCmds.forwardslash = bind(VanillaSymbol, '\\forwardslash ', '&#8260;');
 
 LatexCmds.notin =
 LatexCmds.sim =
