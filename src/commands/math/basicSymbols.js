@@ -647,6 +647,8 @@ LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
 LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
 LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
 LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
+LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
+  bind(VanillaSymbol,'\\infty ','&infin;', 'infinity');
 
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
