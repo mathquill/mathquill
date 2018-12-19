@@ -453,6 +453,37 @@ suite('Public API', function() {
     });
   });
 
+  suite('maxDepth option', function() {
+    setup(function() {
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+        maxDepth: 1
+      });
+    });
+    teardown(function() {
+      $(mq.el()).remove();
+    });
+
+    test('prevents nested math input via .write() method', function() {
+      mq.write('1\\frac{\\frac{3}{3}}{2}');
+      assert.equal(mq.latex(), '1\\frac{ }{ }');
+    });
+
+    test('prevents nested math input via keyboard input', function() {
+      mq.cmd('/').write('x');
+      assert.equal(mq.latex(), '\\frac{ }{ }');
+    });
+
+    test('stops new fraction moving content into numerator', function() {
+      mq.write('x').cmd('/');
+      assert.equal(mq.latex(), 'x\\frac{ }{ }');
+    });
+
+    test('prevents nested math input via replacedFragment', function() {
+      mq.cmd('(').keystroke('Left').cmd('(')
+      assert.equal(mq.latex(), '\\left(\\right)');
+    });
+  });
+
   suite('statelessClipboard option', function() {
     suite('default', function() {
       var mq, textarea;
