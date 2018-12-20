@@ -51,7 +51,11 @@ code span {
 
 <p>You could actually just copy-and-paste this HTML into any element with <code>class="mq-math-mode"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully, like this: <span class="mq-math-mode" id="html-transplant-example"></span></p>
 
-<p>Any element with <code>class="mathquill-static-math"</code> whose contents are LaTeX source will be rendered as static math: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
+<p>If you simply want to display some non-interactive math, you can use MathQuill's StaticMath API: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. If you select and copy static math, by default it will copy LaTeX source to the clipboard.</p>
+
+<p>You can also make static math non-selectable: <span class="static-math-no-mouse-events">sin^2\theta + cos^2\theta = 1</span>.</p>
+
+<p>Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
 
 <p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-text-field">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
 
@@ -69,6 +73,7 @@ MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents:false }); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });
@@ -114,6 +119,14 @@ $(function() {
 
   if(location.hash && location.hash.length > 1)
     latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
+});
+
+$(".insert-trigger").click(function () {
+  var latex = $(this).data('latex');
+  $(this).parent().find('.mathquill-math-field').each(function () {
+    var mathquill = MQ(this);
+    mathquill.write(latex);
+  });
 });
 
 //print the HTML source as an indented tree. TODO: syntax highlight

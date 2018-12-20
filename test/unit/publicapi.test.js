@@ -49,6 +49,7 @@ suite('Public API', function() {
       assert.ok(rootBlock.hasClass('mq-empty'));
       assert.ok(!rootBlock.hasClass('mq-hasCursor'));
     });
+
   });
 
   suite('mathquill-basic', function() {
