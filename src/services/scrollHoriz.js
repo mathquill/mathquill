@@ -6,6 +6,13 @@
 Controller.open(function(_) {
   _.scrollHoriz = function() {
     var cursor = this.cursor, seln = cursor.selection;
+    var cursorOffset = cursor.offset()
+    if(cursorOffset) {
+      var $container = cursor.jQ.closest('.mq-editable-field')
+      var offset = Number(cursorOffset.top - $container.offset().top + (cursor.jQ.height() * 2))
+      $container.find('.mq-textarea textarea').css('top', offset + 'px')
+    }
+
     var rootRect = this.root.jQ[0].getBoundingClientRect();
     if (!seln) {
       var x = cursor.jQ[0].getBoundingClientRect().left;
