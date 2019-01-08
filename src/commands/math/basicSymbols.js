@@ -235,8 +235,19 @@ var Letter = P(Variable, function(_, super_) {
     }
   };
   function shouldOmitPadding(node) {
-    // omit padding if no node, or if node already has padding (to avoid double-padding)
-    return !node || (node instanceof BinaryOperator) || (node instanceof SummationNotation);
+    // omit padding if no node
+    if (!node) return true;
+
+    // do not add padding between letter and '.'
+    if (node.ctrlSeq === '.') return true;
+
+    // do not add padding between letter and binary operator. The
+    // binary operator already has padding
+    if (node instanceof BinaryOperator) return true;
+
+    if (node instanceof SummationNotation) return true;
+
+    return false;
   }
 });
 var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
