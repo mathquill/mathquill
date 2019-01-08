@@ -588,10 +588,10 @@ var PlusMinus = P(BinaryOperator, function(_) {
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     function determineOpClassType(node) {
       if (node[L]) {
-        // If the left sibling is a binary operator or a separator (comma, semicolon, colon)
+        // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
         // or an open bracket (open parenthesis, open square bracket)
         // consider the operator to be unary
-        if (node[L] instanceof BinaryOperator || /^[,;:\(\[]$/.test(node[L].ctrlSeq)) {
+        if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
           return '';
         }
       } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
