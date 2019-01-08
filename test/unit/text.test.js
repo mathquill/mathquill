@@ -100,20 +100,27 @@ suite('text', function() {
 
   test('HTML for subclassed text blocks', function() {
     var block = fromLatex('\\text{abc}');
-    assert.equal(block.html(), '<span class="mq-text-mode" mathquill-command-id=3510>abc</span>');
+    var _id = block.html().match(/mathquill-command-id=([0-9]+)/)[1];
+    function id () {
+      _id = parseInt(_id) + 3;
+      return _id;
+    }
+
+    block = fromLatex('\\text{abc}');
+    assert.equal(block.html(), '<span class="mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
     block = fromLatex('\\textit{abc}');
-    assert.equal(block.html(), '<i class="mq-text-mode" mathquill-command-id=3513>abc</i>');
+    assert.equal(block.html(), '<i class="mq-text-mode" mathquill-command-id='+id()+'>abc</i>');
     block = fromLatex('\\textbf{abc}');
-    assert.equal(block.html(), '<b class="mq-text-mode" mathquill-command-id=3516>abc</b>');
+    assert.equal(block.html(), '<b class="mq-text-mode" mathquill-command-id='+id()+'>abc</b>');
     block = fromLatex('\\textsf{abc}');
-    assert.equal(block.html(), '<span class="mq-sans-serif mq-text-mode" mathquill-command-id=3519>abc</span>');
+    assert.equal(block.html(), '<span class="mq-sans-serif mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
     block = fromLatex('\\texttt{abc}');
-    assert.equal(block.html(), '<span class="mq-monospace mq-text-mode" mathquill-command-id=3522>abc</span>');
+    assert.equal(block.html(), '<span class="mq-monospace mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
     block = fromLatex('\\textsc{abc}');
-    assert.equal(block.html(), '<span style="font-variant:small-caps" class="mq-text-mode" mathquill-command-id=3525>abc</span>');
+    assert.equal(block.html(), '<span style="font-variant:small-caps" class="mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
     block = fromLatex('\\uppercase{abc}');
-    assert.equal(block.html(), '<span style="text-transform:uppercase" class="mq-text-mode" mathquill-command-id=3528>abc</span>');
+    assert.equal(block.html(), '<span style="text-transform:uppercase" class="mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
     block = fromLatex('\\lowercase{abc}');
-    assert.equal(block.html(), '<span style="text-transform:lowercase" class="mq-text-mode" mathquill-command-id=3531>abc</span>');
+    assert.equal(block.html(), '<span style="text-transform:lowercase" class="mq-text-mode" mathquill-command-id='+id()+'>abc</span>');
   });
 });
