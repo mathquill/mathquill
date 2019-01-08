@@ -178,8 +178,9 @@ function getInterface(v) {
         else /* TODO: API needs better error reporting */;
       }
       else cursor.parent.write(cursor, cmd);
-      if (ctrlr.blurred) cursor.hide().parent.blur();
+
       ctrlr.scrollHoriz();
+      if (ctrlr.blurred) cursor.hide().parent.blur();
       return this;
     };
     _.select = function() {
