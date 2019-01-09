@@ -148,11 +148,11 @@ suite('saneKeyboardEvents', function() {
 
       // IE < 9 doesn't support selection{Start,End}
       if (supportsSelectionAPI()) {
-        assert.equal(el[0].selectionStart, 0, 'it\'s selected from the start');
-        assert.equal(el[0].selectionEnd, 6, 'it\'s selected to the end');
+        assert.equal(el[0].selectionStart, 0, 'it is not selected at the start');
+        assert.equal(el[0].selectionEnd, 0, 'it is not selected at the end');
       }
 
-      assert.equal(el.val(), 'foobar', 'it still has content');
+      assert.equal(el.val(), '', 'it has no content');
     });
 
     test('blur then empty selection', function() {
