@@ -107,27 +107,27 @@ Controller.open(function(_) {
 });
 
 Controller.open(function(_) {
-  _.seek = function(target, pageX, pageY) {
+  _.seek = function($target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
     var node;
-    var targetElm = target && target[0];
+    var targetElm = $target && $target[0];
 
-    // try to find the node by the target
-    if (targetElm) {
+    // we can click on an element that is deeply nested past the point
+    // that mathquill knows about. We need to traverse up to the first
+    // node that mathquill is aware of
+    while (targetElm) {
+      // try to find the MQ Node associated with the DOM Element
       node = Node.getNodeOfElement(targetElm);
+      if (node) break;
 
-      // if that didn't work find the node by the target's parent
-      if (!node) {
-        node = Node.getNodeOfElement(target.parentElement);
-      }
+      // must be too deep, traverse up to the parent DOM Element
+      targetElm = targetElm.parentElement;
     }
 
-    // if that didn't work then the root is the node
+    // Could not find any nodes, just use the root
     if (!node) {
       node = this.root;
     }
-
-    pray('nodeId is the id of some Node that exists', node);
 
     // don't clear selection until after getting node from target, in case
     // target was selection span, otherwise target will have no parent and will
