@@ -116,7 +116,9 @@ var saneKeyboardEvents = (function() {
         checker(e);
       });
     }
-    target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
+    target.bind('keydown keypress input keyup paste', function(e) {
+      checkTextarea(e);
+    });
 
     function guardedTextareaSelect () {
       try {
@@ -258,7 +260,13 @@ var saneKeyboardEvents = (function() {
       else if (text) guardedTextareaSelect(); // re-select if that's why we're here
     }
 
-    function onBlur() { keydown = keypress = null; }
+    function onBlur() {
+      keydown = null;
+      keypress = null;
+      checkTextarea = noop;
+      clearTimeout(timeoutId);
+      textarea.val('');
+    }
 
     function onPaste(e) {
       // browsers are dumb.
