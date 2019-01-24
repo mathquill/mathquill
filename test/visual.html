@@ -163,6 +163,10 @@ $(function() {
 
 <p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
+<p>Static math with mouseEvents set to false should not interact with the mouse: <span class="static-math-no-mouse-events">12 + 34</span></p>
+
+<p>Even in the case where it has an empty element: <span class="static-math-no-mouse-events">\sqrt{} </span></p>
+
 <h3>Dynamic mathquill-ification</h3>
 <table id="dynamic-initial">
 <tr><th colspan=3>Initial LaTeX
@@ -312,6 +316,7 @@ $('#show-textareas-button').click(function() {
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents: false }); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });

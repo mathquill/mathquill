@@ -259,6 +259,19 @@ var Cursor = P(Point, function(_) {
     }
     return seln;
   };
+  _.depth = function() {
+    var node = this;
+    var depth = 0;
+    while (node = node.parent) {
+      depth += (node instanceof MathBlock) ? 1 : 0;
+    }
+    return depth;
+  };
+  _.isTooDeep = function(offset) {
+    if (this.options.maxDepth !== undefined) {
+      return this.depth() + (offset || 0) > this.options.maxDepth;
+    }
+  };
 });
 
 var Selection = P(Fragment, function(_, super_) {

@@ -85,7 +85,7 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left(123\\right)');
   });
 
-  test('langle/rangle (issue #508)', function() {
+  test('\\langle/\\rangle (issue #508)', function() {
     var tree = latexMathParser.parse('\\left\\langle 123\\right\\rangle)');
 
     assert.ok(tree.ends[L] instanceof Bracket);
@@ -94,7 +94,16 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
   });
 
-  test('lVert/rVert', function() {
+  test('\\langle/\\rangle (without whitespace)', function() {
+    var tree = latexMathParser.parse('\\left\\langle123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
+  });
+
+  test('\\lVert/\\rVert', function() {
     var tree = latexMathParser.parse('\\left\\lVert 123\\right\\rVert)');
 
     assert.ok(tree.ends[L] instanceof Bracket);
@@ -103,6 +112,27 @@ suite('latex', function() {
     assert.equal(tree.join('latex'), '\\left\\lVert 123\\right\\rVert )');
   });
 
+  test('\\lVert/\\rVert (without whitespace)', function() {
+    var tree = latexMathParser.parse('\\left\\lVert123\\right\\rVert)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\lVert 123\\right\\rVert )');
+  });
+
+  test('\\langler should not parse', function() {
+    assert.throws(function () {
+      latexMathParser.parse('\\left\\langler123\\right\\rangler');
+    })
+  });
+
+  test('\\lVerte should not parse', function() {
+    assert.throws(function () {
+      latexMathParser.parse('\\left\\lVerte123\\right\\rVerte');
+    })
+  });
+  
   test('parens with whitespace', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
