@@ -12,8 +12,6 @@ LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
   };
 });
 
-LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;', 'not equal');
-
 LatexCmds['∗'] = LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
   bind(BinaryOperator,'\\ast ','&lowast;', 'low asterisk');
 LatexCmds.therefor = LatexCmds.therefore =
