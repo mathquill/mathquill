@@ -575,9 +575,17 @@ var LatexFragment = P(MathCommand, function(_) {
 // [2]: http://en.wikipedia.org/wiki/Number_Forms
 // [3]: http://en.wikipedia.org/wiki/ISO/IEC_8859-1
 // [4]: http://en.wikipedia.org/wiki/Windows-1252
+LatexCmds['⁰'] = bind(LatexFragment, '^0');
 LatexCmds['¹'] = bind(LatexFragment, '^1');
 LatexCmds['²'] = bind(LatexFragment, '^2');
 LatexCmds['³'] = bind(LatexFragment, '^3');
+LatexCmds['⁴'] = bind(LatexFragment, '^4');
+LatexCmds['⁵'] = bind(LatexFragment, '^5');
+LatexCmds['⁶'] = bind(LatexFragment, '^6');
+LatexCmds['⁷'] = bind(LatexFragment, '^7');
+LatexCmds['⁸'] = bind(LatexFragment, '^8');
+LatexCmds['⁹'] = bind(LatexFragment, '^9');
+
 LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
 LatexCmds['½'] = bind(LatexFragment, '\\frac12');
 LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
