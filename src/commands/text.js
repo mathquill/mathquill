@@ -97,8 +97,10 @@ var TextBlock = P(Node, function(_, super_) {
     cursor.show().deleteSelection();
 
     if (ch !== '$') {
+      this.postOrder('reflow');
       if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
       else cursor[L].appendText(ch);
+      this.bubble('reflow'); 
     }
     else if (this.isEmpty()) {
       cursor.insRightOf(this);
