@@ -327,6 +327,20 @@ suite('Public API', function() {
       mq.typedText(']');
       assert.equal(count, countBeforeClosingBracket + 1);
     });
+    test('fires in text-mode', function() {
+      var count = 0;
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        handlers: {
+          edit: function() {
+            count += 1;
+          }
+        }
+      });
+      mq.typedText('\\text A');
+      var countBeforeTextMode = count;
+      mq.typedText('B');
+      assert.equal(count, countBeforeTextMode + 1);
+    });
   });
 
   suite('.cmd(...)', function() {
