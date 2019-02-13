@@ -35,6 +35,7 @@ Controller.open(function(_) {
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
       if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
       blur();
+      updateAria();
     }
     function blur() { // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
@@ -51,6 +52,7 @@ Controller.open(function(_) {
       ctrlr.textarea.attr('aria-label', mqAria);
       ctrlr.container.attr('aria-label', mqAria);
     }
+    updateAria();
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };

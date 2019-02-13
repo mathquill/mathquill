@@ -72,7 +72,7 @@ Controller.open(function(_) {
       if (text) textarea.select();
     };
     var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
-    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
+    ctrlr.container.attr('role', 'math').attr('aria-label', ariaLabel + root.mathspeak().trim());
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
