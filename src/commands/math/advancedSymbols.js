@@ -141,6 +141,7 @@ LatexCmds.preceq = bind(VanillaSymbol, '\\preceq ', '&#8828;');
 LatexCmds.succeq = bind(VanillaSymbol, '\\succeq ', '&#8829;');
 LatexCmds.simeq = bind(VanillaSymbol, '\\simeq ', '&#8771;');
 LatexCmds.mid = bind(VanillaSymbol, '\\mid ', '&#8739;');
+LatexCmds.nmid = bind(VanillaSymbol, '\\nmid', '&#8740;');
 LatexCmds.ll = bind(VanillaSymbol, '\\ll ', '&#8810;');
 LatexCmds.gg = bind(VanillaSymbol, '\\gg ', '&#8811;');
 LatexCmds.parallel = bind(VanillaSymbol, '\\parallel ', '&#8741;');
