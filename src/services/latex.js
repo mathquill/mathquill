@@ -18,6 +18,7 @@ var latexMathParser = (function() {
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
+  var digit = Parser.digit;
   var any = Parser.any;
   var optWhitespace = Parser.optWhitespace;
   var succeed = Parser.succeed;
@@ -26,6 +27,7 @@ var latexMathParser = (function() {
   // Parsers yielding either MathCommands, or Fragments of MathCommands
   //   (either way, something that can be adopted by a MathBlock)
   var variable = letter.map(function(c) { return Letter(c); });
+  var number = digit.map(function (c) { return Digit(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
   var controlSequence =
@@ -49,6 +51,7 @@ var latexMathParser = (function() {
   var command =
     controlSequence
     .or(variable)
+    .or(number)
     .or(symbol)
   ;
 
@@ -254,6 +257,12 @@ Controller.open(function(_, super_) {
     }
 
     this.cursor.resetToEnd(this);
+
+    var rightMost = root.ends[R];
+    if (rightMost.fixDigitGrouping) {
+      rightMost.fixDigitGrouping(this.cursor.options);
+    }
+
     return true;
   };
   _.renderLatexMathFromScratch = function (latex) {

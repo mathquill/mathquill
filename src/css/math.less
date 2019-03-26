@@ -1,3 +1,9 @@
+// look here to see the digit layout strategy:
+// https://www.desmos.com/calculator/ctvh9utz0t
+@digit-separator: .11em;
+@expand-margin: .009em;
+@contract-margin: -.01em;
+
 .mq-root-block, .mq-math-mode .mq-root-block {
   .inline-block;
   width: 100%;
@@ -6,6 +12,38 @@
   white-space: nowrap;
   overflow: hidden;
   vertical-align: middle;
+
+  .mq-digit {
+    margin-left: @expand-margin;
+    margin-right: @expand-margin;
+  }
+
+  .mq-group-start {
+    margin-left: @digit-separator;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-other {
+    margin-left: @contract-margin;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-leading-1, .mq-group-leading-2 {
+    margin-left: 0;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-leading-3 {
+    margin-left: 4 * @expand-margin;
+    margin-right: @contract-margin;
+  }
+
+  &.mq-suppress-grouping {
+    .mq-group-start, .mq-group-other, .mq-group-leading-1, .mq-group-leading-2, .mq-group-leading-3 {
+      margin-left: @expand-margin;
+      margin-right: @expand-margin;
+    }
+  }
 }
 
 .mq-math-mode {

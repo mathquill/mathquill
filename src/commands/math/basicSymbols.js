@@ -1,8 +1,160 @@
 /*********************************
  * Symbols for Basic Mathematics
  ********************************/
+var DigitGroupingChar = P(Symbol, function(_, super_) {
+  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(opts, dir) {
+    // don't try to fix digit grouping if the sibling to my right changed (dir === R or
+    // undefined) and it's now a DigitGroupingChar, it will try to fix grouping
+    if (dir !== L && this[R] instanceof DigitGroupingChar) return;
+    this.fixDigitGrouping(opts);
+  };
 
-var Digit = P(VanillaSymbol, function(_, super_) {
+  _.fixDigitGrouping = function (opts) {
+    if (!opts.enableDigitGrouping) return;
+
+    var left = this;
+    var right = this;
+
+    var spacesFound = 0;
+    var dots = [];
+
+    var SPACE = '\\ ';
+    var DOT = '.';
+
+    // traverse left as far as possible (starting at this char)
+    var node = left;
+    do {
+      if (/^[0-9]$/.test(node.ctrlSeq)) {
+        left = node
+      } else if (node.ctrlSeq === SPACE) {
+        left = node
+        spacesFound += 1;
+      } else if (node.ctrlSeq === DOT) {
+        left = node
+        dots.push(node);
+      } else {
+        break;
+      }
+    } while (node = left[L]);
+
+    // traverse right as far as possible (starting to right of this char)
+    while (node = right[R]) {
+      if (/^[0-9]$/.test(node.ctrlSeq)) {
+        right = node
+      } else if (node.ctrlSeq === SPACE) {
+        right = node
+        spacesFound += 1;
+      } else if (node.ctrlSeq === DOT) {
+        right = node
+        dots.push(node);
+      } else {
+        break;
+      }
+    }
+
+    // trim the leading spaces
+    while (right !== left && left.ctrlSeq === SPACE) {
+      left = left[R];
+      spacesFound -= 1;
+    }
+
+    // trim the trailing spaces
+    while (right !== left && right.ctrlSeq === SPACE) {
+      right = right[L];
+      spacesFound -= 1;
+    }
+
+    // happens when you only have a space
+    if (left === right && left.ctrlSeq === SPACE) return;
+
+    var disableFormatting = spacesFound > 0 || dots.length > 1;
+    if (disableFormatting) {
+      this.removeGroupingBetween(left, right);
+    } else if (dots[0]) {
+      if (dots[0] !== left) {
+        this.addGroupingBetween(dots[0][L], left);
+      }
+      if (dots[0] !== right) {
+        // we do not show grouping to the right of a decimal place #yet
+        this.removeGroupingBetween(dots[0][R], right);
+      }
+    } else {
+      this.addGroupingBetween(right, left);
+    }
+  };
+
+  _.removeGroupingBetween = function (left, right) {
+    var node = left;
+    do {
+      node.setGroupingClass(undefined);
+      if (node === right) break;
+    } while (node = node[R]);
+  };
+
+  _.addGroupingBetween = function (start, end) {
+    var node = start;
+    var count = 0;
+
+    var totalDigits = 0;
+    var node = start;
+    while (node) {
+      totalDigits += 1;
+
+      if (node === end) break;
+      node = node[L];
+    }
+
+    var numDigitsInFirstGroup = totalDigits % 3;
+    if (numDigitsInFirstGroup === 0) numDigitsInFirstGroup = 3;
+
+    var node = start;
+    while (node) {
+      count += 1;
+
+      cls = undefined;
+
+      // only do grouping if we have at least 4 numbers
+      if (totalDigits >= 4) {
+        if (count === totalDigits) {
+          cls = 'mq-group-leading-' + numDigitsInFirstGroup;
+        } else if (count % 3 === 0) {
+          if (count !== totalDigits) {
+            cls = 'mq-group-start'
+          }
+        }
+
+        if (!cls) {
+          cls = 'mq-group-other'
+        }
+      }
+
+      node.setGroupingClass(cls);
+
+      if (node === end) break;
+      node = node[L];
+    }
+  };
+
+  _.setGroupingClass = function (cls) {
+    // nothing changed (either class is the same or it's still undefined)
+    if (this._groupingClass === cls) return;
+
+    // remove existing class
+    if (this._groupingClass) this.jQ.removeClass(this._groupingClass);
+
+    // add new class
+    if (cls) this.jQ.addClass(cls);
+
+    // cache the groupingClass
+    this._groupingClass = cls;
+  }
+});
+
+var Digit = P(DigitGroupingChar, function(_, super_) {
+  _.init = function(ch, html, mathspeak) {
+    super_.init.call(this, ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
+  };
+
   _.createLeftOf = function(cursor) {
     if (cursor.options.autoSubscriptNumerals
         && cursor.parent !== cursor.parent.parent.sub
@@ -376,7 +528,17 @@ LatexCmds.f = P(Letter, function(_, super_) {
 });
 
 // VanillaSymbol's
-LatexCmds[' '] = LatexCmds.space = bind(VanillaSymbol, '\\ ', '&nbsp;', 'space');
+LatexCmds[' '] = LatexCmds.space = P(DigitGroupingChar, function(_, super_) {
+  _.init = function () {
+    super_.init.call(this, '\\ ', '<span>&nbsp;</span>', ' ');
+  };
+});
+
+LatexCmds['.'] = P(DigitGroupingChar, function(_, super_) {
+  _.init = function () {
+    super_.init.call(this, '.', '<span class="mq-digit">.</span>', '.');
+  };
+});
 
 LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;', 'prime');
 LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;', 'double prime');

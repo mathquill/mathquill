@@ -93,6 +93,7 @@ $(function() {
   $(latexMath.el()).bind('keydown keypress', function() {
     setTimeout(function() {
       var latex = latexMath.latex();
+
       latexSource.val(latex);
 //      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
       htmlSource.text(printTree(latexMath.html()));

@@ -11,7 +11,8 @@ JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
 var Cursor = P(Point, function(_) {
-  _.init = function(initParent, options) {
+  _.init = function(initParent, options, controller) {
+    this.controller = controller;
     this.parent = initParent;
     this.options = options;
 
