@@ -163,10 +163,6 @@ $(function() {
 
 <p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
-<p>Static math with mouseEvents set to false should not interact with the mouse: <span class="static-math-no-mouse-events">12 + 34</span></p>
-
-<p>Even in the case where it has an empty element: <span class="static-math-no-mouse-events">\sqrt{} </span></p>
-
 <h3>Dynamic mathquill-ification</h3>
 <table id="dynamic-initial">
 <tr><th colspan=3>Initial LaTeX
@@ -182,9 +178,9 @@ $(function() {
 <table id="dynamic-reflow">
 <tr><th colspan=3><code>MQ(...).reflow()</code>
 <tr>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
+  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k} + \begin{bmatrix}x&amp;y\\1&amp;2\end{bmatrix}</span>
 </table>
 
 <h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
@@ -216,11 +212,7 @@ $(function() {
 <tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
 <tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
 <tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
-<tr><td><span class="mathquill-static-math">\overline{abc}</span><td><span>\overline{abc}</span>
-<tr><td><span class="mathquill-static-math">\overleftarrow{abc}</span><td><span>\overleftarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overrightarrow{abc}</span><td><span>\overrightarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overleftrightarrow{abc}</span><td><span>\overleftrightarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overarc{abc}</span><td><span>\overarc{abc}</span>
+<tr><td><span class="mathquill-static-math">\begin{Vmatrix}x&amp;y\\1&amp;2\end{Vmatrix}</span><td><span>\begin{Vmatrix}x&amp;y\\1&amp;2\end{Vmatrix}</span>
 <tr><td colspan=2><span id="sixes"></span>
 <script>
 $(function() {
@@ -316,7 +308,6 @@ $('#show-textareas-button').click(function() {
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
-  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents: false }); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });

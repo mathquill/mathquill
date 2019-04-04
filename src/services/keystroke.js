@@ -241,15 +241,11 @@ Controller.open(function(_) {
   _.ctrlDeleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
-    if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
+    if (!cursor[L] || cursor.selection) return this.deleteDir();
 
     this.notify('edit');
-    if (dir === L) {
-      Fragment(cursor.parent.ends[L], cursor[L]).remove();
-    } else {
-      Fragment(cursor[R], cursor.parent.ends[R]).remove();
-    };
-    cursor.insAtDirEnd(dir, cursor.parent);
+    Fragment(cursor.parent.ends[L], cursor[L]).remove();
+    cursor.insAtDirEnd(L, cursor.parent);
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);

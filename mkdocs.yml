@@ -18,6 +18,5 @@ markdown_extensions:
   - toc:
       permalink: True
 
-theme: readthedocs
 extra_css:
   - extra.css

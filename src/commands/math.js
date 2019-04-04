@@ -26,43 +26,6 @@ var MathElement = P(Node, function(_, super_) {
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble('reflow');
   };
-  // If the maxDepth option is set, make sure
-  // deeply nested content is truncated. Just return
-  // false if the cursor is already too deep.
-  _.prepareInsertionAt = function(cursor) {
-    var maxDepth = cursor.options.maxDepth;
-    if (maxDepth !== undefined) {
-      var cursorDepth = cursor.depth();
-      if (cursorDepth > maxDepth) {
-        return false;
-      }
-      this.removeNodesDeeperThan(maxDepth-cursorDepth);
-    }
-    return true;
-  };
-  // Remove nodes that are more than `cutoff`
-  // blocks deep from this node.
-  _.removeNodesDeeperThan = function (cutoff) {
-    var depth = 0;
-    var queue = [[this, depth]];
-    var current;
-
-    // Do a breadth-first search of this node's descendants
-    // down to cutoff, removing anything deeper.
-    while (queue.length) {
-      current = queue.shift();
-      current[0].children().each(function (child) {
-        var i = (child instanceof MathBlock) ? 1 : 0;
-        depth = current[1]+i;
-
-        if (depth <= cutoff) {
-          queue.push([child, depth]);
-        } else {
-          (i ? child.children() : child).remove();
-        }
-      });
-    }
-  };
 });
 
 /**
@@ -115,8 +78,6 @@ var MathCommand = P(MathElement, function(_, super_) {
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
-      cmd.placeCursor(cursor);
-      cmd.prepareInsertionAt(cursor);
     }
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
@@ -324,7 +285,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       if (text && cmd.textTemplate[i] === '('
           && child_text[0] === '(' && child_text.slice(-1) === ')')
         return text + child_text.slice(1, -1) + cmd.textTemplate[i];
-      return text + child_text + (cmd.textTemplate[i] || '');
+      return text + child.text() + (cmd.textTemplate[i] || '');
     });
   };
 });
@@ -453,9 +414,7 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.write = function(cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
-    if (!cursor.isTooDeep()) {
-      cmd.createLeftOf(cursor.show());
-    }
+    cmd.createLeftOf(cursor.show());
   };
 
   _.focus = function() {
@@ -473,17 +432,14 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 });
 
-Options.p.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
     _.__mathquillify = function(opts, interfaceVersion) {
       this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
-      if (this.__options.mouseEvents) {
-        this.__controller.delegateMouseEvents();
-        this.__controller.staticMathTextareaEvents();
-      }
+      this.__controller.delegateMouseEvents();
+      this.__controller.staticMathTextareaEvents();
       return this;
     };
     _.init = function() {

@@ -160,20 +160,11 @@ function getInterface(v) {
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     };
-    _.empty = function() {
-      var root = this.__controller.root, cursor = this.__controller.cursor;
-      root.eachChild('postOrder', 'dispose');
-      root.ends[L] = root.ends[R] = 0;
-      root.jQ.empty();
-      delete cursor.selection;
-      cursor.insAtRightEnd(root);
-      return this;
-    };
     _.cmd = function(cmd) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
-      if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
+      if (/^\\[a-z]+$/i.test(cmd)) {
         cmd = cmd.slice(1);
-        var klass = LatexCmds[cmd];
+        var klass = LatexCmds[cmd] || Environments[cmd];
         if (klass) {
           cmd = klass(cmd);
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());

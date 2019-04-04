@@ -33,7 +33,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
       if (ch.match(/[a-z]/i)) VanillaSymbol(ch).createLeftOf(cursor);
       else {
         this.parent.renderCommand(cursor);
-        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
+        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
       }
     };
     this.ends[L].keystroke = function(key, e, ctrlr) {
@@ -74,7 +74,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
 
     var latex = this.ends[L].latex();
     if (!latex) latex = ' ';
-    var cmd = LatexCmds[latex];
+    var cmd = LatexCmds[latex] || Environments[latex];
     if (cmd) {
       cmd = cmd(latex);
       if (this._replacedFragment) cmd.replaces(this._replacedFragment);

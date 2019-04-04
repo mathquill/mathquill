@@ -49,7 +49,6 @@ suite('Public API', function() {
       assert.ok(rootBlock.hasClass('mq-empty'));
       assert.ok(!rootBlock.hasClass('mq-hasCursor'));
     });
-
   });
 
   suite('mathquill-basic', function() {
@@ -109,7 +108,7 @@ suite('Public API', function() {
       mq.latex('x+y');
       assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
     });
-
+    
     test('.text() with incomplete commands', function() {
       assert.equal(mq.text(), '');
       mq.typedText('\\');
@@ -157,12 +156,6 @@ suite('Public API', function() {
       mq.moveToRightEnd();
       assert.equal(mq.__controller.cursor[L].ctrlSeq, '0');
       assert.equal(mq.__controller.cursor[R], 0);
-    });
-
-    test('.empty()', function() {
-      mq.latex('xyz');
-      mq.empty();
-      assert.equal(mq.latex(), '');
     });
   });
 
@@ -454,37 +447,6 @@ suite('Public API', function() {
     });
   });
 
-  suite('maxDepth option', function() {
-    setup(function() {
-      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
-        maxDepth: 1
-      });
-    });
-    teardown(function() {
-      $(mq.el()).remove();
-    });
-
-    test('prevents nested math input via .write() method', function() {
-      mq.write('1\\frac{\\frac{3}{3}}{2}');
-      assert.equal(mq.latex(), '1\\frac{ }{ }');
-    });
-
-    test('prevents nested math input via keyboard input', function() {
-      mq.cmd('/').write('x');
-      assert.equal(mq.latex(), '\\frac{ }{ }');
-    });
-
-    test('stops new fraction moving content into numerator', function() {
-      mq.write('x').cmd('/');
-      assert.equal(mq.latex(), 'x\\frac{ }{ }');
-    });
-
-    test('prevents nested math input via replacedFragment', function() {
-      mq.cmd('(').keystroke('Left').cmd('(')
-      assert.equal(mq.latex(), '\\left(\\right)');
-    });
-  });
-
   suite('statelessClipboard option', function() {
     suite('default', function() {
       var mq, textarea;
@@ -553,7 +515,7 @@ suite('Public API', function() {
       });
       test('backslashes', function() {
         assertPaste('something \\pi something \\asdf',
-                    '\\text{something \\backslash pi something \\backslash asdf}');
+                    '\\text{something \\pi something \\asdf}');
       });
       // TODO: braces (currently broken)
       test('actual math LaTeX wrapped in dollar signs', function() {
