@@ -1,0 +1,58 @@
+Skip to content
+ 
+Search or jump to…
+
+Pull requests
+Issues
+Marketplace
+Explore
+ 
+@buildsnapwiz 
+19
+0 0 snapwiz/edulastic-poc Private
+ Code  Issues 29  Pull requests 9  Projects 0  Wiki  Insights  Settings
+edulastic-poc
+/
+appspec.yml
+@aswin-sw aswin-sw chore(appSpec): build needs more time (#823)
+0d384f4 on 12 Feb
+@aswin-sw @buildsnapwiz @klishevich
+26 lines (25 sloc)  510 Bytes
+  
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/edulastic-mathquill
+permissions:
+  - object: /home/ec2-user
+    owner: ec2-user
+    group: ec2-user
+    type:
+      - directory
+      - file
+hooks:
+  BeforeInstall:
+    - location: scripts/npm-install.sh
+      runas: ec2-user
+      timeout: 300
+  AfterInstall:
+    - location: scripts/post-install.sh
+      timeout: 900
+      runas: ec2-user
+  ApplicationStart:
+    - location: scripts/npm-start.sh
+      runas: ec2-user
+      timeout: 600
+© 2019 GitHub, Inc.
+Terms
+Privacy
+Security
+Status
+Help
+Contact GitHub
+Pricing
+API
+Training
+Blog
+About
