@@ -1,0 +1,25 @@
+version: 0.0
+os: linux
+files:
+  - source: /
+    destination: /home/ec2-user/edulastic-mathquill
+permissions:
+  - object: /home/ec2-user
+    owner: ec2-user
+    group: ec2-user
+    type:
+      - directory
+      - file
+hooks:
+  BeforeInstall:
+    - location: scripts/npm-install.sh
+      runas: ec2-user
+      timeout: 300
+  AfterInstall:
+    - location: scripts/post-install.sh
+      timeout: 900
+      runas: ec2-user
+  ApplicationStart:
+    - location: scripts/npm-start.sh
+      runas: ec2-user
+      timeout: 600
