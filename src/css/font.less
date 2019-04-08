@@ -1,5 +1,4 @@
-@omit-font-face:;
-.font-face;
+@omit-font-face: ;
 .font-face() when not (@omit-font-face) {
   @font-face {
     font-family: Symbola;
@@ -7,26 +6,19 @@
   }
 }
 
-@basic:;
+@basic: ;
 .font-srcs() when not (@basic) {
   src: url(fonts/Symbola.eot);
-  src:
-    local("Symbola Regular"),
-    local("Symbola"),
-    url(fonts/Symbola.woff2) format("woff2"),
-    url(fonts/Symbola.woff) format("woff"),
-    url(fonts/Symbola.ttf) format("truetype"),
-    url(fonts/Symbola.svg#Symbola) format("svg")
-  ;
+  src: local('Symbola Regular'), local('Symbola'),
+    url(fonts/Symbola.woff2) format('woff2'),
+    url(fonts/Symbola.woff) format('woff'),
+    url(fonts/Symbola.ttf) format('truetype'),
+    url(fonts/Symbola.svg#Symbola) format('svg');
 }
 .font-srcs() when (@basic) {
   src: url(fonts/Symbola-basic.eot);
-  src:
-    local("Symbola Regular"),
-    local("Symbola"),
-    url(fonts/Symbola-basic.woff2) format("woff2"),
-    url(fonts/Symbola-basic.woff) format("woff"),
-    url(fonts/Symbola-basic.ttf) format("truetype")
-  ;
+  src: local('Symbola Regular'), local('Symbola'),
+    url(fonts/Symbola-basic.woff2) format('woff2'),
+    url(fonts/Symbola-basic.woff) format('woff'),
+    url(fonts/Symbola-basic.ttf) format('truetype');
 }
-

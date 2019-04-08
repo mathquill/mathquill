@@ -131,15 +131,16 @@ $(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
 $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-#$(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
-#	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
-#	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+$(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
+	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
 
-#$(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
-#	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
-#	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+$(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
+	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
+	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
 
 $(NODE_MODULES_INSTALLED): package.json
+	test -e $(NODE_MODULES_INSTALLED) || rm -rf ./node_modules/ # robust against previous botched npm install
 	NODE_ENV=development npm install
 	touch $(NODE_MODULES_INSTALLED)
 
