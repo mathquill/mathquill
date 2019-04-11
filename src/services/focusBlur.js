@@ -1,4 +1,33 @@
 Controller.open(function(_) {
+  this.onNotify(function (e) {
+    // these try to cover all ways that mathquill can be modified
+    if (e === 'edit' || e === 'replace' || e === undefined) {
+      var controller = this.controller;
+      if (!controller) return;
+      if (!controller.options.enableDigitGrouping) return;
+
+      // blurred === false means we are focused. blurred === true or
+      // blurred === undefined means we are not focused.
+      if (controller.blurred !== false) return;
+
+      controller.disableGroupingForSeconds(1);
+    }
+  });
+
+  _.disableGroupingForSeconds = function (seconds) {
+    clearTimeout(this.__disableGroupingTimeout);
+    var jQ = this.root.jQ;
+
+    if (seconds === 0) {
+      jQ.removeClass('mq-suppress-grouping');
+    } else {
+      jQ.addClass('mq-suppress-grouping');
+      this.__disableGroupingTimeout = setTimeout(function () {
+        jQ.removeClass('mq-suppress-grouping');
+      }, seconds * 1000);
+    }
+  }
+
   _.focusBlurEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
@@ -21,6 +50,7 @@ Controller.open(function(_) {
         clearTimeout(ctrlr.textareaSelectionTimeout);
         ctrlr.textareaSelectionTimeout = undefined;
       }
+      ctrlr.disableGroupingForSeconds(0);
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
         root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
