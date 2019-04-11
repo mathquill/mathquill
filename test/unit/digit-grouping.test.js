@@ -352,4 +352,364 @@ suite('Digit Grouping', function() {
             }
           });
     });
+
+    test('efficient latex updates - grouping enabled', function () {
+        var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {enableDigitGrouping: true});
+        assertClasses(mq, {
+            latex: '',
+            suppressedGrouping: false,
+            tree: {
+                classes: 'mq-root-block mq-empty',
+                content: ''
+            }
+        })
+
+        mq.latex('1.2322');
+        assertClasses(mq, {
+            "latex": "1.2322",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                    "classes": "mq-digit",
+                    "content": "2"
+                }
+              ]
+            }
+          });
+
+        mq.latex('1231.123');
+        assertClasses(mq, {
+            "latex": "1231.123",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit mq-group-leading-1",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit mq-group-start",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "content": "2"
+                },
+                {
+                  "content": "3"
+                }
+              ]
+            }
+        });
+
+        mq.latex('1231.432');
+        assertClasses(mq, {
+            "latex": "1231.432",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit mq-group-leading-1",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit mq-group-start",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "4"
+                },
+                {
+                  "content": "3"
+                },
+                {
+                  "content": "2"
+                }
+              ]
+            }
+        });
+
+        mq.latex('1231232.432');
+        assertClasses(mq, {
+            "latex": "1231232.432",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit mq-group-leading-1",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit mq-group-start",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit mq-group-start",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit mq-group-other",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-group-other",
+                  "content": "2"
+                },
+                {
+                  "content": "."
+                },
+                {
+                  "content": "4"
+                },
+                {
+                  "content": "3"
+                },
+                {
+                  "content": "2"
+                }
+              ]
+            }
+        });
+    });
+
+    test('efficient latex updates - grouping disabled', function () {
+        var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+        assertClasses(mq, {
+            latex: '',
+            suppressedGrouping: false,
+            tree: {
+                classes: 'mq-root-block mq-empty',
+                content: ''
+            }
+        })
+
+        mq.latex('1.2322');
+        assertClasses(mq, {
+            "latex": "1.2322",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                    "classes": "mq-digit",
+                    "content": "2"
+                }
+              ]
+            }
+          });
+
+        mq.latex('1231.123');
+        assertClasses(mq, {
+            "latex": "1231.123",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "content": "2"
+                },
+                {
+                  "content": "3"
+                }
+              ]
+            }
+        });
+
+        mq.latex('1231.432');
+        assertClasses(mq, {
+            "latex": "1231.432",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "."
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "4"
+                },
+                {
+                  "content": "3"
+                },
+                {
+                  "content": "2"
+                }
+              ]
+            }
+        });
+
+        mq.latex('1231232.432');
+        assertClasses(mq, {
+            "latex": "1231232.432",
+            "suppressedGrouping": false,
+            "tree": {
+              "classes": "mq-root-block",
+              "content": [
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "1"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "2"
+                },
+                {
+                  "classes": "mq-digit",
+                  "content": "3"
+                },
+                {
+                  "content": "2"
+                },
+                {
+                  "content": "."
+                },
+                {
+                  "content": "4"
+                },
+                {
+                  "content": "3"
+                },
+                {
+                  "content": "2"
+                }
+              ]
+            }
+        });
+    });
+
 });
