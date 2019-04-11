@@ -260,6 +260,7 @@ suite('Digit Grouping', function() {
                   "content": "."
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "."
                 }
               ]
@@ -282,6 +283,7 @@ suite('Digit Grouping', function() {
                   "content": "."
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 }
               ]
@@ -431,9 +433,11 @@ suite('Digit Grouping', function() {
                   "content": "1"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 }
               ]
@@ -472,9 +476,11 @@ suite('Digit Grouping', function() {
                   "content": "4"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 }
               ]
@@ -513,19 +519,23 @@ suite('Digit Grouping', function() {
                   "content": "3"
                 },
                 {
-                  "classes": "mq-group-other",
+                  "classes": "mq-digit mq-group-other",
                   "content": "2"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "."
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "4"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 }
               ]
@@ -611,9 +621,11 @@ suite('Digit Grouping', function() {
                   "content": "1"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 }
               ]
@@ -652,9 +664,11 @@ suite('Digit Grouping', function() {
                   "content": "4"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 }
               ]
@@ -693,18 +707,23 @@ suite('Digit Grouping', function() {
                   "content": "3"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "."
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "4"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "3"
                 },
                 {
+                  "classes": "mq-digit",
                   "content": "2"
                 }
               ]

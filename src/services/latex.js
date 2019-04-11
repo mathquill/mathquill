@@ -233,6 +233,7 @@ Controller.open(function(_, super_) {
 
       for (i = commonLength; i < newDigits.length; i++) {
         var span = document.createElement('span');
+        span.className = "mq-digit";
         span.textContent = newDigits[i];
 
         var newNode = Digit(newDigits[i]);
