@@ -708,6 +708,237 @@ suite('Digit Grouping', function() {
         });
     });
 
+    test('edits ignored if digit grouping disabled', function (done) {
+      var mq = MQ.MathField($('<span style="width: 400px; display:inline-block"></span>').appendTo('#mock')[0]);
+
+      assertClasses(mq, {
+        latex: '',
+        tree: {
+            classes: 'mq-root-block mq-empty',
+            content: ''
+        }
+      })
+
+      $(mq.el()).find('textarea').focus();
+      assertClasses(mq, {
+        latex: '',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor',
+            content: [
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('1');
+      assertClasses(mq, {
+        latex: '1',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor',
+            content: [
+              {
+                classes: 'mq-digit',
+                content: '1'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('2');
+      mq.typedText('3');
+      mq.typedText('4');
+      assertClasses(mq, {
+        latex: '1234',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor',
+            content: [
+              {
+                classes: 'mq-digit',
+                content: '1'
+              },
+              {
+                classes: 'mq-digit',
+                content: '2'
+              },
+              {
+                classes: 'mq-digit',
+                content: '3'
+              },
+              {
+                classes: 'mq-digit',
+                content: '4'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('5');
+      assertClasses(mq, {
+        latex: '12345',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor',
+            content: [
+              {
+                classes: 'mq-digit',
+                content: '1'
+              },
+              {
+                classes: 'mq-digit',
+                content: '2'
+              },
+              {
+                classes: 'mq-digit',
+                content: '3'
+              },
+              {
+                classes: 'mq-digit',
+                content: '4'
+              },
+              {
+                classes: 'mq-digit',
+                content: '5'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      setTimeout(function () {
+        assertClasses(mq, {
+          latex: '12345',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor',
+              content: [
+                {
+                  classes: 'mq-digit',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '3'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '4'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '5'
+                },
+                {
+                  classes: "mq-cursor"
+                }
+              ]
+          }
+        })
+
+        mq.keystroke('Left');
+        assertClasses(mq, {
+          latex: '12345',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor',
+              content: [
+                {
+                  classes: 'mq-digit',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '3'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '4'
+                },
+                {
+                  classes: "mq-cursor"
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '5'
+                },
+              ]
+          }
+        })
+
+        mq.keystroke('Backspace');
+        assertClasses(mq, {
+          latex: '1235',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor',
+              content: [
+                {
+                  classes: 'mq-digit',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '3'
+                },
+                {
+                  classes: "mq-cursor"
+                },
+                {
+                  classes: 'mq-digit',
+                  content: '5'
+                },
+              ]
+          }
+        })
+
+        $(mq.el()).find('textarea').blur();
+        setTimeout(function () {
+          assertClasses(mq, {
+            latex: '1235',
+            tree: {
+                classes: 'mq-root-block',
+                content: [
+                  {
+                    classes: 'mq-digit',
+                    content: '1'
+                  },
+                  {
+                    classes: 'mq-digit',
+                    content: '2'
+                  },
+                  {
+                    classes: 'mq-digit',
+                    content: '3'
+                  },
+                  {
+                    classes: 'mq-digit',
+                    content: '5'
+                  },
+                ]
+            }
+          })
+          done();
+        }, 1);
+      }, 1100); // should stop suppressing grouping after 1000ms
+    });
+
     test('edits suppress digit grouping', function (done) {
       var mq = MQ.MathField($('<span style="width: 400px; display:inline-block"></span>').appendTo('#mock')[0], {enableDigitGrouping: true});
 
@@ -937,9 +1168,5 @@ suite('Digit Grouping', function() {
           done();
         }, 1);
       }, 1100); // should stop suppressing grouping after 1000ms
-    });
-
-    test('edits ignored if digit grouping disabled', function () {
-
     });
 });
