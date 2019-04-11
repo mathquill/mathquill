@@ -7,14 +7,18 @@ suite('Digit Grouping', function() {
             tree.classes = $el[0].className;
         }
 
-        var children = $el.children();
-        if (children.length) {
-            tree.content = [];
-            for (var i=0; i < children.length; i++) {
-                tree.content.push(buildTreeRecursively($(children[i])));
-            }
+        if ($el[0].className.indexOf('mq-cursor') !== -1) {
+          tree.classes = 'mq-cursor';
         } else {
-            tree.content = $el[0].innerHTML;
+          var children = $el.children();
+          if (children.length) {
+              tree.content = [];
+              for (var i=0; i < children.length; i++) {
+                  tree.content.push(buildTreeRecursively($(children[i])));
+              }
+          } else {
+              tree.content = $el[0].innerHTML;
+          }  
         }
 
         return tree;
@@ -24,7 +28,6 @@ suite('Digit Grouping', function() {
         var $el = $(mq.el());
         var actual = {
             latex: mq.latex(),
-            suppressedGrouping: $el.hasClass('mq-suppress-grouping'),
             tree: buildTreeRecursively($el.find('.mq-root-block'))
         };
 
@@ -36,7 +39,6 @@ suite('Digit Grouping', function() {
         var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {enableDigitGrouping: true});
         assertClasses(mq, {
             latex: '',
-            suppressedGrouping: false,
             tree: {
                 classes: 'mq-root-block mq-empty',
                 content: ''
@@ -46,7 +48,6 @@ suite('Digit Grouping', function() {
         mq.latex('1\\ ');
         assertClasses(mq, {
             latex: '1\\ ',
-            suppressedGrouping: false,
             tree: {
                 classes: 'mq-root-block',
                 content: [
@@ -64,7 +65,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ 1');
         assertClasses(mq, {
             "latex": "\\ 1",
-            "suppressedGrouping": false,
             "tree": {
                 "classes": "mq-root-block",
                 "content": [
@@ -82,7 +82,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ 1\\ ');
         assertClasses(mq, {
             "latex": "\\ 1\\ ",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -103,7 +102,6 @@ suite('Digit Grouping', function() {
         mq.latex('a');
         assertClasses(mq, {
             "latex": "a",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -117,7 +115,6 @@ suite('Digit Grouping', function() {
         mq.latex('a\\ ');
         assertClasses(mq, {
             "latex": "a\\ ",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -134,7 +131,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ a');
         assertClasses(mq, {
             "latex": "\\ a",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -151,7 +147,6 @@ suite('Digit Grouping', function() {
         mq.latex('a\\ a');
         assertClasses(mq, {
             "latex": "a\\ a",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -171,7 +166,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ a\\ ');
         assertClasses(mq, {
             "latex": "\\ a\\ ",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -191,7 +185,6 @@ suite('Digit Grouping', function() {
         mq.latex('.');
         assertClasses(mq, {
             "latex": ".",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -206,7 +199,6 @@ suite('Digit Grouping', function() {
         mq.latex('.\\ .');
         assertClasses(mq, {
             "latex": ".\\ .",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -228,7 +220,6 @@ suite('Digit Grouping', function() {
         mq.latex('..');
         assertClasses(mq, {
             "latex": "..",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -247,7 +238,6 @@ suite('Digit Grouping', function() {
         mq.latex('2..');
         assertClasses(mq, {
             "latex": "2..",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -261,6 +251,7 @@ suite('Digit Grouping', function() {
                 },
                 {
                   "classes": "mq-digit",
+
                   "content": "."
                 }
               ]
@@ -270,7 +261,6 @@ suite('Digit Grouping', function() {
         mq.latex('..2');
         assertClasses(mq, {
             "latex": "..2",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -293,7 +283,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ \\ ');
         assertClasses(mq, {
             "latex": "\\ \\ ",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -310,7 +299,6 @@ suite('Digit Grouping', function() {
         mq.latex('\\ \\ \\ ');
         assertClasses(mq, {
             "latex": "\\ \\ \\ ",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -330,7 +318,6 @@ suite('Digit Grouping', function() {
         mq.latex('1234');
         assertClasses(mq, {
             "latex": "1234",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -359,7 +346,6 @@ suite('Digit Grouping', function() {
         var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {enableDigitGrouping: true});
         assertClasses(mq, {
             latex: '',
-            suppressedGrouping: false,
             tree: {
                 classes: 'mq-root-block mq-empty',
                 content: ''
@@ -369,7 +355,6 @@ suite('Digit Grouping', function() {
         mq.latex('1.2322');
         assertClasses(mq, {
             "latex": "1.2322",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -404,7 +389,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231.123');
         assertClasses(mq, {
             "latex": "1231.123",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -447,7 +431,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231.432');
         assertClasses(mq, {
             "latex": "1231.432",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -490,7 +473,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231232.432');
         assertClasses(mq, {
             "latex": "1231232.432",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -547,7 +529,6 @@ suite('Digit Grouping', function() {
         var mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
         assertClasses(mq, {
             latex: '',
-            suppressedGrouping: false,
             tree: {
                 classes: 'mq-root-block mq-empty',
                 content: ''
@@ -557,7 +538,6 @@ suite('Digit Grouping', function() {
         mq.latex('1.2322');
         assertClasses(mq, {
             "latex": "1.2322",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -592,7 +572,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231.123');
         assertClasses(mq, {
             "latex": "1231.123",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -635,7 +614,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231.432');
         assertClasses(mq, {
             "latex": "1231.432",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -678,7 +656,6 @@ suite('Digit Grouping', function() {
         mq.latex('1231232.432');
         assertClasses(mq, {
             "latex": "1231232.432",
-            "suppressedGrouping": false,
             "tree": {
               "classes": "mq-root-block",
               "content": [
@@ -731,4 +708,238 @@ suite('Digit Grouping', function() {
         });
     });
 
+    test('edits suppress digit grouping', function (done) {
+      var mq = MQ.MathField($('<span style="width: 400px; display:inline-block"></span>').appendTo('#mock')[0], {enableDigitGrouping: true});
+
+      assertClasses(mq, {
+        latex: '',
+        tree: {
+            classes: 'mq-root-block mq-empty',
+            content: ''
+        }
+      })
+
+      $(mq.el()).find('textarea').focus();
+      assertClasses(mq, {
+        latex: '',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor',
+            content: [
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('1');
+      assertClasses(mq, {
+        latex: '1',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor mq-suppress-grouping',
+            content: [
+              {
+                classes: 'mq-digit',
+                content: '1'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('2');
+      mq.typedText('3');
+      mq.typedText('4');
+      assertClasses(mq, {
+        latex: '1234',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor mq-suppress-grouping',
+            content: [
+              {
+                classes: 'mq-digit mq-group-leading-1',
+                content: '1'
+              },
+              {
+                classes: 'mq-digit mq-group-start',
+                content: '2'
+              },
+              {
+                classes: 'mq-digit mq-group-other',
+                content: '3'
+              },
+              {
+                classes: 'mq-digit mq-group-other',
+                content: '4'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      mq.typedText('5');
+      assertClasses(mq, {
+        latex: '12345',
+        tree: {
+            classes: 'mq-root-block mq-hasCursor mq-suppress-grouping',
+            content: [
+              {
+                classes: 'mq-digit mq-group-leading-2',
+                content: '1'
+              },
+              {
+                classes: 'mq-digit mq-group-other',
+                content: '2'
+              },
+              {
+                classes: 'mq-digit mq-group-start',
+                content: '3'
+              },
+              {
+                classes: 'mq-digit mq-group-other',
+                content: '4'
+              },
+              {
+                classes: 'mq-digit mq-group-other',
+                content: '5'
+              },
+              {
+                classes: "mq-cursor"
+              }
+            ]
+        }
+      })
+
+      setTimeout(function () {
+        assertClasses(mq, {
+          latex: '12345',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor',
+              content: [
+                {
+                  classes: 'mq-digit mq-group-leading-2',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit mq-group-start',
+                  content: '3'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '4'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '5'
+                },
+                {
+                  classes: "mq-cursor"
+                }
+              ]
+          }
+        })
+
+        mq.keystroke('Left');
+        assertClasses(mq, {
+          latex: '12345',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor',
+              content: [
+                {
+                  classes: 'mq-digit mq-group-leading-2',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit mq-group-start',
+                  content: '3'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '4'
+                },
+                {
+                  classes: "mq-cursor"
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '5'
+                },
+              ]
+          }
+        })
+
+        mq.keystroke('Backspace');
+        assertClasses(mq, {
+          latex: '1235',
+          tree: {
+              classes: 'mq-root-block mq-hasCursor mq-suppress-grouping',
+              content: [
+                {
+                  classes: 'mq-digit mq-group-leading-1',
+                  content: '1'
+                },
+                {
+                  classes: 'mq-digit mq-group-start',
+                  content: '2'
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '3'
+                },
+                {
+                  classes: "mq-cursor"
+                },
+                {
+                  classes: 'mq-digit mq-group-other',
+                  content: '5'
+                },
+              ]
+          }
+        })
+
+        $(mq.el()).find('textarea').blur();
+        setTimeout(function () {
+          assertClasses(mq, {
+            latex: '1235',
+            tree: {
+                classes: 'mq-root-block',
+                content: [
+                  {
+                    classes: 'mq-digit mq-group-leading-1',
+                    content: '1'
+                  },
+                  {
+                    classes: 'mq-digit mq-group-start',
+                    content: '2'
+                  },
+                  {
+                    classes: 'mq-digit mq-group-other',
+                    content: '3'
+                  },
+                  {
+                    classes: 'mq-digit mq-group-other',
+                    content: '5'
+                  },
+                ]
+            }
+          })
+          done();
+        }, 1);
+      }, 1100); // should stop suppressing grouping after 1000ms
+    });
+
+    test('edits ignored if digit grouping disabled', function () {
+
+    });
 });
