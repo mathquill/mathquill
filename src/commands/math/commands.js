@@ -578,12 +578,14 @@ var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
-      '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
-    + '<span class="mq-scaled mq-sqrt-container">'
-    +   '<span class="mq-sqrt-prefix mq-scaled">'
-    +     SVG_SYMBOLS.sqrt.html
+      '<span class="mq-nthroot-container mq-non-leaf">'
+    +   '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
+    +   '<span class="mq-scaled mq-sqrt-container">'
+    +     '<span class="mq-sqrt-prefix mq-scaled">'
+    +       SVG_SYMBOLS.sqrt.html
+    +     '</span>'
+    +     '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     +   '</span>'
-    +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt[', '](', ')'];
