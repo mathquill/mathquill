@@ -153,13 +153,3 @@ For example, to style as white-on-black instead of black-on-white use:
       border-color: white;
       background: black;
     }
-    #my-math-input .mq-matrixed {
-      background: black;
-    }
-    #my-math-input .mq-matrixed-container {
-      filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
-    }
-
-## Color Change Support on IE8
-
-To support a MathQuill editable background color other than white in IE8, set the background color on both the editable mathField and on elements with class `mq-matrixed`. Then set a Chroma filter on elements with class `mq-matrixed-container`.
