@@ -23,3 +23,19 @@
     }
   }
 }
+
+
+html body { // adding  'html body' for specificity
+  .mq-math-mode, .mq-editable-field {
+    .mq-selection {
+      // do not show a background inside any of the
+      // children of nthroot. We draw a background on
+      // the nthroot itself. We don't want the index
+      // to be covered up by the background of the
+      // radical.
+      .mq-nthroot-container * {
+        background: transparent !important;
+      }
+    }
+  }
+}
