@@ -23,12 +23,14 @@ Controller.open(function(_) {
       function mousemove(e) { target = $(e.target); }
       function docmousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
-
         if (e.type == 'touchmove') {
           var touch = e.originalEvent.changedTouches[0] || e.originalEvent.touches[0];
           // for touch, target is the original element, not element under thumb.
-          target = $(document.elementFromPoint(touch.pageX, touch.pageY));
-          ctrlr.seek(target, touch.pageX, touch.pageY).cursor.select();
+          var touchtarget = $(document.elementFromPoint(touch.pageX, touch.pageY));
+          // this target may not be in original element, so check
+          if (jQuery.contains(rootjQ[0], touchtarget[0])) {
+            ctrlr.seek(touchtarget, touch.pageX, touch.pageY).cursor.select();
+          }
         } else {
           ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
         }
