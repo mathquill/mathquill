@@ -912,7 +912,7 @@ suite('typing with auto-replaces', function() {
     setup(function() {
       mq.config({
         autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot percent'
+        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
       });
     });
 
@@ -962,6 +962,10 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\%\\operatorname{of}');
       mq.keystroke('Backspace');
 
+      mq.typedText('cbrt');
+      assertLatex('\\sqrt[3]{}');
+      mq.typedText('pi');
+      assertLatex('\\sqrt[3]{\\pi}');
     });
 
     test('sequences of auto-commands and other assorted characters', function() {
