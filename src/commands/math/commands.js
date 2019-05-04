@@ -599,6 +599,15 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   };
 });
 
+var CubeRoot =
+LatexCmds.cbrt = P(NthRoot, function(_, super_) {
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+    Digit('3').createLeftOf(cursor);
+    cursor.controller.moveRight();
+  };
+});
+
 var DiacriticAbove = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, symbol, textTemplate) {
     var htmlTemplate =
