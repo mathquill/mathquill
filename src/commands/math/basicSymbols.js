@@ -843,7 +843,6 @@ LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bind(VanillaSymbol,'\\infty ','&infin;', 'infinity');
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;', 'not equal');
 
-
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
     super_.init.call(this, '=', '=', '=', 'equals');
@@ -864,4 +863,55 @@ LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]', 'over');
 
-CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~', 'tilde');
+
+var twiddleData = {
+  ctrlSeq: {
+    single: '\\sim',
+    double: '\\approx'
+  },
+  html: {
+    single: '~',
+    double: '&approx;'
+  },
+  text: {
+    single: '~',
+    double: '≈'
+  },
+  mathspeak: {
+    single: 'tilde',
+    double: 'approximately equal'
+  }
+}
+
+var Twiddle = P(BinaryOperator, function(_, super_) {
+  _.init = function(type) { /* 'single' | 'double' */
+    this.type = type;
+    super_.init.call(this, twiddleData.ctrlSeq[type], twiddleData.html[type], twiddleData.text[type], twiddleData.mathspeak[type]);
+  };
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof Twiddle) {
+      cursor[L].swap('double');
+      cursor[L].bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.createLeftOf.apply(this, arguments);
+  };
+  _.swap = function(type) {
+    this.type = type;
+    this.ctrlSeq = twiddleData.ctrlSeq[type];
+    this.jQ.html(twiddleData.html[type]);
+    this.textTemplate = [ twiddleData.text[type] ];
+    this.mathspeakName = twiddleData.mathspeak[type];
+  };
+  _.deleteTowards = function(dir, cursor) {
+    if (dir === L && this.type === 'double') {
+      this.swap('single');
+      this.bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.deleteTowards.apply(this, arguments);
+  };
+});
+
+CharCmds['~'] = LatexCmds.sim = bind(Twiddle, 'single');
+LatexCmds['≈'] = LatexCmds.approx = bind(Twiddle, 'double');
