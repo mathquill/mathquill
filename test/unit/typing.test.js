@@ -964,6 +964,7 @@ suite('typing with auto-replaces', function() {
 
       mq.typedText('cbrt');
       assertLatex('\\sqrt[3]{}');
+      assertMathspeak('Start Cube Root End Cube Root');
       mq.typedText('pi');
       assertLatex('\\sqrt[3]{\\pi}');
     });
