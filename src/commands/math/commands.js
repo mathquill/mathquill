@@ -595,7 +595,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.mathspeak = function() {
     this.ends[L].ariaLabel = 'Index';
     this.ends[R].ariaLabel = 'Radicand';
-    return 'Start '+this.ends[L].mathspeak()+' Root, '+this.ends[R].mathspeak()+', End Root';
+    return 'Root Index '+this.ends[L].mathspeak()+', Start Root, '+this.ends[R].mathspeak()+', End Root';
   };
 });
 
