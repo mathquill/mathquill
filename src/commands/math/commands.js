@@ -593,9 +593,15 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
   _.mathspeak = function() {
+    var indexMathspeak = this.ends[L].mathspeak();
+    var radicandMathspeak = this.ends[R].mathspeak();
     this.ends[L].ariaLabel = 'Index';
     this.ends[R].ariaLabel = 'Radicand';
-    return 'Start '+this.ends[L].mathspeak()+' Root, '+this.ends[R].mathspeak()+', End Root';
+    if (indexMathspeak === '3') { // cube root
+      return 'Start Cube Root, '+radicandMathspeak+', End Cube Root';
+    } else {
+      return 'Root Index '+indexMathspeak+', Start Root, '+radicandMathspeak+', End Root';
+    }
   };
 });
 

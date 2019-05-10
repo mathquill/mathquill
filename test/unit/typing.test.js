@@ -935,7 +935,7 @@ suite('typing with auto-replaces', function() {
       mq.typedText('nthroot');
       mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
       assertLatex('\\sqrt[n]{100}');
-      assertMathspeak('Start "n" Root 100 End Root');
+      assertMathspeak('Root Index "n" Start Root 100 End Root');
       mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('pi');
@@ -964,6 +964,7 @@ suite('typing with auto-replaces', function() {
 
       mq.typedText('cbrt');
       assertLatex('\\sqrt[3]{}');
+      assertMathspeak('Start Cube Root End Cube Root');
       mq.typedText('pi');
       assertLatex('\\sqrt[3]{\\pi}');
     });
