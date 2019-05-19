@@ -26,7 +26,7 @@ Controller.open(function(_) {
         if (e.type == 'touchmove') {
           var touch = e.originalEvent.changedTouches[0] || e.originalEvent.touches[0];
           // for touch, target is the original element, not element under thumb.
-          var touchtarget = $(document.elementFromPoint(touch.pageX, touch.pageY));
+          var touchtarget = $(document.elementFromPoint(touch.clientX, touch.clientY));
           // this target may not be in original element, so check
           if (jQuery.contains(rootjQ[0], touchtarget[0])) {
             ctrlr.seek(touchtarget, touch.pageX, touch.pageY).cursor.select();
@@ -61,7 +61,17 @@ Controller.open(function(_) {
       }
 
       cursor.blink = noop;
-      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      if (e.type == 'touchstart') {
+        var touch = e.originalEvent.changedTouches[0] || e.originalEvent.touches[0];
+        // for touch, target is the original element, not element under thumb.
+        var touchtarget = $(document.elementFromPoint(touch.clientX, touch.clientY));
+        // this target may not be in original element, so check
+        if (jQuery.contains(rootjQ[0], touchtarget[0])) {
+          ctrlr.seek(touchtarget, touch.pageX, touch.pageY).cursor.startSelection();
+        }
+      } else {
+        ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      }
 
       rootjQ.bind('mousemove touchmove', mousemove);
       $(e.target.ownerDocument).bind('mousemove touchmove', docmousemove).bind('mouseup touchend', mouseup);
