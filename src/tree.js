@@ -302,6 +302,13 @@ var Node = P(function(_) {
     return this.disown();
   };
 
+  _.isParentSimpleSubscript = function () {
+    if (!this.parent) return false;
+    if (!this.parent.jQ.hasClass('mq-sub')) return false;
+    if (!(this.parent.parent instanceof SupSub)) return false;
+    return true;
+  };
+
   // Overridden by child classes
   _.finalizeTree = function () { };
   _.contactWeld = function () { };
