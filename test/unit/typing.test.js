@@ -851,7 +851,8 @@ suite('typing with auto-replaces', function() {
     setup(function() {
       mq.config({
         autoParenthesizedFunctions: 'sin cos tan ln',
-        autoOperatorNames: 'sin ln'
+        autoOperatorNames: 'sin ln',
+        autoCommands: 'sum int'
       });
     });
 
@@ -890,6 +891,30 @@ suite('typing with auto-replaces', function() {
       mq.keystroke('Backspace')
       mq.typedText('n')
       assertLatex('\\sin\\left(\\right)');
+    })
+
+    test('works in \\sum', function () {
+      //autoParenthesized and also operatored
+      mq.typedText('sum')
+      assertLatex('\\sum_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\sum_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('works in \\int', function () {
+      //autoParenthesized and also operatored
+      mq.typedText('int')
+      assertLatex('\\int_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\int_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('does not work in simple subscripts', function () {
+      //autoParenthesized and also operatored
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('sin')
+      assertLatex('x_{sin}');
     })
 
   });
