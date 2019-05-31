@@ -304,8 +304,8 @@ var Node = P(function(_) {
 
   _.isParentSimpleSubscript = function () {
     if (!this.parent) return false;
-    if (!this.parent.jQ.hasClass('mq-sub')) return false;
     if (!(this.parent.parent instanceof SupSub)) return false;
+    if (this.parent.parent.sub !== this.parent) return false;
     return true;
   };
 
