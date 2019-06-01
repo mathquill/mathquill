@@ -894,7 +894,6 @@ suite('typing with auto-replaces', function() {
     })
 
     test('works in \\sum', function () {
-      //autoParenthesized and also operatored
       mq.typedText('sum')
       assertLatex('\\sum_{ }^{ }');
       mq.typedText('sin')
@@ -902,7 +901,6 @@ suite('typing with auto-replaces', function() {
     })
 
     test('works in \\int', function () {
-      //autoParenthesized and also operatored
       mq.typedText('int')
       assertLatex('\\int_{ }^{ }');
       mq.typedText('sin')
@@ -910,13 +908,16 @@ suite('typing with auto-replaces', function() {
     })
 
     test('does not work in simple subscripts', function () {
-      //autoParenthesized and also operatored
       mq.typedText('x_')
       assertLatex('x_{ }');
       mq.typedText('sin')
       assertLatex('x_{sin}');
     })
 
+    test('does not work in simple subscripts when pasting', function () {
+      $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+      assertLatex('x_{sin}');
+    })
   });
 
   suite('typingSlashCreatesNewFraction', function() {

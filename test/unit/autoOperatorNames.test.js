@@ -55,26 +55,27 @@ suite('autoOperatorNames', function() {
   });
 
   test('works in \\sum', function () {
-    //autoParenthesized and also operatored
     mq.typedText('sum')
     mq.typedText('sin')
     assertLatex('sum allows operatorname', '\\sum_{\\sin}^{ }');
   })
 
   test('works in \\int', function () {
-    //autoParenthesized and also operatored
     mq.typedText('int')
     mq.typedText('sin')
     assertLatex('int allows operatorname', '\\int_{\\sin}^{ }');
   })
 
-  test('does not work in simple subscripts', function () {
-    //autoParenthesized and also operatored
+  test('does not work in simple subscripts when typing', function () {
     mq.typedText('x_')
     mq.typedText('sin')
     assertLatex('subscripts do not turn to operatorname','x_{sin}');
   })
 
+  test('does not work in simple subscripts when pasting', function () {
+    $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+    assertLatex('subscripts do not turn to operatorname','x_{sin}');
+  })
 
   test('text() output', function(){
     function assertTranslatedCorrectly(latexStr, text) {
