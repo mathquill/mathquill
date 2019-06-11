@@ -302,6 +302,24 @@ var Node = P(function(_) {
     return this.disown();
   };
 
+  _.isParentSimpleSubscript = function () {
+    if (!this.parent) return false;
+    if (!(this.parent.parent instanceof SupSub)) return false;
+
+    // Mathquill is gross. There are many different paths that
+    // create subscripts and sometimes we don't even construct
+    // true instances of `LatexCmds._`. Another problem is that
+    // the relationship between the sub and the SupSub isn't
+    // completely setup during a paste at the time we check
+    // this. I wanted to use: `this.parent.parent.sub !== this.parent`
+    // but that check doesn't always work. This seems to be the only
+    // check that always works. I'd rather live with this than try
+    // to change the init order of things.
+    if (!this.parent.jQ.hasClass('mq-sub')) return false;
+
+    return true;
+  };
+
   // Overridden by child classes
   _.finalizeTree = function () { };
   _.contactWeld = function () { };

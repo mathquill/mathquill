@@ -2,6 +2,9 @@ suite('autoOperatorNames', function() {
   var mq;
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq.config({
+      autoCommands: 'sum int'
+    });
   });
 
   function assertLatex(input, expected) {
@@ -50,6 +53,29 @@ suite('autoOperatorNames', function() {
     assertAutoOperatorNamesWork('cscscscscscsc', '\\csc s\\csc s\\csc sc');
     assertAutoOperatorNamesWork('scscscscscsc', 's\\csc s\\csc s\\csc');
   });
+
+  test('works in \\sum', function () {
+    mq.typedText('sum')
+    mq.typedText('sin')
+    assertLatex('sum allows operatorname', '\\sum_{\\sin}^{ }');
+  })
+
+  test('works in \\int', function () {
+    mq.typedText('int')
+    mq.typedText('sin')
+    assertLatex('int allows operatorname', '\\int_{\\sin}^{ }');
+  })
+
+  test('does not work in simple subscripts when typing', function () {
+    mq.typedText('x_')
+    mq.typedText('sin')
+    assertLatex('subscripts do not turn to operatorname','x_{sin}');
+  })
+
+  test('does not work in simple subscripts when pasting', function () {
+    $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+    assertLatex('subscripts do not turn to operatorname','x_{sin}');
+  })
 
   test('text() output', function(){
     function assertTranslatedCorrectly(latexStr, text) {

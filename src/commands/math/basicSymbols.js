@@ -296,6 +296,11 @@ var Letter = P(Variable, function(_, super_) {
       return
     }
 
+    //exit early if in simple subscript
+    if (this.isParentSimpleSubscript()) {
+      return;
+    }
+
     //handle autoParenthesized functions
     var str = '', l = this, i = 0;
 
@@ -335,6 +340,12 @@ var Letter = P(Variable, function(_, super_) {
   _.autoUnItalicize = function(opts) {
     var autoOps = opts.autoOperatorNames;
     if (autoOps._maxLength === 0) return;
+
+    //exit early if in simple subscript
+    if (this.isParentSimpleSubscript()) {
+      return;
+    }
+
     // want longest possible operator names, so join together entire contiguous
     // sequence of letters
     var str = this.letter;

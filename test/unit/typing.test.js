@@ -851,7 +851,8 @@ suite('typing with auto-replaces', function() {
     setup(function() {
       mq.config({
         autoParenthesizedFunctions: 'sin cos tan ln',
-        autoOperatorNames: 'sin ln'
+        autoOperatorNames: 'sin ln',
+        autoCommands: 'sum int'
       });
     });
 
@@ -892,6 +893,31 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\sin\\left(\\right)');
     })
 
+    test('works in \\sum', function () {
+      mq.typedText('sum')
+      assertLatex('\\sum_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\sum_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('works in \\int', function () {
+      mq.typedText('int')
+      assertLatex('\\int_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\int_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('does not work in simple subscripts', function () {
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('sin')
+      assertLatex('x_{sin}');
+    })
+
+    test('does not work in simple subscripts when pasting', function () {
+      $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+      assertLatex('x_{sin}');
+    })
   });
 
   suite('typingSlashCreatesNewFraction', function() {
