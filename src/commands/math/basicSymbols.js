@@ -864,54 +864,39 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]', 'over');
 
 
-var twiddleData = {
-  ctrlSeq: {
-    single: '\\sim',
-    double: '\\approx'
-  },
-  html: {
-    single: '~',
-    double: '&approx;'
-  },
-  text: {
-    single: '~',
-    double: '≈'
-  },
-  mathspeak: {
-    single: 'tilde',
-    double: 'approximately equal'
-  }
-}
-
-var Twiddle = P(BinaryOperator, function(_, super_) {
-  _.init = function(type) { /* 'single' | 'double' */
-    this.type = type;
-    super_.init.call(this, twiddleData.ctrlSeq[type], twiddleData.html[type], twiddleData.text[type], twiddleData.mathspeak[type]);
+var Sim = P(BinaryOperator, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\sim', '~', '~', 'tilde');
   };
   _.createLeftOf = function(cursor) {
-    if (cursor[L] instanceof Twiddle) {
-      cursor[L].swap('double');
+    if (cursor[L] instanceof Sim) {
+      var l = cursor[L];
+      cursor[L] = l[L];
+      l.remove();
+      Approx().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
     super_.createLeftOf.apply(this, arguments);
   };
-  _.swap = function(type) {
-    this.type = type;
-    this.ctrlSeq = twiddleData.ctrlSeq[type];
-    this.jQ.html(twiddleData.html[type]);
-    this.textTemplate = [ twiddleData.text[type] ];
-    this.mathspeakName = twiddleData.mathspeak[type];
+});
+
+var Approx = P(BinaryOperator, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\approx', '&approx;', '≈', 'approximately equal');
   };
   _.deleteTowards = function(dir, cursor) {
-    if (dir === L && this.type === 'double') {
-      this.swap('single');
-      this.bubble(function (node) { node.reflow(); });
+    if (dir === L) {
+      var l = cursor[L];
+      Fragment(l, this).remove();
+      cursor[L] = l[L];
+      Sim().createLeftOf(cursor);
+      cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
     super_.deleteTowards.apply(this, arguments);
   };
 });
 
-CharCmds['~'] = LatexCmds.sim = bind(Twiddle, 'single');
-LatexCmds['≈'] = LatexCmds.approx = bind(Twiddle, 'double');
+CharCmds['~'] = LatexCmds.sim = Sim;
+LatexCmds['≈'] = LatexCmds.approx = Approx;
