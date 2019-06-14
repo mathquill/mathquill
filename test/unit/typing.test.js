@@ -1119,6 +1119,18 @@ suite('typing with auto-replaces', function() {
       mq.typedText('~');
       assertLatex('\\approx');
       assertMathspeak('approximately equal');
+      mq.typedText('~');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.typedText('~');
+      assertLatex('\\approx\\approx');
+      assertMathspeak('approximately equal approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
       mq.keystroke('Backspace');
       assertLatex('\\sim');
       assertMathspeak('tilde');
