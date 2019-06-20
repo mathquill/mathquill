@@ -866,7 +866,7 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
 
 var Sim = P(BinaryOperator, function(_, super_) {
   _.init = function() {
-    super_.init.call(this, '\\sim', '~', '~', 'tilde');
+    super_.init.call(this, '\\sim ', '~', '~', 'tilde');
   };
   _.createLeftOf = function(cursor) {
     if (cursor[L] instanceof Sim) {
@@ -883,7 +883,7 @@ var Sim = P(BinaryOperator, function(_, super_) {
 
 var Approx = P(BinaryOperator, function(_, super_) {
   _.init = function() {
-    super_.init.call(this, '\\approx', '&approx;', '≈', 'approximately equal');
+    super_.init.call(this, '\\approx ', '&approx;', '≈', 'approximately equal');
   };
   _.deleteTowards = function(dir, cursor) {
     if (dir === L) {

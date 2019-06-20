@@ -1103,7 +1103,7 @@ suite('typing with auto-replaces', function() {
       assertLatex('<<>\\ge=>><\\le=');
       assertMathspeak('less than less than greater than greater than or equal to equals greater than greater than less than less than or equal to equals');
     });
-    
+
     test('typing ≤ and ≥ chars directly', function() {
       mq.typedText('≤');
       assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
@@ -1134,6 +1134,14 @@ suite('typing with auto-replaces', function() {
       mq.keystroke('Backspace');
       assertLatex('\\sim');
       assertMathspeak('tilde');
+      mq.keystroke('Backspace');
+      mq.typedText('a~b');
+      assertLatex('a\\sim b');
+      assertMathspeak('"a" tilde "b"');
+      mq.keystroke('Backspace');
+      mq.typedText('~b');
+      assertLatex('a\\approx b');
+      assertMathspeak('"a" approximately equal "b"');
     });
     test('typing ≈ char directly', function() {
       mq.typedText('≈');
