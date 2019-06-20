@@ -843,7 +843,6 @@ LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bind(VanillaSymbol,'\\infty ','&infin;', 'infinity');
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;', 'not equal');
 
-
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
     super_.init.call(this, '=', '=', '=', 'equals');
@@ -864,4 +863,40 @@ LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]', 'over');
 
-CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~', 'tilde');
+
+var Sim = P(BinaryOperator, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\sim', '~', '~', 'tilde');
+  };
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof Sim) {
+      var l = cursor[L];
+      cursor[L] = l[L];
+      l.remove();
+      Approx().createLeftOf(cursor);
+      cursor[L].bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.createLeftOf.apply(this, arguments);
+  };
+});
+
+var Approx = P(BinaryOperator, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\approx', '&approx;', '≈', 'approximately equal');
+  };
+  _.deleteTowards = function(dir, cursor) {
+    if (dir === L) {
+      var l = cursor[L];
+      Fragment(l, this).remove();
+      cursor[L] = l[L];
+      Sim().createLeftOf(cursor);
+      cursor[L].bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.deleteTowards.apply(this, arguments);
+  };
+});
+
+CharCmds['~'] = LatexCmds.sim = Sim;
+LatexCmds['≈'] = LatexCmds.approx = Approx;

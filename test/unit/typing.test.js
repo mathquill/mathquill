@@ -1103,13 +1103,45 @@ suite('typing with auto-replaces', function() {
       assertLatex('<<>\\ge=>><\\le=');
       assertMathspeak('less than less than greater than greater than or equal to equals greater than greater than less than less than or equal to equals');
     });
-
+    
     test('typing ≤ and ≥ chars directly', function() {
       mq.typedText('≤');
       assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
       mq.typedText('≥');
       assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
+    });
+
+    test('typing and backspacing ~', function() {
+      mq.typedText('~');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
+      mq.typedText('~');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.typedText('~');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.typedText('~');
+      assertLatex('\\approx\\approx');
+      assertMathspeak('approximately equal approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
+    });
+    test('typing ≈ char directly', function() {
+      mq.typedText('≈');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
     });
 
     suite('rendered from LaTeX', function() {
