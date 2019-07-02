@@ -763,6 +763,30 @@ LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
 LatexCmds['½'] = bind(LatexFragment, '\\frac12');
 LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 
+// this is a hack to make pasting the √ symbol
+// actually insert a sqrt command. This isn't ideal,
+// but it's way better than what we have now. I think
+// before we invest any more time into this single character
+// we should consider how to make the pipe (|) automatically
+// insert absolute value. We also will want the percent (%)
+// to expand to '% of'. I've always just thought mathquill's
+// ability to handle pasted latex magical until I started actually
+// testing it. It's a lot more buggy that I previously thought.
+//
+// KNOWN ISSUES:
+// 1) pasting √ does not put focus in side the sqrt symbol
+// 2) pasting √2 puts the 2 outside of the sqrt symbol.
+//
+// The first issue seems like we could invest more time into this to
+// fix it, but doesn't feel worth special casing. I think we'd want
+// to address it by addressing ALL pasting issues.
+//
+// The second issue seems like it might go away too if you fix paste to
+// act more like simply typing the characters out. I'd be scared to try
+// to make that change because I'm fairly confident I'd break something
+// around handling valid latex as latex rather than treating it as keystrokes.
+LatexCmds['√'] = bind(LatexFragment, '\\sqrt{}');
+
 var PlusMinus = P(BinaryOperator, function(_) {
   _.init = VanillaSymbol.prototype.init;
 

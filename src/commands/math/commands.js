@@ -537,8 +537,7 @@ LatexCmds.percentof = P(Symbol, function (_, super_) {
 });
 
 var SquareRoot =
-LatexCmds.sqrt =
-LatexCmds['√'] = P(MathCommand, function(_, super_) {
+LatexCmds.sqrt = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf mq-sqrt-container">'
