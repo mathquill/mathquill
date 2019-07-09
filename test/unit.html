@@ -61,7 +61,7 @@
       var runner = mocha.run();
 
       runner.on('suite', function(suite) {
-        var title = xmlEscape(suite.title);
+        var title = xmlEscape(suite.fullTitle());
         suiteMap[title] = {
           time: Date.now(),
           assertions: []
@@ -133,7 +133,7 @@
       });
 
       function getTestSuiteTitle(test) {
-        return xmlEscape(test.parent.title);
+        return xmlEscape(test.parent.fullTitle());
       }
 
       // must escape a few symbols in xml attributes:
