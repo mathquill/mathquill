@@ -63,7 +63,6 @@
       runner.on('suite', function(suite) {
         var title = xmlEscape(suite.fullTitle());
         suiteMap[title] = {
-          time: (Date.now() - startTime) / 1000,
           assertions: []
         };
         if (listTests) {
@@ -79,7 +78,7 @@
       runner.on('pass', function(test) {
         if (!listTests) {
           var title = getTestSuiteTitle(test);
-          var elapsedTime = (Date.now() - startTime) / 1000;
+          var elapsedTime = test.duration / 1000;
           var timestamp = Date.now();
           suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
@@ -93,7 +92,7 @@
       runner.on('fail', function(test, err) {
         if (!listTests) {
           var title = getTestSuiteTitle(test);
-          var elapsedTime = (Date.now() - startTime) / 1000;
+          var elapsedTime = test.duration / 1000;
           var timestamp = Date.now();
           suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
@@ -114,7 +113,6 @@
             var suiteResults = suiteMap[suiteTitle];
             moduleResults.push({
               name: suiteTitle,
-              time: suiteResults.time,
               assertions: suiteResults.assertions
             });
           }
