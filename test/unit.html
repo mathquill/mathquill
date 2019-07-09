@@ -26,9 +26,8 @@
     <script type="text/javascript">
       mocha.setup({
         ui: 'tdd',
-        bail: false,
-        fullStackTrace: true,
-        reporter: 'html'
+        reporter: 'html',
+        bail: false
       });
     </script>
 
@@ -58,18 +57,17 @@
       var json = location.search.indexOf('json') >= 0;
       var listTests = location.search.indexOf('listTests') >= 0;
       var startTime = Date.now();
-      var moduleResults = [];
-      var currentSuite;
+      var suiteMap = {};
       var runner = mocha.run();
 
       runner.on('suite', function(suite) {
-        var suiteResults = {};
-        suiteResults.name = xmlEscape(suite.title);
-        suiteResults.time = Date.now() - startTime;
-        suiteResults.assertions = [];
-        currentSuite = suiteResults;
+        var title = xmlEscape(suite.title);
+        suiteMap[title] = {
+          time: Date.now(),
+          assertions: []
+        };
         if (listTests) {
-          currentSuite.assertions.push({
+          suiteMap[title].assertions.push({
             elapsedTime: 0,
             timestamp: 0,
             result: true,
@@ -78,18 +76,12 @@
         }
       });
 
-      runner.on('suite end', function() {
-        var lastPushedSuite = moduleResults[moduleResults.length - 1];
-        if (!lastPushedSuite || lastPushedSuite.name !== currentSuite.name) {
-          moduleResults.push(currentSuite);
-        }
-      });
-
       runner.on('pass', function(test) {
         if (!listTests) {
+          var title = getTestSuiteTitle(test);
           var elapsedTime = Date.now() - startTime;
-          var timestamp = elapsedTime - currentSuite.time;
-          currentSuite.assertions.push({
+          var timestamp = Date.now();
+          suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
             timestamp: timestamp,
             result: true,
@@ -100,9 +92,10 @@
 
       runner.on('fail', function(test, err) {
         if (!listTests) {
+          var title = getTestSuiteTitle(test);
           var elapsedTime = Date.now() - startTime;
-          var timestamp = elapsedTime - currentSuite.time;
-          currentSuite.assertions.push({
+          var timestamp = Date.now();
+          suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
             timestamp: timestamp,
             result: false,
@@ -115,6 +108,17 @@
       });
 
       runner.on('end', function() {
+        var moduleResults = [];
+        for (var suiteTitle in suiteMap) {
+          if (suiteMap.hasOwnProperty(suiteTitle)) {
+            var suiteResults = suiteMap[suiteTitle];
+            moduleResults.push({
+              name: suiteTitle,
+              time: suiteResults.time,
+              assertions: suiteResults.assertions
+            });
+          }
+        }
         var testResults = {
           modules: { "mathquill": moduleResults },
           passes: runner.stats.passes,
@@ -127,6 +131,10 @@
           window.testResultsString = outputXML(testResults);
         }
       });
+
+      function getTestSuiteTitle(test) {
+        return xmlEscape(test.parent.title);
+      }
 
       // must escape a few symbols in xml attributes:
       //http://stackoverflow.com/questions/866706/which-characters-are-invalid-unless-encoded-in-an-xml-attribute
