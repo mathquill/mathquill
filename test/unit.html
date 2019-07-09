@@ -79,7 +79,7 @@
       runner.on('pass', function(test) {
         if (!listTests) {
           var title = getTestSuiteTitle(test);
-          var elapsedTime = Date.now() - startTime;
+          var elapsedTime = (Date.now() - startTime) / 1000;
           var timestamp = Date.now();
           suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
@@ -93,7 +93,7 @@
       runner.on('fail', function(test, err) {
         if (!listTests) {
           var title = getTestSuiteTitle(test);
-          var elapsedTime = Date.now() - startTime;
+          var elapsedTime = (Date.now() - startTime) / 1000;
           var timestamp = Date.now();
           suiteMap[title].assertions.push({
             elapsedTime: elapsedTime,
