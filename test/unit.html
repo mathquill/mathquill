@@ -63,7 +63,7 @@
       runner.on('suite', function(suite) {
         var title = xmlEscape(suite.fullTitle());
         suiteMap[title] = {
-          time: Date.now(),
+          time: (Date.now() - startTime) / 1000,
           assertions: []
         };
         if (listTests) {
