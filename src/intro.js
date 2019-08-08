@@ -9,10 +9,12 @@
  */
 
 (function() {
+var jQuery =
+  typeof require === 'function'
+    ? require('jquery')
+    : window.jQuery;
 
-var jQuery = window.jQuery,
-  undefined,
-  mqCmdId = 'mathquill-command-id',
+var mqCmdId = 'mathquill-command-id',
   mqBlockId = 'mathquill-block-id',
   min = Math.min,
   max = Math.max;

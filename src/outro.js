@@ -10,4 +10,7 @@ for (var key in MQ1) (function(key, val) {
   else MathQuill[key] = val;
 }(key, MQ1[key]));
 
+if (typeof module === 'object' && typeof module.exports === 'object') {
+  module.exports = MathQuill;
+}
 }());
