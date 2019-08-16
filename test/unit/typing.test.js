@@ -1282,7 +1282,12 @@ suite('typing with auto-replaces', function() {
       mq.latex('\\%\\operatorname{of}');
       assertLatex('\\%\\operatorname{of}');
     });
+
+    test('overline renders as expected', function() {
+      mq.latex('0.3\\overline{5}');
+      assertLatex('0.3\\overline{5}');
+      assertMathspeak('0 .3 StartOverline 5 EndOverline');
+    });
   });
 });
-
 
