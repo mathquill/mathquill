@@ -83,7 +83,7 @@ var SVG_SYMBOLS = {
 var Style = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, tagName, attrs, ariaLabel) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
-    _.ariaLabel = ariaLabel || ctrlSeq;
+    _.ariaLabel = ariaLabel || ctrlSeq.slice(1);
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
   };
 });
@@ -353,7 +353,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
 
 var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html, ariaLabel) {
-    _.ariaLabel = ariaLabel || ctrlSeq;
+    _.ariaLabel = ariaLabel || ctrlSeq.slice(1);
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="mq-to"><span>&1</span></span>'
