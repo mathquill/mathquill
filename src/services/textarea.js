@@ -72,7 +72,13 @@ Controller.open(function(_) {
       if (text) textarea.select();
     };
     var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
-    ctrlr.container.attr('role', 'math').attr('aria-label', ariaLabel + root.mathspeak().trim());
+    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
+    // This is gross, but necessary.
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.Stream;
+    var isMac = navigator.appVersion.indexOf("Mac") !== -1 && !isIOS;
+    if (!isMac)
+      ctrlr.container.attr('role', 'math');
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
