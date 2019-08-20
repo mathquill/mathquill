@@ -72,7 +72,24 @@ Controller.open(function(_) {
       if (text) textarea.select();
     };
     var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
-    ctrlr.container.attr('role', 'math').attr('aria-label', ariaLabel + root.mathspeak().trim());
+    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
+
+    // This is gross, but necessary.
+    // On Windows, ChromeOS, Android, and iOS, supplying role="math" allows users of
+    // JAWS, NVDA, ChromeVox, Talkback, and VoiceOver to read the mathspeak version of an equation
+    // which we supply as the container's aria-label attribute.
+    // Omitting role="math" makes the container invisible to JAWS and iOS VoiceOver.
+    // At time of writing (8/20/2019), the exact opposite is true of the Mac--
+    // Supplying role="math" makes the content of the container invisible to VoiceOver there,
+    // and omitting it makes the material available to Mac users.
+    // For now, the solution is to render role="math" unless the user is on Mac.
+    // Bug report: https://feedbackassistant.apple.com/feedback/7076111
+
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    var isIOS = /iPad|iPhone|iPod/.test(userAgent) && !window.Stream;
+    var isMac = navigator.appVersion.indexOf("Mac") !== -1 && !isIOS;
+    if (!isMac)
+      ctrlr.container.attr('role', 'math');
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
