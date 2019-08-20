@@ -83,7 +83,7 @@ var SVG_SYMBOLS = {
 var Style = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, tagName, attrs, ariaLabel) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
-    _.ariaLabel = ariaLabel || ctrlSeq.slice(1);
+    _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
   };
 });
@@ -353,7 +353,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
 
 var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html, ariaLabel) {
-    _.ariaLabel = ariaLabel || ctrlSeq.slice(1);
+    _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="mq-to"><span>&1</span></span>'
@@ -874,13 +874,13 @@ LatexCmds.left = P(MathCommand, function(_) {
 
     return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
       .then(function(ctrlSeq) {
-        var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
+        var open = ctrlSeq.replace(/^\\/, '');
 	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
 	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
             .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
-              var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
+              var close = end.replace(/^\\/, '');
 	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
               var cmd = Bracket(0, open, close, ctrlSeq, end);
