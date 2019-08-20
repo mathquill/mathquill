@@ -306,7 +306,7 @@ var MathCommand = P(MathElement, function(_, super_) {
  */
 var Symbol = P(MathCommand, function(_, super_) {
   _.init = function(ctrlSeq, html, text, mathspeak) {
-    if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
+    if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
 
     this.mathspeakName = mathspeak || text;
     super_.init.call(this, ctrlSeq, html, [ text ]);
