@@ -452,7 +452,15 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = ['(', ')/(', ')'];
+  Options.p.charsThatBreakOutOfDenom = '';
   _.finalizeTree = function() {
+    this.ends[R].write = function(cursor, ch) {
+      if (cursor[L] && !cursor[R] && !cursor.selection
+          && cursor.options.charsThatBreakOutOfDenom.indexOf(ch) > -1) {
+        cursor.insRightOf(this.parent);
+      }
+      MathBlock.p.write.apply(this, arguments);
+    };
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
   };
