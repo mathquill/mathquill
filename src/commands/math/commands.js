@@ -258,7 +258,7 @@ var SupSub = P(MathCommand, function(_, super_) {
   _.latex = function() {
     function latex(prefix, block) {
       var l = block && block.latex();
-      return block ? prefix + (l.length === 1 ? l : '{' + (l || ' ') + '}') : '';
+      return block ? prefix + '{' + (l || ' ') + '}' : '';
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
@@ -372,7 +372,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
   };
   _.latex = function() {
     function simplify(latex) {
-      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+      return '{' + (latex || ' ') + '}';
     }
     return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
       '^' + simplify(this.ends[R].latex());
