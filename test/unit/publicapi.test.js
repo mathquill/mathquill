@@ -372,11 +372,11 @@ suite('Public API', function() {
       mq.cmd('^');
       assert.equal(mq.latex(), 'xy^{ }');
       mq.cmd('2');
-      assert.equal(mq.latex(), 'xy^2');
+      assert.equal(mq.latex(), 'xy^{2}');
       mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
-      assert.equal(mq.latex(), '\\sqrt{xy^2}');
+      assert.equal(mq.latex(), '\\sqrt{xy^{2}}');
       mq.typedText('*2**');
-      assert.equal(mq.latex(), '\\sqrt{xy^2\\cdot2\\cdot\\cdot}');
+      assert.equal(mq.latex(), '\\sqrt{xy^{2}\\cdot2\\cdot\\cdot}');
     });
 
     test('backslash commands are passed their name', function() {
@@ -508,7 +508,7 @@ suite('Public API', function() {
                     + 'thegraphicalelementsofadocumentorvisualpresentation.');
       });
       test('actual LaTeX', function() {
-        assertPaste('a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('a_{n}x^{n}+a_{n+1}x^{n+1}');
         assertPaste('\\frac{1}{2\\sqrt{x}}');
       });
       test('\\text{...}', function() {
@@ -519,7 +519,7 @@ suite('Public API', function() {
       test('selection', function(done) {
         mq.latex('x^2').select();
         setTimeout(function() {
-          assert.equal(textarea.val(), 'x^2');
+          assert.equal(textarea.val(), 'x^{2}');
           done();
         });
       });
@@ -555,13 +555,13 @@ suite('Public API', function() {
       });
       // TODO: braces (currently broken)
       test('actual math LaTeX wrapped in dollar signs', function() {
-        assertPaste('$a_nx^n+a_{n+1}x^{n+1}$', 'a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('$a_nx^n+a_{n+1}x^{n+1}$', 'a_{n}x^{n}+a_{n+1}x^{n+1}');
         assertPaste('$\\frac{1}{2\\sqrt{x}}$', '\\frac{1}{2\\sqrt{x}}');
       });
       test('selection', function(done) {
         mq.latex('x^2').select();
         setTimeout(function() {
-          assert.equal(textarea.val(), '$x^2$');
+          assert.equal(textarea.val(), '$x^{2}$');
           done();
         });
       });
@@ -626,25 +626,25 @@ suite('Public API', function() {
 
       test('supsub', function() {
         mq.latex('x_a+y^b+z_a^b+w');
-        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.moveToLeftEnd().typedText('1');
-        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('2');
-        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('3');
-        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('4');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('5');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('6');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('7');
         assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{7b}+w');
@@ -706,28 +706,28 @@ suite('Public API', function() {
 
       test('supsub', function() {
         mq.latex('x_a+y^b+z_a^b+w');
-        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.moveToLeftEnd().typedText('1');
-        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('2');
-        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('3');
-        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('4');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('5');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('6');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{6b}+w');
 
         mq.keystroke('Right Right').typedText('7');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}7+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{6b}7+w');
       });
 
       test('nthroot', function() {
@@ -758,7 +758,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\sum_{ }^{ }');
 
       mq.cmd('n');
-      assert.equal(mq.latex(), '\\sum_n^{ }', 'cursor in lower limit');
+      assert.equal(mq.latex(), '\\sum_{n}^{ }', 'cursor in lower limit');
     });
     test('sum starts with `n=`', function() {
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
@@ -782,7 +782,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\int_{ }^{ }');
 
       mq.cmd('0');
-      assert.equal(mq.latex(), '\\int_0^{ }', 'cursor in the from block');
+      assert.equal(mq.latex(), '\\int_{0}^{ }', 'cursor in the from block');
     });
   });
 

@@ -10,7 +10,7 @@ suite('autoSubscript', function() {
   test('auto subscripting variables', function() {
     mq.latex('x');
     mq.typedText('2');
-    assert.equal(mq.latex(), 'x_2');
+    assert.equal(mq.latex(), 'x_{2}');
     mq.typedText('3');
     assert.equal(mq.latex(), 'x_{23}');
   });
@@ -26,17 +26,17 @@ suite('autoSubscript', function() {
   test('autosubscript exponentiated variables', function() {
     mq.latex('x^2');
     mq.typedText('2');
-    assert.equal(mq.latex(), 'x_2^2');
+    assert.equal(mq.latex(), 'x_{2}^{2}');
     mq.typedText('3');
-    assert.equal(mq.latex(), 'x_{23}^2');
+    assert.equal(mq.latex(), 'x_{23}^{2}');
   });
 
   test('do not autosubscript exponentiated functions', function() {
     mq.latex('sin^{2}');
     mq.typedText('2');
-    assert.equal(mq.latex(), '\\sin^22');
+    assert.equal(mq.latex(), '\\sin^{2}2');
     mq.typedText('3');
-    assert.equal(mq.latex(), '\\sin^223');
+    assert.equal(mq.latex(), '\\sin^{2}23');
   });
 
   test('do not autosubscript subscripted functions', function() {
@@ -51,7 +51,7 @@ suite('autoSubscript', function() {
 
     //first backspace moves to cursor in subscript and peels it off
     mq.keystroke('Backspace');
-    assert.equal(mq.latex(),'x_2');
+    assert.equal(mq.latex(),'x_{2}');
 
     //second backspace clears out remaining subscript
     mq.keystroke('Backspace');
@@ -72,7 +72,7 @@ suite('autoSubscript', function() {
     assert.equal(mq.latex(),'x_{2+}');
     assert.equal(cursor.parent, rootBlock, 'backspace keeps us in the root block');
     mq.keystroke('Backspace');
-    assert.equal(mq.latex(),'x_2');
+    assert.equal(mq.latex(),'x_{2}');
     assert.equal(cursor.parent, rootBlock, 'backspace keeps us in the root block');
 
     //second backspace clears out remaining subscript and unpeels

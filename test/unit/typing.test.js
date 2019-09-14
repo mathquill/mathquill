@@ -61,7 +61,7 @@ suite('typing with auto-replaces', function() {
 
     test('auto-operator names', function() {
       mq.typedText('\\sin^2');
-      assertLatex('\\sin^2');
+      assertLatex('\\sin^{2}');
     });
 
     test('nonexistent LaTeX command', function() {
@@ -1203,22 +1203,22 @@ suite('typing with auto-replaces', function() {
     });
     test('supSubsRequireOperand', function() {
       assert.equal(mq.typedText('^').latex(), '^{ }');
-      assert.equal(mq.typedText('2').latex(), '^2');
+      assert.equal(mq.typedText('2').latex(), '^{2}');
       assert.equal(mq.typedText('n').latex(), '^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('^').latex(), 'x^{^{ }}');
-      assert.equal(mq.typedText('2').latex(), 'x^{^2}');
+      assert.equal(mq.typedText('2').latex(), 'x^{^{2}}');
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
       mq.latex('');
       assert.equal(mq.typedText('2').latex(), '2');
-      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^{2}');
 
       mq.latex('');
       MQ.config({ supSubsRequireOperand: true });
@@ -1229,17 +1229,17 @@ suite('typing with auto-replaces', function() {
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('2').latex(), '2');
-      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^{2}');
     });
   });
 
