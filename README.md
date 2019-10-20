@@ -30,7 +30,6 @@ Check out our [Getting Started Guide](http://docs.mathquill.com/en/latest/Gettin
 ## Docs
 
 Most documentation for MathQuill is located on [ReadTheDocs](http://docs.mathquill.com/en/latest/).
-
 Some older documentation still exists on the [Wiki](https://github.com/mathquill/mathquill/wiki).
 
 ## Open-Source License
