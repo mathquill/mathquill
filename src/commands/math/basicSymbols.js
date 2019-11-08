@@ -111,7 +111,7 @@ var DigitGroupingChar = P(Symbol, function(_, super_) {
     while (node) {
       count += 1;
 
-      cls = undefined;
+      var cls = undefined;
 
       // only do grouping if we have at least 4 numbers
       if (totalDigits >= 4) {
