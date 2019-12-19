@@ -1,4 +1,4 @@
-# [MathQuill](http://mathquill.com)
+# [Edulastic MathQuill](http://mathquill.com)
 
 ## Build
 
@@ -8,7 +8,7 @@ run command:
 make
 ```
 
-by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (<maintainers@mathquill.com>) [<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
+originally by [Han](http://github.com/laughinghan), [Jeanine](http://github.com/jneen), and [Mary](http://github.com/stufflebear) (<maintainers@mathquill.com>) [<img alt="slackin.mathquill.com" src="http://slackin.mathquill.com/badge.svg" align="top">](http://slackin.mathquill.com)
 
 MathQuill is a web formula editor designed to make typing math easy and beautiful.
 
