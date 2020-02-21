@@ -40,17 +40,22 @@ BASE_SOURCES = \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
-  $(SRC_DIR)/services/*.util.js \
-  $(SRC_DIR)/services/*.js
-
+  $(SRC_DIR)/services/parser.util.js \
+  $(SRC_DIR)/services/saneKeyboardEvents.util.js \
+  $(SRC_DIR)/services/aria.js \
+  $(SRC_DIR)/services/exportText.js \
+  $(SRC_DIR)/services/focusBlur.js \
+  $(SRC_DIR)/services/keystroke.js \
+  $(SRC_DIR)/services/latex.js \
+  $(SRC_DIR)/services/mouse.js \
+  $(SRC_DIR)/services/scrollHoriz.js \
+  $(SRC_DIR)/services/textarea.js
+  
 SOURCES_FULL = \
   $(BASE_SOURCES) \
   $(SRC_DIR)/commands/math.js \
   $(SRC_DIR)/commands/text.js \
   $(SRC_DIR)/commands/math/*.js
-# FIXME text.js currently depends on math.js (#435), restore these when fixed:
-# $(SRC_DIR)/commands/*.js \
-# $(SRC_DIR)/commands/*/*.js
 
 SOURCES_BASIC = \
   $(BASE_SOURCES) \
