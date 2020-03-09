@@ -261,13 +261,6 @@ function getInterface(v) {
   return MQ;
 }
 
-MathQuill.noConflict = function() {
-  window.MathQuill = origMathQuill;
-  return MathQuill;
-};
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
-
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
   for (var i = 0; i < names.length; i += 1) (function(name) {

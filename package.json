@@ -7,8 +7,9 @@
     "type": "git",
     "url": "https://github.com/mathquill/mathquill.git"
   },
+  "main": "build/mathquill.commonjs.js",
   "files": [
-    "build/mathquill.{css,js,min.js}",
+    "build/mathquill.{,commonjs}{css,js,min.js}",
     "build/fonts/Symbola.*",
     "quickstart.html"
   ],
