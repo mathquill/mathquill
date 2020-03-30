@@ -81,6 +81,9 @@ LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-
 LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"');
 LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"');
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"');
+LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-both"');
+LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"');
+
 LatexCmds.dot = P(MathCommand, function(_, super_) {
     _.init = function() {
         super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
@@ -89,6 +92,21 @@ LatexCmds.dot = P(MathCommand, function(_, super_) {
             + '</span></span>'
         );
     };
+});
+
+LatexCmds.underset = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\underset';
+  _.htmlTemplate =
+      '<span class="mq-underset mq-overunder mq-non-leaf">'
+    +   '<span class="mq-over">&1</span>'
+    +   '<span class="mq-under">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['[', '|', ']'];
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L].upOutOf = this.ends[R];
+    this.upInto = this.ends[R].downOutOf = this.ends[L];
+  };
 });
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where

@@ -344,6 +344,17 @@
     }
   }
 
+  .mq-overarc {
+    border-top: 1px solid black;
+    -webkit-border-top-right-radius: 50% 0.3em;
+    -moz-border-radius-topright: 50% 0.3em;
+    border-top-right-radius: 50% 0.3em;
+    -webkit-border-top-left-radius: 50% 0.3em;
+    -moz-border-radius-topleft: 50% 0.3em;
+    border-top-left-radius: 50% 0.3em;
+    margin-top: 1px;
+    padding-top: 0.15em;
+  }
 
   &, .mq-editable-field {
     cursor: text;
@@ -351,9 +362,11 @@
   }
 
   .mq-overarrow {
+    min-width: 0.5em;
     border-top: 1px solid black;
     margin-top: 1px;
     padding-top: 0.2em;
+    text-align: center;
 
     &:before {
       display: block;
@@ -371,6 +384,35 @@
       transform: scaleX(-1);
       filter: FlipH;
       -ms-filter: "FlipH";
+    }
+    &.mq-arrow-both {
+      vertical-align: text-bottom;
+
+      &.mq-empty {
+        min-height: 1.23em;
+
+        &:after {
+          top: -0.34em;
+        }
+      }
+      &:before {
+        -moz-transform: scaleX(-1);
+        -o-transform: scaleX(-1);
+        -webkit-transform: scaleX(-1);
+        transform: scaleX(-1);
+        filter: FlipH;
+        -ms-filter: "FlipH";
+      }
+      &:after {
+        display: block;
+        position: relative;
+        top: -2.3em;
+        font-size: 0.5em;
+        line-height: 0em;
+        content: "\27A4";
+        visibility: visible; //must override .mq-editable-field.mq-empty:after
+        text-align: right;
+      }
     }
   }
 
@@ -398,4 +440,28 @@
     }
   }
 
+  // \overset & \underset
+  // overset and underset text
+  .mq-overunder {
+    text-align: center;
+    text-align: -webkit-center;
+    position: relative;
+    top: 0.01em;
+
+    // fix \mathbf vertical alignment issue
+    .mq-font {
+      font-family: inherit;
+    }
+
+    &.mq-underset {
+      vertical-align: text-top;
+    }
+
+    &.mq-underset .mq-under,
+    &.mq-overset .mq-over {
+      display: block;
+      font-size: 1.2em;
+      line-height: 0.3em;
+    }
+  }
 }
