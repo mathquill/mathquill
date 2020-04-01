@@ -20,6 +20,21 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
+  if (!textbox && !editable) {
+    var staticEquation = false;
+    var findEditableMathBlock = function (node) {
+      if (node instanceof LatexCmds.editable) {
+        staticEquation = true;
+      }
+      node.eachChild(findEditableMathBlock);
+      return !staticEquation;
+    };
+    root.eachChild(findEditableMathBlock);
+    if (staticEquation) {
+      root.staticEquation = true;
+    }
+  }
+
   //textarea stuff
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea spellcheck="false" autocorrect="off" autocomplete="off"></textarea></span>'),
     textarea = textareaSpan.children();
@@ -385,6 +400,20 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   _.onText = function(ch) {
     this.cursor.write(ch);
     return false;
+  };
+  _.getEditableCursor = function() {
+    var staticEquation = false;
+    var staticEquationCursor;
+    var findEditableMathBlock = function (node) {
+      if (node instanceof LatexCmds.editable) {
+        staticEquation = true;
+        staticEquationCursor = node.cursor;
+      }
+      node.eachChild(findEditableMathBlock);
+      return !staticEquation;
+    };
+    this.eachChild(findEditableMathBlock);
+    return staticEquationCursor;
   };
 });
 
