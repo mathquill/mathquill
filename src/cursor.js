@@ -45,6 +45,14 @@ var Cursor = P(Point, function(_) {
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
+    for (;;) {
+      if (node.parent == 0)
+        break;
+      node = node.parent;
+    }
+    if (node) {
+      node.staticCursorLastUsed = this;
+    }
     this.jQ.detach();
     this.jQ = $();
     return this;

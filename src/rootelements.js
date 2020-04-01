@@ -401,19 +401,17 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
     this.cursor.write(ch);
     return false;
   };
-  _.getEditableCursor = function() {
-    var staticEquation = false;
-    var staticEquationCursor;
+  _.getEditableCursors = function() {
+    var staticEquationCursors = [];
     var findEditableMathBlock = function (node) {
       if (node instanceof LatexCmds.editable) {
-        staticEquation = true;
-        staticEquationCursor = node.cursor;
+        staticEquationCursors.push(node.cursor);
       }
       node.eachChild(findEditableMathBlock);
-      return !staticEquation;
+      return true;
     };
     this.eachChild(findEditableMathBlock);
-    return staticEquationCursor;
+    return staticEquationCursors.length ? staticEquationCursors : null;
   };
 });
 
