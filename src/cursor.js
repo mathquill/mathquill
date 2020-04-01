@@ -45,6 +45,7 @@ var Cursor = P(Point, function(_) {
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
+    var node = this;
     for (;;) {
       if (node.parent == 0)
         break;
