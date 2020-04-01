@@ -984,6 +984,9 @@ LatexCmds.vector = P(MathCommand, function(_, _super) {
 LatexCmds.editable = P(RootMathCommand, function(_, _super) {
   _.init = function() {
     MathCommand.prototype.init.call(this, '\\editable');
+    LatexCmds.editable.staticEquation = true;
+    LatexCmds.editable.staticEquations = LatexCmds.editable.staticEquations || [];
+    LatexCmds.editable.staticEquations.push(this);
   };
 
   _.jQadd = function() {
