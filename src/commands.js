@@ -1015,6 +1015,13 @@ LatexCmds.editable = P(RootMathCommand, function(_, _super) {
     self.endChild[L].cursor.insAtRightEnd(self.endChild[L]);
   };
 
-  _.latex = function(){ return this.endChild[L].latex(); };
+  // Previous impl
+  // _.latex = function(){ return this.endChild[L].latex(); };
+  _.latex = function() {
+    return this.foldChildren(this.ctrlSeq, function(latex, child) {
+      return latex + '{' + (child.latex() || ' ') + '}';
+    });
+  };
+
   _.text = function(){ return this.endChild[L].text(); };
 });
