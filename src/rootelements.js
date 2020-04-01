@@ -20,6 +20,24 @@ function createRoot(jQ, root, textbox, editable) {
 
   root.renderLatex(contents.text());
 
+  if (!textbox && !editable) {
+    var staticEquation = false;
+    var staticEquationCursor;
+    var findEditableMathBlock = function (node) {
+      if (node instanceof LatexCmds.editable) {
+        staticEquation = true;
+        staticEquationCursor = node.cursor;
+      }
+      node.eachChild(findEditableMathBlock);
+      return !staticEquation;
+    };
+    root.eachChild(findEditableMathBlock);
+    if (staticEquation) {
+      root.staticEquation = true;
+      root.staticEquationCursors = [staticEquationCursor];
+    }
+  }
+
   //textarea stuff
   var textareaSpan = root.textarea = $('<span class="textarea"><textarea spellcheck="false" autocorrect="off" autocomplete="off"></textarea></span>'),
     textarea = textareaSpan.children();

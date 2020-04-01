@@ -54,8 +54,8 @@ jQuery.fn.mathquill = function(cmd, latex) {
           block = blockId && MathElement[blockId],
           cursor = block && block.cursor;
 
-        if (LatexCmds.editable.staticEquation)
-          cursor = LatexCmds.editable.staticEquations[0].cursor;
+        if (block.staticEquation)
+          cursor = block.staticEquationCursors[0];
 
         if (cursor)
           cursor.writeLatex(latex).parent.blur();
