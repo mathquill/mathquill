@@ -22,11 +22,9 @@ function createRoot(jQ, root, textbox, editable) {
 
   if (!textbox && !editable) {
     var staticEquation = false;
-    var staticEquationCursor;
     var findEditableMathBlock = function (node) {
       if (node instanceof LatexCmds.editable) {
         staticEquation = true;
-        staticEquationCursor = node.cursor;
       }
       node.eachChild(findEditableMathBlock);
       return !staticEquation;
@@ -34,7 +32,6 @@ function createRoot(jQ, root, textbox, editable) {
     root.eachChild(findEditableMathBlock);
     if (staticEquation) {
       root.staticEquation = true;
-      root.staticEquationCursors = [staticEquationCursor];
     }
   }
 
@@ -403,6 +400,20 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
   _.onText = function(ch) {
     this.cursor.write(ch);
     return false;
+  };
+  _.getEditableCursor = function() {
+    var staticEquation = false;
+    var staticEquationCursor;
+    var findEditableMathBlock = function (node) {
+      if (node instanceof LatexCmds.editable) {
+        staticEquation = true;
+        staticEquationCursor = node.cursor;
+      }
+      node.eachChild(findEditableMathBlock);
+      return !staticEquation;
+    };
+    this.eachChild(findEditableMathBlock);
+    return staticEquationCursor;
   };
 });
 
