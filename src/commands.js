@@ -486,7 +486,7 @@ LatexCmds.left = P(MathCommand, function(_) {
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{)/))
+    return optWhitespace.then(regex(/^(?:[([|¿]|\\\{)/))
       .then(function(open) {
         if (open.charAt(0) === '\\') open = open.slice(1);
 
@@ -499,7 +499,7 @@ LatexCmds.left = P(MathCommand, function(_) {
           })
           .then(string('\\right'))
           .skip(optWhitespace)
-          .then(regex(/^(?:[\])|]|\\\})/))
+          .then(regex(/^(?:[\])|¿]|\\\})/))
           .then(function(close) {
             if (close.slice(-1) !== cmd.end.slice(-1)) {
               return Parser.fail('open doesn\'t match close');
@@ -523,6 +523,8 @@ LatexCmds.lbrace =
 CharCmds['{'] = bind(Bracket, '{', '}', '\\{', '\\}');
 LatexCmds.langle =
 LatexCmds.lang = bind(Bracket, '&lang;','&rang;','\\langle ','\\rangle ');
+LatexCmds.lcurly =
+CharCmds['\u00BF'] = bind(Bracket, '{', '', '\u00BF', '\u00BF');
 
 // Closing bracket matching opening bracket above
 var CloseBracket = P(Bracket, function(_, _super) {
