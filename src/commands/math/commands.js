@@ -250,6 +250,13 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
+  _.text = function() {
+    function text(prefix, block) {
+      var l = block && block.text();
+      return block ? prefix + (l.length === 1 ? l : '(' + (l || ' ') + ')') : '';
+    }
+    return text('_', this.sub) + text('^', this.sup);
+  };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
