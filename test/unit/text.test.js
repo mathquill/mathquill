@@ -66,34 +66,60 @@ suite('text', function() {
     assert.equal(block.latex(), '\\text{x}');
   });
 
-  test('stepping out of an empty block deletes it', function() {
-    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-    var controller = mq.__controller;
-    var cursor = controller.cursor;
+  suite('typing', function() {
+    var mq, mostRecentlyReportedLatex;
+    setup(function() {
+      mostRecentlyReportedLatex = NaN; // != to everything
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+        handlers: {
+          edit: function() {
+            mostRecentlyReportedLatex = mq.latex();
+          }
+        }
+      });
+    });
 
-    mq.latex('\\text{x}');
+    function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
+    function assertLatex(latex) {
+      prayWellFormedPoint(mq.__controller.cursor);
+      assert.equal(mostRecentlyReportedLatex, latex);
+      assert.equal(mq.latex(), latex);
+    }
 
-    mq.keystroke('Left');
-    assertSplit(cursor.jQ, 'x');
+    test('stepping out of an empty block deletes it', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
 
-    mq.keystroke('Backspace');
-    assertSplit(cursor.jQ);
+      mq.latex('\\text{x}');
+      assertLatex('\\text{x}');
 
-    mq.keystroke('Right');
-    assertSplit(cursor.jQ);
-    assert.equal(cursor[L], 0);
-  });
+      mq.keystroke('Left');
+      assertSplit(cursor.jQ, 'x');
+      assertLatex('\\text{x}');
 
-  test('typing $ in a textblock splits it', function() {
-    var mq = MathQuill.MathField($('<span></span>').appendTo('#mock')[0]);
-    var controller = mq.__controller;
-    var cursor = controller.cursor;
+      mq.keystroke('Backspace');
+      assertSplit(cursor.jQ);
+      assertLatex('');
 
-    mq.latex('\\text{asdf}');
-    mq.keystroke('Left Left Left');
-    assertSplit(cursor.jQ, 'as', 'df');
+      mq.keystroke('Right');
+      assertSplit(cursor.jQ);
+      assert.equal(cursor[L], 0);
+      assertLatex('');
+    });
 
-    mq.typedText('$');
-    assert.equal(mq.latex(), '\\text{as}\\text{df}');
+    test('typing $ in a textblock splits it', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
+
+      mq.latex('\\text{asdf}');
+      assertLatex('\\text{asdf}');
+
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+      assertLatex('\\text{asdf}');
+
+      mq.typedText('$');
+      assertLatex('\\text{as}\\text{df}');
+    });
   });
 });
