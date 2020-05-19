@@ -90,8 +90,8 @@ jobs:
           if [ -x sc-*-linux/bin/sc ]; then
             echo Using cached sc-*-linux/bin/sc
           else
-            time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-            time tar -xzf sc-latest-linux.tar.gz
+            time wget https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz
+            time tar -xzf sc-4.5.4-linux.tar.gz
           fi
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
@@ -100,8 +100,8 @@ jobs:
 
           echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
           rm -rf *
-          time wget https://saucelabs.com/downloads/sc-latest-linux.tar.gz
-          time tar -xzf sc-latest-linux.tar.gz
+          time wget https://saucelabs.com/downloads/sc-4.5.4-linux.tar.gz
+          time tar -xzf sc-4.5.4-linux.tar.gz
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
             --readyfile ~/sauce_is_ready
