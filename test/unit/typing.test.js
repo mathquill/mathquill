@@ -1,12 +1,20 @@
 suite('typing with auto-replaces', function() {
-  var mq;
+  var mq, mostRecentlyReportedLatex;
   setup(function() {
-    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    mostRecentlyReportedLatex = NaN; // != to everything
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function() {
+          mostRecentlyReportedLatex = mq.latex();
+        }
+      }
+    });
   });
 
   function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
   function assertLatex(latex) {
     prayWellFormedPoint(mq.__controller.cursor);
+    assert.equal(mostRecentlyReportedLatex, latex);
     assert.equal(mq.latex(), latex);
   }
 
@@ -49,6 +57,11 @@ suite('typing with auto-replaces', function() {
     });
 
     test('nonexistent LaTeX command', function() {
+      mq.typedText('\\asdf').keystroke('Enter');
+      assertLatex('\\text{asdf}');
+    });
+
+    test('nonexistent LaTeX command, then symbol', function() {
       mq.typedText('\\asdf+');
       assertLatex('\\text{asdf}+');
     });

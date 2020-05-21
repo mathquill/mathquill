@@ -94,17 +94,20 @@ $('#codecogs').click(function() {
 
 $(function() {
   var latexMath = MQ($('#editable-math')[0]);
-  $(latexMath.el()).bind('keydown keypress', function() {
-    setTimeout(function() {
-      var latex = latexMath.latex();
-      latexSource.val(latex);
-//      location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
-      htmlSource.text(printTree(latexMath.html()));
-      htmlTransplantExample.html(latexMath.html());
-    });
-  }).keydown();
+  latexMath.config({
+    handlers: {
+      edit: function() {
+        var latex = latexMath.latex();
+        latexSource.val(latex);
+//        location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
+        htmlSource.text(printTree(latexMath.html()));
+        htmlTransplantExample.html(latexMath.html());
+      }
+    }
+  });
   latexMath.focus();
 
+  latexSource.val(latexMath.latex());
   latexSource.bind('keydown keypress', function() {
     var oldtext = latexSource.val();
     setTimeout(function() {
@@ -116,6 +119,9 @@ $(function() {
       }
     });
   });
+
+  htmlSource.text(printTree(latexMath.html()));
+  htmlTransplantExample.html(latexMath.html());
 
   if(location.hash && location.hash.length > 1)
     latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
