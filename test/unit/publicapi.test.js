@@ -956,4 +956,25 @@ suite('Public API', function() {
     assert.equal(mq.text(), "sqrt(embedded text)");
     assert.equal(mq.latex(), "\\sqrt{embedded latex}");
   });
+
+  test('customSymbols', function() {
+    var mq = MQ.MathField($('<span>\\snowman\\biohazard</span>').appendTo('#mock')[0], {
+      customSymbols: {
+        snowman: { ch: '☃', kind: 'ord', italic: true },
+        biohazard: { ch:'☣', kind: 'bin' }
+      }
+    });
+    assert.equal(mq.latex(), '\\snowman\\biohazard');
+
+    mq.write('+asdf+\\biohazard');
+    assert.equal(mq.latex(), '\\snowman\\biohazard+asdf+\\biohazard');
+
+    mq.typedText('\\snowman').keystroke('Spacebar');
+    assert.equal(mq.latex(), '\\snowman\\biohazard+asdf+\\biohazard\\snowman');
+
+    var mq2 = MQ.MathField($('<span>\\biohazard</span>').appendTo('#mock')[0]);
+    assert.equal(mq2.latex(), '');
+
+    $('#mock').empty();
+  });
 });

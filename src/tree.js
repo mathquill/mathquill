@@ -371,4 +371,4 @@ var Fragment = P(function(_) {
  *
  * (Commands are all subclasses of Node.)
  */
-var LatexCmds = {}, CharCmds = {};
+var mkLatexCmds = P(), LatexCmds = mkLatexCmds.p, CharCmds = {};

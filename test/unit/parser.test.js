@@ -9,35 +9,39 @@ suite('parser', function() {
   var succeed = Parser.succeed;
   var all = Parser.all;
 
+  function assertDoesntParse(parser, str, msg) {
+    assert.equal(parser._parse(str), undefined, msg);
+  }
+
   test('Parser.string', function() {
     var parser = string('x');
-    assert.equal(parser.parse('x'), 'x');
-    assert.throws(function() { parser.parse('y') })
+    assert.equal(parser._parse('x'), 'x');
+    assertDoesntParse(parser, 'y');
   });
 
   test('Parser.regex', function() {
     var parser = regex(/^[0-9]/);
 
-    assert.equal(parser.parse('1'), '1');
-    assert.equal(parser.parse('4'), '4');
-    assert.throws(function() { parser.parse('x'); });
+    assert.equal(parser._parse('1'), '1');
+    assert.equal(parser._parse('4'), '4');
+    assertDoesntParse(parser, 'x');
     assert.throws(function() { regex(/./) }, 'must be anchored');
   });
 
   suite('then', function() {
     test('with a parser, uses the last return value', function() {
       var parser = string('x').then(string('y'));
-      assert.equal(parser.parse('xy'), 'y');
-      assert.throws(function() { parser.parse('y'); });
-      assert.throws(function() { parser.parse('xz'); });
+      assert.equal(parser._parse('xy'), 'y');
+      assertDoesntParse(parser, 'y');
+      assertDoesntParse(parser, 'xz');
     });
 
     test('asserts that a parser is returned', function() {
       var parser1 = letter.then(function() { return 'not a parser' });
-      assert.throws(function() { parser1.parse('x'); });
+      assert.throws(function() { parser1._parse('x'); });
 
       var parser2 = letter.then('x');
-      assert.throws(function() { letter.parse('xx'); });
+      assert.throws(function() { parser2._parse('xx'); });
     });
 
     test('with a function that returns a parser, continues with that parser', function() {
@@ -47,9 +51,9 @@ suite('parser', function() {
         return string('y');
       });
 
-      assert.equal(parser.parse('xy'), 'y');
+      assert.equal(parser._parse('xy'), 'y');
       assert.equal(piped, 'x');
-      assert.throws(function() { parser.parse('x'); });
+      assertDoesntParse(parser, 'x');
     });
   });
 
@@ -62,7 +66,7 @@ suite('parser', function() {
         return 'y';
       });
 
-      assert.equal(parser.parse('x'), 'y')
+      assert.equal(parser._parse('x'), 'y')
       assert.equal(piped, 'x');
     });
   });
@@ -72,12 +76,12 @@ suite('parser', function() {
       var myResult = 1;
       var oneParser = string('x').result(1);
 
-      assert.equal(oneParser.parse('x'), 1);
+      assert.equal(oneParser._parse('x'), 1);
 
       var myFn = function() {};
       var fnParser = string('x').result(myFn);
 
-      assert.equal(fnParser.parse('x'), myFn);
+      assert.equal(fnParser._parse('x'), myFn);
     });
   });
 
@@ -85,8 +89,8 @@ suite('parser', function() {
     test('uses the previous return value', function() {
       var parser = string('x').skip(string('y'));
 
-      assert.equal(parser.parse('xy'), 'x');
-      assert.throws(function() { parser.parse('x'); });
+      assert.equal(parser._parse('xy'), 'x');
+      assertDoesntParse(parser, 'x');
     });
   });
 
@@ -94,9 +98,9 @@ suite('parser', function() {
     test('two parsers', function() {
       var parser = string('x').or(string('y'));
 
-      assert.equal(parser.parse('x'), 'x');
-      assert.equal(parser.parse('y'), 'y');
-      assert.throws(function() { parser.parse('z') });
+      assert.equal(parser._parse('x'), 'x');
+      assert.equal(parser._parse('y'), 'y');
+      assertDoesntParse(parser, 'z');
     });
 
     test('with then', function() {
@@ -105,9 +109,9 @@ suite('parser', function() {
           return string('y')
         }).or(string('z'));
 
-      assert.equal(parser.parse('\\y'), 'y');
-      assert.equal(parser.parse('z'), 'z');
-      assert.throws(function() { parser.parse('\\z') });
+      assert.equal(parser._parse('\\y'), 'y');
+      assert.equal(parser._parse('z'), 'z');
+      assertDoesntParse(parser, '\\z');
     });
   });
 
@@ -119,19 +123,19 @@ suite('parser', function() {
     test('simple case', function() {
       var letters = letter.many();
 
-      assertEqualArray(letters.parse('x'), ['x']);
-      assertEqualArray(letters.parse('xyz'), ['x','y','z']);
-      assertEqualArray(letters.parse(''), []);
-      assert.throws(function() { letters.parse('1'); });
-      assert.throws(function() { letters.parse('xyz1'); });
+      assertEqualArray(letters._parse('x'), ['x']);
+      assertEqualArray(letters._parse('xyz'), ['x','y','z']);
+      assertEqualArray(letters._parse(''), []);
+      assertDoesntParse(letters, '1');
+      assertDoesntParse(letters, 'xyz1');
     });
 
     test('followed by then', function() {
       var parser = string('x').many().then(string('y'));
 
-      assert.equal(parser.parse('y'), 'y');
-      assert.equal(parser.parse('xy'), 'y');
-      assert.equal(parser.parse('xxxxxy'), 'y');
+      assert.equal(parser._parse('y'), 'y');
+      assert.equal(parser._parse('xy'), 'y');
+      assert.equal(parser._parse('xxxxxy'), 'y');
     });
   });
 
@@ -139,49 +143,49 @@ suite('parser', function() {
     test('zero case', function() {
       var zeroLetters = letter.times(0);
 
-      assertEqualArray(zeroLetters.parse(''), []);
-      assert.throws(function() { zeroLetters.parse('x'); });
+      assertEqualArray(zeroLetters._parse(''), []);
+      assertDoesntParse(zeroLetters, 'x');
     });
 
     test('nonzero case', function() {
       var threeLetters = letter.times(3);
 
-      assertEqualArray(threeLetters.parse('xyz'), ['x', 'y', 'z']);
-      assert.throws(function() { threeLetters.parse('xy'); });
-      assert.throws(function() { threeLetters.parse('xyzw'); });
+      assertEqualArray(threeLetters._parse('xyz'), ['x', 'y', 'z']);
+      assertDoesntParse(threeLetters, 'xy');
+      assertDoesntParse(threeLetters, 'xyzw');
 
       var thenDigit = threeLetters.then(digit);
-      assert.equal(thenDigit.parse('xyz1'), '1');
-      assert.throws(function() { thenDigit.parse('xy1'); });
-      assert.throws(function() { thenDigit.parse('xyz'); });
-      assert.throws(function() { thenDigit.parse('xyzw'); });
+      assert.equal(thenDigit._parse('xyz1'), '1');
+      assertDoesntParse(thenDigit, 'xy1');
+      assertDoesntParse(thenDigit, 'xyz');
+      assertDoesntParse(thenDigit, 'xyzw');
     });
 
     test('with a min and max', function() {
       var someLetters = letter.times(2, 4);
 
-      assertEqualArray(someLetters.parse('xy'), ['x', 'y']);
-      assertEqualArray(someLetters.parse('xyz'), ['x', 'y', 'z']);
-      assertEqualArray(someLetters.parse('xyzw'), ['x', 'y', 'z', 'w']);
-      assert.throws(function() { someLetters.parse('xyzwv'); });
-      assert.throws(function() { someLetters.parse('x'); });
+      assertEqualArray(someLetters._parse('xy'), ['x', 'y']);
+      assertEqualArray(someLetters._parse('xyz'), ['x', 'y', 'z']);
+      assertEqualArray(someLetters._parse('xyzw'), ['x', 'y', 'z', 'w']);
+      assertDoesntParse(someLetters, 'xyzwv');
+      assertDoesntParse(someLetters, 'x');
 
       var thenDigit = someLetters.then(digit);
-      assert.equal(thenDigit.parse('xy1'), '1');
-      assert.equal(thenDigit.parse('xyz1'), '1');
-      assert.equal(thenDigit.parse('xyzw1'), '1');
-      assert.throws(function() { thenDigit.parse('xy'); });
-      assert.throws(function() { thenDigit.parse('xyzw'); });
-      assert.throws(function() { thenDigit.parse('xyzwv1'); });
-      assert.throws(function() { thenDigit.parse('x1'); });
+      assert.equal(thenDigit._parse('xy1'), '1');
+      assert.equal(thenDigit._parse('xyz1'), '1');
+      assert.equal(thenDigit._parse('xyzw1'), '1');
+      assertDoesntParse(thenDigit, 'xy');
+      assertDoesntParse(thenDigit, 'xyzw');
+      assertDoesntParse(thenDigit, 'xyzwv1');
+      assertDoesntParse(thenDigit, 'x1');
     });
 
     test('atLeast', function() {
       var atLeastTwo = letter.atLeast(2);
 
-      assertEqualArray(atLeastTwo.parse('xy'), ['x', 'y']);
-      assertEqualArray(atLeastTwo.parse('xyzw'), ['x', 'y', 'z', 'w']);
-      assert.throws(function() { atLeastTwo.parse('x'); });
+      assertEqualArray(atLeastTwo._parse('xy'), ['x', 'y']);
+      assertEqualArray(atLeastTwo._parse('xyzw'), ['x', 'y', 'z', 'w']);
+      assertDoesntParse(atLeastTwo, 'x');
     });
   });
 
@@ -194,8 +198,8 @@ suite('parser', function() {
         return fail('character '+ch+' not allowed');
       }).or(string('x'));
 
-      assert.throws(function() { parser.parse('y'); });
-      assert.equal(parser.parse('x'), 'x');
+      assertDoesntParse(parser, 'y');
+      assert.equal(parser._parse('x'), 'x');
     });
 
     test('use Parser.succeed or Parser.fail to branch conditionally', function() {
@@ -212,19 +216,19 @@ suite('parser', function() {
       ;
 
       allowedOperator = '+';
-      assert.equal(parser.parse('x+y'), '+');
-      assert.throws(function() { parser.parse('x*y'); });
+      assert.equal(parser._parse('x+y'), '+');
+      assertDoesntParse(parser, 'x*y');
 
       allowedOperator = '*';
-      assert.equal(parser.parse('x*y'), '*');
-      assert.throws(function() { parser.parse('x+y'); });
+      assert.equal(parser._parse('x*y'), '*');
+      assertDoesntParse(parser, 'x+y');
     });
   });
 
   test('eof', function() {
     var parser = optWhitespace.skip(eof).or(all.result('default'));
 
-    assert.equal(parser.parse('  '), '  ')
-    assert.equal(parser.parse('x'), 'default');
+    assert.equal(parser._parse('  '), '  ')
+    assert.equal(parser._parse('x'), 'default');
   });
 });

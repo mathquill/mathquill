@@ -22,6 +22,7 @@ var latexMathParser = (function() {
   var optWhitespace = Parser.optWhitespace;
   var succeed = Parser.succeed;
   var fail = Parser.fail;
+  var eof = Parser.eof;
 
   // Parsers yielding either MathCommands, or Fragments of MathCommands
   //   (either way, something that can be adopted by a MathBlock)
@@ -35,7 +36,7 @@ var latexMathParser = (function() {
       .or(regex(/^\s+/).result(' '))
       .or(any)
     )).then(function(ctrlSeq) {
-      var cmdKlass = LatexCmds[ctrlSeq];
+      var cmdKlass = localLatexCmds.value[ctrlSeq];
 
       if (cmdKlass) {
         return cmdKlass(ctrlSeq).parser();
@@ -67,11 +68,93 @@ var latexMathParser = (function() {
   ;
 
   var latexMath = mathSequence;
-
   latexMath.block = mathBlock;
   latexMath.optBlock = optMathBlock;
+
+  // for renderLatexText; TODO: refactor
+  // Parser RootMathCommand
+  var mathMode = string('$').then(latexMath)
+    // because TeX is insane, math mode doesn't necessarily
+    // have to end.  So we allow for the case that math mode
+    // continues to the end of the stream.
+    .skip(string('$').or(eof))
+    .map(function(block) {
+      // HACK FIXME: this shouldn't have to have access to cursor
+      var rootMathCommand = RootMathCommand();
+
+      rootMathCommand.createBlocks();
+      var rootMathBlock = rootMathCommand.ends[L];
+      block.children().adopt(rootMathBlock, 0, 0);
+
+      return rootMathCommand;
+    })
+  ;
+
+  var escapedDollar = string('\\$').result('$');
+  var textChar = escapedDollar.or(regex(/^[^$]/)).map(function(ch) {
+    return VanillaSymbol(ch); // wrap in fn 'cos in a service, no commands yet
+  });
+  latexMath.latexText = mathMode.or(textChar).many();
+
+  latexMath.parse =
+  latexMath.latexText.parse = function(latex, latexCmds) {
+    var parser = this;
+    return localLatexCmds.let(latexCmds, function() {
+      return parser._parse(latex);
+    });
+  };
+  var localLatexCmds = ENV_VAR(); // LaTeX commands during this parse
+
   return latexMath;
 })();
+
+/**
+ * Concise JSON Schema for `customSymbols` declarations:
+ *   {
+ *     "/[a-z]+/i": {
+ *       spacing: { $enum: ['ord', 'bin', 'rel'] },
+ *       $optional_italic: { $value: true } // only allowed if spacing === 'ord'
+ *     }
+ *   }
+ * (More about Concise JSON Schemas: https://git.io/vwI9k )
+ *
+ * This is based on two classifications TeX uses for typesetting:
+ *   - the type of atom ("ord, op, bin, rel, open, close, punct and inner")
+ *       + determines spacing and line-breaking
+ *   - the family of font (normal upright roman, italic, etc)
+ *
+ * https://github.com/Khan/KaTeX/wiki/Examining-TeX#group-types
+ * http://tex.stackexchange.com/a/38984
+ */
+Options.p.customSymbols = LatexCmds;
+optionProcessors.customSymbols = function(defs) {
+  latexCmds = mkLatexCmds();
+  for (var ctrlSeq in defs) if (defs.hasOwnProperty(ctrlSeq)) {
+    if (!/^[a-z]+$/i.test(ctrlSeq)) {
+      throw 'Control word must be all letters, got: "' + ctrlSeq + '"';
+    }
+    var def = defs[ctrlSeq];
+    if (def.spacing === 'ord') {
+      var kind = (def.italic ? Variable : VanillaSymbol);
+    }
+    else if (def.spacing === 'bin' || def.spacing === 'rel') {
+      if (def.italic) throw 'Custom '+def.spacing+' symbols cannot be italic';
+      var kind = BinaryOperator;
+    }
+    var cmd = latexCmds[ctrlSeq] = bind(spacing, '\\'+ctrlSeq+' ', def.ch);
+    if (def.aliases) {
+      if (!/^[a-z]+(?: [a-z]+)*$/i.test(def.aliases)) {
+        throw 'Control word aliases must be space-delimited list of only letters, '
+            + 'got: "' + def.aliases + '"';
+      }
+      var aliases = def.aliases.split(' ');
+      for (var i = 0; i < aliases.length; i += 1) {
+        latexCmds[aliases[i]] = cmd;
+      }
+    }
+  }
+  return latexCmds;
+};
 
 Controller.open(function(_, super_) {
   _.exportLatex = function() {
@@ -84,10 +167,7 @@ Controller.open(function(_, super_) {
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;
 
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    var block = latexMathParser.parse(latex, this.options.customSymbols);
 
     if (block && !block.isEmpty() && block.prepareInsertionAt(cursor)) {
       block.children().adopt(cursor.parent, cursor[L], cursor[R]);
@@ -108,10 +188,7 @@ Controller.open(function(_, super_) {
     var options = cursor.options;
     var jQ = root.jQ;
 
-    var all = Parser.all;
-    var eof = Parser.eof;
-
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    var block = latexMathParser.parse(latex, this.options.customSymbols);
 
     root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
@@ -139,33 +216,7 @@ Controller.open(function(_, super_) {
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
-    var regex = Parser.regex;
-    var string = Parser.string;
-    var eof = Parser.eof;
-    var all = Parser.all;
-
-    // Parser RootMathCommand
-    var mathMode = string('$').then(latexMathParser)
-      // because TeX is insane, math mode doesn't necessarily
-      // have to end.  So we allow for the case that math mode
-      // continues to the end of the stream.
-      .skip(string('$').or(eof))
-      .map(function(block) {
-        // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
-
-        rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
-
-        return rootMathCommand;
-      })
-    ;
-
-    var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
-    var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+    var commands = latexMathParser.latexText.parse(latex, this.options.customSymbols);
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {

@@ -382,7 +382,7 @@ LatexCmds.forall = P(VanillaSymbol, function(_, super_) {
 var LatexFragment = P(MathCommand, function(_) {
   _.init = function(latex) { this.latex = latex; };
   _.createLeftOf = function(cursor) {
-    var block = latexMathParser.parse(this.latex);
+    var block = latexMathParser.parse(this.latex, LatexCmds);
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
@@ -392,7 +392,7 @@ var LatexFragment = P(MathCommand, function(_) {
     cursor.parent.bubble('reflow');
   };
   _.parser = function() {
-    var frag = latexMathParser.parse(this.latex).children();
+    var frag = latexMathParser.parse(this.latex, LatexCmds).children();
     return Parser.succeed(frag);
   };
 });
