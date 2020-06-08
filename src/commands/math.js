@@ -490,6 +490,8 @@ var MathBlock = P(MathElement, function(_, super_) {
       this.jQ.addClass('mq-empty');
       if (this.isEmptyParens()) {
         this.jQ.addClass('mq-empty-parens');
+      } else if (this.isEmptySquareBrackets()) {
+        this.jQ.addClass('mq-empty-square-brackets');
       }
     }
     return this;

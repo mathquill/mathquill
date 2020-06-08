@@ -265,6 +265,12 @@ var Node = P(function(_) {
     return this.parent.ctrlSeq === '\\left(';
   }
 
+  _.isEmptySquareBrackets = function () {
+    if (!this.isEmpty()) return false;
+    if (!this.parent) return false;
+    return this.parent.ctrlSeq === '\\left[';
+  }
+
   _.isStyleBlock = function() {
     return false;
   };
