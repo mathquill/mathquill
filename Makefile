@@ -50,7 +50,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/services/mouse.js \
   $(SRC_DIR)/services/scrollHoriz.js \
   $(SRC_DIR)/services/textarea.js
-  
+
 SOURCES_FULL = \
   $(BASE_SOURCES) \
   $(SRC_DIR)/commands/math.js \
@@ -111,6 +111,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 .PHONY: all basic dev js uglify css font clean
 all: font css uglify
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
+unminified_basic: $(BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
 dev: font css js
 js: $(BUILD_JS)
