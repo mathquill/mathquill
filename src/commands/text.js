@@ -117,6 +117,11 @@ var TextBlock = P(Node, function(_, super_) {
     }
     this.bubble('reflow');
   };
+  _.writeLatex = function(cursor, latex) {
+    if (!cursor[L]) TextPiece(latex).createLeftOf(cursor);
+    else cursor[L].appendText(latex);
+    this.bubble('reflow');
+  };
 
   _.seek = function(pageX, cursor) {
     cursor.hide();

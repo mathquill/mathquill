@@ -3,8 +3,7 @@ window.assert = (function() {
     if (!opts) opts = {};
 
     $.extend(this, opts);
-
-    if (!this.message) this.message = this.explanation;
+    this.message = this.explanation + ' ' + this.message;
 
     Error.call(this, this.message);
   }
