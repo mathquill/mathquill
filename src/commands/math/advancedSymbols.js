@@ -70,8 +70,26 @@ LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;');
 
-
 //the canonical sets of numbers
+LatexCmds.mathbb = P(MathCommand, function(_) {
+  _.createLeftOf = noop;
+  _.numBlocks = function() { return 1; };
+  _.parser = function() {
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return optWhitespace.then(string('{'))
+          .then(optWhitespace)
+          .then(regex(/^[NPZQRCH]/))
+          .skip(optWhitespace)
+          .skip(string('}'))
+          .map(function(c) {
+              // instantiate the class for the matching char
+              return LatexCmds[c]();
+    });
+  };
+});
+
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
   bind(VanillaSymbol,'\\mathbb{N}','&#8469;');
 
