@@ -1,5 +1,24 @@
 suite('text', function() {
 
+  var mq, mostRecentlyReportedLatex;
+  setup(function() {
+    mostRecentlyReportedLatex = NaN; // != to everything
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+      handlers: {
+        edit: function() {
+          mostRecentlyReportedLatex = mq.latex();
+        }
+      }
+    });
+  });
+
+  function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
+  function assertLatex(latex) {
+    prayWellFormedPoint(mq.__controller.cursor);
+    assert.equal(mostRecentlyReportedLatex, latex, 'assertLatex failed');
+    assert.equal(mq.latex(), latex, 'assertLatex failed');
+  }
+
   function fromLatex(latex) {
     var block = latexMathParser.parse(latex);
     block.jQize();
@@ -12,7 +31,7 @@ suite('text', function() {
 
     if (prev) {
       assert.ok(dom.previousSibling instanceof Text);
-      assert.equal(prev, dom.previousSibling.data);
+      assert.equal(prev, dom.previousSibling.data, 'assertSplit failed');
     }
     else {
       assert.ok(!dom.previousSibling);
@@ -20,7 +39,7 @@ suite('text', function() {
 
     if (next) {
       assert.ok(dom.nextSibling instanceof Text);
-      assert.equal(next, dom.nextSibling.data);
+      assert.equal(next, dom.nextSibling.data, 'assertSplit failed');
     }
     else {
       assert.ok(!dom.nextSibling);
@@ -67,25 +86,6 @@ suite('text', function() {
   });
 
   suite('typing', function() {
-    var mq, mostRecentlyReportedLatex;
-    setup(function() {
-      mostRecentlyReportedLatex = NaN; // != to everything
-      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
-        handlers: {
-          edit: function() {
-            mostRecentlyReportedLatex = mq.latex();
-          }
-        }
-      });
-    });
-
-    function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
-    function assertLatex(latex) {
-      prayWellFormedPoint(mq.__controller.cursor);
-      assert.equal(mostRecentlyReportedLatex, latex);
-      assert.equal(mq.latex(), latex);
-    }
-
     test('stepping out of an empty block deletes it', function() {
       var controller = mq.__controller;
       var cursor = controller.cursor;
@@ -121,5 +121,69 @@ suite('text', function() {
       mq.typedText('$');
       assertLatex('\\text{as}\\text{df}');
     });
+  });
+
+  suite('pasting', function() {
+    test('sanity', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
+
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      controller.paste('foo');
+
+      assertSplit(cursor.jQ, 'asfoo', 'df');
+      assertLatex('\\text{asfoodf}');
+      prayWellFormedPoint(cursor);
+
+    });
+
+    test('pasting a dollar sign', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
+
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      controller.paste('$foo');
+
+      assertSplit(cursor.jQ, 'as$foo', 'df');
+      assertLatex('\\text{as$foodf}');
+      prayWellFormedPoint(cursor);
+    });
+
+    test('pasting a backslash', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
+
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      controller.paste('\\pi');
+
+      assertSplit(cursor.jQ, 'as\\pi', 'df');
+      assertLatex('\\text{as\\backslash pidf}');
+      prayWellFormedPoint(cursor);
+    });
+
+    test('pasting a curly brace', function() {
+      var controller = mq.__controller;
+      var cursor = controller.cursor;
+
+      mq.latex('\\text{asdf}');
+      mq.keystroke('Left Left Left');
+      assertSplit(cursor.jQ, 'as', 'df');
+
+      controller.paste('{');
+
+      assertSplit(cursor.jQ, 'as{', 'df');
+      assertLatex('\\text{as\\{df}');
+      prayWellFormedPoint(cursor);
+    });
+
   });
 });
