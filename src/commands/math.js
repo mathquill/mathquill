@@ -458,6 +458,25 @@ var MathBlock = P(MathElement, function(_, super_) {
     }
   };
 
+  _.writeLatex = function(cursor, latex) {
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    if (block && !block.isEmpty() && block.prepareInsertionAt(cursor)) {
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+      cursor.parent.bubble('reflow');
+    }
+  };
+
   _.focus = function() {
     this.jQ.addClass('mq-hasCursor');
     this.jQ.removeClass('mq-empty');
