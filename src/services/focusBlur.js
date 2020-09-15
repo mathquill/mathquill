@@ -38,7 +38,7 @@ Controller.open(function(_) {
   };
   _.unbindFocusBlurEvents = function() {
     var ctrlr = this;
-    ctrlr.textarea.off('focus blur');
+    ctrlr.textarea.unbind('focus blur');
   };
 });
 
