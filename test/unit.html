@@ -24,7 +24,7 @@
 
     <!-- configure mocha and chai -->
     <script type="text/javascript">
-      var post_xunit_to = Mocha.utils.parseQuery(location.search).post_xunit_to;
+      var post_xunit_to = new URLSearchParams(location.search).get('post_xunit_to');
 
       mocha.setup({
         ui: 'tdd',
