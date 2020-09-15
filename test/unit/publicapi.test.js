@@ -134,7 +134,7 @@ suite('Public API', function() {
       mq.latex('\\div');
       assert.equal(mq.text(), '[/]');
       mq.latex('^{}');
-      assert.equal(mq.text(), '^');
+      assert.equal(mq.text(), '^( )');
       mq.latex('3^{4}');
       assert.equal(mq.text(), '3^4');
       mq.latex('3x+\\ 4');
