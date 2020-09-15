@@ -487,6 +487,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
     }
     if (this.replacedFragment) {
       if (this.replacedFragment.ends[L] instanceof Bracket &&
+        this.replacedFragment.ends[L] === this.replacedFragment.ends[R] &&
         this.replacedFragment.ends[L].sides[L].ctrlSeq == '(' &&
         this.replacedFragment.ends[L].sides[R].ctrlSeq == ')'
       ) {
