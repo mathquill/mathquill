@@ -36,6 +36,10 @@ Controller.open(function(_) {
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };
+  _.unbindFocusBlurEvents = function() {
+    var ctrlr = this;
+    ctrlr.textarea.off('focus blur');
+  };
 });
 
 /**

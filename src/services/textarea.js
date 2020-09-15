@@ -76,6 +76,21 @@ Controller.open(function(_) {
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
   };
+  _.unbindEditablesEvents = function() {
+    var ctrlr = this, textarea = ctrlr.textarea,
+      textareaSpan = ctrlr.textareaSpan;
+      
+      this.selectFn = function(text) {
+        textarea.val(text);
+        if (text) textarea.select();
+      };
+      textareaSpan.remove();
+      
+      this.unbindFocusBlurEvents();
+      
+      ctrlr.blurred = true;
+      textarea.bind('cut paste', false);
+  };
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
