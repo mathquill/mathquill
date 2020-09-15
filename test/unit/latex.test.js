@@ -23,6 +23,17 @@ suite('latex', function() {
     assertParsesLatex('PNZQRCH');
   });
 
+  test('can parse mathbb symbols', function() {
+    assertParsesLatex('\\P\\N\\Z\\Q\\R\\C\\H',
+        '\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}');
+    assertParsesLatex('\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}');
+  });
+
+  test('can parse mathbb error case', function() {
+    assert.throws(function() { assertParsesLatex('\\mathbb + 2'); });
+    assert.throws(function() { assertParsesLatex('\\mathbb{A}'); });
+  });
+
   test('simple exponent', function() {
     assertParsesLatex('x^n');
   });
@@ -132,7 +143,7 @@ suite('latex', function() {
       latexMathParser.parse('\\left\\lVerte123\\right\\rVerte');
     })
   });
-  
+
   test('parens with whitespace', function() {
     assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
