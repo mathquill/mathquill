@@ -4,6 +4,8 @@
 
 var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {};
 
+function globalAvailable(name) { !!this[name] }
+
 /**
  * Interface Versioning (#459, #495) to allow us to virtually guarantee
  * backcompat. v0.10.x introduces it, so for now, don't completely break the
@@ -13,7 +15,7 @@ var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {}
  * be accessed.
  */
 function insistOnInterVer() {
-  if (window.console) console.warn(
+  if (globalAvailable('console')) console.warn(
     'You are using the MathQuill API without specifying an interface version, ' +
     'which will fail in v1.0.0. Easiest fix is to do the following before ' +
     'doing anything else:\n' +
@@ -36,7 +38,7 @@ MathQuill.interfaceVersion = function(v) {
   // shim for #459-era interface versioning (ended with #495)
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
   insistOnInterVer = function() {
-    if (window.console) console.warn(
+    if (globalAvailable('console')) console.warn(
       'You called MathQuill.interfaceVersion(1); to specify the interface ' +
       'version, which will fail in v1.0.0. You can fix this easily by doing ' +
       'this before doing anything else:\n' +
@@ -260,13 +262,6 @@ function getInterface(v) {
 
   return MQ;
 }
-
-MathQuill.noConflict = function() {
-  window.MathQuill = origMathQuill;
-  return MathQuill;
-};
-var origMathQuill = window.MathQuill;
-window.MathQuill = MathQuill;
 
 function RootBlockMixin(_) {
   var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');

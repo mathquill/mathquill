@@ -9,5 +9,3 @@ for (var key in MQ1) (function(key, val) {
   }
   else MathQuill[key] = val;
 }(key, MQ1[key]));
-
-}());

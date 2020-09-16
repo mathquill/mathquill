@@ -71,13 +71,20 @@ UNIT_TESTS = ./test/unit/*.test.js
 VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
 
 BUILD_DIR = ./build
-BUILD_JS = $(BUILD_DIR)/mathquill.js
-BASIC_JS = $(BUILD_DIR)/mathquill-basic.js
+BUILD_JS_SRC = $(BUILD_DIR)/mathquill.js.src
+BUILD_BROWSER_JS = $(BUILD_DIR)/mathquill.js
+BUILD_COMMONJS_JS = $(BUILD_DIR)/mathquill.commonjs.js
+BASIC_JS_SRC = $(BUILD_DIR)/mathquill-basic.js.src
+BASIC_BROWSER_JS = $(BUILD_DIR)/mathquill-basic.js
+BASIC_COMMONJS_JS = $(BUILD_DIR)/mathquill-basic.commonjs.js
 BUILD_CSS = $(BUILD_DIR)/mathquill.css
 BASIC_CSS = $(BUILD_DIR)/mathquill-basic.css
-BUILD_TEST = $(BUILD_DIR)/mathquill.test.js
-UGLY_JS = $(BUILD_DIR)/mathquill.min.js
-UGLY_BASIC_JS = $(BUILD_DIR)/mathquill-basic.min.js
+BUILD_TEST_SRC = $(BUILD_DIR)/mathquill.test.js.src
+BUILD_BROWSER_TEST = $(BUILD_DIR)/mathquill.test.js
+UGLY_BROWSER_JS = $(BUILD_DIR)/mathquill.min.js
+UGLY_COMMONJS_JS = $(BUILD_DIR)/mathquill.commonjs.min.js
+UGLY_BASIC_BROWSER_JS = $(BUILD_DIR)/mathquill-basic.min.js
+UGLY_BASIC_COMMONJS_JS = $(BUILD_DIR)/mathquill-basic.commonjs.min.js
 
 # programs and flags
 UGLIFY ?= ./node_modules/.bin/uglifyjs
@@ -105,11 +112,11 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 
 .PHONY: all basic dev js uglify css font clean
 all: font css uglify
-basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
+basic: $(UGLY_BASIC_BROWSER_JS) $(UGLY_BASIC_COMMONJS_JS) $(BASIC_CSS)
 # dev is like all, but without minification
 dev: font css js
-js: $(BUILD_JS)
-uglify: $(UGLY_JS)
+js: $(BUILD_BROWSER_JS) $(BUILD_COMMONJS_JS)
+uglify: $(UGLY_BROWSER_JS) $(UGLY_COMMONJS_JS)
 css: $(BUILD_CSS)
 font: $(FONT_TARGET)
 clean:
@@ -117,18 +124,40 @@ clean:
 
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
-$(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_JS_SRC): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	$(SED_IN_PLACE) -e "s/{VERSION}/v$(VERSION)/" -e "s/^/  /" $@
 
-$(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
+$(BUILD_BROWSER_JS): $(BUILD_JS_SRC)
+	cp $(SRC_DIR)/entry/browser.js $@
+	$(SED_IN_PLACE) -e "/{SOURCE}/r $^" -e "/{SOURCE}/d" $@
+
+$(BUILD_COMMONJS_JS): $(BUILD_JS_SRC)
+	cp $(SRC_DIR)/entry/commonjs.js $@
+	$(SED_IN_PLACE) -e "/{SOURCE}/r $^" -e "/{SOURCE}/d" $@
+
+$(UGLY_BROWSER_JS): $(BUILD_BROWSER_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+$(UGLY_COMMONJS_JS): $(BUILD_COMMONJS_JS) $(NODE_MODULES_INSTALLED)
+	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
-$(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
+$(BASIC_JS_SRC): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
+	cat $^ | ./script/escape-non-ascii > $@
+	$(SED_IN_PLACE) -e "s/{VERSION}/v$(VERSION)/" -e "s/^/  /" $@
+
+$(BASIC_BROWSER_JS): $(BASIC_JS_SRC)
+	cp $(SRC_DIR)/entry/browser.js $@
+	$(SED_IN_PLACE) -e "/{SOURCE}/r $^" -e "/{SOURCE}/d" $@
+
+$(BASIC_COMMONJS_JS): $(BASIC_JS_SRC)
+	cp $(SRC_DIR)/entry/commonjs.js $@
+	$(SED_IN_PLACE) -e "/{SOURCE}/r $^" -e "/{SOURCE}/d" $@
+
+$(UGLY_BASIC_BROWSER_JS): $(BASIC_BROWSER_JS) $(NODE_MODULES_INSTALLED)
+	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
+
+$(UGLY_BASIC_COMMONJS_JS): $(BASIC_COMMONJS_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
@@ -159,10 +188,14 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 .PHONY: test server run-server
 server:
 	node script/test_server.js
-test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
+test: dev $(BUILD_BROWSER_TEST) $(BASIC_BROWSER_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST_SRC): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	$(SED_IN_PLACE) -e "s/{VERSION}/v$(VERSION)/" $@
+
+$(BUILD_BROWSER_TEST): $(BUILD_TEST_SRC)
+	cp $(SRC_DIR)/entry/browser.js $@
+	$(SED_IN_PLACE) -e "/{SOURCE}/r $^" -e "/{SOURCE}/d" $@
