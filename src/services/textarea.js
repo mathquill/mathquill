@@ -86,6 +86,7 @@ Controller.open(function(_) {
     // Bug report: https://feedbackassistant.apple.com/feedback/7076111
     // Update: As of 11/23/2020, this problem becomes slightly more complicated now that iOS 13+ on iPads masquerades as a Mac.
     // The same work-around applies, but now we must detect a spoofed Mac.
+    // Technique based on https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
 
     var userAgent = navigator.userAgent || navigator.vendor || window.opera;
     var isIOS = (/iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.Stream;
