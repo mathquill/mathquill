@@ -111,9 +111,14 @@
         for (var suiteTitle in suiteMap) {
           if (suiteMap.hasOwnProperty(suiteTitle)) {
             var suiteResults = suiteMap[suiteTitle];
+            var duration = 0;
+            suiteResults.assertions.forEach(function(assertion) {
+              duration += assertion.elapsedTime;
+            });
             moduleResults.push({
               name: suiteTitle,
-              assertions: suiteResults.assertions
+              assertions: suiteResults.assertions,
+              time: duration
             });
           }
         }
