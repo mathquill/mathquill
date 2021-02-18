@@ -29,7 +29,8 @@ var Variable = P(Symbol, function(_, _super) {
 
 var VanillaSymbol = P(Symbol, function(_, _super) {
   _.init = function(ch, html) {
-    _super.init.call(this, ch, '<span class="mq-vs-' + cssify(ch) + '">'+(html || ch)+'</span>');
+    var base = ch.length > 1 ? ch.slice(1) : ch;
+    _super.init.call(this, ch, '<span class="' + base.trim()+'-base mq-vs-' + cssify(ch) + '">'+(html || ch)+'</span>');
   };
 });
 
@@ -195,7 +196,7 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 var BinaryOperator = P(Symbol, function(_, _super) {
   _.init = function(ctrlSeq, html, text) {
     _super.init.call(this,
-      ctrlSeq, '<span class="binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="' + ctrlSeq.slice(1).trim()+'-base binary-operator">'+html+'</span>', text
     );
   };
 });

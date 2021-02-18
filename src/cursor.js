@@ -13,8 +13,7 @@ JS environment could actually contain many instances. */
 var Cursor = P(Point, function(_) {
   _.init = function(root) {
     this.parent = this.root = root;
-    var jQ = this.jQ = this._jQ = $('<span class="cursor">&zwj;</span>');
-
+    var jQ = this.jQ = this._jQ = $('<span aria-hidden="true" class="cursor">&zwj;</span>');
     //closured for setInterval
     this.blink = function(){ jQ.toggleClass('blink'); };
 
@@ -362,6 +361,24 @@ var Cursor = P(Point, function(_) {
 
     if (this.deleteSelection()); // pass
     else if (this[dir]) {
+      const ariaMathAltTags = [
+        // manually entered from the the 'alt' key for each btn config containing an 'ariaTemplate' in eqb_toolbar_buttons_data
+        'Fraction',
+        'Square Root',
+        'Parentheses',
+        'Superscript',
+        'Triangle',
+        'Is Approximately Equal To',
+        'Is Perpendicular To',
+      ].map(alt => alt.replace(/ /g, ''));
+
+      const srOnlyClassId = this[dir].jQ.get(0).className.split(/\s+/).find(classname =>
+        ariaMathAltTags.some(alt =>
+          classname.includes(alt) && classname.length > alt.length
+        )
+      );
+      srOnlyClassId && jQuery(`.${srOnlyClassId}`).remove();
+
       if (this[dir].isEmpty())
         this[dir] = this[dir].remove()[dir];
       else
