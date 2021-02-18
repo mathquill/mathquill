@@ -103,7 +103,7 @@ LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="n
 
 var SupSub = P(MathCommand, function(_, _super) {
   _.init = function(ctrlSeq, tag, text) {
-    _super.init.call(this, ctrlSeq, '<'+tag+' class="non-leaf">&0</'+tag+'>', [ text ]);
+    _super.init.call(this, ctrlSeq, '<'+tag+' aria-hidden="true" class="' + tag.trim()+'-base non-leaf">&0</'+tag+'>', [ text ]);
   };
   _.charCountBehavior = 'e';
   _.finalizeTree = function() {
@@ -220,8 +220,8 @@ LatexCmds.fraction = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\frac';
   _.htmlTemplate =
       '<span class="fraction non-leaf">'
-    +   '<span class="numerator">&0</span>'
-    +   '<span class="denominator">&1</span>'
+    +   '<span class="numerator" aria-hidden="true">&0</span>'
+    +   '<span class="denominator" aria-hidden="true">&1</span>'
     +   '<span style="display:inline-block;width:0">&nbsp;</span>'
     + '</span>'
   ;
@@ -323,9 +323,9 @@ LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, _super) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
-      '<span class="non-leaf">'
-    +   '<span class="scaled sqrt-prefix">&radic;</span>'
-    +   '<span class="non-leaf sqrt-stem">&0</span>'
+    '<span class="sqrt-base non-leaf">'
+    +   '<span class="scaled sqrt-prefix" aria-hidden="true">&radic;</span>'
+    +   '<span class="non-leaf sqrt-stem" aria-hidden="true">&0</span>'
     + '</span>'
   ;
   _.textTemplate = ['sqrt(', ')'];
@@ -450,7 +450,7 @@ LatexCmds.overleftrightarrow = P(HatCommand, function(_, _super) {
 var Bracket = P(MathCommand, function(_, _super) {
   _.init = function(open, close, ctrlSeq, end) {
     _super.init.call(this, '\\left'+ctrlSeq,
-        '<span class="non-leaf">'
+      '<span class="mathquill-bracket non-leaf" aria-hidden="true">'
       +   '<span class="scaled paren">'+open+'</span>'
       +   '<span class="non-leaf">&0</span>'
       +   '<span class="scaled paren">'+close+'</span>'
