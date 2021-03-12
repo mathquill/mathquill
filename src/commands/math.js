@@ -394,18 +394,18 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        if (isNaN(cmdText)) {
-          mathspeakText  = ' ' + mathspeakText;
-          if (cmdText !== '.') {
-            mathspeakText += ' ';
-          }
+        if (isNaN(cmdText) && cmdText !== '.') {
+          mathspeakText = ' ' + mathspeakText + ' ';
         }
         speechArray.push(mathspeakText);
       }
       return speechArray;
     })
     .join('')
-    .replace(/ +(?= )/g,'');
+    .replace(/ +(?= )/g,'')
+    .replace(/(\.)([0-9]+)/g, function(match, p1, p2) {
+      return p1 + p2.split('').join(' ').trim();
+    });
   };
   _.ariaLabel = 'block';
 
