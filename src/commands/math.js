@@ -403,6 +403,9 @@ var MathBlock = P(MathElement, function(_, super_) {
     })
     .join('')
     .replace(/ +(?= )/g,'')
+    // For Apple devices in particular, split out digits after a decimal point so they aren't read aloud as whole words.
+    // Not doing so makes 123.456 potentially spoken as "one hundred twenty-three point four hundred fifty-six."
+    // Instead, add spaces so it is spoken as "one hundred twenty-three point four five six."
     .replace(/(\.)([0-9]+)/g, function(match, p1, p2) {
       return p1 + p2.split('').join(' ').trim();
     });
