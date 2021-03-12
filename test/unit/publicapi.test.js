@@ -177,6 +177,9 @@ suite('Public API', function() {
         }
       }
 
+      mq.latex('123.456');
+      assertMathSpeakEqual(mq.mathspeak(), '123.4 5 6');
+
       mq.latex('\\frac{d}{dx}\\sqrt{x}');
       assertMathSpeakEqual(mq.mathspeak(), 'StartFraction "d" Over "d" "x" EndFraction StartRoot "x" EndRoot');
 

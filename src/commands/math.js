@@ -394,18 +394,21 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        if (isNaN(cmdText)) {
-          mathspeakText  = ' ' + mathspeakText;
-          if (cmdText !== '.') {
-            mathspeakText += ' ';
-          }
+        if (isNaN(cmdText) && cmdText !== '.') {
+          mathspeakText = ' ' + mathspeakText + ' ';
         }
         speechArray.push(mathspeakText);
       }
       return speechArray;
     })
     .join('')
-    .replace(/ +(?= )/g,'');
+    .replace(/ +(?= )/g,'')
+    // For Apple devices in particular, split out digits after a decimal point so they aren't read aloud as whole words.
+    // Not doing so makes 123.456 potentially spoken as "one hundred twenty-three point four hundred fifty-six."
+    // Instead, add spaces so it is spoken as "one hundred twenty-three point four five six."
+    .replace(/(\.)([0-9]+)/g, function(match, p1, p2) {
+      return p1 + p2.split('').join(' ').trim();
+    });
   };
   _.ariaLabel = 'block';
 
