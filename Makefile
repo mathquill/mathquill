@@ -15,14 +15,6 @@ ifneq ($(shell node -e 'console.log("I am Node.js")'), I am Node.js)
   $(error Please install Node.js: https://nodejs.org/ )
 endif
 
-# stupid GNU vs BSD https://github.com/mathquill/mathquill/pull/653/commits/4332b0e97a92fb1362123a06b68fa49d9efb6f38#r68305423
-ifeq (x, $(shell echo xy | sed -r 's/(x)y/\1/' 2>/dev/null))
-  SED_IN_PLACE = sed -i    # GNU
-else
-  SED_IN_PLACE = sed -i '' # BSD
-endif
-
-
 #
 # -*- Configuration -*-
 #
@@ -119,25 +111,25 @@ $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(NODE_MODULES_INSTALLED): package.json
 	test -e $(NODE_MODULES_INSTALLED) || rm -rf ./node_modules/ # robust against previous botched npm install
@@ -165,4 +157,4 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ > $@
-	$(SED_IN_PLACE) s/{VERSION}/v$(VERSION)/ $@
+	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
