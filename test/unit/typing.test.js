@@ -1291,6 +1291,34 @@ suite('typing with auto-replaces', function() {
       assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
     });
 
+    test('typing and backspacing \\to', function() {
+      mq.typedText('-');
+      assertLatex('-');
+      assertMathspeak('negative');
+      mq.typedText('>');
+      assertLatex('\\to');
+      assertMathspeak('to');
+      mq.typedText('-');
+      assertLatex('\\to-');
+      assertMathspeak('to negative');
+      mq.typedText('>');
+      assertLatex('\\to\\to');
+      assertMathspeak('to to');
+      mq.keystroke('Backspace');
+      assertLatex('\\to-');
+      assertMathspeak('to negative');
+      mq.keystroke('Backspace');
+      assertLatex('\\to');
+      assertMathspeak('to');
+      mq.keystroke('Backspace');
+      assertLatex('-');
+      assertMathspeak('negative');
+      mq.keystroke('Backspace');
+      mq.typedText('a->b');
+      assertLatex('a\\to b');
+      assertMathspeak('"a" to "b"');
+    });
+
     test('typing and backspacing ~', function() {
       mq.typedText('~');
       assertLatex('\\sim');
