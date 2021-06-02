@@ -426,6 +426,27 @@ suite('saneKeyboardEvents', function() {
       // before the paste timeout happens.
       el.trigger('input');
     });
+
+    test('pasting into a focused textarea should not fire a redundant focus event', function(done) {
+      el.focus();
+
+      var focusCalled = false;
+      el.focus(function () {
+        focusCalled = true;
+      });
+
+      saneKeyboardEvents(el, {
+        paste: function () {
+          assert.ok(!focusCalled, 'Pasting into a focused mathquill should not fire a focus event');
+          done();
+        }
+      });
+
+      // Simulate a paste
+      el.trigger('paste');
+      el.val('2');
+      el.trigger('input');
+    });
   });
 
   suite('copy', function() {
