@@ -525,6 +525,8 @@ API.StaticMath = function(APIClasses) {
         this.__controller.root.postOrder(function (node) {
           node.registerInnerField(innerFields, APIClasses.MathField);
         });
+        // Force an ARIA label update to remain in sync with the new LaTeX value.
+        this.setAriaLabel(this.__controller.ariaLabel);
       }
       return returned;
     };
