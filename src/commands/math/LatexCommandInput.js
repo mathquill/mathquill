@@ -74,7 +74,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
 
     var latex = this.ends[L].latex();
     if (!latex) latex = ' ';
-    var cmd = LatexCmds[latex];
+    var cmd = LatexCmds[latex] || Environments[latex];
     if (cmd) {
       cmd = cmd(latex);
       if (this._replacedFragment) cmd.replaces(this._replacedFragment);
