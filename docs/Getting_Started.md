@@ -32,6 +32,20 @@ To statically render a formula, call [`MQ.StaticMath()`](Api_Methods.md#mqstatic
 </script>
 ```
 
+An optional render completed callback can also be provided as an option object
+
+```html
+
+<script>
+  var problemSpan = document.getElementById('problem');
+  MQ.StaticMath(problemSpan, {
+    onRenderComplete: function(renderedDomNode) {
+      console.log(renderedDomNode);  // this can be manipulated, e.g. to scale down long equations
+    }
+  });
+</script>
+```
+
 ## Editable Math Fields
 
 To create an editable math field, call [`MQ.MathField()`](Api_Methods.md#mqmathfieldhtml_element-config) on an HTML element and, optionally, a [config options object](Config.md). The following example features a math field with a handler to check the answer every time an edit may have occurred:

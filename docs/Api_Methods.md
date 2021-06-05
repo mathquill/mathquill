@@ -26,11 +26,13 @@ This lets different copies of MathQuill each power their own math fields, but us
 
 # Constructors
 
-## MQ.StaticMath(html_element)
+## MQ.StaticMath(html_element, [ options ])
 
 Creates a non-editable MathQuill initialized with the contents of the HTML element and returns a [StaticMath object](#mathquill-base-methods).
 
 If the given element is already a static math instance, this will return a new StaticMath object with the same `.id`. If the element is a different type of MathQuill, this will return `null`.
+
+`options` is an object which only supports one property i.e. `onRenderComplete` which is essentially a callback function with rendered HTML DOM node passed as first argument. [`Callback example`](Getting_Started.md##static-math-rendering)
 
 ## MQ.MathField(html_element, [ config ])
 

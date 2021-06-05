@@ -512,6 +512,7 @@ API.StaticMath = function(APIClasses) {
     };
     _.latex = function() {
       var returned = super_.latex.apply(this, arguments);
+      typeof this.__options.onRenderComplete === 'function' && this.__options.onRenderComplete(this.__controller.container[0]);
       if (arguments.length > 0) {
         this.__controller.root.postOrder(
           'registerInnerField', this.innerFields = [], APIClasses.InnerMathField);
