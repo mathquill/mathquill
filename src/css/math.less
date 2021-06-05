@@ -266,14 +266,45 @@
   }
 
   .mq-numerator {
-    padding: 0 0.1em;
+    padding: .1em .1em 0 .1em;
+    width: 100%;
+    margin-bottom: 0.2em;
+  }
+
+  .mq-denominator {
+    float: left;
+    width: 100%;
+    padding: .15em .1em 0 .1em;
+    margin-right: -.1em;
+    margin-left: -.1em;
+    text-align: center;
   }
 
   .mq-denominator {
     border-top: 1px solid;
-    float: right; // take out of normal flow to manipulate baseline
-    width: 100%;
-    padding: 0.1em;
+  }
+
+  ////
+  // \overset & \underset
+  // overset and underset text
+  .mq-overunder {
+    text-align: center;
+    position: relative;
+    top: .01em;
+
+    // fix \mathbf vertical alignment issue
+    .mq-font {
+      font-family: inherit;
+    }
+
+    &.mq-underset {
+      vertical-align: text-top;
+    }
+
+    &.mq-underset .mq-under, &.mq-overset .mq-over {
+      display: block;
+      font-size: 0.7em;
+    }
   }
 
   .mq-dot-recurring {
