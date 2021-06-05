@@ -518,6 +518,9 @@ suite('Public API', function() {
         assertPaste('1+\\text{lol}+2');
         assertPaste('\\frac{\\text{apples}}{\\text{oranges}}');
       });
+      test('\\ce{\\bond{...}}', function() {
+        assertPaste('\\ce{\\bond{...}}');
+      });
       test('selection', function(done) {
         mq.latex('x^2').select();
         setTimeout(function() {

@@ -1120,4 +1120,39 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\times');
     });
   });
+
+  suite('Chemistry Symbols', function() {
+    test('add bond via mq.write', function() {
+      mq.write('\\ce{\\bond{#}}');
+      assertLatex('\\ce{\\bond{#}}');
+    });
+    test('invalid bond types not added', function() {
+      mq.write('\\ce{\\bond{x}}');
+      assertLatex('\\ce{}');
+    });
+    test('move cursor over each bond as single character', function() {
+      mq.write('\\pi\\ce{\\bond{#}}');
+      mq.keystroke('Left').typedText('\\sigma');
+      assertLatex('\\pi\\sigma\\ce{\\bond{#}}');
+    });
+    test('backspace deletes each bond as single character', function() {
+      mq.write('1\\ce{\\bond{#}}2');
+      mq.keystroke('Backspace Backspace');
+      assertLatex('1');
+    });
+    test('dotted bond maps to correct characters', function() {
+      mq.write('\\ce{\\bond{....}}');
+      assert.equal("····", $(mq.el()).text());
+    });
+    test('multiple bonds can be written', function() {
+      mq.write('\\ce{\\bond{....}}\\ce{\\bond{<-}}');
+      assertLatex('\\ce{\\bond{....}}\\ce{\\bond{<-}}');
+    });
+    test('cursor seeks to just outside bond symbol', function() {
+      mq.write('\\ce{\\bond{#}}\\sigma');
+      $(mq.el()).find('.mq-ce').trigger('mousedown');
+      mq.typedText('\\pi');
+      assertLatex('\\ce{\\bond{#}}\\pi\\sigma');
+    });
+  });
 });
