@@ -492,6 +492,17 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
         cursor[L] = leftward;
       }
     }
+    if (this.replacedFragment) {
+      if (this.replacedFragment.ends[L] instanceof Bracket &&
+        this.replacedFragment.ends[L] === this.replacedFragment.ends[R] &&
+        this.replacedFragment.ends[L].sides[L].ctrlSeq == '(' &&
+        this.replacedFragment.ends[L].sides[R].ctrlSeq == ')'
+      ) {
+        var tmp = this.replacedFragment.ends[L].children().ends[L].children().disown();
+        this.replacedFragment.remove();
+        this.replacedFragment = tmp;
+      }
+    }
     super_.createLeftOf.call(this, cursor);
   };
 });
