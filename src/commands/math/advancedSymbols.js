@@ -257,8 +257,42 @@ LatexCmds.bull = LatexCmds.bullet = bind(VanillaSymbol,'\\bullet ','&bull;');
 LatexCmds.setminus = LatexCmds.smallsetminus =
   bind(VanillaSymbol,'\\setminus ','&#8726;');
 
-LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>');
 LatexCmds['¬'] = LatexCmds.neg = bind(VanillaSymbol,'\\neg ','&not;');
+LatexCmds.not = P(VanillaSymbol, function(_, super_) {
+  // If one of these appears immediately after not, the
+  // parser returns a different symbol.
+  _.suffixes = {
+    '\\ni':       'notni',
+    '\\subset':   'notsubset',
+    '\\subseteq': 'notsubseteq',
+    '\\supset':   'notsupset',
+    '\\supseteq': 'notsupseteq'
+  };
+  _.init = function() {
+    return super_.init.call(this, '\\neg ', '&not;');
+  };
+  _.parser = function() {
+    var succeed = Parser.succeed;
+    var optWhitespace = Parser.optWhitespace;
+
+    // Sort the suffixes, longest first
+    var suffixes = Object.keys(_.suffixes).sort(function(a, b) {
+      return b.length - a.length;
+    });
+
+    // Returns a parser matching any string in array
+    function anyOf(strings) {
+      var parser = Parser.string(strings.shift());
+      return (strings.length) ? parser.or(anyOf(strings)) : parser;
+    }
+
+    return anyOf(suffixes).then(function(suffix) {
+      return optWhitespace
+        .then(succeed(LatexCmds[_.suffixes[suffix]]()));
+    })
+    .or(optWhitespace.then(succeed(this)));
+  };
+});
 
 LatexCmds['…'] = LatexCmds.dots = LatexCmds.ellip = LatexCmds.hellip =
 LatexCmds.ellipsis = LatexCmds.hellipsis =
