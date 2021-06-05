@@ -1,0 +1,51 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="build/mathquill.css"/>
+    <meta charset="utf-8"/>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="build/mathquill.js"></script>
+    <title>MathQuill with Macros</title>
+  </head>
+  <body>
+    <h1>MathQuill with Macros</h1>
+
+
+    Type <tt>\abs</tt> for absolute value. Type <tt>\intinf</tt> for an infinite
+    integral template. Or <tt>\PI</tt> for a numeric approximation of π. Or add
+    your own macros below.
+    
+    <p><span id="math">x+</span></p>
+
+    <script>
+      var MQ = MathQuill.getInterface(2);
+
+      // Note: these have global effect (for all existing and future MathFields)
+      MQ.addMacro("abs","\\left|\\cursor\\right|");
+      MQ.addMacro("intinf","\\int_{-\\infty}^{\\infty}\\ \\cursor\\ dx");
+      var piapprox = [ "\\frac{245850922}{78256779}", "3.14159265358979323846264338327950288419716939937510", "\\frac{4}{1+\\frac{1^2}{2+\\frac{3^2}{2+\\frac{5^2}{2+\\frac{7^2}{2+\\frac{9^2}{2+\\ddots}}}}}}" ];
+      MQ.addMacro("PI",piapprox[Math.floor(Math.random()*piapprox.length)]);
+
+      var math = MQ.MathField($("#math")[0]);
+      math.focus();
+
+      function escape(str) { return str.replace(/&/g, '&amp;').replace(/>/g, '&gt;').replace(/</g, '&lt;'); }
+
+      function addmacro() {
+        var name = $("#macroname")[0].value;
+        var code = $("#code")[0].value;
+        MQ.addMacro(name,code);
+        math.focus();
+        $("#log").append("Adding macro <tt>\\"+name+"</tt> with code <tt>"+escape(code)+"</tt>.<br/>");
+//        $("<div>").appendTo("#log").text("Adding macro \"+name+" with code <tt>"+escape(code)+"</tt>.<br/>");
+      }
+    </script>
+
+    <table style="border: solid 1px">
+      <tr><td>Macro name:</td><td><input id=macroname value="example"/></td><td>Without leading <tt>\</tt>.</td></tr>
+      <tr><td>Latex code:</td><td><textarea id=code cols=50>\left[\left[\left[\cursor^2\right]\right]\right]</textarea></td><td>Use <tt>\cursor</tt> to mark the desired cursor position (optional).</td></tr>
+      <tr><td><button onclick="addmacro()" accesskey=m>Add macro</button></td></tr>
+    </table>
+
+    <span id=log style="font-size: smaller"></span>
+  </body>
+</html>
