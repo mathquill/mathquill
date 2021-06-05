@@ -208,6 +208,9 @@ var saneKeyboardEvents = (function() {
       if (hasSelection()) return;
 
       var text = textarea.val();
+
+      if (text.match(/\^[\w-]/)) text = text.slice(-1);
+
       if (text.length === 1) {
         textarea.val('');
         handlers.typedText(text);
