@@ -68,10 +68,6 @@ var Point = P(function(_) {
     this[L] = leftward;
     this[R] = rightward;
   };
-
-  this.copy = function(pt) {
-    return Point(pt.parent, pt[L], pt[R]);
-  };
 });
 
 /**
