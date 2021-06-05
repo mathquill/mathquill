@@ -1120,4 +1120,45 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\times');
     });
   });
+
+  suite('Mathbb font', function() {
+    function assertVarCount(len) {
+      assert.equal($(mq.el()).find('var').length, len);
+    }
+
+    function assertContains(text, str) {
+      assert.ok(text.indexOf(str) > -1, 'expected string "' + text + '" to contain "' + str + '"');
+    }
+
+    test('can be typed in', function() {
+      mq.typedText('\\mathbb').keystroke('Spacebar').typedText('ABCXYZ');
+      assertLatex('\\mathbb{ABCXYZ}');
+      assertVarCount('ABCXYZ'.length);
+    });
+
+    test('can be directly set', function() {
+      mq.latex('\\mathbb{ABCXYZ}');
+      assertLatex('\\mathbb{ABCXYZ}');
+      assertVarCount('ABCXYZ'.length);
+    });
+
+    test('adds doublestruck characters', function() {
+      mq.latex('\\mathbb{CHNPQRZ}');
+      text = mq.el().textContent;
+      assertContains(text, 'ℂ');
+      assertContains(text, 'ℍ');
+      assertContains(text, 'ℤ');
+    });
+
+    test('can deleteOutOf without throwing error', function() {
+      mq.latex('\\mathbb{H}');
+      mq.keystroke('Left Left Backspace Backspace');
+    });
+
+    test('reverts to normal text on deleteOutOf', function() {
+      mq.latex('\\mathbb{CH}');
+      mq.keystroke('Left Left Left Backspace');
+      assertLatex('CH');
+    });
+  });
 });
