@@ -469,6 +469,7 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;', '*');
 //semantically should be &sdot;, but &middot; looks better
+LatexCmds.cdotp = bind(VanillaSymbol, '\\cdotp ', '&middot;');
 
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {

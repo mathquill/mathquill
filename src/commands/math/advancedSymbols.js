@@ -131,6 +131,15 @@ case '!':
   return Symbol('\\! ','<span style="margin-right:-.2em"></span>');
 */
 
+/**
+ * Horizontally stretched arrows.
+ */
+var LongArrow = P(Symbol, function(_, super_) {
+  _.init = function(ch, html) {
+    super_.init.call(this, ch, '<span class="mq-scaled mq-longarrow">'+html+'</span>');
+  };
+});
+
 //binary operators
 LatexCmds.diamond = bind(VanillaSymbol, '\\diamond ', '&#9671;');
 LatexCmds.bigtriangleup = bind(VanillaSymbol, '\\bigtriangleup ', '&#9651;');
@@ -175,13 +184,13 @@ LatexCmds.nless = bind(VanillaSymbol, '\\nless ', '&#8814;');
 LatexCmds.ngtr = bind(VanillaSymbol, '\\ngtr ', '&#8815;');
 
 //arrows
-LatexCmds.longleftarrow = bind(VanillaSymbol, '\\longleftarrow ', '&#8592;');
-LatexCmds.longrightarrow = bind(VanillaSymbol, '\\longrightarrow ', '&#8594;');
-LatexCmds.Longleftarrow = bind(VanillaSymbol, '\\Longleftarrow ', '&#8656;');
-LatexCmds.Longrightarrow = bind(VanillaSymbol, '\\Longrightarrow ', '&#8658;');
-LatexCmds.longleftrightarrow = bind(VanillaSymbol, '\\longleftrightarrow ', '&#8596;');
+LatexCmds.longleftarrow = bind(LongArrow, '\\longleftarrow ', '&#8592;');
+LatexCmds.longrightarrow = bind(LongArrow, '\\longrightarrow ', '&#8594;');
+LatexCmds.Longleftarrow = bind(LongArrow, '\\Longleftarrow ', '&#8656;');
+LatexCmds.Longrightarrow = bind(LongArrow, '\\Longrightarrow ', '&#8658;');
+LatexCmds.longleftrightarrow = bind(LongArrow, '\\longleftrightarrow ', '&#8596;');
+LatexCmds.Longleftrightarrow = bind(LongArrow, '\\Longleftrightarrow ', '&#8660;');
 LatexCmds.updownarrow = bind(VanillaSymbol, '\\updownarrow ', '&#8597;');
-LatexCmds.Longleftrightarrow = bind(VanillaSymbol, '\\Longleftrightarrow ', '&#8660;');
 LatexCmds.Updownarrow = bind(VanillaSymbol, '\\Updownarrow ', '&#8661;');
 LatexCmds.mapsto = bind(VanillaSymbol, '\\mapsto ', '&#8614;');
 LatexCmds.nearrow = bind(VanillaSymbol, '\\nearrow ', '&#8599;');
@@ -193,6 +202,9 @@ LatexCmds.rightharpoonup = bind(VanillaSymbol, '\\rightharpoonup ', '&#8640;');
 LatexCmds.swarrow = bind(VanillaSymbol, '\\swarrow ', '&#8601;');
 LatexCmds.leftharpoondown = bind(VanillaSymbol, '\\leftharpoondown ', '&#8637;');
 LatexCmds.rightharpoondown = bind(VanillaSymbol, '\\rightharpoondown ', '&#8641;');
+// Symbola font has different value for the below 2 harpoons against other references
+LatexCmds.rightleftharpoons = bind(VanillaSymbol, '\\rightleftharpoons ', '&#8651;');
+LatexCmds.leftrightharpoons = bind(VanillaSymbol, '\\leftrightharpoons ', '&#8652;');
 LatexCmds.nwarrow = bind(VanillaSymbol, '\\nwarrow ', '&#8598;');
 
 //Misc
