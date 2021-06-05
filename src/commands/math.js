@@ -436,6 +436,10 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.chToCmd = function(ch, options) {
     var cons;
+    // put dollar as a text trigger if the option is present
+    if (this.controller.options.dollarAsCharCmd && !CharCmds.$) {
+      CharCmds.$ = TextBlock;
+    }
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
