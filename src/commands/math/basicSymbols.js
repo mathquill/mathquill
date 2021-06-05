@@ -456,6 +456,17 @@ var PlusMinus = P(BinaryOperator, function(_) {
     this.jQ[0].className = determineOpClassType(this);
     return this;
   };
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof PlusMinus && cursor[L].ctrlSeq === '+' && this.ctrlSeq === '-') {
+      console.log(cursor[L].data);
+      cursor[L].ctrlSeq = '\\pm';
+      cursor[L].jQ.html('&plusmn;');
+      cursor[L].textTemplate = ['±'];
+      cursor[L].bubble('reflow');
+      return;
+    }
+    VanillaSymbol.prototype.createLeftOf.apply(this, arguments);
+  };
 });
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+');

@@ -107,7 +107,7 @@ td {
 <h3>Behavior Options</h3>
 
 <p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
-<p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
+<p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, any of <code>=)]</code> should break out of a fraction denominator, exponents should require a base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
 
 <script>
 $(function() {
@@ -117,6 +117,7 @@ $(function() {
     restrictMismatchedBrackets: true,
     sumStartsWithNEquals: true,
     supSubsRequireOperand: true,
+    charsThatBreakOutOfDenom: '=)]',
     charsThatBreakOutOfSupSub: '+-=<>',
     autoSubscriptNumerals: true,
     autoCommands: 'pi theta sqrt sum',
