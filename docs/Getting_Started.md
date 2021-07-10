@@ -4,6 +4,18 @@ Download [the latest release](https://github.com/mathquill/mathquill/releases/la
 
 MathQuill depends on [jQuery 1.5.2+](http://jquery.com), we recommend the [Google CDN-hosted copy](http://code.google.com/apis/libraries/devguide.html#jquery).
 
+<style>
+  pre {
+    overflow-x: auto;
+    
+  }
+  
+  pre code {
+    word-wrap: normal;
+    white-space: pre;
+  }
+</style>
+
 Load MathQuill with something like (order matters):
 ```html
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
@@ -12,6 +24,14 @@ Load MathQuill with something like (order matters):
 <script>
 var MQ = MathQuill.getInterface(2);
 </script>
+```
+
+You can also use the MathQuill CDN via [cdnjs](cdnjs.com):
+
+```html
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.css" integrity="sha512-vPg9GqsZZ4LHv9BkFfZSXt7y4D7YaARPU2JFmpZug4EgtJJrumytMAFZkNSk2LSyqWir0TNbh2tBq7UJIMxvlA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathquill/0.10.1/mathquill.js" integrity="sha512-7jEhcM7FbjGHo1ejs1iw1J8FxcnACx7Z3lG29gQ5vTBe2U/gaQpzwjzPCyg32zTwXCloQDdorpLufmu0nBIqnQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 ```
 
 Now you can call our [API methods](Api_Methods.md) on `MQ`.
