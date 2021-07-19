@@ -379,6 +379,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     var tempOp = '';
     var autoOps = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
+    var wasPrevNumeric = false;
     return this.foldChildren([], function(speechArray, cmd) {
       if (cmd.isPartOfOperator) {
         tempOp += cmd.mathspeak();
@@ -394,10 +395,23 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        if (isNaN(cmdText) && cmdText !== '.') {
+        var isCmdNumeric = !isNaN(cmdText);
+
+        // Handle the case of a digit followed by a simplified fraction such as 1\frac{1}{2}.
+        // Such combinations should be spoken aloud as "1 and 1 half."
+        if (
+          wasPrevNumeric &&
+          cmdText.indexOf('frac') !== -1 &&
+        mathspeakText.indexOf('Fraction') === -1
+        ) {
+          speechArray.push('and');
+        }
+
+        if (!isCmdNumeric && cmdText !== '.') {
           mathspeakText = ' ' + mathspeakText + ' ';
         }
         speechArray.push(mathspeakText);
+        wasPrevNumeric = isCmdNumeric;
       }
       return speechArray;
     })
