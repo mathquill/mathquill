@@ -342,7 +342,21 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
+  _.mathspeak = function() {
+    // Simplify basic exponent speech for common whole numbers.
+    var innerMathspeak = this.ends[L] && this.ends[L].mathspeak();
+    if (innerMathspeak === undefined) {
+      return '';
+    } else if (innerMathspeak === '1') {
+      return 'to the first power';
+    } else if (innerMathspeak === '2') {
+      return 'squared';
+    } else if (innerMathspeak === '3') {
+      return 'cubed';
+    }
+    return 'Superscript, ' + innerMathspeak + ', Baseline';
+  };
+
   _.ariaLabel = 'superscript';
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
