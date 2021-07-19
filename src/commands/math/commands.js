@@ -475,15 +475,68 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
-    else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
   };
   _.mathspeak = function(opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
       return cursor.parent.mathspeak();
     }
-    return super_.mathspeak.apply(this, arguments);
+
+    var numeratorMathspeak = this.ends[L].mathspeak();
+    var denominatorMathspeak = this.ends[R].mathspeak();
+
+    // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
+    if (
+      !isNaN(numeratorMathspeak) &&
+      !isNaN(denominatorMathspeak) &&
+      numeratorMathspeak === parseInt(numeratorMathspeak, 10).toString() &&
+      denominatorMathspeak === parseInt(denominatorMathspeak, 10).toString()
+    ) {
+      var denominatorText = '';
+      if (denominatorMathspeak === '2') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'half'
+          : 'halves';
+      } else if (denominatorMathspeak === '3') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'third'
+          : 'thirds';
+      } else if (denominatorMathspeak === '4') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'quarter'
+          : 'quarters';
+      } else if (denominatorMathspeak === '5') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'fifth'
+          : 'fifths';
+      } else if (denominatorMathspeak === '6') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'sixth'
+          : 'sixths';
+      } else if (denominatorMathspeak === '7') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'seventh'
+          : 'sevenths';
+      } else if (denominatorMathspeak === '8') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'eighth'
+          : 'eighths';
+      } else if (denominatorMathspeak === '9') {
+        denominatorText = numeratorMathspeak === '1'
+          ? 'ninth'
+          : 'ninths';
+      }
+      if (denominatorText !== '') {
+        return numeratorMathspeak + ' ' + denominatorText;
+      }
+    }
+
+    var depth = this.getFracDepth();
+    if(depth > 1) {
+      return 'StartNestedFraction, ' + numeratorMathspeak + ' NestedOver ' + denominatorMathspeak + ', EndNestedFraction';
+    } else {
+      return 'StartFraction, ' + numeratorMathspeak + ' Over ' + denominatorMathspeak + ', EndFraction';
+    }
   };
 
   _.getFracDepth = function() {
