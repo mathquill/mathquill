@@ -480,60 +480,56 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       return cursor.parent.mathspeak();
     }
 
-    var numeratorMathspeak = this.ends[L].mathspeak();
-    var denominatorMathspeak = this.ends[R].mathspeak();
+    var numSpeech = this.ends[L].mathspeak();
+    var denSpeech = this.ends[R].mathspeak();
 
     // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
-    if (
-      !isNaN(numeratorMathspeak) &&
-      !isNaN(denominatorMathspeak) &&
-      numeratorMathspeak === parseInt(numeratorMathspeak, 10).toString() &&
-      denominatorMathspeak === parseInt(denominatorMathspeak, 10).toString()
-    ) {
-      var denominatorText = '';
-      if (denominatorMathspeak === '2') {
-        denominatorText = numeratorMathspeak === '1'
+    var intRgx = new RegExp(/^[\d]+$/);
+    if (intRgx.test(numSpeech) && intRgx.test(denSpeech)) {
+      var newDenSpeech = '';
+      if (denSpeech === '2') {
+        newDenSpeech = numSpeech === '1'
           ? 'half'
           : 'halves';
-      } else if (denominatorMathspeak === '3') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '3') {
+        newDenSpeech = numSpeech === '1'
           ? 'third'
           : 'thirds';
-      } else if (denominatorMathspeak === '4') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '4') {
+        newDenSpeech = numSpeech === '1'
           ? 'quarter'
           : 'quarters';
-      } else if (denominatorMathspeak === '5') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '5') {
+        newDenSpeech = numSpeech === '1'
           ? 'fifth'
           : 'fifths';
-      } else if (denominatorMathspeak === '6') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '6') {
+        newDenSpeech = numSpeech === '1'
           ? 'sixth'
           : 'sixths';
-      } else if (denominatorMathspeak === '7') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '7') {
+        newDenSpeech = numSpeech === '1'
           ? 'seventh'
           : 'sevenths';
-      } else if (denominatorMathspeak === '8') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '8') {
+        newDenSpeech = numSpeech === '1'
           ? 'eighth'
           : 'eighths';
-      } else if (denominatorMathspeak === '9') {
-        denominatorText = numeratorMathspeak === '1'
+      } else if (denSpeech === '9') {
+        newDenSpeech = numSpeech === '1'
           ? 'ninth'
           : 'ninths';
       }
-      if (denominatorText !== '') {
-        return numeratorMathspeak + ' ' + denominatorText;
+      if (newDenSpeech !== '') {
+        return numSpeech + ' ' + newDenSpeech;
       }
     }
 
     var depth = this.getFracDepth();
     if(depth > 1) {
-      return 'StartNestedFraction, ' + numeratorMathspeak + ' NestedOver ' + denominatorMathspeak + ', EndNestedFraction';
+      return 'StartNestedFraction, ' + numSpeech + ' NestedOver ' + denSpeech + ', EndNestedFraction';
     } else {
-      return 'StartFraction, ' + numeratorMathspeak + ' Over ' + denominatorMathspeak + ', EndFraction';
+      return 'StartFraction, ' + numSpeech + ' Over ' + denSpeech + ', EndFraction';
     }
   };
 
