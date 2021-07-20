@@ -344,10 +344,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.textTemplate = [ '^' ];
   _.mathspeak = function() {
     // Simplify basic exponent speech for common whole numbers.
-    var innerMathspeak = this.ends[L] && this.ends[L].mathspeak();
-    if (innerMathspeak === undefined) {
-      return '';
-    } else if (innerMathspeak === '1') {
+    var innerMathspeak = (this.ends[L] && this.ends[L].mathspeak()) || '';
+    if (innerMathspeak === '1') {
       return 'to the first power';
     } else if (innerMathspeak === '2') {
       return 'squared';
