@@ -394,7 +394,7 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        var isCmdNumeric = /^\d$/.test(cmdText);
+        var isCmdNumeric = /^[\d]+$/.test(cmdText);
 
         // Handle the case of a digit followed by a simplified fraction such as 1\frac{1}{2}.
         // Such combinations should be spoken aloud as "1 and 1 half."
