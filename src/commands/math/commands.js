@@ -165,6 +165,10 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
   };
 });
 
+// This test is used to determine whether an item may be treated as a whole number
+// for shortening the verbalized (mathspeak) forms of some fractions and superscripts.
+var intRgx = new RegExp(/^[\+\-]?[\d]+$/);
+
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.createLeftOf = function(cursor) {
@@ -344,18 +348,45 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.textTemplate = [ '^' ];
   _.mathspeak = function() {
     // Simplify basic exponent speech for common whole numbers.
-    var innerMathspeak = (this.ends[L] && this.ends[L].mathspeak()) || '';
-    if (innerMathspeak === '1') {
-      return 'to the first power';
-    } else if (innerMathspeak === '2') {
-      return 'squared';
-    } else if (innerMathspeak === '3') {
-      return 'cubed';
+    var innerText = (this.ends[L] && this.ends[L].text());
+    // If the superscript is a whole number, shorten the speech that is returned.
+    if (intRgx.test(innerText)) {
+      // Simple cases
+      if (innerText === '1') {
+        return 'to the first power';
+      } else if (innerText === '2') {
+        return 'squared';
+      } else if (innerText === '3') {
+        return 'cubed';
+      }
+
+      // More complex cases.
+      var isNegative = innerText.startsWith('-');
+      var isParentDigit =
+        this.parent &&
+        this.parent.ends[L] &&
+        this.parent.ends[L] instanceof Digit;
+      // If the superscript is negative and the parent is not a numeric literal,
+      // play it safe and don't shorten the mathspeak.
+      // For example, we don't know if a negative superscript is meant to signify exactly that
+      // or if it is being written to indicate an inverse function.
+      if (!isNegative || isParentDigit) {
+        var suffix = '';
+        if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
+          suffix = 'th';
+        } else if (/2$/.test(innerText)) {
+          suffix = 'nd';
+        } else if (/3$/.test(innerText)) {
+          suffix = 'rd';
+        }
+        return 'to the ' + this.ends[L].mathspeak() + suffix + ' power';
+      }
     }
-    return 'Superscript, ' + innerMathspeak + ', Baseline';
+    return super_.mathspeak.call(this);
   };
 
   _.ariaLabel = 'superscript';
+  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -484,7 +515,6 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     var denSpeech = this.ends[R].mathspeak();
 
     // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
-    var intRgx = new RegExp(/^[\d]+$/);
     if (intRgx.test(numSpeech) && intRgx.test(denSpeech)) {
       var newDenSpeech = '';
       if (denSpeech === '2') {
