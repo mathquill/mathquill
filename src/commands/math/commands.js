@@ -346,11 +346,14 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeak = function() {
+  _.mathspeak = function(opts) {
     // Simplify basic exponent speech for common whole numbers.
     var innerText = (this.ends[L] && this.ends[L].text());
     // If the superscript is a whole number, shorten the speech that is returned.
-    if (intRgx.test(innerText)) {
+    if (
+      (!opts || !opts.ignoreShorthand) &&
+      intRgx.test(innerText)
+    ) {
       // Simple cases
       if (innerText === '1') {
         return 'to the first power';
@@ -515,7 +518,10 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     var denSpeech = this.ends[R].mathspeak();
 
     // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
-    if (intRgx.test(numSpeech) && intRgx.test(denSpeech)) {
+    if (
+      (!opts || !opts.ignoreShorthand) &&
+      intRgx.test(numSpeech) && intRgx.test(denSpeech)
+    ) {
       var newDenSpeech = '';
       if (denSpeech === '2') {
         newDenSpeech = numSpeech === '1'
