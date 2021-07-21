@@ -819,7 +819,15 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
 LatexCmds['+'] = bind(PlusMinus, '+', '+', 'plus');
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
-LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = bind(PlusMinus, '-', '&minus;', 'minus');
+LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(PlusMinus, function(_, super_) {
+  _.init = function () {
+    super_.init.call(this, '-', '&minus;');
+  };
+  _.mathspeak = function() {
+    return this.jQ[0].className === 'mq-binary-operator' ? 'minus' : 'negative';
+  };
+});
+
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   bind(PlusMinus,'\\pm ','&plusmn;', 'plus-or-minus');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
