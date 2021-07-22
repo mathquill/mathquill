@@ -348,46 +348,57 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.textTemplate = [ '^' ];
   _.mathspeak = function(opts) {
     // Simplify basic exponent speech for common whole numbers.
-    var innerText = (this.ends[L] && this.ends[L].text());
-    // If the superscript is a whole number, shorten the speech that is returned.
-    if (
-      (!opts || !opts.ignoreShorthand) &&
-      intRgx.test(innerText)
-    ) {
-      // Simple cases
-      if (innerText === '0') {
-        return 'to the 0 power';
-      } else if (innerText === '2') {
-        return 'squared';
-      } else if (innerText === '3') {
-        return 'cubed';
-      }
-
-      // More complex cases.
-      var isNegative = innerText.startsWith('-');
-      var isParentDigit =
-        this.parent &&
-        this.parent.ends[L] &&
-        this.parent.ends[L] instanceof Digit;
-      // If the superscript is negative and the parent is not a numeric literal,
-      // play it safe and don't shorten the mathspeak.
-      // For example, we don't know if a negative superscript is meant to signify exactly that
-      // or if it is being written to indicate an inverse function.
-      if (!isNegative || isParentDigit) {
-        var suffix = '';
-        // Limit suffix addition to exponents < 1000.
-        if (Math.abs(innerText) < 1000) {
-          if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
-            suffix = 'th';
-          } else if (/1$/.test(innerText)) {
-            suffix = 'st';
-          } else if (/2$/.test(innerText)) {
-            suffix = 'nd';
-          } else if (/3$/.test(innerText)) {
-            suffix = 'rd';
-          }
+    var child = this.ends[L] || this.ends[R];
+    if (child !== undefined) {
+      // Calculate this item's inner text to determine whether to shorten the returned speech.
+      // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.
+      // Since the mathspeak computation is recursive, we want to call it only once in this function to avoid performance bottlenecks.
+      var innerText = typeof(child) === 'Object'
+        ? child.text()
+        : child;
+      // If the superscript is a whole number, shorten the speech that is returned.
+      if (
+        (!opts || !opts.ignoreShorthand) &&
+        intRgx.test(innerText)
+      ) {
+        // Simple cases
+        if (innerText === '0') {
+          return 'to the 0 power';
+        } else if (innerText === '2') {
+          return 'squared';
+        } else if (innerText === '3') {
+          return 'cubed';
         }
-        return 'to the ' + this.ends[L].mathspeak() + suffix + ' power';
+
+        // More complex cases.
+        var isNegative = /$&\-/.test(innerText);
+        var isParentDigit =
+          this.parent &&
+          this.parent.ends[L] &&
+          this.parent.ends[L] instanceof Digit;
+        // If the superscript is negative and the parent is not a numeric literal,
+        // play it safe and don't shorten the mathspeak.
+        // For example, we don't know if a negative superscript is meant to signify exactly that
+        // or if it is being written to indicate an inverse function.
+        if (!isNegative || isParentDigit) {
+          var suffix = '';
+          // Limit suffix addition to exponents < 1000.
+          if (Math.abs(innerText) < 1000) {
+            if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
+              suffix = 'th';
+            } else if (/1$/.test(innerText)) {
+              suffix = 'st';
+            } else if (/2$/.test(innerText)) {
+              suffix = 'nd';
+            } else if (/3$/.test(innerText)) {
+              suffix = 'rd';
+            }
+          }
+          var innerMathspeak = typeof(child) === 'Object'
+            ? child.mathspeak()
+            : child;
+          return 'to the ' + innerMathspeak + suffix + ' power';
+        }
       }
     }
     return super_.mathspeak.call(this);
