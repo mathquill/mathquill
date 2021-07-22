@@ -375,14 +375,17 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
       // or if it is being written to indicate an inverse function.
       if (!isNegative || isParentDigit) {
         var suffix = '';
-        if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
-          suffix = 'th';
-        } else if (/1$/.test(innerText)) {
-          suffix = 'st';
-        } else if (/2$/.test(innerText)) {
-          suffix = 'nd';
-        } else if (/3$/.test(innerText)) {
-          suffix = 'rd';
+        // Limit suffix addition to exponents < 1000.
+        if (Math.abs(innerText) < 1000) {
+          if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
+            suffix = 'th';
+          } else if (/1$/.test(innerText)) {
+            suffix = 'st';
+          } else if (/2$/.test(innerText)) {
+            suffix = 'nd';
+          } else if (/3$/.test(innerText)) {
+            suffix = 'rd';
+          }
         }
         return 'to the ' + this.ends[L].mathspeak() + suffix + ' power';
       }
