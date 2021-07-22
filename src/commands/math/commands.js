@@ -355,8 +355,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
       intRgx.test(innerText)
     ) {
       // Simple cases
-      if (innerText === '1') {
-        return 'to the first power';
+      if (innerText === '0') {
+        return 'to the 0 power';
       } else if (innerText === '2') {
         return 'squared';
       } else if (innerText === '3') {
@@ -377,6 +377,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         var suffix = '';
         if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
           suffix = 'th';
+        } else if (/1$/.test(innerText)) {
+          suffix = 'st';
         } else if (/2$/.test(innerText)) {
           suffix = 'nd';
         } else if (/3$/.test(innerText)) {
