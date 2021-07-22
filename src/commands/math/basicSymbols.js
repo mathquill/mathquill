@@ -817,7 +817,15 @@ var PlusMinus = P(BinaryOperator, function(_) {
   };
 });
 
-LatexCmds['+'] = bind(PlusMinus, '+', '+', 'plus');
+LatexCmds['+'] = P(PlusMinus, function(_, super_) {
+  _.init = function () {
+    super_.init.call(this, '+', '+');
+  };
+  _.mathspeak = function() {
+    return this.jQ[0].className === 'mq-binary-operator' ? 'plus' : 'positive';
+  };
+});
+
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
 LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(PlusMinus, function(_, super_) {
   _.init = function () {
