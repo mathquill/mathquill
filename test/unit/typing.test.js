@@ -117,6 +117,12 @@ suite('typing with auto-replaces', function() {
       mq.latex('\\frac{31}{10}');
       assertMathspeak('StartFraction, 31 Over 10, EndFraction');
 
+      // Fractions with negative numerators should be shortened
+      mq.latex('\\frac{-1}{2}');
+      assertMathspeak('negative 1 half');
+      mq.latex('\\frac{-3}{2}');
+      assertMathspeak('negative 3 halves');
+
       // Traditional fractions should be spoken if either numerator or denominator are not numeric
       mq.latex('\\frac{x}{2}');
       assertMathspeak('StartFraction, "x" Over 2, EndFraction');

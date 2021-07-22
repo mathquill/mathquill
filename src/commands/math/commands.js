@@ -536,50 +536,51 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       return cursor.parent.mathspeak();
     }
 
-    var numSpeech = this.ends[L].mathspeak();
-    var denSpeech = this.ends[R].mathspeak();
+    var numText = this.ends[L].text();
+    var denText = this.ends[R].text();
 
     // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
     if (
       (!opts || !opts.ignoreShorthand) &&
-      intRgx.test(numSpeech) && intRgx.test(denSpeech)
+      intRgx.test(numText) && intRgx.test(denText)
     ) {
+      var isSingular = Math.abs(numText) === 1;
       var newDenSpeech = '';
-      if (denSpeech === '2') {
-        newDenSpeech = numSpeech === '1'
+      if (denText === '2') {
+        newDenSpeech = isSingular
           ? 'half'
           : 'halves';
-      } else if (denSpeech === '3') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '3') {
+        newDenSpeech = isSingular
           ? 'third'
           : 'thirds';
-      } else if (denSpeech === '4') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '4') {
+        newDenSpeech = isSingular
           ? 'quarter'
           : 'quarters';
-      } else if (denSpeech === '5') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '5') {
+        newDenSpeech = isSingular
           ? 'fifth'
           : 'fifths';
-      } else if (denSpeech === '6') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '6') {
+        newDenSpeech = isSingular
           ? 'sixth'
           : 'sixths';
-      } else if (denSpeech === '7') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '7') {
+        newDenSpeech = isSingular
           ? 'seventh'
           : 'sevenths';
-      } else if (denSpeech === '8') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '8') {
+        newDenSpeech = isSingular
           ? 'eighth'
           : 'eighths';
-      } else if (denSpeech === '9') {
-        newDenSpeech = numSpeech === '1'
+      } else if (denText === '9') {
+        newDenSpeech = isSingular
           ? 'ninth'
           : 'ninths';
       }
       if (newDenSpeech !== '') {
-        return numSpeech + ' ' + newDenSpeech;
+        return this.ends[L].mathspeak() + ' ' + newDenSpeech;
       }
     }
 
