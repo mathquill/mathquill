@@ -353,9 +353,9 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
       // Calculate this item's inner text to determine whether to shorten the returned speech.
       // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.
       // Since the mathspeak computation is recursive, we want to call it only once in this function to avoid performance bottlenecks.
-      var innerText = typeof(child) === 'Object'
+      var innerText = typeof(child) === 'object'
         ? child.text()
-        : child;
+        : ''+child;
       // If the superscript is a whole number, shorten the speech that is returned.
       if (
         (!opts || !opts.ignoreShorthand) &&
@@ -371,7 +371,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         }
 
         // More complex cases.
-        var isNegative = /$&\-/.test(innerText);
+        var isNegative = /^(-)/.test(innerText);
         var isParentDigit =
           this.parent &&
           this.parent.ends[L] &&
@@ -394,9 +394,9 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
               suffix = 'rd';
             }
           }
-          var innerMathspeak = typeof(child) === 'Object'
+          var innerMathspeak = typeof(child) === 'object'
             ? child.mathspeak()
-            : child;
+            : innerText;
           return 'to the ' + innerMathspeak + suffix + ' power';
         }
       }

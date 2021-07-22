@@ -184,11 +184,11 @@ suite('Public API', function() {
       assertMathSpeakEqual(mq.mathspeak(), 'StartFraction "d" Over "d" "x" EndFraction StartRoot "x" EndRoot');
 
       mq.latex('1+2-3\\cdot\\frac{5}{6^7}=\\left(8+9\\right)');
-      assertMathSpeakEqual(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 Superscript 7 Baseline EndFraction equals left parenthesis 8 plus 9 right parenthesis');
+      assertMathSpeakEqual(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 to the 7 th power EndFraction equals left parenthesis 8 plus 9 right parenthesis');
 
       // Example 13 from http://www.gh-mathspeak.com/examples/quick-tutorial/index.php?verbosity=v&explicitness=2&interp=0
       mq.latex('d=\\sqrt{ \\left( x_2 - x_1 \\right)^2 - \\left( y_2 - y_1 \\right)^2 }');
-      assertMathSpeakEqual(mq.mathspeak(), '"d" equals StartRoot left parenthesis "x" Subscript 2 Baseline minus "x" Subscript 1 Baseline right parenthesis Superscript 2 Baseline minus left parenthesis "y" Subscript 2 Baseline minus "y" Subscript 1 Baseline right parenthesis Superscript 2 Baseline EndRoot');
+      assertMathSpeakEqual(mq.mathspeak(), '"d" equals StartRoot left parenthesis "x" Subscript 2 Baseline minus "x" Subscript 1 Baseline right parenthesis squared minus left parenthesis "y" Subscript 2 Baseline minus "y" Subscript 1 Baseline right parenthesis squared EndRoot');
 
       mq.latex('').typedText('\\langle').keystroke('Spacebar').typedText('u,v'); // .latex() doesn't work yet for angle brackets :(
       assertMathSpeakEqual(mq.mathspeak(), 'left angle-bracket "u" "v" right angle-bracket');
