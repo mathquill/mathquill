@@ -523,7 +523,13 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
+    if(this.getFracDepth() > 1) {
+      this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
+    } else {
+      this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
+    }
   };
+
   _.mathspeak = function(opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
@@ -577,12 +583,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       }
     }
 
-    var depth = this.getFracDepth();
-    if(depth > 1) {
-      return 'StartNestedFraction, ' + numSpeech + ' NestedOver ' + denSpeech + ', EndNestedFraction';
-    } else {
-      return 'StartFraction, ' + numSpeech + ' Over ' + denSpeech + ', EndFraction';
-    }
+    return super_.mathspeak.apply(this, arguments);
   };
 
   _.getFracDepth = function() {
