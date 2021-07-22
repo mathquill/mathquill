@@ -192,11 +192,11 @@ suite('typing with auto-replaces', function() {
       mq.latex('x^{10000000000}');
       assertMathspeak('"x" to the 10000000000 power');
 
-      // Shorten negative exponents only if their parent is a digit
+      // Ensure negative exponents are shortened
       mq.latex('10^{-5}');
       assertMathspeak('10 to the negative 5th power');
       mq.latex('x^{-5}');
-      assertMathspeak('"x" Superscript, negative 5, Baseline');
+      assertMathspeak('"x" to the negative 5th power');
 
       // Superscripts that are not strictly integers should continue to be spoken in longer form
       mq.latex('x^{5.3}');

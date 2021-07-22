@@ -371,34 +371,23 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         }
 
         // More complex cases.
-        var isNegative = /^(-)/.test(innerText);
-        var isParentDigit =
-          this.parent &&
-          this.parent.ends[L] &&
-          this.parent.ends[L] instanceof Digit;
-        // If the superscript is negative and the parent is not a numeric literal,
-        // play it safe and don't shorten the mathspeak.
-        // For example, we don't know if a negative superscript is meant to signify exactly that
-        // or if it is being written to indicate an inverse function.
-        if (!isNegative || isParentDigit) {
-          var suffix = '';
-          // Limit suffix addition to exponents < 1000.
-          if (Math.abs(innerText) < 1000) {
-            if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
-              suffix = 'th';
-            } else if (/1$/.test(innerText)) {
-              suffix = 'st';
-            } else if (/2$/.test(innerText)) {
-              suffix = 'nd';
-            } else if (/3$/.test(innerText)) {
-              suffix = 'rd';
-            }
+        var suffix = '';
+        // Limit suffix addition to exponents < 1000.
+        if (Math.abs(innerText) < 1000) {
+          if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
+            suffix = 'th';
+          } else if (/1$/.test(innerText)) {
+            suffix = 'st';
+          } else if (/2$/.test(innerText)) {
+            suffix = 'nd';
+          } else if (/3$/.test(innerText)) {
+            suffix = 'rd';
           }
-          var innerMathspeak = typeof(child) === 'object'
-            ? child.mathspeak()
-            : innerText;
-          return 'to the ' + innerMathspeak + suffix + ' power';
         }
+        var innerMathspeak = typeof(child) === 'object'
+          ? child.mathspeak()
+          : innerText;
+        return 'to the ' + innerMathspeak + suffix + ' power';
       }
     }
     return super_.mathspeak.call(this);
