@@ -169,6 +169,28 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 // for shortening the verbalized (mathspeak) forms of some fractions and superscripts.
 var intRgx = /^[\+\-]?[\d]+$/;
 
+// Traverses the top level of the passed block's children and returns the concatenation of their ctrlSeq properties.
+// Used in shortened mathspeak computations as a block's .text() method can be potentially expensive.
+//
+function getCtrlSeqsFromBlock(block) {
+  if (
+    typeof(block) !== 'object' ||
+    typeof(block.children) !== 'function'
+  )
+    return block;
+  var children = block.children();
+  if (!children || !children.ends[L]) return block;
+  var chars = '';
+  for (var sibling = children.ends[L]; sibling[R] !== undefined; sibling = sibling[R]) {
+    if (sibling.ctrlSeq !== undefined) {
+      chars += sibling.ctrlSeq;
+    } else {
+      break;
+    }
+  }
+  return chars;
+}
+
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.createLeftOf = function(cursor) {
@@ -353,9 +375,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
       // Calculate this item's inner text to determine whether to shorten the returned speech.
       // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.
       // Since the mathspeak computation is recursive, we want to call it only once in this function to avoid performance bottlenecks.
-      var innerText = typeof(child) === 'object'
-        ? child.text()
-        : ''+child;
+      var innerText = getCtrlSeqsFromBlock(child);
       // If the superscript is a whole number, shorten the speech that is returned.
       if (
         (!opts || !opts.ignoreShorthand) &&
@@ -525,8 +545,8 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       return cursor.parent.mathspeak();
     }
 
-    var numText = this.ends[L].text();
-    var denText = this.ends[R].text();
+    var numText = getCtrlSeqsFromBlock(this.ends[L]);
+    var denText = getCtrlSeqsFromBlock(this.ends[R]);
 
     // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
     if (
