@@ -348,7 +348,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.textTemplate = [ '^' ];
   _.mathspeak = function(opts) {
     // Simplify basic exponent speech for common whole numbers.
-    var child = this.ends[L];
+    var child = this.upInto;
     if (child !== undefined) {
       // Calculate this item's inner text to determine whether to shorten the returned speech.
       // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.
