@@ -787,32 +787,34 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 // around handling valid latex as latex rather than treating it as keystrokes.
 LatexCmds['√'] = bind(LatexFragment, '\\sqrt{}');
 
+// Binary operator determination is used in several contexts for PlusMinus nodes and their descendants.
+// For instance, we set the item's class name based on this factor, and also assign different mathspeak values (plus vs positive, negative vs minus).
+function isBinaryOperator(node) {
+  if (node[L]) {
+    // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
+    // or an open bracket (open parenthesis, open square bracket)
+    // consider the operator to be unary
+    if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
+      return false;
+    }
+  } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
+    //if we are in a style block at the leftmost edge, determine unary/binary based on
+    //the style block
+    //this allows style blocks to be transparent for unary/binary purposes
+    return isBinaryOperator(node.parent.parent);
+  } else {
+    return false;
+  }
+
+  return true;
+}
+
 var PlusMinus = P(BinaryOperator, function(_) {
 
   _.init = VanillaSymbol.prototype.init;
-  _.isBinaryOperator = function(node) {
-    if (node[L]) {
-      // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
-      // or an open bracket (open parenthesis, open square bracket)
-      // consider the operator to be unary
-      if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
-        return false;
-      }
-    } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
-      //if we are in a style block at the leftmost edge, determine unary/binary based on
-      //the style block
-      //this allows style blocks to be transparent for unary/binary purposes
-      return this.isBinaryOperator(node.parent.parent);
-    } else {
-      return false;
-    }
-
-    return true;
-  };
-
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ[0].className = this.isBinaryOperator(this)
+    this.jQ[0].className = isBinaryOperator(this)
       ? 'mq-binary-operator'
       : '';
 
@@ -825,7 +827,7 @@ LatexCmds['+'] = P(PlusMinus, function(_, super_) {
     super_.init.call(this, '+', '+');
   };
   _.mathspeak = function() {
-    return this.isBinaryOperator(this) ? 'plus' : 'positive';
+    return isBinaryOperator(this) ? 'plus' : 'positive';
   };
 });
 
@@ -835,7 +837,7 @@ LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(Plus
     super_.init.call(this, '-', '&minus;');
   };
   _.mathspeak = function() {
-    return this.isBinaryOperator(this) ? 'minus' : 'negative';
+    return isBinaryOperator(this) ? 'minus' : 'negative';
   };
 });
 
