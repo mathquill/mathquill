@@ -167,7 +167,7 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
 
 // This test is used to determine whether an item may be treated as a whole number
 // for shortening the verbalized (mathspeak) forms of some fractions and superscripts.
-var intRgx = new RegExp(/^[\+\-]?[\d]+$/);
+var intRgx = /^[\+\-]?[\d]+$/;
 
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
@@ -348,7 +348,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
   _.textTemplate = [ '^' ];
   _.mathspeak = function(opts) {
     // Simplify basic exponent speech for common whole numbers.
-    var child = this.ends[L] || this.ends[R];
+    var child = this.ends[L];
     if (child !== undefined) {
       // Calculate this item's inner text to determine whether to shorten the returned speech.
       // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.

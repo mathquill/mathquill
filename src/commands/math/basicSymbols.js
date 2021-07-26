@@ -788,31 +788,34 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 LatexCmds['√'] = bind(LatexFragment, '\\sqrt{}');
 
 var PlusMinus = P(BinaryOperator, function(_) {
+
   _.init = VanillaSymbol.prototype.init;
+  _.isBinaryOperator = function(node) {
+    if (node[L]) {
+      // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
+      // or an open bracket (open parenthesis, open square bracket)
+      // consider the operator to be unary
+      if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
+        return false;
+      }
+    } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
+      //if we are in a style block at the leftmost edge, determine unary/binary based on
+      //the style block
+      //this allows style blocks to be transparent for unary/binary purposes
+      return this.isBinaryOperator(node.parent.parent);
+    } else {
+      return false;
+    }
+
+    return true;
+  };
 
   _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
-    function determineOpClassType(node) {
-      if (node[L]) {
-        // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
-        // or an open bracket (open parenthesis, open square bracket)
-        // consider the operator to be unary
-        if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
-          return '';
-        }
-      } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
-        //if we are in a style block at the leftmost edge, determine unary/binary based on
-        //the style block
-        //this allows style blocks to be transparent for unary/binary purposes
-        return determineOpClassType(node.parent.parent);
-      } else {
-        return '';
-      }
-
-      return 'mq-binary-operator';
-    };
-
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ[0].className = determineOpClassType(this);
+    this.jQ[0].className = this.isBinaryOperator(this)
+      ? 'mq-binary-operator'
+      : '';
+
     return this;
   };
 });
@@ -822,7 +825,7 @@ LatexCmds['+'] = P(PlusMinus, function(_, super_) {
     super_.init.call(this, '+', '+');
   };
   _.mathspeak = function() {
-    return this.jQ[0].className === 'mq-binary-operator' ? 'plus' : 'positive';
+    return this.isBinaryOperator(this) ? 'plus' : 'positive';
   };
 });
 
@@ -832,7 +835,7 @@ LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(Plus
     super_.init.call(this, '-', '&minus;');
   };
   _.mathspeak = function() {
-    return this.jQ[0].className === 'mq-binary-operator' ? 'minus' : 'negative';
+    return this.isBinaryOperator(this) ? 'minus' : 'negative';
   };
 });
 
