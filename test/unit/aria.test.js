@@ -38,6 +38,10 @@ suite('aria', function() {
     assertAriaEqual('over');
     mathField.typedText('2');
     assertAriaEqual('2');
+    mathField.keystroke('Tab');
+    assertAriaEqual('after StartFraction, 1 Over 2 , EndFraction');
+    mathField.keystroke('Backspace');
+    assertAriaEqual('end of denominator 2');
     mathField.keystroke('Backspace');
     assertAriaEqual('2');
     mathField.keystroke('Backspace');
