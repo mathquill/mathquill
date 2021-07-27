@@ -389,7 +389,8 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         // More complex cases.
         var suffix = '';
         // Limit suffix addition to exponents < 1000.
-        if (Math.abs(innerText) < 1000) {
+        var innerNumber = parseInt(innerText, 10);
+        if (innerNumber !== NaN && Math.abs(innerNumber) < 1000) {
           if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
             suffix = 'th';
           } else if (/1$/.test(innerText)) {
@@ -549,7 +550,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       (!opts || !opts.ignoreShorthand) &&
       intRgx.test(numText) && intRgx.test(denText)
     ) {
-      var isSingular = Math.abs(numText) === 1;
+      var isSingular = numText === 1 || numText === '-1';
       var newDenSpeech = '';
       if (denText === '2') {
         newDenSpeech = isSingular
