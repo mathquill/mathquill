@@ -122,6 +122,12 @@ suite('typing with auto-replaces', function() {
       assertMathspeak('negative 1 half');
       mq.latex('\\frac{-3}{2}');
       assertMathspeak('negative 3 halves');
+      mq.latex('-\\frac{3}{4}');
+      assertMathspeak('negative 3 quarters');
+
+      // Fractions with negative denominators should not be shortened
+      mq.latex('\\frac{1}{-2}');
+      assertMathspeak('StartFraction, 1 Over negative 2, EndFraction');
 
       // Traditional fractions should be spoken if either numerator or denominator are not numeric
       mq.latex('\\frac{x}{2}');
@@ -135,11 +141,13 @@ suite('typing with auto-replaces', function() {
       mq.latex('\\frac{4}{2.3}');
       assertMathspeak('StartFraction, 4 Over 2.3, EndFraction');
 
-      // A number followed by a shortened fraction should include the word "and", and other combinations should not.
+      // A whole number followed by a shortened fraction should include the word "and", and other combinations should not.
       mq.latex('3\\frac{3}{8}');
       assertMathspeak('3 and 3 eighths');
       mq.latex('3\\ \\frac{3}{8}');
       assertMathspeak('3 and 3 eighths');
+      mq.latex('3.1\\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
       mq.latex('3\\frac{3}{x}');
       assertMathspeak('3 StartFraction, 3 Over "x", EndFraction');
       mq.latex('x\\frac{3}{8}');
