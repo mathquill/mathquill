@@ -379,11 +379,11 @@ var MathBlock = P(MathElement, function(_, super_) {
     var tempOp = '';
     var autoOps = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
-    var wasPrevNumeric = false;
     return this.foldChildren([], function(speechArray, cmd) {
       if (cmd.isPartOfOperator) {
         tempOp += cmd.mathspeak();
-      } else {
+      }
+      else {
         if(tempOp!=='') {
           if(autoOps !== {} && autoOps._maxLength > 0) {
             var x = autoOps[tempOp.toLowerCase()];
@@ -394,27 +394,10 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        var isCmdNumeric = /^[\d]+$/.test(cmdText);
-
-        // Handle the case of an integer followed by a simplified fraction such as 1\frac{1}{2}.
-        // Such combinations should be spoken aloud as "1 and 1 half."
-        if (
-          wasPrevNumeric &&
-          cmdText.indexOf('frac') !== -1 &&
-          mathspeakText.indexOf('Fraction') === -1
-        ) {
-          speechArray.push(' and ');
-        }
-
-        if (!isCmdNumeric && cmdText !== '.') {
+        if (isNaN(cmdText) && cmdText !== '.') {
           mathspeakText = ' ' + mathspeakText + ' ';
         }
         speechArray.push(mathspeakText);
-        // Update wasPrevNumeric ignoring whitespace
-        // e.g. We want to make 1\frac{1}{2} equivalent speech-wise to 1 \frac{1}{2}.
-        if (cmdText !== '\\ ') {
-          wasPrevNumeric = isCmdNumeric;
-        }
       }
       return speechArray;
     })

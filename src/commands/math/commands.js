@@ -550,7 +550,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       (!opts || !opts.ignoreShorthand) &&
       intRgx.test(numText) && intRgx.test(denText)
     ) {
-      var isSingular = numText === 1 || numText === '-1';
+      var isSingular = numText === '1' || numText === '-1';
       var newDenSpeech = '';
       if (denText === '2') {
         newDenSpeech = isSingular
@@ -586,7 +586,24 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
           : 'ninths';
       }
       if (newDenSpeech !== '') {
-        return this.ends[L].mathspeak() + ' ' + newDenSpeech;
+        var output = '';
+        // Handle the case of an integer followed by a simplified fraction such as 1\frac{1}{2}.
+        // Such combinations should be spoken aloud as "1 and 1 half."
+        // Start at the left sibling of the fraction and continue leftward until something other than a digit or whitespace is found.
+        var precededByInteger = false;
+        for (var sibling = this[L]; sibling[L] !== undefined; sibling = sibling[L]) {
+          if (sibling.ctrlSeq === '\\ ' || intRgx.test(sibling.ctrlSeq)) {
+            precededByInteger = true;
+          } else {
+            precededByInteger = false;
+            break;
+          }
+        }
+        if (precededByInteger) {
+          output += 'and ';
+        }
+        output += this.ends[L].mathspeak() + ' ' + newDenSpeech;
+        return output;
       }
     }
 
