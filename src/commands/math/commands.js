@@ -182,7 +182,7 @@ function getCtrlSeqsFromBlock(block) {
   if (!children || !children.ends[L]) return block;
   var chars = '';
   for (var sibling = children.ends[L]; sibling[R] !== undefined; sibling = sibling[R]) {
-    chars += sibling.ctrlSeq;
+    if (sibling.ctrlSeq !== undefined) chars += sibling.ctrlSeq;
   }
   return chars;
 }
