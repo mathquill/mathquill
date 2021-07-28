@@ -165,6 +165,28 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
   };
 });
 
+// This test is used to determine whether an item may be treated as a whole number
+// for shortening the verbalized (mathspeak) forms of some fractions and superscripts.
+var intRgx = /^[\+\-]?[\d]+$/;
+
+// Traverses the top level of the passed block's children and returns the concatenation of their ctrlSeq properties.
+// Used in shortened mathspeak computations as a block's .text() method can be potentially expensive.
+//
+function getCtrlSeqsFromBlock(block) {
+  if (
+    typeof(block) !== 'object' ||
+    typeof(block.children) !== 'function'
+  )
+    return block;
+  var children = block.children();
+  if (!children || !children.ends[L]) return block;
+  var chars = '';
+  for (var sibling = children.ends[L]; sibling[R] !== undefined; sibling = sibling[R]) {
+    if (sibling.ctrlSeq !== undefined) chars += sibling.ctrlSeq;
+  }
+  return chars;
+}
+
 var SupSub = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '_{...}^{...}';
   _.createLeftOf = function(cursor) {
@@ -342,8 +364,53 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     + '</span>'
   ;
   _.textTemplate = [ '^' ];
-  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
+  _.mathspeak = function(opts) {
+    // Simplify basic exponent speech for common whole numbers.
+    var child = this.upInto;
+    if (child !== undefined) {
+      // Calculate this item's inner text to determine whether to shorten the returned speech.
+      // Do not calculate its inner mathspeak now until we know that the speech is to be truncated.
+      // Since the mathspeak computation is recursive, we want to call it only once in this function to avoid performance bottlenecks.
+      var innerText = getCtrlSeqsFromBlock(child);
+      // If the superscript is a whole number, shorten the speech that is returned.
+      if (
+        (!opts || !opts.ignoreShorthand) &&
+        intRgx.test(innerText)
+      ) {
+        // Simple cases
+        if (innerText === '0') {
+          return 'to the 0 power';
+        } else if (innerText === '2') {
+          return 'squared';
+        } else if (innerText === '3') {
+          return 'cubed';
+        }
+
+        // More complex cases.
+        var suffix = '';
+        // Limit suffix addition to exponents < 1000.
+        if (/^[+-]?\d{1,3}$/.test(innerText)) {
+          if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
+            suffix = 'th';
+          } else if (/1$/.test(innerText)) {
+            suffix = 'st';
+          } else if (/2$/.test(innerText)) {
+            suffix = 'nd';
+          } else if (/3$/.test(innerText)) {
+            suffix = 'rd';
+          }
+        }
+        var innerMathspeak = typeof(child) === 'object'
+          ? child.mathspeak()
+          : innerText;
+        return 'to the ' + innerMathspeak + suffix + ' power';
+      }
+    }
+    return super_.mathspeak.call(this);
+  };
+
   _.ariaLabel = 'superscript';
+  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
   _.finalizeTree = function() {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -461,14 +528,87 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
     this.ends[R].ariaLabel = 'denominator';
-    if(this.getFracDepth() > 1) this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
-    else this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
+    if(this.getFracDepth() > 1) {
+      this.mathspeakTemplate = ['StartNestedFraction,', 'NestedOver', ', EndNestedFraction'];
+    } else {
+      this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
+    }
   };
+
   _.mathspeak = function(opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
       return cursor.parent.mathspeak();
     }
+
+    var numText = getCtrlSeqsFromBlock(this.ends[L]);
+    var denText = getCtrlSeqsFromBlock(this.ends[R]);
+
+    // Shorten mathspeak value for whole number fractions whose denominator is less than 10.
+    if (
+      (!opts || !opts.ignoreShorthand) &&
+      intRgx.test(numText) && intRgx.test(denText)
+    ) {
+      var isSingular = numText === '1' || numText === '-1';
+      var newDenSpeech = '';
+      if (denText === '2') {
+        newDenSpeech = isSingular
+          ? 'half'
+          : 'halves';
+      } else if (denText === '3') {
+        newDenSpeech = isSingular
+          ? 'third'
+          : 'thirds';
+      } else if (denText === '4') {
+        newDenSpeech = isSingular
+          ? 'quarter'
+          : 'quarters';
+      } else if (denText === '5') {
+        newDenSpeech = isSingular
+          ? 'fifth'
+          : 'fifths';
+      } else if (denText === '6') {
+        newDenSpeech = isSingular
+          ? 'sixth'
+          : 'sixths';
+      } else if (denText === '7') {
+        newDenSpeech = isSingular
+          ? 'seventh'
+          : 'sevenths';
+      } else if (denText === '8') {
+        newDenSpeech = isSingular
+          ? 'eighth'
+          : 'eighths';
+      } else if (denText === '9') {
+        newDenSpeech = isSingular
+          ? 'ninth'
+          : 'ninths';
+      }
+      if (newDenSpeech !== '') {
+        var output = '';
+        // Handle the case of an integer followed by a simplified fraction such as 1\frac{1}{2}.
+        // Such combinations should be spoken aloud as "1 and 1 half."
+        // Start at the left sibling of the fraction and continue leftward until something other than a digit or whitespace is found.
+        var precededByInteger = false;
+        for (var sibling = this[L]; sibling[L] !== undefined; sibling = sibling[L]) {
+          // Ignore whitespace
+          if (sibling.ctrlSeq === '\\ ') {
+            continue;
+          } else if (intRgx.test(sibling.ctrlSeq)) {
+            precededByInteger = true;
+          } else {
+            precededByInteger = false;
+            break;
+          }
+        }
+        if (precededByInteger) {
+          output += 'and ';
+        }
+        output += this.ends[L].mathspeak() + ' ' + newDenSpeech;
+        return output;
+      }
+    }
+
     return super_.mathspeak.apply(this, arguments);
   };
 

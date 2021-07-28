@@ -26,16 +26,30 @@ var Aria = P(function(_) {
   };
 
   _.queue = function(item, shouldDescribe) {
+    var output = '';
     if (item instanceof Node) {
+      // Some constructs include verbal shorthand (such as simple fractions and exponents).
+      // Since ARIA alerts relate to moving through interactive content, we don't want to use that shorthand if it exists
+      // since doing so may be ambiguous or confusing.
+      var itemMathspeak = item.mathspeak({ignoreShorthand: true});
       if (shouldDescribe) { // used to ensure item is described when cursor reaches block boundaries
-        if (item.parent && item.parent.ariaLabel && item.ariaLabel === 'block') item = item.parent.ariaLabel+' '+item.mathspeak();
-        else if (item.ariaLabel) item = item.ariaLabel+' '+item.mathspeak();
-        else item = item.mathspeak();
+        if (
+          item.parent &&
+          item.parent.ariaLabel &&
+          item.ariaLabel === 'block'
+        ) {
+          output = item.parent.ariaLabel+' '+itemMathspeak;
+        } else if (item.ariaLabel) {
+          output = item.ariaLabel+' '+itemMathspeak;
+        }
       }
-      else item = item.mathspeak();
-
+      if (output === '') {
+        output = itemMathspeak;
+      }
+    } else {
+      output = item;
     }
-    this.items.push(item);
+    this.items.push(output);
     return this;
   };
   _.queueDirOf = function(dir) {

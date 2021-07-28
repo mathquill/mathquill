@@ -75,6 +75,163 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('MathspeakShorthand', function() {
+    test('fractions', function() {
+      // Testing singular numeric fractions from 1/2 to 1/10
+      mq.latex('\\frac{1}{2}');
+      assertMathspeak('1 half');
+      mq.latex('\\frac{1}{3}');
+      assertMathspeak('1 third');
+      mq.latex('\\frac{1}{4}');
+      assertMathspeak('1 quarter');
+      mq.latex('\\frac{1}{5}');
+      assertMathspeak('1 fifth');
+      mq.latex('\\frac{1}{6}');
+      assertMathspeak('1 sixth');
+      mq.latex('\\frac{1}{7}');
+      assertMathspeak('1 seventh');
+      mq.latex('\\frac{1}{8}');
+      assertMathspeak('1 eighth');
+      mq.latex('\\frac{1}{9}');
+      assertMathspeak('1 ninth');
+      mq.latex('\\frac{1}{10}');
+      assertMathspeak('StartFraction, 1 Over 10, EndFraction');
+
+      // Testing plural numeric fractions from 31/2 to 31/10
+      mq.latex('\\frac{31}{2}');
+      assertMathspeak('31 halves');
+      mq.latex('\\frac{31}{3}');
+      assertMathspeak('31 thirds');
+      mq.latex('\\frac{31}{4}');
+      assertMathspeak('31 quarters');
+      mq.latex('\\frac{31}{5}');
+      assertMathspeak('31 fifths');
+      mq.latex('\\frac{31}{6}');
+      assertMathspeak('31 sixths');
+      mq.latex('\\frac{31}{7}');
+      assertMathspeak('31 sevenths');
+      mq.latex('\\frac{31}{8}');
+      assertMathspeak('31 eighths');
+      mq.latex('\\frac{31}{9}');
+      assertMathspeak('31 ninths');
+      mq.latex('\\frac{31}{10}');
+      assertMathspeak('StartFraction, 31 Over 10, EndFraction');
+
+      // Fractions with negative numerators should be shortened
+      mq.latex('\\frac{-1}{2}');
+      assertMathspeak('negative 1 half');
+      mq.latex('\\frac{-3}{2}');
+      assertMathspeak('negative 3 halves');
+      mq.latex('-\\frac{3}{4}');
+      assertMathspeak('negative 3 quarters');
+
+      // Fractions with negative denominators should not be shortened
+      mq.latex('\\frac{1}{-2}');
+      assertMathspeak('StartFraction, 1 Over negative 2, EndFraction');
+
+      // Traditional fractions should be spoken if either numerator or denominator are not numeric
+      mq.latex('\\frac{x}{2}');
+      assertMathspeak('StartFraction, "x" Over 2, EndFraction');
+      mq.latex('\\frac{2}{x}');
+      assertMathspeak('StartFraction, 2 Over "x", EndFraction');
+
+      // Traditional fractions should be spoken if either numerator or denominator are not whole numbers
+      mq.latex('\\frac{1.2}{2}');
+      assertMathspeak('StartFraction, 1.2 Over 2, EndFraction');
+      mq.latex('\\frac{4}{2.3}');
+      assertMathspeak('StartFraction, 4 Over 2.3, EndFraction');
+
+      // A whole number followed by a shortened fraction should include the word "and", and other combinations should not.
+      mq.latex('3\\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3\\ \\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3\\ \\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3.1\\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('\\ \\frac{1}{2}');
+      assertMathspeak('1 half');
+      mq.latex('3\\frac{3}{x}');
+      assertMathspeak('3 StartFraction, 3 Over "x", EndFraction');
+      mq.latex('x\\frac{3}{8}');
+      assertMathspeak('"x" 3 eighths');
+    });
+
+    test('exponents', function() {
+      // Test simple superscripts and suffix rules
+      mq.latex('x^{0}');
+      assertMathspeak('"x" to the 0 power');
+      mq.latex('x^{1}');
+      assertMathspeak('"x" to the 1st power');
+      mq.latex('x^{2}');
+      assertMathspeak('"x" squared');
+      mq.latex('x^{3}');
+      assertMathspeak('"x" cubed');
+      mq.latex('x^{4}');
+      assertMathspeak('"x" to the 4th power');
+      mq.latex('x^{5}');
+      assertMathspeak('"x" to the 5th power');
+      mq.latex('x^{6}');
+      assertMathspeak('"x" to the 6th power');
+      mq.latex('x^{7}');
+      assertMathspeak('"x" to the 7th power');
+      mq.latex('x^{8}');
+      assertMathspeak('"x" to the 8th power');
+      mq.latex('x^{9}');
+      assertMathspeak('"x" to the 9th power');
+      mq.latex('x^{10}');
+      assertMathspeak('"x" to the 10th power');
+      mq.latex('x^{11}');
+      assertMathspeak('"x" to the 11th power');
+      mq.latex('x^{12}');
+      assertMathspeak('"x" to the 12th power');
+      mq.latex('x^{13}');
+      assertMathspeak('"x" to the 13th power');
+      mq.latex('x^{14}');
+      assertMathspeak('"x" to the 14th power');
+      mq.latex('x^{21}');
+      assertMathspeak('"x" to the 21st power');
+      mq.latex('x^{22}');
+      assertMathspeak('"x" to the 22nd power');
+      mq.latex('x^{23}');
+      assertMathspeak('"x" to the 23rd power');
+      mq.latex('x^{999}');
+      assertMathspeak('"x" to the 999th power');
+      // Values greater than 1000 have no suffix
+      mq.latex('x^{1000}');
+      assertMathspeak('"x" to the 1000 power');
+      mq.latex('x^{10000000000}');
+      assertMathspeak('"x" to the 10000000000 power');
+
+      // Ensure negative exponents are shortened
+      mq.latex('10^{-5}');
+      assertMathspeak('10 to the negative 5th power');
+      mq.latex('x^{-5}');
+      assertMathspeak('"x" to the negative 5th power');
+
+      // Superscripts that are not strictly integers should continue to be spoken in longer form
+      mq.latex('x^{5.3}');
+      assertMathspeak('"x" Superscript, 5.3, Baseline');
+      mq.latex('x^{y}');
+      assertMathspeak('"x" Superscript, "y", Baseline');
+      mq.latex('x^{y^{2}}');
+      assertMathspeak('"x" Superscript, "y" squared, Baseline');
+    });
+
+    test('plus and minus differentiation', function() {
+      // Distinguish between positive vs plus and negative vs. minus
+      mq.latex('-25-25');
+      assertMathspeak('negative 25 minus 25');
+      mq.latex('+25+25');
+      assertMathspeak('positive 25 plus 25');
+    });
+  });
+
   suite('auto-expanding parens', function() {
     suite('simple', function() {
       test('empty parens ()', function() {
