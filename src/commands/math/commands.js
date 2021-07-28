@@ -389,8 +389,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         // More complex cases.
         var suffix = '';
         // Limit suffix addition to exponents < 1000.
-        var innerNumber = parseInt(innerText, 10);
-        if (innerNumber !== NaN && Math.abs(innerNumber) < 1000) {
+        if (/^[+-]?\d{1,3}$/.test(innerText)) {
           if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
             suffix = 'th';
           } else if (/1$/.test(innerText)) {
@@ -592,7 +591,10 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
         // Start at the left sibling of the fraction and continue leftward until something other than a digit or whitespace is found.
         var precededByInteger = false;
         for (var sibling = this[L]; sibling[L] !== undefined; sibling = sibling[L]) {
-          if (sibling.ctrlSeq === '\\ ' || intRgx.test(sibling.ctrlSeq)) {
+          // Ignore whitespace
+          if (sibling.ctrlSeq === '\\ ') {
+            continue;
+          } else if (intRgx.test(sibling.ctrlSeq)) {
             precededByInteger = true;
           } else {
             precededByInteger = false;

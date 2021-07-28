@@ -146,8 +146,16 @@ suite('typing with auto-replaces', function() {
       assertMathspeak('3 and 3 eighths');
       mq.latex('3\\ \\frac{3}{8}');
       assertMathspeak('3 and 3 eighths');
+      mq.latex('3\\ \\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
       mq.latex('3.1\\frac{3}{8}');
       assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('\\ \\frac{1}{2}');
+      assertMathspeak('1 half');
       mq.latex('3\\frac{3}{x}');
       assertMathspeak('3 StartFraction, 3 Over "x", EndFraction');
       mq.latex('x\\frac{3}{8}');
