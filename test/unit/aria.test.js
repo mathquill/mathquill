@@ -38,8 +38,14 @@ suite('aria', function() {
     assertAriaEqual('over');
     mathField.typedText('2');
     assertAriaEqual('2');
+
+    // We have logic to shorten the speak we return for common numeric fractions and superscripts.
+    // While editing, however, the slightly longer form (but unambiguous) form of the item should be spoken.
+    // In this case, we would shorten the fraction 1/2 to "1 half" when reading,
+    // but navigating around the equation should result in "StartFraction, 1 Over 2, EndFraction."
     mathField.keystroke('Tab');
     assertAriaEqual('after StartFraction, 1 Over 2 , EndFraction');
+
     mathField.keystroke('Backspace');
     assertAriaEqual('end of denominator 2');
     mathField.keystroke('Backspace');
