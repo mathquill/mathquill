@@ -135,6 +135,14 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
 // Note regex that whitelists valid CSS classname characters:
 // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
 var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
+  _.setCls = function(cls) {
+    this.cls = cls;
+    this.htmlTemplate =
+      '<span class="mq-class ' + cls + '">&0</span>';
+  };
+  _.latex = function() {
+    return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
+  };
   _.parser = function() {
     var self = this, string = Parser.string, regex = Parser.regex;
     return Parser.optWhitespace
@@ -142,17 +150,10 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
       .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
       .skip(string('}'))
       .then(function(cls) {
-        self.cls = cls || '';
-        self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
+        self.setCls(cls);
         return super_.parser.call(self);
       })
     ;
-  };
-  _.latex = function() {
-    return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
-  };
-  _.isStyleBlock = function() {
-    return true;
   };
 });
 
