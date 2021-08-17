@@ -382,8 +382,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     return this.foldChildren([], function(speechArray, cmd) {
       if (cmd.isPartOfOperator) {
         tempOp += cmd.mathspeak();
-      }
-      else {
+      } else {
         if(tempOp!=='') {
           if(autoOps !== {} && autoOps._maxLength > 0) {
             var x = autoOps[tempOp.toLowerCase()];
@@ -394,7 +393,11 @@ var MathBlock = P(MathElement, function(_, super_) {
         }
         var mathspeakText = cmd.mathspeak();
         var cmdText = cmd.ctrlSeq;
-        if (isNaN(cmdText) && cmdText !== '.') {
+        if (
+          isNaN(cmdText) &&
+          cmdText !== '.' &&
+          !(cmd.parent && cmd.parent.parent && cmd.parent.parent.isStyleBlock())
+        ) {
           mathspeakText = ' ' + mathspeakText + ' ';
         }
         speechArray.push(mathspeakText);

@@ -86,6 +86,17 @@ var Style = P(MathCommand, function(_, super_) {
     _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
   };
+  _.mathspeak = function(opts) {
+    if (opts && opts.ignoreShorthand) {
+      return super_.mathspeak.call(this);
+    }
+    return this.foldChildren('', function(speech, block) {
+      return speech + ' ' + block.mathspeak();
+    }).trim();
+  };
+  _.isStyleBlock = function() {
+    return true;
+  };
 });
 
 //fonts
@@ -114,6 +125,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
     this.color = color;
     this.htmlTemplate =
       '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
+    _.ariaLabel = color.replace(/^\\/, '');
+    _.mathspeakTemplate = ['Start ' + _.ariaLabel + ',', 'End ' + _.ariaLabel];
   };
   _.latex = function() {
     return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
@@ -134,6 +147,14 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
       })
     ;
   };
+  _.mathspeak = function(opts) {
+    if (opts && opts.ignoreShorthand) {
+      return super_.mathspeak.call(this);
+    }
+    return this.foldChildren('', function(speech, block) {
+      return speech + ' ' + block.mathspeak();
+    }).trim();
+  };
   _.isStyleBlock = function() {
     return true;
   };
@@ -153,12 +174,22 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
       .then(function(cls) {
         self.cls = cls || '';
         self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
+        self.ariaLabel = cls + ' class';
+        self.mathspeakTemplate = ['Start ' + self.ariaLabel + ',', 'End ' + self.ariaLabel];
         return super_.parser.call(self);
       })
     ;
   };
   _.latex = function() {
     return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
+  };
+  _.mathspeak = function(opts) {
+    if (opts && opts.ignoreShorthand) {
+      return super_.mathspeak.call(this);
+    }
+    return this.foldChildren('', function(speech, block) {
+      return speech + ' ' + block.mathspeak();
+    }).trim();
   };
   _.isStyleBlock = function() {
     return true;
