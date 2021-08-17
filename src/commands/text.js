@@ -75,7 +75,13 @@ var TextBlock = P(Node, function(_, super_) {
     );
   };
   _.mathspeakTemplate = ['Start'+_.ariaLabel, 'End'+_.ariaLabel];
-  _.mathspeak = function() { return this.mathspeakTemplate[0]+', '+this.text() +', '+this.mathspeakTemplate[1] };
+  _.mathspeak = function(opts) {
+    if (opts && opts.ignoreShorthand) {
+      return this.mathspeakTemplate[0]+', '+this.text() +', '+this.mathspeakTemplate[1]
+    } else {
+      return this.text();
+    }
+  };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
