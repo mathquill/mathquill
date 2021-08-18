@@ -77,10 +77,13 @@ var TextBlock = P(Node, function(_, super_) {
   _.mathspeakTemplate = ['Start'+_.ariaLabel, 'End'+_.ariaLabel];
   _.mathspeak = function(opts) {
     if (opts && opts.ignoreShorthand) {
-      return this.mathspeakTemplate[0]+', '+this.text() +', '+this.mathspeakTemplate[1]
+      return this.mathspeakTemplate[0]+', '+this.textContents() +', '+this.mathspeakTemplate[1]
     } else {
-      return this.text();
+      return this.textContents();
     }
+  };
+  _.isTextBlock = function() {
+    return true;
   };
 
   // editability methods: called by the cursor for editing, cursor movements,

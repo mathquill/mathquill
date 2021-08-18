@@ -81,17 +81,17 @@ var SVG_SYMBOLS = {
 };
 
 var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, shouldSpeakDelimiters) {
+  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, shouldNotSpeakDelimiters) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
-    // In most cases, mathspeak should not announce the start and end of style blocks.
-    // There is one exception currently (overline).
-    _.shouldSpeakDelimiters = !!shouldSpeakDelimiters;
+    // In most cases, mathspeak should announce the start and end of style blocks.
+    // There is one exception currently (mathrm).
+    _.shouldNotSpeakDelimiters = !!shouldNotSpeakDelimiters;
   };
   _.mathspeak = function(opts) {
     if (
-      this.shouldSpeakDelimiters ||
+      !this.shouldNotSpeakDelimiters ||
       (opts && opts.ignoreShorthand)
     ) {
       return super_.mathspeak.call(this);
@@ -100,20 +100,24 @@ var Style = P(MathCommand, function(_, super_) {
       return speech + ' ' + block.mathspeak();
     }).trim();
   };
-  _.isStyleBlock = function() {
-    return true;
-  };
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font');
+LatexCmds.mathrm = P(Style, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', true);
+  };
+  _.isTextBlock = function() {
+    return true;
+  };
+});
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"', 'Italic Font');
 LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"', 'Math Text');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"', 'Underline');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline', true);
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline');
 LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"', 'Over Right Arrow');
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
 LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
@@ -153,14 +157,6 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
       })
     ;
   };
-  _.mathspeak = function(opts) {
-    if (opts && opts.ignoreShorthand) {
-      return super_.mathspeak.call(this);
-    }
-    return this.foldChildren('', function(speech, block) {
-      return speech + ' ' + block.mathspeak();
-    }).trim();
-  };
   _.isStyleBlock = function() {
     return true;
   };
@@ -188,14 +184,6 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
   };
   _.latex = function() {
     return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
-  };
-  _.mathspeak = function(opts) {
-    if (opts && opts.ignoreShorthand) {
-      return super_.mathspeak.call(this);
-    }
-    return this.foldChildren('', function(speech, block) {
-      return speech + ' ' + block.mathspeak();
-    }).trim();
   };
   _.isStyleBlock = function() {
     return true;

@@ -275,6 +275,10 @@ var Node = P(function(_) {
     return false;
   };
 
+  _.isTextBlock = function() {
+    return false;
+  };
+
   _.children = function() {
     return Fragment(this.ends[L], this.ends[R]);
   };

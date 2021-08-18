@@ -230,6 +230,28 @@ suite('typing with auto-replaces', function() {
       mq.latex('+25+25');
       assertMathspeak('positive 25 plus 25');
     });
+
+    test('styled text', function() {
+      // Test that text-related elements include sensible mathspeak.
+      // Letters in a non-wrapped block should be split apart (interpreted as variables):
+      mq.latex('this is a test');
+      assertMathspeak('"t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t"');
+      // Contents of a text block should be returned exactly as entered with no start and end delimiters spoken:
+      mq.latex('\\text{this is a test}');
+      assertMathspeak('this is a test');
+      // Specifically for mathrm, don't split characters and also don't speak delimiters.
+      // note content is still interpreted as LaTeX, so we use \ to separate words:
+      mq.latex('\\mathrm{this\\ is\\ a\\ test}');
+      assertMathspeak('this is a test');
+      // Any other font command should be spoken "normally"--
+      // letters are split and delimiters are announced for remaining commands:
+      mq.latex('\\mathit{this\\ is\\ a\\ test}');
+      assertMathspeak('StartItalic Font "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" EndItalic Font');
+      mq.latex('\\textcolor{red}{this\\ is\\ a\\ test}');
+      assertMathspeak('Start red "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" End red');
+      mq.latex('\\class{abc}{this\\ is\\ a\\ test}');
+      assertMathspeak('Start abc class "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" End abc class');
+    });
   });
 
   suite('auto-expanding parens', function() {

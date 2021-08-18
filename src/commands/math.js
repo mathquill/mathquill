@@ -396,7 +396,7 @@ var MathBlock = P(MathElement, function(_, super_) {
         if (
           isNaN(cmdText) &&
           cmdText !== '.' &&
-          !(cmd.parent && cmd.parent.parent && cmd.parent.parent.isStyleBlock())
+          (!cmd.parent || !cmd.parent.parent || !cmd.parent.parent.isTextBlock())
         ) {
           mathspeakText = ' ' + mathspeakText + ' ';
         }

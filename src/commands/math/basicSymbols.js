@@ -210,10 +210,12 @@ var Variable = P(Symbol, function(_, super_) {
   };
   _.mathspeak = function() {
     var text = this.ctrlSeq;
-    if (this.isPartOfOperator || text.length !== 1) {
+    if (
+      this.isPartOfOperator ||
+      text.length > 1 ||
+      (this.parent && this.parent.parent && this.parent.parent.isTextBlock())
+    ) {
       return super_.mathspeak.call(this);
-    } else if (this.parent && this.parent.parent && this.parent.parent.isStyleBlock()) {
-      return text;
     } else {
       // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
       // some strange pronunciation given certain expressions,
