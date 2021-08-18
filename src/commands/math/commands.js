@@ -81,13 +81,19 @@ var SVG_SYMBOLS = {
 };
 
 var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs, ariaLabel) {
+  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, shouldSpeakDelimiters) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
+    // In most cases, mathspeak should not announce the start and end of style blocks.
+    // There is one exception currently (overline).
+    _.shouldSpeakDelimiters = !!shouldSpeakDelimiters;
   };
   _.mathspeak = function(opts) {
-    if (opts && opts.ignoreShorthand) {
+    if (
+      this.shouldSpeakDelimiters ||
+      (opts && opts.ignoreShorthand)
+    ) {
       return super_.mathspeak.call(this);
     }
     return this.foldChildren('', function(speech, block) {
@@ -107,7 +113,7 @@ LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font
 LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"', 'Math Text');
 //text-decoration
 LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"', 'Underline');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline');
+LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline', true);
 LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"', 'Over Right Arrow');
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
 LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
