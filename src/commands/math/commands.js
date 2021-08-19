@@ -81,15 +81,36 @@ var SVG_SYMBOLS = {
 };
 
 var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs, ariaLabel) {
+  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, opts) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
+    // In most cases, mathspeak should announce the start and end of style blocks.
+    // There is one exception currently (mathrm).
+    _.shouldNotSpeakDelimiters = opts && opts.shouldNotSpeakDelimiters;
+  };
+  _.mathspeak = function(opts) {
+    if (
+      !this.shouldNotSpeakDelimiters ||
+      (opts && opts.ignoreShorthand)
+    ) {
+      return super_.mathspeak.call(this);
+    }
+    return this.foldChildren('', function(speech, block) {
+      return speech + ' ' + block.mathspeak(opts);
+    }).trim();
   };
 });
 
 //fonts
-LatexCmds.mathrm = bind(Style, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font');
+LatexCmds.mathrm = P(Style, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
+  };
+  _.isTextBlock = function() {
+    return true;
+  };
+});
 LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"', 'Italic Font');
 LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
 LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
@@ -114,6 +135,8 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
     this.color = color;
     this.htmlTemplate =
       '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
+    _.ariaLabel = color.replace(/^\\/, '');
+    _.mathspeakTemplate = ['Start ' + _.ariaLabel + ',', 'End ' + _.ariaLabel];
   };
   _.latex = function() {
     return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
@@ -153,6 +176,8 @@ var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
       .then(function(cls) {
         self.cls = cls || '';
         self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
+        self.ariaLabel = cls + ' class';
+        self.mathspeakTemplate = ['Start ' + self.ariaLabel + ',', 'End ' + self.ariaLabel];
         return super_.parser.call(self);
       })
     ;

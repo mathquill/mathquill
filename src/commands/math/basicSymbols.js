@@ -210,7 +210,11 @@ var Variable = P(Symbol, function(_, super_) {
   };
   _.mathspeak = function() {
     var text = this.ctrlSeq;
-    if (this.isPartOfOperator || text.length !== 1) {
+    if (
+      this.isPartOfOperator ||
+      text.length > 1 ||
+      (this.parent && this.parent.parent && this.parent.parent.isTextBlock())
+    ) {
       return super_.mathspeak.call(this);
     } else {
       // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
@@ -218,7 +222,7 @@ var Variable = P(Symbol, function(_, super_) {
       // e.g. "y-2" is spoken as "ee minus 2" (as if the y is short).
       // Not an ideal solution, but surrounding non-numeric text blocks with quotation marks works.
       // This bug has been acknowledged by Apple.
-      return '"' + text + '"';
+      return '"'+text+'"';
     }
   };
 });
@@ -263,7 +267,6 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 }
 
 var Letter = P(Variable, function(_, super_) {
-
   _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
   _.checkAutoCmds = function (cursor) {
     //handle autoCommands
