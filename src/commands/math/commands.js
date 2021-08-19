@@ -81,13 +81,13 @@ var SVG_SYMBOLS = {
 };
 
 var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, shouldNotSpeakDelimiters) {
+  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, opts) {
     super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
     // In most cases, mathspeak should announce the start and end of style blocks.
     // There is one exception currently (mathrm).
-    _.shouldNotSpeakDelimiters = !!shouldNotSpeakDelimiters;
+    _.shouldNotSpeakDelimiters = opts && opts.shouldNotSpeakDelimiters;
   };
   _.mathspeak = function(opts) {
     if (
@@ -105,7 +105,7 @@ var Style = P(MathCommand, function(_, super_) {
 //fonts
 LatexCmds.mathrm = P(Style, function(_, super_) {
   _.init = function() {
-    super_.init.call(this, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', true);
+    super_.init.call(this, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
   };
   _.isTextBlock = function() {
     return true;
