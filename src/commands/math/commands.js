@@ -97,7 +97,7 @@ var Style = P(MathCommand, function(_, super_) {
       return super_.mathspeak.call(this);
     }
     return this.foldChildren('', function(speech, block) {
-      return speech + ' ' + block.mathspeak();
+      return speech + ' ' + block.mathspeak(opts);
     }).trim();
   };
 });
