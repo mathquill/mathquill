@@ -255,8 +255,6 @@ LatexCmds.diverges = LatexCmds.uarr = LatexCmds.uparrow =
 
 LatexCmds.uArr = LatexCmds.Uparrow = bind(VanillaSymbol,'\\Uparrow ','&uArr;', 'up arrow');
 
-LatexCmds.to = bind(BinaryOperator,'\\to ','&rarr;', 'to');
-
 LatexCmds.rarr = LatexCmds.rightarrow = bind(VanillaSymbol,'\\rightarrow ','&rarr;', 'right arrow');
 
 LatexCmds.implies = bind(BinaryOperator,'\\Rightarrow ','&rArr;', 'implies');

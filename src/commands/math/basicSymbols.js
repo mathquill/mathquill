@@ -852,6 +852,25 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bind(BinaryOperator, '\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
+var To = P(BinaryOperator, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, '\\to ','&rarr;', 'to');
+  }
+  _.deleteTowards = function(dir, cursor) {
+    if (dir === L) {
+      var l = cursor[L];
+      Fragment(l, this).remove();
+      cursor[L] = l[L];
+      LatexCmds['−']().createLeftOf(cursor);
+      cursor[L].bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.deleteTowards.apply(this, arguments);
+  };
+})
+
+LatexCmds.to = To;
+
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {
     this.data = data;
@@ -883,8 +902,25 @@ var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than 
 var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater than or equal to',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>', mathspeakStrict: 'greater than'};
 
+var Greater = P(Inequality, function(_, super_) {
+  _.init = function() {
+    super_.init.call(this, greater, true);
+  };
+  _.createLeftOf = function(cursor) {
+    if (cursor[L] instanceof BinaryOperator && cursor[L].ctrlSeq === '-') {
+      var l = cursor[L];
+      cursor[L] = l[L];
+      l.remove();
+      To().createLeftOf(cursor);
+      cursor[L].bubble(function (node) { node.reflow(); });
+      return;
+    }
+    super_.createLeftOf.apply(this, arguments);
+  };
+})
+
 LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
-LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
+LatexCmds['>'] = LatexCmds.gt = Greater;
 LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
 LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
 LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
