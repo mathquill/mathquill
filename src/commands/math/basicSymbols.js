@@ -869,7 +869,7 @@ var To = P(BinaryOperator, function(_, super_) {
   };
 })
 
-LatexCmds.to = To;
+LatexCmds['→'] = LatexCmds.to = To;
 
 var Inequality = P(BinaryOperator, function(_, super_) {
   _.init = function(data, strict) {
