@@ -1317,6 +1317,10 @@ suite('typing with auto-replaces', function() {
       mq.typedText('a->b');
       assertLatex('a\\to b');
       assertMathspeak('"a" to "b"');
+      mq.latex('');
+      mq.typedText('a→b');
+      assertLatex('a\\to b');
+      assertMathspeak('"a" to "b"');
     });
 
     test('typing and backspacing ~', function() {
