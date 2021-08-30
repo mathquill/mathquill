@@ -14,6 +14,7 @@ Controller.open(function(_) {
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
+    var mathspeakSpan = this.mathspeakSpan = $('<span class="mq-mathspeak"></span>').appendTo(textareaSpan);
     textarea = this.textarea = $(textarea).appendTo(textareaSpan);
 
     var ctrlr = this;
@@ -47,7 +48,7 @@ Controller.open(function(_) {
     this.selectFn(latex);
   };
   _.staticMathTextareaEvents = function() {
-    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+    var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
@@ -71,28 +72,7 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
-    var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
-    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
-
-    // This is gross, but necessary.
-    // On Windows, ChromeOS, Android, and iOS, supplying role="math" allows users of
-    // JAWS, NVDA, ChromeVox, Talkback, and VoiceOver to read the mathspeak version of an equation
-    // which we supply as the container's aria-label attribute.
-    // Omitting role="math" makes the container invisible to JAWS and iOS VoiceOver.
-    // At time of writing (8/20/2019), the exact opposite is true of the Mac--
-    // Supplying role="math" makes the content of the container invisible to VoiceOver there,
-    // and omitting it makes the material available to Mac users.
-    // For now, the solution is to render role="math" unless the user is on Mac.
-    // Bug report: https://feedbackassistant.apple.com/feedback/7076111
-    // Update: As of 11/23/2020, this problem becomes slightly more complicated now that iOS 13+ on iPads masquerades as a Mac.
-    // The same work-around applies, but now we must detect a spoofed Mac.
-    // Technique based on https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
-
-    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    var isIOS = (/iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.Stream;
-    var isMac = navigator.appVersion.indexOf("Mac") !== -1 && !isIOS;
-    if (!isMac)
-      ctrlr.container.attr('role', 'math');
+    this.updateMathspeak();
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
@@ -143,6 +123,22 @@ Controller.open(function(_) {
     this.scrollHoriz();
     if (this.options && this.options.onPaste) {
       this.options.onPaste();
+    }
+  };
+  _.updateMathspeak = function() {
+    var ctrlr = this, root = ctrlr.root;
+    var mqAria = (ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel).trim();
+    aria.jQ.empty();
+    // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
+    // For editable math, assign the mathspeak to the container's ARIA label (AT can use text navigation to interrogate the content).
+    if (!!ctrlr.editable) {
+      this.mathspeakSpan.text(mqAria);
+    } else if (!ctrlr.textarea.attr('aria-hidden')) {
+      // The textarea is available to the screen reader. Set the label there.
+      ctrlr.textarea.attr('aria-label', mqAria);
+    } else {
+      // The textarea is hidden, so put the label on the container.
+      ctrlr.container.attr('aria-label', mqAria);
     }
   };
 });
