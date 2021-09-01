@@ -76,7 +76,6 @@ Controller.open(function(_) {
         cursor.resetToEnd(ctrlr);
       }
     }
-    ctrlr.updateMathspeak();
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };

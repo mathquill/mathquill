@@ -223,11 +223,11 @@ function getInterface(v) {
     };
     _.setAriaLabel = function(ariaLabel) {
       if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
-      else this.__controller.ariaLabel = 'Math Input';
+      else this.__controller.ariaLabel = 'Math Input:';
       return this;
     };
     _.getAriaLabel = function () {
-      return this.__controller.ariaLabel || 'Math Input';
+      return this.__controller.ariaLabel || 'Math Input:';
     };
     _.setAriaPostLabel = function(ariaPostLabel, timeout) {
       var controller = this.__controller;

@@ -15,7 +15,7 @@ var Controller = P(function(_) {
     this.container = container;
     this.options = options;
 
-    this.ariaLabel = 'Math Input';
+    this.ariaLabel = 'Math Input:';
     this.ariaPostLabel = '';
 
     root.controller = this;

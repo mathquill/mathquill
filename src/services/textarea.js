@@ -14,7 +14,6 @@ Controller.open(function(_) {
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    var mathspeakSpan = this.mathspeakSpan = $('<span class="mq-mathspeak"></span>').appendTo(textareaSpan);
     textarea = this.textarea = $(textarea).appendTo(textareaSpan);
 
     var ctrlr = this;
@@ -51,6 +50,8 @@ Controller.open(function(_) {
     var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
+    this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
+    this.container.prepend(this.mathspeakSpan);
     this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
     textarea.bind('cut paste', false);
@@ -82,6 +83,7 @@ Controller.open(function(_) {
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
+    this.updateMathspeak();
   };
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
@@ -126,19 +128,21 @@ Controller.open(function(_) {
     }
   };
   _.updateMathspeak = function() {
-    var ctrlr = this, root = ctrlr.root;
-    var mqAria = (ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel).trim();
+    var ctrlr = this;
+    var mathspeak = ctrlr.root.mathspeak();
     aria.jQ.empty();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
-    // For editable math, assign the mathspeak to the container's ARIA label (AT can use text navigation to interrogate the content).
-    if (!!ctrlr.editable) {
-      this.mathspeakSpan.text(mqAria);
-    } else if (!ctrlr.textarea.attr('aria-hidden')) {
-      // The textarea is available to the screen reader. Set the label there.
-      ctrlr.textarea.attr('aria-label', mqAria);
+    // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
+    // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
+    // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
+    if (!!ctrlr.mathspeakSpan) {
+      ctrlr.textarea.attr('aria-label', '');
+      ctrlr.mathspeakSpan.text(mathspeak);
     } else {
-      // The textarea is hidden, so put the label on the container.
-      ctrlr.container.attr('aria-label', mqAria);
+      ctrlr.textarea.attr(
+        'aria-label',
+        (ctrlr.ariaLabel+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
+      );
     }
   };
 });
