@@ -165,7 +165,7 @@ suite('Public API', function() {
       assert.equal(mq.getAriaPostLabel(), 'ARIA post-label');
       mq.setAriaLabel('');
       mq.setAriaPostLabel('');
-      assert.equal(mq.getAriaLabel(), 'Math Input');
+      assert.equal(mq.getAriaLabel(), 'Math Input:');
       assert.equal(mq.getAriaPostLabel(), '');
     });
 

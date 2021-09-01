@@ -129,15 +129,19 @@ Controller.open(function(_) {
   };
   _.updateMathspeak = function() {
     var ctrlr = this;
-    var mathspeak = ctrlr.root.mathspeak();
+    var mathspeak = ctrlr.root.mathspeak().trim();
     aria.jQ.empty();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
     // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
     // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
+      var newLabel =
+        ctrlr.ariaLabel.length > 0 && ctrlr.ariaLabel !== 'Math Input:'
+          ? (ctrlr.ariaLabel+' ' + mathspeak).trim()
+          : mathspeak;
       ctrlr.textarea.attr('aria-label', '');
-      ctrlr.mathspeakSpan.text(mathspeak);
+      ctrlr.mathspeakSpan.text(newLabel);
     } else {
       ctrlr.textarea.attr(
         'aria-label',

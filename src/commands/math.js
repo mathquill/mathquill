@@ -535,7 +535,7 @@ API.StaticMath = function(APIClasses) {
     };
     _.setAriaLabel = function(ariaLabel) {
       this.__controller.ariaLabel = typeof ariaLabel === 'string' ? ariaLabel : '';
-      this.updateMathspeak();
+      this.__controller.updateMathspeak();
       return this;
     };
     _.getAriaLabel = function () {
