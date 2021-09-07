@@ -222,36 +222,18 @@ function getInterface(v) {
       cmd.createLeftOf(this.__controller.cursor);
     };
     _.setAriaLabel = function(ariaLabel) {
-      if(ariaLabel && typeof ariaLabel === 'string' && ariaLabel!='') this.__controller.ariaLabel = ariaLabel;
-      else this.__controller.ariaLabel = 'Math Input:';
+      this.__controller.setAriaLabel(ariaLabel);
       return this;
     };
     _.getAriaLabel = function () {
-      return this.__controller.ariaLabel || 'Math Input:';
+      return this.__controller.getAriaLabel();
     };
     _.setAriaPostLabel = function(ariaPostLabel, timeout) {
-      var controller = this.__controller;
-      if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') {
-        if (
-          ariaPostLabel !== controller.ariaPostLabel &&
-          typeof timeout === 'number'
-        ) {
-          if (this.ariaAlertTimeout) clearTimeout(this.ariaAlertTimeout);
-          this.ariaAlertTimeout = setTimeout(function() {
-            if (!!$(document.activeElement).closest($(controller.container)).length) {
-              aria.alert(this.mathspeak().trim() + ' ' + ariaPostLabel.trim());
-            }
-          }.bind(this), timeout);
-        }
-        controller.ariaPostLabel = ariaPostLabel;
-      } else {
-        if (this.ariaAlertTimeout) clearTimeout(this.ariaAlertTimeout);
-        controller.ariaPostLabel = '';
-      }
+      this.__controller.setAriaPostLabel(ariaPostLabel, timeout);
       return this;
     };
     _.getAriaPostLabel = function () {
-      return this.__controller.ariaPostLabel || '';
+      return this.__controller.getAriaPostLabel();
     };
     _.clickAt = function(clientX, clientY, target) {
       target = target || document.elementFromPoint(clientX, clientY);

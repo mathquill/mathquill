@@ -114,8 +114,8 @@ suite('aria', function() {
     });
     var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
     assert.equal('"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
-    assert.equal('Math Input:', staticMath.getAriaLabel());
-    staticMath.setAriaLabel('Static Label:');
+    assert.equal('', staticMath.getAriaLabel());
+    staticMath.setAriaLabel('Static Label');
     assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
     assert.equal('Static Label:', staticMath.getAriaLabel());
     staticMath.latex('2+2');

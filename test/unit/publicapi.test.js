@@ -161,12 +161,14 @@ suite('Public API', function() {
     test('ARIA labels', function() {
       mq.setAriaLabel('ARIA label');
       mq.setAriaPostLabel('ARIA post-label');
-      assert.equal(mq.getAriaLabel(), 'ARIA label');
+      assert.equal(mq.getAriaLabel(), 'ARIA label:');
       assert.equal(mq.getAriaPostLabel(), 'ARIA post-label');
       mq.setAriaLabel('');
       mq.setAriaPostLabel('');
       assert.equal(mq.getAriaLabel(), 'Math Input:');
       assert.equal(mq.getAriaPostLabel(), '');
+      mq.setAriaLabel('Another label:');
+      assert.equal(mq.getAriaLabel(), 'Another label:');
     });
 
     test('.mathspeak()', function() {

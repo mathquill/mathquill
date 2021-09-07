@@ -41,4 +41,40 @@ var Controller = P(function(_) {
     }
     return this;
   };
+  _.setAriaLabel = function(ariaLabel) {
+    if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
+      // If the supplied label doesn't end with a punctuation mark, add a colon by default.
+      var suffix = /[\d\l]$/.test(ariaLabel) ? ':' : '';
+      this.ariaLabel = ariaLabel + suffix;
+    } else {
+      this.ariaLabel = 'Math Input:';
+    }
+    return this;
+  };
+  _.getAriaLabel = function () {
+    return this.ariaLabel || 'Math Input:';
+  };
+  _.setAriaPostLabel = function(ariaPostLabel, timeout) {
+    if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') {
+      if (
+        ariaPostLabel !== this.ariaPostLabel &&
+        typeof timeout === 'number'
+      ) {
+        if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
+        this._ariaAlertTimeout = setTimeout(function() {
+          if (!!$(document.activeElement).closest($(this.container)).length) {
+            aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
+          }
+        }.bind(this), timeout);
+      }
+      this.ariaPostLabel = ariaPostLabel;
+    } else {
+      if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
+      this.ariaPostLabel = '';
+    }
+    return this;
+  };
+  _.getAriaPostLabel = function () {
+    return this.ariaPostLabel || '';
+  };
 });
