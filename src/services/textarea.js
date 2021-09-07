@@ -50,9 +50,9 @@ Controller.open(function(_) {
     var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
+    this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
     this.container.prepend(this.mathspeakSpan);
-    this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
     ctrlr.blurred = true;
     textarea.bind('cut paste', false);
     if (ctrlr.options.disableCopyPaste) {
