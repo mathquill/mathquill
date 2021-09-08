@@ -535,14 +535,10 @@ API.StaticMath = function(APIClasses) {
     };
     _.setAriaLabel = function(ariaLabel) {
       this.__controller.setAriaLabel(ariaLabel);
-      this.__controller.updateMathspeak();
       return this;
     };
     _.getAriaLabel = function () {
-      var returnedLabel = this.__controller.getAriaLabel();
-      // For static math, ignore the default "Math Input:" label.
-      if (returnedLabel === 'Math Input:') return '';
-      return returnedLabel;
+      return this.__controller.getAriaLabel();
     };
   });
 };

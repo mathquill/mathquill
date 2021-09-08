@@ -129,23 +129,27 @@ Controller.open(function(_) {
   };
   _.updateMathspeak = function() {
     var ctrlr = this;
+    // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
+    var ariaLabel = ctrlr.getAriaLabel();
+    var labelWithSuffix =
+      /[A-Za-z0-9]$/.test(ariaLabel)
+        ? ariaLabel + ':'
+        : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
     aria.jQ.empty();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
     // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
     // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
+    // By design, also take careful note that the ariaPostLabel is meant to exist only for editable math (e.g. to serve as an evaluation or error message)
+    // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      var newLabel =
-        ctrlr.ariaLabel.length > 0 && ctrlr.ariaLabel !== 'Math Input:'
-          ? (ctrlr.ariaLabel+' ' + mathspeak).trim()
-          : mathspeak;
       ctrlr.textarea.attr('aria-label', '');
-      ctrlr.mathspeakSpan.text(newLabel);
+      ctrlr.mathspeakSpan.text((labelWithSuffix+' ' + mathspeak).trim());
     } else {
       ctrlr.textarea.attr(
         'aria-label',
-        (ctrlr.ariaLabel+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
+        (labelWithSuffix+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
     }
   };

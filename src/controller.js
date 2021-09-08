@@ -15,7 +15,7 @@ var Controller = P(function(_) {
     this.container = container;
     this.options = options;
 
-    this.ariaLabel = 'Math Input:';
+    this.ariaLabel = 'Math Input';
     this.ariaPostLabel = '';
 
     root.controller = this;
@@ -43,16 +43,29 @@ var Controller = P(function(_) {
   };
   _.setAriaLabel = function(ariaLabel) {
     if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
-      // If the supplied label doesn't end with a punctuation mark, add a colon by default.
-      var suffix = /[\d\l]$/.test(ariaLabel) ? ':' : '';
-      this.ariaLabel = ariaLabel + suffix;
+      this.ariaLabel = ariaLabel;
+    } else if (this.editable) {
+      this.ariaLabel = 'Math Input';
     } else {
-      this.ariaLabel = 'Math Input:';
+      this.ariaLabel = '';
+    }
+    // If this field doesn't have focus, update its computed mathspeak value.
+    // We check for focus because updating the aria-label attribute of a focused element will cause most screen readers to announce the new value (in our case, label along with the expression's mathspeak).
+    // If the field does have focus at the time, it will be updated once a blur event occurs.
+    // Unless we stop using fake text inputs and emulating screen reader behavior, this is going to remain a problem.
+    if (!this.containerHasFocus()) {
+      this.updateMathspeak();
     }
     return this;
   };
   _.getAriaLabel = function () {
-    return this.ariaLabel || 'Math Input:';
+    if (this.ariaLabel !== 'Math Input') {
+      return this.ariaLabel;
+    } else if (this.editable) {
+      return 'Math Input';
+    } else {
+      return '';
+    }
   };
   _.setAriaPostLabel = function(ariaPostLabel, timeout) {
     if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') {
@@ -62,7 +75,7 @@ var Controller = P(function(_) {
       ) {
         if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
         this._ariaAlertTimeout = setTimeout(function() {
-          if (!!$(document.activeElement).closest($(this.container)).length) {
+          if (this.containerHasFocus()) {
             aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
           }
         }.bind(this), timeout);
@@ -76,5 +89,13 @@ var Controller = P(function(_) {
   };
   _.getAriaPostLabel = function () {
     return this.ariaPostLabel || '';
+  };
+  _.containerHasFocus = function () {
+    return (
+      document.activeElement &&
+      this.container &&
+      this.container[0] &&
+      this.container[0].contains(document.activeElement)
+    );
   };
 });

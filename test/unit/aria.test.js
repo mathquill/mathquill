@@ -100,9 +100,9 @@ suite('aria', function() {
     mathField.keystroke('End');
     assertAriaEqual('end of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
     mathField.keystroke('Ctrl-Home');
-    assertAriaEqual('beginning of Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual('beginning of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
     mathField.keystroke('Ctrl-End');
-    assertAriaEqual('end of Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual('end of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
   });
 
   test('testing aria-label for interactive and static math', function(done) {
@@ -117,7 +117,7 @@ suite('aria', function() {
     assert.equal('', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
     assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
-    assert.equal('Static Label:', staticMath.getAriaLabel());
+    assert.equal('Static Label', staticMath.getAriaLabel());
     staticMath.latex('2+2');
     assert.equal('Static Label: 2 plus 2', staticMath.__controller.mathspeakSpan.text());
   });
