@@ -68,7 +68,7 @@ var Controller = P(function(_) {
     }
   };
   _.setAriaPostLabel = function(ariaPostLabel, timeout) {
-    if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel!='') {
+    if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel !== '') {
       if (
         ariaPostLabel !== this.ariaPostLabel &&
         typeof timeout === 'number'
