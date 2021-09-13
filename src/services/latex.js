@@ -118,10 +118,11 @@ Controller.open(function(_, super_) {
     }
   };
   _.renderLatexMathEfficiently = function (latex) {
-    var oldLatex, oldClassification;
+    var oldLatex = this.exportLatex();
+    if (latex === oldLatex) return true;
+    var oldClassification;
     var classification = this.classifyLatexForEfficientUpdate(latex);
     if (classification) {
-      oldLatex = this.exportLatex();
       oldClassification = this.classifyLatexForEfficientUpdate(oldLatex);
       if (!oldClassification || oldClassification.prefix !== classification.prefix) {
         return false;
