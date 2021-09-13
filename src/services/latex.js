@@ -119,10 +119,10 @@ Controller.open(function(_, super_) {
   };
   _.renderLatexMathEfficiently = function (latex) {
     var oldLatex = this.exportLatex();
-    if (latex === oldLatex) return true;
     var oldClassification;
     var classification = this.classifyLatexForEfficientUpdate(latex);
     if (classification) {
+      if (oldLatex === latex) return true;
       oldClassification = this.classifyLatexForEfficientUpdate(oldLatex);
       if (!oldClassification || oldClassification.prefix !== classification.prefix) {
         return false;
