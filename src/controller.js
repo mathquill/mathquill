@@ -42,6 +42,7 @@ var Controller = P(function(_) {
     return this;
   };
   _.setAriaLabel = function(ariaLabel) {
+    var oldAriaLabel = this.getAriaLabel();
     if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
       this.ariaLabel = ariaLabel;
     } else if (this.editable) {
@@ -53,7 +54,7 @@ var Controller = P(function(_) {
     // We check for focus because updating the aria-label attribute of a focused element will cause most screen readers to announce the new value (in our case, label along with the expression's mathspeak).
     // If the field does have focus at the time, it will be updated once a blur event occurs.
     // Unless we stop using fake text inputs and emulating screen reader behavior, this is going to remain a problem.
-    if (!this.containerHasFocus()) {
+    if (this.ariaLabel !== oldAriaLabel && !this.containerHasFocus()) {
       this.updateMathspeak();
     }
     return this;
@@ -76,7 +77,11 @@ var Controller = P(function(_) {
         if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
         this._ariaAlertTimeout = setTimeout(function() {
           if (this.containerHasFocus()) {
+            // Voice the new label, but do not update content mathspeak to prevent double-speech.
             aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
+            } else {
+            // This mathquill does not have focus, so update its mathspeak.
+            this.updateMathspeak();
           }
         }.bind(this), timeout);
       }
