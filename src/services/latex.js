@@ -270,7 +270,6 @@ Controller.open(function(_, super_) {
     return true;
   };
   _.renderLatexMathFromScratch = function (latex) {
-    this.rendered = true;
     var root = this.root, cursor = this.cursor;
     var all = Parser.all;
     var eof = Parser.eof;
