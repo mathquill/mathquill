@@ -34,14 +34,15 @@ suite('autoOperatorNames', function() {
       assertLatex('parsing \''+str+'\'', latex);
       assert.equal(count, 1);
 
+      // Since Latex doesn't change, count should remain at 1.
       mq.latex(latex);
       assertLatex('parsing \''+latex+'\'', latex);
-      assert.equal(count, 2);
+      assert.equal(count, 1);
 
       mq.latex('');
       for (var i = 0; i < str.length; i += 1) mq.typedText(str.charAt(i));
       assertLatex('typing \''+str+'\'', latex);
-      assert.equal(count, 2 + str.length);
+      assert.equal(count, 1 + str.length);
     }
 
     assertAutoOperatorNamesWork('sin', '\\sin');
