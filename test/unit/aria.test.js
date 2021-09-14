@@ -109,17 +109,17 @@ suite('aria', function() {
     mathField.typedText('sqrt(x)');
     mathField.blur();
     setTimeout(function() {
-      assert.equal(mathField.__controller.container.attr('aria-label'), 'Math Input:  "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+      assert.equal(mathField.__controller.textarea.attr('aria-label'), 'Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
       done();
     });
     var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
-    assert.equal('"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
-    assert.equal('Math Input', staticMath.getAriaLabel());
+    assert.equal('"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
+    assert.equal('', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
-    assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.container.attr('aria-label'));
+    assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
     assert.equal('Static Label', staticMath.getAriaLabel());
     staticMath.latex('2+2');
-    assert.equal('Static Label: 2 plus 2', staticMath.__controller.container.attr('aria-label'));
+    assert.equal('Static Label: 2 plus 2', staticMath.__controller.mathspeakSpan.text());
   });
 
 });

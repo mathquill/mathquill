@@ -529,18 +529,16 @@ API.StaticMath = function(APIClasses) {
           node.registerInnerField(innerFields, APIClasses.MathField);
         });
         // Force an ARIA label update to remain in sync with the new LaTeX value.
-        this.setAriaLabel(this.__controller.ariaLabel);
+        this.__controller.updateMathspeak();
       }
       return returned;
     };
     _.setAriaLabel = function(ariaLabel) {
-      this.__controller.ariaLabel = typeof ariaLabel === 'string' ? ariaLabel : '';
-      var prependedLabel = this.__controller.ariaLabel !== 'Math Input' ? this.__controller.ariaLabel + ': ' : '';
-      this.__controller.container.attr('aria-label', prependedLabel + this.__controller.root.mathspeak().trim());
+      this.__controller.setAriaLabel(ariaLabel);
       return this;
     };
     _.getAriaLabel = function () {
-      return this.__controller.ariaLabel || '';
+      return this.__controller.getAriaLabel();
     };
   });
 };

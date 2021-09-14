@@ -47,10 +47,12 @@ Controller.open(function(_) {
     this.selectFn(latex);
   };
   _.staticMathTextareaEvents = function() {
-    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor,
+    var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
+    this.container.prepend(this.mathspeakSpan);
     ctrlr.blurred = true;
     textarea.bind('cut paste', false);
     if (ctrlr.options.disableCopyPaste) {
@@ -71,28 +73,7 @@ Controller.open(function(_) {
       textarea.val(text);
       if (text) textarea.select();
     };
-    var ariaLabel = ctrlr && ctrlr.ariaLabel !== 'Math Input' ? ctrlr.ariaLabel + ': ' : '';
-    ctrlr.container.attr('aria-label', ariaLabel + root.mathspeak().trim());
-
-    // This is gross, but necessary.
-    // On Windows, ChromeOS, Android, and iOS, supplying role="math" allows users of
-    // JAWS, NVDA, ChromeVox, Talkback, and VoiceOver to read the mathspeak version of an equation
-    // which we supply as the container's aria-label attribute.
-    // Omitting role="math" makes the container invisible to JAWS and iOS VoiceOver.
-    // At time of writing (8/20/2019), the exact opposite is true of the Mac--
-    // Supplying role="math" makes the content of the container invisible to VoiceOver there,
-    // and omitting it makes the material available to Mac users.
-    // For now, the solution is to render role="math" unless the user is on Mac.
-    // Bug report: https://feedbackassistant.apple.com/feedback/7076111
-    // Update: As of 11/23/2020, this problem becomes slightly more complicated now that iOS 13+ on iPads masquerades as a Mac.
-    // The same work-around applies, but now we must detect a spoofed Mac.
-    // Technique based on https://stackoverflow.com/questions/57765958/how-to-detect-ipad-and-ipad-os-version-in-ios-13-and-up
-
-    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    var isIOS = (/iPad|iPhone|iPod/.test(userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) && !window.Stream;
-    var isMac = navigator.appVersion.indexOf("Mac") !== -1 && !isIOS;
-    if (!isMac)
-      ctrlr.container.attr('role', 'math');
+    this.updateMathspeak();
   };
   Options.p.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
@@ -102,6 +83,7 @@ Controller.open(function(_) {
     this.selectFn = function(text) { keyboardEventsShim.select(text); };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
+    this.updateMathspeak();
   };
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');
@@ -143,6 +125,32 @@ Controller.open(function(_) {
     this.scrollHoriz();
     if (this.options && this.options.onPaste) {
       this.options.onPaste();
+    }
+  };
+  _.updateMathspeak = function() {
+    var ctrlr = this;
+    // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
+    var ariaLabel = ctrlr.getAriaLabel();
+    var labelWithSuffix =
+      /[A-Za-z0-9]$/.test(ariaLabel)
+        ? ariaLabel + ':'
+        : ariaLabel;
+    var mathspeak = ctrlr.root.mathspeak().trim();
+    aria.jQ.empty();
+    // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
+    // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
+    // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
+    // By design, also take careful note that the ariaPostLabel is meant to exist only for editable math (e.g. to serve as an evaluation or error message)
+    // so it is not included for static math mathspeak calculations.
+    // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
+    if (!!ctrlr.mathspeakSpan) {
+      ctrlr.textarea.attr('aria-label', '');
+      ctrlr.mathspeakSpan.text((labelWithSuffix+' ' + mathspeak).trim());
+    } else {
+      ctrlr.textarea.attr(
+        'aria-label',
+        (labelWithSuffix+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
+      );
     }
   };
 });

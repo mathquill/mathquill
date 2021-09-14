@@ -32,7 +32,7 @@ Controller.open(function(_) {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
-      updateAria();
+      ctrlr.updateMathspeak();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
       ctrlr.container.addClass('mq-focused');
@@ -56,7 +56,7 @@ Controller.open(function(_) {
         root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
         cursor.clearSelection().endSelection();
         blur();
-        updateAria();
+        ctrlr.updateMathspeak();
         ctrlr.scrollHoriz();
       });
       $(window).bind('blur', windowBlur);
@@ -65,7 +65,7 @@ Controller.open(function(_) {
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
       if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
       blur();
-      updateAria();
+      ctrlr.updateMathspeak();
     }
     function blur() { // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
@@ -76,13 +76,6 @@ Controller.open(function(_) {
         cursor.resetToEnd(ctrlr);
       }
     }
-    function updateAria() {
-      var mqAria = (ctrlr.ariaLabel+': ' + root.mathspeak() + ' ' + ctrlr.ariaPostLabel).trim();
-      aria.jQ.empty();
-      ctrlr.textarea.attr('aria-label', mqAria);
-      ctrlr.container.attr('aria-label', mqAria);
-    }
-    updateAria();
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };

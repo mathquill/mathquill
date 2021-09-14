@@ -286,13 +286,10 @@ Controller.open(function(_, super_) {
       jQ.html(html);
       root.jQize(jQ.children());
       root.finalizeInsert(cursor.options);
-    }
-    else {
+    } else {
       jQ.empty();
     }
-    var prependedLabel = this.ariaLabel && this.ariaLabel !== 'Math Input' ? this.ariaLabel + ': ' : '';
-    this.container.attr('aria-label', prependedLabel + root.mathspeak().trim());
-
+    this.updateMathspeak();
     delete cursor.selection;
     cursor.insAtRightEnd(root);
   };
