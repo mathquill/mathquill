@@ -118,10 +118,14 @@ Controller.open(function(_, super_) {
     }
   };
   _.renderLatexMathEfficiently = function (latex) {
-    var oldLatex, oldClassification;
+    var root = this.root;
+    var oldLatex = this.exportLatex();
+    if (root.ends[L] && root.ends[R] && oldLatex === latex) {
+      return true;
+    }
+    var oldClassification;
     var classification = this.classifyLatexForEfficientUpdate(latex);
     if (classification) {
-      oldLatex = this.exportLatex();
       oldClassification = this.classifyLatexForEfficientUpdate(oldLatex);
       if (!oldClassification || oldClassification.prefix !== classification.prefix) {
         return false;
@@ -130,7 +134,6 @@ Controller.open(function(_, super_) {
       return false;
     }
 
-    var root = this.root;
 
     // check if minus sign is changing
     var oldDigits = oldClassification.digits;
