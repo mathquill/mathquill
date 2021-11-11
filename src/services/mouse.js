@@ -87,7 +87,7 @@ Controller.open(function(_) {
 
       if (ctrlr.blurred) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
-        textarea.focus();
+        textarea[0].focus();
         // focus call may bubble to clients, who may then write to
         // mathquill, triggering cancelSelectionOnEdit. If that happens, we
         // don't want to stop the cursor blink or bind listeners,
