@@ -154,7 +154,7 @@ function getInterface(v) {
       return this;
     };
     _.focus = function() {
-      this.__controller.textarea.focus();
+      this.__controller.textarea[0].focus();
       this.__controller.scrollHoriz();
       return this;
     };

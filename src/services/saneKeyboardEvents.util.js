@@ -282,7 +282,7 @@ var saneKeyboardEvents = (function() {
       //
       // And by nifty, we mean dumb (but useful sometimes).
       if (document.activeElement !== textarea[0]) {
-        textarea.focus();
+        textarea[0].focus();
       }
 
       checkTextareaFor(pastedText);
