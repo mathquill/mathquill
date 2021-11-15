@@ -1,25 +1,63 @@
 Controller.open(function(_) {
+  this.onNotify(function (e) {
+    // these try to cover all ways that mathquill can be modified
+    if (e === 'edit' || e === 'replace' || e === undefined) {
+      var controller = this.controller;
+      if (!controller) return;
+      if (!controller.options.enableDigitGrouping) return;
+
+      // blurred === false means we are focused. blurred === true or
+      // blurred === undefined means we are not focused.
+      if (controller.blurred !== false) return;
+
+      controller.disableGroupingForSeconds(1);
+    }
+  });
+
+  _.disableGroupingForSeconds = function (seconds) {
+    clearTimeout(this.__disableGroupingTimeout);
+    var jQ = this.root.jQ;
+
+    if (seconds === 0) {
+      jQ.removeClass('mq-suppress-grouping');
+    } else {
+      jQ.addClass('mq-suppress-grouping');
+      this.__disableGroupingTimeout = setTimeout(function () {
+        jQ.removeClass('mq-suppress-grouping');
+      }, seconds * 1000);
+    }
+  }
+
   _.focusBlurEvents = function() {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
+      ctrlr.updateMathspeak();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
       ctrlr.container.addClass('mq-focused');
-      if (!cursor.parent)
-        cursor.insAtRightEnd(root);
+      if (!cursor.parent) cursor.insAtRightEnd(root);
       if (cursor.selection) {
         cursor.selection.jQ.removeClass('mq-blur');
         ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
-      }
-      else
+      } else {
         cursor.show();
+      }
+      ctrlr.setOverflowClasses();
+
     }).blur(function() {
+      if (ctrlr.textareaSelectionTimeout) {
+        clearTimeout(ctrlr.textareaSelectionTimeout);
+        ctrlr.textareaSelectionTimeout = undefined;
+      }
+      ctrlr.disableGroupingForSeconds(0);
       ctrlr.blurred = true;
       blurTimeout = setTimeout(function() { // wait for blur on window; if
-        root.postOrder('intentionalBlur'); // none, intentional blur: #264
+        root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
         cursor.clearSelection().endSelection();
         blur();
+        ctrlr.updateMathspeak();
+        ctrlr.scrollHoriz();
       });
       $(window).bind('blur', windowBlur);
     });
@@ -27,11 +65,16 @@ Controller.open(function(_) {
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
       if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
       blur();
+      ctrlr.updateMathspeak();
     }
     function blur() { // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(); // synchronous with/in the same frame as
       ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
+
+      if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {
+        cursor.resetToEnd(ctrlr);
+      }
     }
     ctrlr.blurred = true;
     cursor.hide().parent.blur();

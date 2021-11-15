@@ -1,7 +1,7 @@
 .mq-editable-field {
   .inline-block;
   .mq-cursor {
-    border-left: 1px solid black;
+    border-left: 1px solid currentColor;
     margin-left: -1px;
     position: relative;
     z-index: 1;
@@ -19,7 +19,7 @@
     &.mq-focused {
       .box-shadow(~"#8bd 0 0 1px 2px, inset #6ae 0 0 2px 0");
       border-color: #709AC0;
-      border-radius: 1px;
+      aria-hidden: true;
     }
   }
 // special styles for editables within static math

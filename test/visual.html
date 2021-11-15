@@ -2,6 +2,7 @@
 <html>
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=624">
 
 <title>MathQuill Test Page</title>
@@ -43,8 +44,7 @@ td {
 }
 
 /* Non-white background test */
-.different-bgcolor.mq-editable-field,
-.different-bgcolor.mq-editable-field .mq-matrixed {
+.different-bgcolor.mq-editable-field {
   background: black;
   color: white;
 }
@@ -285,9 +285,9 @@ x+\class{testclass}{y}+z
 
 <p>In Safari on iOS, this should be focusable but not bring up the on-screen keyboard; to test, try focusing anything else and confirm this blurs: <span id="no-kbd-math"></span> (confirmed working on iOS 6.1.3)</p>
 
-<h3>substituteKeyboardEvents</h3>
+<h3>overrideKeystroke and overrideTypedText</h3>
 
-<p>Should be able to prevent cut, typing, and pasting in this field: <span id="disable-typing">1+2+3</span></p>
+<p>Should be able to prevent typing in this field: <span id="disable-typing">1+2+3</span></p>
 
 <p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing">1+2+3</span></p>
 
@@ -296,6 +296,29 @@ x+\class{testclass}{y}+z
 <p>Spaces at the beginning and end of text mode blocks should be visible: <span class="mathquill-static-math">1\text{ And }2</span></p>
 
 <p>Mutiple consecutive spaces in the middle of a text mode block should not collapse into one space: <span class="mathquill-static-math">\text{three   spaces}</span></p>
+<p>
+  <ul>
+      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
+      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+
+  </ul
+  ><span id="select-all-right-arrow">3</span>
+</p>
+
+<h3>substituteKeyboardEvents (legacy, use overrideKeystroke and overrideTypedText instead)</h3>
+
+<p>Should be able to prevent cut, typing, and pasting in this field: <span id="disable-typing-ske">1+2+3</span></p>
+
+<p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing-ske">1+2+3</span></p>
+
+<p>
+  <ul>
+      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
+      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+
+  </ul
+  ><span id="select-all-right-arrow-ske">3</span>
+</p>
 
 </div>
 <script type="text/javascript">
@@ -470,6 +493,24 @@ MQ.MathField($('#no-kbd-math')[0], {
 });
 
 MQ.MathField($('#disable-typing')[0], {
+  overrideTypedText: $.noop,
+});
+
+var OTTMQ = MQ.MathField($('#wrap-typing')[0], {
+  overrideTypedText: function (text) {
+    OTTMQ.typedText('<');
+    OTTMQ.typedText(text);
+    OTTMQ.typedText('>');
+  }
+});
+
+var OKSMQ = MQ.MathField($('#select-all-right-arrow')[0], {
+  overrideKeystroke: function (key) {
+    OKSMQ.keystroke(key);
+  }
+});
+
+MQ.MathField($('#disable-typing-ske')[0], {
   substituteKeyboardEvents: function(textarea, handlers) {
     return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
       cut: $.noop,
@@ -480,13 +521,23 @@ MQ.MathField($('#disable-typing')[0], {
   }
 });
 
-MQ.MathField($('#wrap-typing')[0], {
+var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
   substituteKeyboardEvents: function(textarea, handlers) {
     return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
       typedText: function (text) {
-        handlers.typedText('<');
-        handlers.typedText(text);
-        handlers.typedText('>');
+        SKEMQ1.typedText('<');
+        SKEMQ1.typedText(text);
+        SKEMQ1.typedText('>');
+      }
+    }));
+  }
+});
+
+var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
+  substituteKeyboardEvents: function(textarea, handlers) {
+    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
+      keystroke: function (key) {
+        SKEMQ2.keystroke(key);
       }
     }));
   }

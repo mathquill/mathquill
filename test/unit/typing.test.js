@@ -18,6 +18,13 @@ suite('typing with auto-replaces', function() {
     assert.equal(mq.latex(), latex);
   }
 
+  function assertMathspeak(mathspeak) {
+    assert.equal(normalize(mq.mathspeak()), normalize(mathspeak));
+    function normalize(str) {
+      return str.replace(/\d(?!\d)/g, '$& ').split(/[ ,]+/).join(' ').trim();
+    }
+  }
+
   suite('LiveFraction', function() {
     test('full MathQuill', function() {
       mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
@@ -32,6 +39,15 @@ suite('typing with auto-replaces', function() {
       var mq_basic = MQBasic.MathField($('<span></span>').appendTo('#mock')[0]);
       mq_basic.typedText('1/2');
       assert.equal(mq_basic.latex(), '\\frac{1}{2}');
+    });
+  });
+
+  suite('EquivalentMinus', function() {
+    test('different minus symbols', function() {
+      //these 4 are all different characters (!!)
+      mq.typedText('−—–-');
+      //these 4 are all the same character
+      assertLatex('----');
     });
   });
 
@@ -53,7 +69,7 @@ suite('typing with auto-replaces', function() {
 
     test('auto-operator names', function() {
       mq.typedText('\\sin^2');
-      assertLatex('\\sin^2');
+      assertLatex('\\sin^{2}');
     });
 
     test('nonexistent LaTeX command', function() {
@@ -74,6 +90,185 @@ suite('typing with auto-replaces', function() {
     test('\\text followed by command', function() {
       mq.typedText('\\text{');
       assertLatex('\\text{\\{}');
+    });
+  });
+
+  suite('MathspeakShorthand', function() {
+    test('fractions', function() {
+      // Testing singular numeric fractions from 1/2 to 1/10
+      mq.latex('\\frac{1}{2}');
+      assertMathspeak('1 half');
+      mq.latex('\\frac{1}{3}');
+      assertMathspeak('1 third');
+      mq.latex('\\frac{1}{4}');
+      assertMathspeak('1 quarter');
+      mq.latex('\\frac{1}{5}');
+      assertMathspeak('1 fifth');
+      mq.latex('\\frac{1}{6}');
+      assertMathspeak('1 sixth');
+      mq.latex('\\frac{1}{7}');
+      assertMathspeak('1 seventh');
+      mq.latex('\\frac{1}{8}');
+      assertMathspeak('1 eighth');
+      mq.latex('\\frac{1}{9}');
+      assertMathspeak('1 ninth');
+      mq.latex('\\frac{1}{10}');
+      assertMathspeak('StartFraction, 1 Over 10, EndFraction');
+
+      // Testing plural numeric fractions from 31/2 to 31/10
+      mq.latex('\\frac{31}{2}');
+      assertMathspeak('31 halves');
+      mq.latex('\\frac{31}{3}');
+      assertMathspeak('31 thirds');
+      mq.latex('\\frac{31}{4}');
+      assertMathspeak('31 quarters');
+      mq.latex('\\frac{31}{5}');
+      assertMathspeak('31 fifths');
+      mq.latex('\\frac{31}{6}');
+      assertMathspeak('31 sixths');
+      mq.latex('\\frac{31}{7}');
+      assertMathspeak('31 sevenths');
+      mq.latex('\\frac{31}{8}');
+      assertMathspeak('31 eighths');
+      mq.latex('\\frac{31}{9}');
+      assertMathspeak('31 ninths');
+      mq.latex('\\frac{31}{10}');
+      assertMathspeak('StartFraction, 31 Over 10, EndFraction');
+
+      // Fractions with negative numerators should be shortened
+      mq.latex('\\frac{-1}{2}');
+      assertMathspeak('negative 1 half');
+      mq.latex('\\frac{-3}{2}');
+      assertMathspeak('negative 3 halves');
+      mq.latex('-\\frac{3}{4}');
+      assertMathspeak('negative 3 quarters');
+
+      // Fractions with negative denominators should not be shortened
+      mq.latex('\\frac{1}{-2}');
+      assertMathspeak('StartFraction, 1 Over negative 2, EndFraction');
+
+      // Traditional fractions should be spoken if either numerator or denominator are not numeric
+      mq.latex('\\frac{x}{2}');
+      assertMathspeak('StartFraction, "x" Over 2, EndFraction');
+      mq.latex('\\frac{2}{x}');
+      assertMathspeak('StartFraction, 2 Over "x", EndFraction');
+
+      // Traditional fractions should be spoken if either numerator or denominator are not whole numbers
+      mq.latex('\\frac{1.2}{2}');
+      assertMathspeak('StartFraction, 1.2 Over 2, EndFraction');
+      mq.latex('\\frac{4}{2.3}');
+      assertMathspeak('StartFraction, 4 Over 2.3, EndFraction');
+
+      // A whole number followed by a shortened fraction should include the word "and", and other combinations should not.
+      mq.latex('3\\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3\\ \\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3\\ \\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3 and 3 eighths');
+      mq.latex('3.1\\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('3.1\\ \\ \\ \\ \\frac{3}{8}');
+      assertMathspeak('3.1 3 eighths');
+      mq.latex('\\ \\frac{1}{2}');
+      assertMathspeak('1 half');
+      mq.latex('3\\frac{3}{x}');
+      assertMathspeak('3 StartFraction, 3 Over "x", EndFraction');
+      mq.latex('x\\frac{3}{8}');
+      assertMathspeak('"x" 3 eighths');
+    });
+
+    test('exponents', function() {
+      // Test simple superscripts and suffix rules
+      mq.latex('x^{0}');
+      assertMathspeak('"x" to the 0 power');
+      mq.latex('x^{1}');
+      assertMathspeak('"x" to the 1st power');
+      mq.latex('x^{2}');
+      assertMathspeak('"x" squared');
+      mq.latex('x^{3}');
+      assertMathspeak('"x" cubed');
+      mq.latex('x^{4}');
+      assertMathspeak('"x" to the 4th power');
+      mq.latex('x^{5}');
+      assertMathspeak('"x" to the 5th power');
+      mq.latex('x^{6}');
+      assertMathspeak('"x" to the 6th power');
+      mq.latex('x^{7}');
+      assertMathspeak('"x" to the 7th power');
+      mq.latex('x^{8}');
+      assertMathspeak('"x" to the 8th power');
+      mq.latex('x^{9}');
+      assertMathspeak('"x" to the 9th power');
+      mq.latex('x^{10}');
+      assertMathspeak('"x" to the 10th power');
+      mq.latex('x^{11}');
+      assertMathspeak('"x" to the 11th power');
+      mq.latex('x^{12}');
+      assertMathspeak('"x" to the 12th power');
+      mq.latex('x^{13}');
+      assertMathspeak('"x" to the 13th power');
+      mq.latex('x^{14}');
+      assertMathspeak('"x" to the 14th power');
+      mq.latex('x^{21}');
+      assertMathspeak('"x" to the 21st power');
+      mq.latex('x^{22}');
+      assertMathspeak('"x" to the 22nd power');
+      mq.latex('x^{23}');
+      assertMathspeak('"x" to the 23rd power');
+      mq.latex('x^{999}');
+      assertMathspeak('"x" to the 999th power');
+      // Values greater than 1000 have no suffix
+      mq.latex('x^{1000}');
+      assertMathspeak('"x" to the 1000 power');
+      mq.latex('x^{10000000000}');
+      assertMathspeak('"x" to the 10000000000 power');
+
+      // Ensure negative exponents are shortened
+      mq.latex('10^{-5}');
+      assertMathspeak('10 to the negative 5th power');
+      mq.latex('x^{-5}');
+      assertMathspeak('"x" to the negative 5th power');
+
+      // Superscripts that are not strictly integers should continue to be spoken in longer form
+      mq.latex('x^{5.3}');
+      assertMathspeak('"x" Superscript, 5.3, Baseline');
+      mq.latex('x^{y}');
+      assertMathspeak('"x" Superscript, "y", Baseline');
+      mq.latex('x^{y^{2}}');
+      assertMathspeak('"x" Superscript, "y" squared, Baseline');
+    });
+
+    test('plus and minus differentiation', function() {
+      // Distinguish between positive vs plus and negative vs. minus
+      mq.latex('-25-25');
+      assertMathspeak('negative 25 minus 25');
+      mq.latex('+25+25');
+      assertMathspeak('positive 25 plus 25');
+    });
+
+    test('styled text', function() {
+      // Test that text-related elements include sensible mathspeak.
+      // Letters in a non-wrapped block should be split apart (interpreted as variables):
+      mq.latex('this is a test');
+      assertMathspeak('"t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t"');
+      // Contents of a text block should be returned exactly as entered with no start and end delimiters spoken:
+      mq.latex('\\text{this is a test}');
+      assertMathspeak('this is a test');
+      // Specifically for mathrm, don't split characters and also don't speak delimiters.
+      // note content is still interpreted as LaTeX, so we use \ to separate words:
+      mq.latex('\\mathrm{this\\ is\\ a\\ test}');
+      assertMathspeak('this is a test');
+      // Any other font command should be spoken "normally"--
+      // letters are split and delimiters are announced for remaining commands:
+      mq.latex('\\mathit{this\\ is\\ a\\ test}');
+      assertMathspeak('StartItalic Font "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" EndItalic Font');
+      mq.latex('\\textcolor{red}{this\\ is\\ a\\ test}');
+      assertMathspeak('Start red "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" End red');
+      mq.latex('\\class{abc}{this\\ is\\ a\\ test}');
+      assertMathspeak('Start abc class "t" "h" "i" "s" "i" "s" "a" "t" "e" "s" "t" End abc class');
     });
   });
 
@@ -849,11 +1044,98 @@ suite('typing with auto-replaces', function() {
     });
   });
 
+  suite('autoParenthesizedFunctions', function() {
+    setup(function() {
+      mq.config({
+        autoParenthesizedFunctions: 'sin cos tan ln',
+        autoOperatorNames: 'sin ln',
+        autoCommands: 'sum int'
+      });
+    });
+
+    test('individual commands', function(){
+      //autoParenthesized and also operatored
+      mq.typedText('sin')
+      assertLatex('\\sin\\left(\\right)');
+      mq.latex('')
+      //not parenthesized
+      mq.typedText('cot')
+      assertLatex('cot');
+      mq.latex('')
+      //we don't autoparenthesize non-autocommands
+      mq.typedText('tan')
+      assertLatex('tan');
+      mq.latex('')
+      //doesn't parenthesize when the middle is completed
+      mq.typedText('tn')
+      mq.keystroke('Left')
+      mq.typedText('a')
+      assertLatex('tan');
+
+      mq.latex('')
+      //doesn't parenthesize when the middle is completed, but does autoFn
+      mq.typedText('sn')
+      mq.keystroke('Left')
+      mq.typedText('i')
+      assertLatex('\\sin');
+    });
+
+    test('does not double parenthesize if parenthesized', function () {
+      //autoParenthesized and also operatored
+      mq.typedText('sin')
+      assertLatex('\\sin\\left(\\right)');
+      mq.keystroke('Left')
+      mq.keystroke('Backspace')
+      mq.typedText('n')
+      assertLatex('\\sin\\left(\\right)');
+    })
+
+    test('works in \\sum', function () {
+      mq.typedText('sum')
+      assertLatex('\\sum_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\sum_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('works in \\int', function () {
+      mq.typedText('int')
+      assertLatex('\\int_{ }^{ }');
+      mq.typedText('sin')
+      assertLatex('\\int_{\\sin\\left(\\right)}^{ }');
+    })
+
+    test('does not work in simple subscripts', function () {
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('sin')
+      assertLatex('x_{sin}');
+    })
+
+    test('does not work in simple subscripts when pasting', function () {
+      $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+      assertLatex('x_{sin}');
+    })
+  });
+
+  suite('typingSlashCreatesNewFraction', function() {
+    setup(function() {
+      mq.config({
+        typingSlashCreatesNewFraction: true
+      });
+    });
+
+    test('typing slash creates new fraction', function(){
+      //autoParenthesized and also operatored
+      mq.typedText('1/')
+      assertLatex('1\\frac{ }{ }');
+    });
+  });
+
   suite('autoCommands', function() {
     setup(function() {
       mq.config({
         autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot'
+        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
       });
     });
 
@@ -876,6 +1158,7 @@ suite('typing with auto-replaces', function() {
       mq.typedText('nthroot');
       mq.typedText('n').keystroke('Right').typedText('100').keystroke('Right');
       assertLatex('\\sqrt[n]{100}');
+      assertMathspeak('Root Index "n" Start Root 100 End Root');
       mq.keystroke('Ctrl-Backspace');
 
       mq.typedText('pi');
@@ -897,6 +1180,16 @@ suite('typing with auto-replaces', function() {
       mq.typedText('Gamma');
       assertLatex('\\Gamma');
       mq.keystroke('Backspace');
+
+      mq.typedText('percent');
+      assertLatex('\\%\\operatorname{of}');
+      mq.keystroke('Backspace');
+
+      mq.typedText('cbrt');
+      assertLatex('\\sqrt[3]{}');
+      assertMathspeak('Start Cube Root End Cube Root');
+      mq.typedText('pi');
+      assertLatex('\\sqrt[3]{\\pi}');
     });
 
     test('sequences of auto-commands and other assorted characters', function() {
@@ -975,55 +1268,134 @@ suite('typing with auto-replaces', function() {
     // but also that when you backspace you get the right state such that
     // you can either type = again to get the non-strict inequality again,
     // or backspace again and it'll delete correctly.
-    function assertFullyFunctioningInequality(nonStrict, strict) {
+    function assertFullyFunctioningInequality(nonStrict, strict, nonStrictMathspeak, strictMathspeak) {
       assertLatex(nonStrict);
+      assertMathspeak(nonStrictMathspeak);
       mq.keystroke('Backspace');
       assertLatex(strict);
+      assertMathspeak(strictMathspeak);
       mq.typedText('=');
       assertLatex(nonStrict);
+      assertMathspeak(nonStrictMathspeak);
       mq.keystroke('Backspace');
       assertLatex(strict);
+      assertMathspeak(strictMathspeak);
       mq.keystroke('Backspace');
       assertLatex('');
+      assertMathspeak('');
     }
     test('typing and backspacing <= and >=', function() {
       mq.typedText('<');
       assertLatex('<');
+      assertMathspeak('less than');
       mq.typedText('=');
-      assertFullyFunctioningInequality('\\le', '<');
+      assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
       mq.typedText('>');
       assertLatex('>');
       mq.typedText('=');
-      assertFullyFunctioningInequality('\\ge', '>');
+      assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
 
       mq.typedText('<<>>==>><<==');
       assertLatex('<<>\\ge=>><\\le=');
+      assertMathspeak('less than less than greater than greater than or equal to equals greater than greater than less than less than or equal to equals');
     });
 
     test('typing ≤ and ≥ chars directly', function() {
       mq.typedText('≤');
-      assertFullyFunctioningInequality('\\le', '<');
+      assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
       mq.typedText('≥');
-      assertFullyFunctioningInequality('\\ge', '>');
+      assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
+    });
+
+    test('typing and backspacing \\to', function() {
+      mq.typedText('-');
+      assertLatex('-');
+      assertMathspeak('negative');
+      mq.typedText('>');
+      assertLatex('\\to');
+      assertMathspeak('to');
+      mq.typedText('-');
+      assertLatex('\\to-');
+      assertMathspeak('to negative');
+      mq.typedText('>');
+      assertLatex('\\to\\to');
+      assertMathspeak('to to');
+      mq.keystroke('Backspace');
+      assertLatex('\\to-');
+      assertMathspeak('to negative');
+      mq.keystroke('Backspace');
+      assertLatex('\\to');
+      assertMathspeak('to');
+      mq.keystroke('Backspace');
+      assertLatex('-');
+      assertMathspeak('negative');
+      mq.keystroke('Backspace');
+      mq.typedText('a->b');
+      assertLatex('a\\to b');
+      assertMathspeak('"a" to "b"');
+      mq.latex('');
+      mq.typedText('a→b');
+      assertLatex('a\\to b');
+      assertMathspeak('"a" to "b"');
+    });
+
+    test('typing and backspacing ~', function() {
+      mq.typedText('~');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
+      mq.typedText('~');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.typedText('~');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.typedText('~');
+      assertLatex('\\approx\\approx');
+      assertMathspeak('approximately equal approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx\\sim');
+      assertMathspeak('approximately equal tilde');
+      mq.keystroke('Backspace');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
+      mq.keystroke('Backspace');
+      mq.typedText('a~b');
+      assertLatex('a\\sim b');
+      assertMathspeak('"a" tilde "b"');
+      mq.keystroke('Backspace');
+      mq.typedText('~b');
+      assertLatex('a\\approx b');
+      assertMathspeak('"a" approximately equal "b"');
+    });
+    test('typing ≈ char directly', function() {
+      mq.typedText('≈');
+      assertLatex('\\approx');
+      assertMathspeak('approximately equal');
+      mq.keystroke('Backspace');
+      assertLatex('\\sim');
+      assertMathspeak('tilde');
     });
 
     suite('rendered from LaTeX', function() {
       test('control sequences', function() {
         mq.latex('\\le');
-        assertFullyFunctioningInequality('\\le', '<');
+        assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
         mq.latex('\\ge');
-        assertFullyFunctioningInequality('\\ge', '>');
+        assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
       });
 
       test('≤ and ≥ chars', function() {
         mq.latex('≤');
-        assertFullyFunctioningInequality('\\le', '<');
+        assertFullyFunctioningInequality('\\le', '<', 'less than or equal to', 'less than');
 
         mq.latex('≥');
-        assertFullyFunctioningInequality('\\ge', '>');
+        assertFullyFunctioningInequality('\\ge', '>', 'greater than or equal to', 'greater than');
       });
     });
   });
@@ -1060,22 +1432,22 @@ suite('typing with auto-replaces', function() {
     });
     test('supSubsRequireOperand', function() {
       assert.equal(mq.typedText('^').latex(), '^{ }');
-      assert.equal(mq.typedText('2').latex(), '^2');
+      assert.equal(mq.typedText('2').latex(), '^{2}');
       assert.equal(mq.typedText('n').latex(), '^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('^').latex(), 'x^{^{ }}');
-      assert.equal(mq.typedText('2').latex(), 'x^{^2}');
+      assert.equal(mq.typedText('2').latex(), 'x^{^{2}}');
       assert.equal(mq.typedText('n').latex(), 'x^{^{2n}}');
       mq.latex('');
       assert.equal(mq.typedText('2').latex(), '2');
-      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^{2}');
 
       mq.latex('');
       MQ.config({ supSubsRequireOperand: true });
@@ -1086,17 +1458,17 @@ suite('typing with auto-replaces', function() {
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('x').latex(), 'x');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
       assert.equal(mq.typedText('^').latex(), 'x^{ }');
-      assert.equal(mq.typedText('2').latex(), 'x^2');
+      assert.equal(mq.typedText('2').latex(), 'x^{2}');
       assert.equal(mq.typedText('n').latex(), 'x^{2n}');
       mq.latex('');
       assert.equal(mq.typedText('2').latex(), '2');
-      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^2');
+      assert.equal(mq.keystroke('Shift-Left').typedText('^').latex(), '^{2}');
     });
   });
 
@@ -1120,4 +1492,31 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\times');
     });
   });
+
+  suite('typingPercentWritesPercentOf', function () {
+    test('typingSlashWritesDivisionSymbol', function () {
+      mq.typedText('%');
+      assertLatex('\\%');
+      mq.keystroke('Backspace');
+
+      mq.config({ typingPercentWritesPercentOf: true });
+
+      mq.typedText('%');
+      assertLatex('\\%\\operatorname{of}');
+      mq.keystroke('Backspace');
+      assertLatex('');
+    });
+
+    test('percentof round trips correctly through serializing and parsing', function () {
+      mq.latex('\\%\\operatorname{of}');
+      assertLatex('\\%\\operatorname{of}');
+    });
+
+    test('overline renders as expected', function() {
+      mq.latex('0.3\\overline{5}');
+      assertLatex('0.3\\overline{5}');
+      assertMathspeak('0 .3 StartOverline 5 EndOverline');
+    });
+  });
 });
+

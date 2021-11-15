@@ -88,12 +88,12 @@ var saneKeyboardEvents = (function() {
 
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function saneKeyboardEvents(el, handlers) {
+  return function saneKeyboardEvents(el, controller) {
     var keydown = null;
     var keypress = null;
 
     var textarea = jQuery(el);
-    var target = jQuery(handlers.container || textarea);
+    var target = jQuery(controller.container || textarea);
 
     // checkTextareaFor() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,
@@ -116,8 +116,20 @@ var saneKeyboardEvents = (function() {
         checker(e);
       });
     }
-    target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
+    target.bind('keydown keypress input keyup paste', function(e) {
+      checkTextarea(e);
+    });
 
+    function guardedTextareaSelect () {
+      try {
+        // IE can throw an 'Incorrect Function' error if you
+        // try to select a textarea that is hidden. It seems
+        // likely that we don't really care if the selection
+        // fails to happen in this case. Why would the textarea
+        // be hidden? And who would even be able to tell?
+        textarea[0].select();
+      } catch (e) {};
+    }
 
     // -*- public methods -*- //
     function select(text) {
@@ -129,7 +141,7 @@ var saneKeyboardEvents = (function() {
       clearTimeout(timeoutId);
 
       textarea.val(text);
-      if (text && textarea[0].select) textarea[0].select();
+      if (text) guardedTextareaSelect();
       shouldBeSelected = !!text;
     }
     var shouldBeSelected = false;
@@ -147,7 +159,11 @@ var saneKeyboardEvents = (function() {
     }
 
     function handleKey() {
-      handlers.keystroke(stringify(keydown), keydown);
+      if (controller.options && controller.options.overrideKeystroke) {
+        controller.options.overrideKeystroke(stringify(keydown), keydown);
+      } else {
+        controller.keystroke(stringify(keydown), keydown);
+      }
     }
 
     // -*- event handlers -*- //
@@ -158,16 +174,31 @@ var saneKeyboardEvents = (function() {
       keypress = null;
 
       if (shouldBeSelected) checkTextareaOnce(function(e) {
-        if (!(e && e.type === 'focusout') && textarea[0].select) {
+        if (!(e && e.type === 'focusout')) {
           // re-select textarea in case it's an unrecognized key that clears
           // the selection, then never again, 'cos next thing might be blur
-          textarea[0].select();
+          guardedTextareaSelect()
         }
       });
 
       handleKey();
     }
 
+    function isArrowKey (e) {
+      if (!e || !e.originalEvent) return false;
+
+      // The keyPress event in FF reports which=0 for some reason. The new
+      // .key property seems to report reasonable results, so we're using that
+      switch (e.originalEvent.key) {
+        case 'ArrowRight':
+        case 'ArrowLeft':
+        case 'ArrowDown':
+        case 'ArrowUp':
+          return true;
+      }
+
+      return false;
+    }
     function onKeypress(e) {
       if (e.target !== textarea[0]) return;
 
@@ -179,13 +210,28 @@ var saneKeyboardEvents = (function() {
 
       keypress = e;
 
-      checkTextareaFor(typedText);
+      // only check for typed text if this key can type text. Otherwise
+      // you can end up with mathquill thinking text was typed if you
+      // use the mq.keystroke('Right') command while a single character
+      // is selected. Only detected in FF.
+      if (!isArrowKey(e)) {
+        checkTextareaFor(typedText);
+      }
     }
     function onKeyup(e) {
       if (e.target !== textarea[0]) return;
 
       // Handle case of no keypress event being sent
-      if (!!keydown && !keypress) checkTextareaFor(typedText);
+      if (!!keydown && !keypress) {
+
+        // only check for typed text if this key can type text. Otherwise
+        // you can end up with mathquill thinking text was typed if you
+        // use the mq.keystroke('Right') command while a single character
+        // is selected. Only detected in FF.
+        if (!isArrowKey(e)) {
+          checkTextareaFor(typedText);
+        }
+      }
     }
     function typedText() {
       // If there is a selection, the contents of the textarea couldn't
@@ -210,13 +256,23 @@ var saneKeyboardEvents = (function() {
       var text = textarea.val();
       if (text.length === 1) {
         textarea.val('');
-        handlers.typedText(text);
+        if (controller.options && controller.options.overrideTypedText) {
+          controller.options.overrideTypedText(text);
+        } else {
+          controller.typedText(text);
+        }
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
-      else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
+      else if (text) guardedTextareaSelect(); // re-select if that's why we're here
     }
 
-    function onBlur() { keydown = keypress = null; }
+    function onBlur() {
+      keydown = null;
+      keypress = null;
+      checkTextarea = noop;
+      clearTimeout(timeoutId);
+      textarea.val('');
+    }
 
     function onPaste(e) {
       if (e.target !== textarea[0]) return;
@@ -234,7 +290,7 @@ var saneKeyboardEvents = (function() {
       //
       // And by nifty, we mean dumb (but useful sometimes).
       if (document.activeElement !== textarea[0]) {
-        textarea.focus();
+        textarea[0].focus();
       }
 
       checkTextareaFor(pastedText);
@@ -242,19 +298,32 @@ var saneKeyboardEvents = (function() {
     function pastedText() {
       var text = textarea.val();
       textarea.val('');
-      if (text) handlers.paste(text);
+      if (text) controller.paste(text);
     }
 
     // -*- attach event handlers -*- //
-    target.bind({
-      keydown: onKeydown,
-      keypress: onKeypress,
-      keyup: onKeyup,
-      focusout: onBlur,
-      cut: function() { checkTextareaOnce(function() { handlers.cut(); }); },
-      copy: function() { checkTextareaOnce(function() { handlers.copy(); }); },
-      paste: onPaste
-    });
+
+    if (controller.options && controller.options.disableCopyPaste) {
+      target.bind({
+        keydown: onKeydown,
+        keypress: onKeypress,
+        keyup: onKeyup,
+        focusout: onBlur,
+        copy: function(e) { e.preventDefault(); },
+        cut: function(e) { e.preventDefault(); },
+        paste: function(e) { e.preventDefault(); }
+      });
+    } else {
+      target.bind({
+        keydown: onKeydown,
+        keypress: onKeypress,
+        keyup: onKeyup,
+        focusout: onBlur,
+        cut: function() { checkTextareaOnce(function() { controller.cut(); }); },
+        copy: function() { checkTextareaOnce(function() { controller.copy(); }); },
+        paste: onPaste
+      });
+    }
 
     // -*- export public methods -*- //
     return {
