@@ -167,7 +167,7 @@ function getInterface(v) {
     };
     _.empty = function() {
       var root = this.__controller.root, cursor = this.__controller.cursor;
-      root.eachChild('postOrder', 'dispose');
+
       root.ends[L] = root.ends[R] = 0;
       root.jQ.empty();
       delete cursor.selection;
