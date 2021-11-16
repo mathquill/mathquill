@@ -37,11 +37,6 @@ var TextBlock = P(Node, function(_, super_) {
     if (textBlock[R].siblingCreated) textBlock[R].siblingCreated(cursor.options, L);
     if (textBlock[L].siblingCreated) textBlock[L].siblingCreated(cursor.options, R);
     textBlock.bubble(function (node) { node.reflow(); });
-
-    cursor.insAtRightEnd(textBlock);
-
-    // TODO needs tests
-    if (textBlock.replacedText) textBlock.write(cursor, textBlock.replacedText);
   };
 
   _.parser = function() {
