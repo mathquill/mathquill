@@ -39,7 +39,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
         var cmd = this.parent.renderCommand(cursor);
         // TODO needs tests
         aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
-        if (ch !== '\\' || !this.isEmpty()) this.parent.parent.write(cursor, ch);
+        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
         else aria.alert();
       }
     };

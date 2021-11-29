@@ -12,6 +12,7 @@ The configuration options object is of the following form:
   autoSubscriptNumerals: true,
   autoCommands: 'pi theta sqrt sum',
   autoOperatorNames: 'sin cos',
+  maxDepth: 10,
   substituteTextarea: function() {
     return document.createElement('textarea');
   },
@@ -81,6 +82,11 @@ This defaults to the LaTeX built-in operator names ([Section 3.17 of the Short M
 
 Just like [`autoCommands`](#autocommands) above, this takes a string formatted as a space-delimited list of LaTeX commands.
 
+## maxDepth
+
+`maxDepth` specifies the maximum number of nested MathBlocks. When `maxDepth` is set to 1, the user can type simple math symbols directly into the editor but not into nested MathBlocks, e.g. the numerator and denominator of a fraction.
+
+Nested content in latex rendered during initialization or pasted into mathquill is truncated to avoid violating `maxDepth`. When `maxDepth` is not set, no depth limit is applied by default.
 You can also specify a speech-friendly representation of the operator name by supplying the operator name, a `|` and its speech alternative (separate multiple words with a `-`). For example, `'sin|sine cos|cosine tan|tangent sinh|hyperbolic-sine'`.
 
 ## substituteTextarea

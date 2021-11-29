@@ -26,6 +26,43 @@ var MathElement = P(Node, function(_, super_) {
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
     self.bubble(function (node) { node.reflow(); });
   };
+  // If the maxDepth option is set, make sure
+  // deeply nested content is truncated. Just return
+  // false if the cursor is already too deep.
+  _.prepareInsertionAt = function(cursor) {
+    var maxDepth = cursor.options.maxDepth;
+    if (maxDepth !== undefined) {
+      var cursorDepth = cursor.depth();
+      if (cursorDepth > maxDepth) {
+        return false;
+      }
+      this.removeNodesDeeperThan(maxDepth-cursorDepth);
+    }
+    return true;
+  };
+  // Remove nodes that are more than `cutoff`
+  // blocks deep from this node.
+  _.removeNodesDeeperThan = function (cutoff) {
+    var depth = 0;
+    var queue = [[this, depth]];
+    var current;
+
+    // Do a breadth-first search of this node's descendants
+    // down to cutoff, removing anything deeper.
+    while (queue.length) {
+      current = queue.shift();
+      current[0].children().each(function (child) {
+        var i = (child instanceof MathBlock) ? 1 : 0;
+        depth = current[1]+i;
+
+        if (depth <= cutoff) {
+          queue.push([child, depth]);
+        } else {
+          (i ? child.children() : child).remove();
+        }
+      });
+    }
+  };
 });
 
 /**
@@ -78,6 +115,8 @@ var MathCommand = P(MathElement, function(_, super_) {
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
+      cmd.placeCursor(cursor);
+      cmd.prepareInsertionAt(cursor);
     }
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
@@ -475,12 +514,33 @@ var MathBlock = P(MathElement, function(_, super_) {
   _.write = function(cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
-    cmd.createLeftOf(cursor.show());
-    // special-case the slash so that fractions are voiced while typing
-    if (ch === '/') {
-      aria.alert('over');
-    } else {
-      aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+    if (!cursor.isTooDeep()) {
+      cmd.createLeftOf(cursor.show());
+      // special-case the slash so that fractions are voiced while typing
+      if (ch === '/') {
+        aria.alert('over');
+      } else {
+        aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+      }
+    }
+  };
+
+  _.writeLatex = function(cursor, latex) {
+
+    var all = Parser.all;
+    var eof = Parser.eof;
+
+    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+
+    if (block && !block.isEmpty() && block.prepareInsertionAt(cursor)) {
+      block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+      var jQ = block.jQize();
+      jQ.insertBefore(cursor.jQ);
+      cursor[L] = block.ends[R];
+      block.finalizeInsert(cursor.options, cursor);
+      if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
+      if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
+      cursor.parent.bubble(function (node) { node.reflow(); });
     }
   };
 
@@ -504,21 +564,24 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
 });
 
+Options.p.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;
     _.__mathquillify = function(opts, interfaceVersion) {
       this.config(opts);
       super_.__mathquillify.call(this, 'mq-math-mode');
-      this.__controller.delegateMouseEvents();
-      this.__controller.staticMathTextareaEvents();
+      if (this.__options.mouseEvents) {
+        this.__controller.delegateMouseEvents();
+        this.__controller.staticMathTextareaEvents();
+      }
       return this;
     };
     _.init = function() {
       super_.init.apply(this, arguments);
       var innerFields = this.innerFields = [];
       this.__controller.root.postOrder(function (node) {
-        node.registerInnerField(innerFields, APIClasses.MathField);
+        node.registerInnerField(innerFields, APIClasses.InnerMathField);
       });
     };
     _.latex = function() {
@@ -526,7 +589,7 @@ API.StaticMath = function(APIClasses) {
       if (arguments.length > 0) {
         var innerFields = this.innerFields = [];
         this.__controller.root.postOrder(function (node) {
-          node.registerInnerField(innerFields, APIClasses.MathField);
+          node.registerInnerField(innerFields, APIClasses.InnerMathField);
         });
         // Force an ARIA label update to remain in sync with the new LaTeX value.
         this.__controller.updateMathspeak();
@@ -553,6 +616,23 @@ API.MathField = function(APIClasses) {
       super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
       delete this.__controller.root.reflow;
       return this;
+    };
+  });
+};
+
+API.InnerMathField = function(APIClasses) {
+  return P(APIClasses.MathField, function(_, super_) {
+    _.makeStatic = function() {
+      this.__controller.editable = false;
+      this.__controller.root.blur();
+      this.__controller.unbindEditablesEvents();
+      this.__controller.container.removeClass('mq-editable-field');
+    };
+    _.makeEditable = function() {
+      this.__controller.editable = true;
+      this.__controller.editablesTextareaEvents();
+      this.__controller.cursor.insAtRightEnd(this.__controller.root);
+      this.__controller.container.addClass('mq-editable-field');
     };
   });
 };

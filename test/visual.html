@@ -163,6 +163,10 @@ $(function() {
 
 <p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
 
+<p>Static math with mouseEvents set to false should not interact with the mouse: <span class="static-math-no-mouse-events">12 + 34</span></p>
+
+<p>Even in the case where it has an empty element: <span class="static-math-no-mouse-events">\sqrt{} </span></p>
+
 <h3>Dynamic mathquill-ification</h3>
 <table id="dynamic-initial">
 <tr><th colspan=3>Initial LaTeX
@@ -212,6 +216,11 @@ $(function() {
 <tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
 <tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
 <tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
+<tr><td><span class="mathquill-static-math">\overline{abc}</span><td><span>\overline{abc}</span>
+<tr><td><span class="mathquill-static-math">\overleftarrow{abc}</span><td><span>\overleftarrow{abc}</span>
+<tr><td><span class="mathquill-static-math">\overrightarrow{abc}</span><td><span>\overrightarrow{abc}</span>
+<tr><td><span class="mathquill-static-math">\overleftrightarrow{abc}</span><td><span>\overleftrightarrow{abc}</span>
+<tr><td><span class="mathquill-static-math">\overarc{abc}</span><td><span>\overarc{abc}</span>
 <tr><td colspan=2><span id="sixes"></span>
 <script>
 $(function() {
@@ -282,6 +291,11 @@ x+\class{testclass}{y}+z
 
 <p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing">1+2+3</span></p>
 
+<h3>Text mode</h3>
+
+<p>Spaces at the beginning and end of text mode blocks should be visible: <span class="mathquill-static-math">1\text{ And }2</span></p>
+
+<p>Mutiple consecutive spaces in the middle of a text mode block should not collapse into one space: <span class="mathquill-static-math">\text{three   spaces}</span></p>
 <p>
   <ul>
       <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
@@ -325,6 +339,7 @@ $('#show-textareas-button').click(function() {
 //elements according to their CSS class.
 $(function() {
   $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
+  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents: false }); });
   $('.mathquill-math-field').each(function() { MQ.MathField(this); });
   $('.mathquill-text-field').each(function() { MQ.TextField(this); });
 });

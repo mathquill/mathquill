@@ -122,6 +122,15 @@ LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-no
 LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
 LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
 LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
+LatexCmds.dot = P(MathCommand, function(_, super_) {
+    _.init = function() {
+        super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
+            + '<span class="mq-dot-recurring">&#x2d9;</span>'
+            + '<span class="mq-empty-box">&0</span>'
+            + '</span></span>'
+        );
+    };
+});
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
@@ -309,6 +318,13 @@ var SupSub = P(MathCommand, function(_, super_) {
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
+  _.text = function() {
+    function text(prefix, block) {
+      var l = block && block.text();
+      return block ? prefix + (l.length === 1 ? l : '(' + (l || ' ') + ')') : '';
+    }
+    return text('_', this.sub) + text('^', this.sup);
+  };
   _.addBlock = function(block) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
@@ -388,7 +404,7 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
     +   '<span class="mq-sup">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = [ '^' ];
+  _.textTemplate = ['^(', ')'];
   _.mathspeak = function(opts) {
     // Simplify basic exponent speech for common whole numbers.
     var child = this.upInto;
@@ -672,7 +688,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
           leftward = leftward[R];
       }
 
-      if (leftward !== cursor[L]) {
+      if (leftward !== cursor[L] && !cursor.isTooDeep(1)) {
         this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
         cursor[L] = leftward;
       }
@@ -1037,14 +1053,14 @@ LatexCmds.left = P(MathCommand, function(_) {
     var succeed = Parser.succeed;
     var optWhitespace = Parser.optWhitespace;
 
-    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle\b|\\lVert\b)/))
+    return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z]))/))
       .then(function(ctrlSeq) {
         var open = ctrlSeq.replace(/^\\/, '');
 	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
 	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
-            .then(regex(/^(?:[\])|]|\\\}|\\rangle\b|\\rVert\b)/)).map(function(end) {
+            .then(regex(/^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z]))/)).map(function(end) {
               var close = end.replace(/^\\/, '');
 	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }

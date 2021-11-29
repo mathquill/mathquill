@@ -50,7 +50,8 @@ Controller.open(function(_) {
     var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
-    this.container.prepend('<span aria-hidden="true" class="mq-selectable">$'+ctrlr.exportLatex()+'$</span>');
+    this.container.prepend(jQuery('<span aria-hidden="true" class="mq-selectable">')
+      .text('$'+ctrlr.exportLatex()+'$'));
     this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
     this.container.prepend(this.mathspeakSpan);
     ctrlr.blurred = true;
@@ -84,6 +85,21 @@ Controller.open(function(_) {
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
     this.updateMathspeak();
+  };
+  _.unbindEditablesEvents = function() {
+    var ctrlr = this, textarea = ctrlr.textarea,
+      textareaSpan = ctrlr.textareaSpan;
+
+      this.selectFn = function(text) {
+        textarea.val(text);
+        if (text) textarea.select();
+      };
+      textareaSpan.remove();
+
+      this.unbindFocusBlurEvents();
+
+      ctrlr.blurred = true;
+      textarea.bind('cut paste', false);
   };
   _.typedText = function(ch) {
     if (ch === '\n') return this.handle('enter');

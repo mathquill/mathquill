@@ -190,7 +190,7 @@ Clears the selection.
 
 Move the cursor to the left/right end of the editable field, respectively. These are shorthand for [`.moveToDirEnd(L/R)`](#movetodirenddirection), respectively.
 
-## .movetoDirEnd(direction)
+## .moveToDirEnd(direction)
 
 Moves the cursor to the end of the mathfield in the direction specified. The direction can be one of `MQ.L` or `MQ.R`. These are constants, where `MQ.L === -MQ.R` and vice versa. This function may be easier to use than [moveToLeftEnd or moveToRightEnd](#movetoleftend-movetorightend) if used in the [`moveOutOf` handler](Config.md#outof-handlers).
 
@@ -263,3 +263,15 @@ Allows MathQuill to parse custom embedded objects from latex, where `options` is
 ## Note on Experimental Features
 
 Methods marked as experimental may be altered drastically or removed in future versions. They may also receive less maintenance than other non-experimental features.
+
+# Inner MathField methods
+
+Inner math fields have all of the [above](#editable-mathfield-methods) methods in addition to the ones listed here.
+
+## makeStatic()
+
+Converts the editable inner field into a static one.
+
+## makeEditable()
+
+Converts the static inner field into an editable one.

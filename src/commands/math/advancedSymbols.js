@@ -67,8 +67,26 @@ LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bind(BinaryOperator,'\\not\\supseteq ','&#8841;', 'not superset or equal to');
 
-
 //the canonical sets of numbers
+LatexCmds.mathbb = P(MathCommand, function(_) {
+  _.createLeftOf = noop;
+  _.numBlocks = function() { return 1; };
+  _.parser = function() {
+    var string = Parser.string;
+    var regex = Parser.regex;
+    var optWhitespace = Parser.optWhitespace;
+    return optWhitespace.then(string('{'))
+          .then(optWhitespace)
+          .then(regex(/^[NPZQRCH]/))
+          .skip(optWhitespace)
+          .skip(string('}'))
+          .map(function(c) {
+              // instantiate the class for the matching char
+              return LatexCmds[c]();
+    });
+  };
+});
+
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
   bind(VanillaSymbol,'\\mathbb{N}','&#8469;', 'naturals');
 
@@ -285,6 +303,8 @@ LatexCmds.image = LatexCmds.imagin = LatexCmds.imaginary = LatexCmds.Imaginary =
 
 LatexCmds.part = LatexCmds.partial = bind(VanillaSymbol,'\\partial ','&part;', 'partial');
 
+LatexCmds.pounds = bind(VanillaSymbol,'\\pounds ','&pound;');
+
 LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
   bind(VanillaSymbol,'\\aleph ','&alefsym;', 'alef sym');
 
@@ -296,9 +316,9 @@ LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;', 'there is no');
 
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
-  bind(VanillaSymbol,'\\wedge ','&and;', 'and');
+  bind(BinaryOperator,'\\wedge ','&and;', 'and');
 
-LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(VanillaSymbol,'\\vee ','&or;', 'or');
+LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(BinaryOperator,'\\vee ','&or;', 'or');
 
 LatexCmds.o = LatexCmds.O =
 LatexCmds.empty = LatexCmds.emptyset =
