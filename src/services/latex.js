@@ -313,7 +313,7 @@ Controller.open(function(_, super_) {
       .skip(string('$').or(eof))
       .map(function(block) {
         // HACK FIXME: this shouldn't have to have access to cursor
-        var rootMathCommand = RootMathCommand(cursor);
+        var rootMathCommand = new RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
         var rootMathBlock = rootMathCommand.ends[L];

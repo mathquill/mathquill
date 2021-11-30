@@ -245,7 +245,7 @@ class TextPiece extends Node {
     super();
     this.init(text);
   }
-  
+
   init (text) {
     super.init.call(this);
     this.text = text;
@@ -380,14 +380,20 @@ LatexCmds.lowercase =
   makeTextBlock('\\lowercase', 'Lowercase', 'span', 'style="text-transform:lowercase" class="mq-text-mode"');
 
 
-var RootMathCommand = P(MathCommand, function(_, super_) {
-  _.init = function(cursor) {
-    super_.init.call(this, '$');
+class RootMathCommand extends MathCommand {
+  constructor (cursor) {
+    super();
+    this.init(cursor);
+  }
+
+  init (cursor) {
+    super.init.call(this, '$');
     this.cursor = cursor;
   };
-  _.htmlTemplate = '<span class="mq-math-mode">&0</span>';
-  _.createBlocks = function() {
-    super_.createBlocks.call(this);
+  static _todoMoveIntoConstructor =
+    RootMathCommand.prototype.htmlTemplate = '<span class="mq-math-mode">&0</span>';
+  createBlocks () {
+    super.createBlocks.call(this);
 
     this.ends[L].cursor = this.cursor;
     this.ends[L].write = function(cursor, ch) {
@@ -406,10 +412,10 @@ var RootMathCommand = P(MathCommand, function(_, super_) {
         MathBlock.prototype.write.call(this, cursor, ch);
     };
   };
-  _.latex = function() {
+  latex () {
     return '$' + this.ends[L].latex() + '$';
   };
-});
+};
 
 var RootTextBlock = P(RootMathBlock, function(_, super_) {
   _.keystroke = function(key) {
