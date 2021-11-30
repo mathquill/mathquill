@@ -548,7 +548,7 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
     Symbol.prototype.init.call(this, '\\int ', htmlTemplate, 'integral');
   };
   // FIXME: refactor rather than overriding
-  _.createLeftOf = MathCommand.p.createLeftOf;
+  _.createLeftOf = MathCommand.prototype.createLeftOf;
 });
 var Fraction =
 LatexCmds.frac =

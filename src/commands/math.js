@@ -69,28 +69,34 @@ class MathElement extends Node {
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
-var MathCommand = P(MathElement, function(_, super_) {
-  _.init = function(ctrlSeq, htmlTemplate, textTemplate) {
+class MathCommand extends MathElement {
+  constructor (ctrlSeq, htmlTemplate, textTemplate) {
+    super();
+    this.init(ctrlSeq, htmlTemplate, textTemplate);
+  };
+
+  init (ctrlSeq, htmlTemplate, textTemplate) {
+    super.init();
+
     var cmd = this;
-    super_.init.call(cmd);
 
     if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
     if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
     if (textTemplate) cmd.textTemplate = textTemplate;
-  };
+  }
 
   // obvious methods
-  _.replaces = function(replacedFragment) {
+  replaces (replacedFragment) {
     replacedFragment.disown();
     this.replacedFragment = replacedFragment;
   };
-  _.isEmpty = function() {
+  isEmpty () {
     return this.foldChildren(true, function(isEmpty, child) {
       return isEmpty && child.isEmpty();
     });
   };
 
-  _.parser = function() {
+  parser () {
     var block = latexMathParser.block;
     var self = this;
 
@@ -106,12 +112,12 @@ var MathCommand = P(MathElement, function(_, super_) {
   };
 
   // createLeftOf(cursor) and the methods it calls
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     var cmd = this;
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    super_.createLeftOf.call(cmd, cursor);
+    super.createLeftOf.call(cmd, cursor);
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);
@@ -121,7 +127,7 @@ var MathCommand = P(MathElement, function(_, super_) {
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
   };
-  _.createBlocks = function() {
+  createBlocks () {
     var cmd = this,
       numBlocks = cmd.numBlocks(),
       blocks = cmd.blocks = Array(numBlocks);
@@ -131,7 +137,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       newBlock.adopt(cmd, cmd.ends[R], 0);
     }
   };
-  _.placeCursor = function(cursor) {
+  placeCursor (cursor) {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
     cursor.insAtRightEnd(this.foldChildren(this.ends[L], function(leftward, child) {
@@ -142,26 +148,26 @@ var MathCommand = P(MathElement, function(_, super_) {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor, updown) {
+  moveTowards (dir, cursor, updown) {
     var updownInto = updown && this[updown+'Into'];
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
     aria.queueDirEndOf(-dir).queue(cursor.parent, true);
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
     else this.moveTowards(dir, cursor, null);
   };
-  _.selectTowards = function(dir, cursor) {
+  selectTowards (dir, cursor) {
     cursor[-dir] = this;
     cursor[dir] = this[dir];
   };
-  _.selectChildren = function() {
+  selectChildren () {
     return new Selection(this, this);
   };
-  _.unselectInto = function(dir, cursor) {
+  unselectInto (dir, cursor) {
     cursor.insAtDirEnd(-dir, cursor.anticursor.ancestors[this.id]);
   };
-  _.seek = function(pageX, cursor) {
+  seek (pageX, cursor) {
     function getBounds(node) {
       var bounds = {}
       bounds[L] = node.jQ.offset().left;
@@ -230,11 +236,11 @@ var MathCommand = P(MathElement, function(_, super_) {
     Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
     your HTML template would have to have '&amp;123'.
   */
-  _.numBlocks = function() {
+  numBlocks () {
     var matches = this.htmlTemplate.match(/&\d+/g);
     return matches ? matches.length : 0;
   };
-  _.html = function() {
+  html () {
     // Render the entire math subtree rooted at this command, as HTML.
     // Expects .createBlocks() to have been called already, since it uses the
     // .blocks array of child blocks.
@@ -313,13 +319,13 @@ var MathCommand = P(MathElement, function(_, super_) {
   };
 
   // methods to export a string representation of the math tree
-  _.latex = function() {
+  latex () {
     return this.foldChildren(this.ctrlSeq, function(latex, child) {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
-  _.textTemplate = [''];
-  _.text = function() {
+  static _todoMoveIntoConstructor = MathCommand.prototype.textTemplate = [''];
+  text () {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.textTemplate[i], function(text, child) {
       i += 1;
@@ -330,15 +336,15 @@ var MathCommand = P(MathElement, function(_, super_) {
       return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
-  _.mathspeakTemplate = [];
-  _.mathspeak = function() {
+  static _todoMoveIntoConstructor = MathCommand.prototype.mathspeakTemplate = [''];
+  mathspeak () {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
       i += 1;
       return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i]+' ' || 'End'+cmd.ctrlSeq+' ');
     });
   };
-});
+};
 
 /**
  * Lightweight command without blocks or children.
