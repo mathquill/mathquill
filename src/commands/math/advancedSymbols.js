@@ -13,51 +13,51 @@ LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
 });
 
 LatexCmds['∗'] = LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
-  bind(BinaryOperator,'\\ast ','&lowast;', 'low asterisk');
+  bindBinaryOperator('\\ast ','&lowast;', 'low asterisk');
 LatexCmds.therefor = LatexCmds.therefore =
-  bind(BinaryOperator,'\\therefore ','&there4;', 'therefore');
+  bindBinaryOperator('\\therefore ','&there4;', 'therefore');
 
 LatexCmds.cuz = // l33t
-LatexCmds.because = bind(BinaryOperator,'\\because ','&#8757;', 'because');
+LatexCmds.because = bindBinaryOperator('\\because ','&#8757;', 'because');
 
-LatexCmds.prop = LatexCmds.propto = bind(BinaryOperator,'\\propto ','&prop;', 'proportional to');
+LatexCmds.prop = LatexCmds.propto = bindBinaryOperator('\\propto ','&prop;', 'proportional to');
 
-LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bind(BinaryOperator,'\\approx ','&asymp;'), 'approximately equal to';
+LatexCmds['≈'] = LatexCmds.asymp = LatexCmds.approx = bindBinaryOperator('\\approx ','&asymp;', 'approximately equal to');
 
-LatexCmds.isin = LatexCmds['in'] = bind(BinaryOperator,'\\in ','&isin;', 'is in');
+LatexCmds.isin = LatexCmds['in'] = bindBinaryOperator('\\in ','&isin;', 'is in');
 
-LatexCmds.ni = LatexCmds.contains = bind(BinaryOperator,'\\ni ','&ni;', 'is not in');
+LatexCmds.ni = LatexCmds.contains = bindBinaryOperator('\\ni ','&ni;', 'is not in');
 
 LatexCmds.notni = LatexCmds.niton = LatexCmds.notcontains = LatexCmds.doesnotcontain =
-  bind(BinaryOperator,'\\not\\ni ','&#8716;', 'does not contain');
+  bindBinaryOperator('\\not\\ni ','&#8716;', 'does not contain');
 
-LatexCmds.sub = LatexCmds.subset = bind(BinaryOperator,'\\subset ','&sub;', 'subset');
+LatexCmds.sub = LatexCmds.subset = bindBinaryOperator('\\subset ','&sub;', 'subset');
 
 LatexCmds.sup = LatexCmds.supset = LatexCmds.superset =
-  bind(BinaryOperator,'\\supset ','&sup;', 'superset');
+  bindBinaryOperator('\\supset ','&sup;', 'superset');
 
 LatexCmds.nsub = LatexCmds.notsub =
 LatexCmds.nsubset = LatexCmds.notsubset =
-  bind(BinaryOperator,'\\not\\subset ','&#8836;', 'not a subset');
+  bindBinaryOperator('\\not\\subset ','&#8836;', 'not a subset');
 
 LatexCmds.nsup = LatexCmds.notsup =
 LatexCmds.nsupset = LatexCmds.notsupset =
 LatexCmds.nsuperset = LatexCmds.notsuperset =
-  bind(BinaryOperator,'\\not\\supset ','&#8837;', 'not a superset');
+  bindBinaryOperator('\\not\\supset ','&#8837;', 'not a superset');
 
 LatexCmds.sube = LatexCmds.subeq = LatexCmds.subsete = LatexCmds.subseteq =
-  bind(BinaryOperator,'\\subseteq ','&sube;', 'subset or equal to');
+  bindBinaryOperator('\\subseteq ','&sube;', 'subset or equal to');
 
 LatexCmds.supe = LatexCmds.supeq =
 LatexCmds.supsete = LatexCmds.supseteq =
 LatexCmds.supersete = LatexCmds.superseteq =
-  bind(BinaryOperator,'\\supseteq ','&supe;', 'superset or equal to');
+  bindBinaryOperator('\\supseteq ','&supe;', 'superset or equal to');
 
 LatexCmds.nsube = LatexCmds.nsubeq =
 LatexCmds.notsube = LatexCmds.notsubeq =
 LatexCmds.nsubsete = LatexCmds.nsubseteq =
 LatexCmds.notsubsete = LatexCmds.notsubseteq =
-  bind(BinaryOperator,'\\not\\subseteq ','&#8840;', 'not subset or equal to');
+  bindBinaryOperator('\\not\\subseteq ','&#8840;', 'not subset or equal to');
 
 LatexCmds.nsupe = LatexCmds.nsupeq =
 LatexCmds.notsupe = LatexCmds.notsupeq =
@@ -65,7 +65,7 @@ LatexCmds.nsupsete = LatexCmds.nsupseteq =
 LatexCmds.notsupsete = LatexCmds.notsupseteq =
 LatexCmds.nsupersete = LatexCmds.nsuperseteq =
 LatexCmds.notsupersete = LatexCmds.notsuperseteq =
-  bind(BinaryOperator,'\\not\\supseteq ','&#8841;', 'not superset or equal to');
+  bindBinaryOperator('\\not\\supseteq ','&#8841;', 'not superset or equal to');
 
 //the canonical sets of numbers
 LatexCmds.mathbb = P(MathCommand, function(_) {
@@ -275,22 +275,22 @@ LatexCmds.uArr = LatexCmds.Uparrow = bindVanillaSymbol('\\Uparrow ','&uArr;', 'u
 
 LatexCmds.rarr = LatexCmds.rightarrow = bindVanillaSymbol('\\rightarrow ','&rarr;', 'right arrow');
 
-LatexCmds.implies = bind(BinaryOperator,'\\Rightarrow ','&rArr;', 'implies');
+LatexCmds.implies = bindBinaryOperator('\\Rightarrow ','&rArr;', 'implies');
 
 LatexCmds.rArr = LatexCmds.Rightarrow = bindVanillaSymbol('\\Rightarrow ','&rArr;', 'right arrow');
 
-LatexCmds.gets = bind(BinaryOperator,'\\gets ','&larr;', 'gets');
+LatexCmds.gets = bindBinaryOperator('\\gets ','&larr;', 'gets');
 
 LatexCmds.larr = LatexCmds.leftarrow = bindVanillaSymbol('\\leftarrow ','&larr;', 'left arrow');
 
-LatexCmds.impliedby = bind(BinaryOperator,'\\Leftarrow ','&lArr;', 'implied by');
+LatexCmds.impliedby = bindBinaryOperator('\\Leftarrow ','&lArr;', 'implied by');
 
 LatexCmds.lArr = LatexCmds.Leftarrow = bindVanillaSymbol('\\Leftarrow ','&lArr;', 'left arrow');
 
 LatexCmds.harr = LatexCmds.lrarr = LatexCmds.leftrightarrow =
   bindVanillaSymbol('\\leftrightarrow ','&harr;', 'left and right arrow');
 
-LatexCmds.iff = bind(BinaryOperator,'\\Leftrightarrow ','&hArr;', 'if and only if');
+LatexCmds.iff = bindBinaryOperator('\\Leftrightarrow ','&hArr;', 'if and only if');
 
 LatexCmds.hArr = LatexCmds.lrArr = LatexCmds.Leftrightarrow =
   bindVanillaSymbol('\\Leftrightarrow ','&hArr;', 'left and right arrow');
@@ -316,20 +316,20 @@ LatexCmds.nexists = LatexCmds.nexist =
       bindVanillaSymbol('\\nexists ', '&#8708;', 'there is no');
 
 LatexCmds.and = LatexCmds.land = LatexCmds.wedge =
-  bind(BinaryOperator,'\\wedge ','&and;', 'and');
+  bindBinaryOperator('\\wedge ','&and;', 'and');
 
-LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bind(BinaryOperator,'\\vee ','&or;', 'or');
+LatexCmds.or = LatexCmds.lor = LatexCmds.vee = bindBinaryOperator('\\vee ','&or;', 'or');
 
 LatexCmds.o = LatexCmds.O =
 LatexCmds.empty = LatexCmds.emptyset =
 LatexCmds.oslash = LatexCmds.Oslash =
 LatexCmds.nothing = LatexCmds.varnothing =
-  bind(BinaryOperator,'\\varnothing ','&empty;', 'nothing');
+  bindBinaryOperator('\\varnothing ','&empty;', 'nothing');
 
-LatexCmds.cup = LatexCmds.union = bind(BinaryOperator,'\\cup ','&cup;', 'union');
+LatexCmds.cup = LatexCmds.union = bindBinaryOperator('\\cup ','&cup;', 'union');
 
 LatexCmds.cap = LatexCmds.intersect = LatexCmds.intersection =
-  bind(BinaryOperator,'\\cap ','&cap;', 'intersection');
+  bindBinaryOperator('\\cap ','&cap;', 'intersection');
 
 // FIXME: the correct LaTeX would be ^\circ but we can't parse that
 LatexCmds.deg = LatexCmds.degree = bindVanillaSymbol('\\degree ','&deg;', 'degrees');

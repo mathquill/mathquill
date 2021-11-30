@@ -850,7 +850,7 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
   bind(PlusMinus,'\\mp ','&#8723;', 'minus-or-plus');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
-  bind(BinaryOperator, '\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
+  bindBinaryOperator('\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
 var To = P(BinaryOperator, function(_, super_) {
   _.init = function() {
@@ -925,7 +925,7 @@ LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
 LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
 LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bindVanillaSymbol('\\infty ','&infin;', 'infinity');
-LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;', 'not equal');
+LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bindBinaryOperator('\\ne ','&ne;', 'not equal');
 
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
@@ -942,10 +942,10 @@ var Equality = P(BinaryOperator, function(_, super_) {
 });
 LatexCmds['='] = Equality;
 
-LatexCmds['×'] = LatexCmds.times = bind(BinaryOperator, '\\times ', '&times;', '[x]', 'times');
+LatexCmds['×'] = LatexCmds.times = bindBinaryOperator('\\times ', '&times;', '[x]', 'times');
 
 LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
-  bind(BinaryOperator,'\\div ','&divide;', '[/]', 'over');
+  bindBinaryOperator('\\div ','&divide;', '[/]', 'over');
 
 
 var Sim = P(BinaryOperator, function(_, super_) {

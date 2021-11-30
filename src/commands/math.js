@@ -406,13 +406,18 @@ function bindVanillaSymbol (ch, html, mathspeak) {
   return () => new VanillaSymbol(ch, html, mathspeak);
 }
 
-var BinaryOperator = P(Symbol, function(_, super_) {
-  _.init = function(ctrlSeq, html, text, mathspeak) {
-    super_.init.call(this,
-      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak
-    );
+class BinaryOperator extends Symbol {
+  constructor (ctrlSeq, html, text, mathspeak) {
+    super();
+    this.init(ctrlSeq, html, text, mathspeak);
+  }
+  init (ctrlSeq, html, text, mathspeak) {
+    super.init(ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak);
   };
-});
+};
+function bindBinaryOperator (ctrlSeq, html, text, mathspeak) {
+  return () => new BinaryOperator(ctrlSeq, html, text, mathspeak);
+}
 
 /**
  * Children and parent of MathCommand's. Basically partitions all the
