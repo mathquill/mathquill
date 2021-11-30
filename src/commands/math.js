@@ -522,7 +522,7 @@ class MathBlock extends MathElement {
     var cons;
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/))
-      return Letter(ch);
+      return new Letter(ch);
     else if (/^\d$/.test(ch))
       return new Digit(ch);
     else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')

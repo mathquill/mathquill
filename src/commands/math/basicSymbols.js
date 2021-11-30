@@ -283,9 +283,15 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
   return dict;
 }
 
-var Letter = P(Variable, function(_, super_) {
-  _.init = function(ch) { return super_.init.call(this, this.letter = ch); };
-  _.checkAutoCmds = function (cursor) {
+class Letter extends Variable {
+  constructor (ch) {
+    super();
+    this.init(ch);
+  }
+  init (ch) { 
+    return super.init.call(this, this.letter = ch);
+  };
+  checkAutoCmds (cursor) {
     //handle autoCommands
     var autoCmds = cursor.options.autoCommands, maxLength = autoCmds._maxLength;
     if (maxLength > 0) {
@@ -309,7 +315,7 @@ var Letter = P(Variable, function(_, super_) {
     }
   }
 
-  _.autoParenthesize = function (cursor) {
+  autoParenthesize (cursor) {
     //exit early if already parenthesized
     var right = cursor.parent.ends[R]
     if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
@@ -339,25 +345,30 @@ var Letter = P(Variable, function(_, super_) {
     }
   }
 
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
+  createLeftOf (cursor) {
+    super.createLeftOf.apply(this, arguments);
 
     this.checkAutoCmds(cursor);
     this.autoParenthesize(cursor);
   };
-  _.italicize = function(bool) {
+  italicize (bool) {
     this.isItalic = bool;
     this.isPartOfOperator = !bool;
     this.jQ.toggleClass('mq-operator-name', !bool);
     return this;
   };
-  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(opts, dir) {
+  finalizeTree (opts, dir) {this.sharedSiblingMethod(opts, dir)};
+  siblingDeleted (opts, dir) {this.sharedSiblingMethod(opts, dir)};
+  siblingCreated (opts, dir) {this.sharedSiblingMethod(opts, dir)};
+  
+  sharedSiblingMethod (opts, dir) {
     // don't auto-un-italicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will un-italicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
     this.autoUnItalicize(opts);
   };
-  _.autoUnItalicize = function(opts) {
+
+  autoUnItalicize (opts) {
     var autoOps = opts.autoOperatorNames;
     if (autoOps._maxLength === 0) return;
 
@@ -394,8 +405,8 @@ var Letter = P(Variable, function(_, super_) {
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
           if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
-          if (!shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
-          if (!shouldOmitPadding(last[R])) {
+          if (!this.shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
+          if (!this.shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
               var supsub = last[R]; // XXX monkey-patching, but what's the right thing here?
               // Have operatorname-specific code in SupSub? A CSS-like language to style the
@@ -417,7 +428,7 @@ var Letter = P(Variable, function(_, super_) {
       }
     }
   };
-  function shouldOmitPadding(node) {
+  shouldOmitPadding(node) {
     // omit padding if no node
     if (!node) return true;
 
@@ -432,7 +443,7 @@ var Letter = P(Variable, function(_, super_) {
 
     return false;
   }
-});
+};
 var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
   // are built-into LaTeX, see Section 3.17 of the Short Math Guide: http://tinyurl.com/jm9okjc
   // MathQuill auto-unitalicizes some operator names not in that set, like 'hcf'
@@ -509,14 +520,14 @@ var OperatorName = P(Symbol, function(_, super_) {
   _.createLeftOf = function(cursor) {
     var fn = this.ctrlSeq;
     for (var i = 0; i < fn.length; i += 1) {
-      Letter(fn.charAt(i)).createLeftOf(cursor);
+      new Letter(fn.charAt(i)).createLeftOf(cursor);
     }
   };
   _.parser = function() {
     var fn = this.ctrlSeq;
     var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
-      Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
+      new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
     }
     return Parser.succeed(block.children());
   };

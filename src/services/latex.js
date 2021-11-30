@@ -26,7 +26,7 @@ var latexMathParser = (function() {
 
   // Parsers yielding either MathCommands, or Fragments of MathCommands
   //   (either way, something that can be adopted by a MathBlock)
-  var variable = letter.map(function(c) { return Letter(c); });
+  var variable = letter.map(function(c) { return new Letter(c); });
   var number = digit.map(function (c) { return new Digit(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return new VanillaSymbol(c); });
 
