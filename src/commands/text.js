@@ -417,12 +417,12 @@ class RootMathCommand extends MathCommand {
   };
 };
 
-var RootTextBlock = P(RootMathBlock, function(_, super_) {
-  _.keystroke = function(key) {
+class RootTextBlock extends RootMathBlock {
+  keystroke (key) {
     if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
-    return super_.keystroke.apply(this, arguments);
+    return super.keystroke.apply(this, arguments);
   };
-  _.write = function(cursor, ch) {
+  write (cursor, ch) {
     cursor.show().deleteSelection();
     if (ch === '$')
       RootMathCommand(cursor).createLeftOf(cursor);
@@ -433,7 +433,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
       new VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   };
-});
+};
 API.TextField = function(APIClasses) {
   return P(APIClasses.EditableField, function(_, super_) {
     this.RootBlock = RootTextBlock;
