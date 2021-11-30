@@ -10,8 +10,13 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-var Cursor = P(Point, function(_) {
-  _.init = function(initParent, options, controller) {
+class Cursor extends Point {
+  constructor (initParent, options, controller) {
+    super();
+    this.init(initParent, options, controller);
+  }
+
+  init (initParent, options, controller) {
     this.controller = controller;
     this.parent = initParent;
     this.options = options;
@@ -23,7 +28,7 @@ var Cursor = P(Point, function(_) {
     this.upDownCache = {};
   };
 
-  _.show = function() {
+  show () {
     this.jQ = this._jQ.removeClass('mq-blink');
     if ('intervalId' in this) //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -41,7 +46,7 @@ var Cursor = P(Point, function(_) {
     this.intervalId = setInterval(this.blink, 500);
     return this;
   };
-  _.hide = function() {
+  hide () {
     if ('intervalId' in this)
       clearInterval(this.intervalId);
     delete this.intervalId;
@@ -50,7 +55,7 @@ var Cursor = P(Point, function(_) {
     return this;
   };
 
-  _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
+  withDirInsertAt (dir, parent, withDir, oppDir) {
     var oldParent = this.parent;
     this.parent = parent;
     this[dir] = withDir;
@@ -60,25 +65,25 @@ var Cursor = P(Point, function(_) {
     // FIXME pass cursor to .blur() so text can fix cursor pointers when removing itself
     if (oldParent !== parent && oldParent.blur) oldParent.blur(this);
   };
-  _.insDirOf = function(dir, el) {
+  insDirOf (dir, el) {
     prayDirection(dir);
     this.jQ.insDirOf(dir, el.jQ);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
     return this;
   };
-  _.insLeftOf = function(el) { return this.insDirOf(L, el); };
-  _.insRightOf = function(el) { return this.insDirOf(R, el); };
+  insLeftOf (el) { return this.insDirOf(L, el); };
+  insRightOf (el) { return this.insDirOf(R, el); };
 
-  _.insAtDirEnd = function(dir, el) {
+  insAtDirEnd (dir, el) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
     this.withDirInsertAt(dir, el, 0, el.ends[dir]);
     el.focus();
     return this;
   };
-  _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
-  _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
+  insAtLeftEnd (el) { return this.insAtDirEnd(L, el); };
+  insAtRightEnd (el) { return this.insAtDirEnd(R, el); };
 
   /**
    * jump up or down from one block Node to another:
@@ -88,7 +93,7 @@ var Cursor = P(Point, function(_) {
    *   + if not seek a position in the node that is horizontally closest to
    *     the cursor's current position
    */
-  _.jumpUpDown = function(from, to) {
+  jumpUpDown (from, to) {
     var self = this;
     self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
@@ -101,7 +106,7 @@ var Cursor = P(Point, function(_) {
     }
     aria.queue(to, true);
   };
-  _.offset = function() {
+  offset () {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -113,7 +118,7 @@ var Cursor = P(Point, function(_) {
     self.jQ.addClass('mq-cursor');
     return offset;
   }
-  _.unwrapGramp = function() {
+  unwrapGramp () {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
     var rightward = gramp[R];
@@ -159,7 +164,7 @@ var Cursor = P(Point, function(_) {
     if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(cursor.options, R);
     if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(cursor.options, L);
   };
-  _.startSelection = function() {
+  startSelection () {
     var anticursor = this.anticursor = Point.copy(this);
     var ancestors = anticursor.ancestors = {}; // a map from each ancestor of
       // the anticursor, to its child that is also an ancestor; in other words,
@@ -168,10 +173,10 @@ var Cursor = P(Point, function(_) {
       ancestors[ancestor.parent.id] = ancestor;
     }
   };
-  _.endSelection = function() {
+  endSelection () {
     delete this.anticursor;
   };
-  _.select = function() {
+  select () {
     var anticursor = this.anticursor;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
 
@@ -234,14 +239,14 @@ var Cursor = P(Point, function(_) {
     this.selectionChanged();
     return true;
   };
-  _.resetToEnd = function (controller) {
+  resetToEnd (controller) {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
     this[L] = root.ends[R];
     this.parent = root;
   };
-  _.clearSelection = function() {
+  clearSelection () {
     if (this.selection) {
       this.selection.clear();
       delete this.selection;
@@ -249,7 +254,7 @@ var Cursor = P(Point, function(_) {
     }
     return this;
   };
-  _.deleteSelection = function() {
+  deleteSelection () {
     if (!this.selection) return;
 
     this[L] = this.selection.ends[L][L];
@@ -258,7 +263,7 @@ var Cursor = P(Point, function(_) {
     this.selectionChanged();
     delete this.selection;
   };
-  _.replaceSelection = function() {
+  replaceSelection () {
     var seln = this.selection;
     if (seln) {
       this[L] = seln.ends[L][L];
@@ -267,7 +272,7 @@ var Cursor = P(Point, function(_) {
     }
     return seln;
   };
-  _.depth = function() {
+  depth () {
     var node = this;
     var depth = 0;
     while (node = node.parent) {
@@ -275,12 +280,12 @@ var Cursor = P(Point, function(_) {
     }
     return depth;
   };
-  _.isTooDeep = function(offset) {
+  isTooDeep (offset) {
     if (this.options.maxDepth !== undefined) {
       return this.depth() + (offset || 0) > this.options.maxDepth;
     }
   };
-});
+}
 
 var Selection = P(Fragment, function(_, super_) {
   _.init = function() {
