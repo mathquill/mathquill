@@ -791,7 +791,7 @@ var CubeRoot =
 LatexCmds.cbrt = P(NthRoot, function(_, super_) {
   _.createLeftOf = function(cursor) {
     super_.createLeftOf.apply(this, arguments);
-    Digit('3').createLeftOf(cursor);
+    new Digit('3').createLeftOf(cursor);
     cursor.controller.moveRight();
   };
 });

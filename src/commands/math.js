@@ -524,7 +524,7 @@ class MathBlock extends MathElement {
     if (ch.match(/^[a-eg-zA-Z]$/))
       return Letter(ch);
     else if (/^\d$/.test(ch))
-      return Digit(ch);
+      return new Digit(ch);
     else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')
       return LatexCmds['÷'](ch);
     else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')

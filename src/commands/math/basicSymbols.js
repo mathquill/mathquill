@@ -154,12 +154,16 @@ class DigitGroupingChar extends Symbol {
   }
 };
 
-var Digit = P(DigitGroupingChar, function(_, super_) {
-  _.init = function(ch, html, mathspeak) {
-    super_.init.call(this, ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
+class Digit extends DigitGroupingChar {
+  constructor (ch, html, mathspeak) {
+    super();
+    this.init(ch, html, mathspeak);
+  }
+  init (ch, html, mathspeak) {
+    super.init.call(this, ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
   };
 
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     if (cursor.options.autoSubscriptNumerals
         && cursor.parent !== cursor.parent.parent.sub
         && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
@@ -167,12 +171,12 @@ var Digit = P(DigitGroupingChar, function(_, super_) {
                 && cursor[L][L] instanceof Variable
                 && cursor[L][L].isItalic !== false))) {
       LatexCmds._().createLeftOf(cursor);
-      super_.createLeftOf.call(this, cursor);
+      super.createLeftOf.call(this, cursor);
       cursor.insRightOf(cursor.parent.parent);
     }
-    else super_.createLeftOf.call(this, cursor);
+    else super.createLeftOf.call(this, cursor);
   };
-  _.mathspeak = function(opts) {
+  mathspeak (opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
       if (cursor.options.autoSubscriptNumerals
@@ -181,12 +185,12 @@ var Digit = P(DigitGroupingChar, function(_, super_) {
               || (cursor[L] instanceof SupSub
                   && cursor[L][L] instanceof Variable
                   && cursor[L][L].isItalic !== false))) {
-        return 'Subscript ' + super_.mathspeak.call(this) + ' Baseline';
+        return 'Subscript ' + super.mathspeak.call(this) + ' Baseline';
       }
     }
-    return super_.mathspeak.apply(this, arguments);
+    return super.mathspeak.apply(this, arguments);
   };
-});
+}
 
 var Variable = P(Symbol, function(_, super_) {
   _.init = function(ch, html) {
