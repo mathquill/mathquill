@@ -133,7 +133,7 @@ class MathCommand extends MathElement {
       blocks = cmd.blocks = Array(numBlocks);
 
     for (var i = 0; i < numBlocks; i += 1) {
-      var newBlock = blocks[i] = MathBlock();
+      var newBlock = blocks[i] = new MathBlock();
       newBlock.adopt(cmd, cmd.ends[R], 0);
     }
   };
@@ -424,21 +424,21 @@ function bindBinaryOperator (ctrlSeq, html, text, mathspeak) {
  * symbols and operators that descend (in the Math DOM tree) from
  * ancestor operators.
  */
-var MathBlock = P(MathElement, function(_, super_) {
-  _.join = function(methodName) {
+class MathBlock extends MathElement {
+  join (methodName) {
     return this.foldChildren('', function(fold, child) {
       return fold + child[methodName]();
     });
   };
-  _.html = function() { return this.join('html'); };
-  _.latex = function() { return this.join('latex'); };
-  _.text = function() {
+  html () { return this.join('html'); };
+  latex () { return this.join('latex'); };
+  text () {
     return (this.ends[L] === this.ends[R] && this.ends[L] !== 0) ?
       this.ends[L].text() :
       this.join('text')
     ;
   };
-  _.mathspeak = function() {
+  mathspeak () {
     var tempOp = '';
     var autoOps = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
@@ -476,22 +476,23 @@ var MathBlock = P(MathElement, function(_, super_) {
       return p1 + p2.split('').join(' ').trim();
     });
   };
-  _.ariaLabel = 'block';
 
-  _.keystroke = function(key, e, ctrlr) {
+  static _todoMoveIntoConstructor = MathBlock.prototype.ariaLabel = 'block';
+
+  keystroke (key, e, ctrlr) {
     if (ctrlr.options.spaceBehavesLikeTab
         && (key === 'Spacebar' || key === 'Shift-Spacebar')) {
       e.preventDefault();
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
-    return super_.keystroke.apply(this, arguments);
+    return super.keystroke.apply(this, arguments);
   };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveOutOf = function(dir, cursor, updown) {
+  moveOutOf (dir, cursor, updown) {
     var updownInto = updown && this.parent[updown+'Into'];
     if (!updownInto && this[dir]) {
       cursor.insAtDirEnd(-dir, this[dir]);
@@ -502,13 +503,13 @@ var MathBlock = P(MathElement, function(_, super_) {
       aria.queueDirOf(dir).queue(this.parent);
     }
   };
-  _.selectOutOf = function(dir, cursor) {
+  selectOutOf (dir, cursor) {
     cursor.insDirOf(dir, this.parent);
   };
-  _.deleteOutOf = function(dir, cursor) {
+  deleteOutOf (dir, cursor) {
     cursor.unwrapGramp();
   };
-  _.seek = function(pageX, cursor) {
+  seek (pageX, cursor) {
     var node = this.ends[R];
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
       return cursor.insAtRightEnd(this);
@@ -517,7 +518,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     while (pageX < node.jQ.offset().left) node = node[L];
     return node.seek(pageX, cursor);
   };
-  _.chToCmd = function(ch, options) {
+  chToCmd (ch, options) {
     var cons;
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/))
@@ -536,7 +537,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     else
       return new VanillaSymbol(ch);
   };
-  _.write = function(cursor, ch) {
+  write (cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     if (!cursor.isTooDeep()) {
@@ -550,7 +551,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     }
   };
 
-  _.writeLatex = function(cursor, latex) {
+  writeLatex (cursor, latex) {
 
     var all = Parser.all;
     var eof = Parser.eof;
@@ -569,13 +570,13 @@ var MathBlock = P(MathElement, function(_, super_) {
     }
   };
 
-  _.focus = function() {
+  focus () {
     this.jQ.addClass('mq-hasCursor');
     this.jQ.removeClass('mq-empty');
 
     return this;
   };
-  _.blur = function() {
+  blur () {
     this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
       this.jQ.addClass('mq-empty');
@@ -587,7 +588,7 @@ var MathBlock = P(MathElement, function(_, super_) {
     }
     return this;
   };
-});
+}
 
 Options.p.mouseEvents = true;
 API.StaticMath = function(APIClasses) {

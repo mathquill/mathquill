@@ -285,7 +285,7 @@ var SupSub = P(MathCommand, function(_, super_) {
         cursor.insRightOf(this.parent);
         aria.queue('Baseline');
       }
-      MathBlock.p.write.apply(this, arguments);
+      MathBlock.prototype.write.apply(this, arguments);
     };
   };
   _.moveTowards = function(dir, cursor, updown) {
@@ -496,7 +496,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     var block = latexMathParser.block;
 
     var self = this;
-    var blocks = self.blocks = [ MathBlock(), MathBlock() ];
+    var blocks = self.blocks = [ new MathBlock(), new MathBlock() ];
     for (var i = 0; i < blocks.length; i += 1) {
       blocks[i].adopt(self, self.ends[R], 0);
     }

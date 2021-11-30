@@ -1,12 +1,12 @@
 // Parser MathBlock
 var latexMathParser = (function() {
   function commandToBlock(cmd) { // can also take in a Fragment
-    var block = MathBlock();
+    var block = new MathBlock();
     cmd.adopt(block, 0, 0);
     return block;
   }
   function joinBlocks(blocks) {
-    var firstBlock = blocks[0] || MathBlock();
+    var firstBlock = blocks[0] || new MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
       blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);

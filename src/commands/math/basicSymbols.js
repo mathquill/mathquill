@@ -497,7 +497,7 @@ var OperatorName = P(Symbol, function(_, super_) {
   };
   _.parser = function() {
     var fn = this.ctrlSeq;
-    var block = MathBlock();
+    var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
       Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
     }
