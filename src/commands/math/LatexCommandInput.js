@@ -90,7 +90,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
       cmd.createLeftOf(cursor);
     }
     else {
-      cmd = TextBlock();
+      cmd = new TextBlock();
       cmd.replaces(latex);
       cmd.createLeftOf(cursor);
       cursor.insRightOf(cmd);

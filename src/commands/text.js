@@ -8,25 +8,27 @@
  * opposed to hierchical, nested, tree-structured math.
  * Wraps a single HTMLSpanElement.
  */
-var TextBlock = P(Node, function(_, super_) {
-  _.ctrlSeq = '\\text';
-  _.ariaLabel = 'Text';
+class TextBlock extends Node {
+  static _todoMoveIntoConstructor =
+    TextBlock.prototype.ctrlSeq = '\\text';
+  static _todoMoveIntoConstructor =
+    TextBlock.prototype.ariaLabel = 'Text';
 
-  _.replaces = function(replacedText) {
+  replaces (replacedText) {
     if (replacedText instanceof Fragment)
       this.replacedText = replacedText.remove().jQ.text();
     else if (typeof replacedText === 'string')
       this.replacedText = replacedText;
   };
 
-  _.jQadd = function(jQ) {
-    super_.jQadd.call(this, jQ);
+  jQadd (jQ) {
+    super.jQadd.call(this, jQ);
     if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     var textBlock = this;
-    super_.createLeftOf.call(this, cursor);
+    super.createLeftOf.call(this, cursor);
 
     cursor.insAtRightEnd(textBlock);
 
@@ -39,7 +41,7 @@ var TextBlock = P(Node, function(_, super_) {
     textBlock.bubble(function (node) { node.reflow(); });
   };
 
-  _.parser = function() {
+  parser () {
     var textBlock = this;
 
     // TODO: correctly parse text mode
@@ -57,61 +59,70 @@ var TextBlock = P(Node, function(_, super_) {
     ;
   };
 
-  _.textContents = function() {
+  textContents () {
     return this.foldChildren('', function(text, child) {
       return text + child.text;
     });
   };
-  _.text = function() { return '"' + this.textContents() + '"'; };
-  _.latex = function() {
+  text () { return '"' + this.textContents() + '"'; };
+  latex () {
     var contents = this.textContents();
     if (contents.length === 0) return '';
     return this.ctrlSeq + '{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
   };
-  _.html = function() {
+  html () {
     return (
         '<span class="mq-text-mode" mathquill-command-id='+this.id+'>'
       +   this.textContents()
       + '</span>'
     );
   };
-  _.mathspeakTemplate = ['Start'+_.ariaLabel, 'End'+_.ariaLabel];
-  _.mathspeak = function(opts) {
+
+  static _todoMoveIntoConstructor =
+    TextBlock.prototype.mathspeakTemplate =
+      ['Start'+TextBlock.prototype.ariaLabel, 'End'+TextBlock.prototype.ariaLabel];
+  mathspeak (opts) {
     if (opts && opts.ignoreShorthand) {
       return this.mathspeakTemplate[0]+', '+this.textContents() +', '+this.mathspeakTemplate[1]
     } else {
       return this.textContents();
     }
   };
-  _.isTextBlock = function() {
+  isTextBlock () {
     return true;
   };
 
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  _.moveTowards = function(dir, cursor) {
+  moveTowards (dir, cursor) {
     cursor.insAtDirEnd(-dir, this);
     aria.queueDirEndOf(-dir).queue(cursor.parent, true);
   };
-  _.moveOutOf = function(dir, cursor) {
+  moveOutOf (dir, cursor) {
     cursor.insDirOf(dir, this);
     aria.queueDirOf(dir).queue(this);
   };
-  _.unselectInto = _.moveTowards;
+  unselectInto (dir,cursor) {
+    this.moveTowards(dir, cursor);
+  }
 
   // TODO: make these methods part of a shared mixin or something.
-  _.selectTowards = MathCommand.prototype.selectTowards;
-  _.deleteTowards = MathCommand.prototype.deleteTowards;
+  selectTowards (dir, cursor) {
+    MathCommand.prototype.selectTowards.call(this, dir, cursor);
+  }
+  deleteTowards (dir, cursor) {
+    MathCommand.prototype.deleteTowards.call(this, dir, cursor);
+  }
 
-  _.selectOutOf = function(dir, cursor) {
+  selectOutOf (dir, cursor) {
     cursor.insDirOf(dir, this);
   };
-  _.deleteOutOf = function(dir, cursor) {
+  deleteOutOf (dir, cursor) {
     // backspace and delete at ends of block don't unwrap
     if (this.isEmpty()) cursor.insRightOf(this);
   };
-  _.write = function(cursor, ch) {
+  write (cursor, ch) {
     cursor.show().deleteSelection();
 
     if (ch !== '$') {
@@ -125,27 +136,27 @@ var TextBlock = P(Node, function(_, super_) {
     else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
     else { // split apart
-      var leftBlock = TextBlock();
+      var leftBlock = new TextBlock();
       var leftPc = this.ends[L];
       leftPc.disown().jQ.detach();
       leftPc.adopt(leftBlock, 0, 0);
 
       cursor.insLeftOf(this);
-      super_.createLeftOf.call(leftBlock, cursor); // micro-optimization, not for correctness
+      super.createLeftOf.call(leftBlock, cursor); // micro-optimization, not for correctness
     }
     this.bubble(function (node) { node.reflow(); });
     // TODO needs tests
     aria.alert(ch);
   };
-  _.writeLatex = function(cursor, latex) {
+  writeLatex (cursor, latex) {
     if (!cursor[L]) TextPiece(latex).createLeftOf(cursor);
     else cursor[L].appendText(latex);
     this.bubble(function (node) { node.reflow(); });
   };
 
-  _.seek = function(pageX, cursor) {
+  seek (pageX, cursor) {
     cursor.hide();
-    var textPc = fuseChildren(this);
+    var textPc = TextBlockFuseChildren(this);
 
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.jQ.width()/this.text.length;
@@ -190,7 +201,7 @@ var TextBlock = P(Node, function(_, super_) {
     }
   };
 
-  _.blur = function(cursor) {
+  blur (cursor) {
     MathBlock.prototype.blur.call(this);
     if (!cursor) return;
     if (this.textContents() === '') {
@@ -198,27 +209,29 @@ var TextBlock = P(Node, function(_, super_) {
       if (cursor[L] === this) cursor[L] = this[L];
       else if (cursor[R] === this) cursor[R] = this[R];
     }
-    else fuseChildren(this);
+    else TextBlockFuseChildren(this);
   };
 
-  function fuseChildren(self) {
-    self.jQ[0].normalize();
-
-    var textPcDom = self.jQ[0].firstChild;
-    if (!textPcDom) return;
-    pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
-    // nodeType === 3 has meant a Text node since ancient times:
-    //   http://reference.sitepoint.com/javascript/Node/nodeType
-
-    var textPc = TextPiece(textPcDom.data);
-    textPc.jQadd(textPcDom);
-
-    self.children().disown();
-    return textPc.adopt(self, 0, 0);
+  focus () {
+    MathBlock.prototype.focus.call(this);
   }
+};
 
-  _.focus = MathBlock.prototype.focus;
-});
+function TextBlockFuseChildren(self) {
+  self.jQ[0].normalize();
+
+  var textPcDom = self.jQ[0].firstChild;
+  if (!textPcDom) return;
+  pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
+  // nodeType === 3 has meant a Text node since ancient times:
+  //   http://reference.sitepoint.com/javascript/Node/nodeType
+
+  var textPc = TextPiece(textPcDom.data);
+  textPc.jQadd(textPcDom);
+
+  self.children().disown();
+  return textPc.adopt(self, 0, 0);
+}
 
 /**
  * Piece of plain text, with a TextBlock as a parent and no children.
@@ -331,7 +344,7 @@ LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-LatexCmds.textmd = TextBlock;
+LatexCmds.textmd = P(TextBlock, {});
 
 function makeTextBlock(latex, ariaLabel, tagName, attrs) {
   return P(TextBlock, {
