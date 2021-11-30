@@ -192,11 +192,16 @@ class Digit extends DigitGroupingChar {
   };
 }
 
-var Variable = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+class Variable extends Symbol {
+  constructor (ch, html) {
+    super();
+    this.init(ch, html);
+  }
+
+  init (ch, html) {
+    super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
   };
-  _.text = function() {
+  text () {
     var text = this.ctrlSeq;
     if (this.isPartOfOperator) {
       if (text[0] == '\\') {
@@ -216,14 +221,14 @@ var Variable = P(Symbol, function(_, super_) {
     }
     return text;
   };
-  _.mathspeak = function() {
+  mathspeak () {
     var text = this.ctrlSeq;
     if (
       this.isPartOfOperator ||
       text.length > 1 ||
       (this.parent && this.parent.parent && this.parent.parent.isTextBlock())
     ) {
-      return super_.mathspeak.call(this);
+      return super.mathspeak.call(this);
     } else {
       // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
       // some strange pronunciation given certain expressions,
@@ -233,7 +238,11 @@ var Variable = P(Symbol, function(_, super_) {
       return '"'+text+'"';
     }
   };
-});
+};
+function bindVariable (ch, html) {
+  return () => new Variable(ch, html);
+}
+
 
 Options.p.autoCommands = { _maxLength: 0 };
 optionProcessors.autoCommands = function(cmds) {
@@ -640,50 +649,50 @@ LatexCmds.omega = P(Variable, function(_, super_) {
 
 //why can't anybody FUCKING agree on these
 LatexCmds.phi = //W3C or Unicode?
-  bind(Variable,'\\phi ','&#981;', 'phi');
+  bindVariable('\\phi ','&#981;', 'phi');
 
 LatexCmds.phiv = //Elsevier and 9573-13
 LatexCmds.varphi = //AMS and LaTeX
-  bind(Variable,'\\varphi ','&phi;', 'phi');
+  bindVariable('\\varphi ','&phi;', 'phi');
 
 LatexCmds.epsilon = //W3C or Unicode?
-  bind(Variable,'\\epsilon ','&#1013;', 'epsilon');
+  bindVariable('\\epsilon ','&#1013;', 'epsilon');
 
 LatexCmds.epsiv = //Elsevier and 9573-13
 LatexCmds.varepsilon = //AMS and LaTeX
-  bind(Variable,'\\varepsilon ','&epsilon;', 'epsilon');
+  bindVariable('\\varepsilon ','&epsilon;', 'epsilon');
 
 LatexCmds.piv = //W3C/Unicode and Elsevier and 9573-13
 LatexCmds.varpi = //AMS and LaTeX
-  bind(Variable,'\\varpi ','&piv;', 'piv');
+  bindVariable('\\varpi ','&piv;', 'piv');
 
 LatexCmds.sigmaf = //W3C/Unicode
 LatexCmds.sigmav = //Elsevier
 LatexCmds.varsigma = //LaTeX
-  bind(Variable,'\\varsigma ','&sigmaf;', 'sigma');
+  bindVariable('\\varsigma ','&sigmaf;', 'sigma');
 
 LatexCmds.thetav = //Elsevier and 9573-13
 LatexCmds.vartheta = //AMS and LaTeX
 LatexCmds.thetasym = //W3C/Unicode
-  bind(Variable,'\\vartheta ','&thetasym;', 'theta');
+  bindVariable('\\vartheta ','&thetasym;', 'theta');
 
 LatexCmds.upsilon = //AMS and LaTeX and W3C/Unicode
 LatexCmds.upsi = //Elsevier and 9573-13
-  bind(Variable,'\\upsilon ','&upsilon;', 'upsilon');
+  bindVariable('\\upsilon ','&upsilon;', 'upsilon');
 
 //these aren't even mentioned in the HTML character entity references
 LatexCmds.gammad = //Elsevier
 LatexCmds.Gammad = //9573-13 -- WTF, right? I dunno if this was a typo in the reference (see above)
 LatexCmds.digamma = //LaTeX
-  bind(Variable,'\\digamma ','&#989;', 'gamma');
+  bindVariable('\\digamma ','&#989;', 'gamma');
 
 LatexCmds.kappav = //Elsevier
 LatexCmds.varkappa = //AMS and LaTeX
-  bind(Variable,'\\varkappa ','&#1008;', 'kappa');
+  bindVariable('\\varkappa ','&#1008;', 'kappa');
 
 LatexCmds.rhov = //Elsevier and 9573-13
 LatexCmds.varrho = //AMS and LaTeX
-  bind(Variable,'\\varrho ','&#1009;', 'rho');
+  bindVariable('\\varrho ','&#1009;', 'rho');
 
 //Greek constants, look best in non-italicized Times New Roman
 LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;', 'pi');
