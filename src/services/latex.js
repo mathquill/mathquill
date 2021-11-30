@@ -28,7 +28,7 @@ var latexMathParser = (function() {
   //   (either way, something that can be adopted by a MathBlock)
   var variable = letter.map(function(c) { return Letter(c); });
   var number = digit.map(function (c) { return Digit(c); });
-  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
+  var symbol = regex(/^[^${}\\_^]/).map(function(c) { return new VanillaSymbol(c); });
 
   var controlSequence =
     regex(/^[^\\a-eg-zA-Z]/) // hotfix #164; match MathBlock::write
@@ -324,7 +324,7 @@ Controller.open(function(_, super_) {
     ;
 
     var escapedDollar = string('\\$').result('$');
-    var textChar = escapedDollar.or(regex(/^[^$]/)).map(VanillaSymbol);
+    var textChar = escapedDollar.or(regex(/^[^$]/)).map((ch) => new VanillaSymbol(ch));
     var latexText = mathMode.or(textChar).many();
     var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
 

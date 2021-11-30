@@ -120,7 +120,7 @@ var TextBlock = P(Node, function(_, super_) {
     }
     else if (this.isEmpty()) {
       cursor.insRightOf(this);
-      VanillaSymbol('\\$','$').createLeftOf(cursor);
+      new VanillaSymbol('\\$','$').createLeftOf(cursor);
     }
     else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
@@ -378,7 +378,7 @@ var RootMathCommand = P(MathCommand, function(_, super_) {
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
         this.parent.deleteTowards(dir, cursor);
-        VanillaSymbol('\\$','$').createLeftOf(cursor.show());
+        new VanillaSymbol('\\$','$').createLeftOf(cursor.show());
       }
       else if (!cursor[R])
         cursor.insRightOf(this.parent);
@@ -406,7 +406,7 @@ var RootTextBlock = P(RootMathBlock, function(_, super_) {
       var html;
       if (ch === '<') html = '&lt;';
       else if (ch === '>') html = '&gt;';
-      VanillaSymbol(ch, html).createLeftOf(cursor);
+      new VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   };
 });

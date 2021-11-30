@@ -393,11 +393,19 @@ class Symbol extends MathCommand {
   placeCursor () {};
   isEmpty (){ return true; };
 };
-var VanillaSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html, mathspeak) {
-    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
+class VanillaSymbol extends Symbol {
+  constructor (ch, html, mathspeak) {
+    super();
+    this.init(ch, html, mathspeak);
+  }
+  init (ch, html, mathspeak) {
+    super.init(ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
-});
+}
+function bindVanillaSymbol (ch, html, mathspeak) {
+  return () => new VanillaSymbol(ch, html, mathspeak);
+}
+
 var BinaryOperator = P(Symbol, function(_, super_) {
   _.init = function(ctrlSeq, html, text, mathspeak) {
     super_.init.call(this,
@@ -517,10 +525,11 @@ var MathBlock = P(MathElement, function(_, super_) {
       return LatexCmds['×'](ch);
     else if (options && options.typingPercentWritesPercentOf && ch === '%')
       return LatexCmds.percentof(ch);
-    else if (cons = CharCmds[ch] || LatexCmds[ch])
+    else if (cons = CharCmds[ch] || LatexCmds[ch]) {
       return cons(ch);
+    }
     else
-      return VanillaSymbol(ch);
+      return new VanillaSymbol(ch);
   };
   _.write = function(cursor, ch) {
     var cmd = this.chToCmd(ch, cursor.options);

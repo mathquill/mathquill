@@ -31,7 +31,7 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
       cursor.show().deleteSelection();
 
       if (ch.match(/[a-z]/i)) {
-        VanillaSymbol(ch).createLeftOf(cursor);
+        new VanillaSymbol(ch).createLeftOf(cursor);
         // TODO needs tests
         aria.alert(ch);
       }

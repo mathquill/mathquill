@@ -554,16 +554,16 @@ LatexCmds['.'] = P(DigitGroupingChar, function(_, super_) {
   };
 });
 
-LatexCmds["'"] = LatexCmds.prime = bind(VanillaSymbol, "'", '&prime;', 'prime');
-LatexCmds['″'] = LatexCmds.dprime = bind(VanillaSymbol, '″', '&Prime;', 'double prime');
+LatexCmds["'"] = LatexCmds.prime = bindVanillaSymbol("'", '&prime;', 'prime');
+LatexCmds['″'] = LatexCmds.dprime = bindVanillaSymbol('″', '&Prime;', 'double prime');
 
-LatexCmds.backslash = bind(VanillaSymbol,'\\backslash ','\\', 'backslash');
+LatexCmds.backslash = bindVanillaSymbol('\\backslash ','\\', 'backslash');
 if (!CharCmds['\\']) CharCmds['\\'] = LatexCmds.backslash;
 
-LatexCmds.$ = bind(VanillaSymbol, '\\$', '$', 'dollar');
+LatexCmds.$ = bindVanillaSymbol('\\$', '$', 'dollar');
 
-LatexCmds.square = bind(VanillaSymbol, '\\square ', '\u25A1', 'square');
-LatexCmds.mid = bind(VanillaSymbol, '\\mid ', '\u2223', 'mid');
+LatexCmds.square = bindVanillaSymbol('\\square ', '\u25A1', 'square');
+LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 
 // does not use Symbola font
 var NonSymbolaSymbol = P(Symbol, function(_, super_) {
@@ -596,13 +596,13 @@ LatexCmds['%'] = P(NonSymbolaSymbol, function(_, super_) {
 });
 
 LatexCmds['∥'] = LatexCmds.parallel =
-  bind(VanillaSymbol, '\\parallel ', '&#x2225;', 'parallel');
+  bindVanillaSymbol('\\parallel ', '&#x2225;', 'parallel');
 
 LatexCmds['∦'] = LatexCmds.nparallel =
-  bind(VanillaSymbol, '\\nparallel ', '&#x2226;', 'not parallel');
+  bindVanillaSymbol('\\nparallel ', '&#x2226;', 'not parallel');
 
 LatexCmds['⟂'] = LatexCmds.perp =
-  bind(VanillaSymbol, '\\perp ', '&#x27C2;', 'perpendicular');
+  bindVanillaSymbol('\\perp ', '&#x27C2;', 'perpendicular');
 
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
@@ -924,7 +924,7 @@ LatexCmds['>'] = LatexCmds.gt = Greater;
 LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
 LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
 LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
-  bind(VanillaSymbol,'\\infty ','&infin;', 'infinity');
+  bindVanillaSymbol('\\infty ','&infin;', 'infinity');
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;', 'not equal');
 
 var Equality = P(BinaryOperator, function(_, super_) {
