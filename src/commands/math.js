@@ -349,32 +349,37 @@ class MathCommand extends MathElement {
 /**
  * Lightweight command without blocks or children.
  */
-var Symbol = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, html, text, mathspeak) {
+class Symbol extends MathCommand {
+  constructor (ctrlSeq, html, text, mathspeak) {
+    super(ctrlSeq, html, text);
+    this.init(ctrlSeq, html, text, mathspeak);
+  }
+
+  init (ctrlSeq, html, text, mathspeak) {
     if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
 
     this.mathspeakName = mathspeak || text;
-    super_.init.call(this, ctrlSeq, html, [ text ]);
+    super.init(ctrlSeq, html, [ text ]);
   };
 
-  _.parser = function() { return Parser.succeed(this); };
-  _.numBlocks = function() { return 0; };
+  parser () { return Parser.succeed(this); };
+  numBlocks () { return 0; };
 
-  _.replaces = function(replacedFragment) {
+  replaces (replacedFragment) {
     replacedFragment.remove();
   };
-  _.createBlocks = noop;
+  createBlocks () {};
 
-  _.moveTowards = function(dir, cursor) {
+  moveTowards (dir, cursor) {
     cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir] = this;
     cursor[dir] = this[dir];
     aria.queue(this);
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     cursor[dir] = this.remove()[dir];
   };
-  _.seek = function(pageX, cursor) {
+  seek (pageX, cursor) {
     // insert at whichever side the click was closer to
     if (pageX - this.jQ.offset().left < this.jQ.outerWidth()/2)
       cursor.insLeftOf(this);
@@ -382,12 +387,12 @@ var Symbol = P(MathCommand, function(_, super_) {
       cursor.insRightOf(this);
   };
 
-  _.latex = function(){ return this.ctrlSeq; };
-  _.text = function(){ return this.textTemplate.join(''); };
-  _.mathspeak = function(){ return this.mathspeakName; };
-  _.placeCursor = noop;
-  _.isEmpty = function(){ return true; };
-});
+  latex (){ return this.ctrlSeq; };
+  text (){ return this.textTemplate.join(''); };
+  mathspeak (){ return this.mathspeakName; };
+  placeCursor () {};
+  isEmpty (){ return true; };
+};
 var VanillaSymbol = P(Symbol, function(_, super_) {
   _.init = function(ch, html, mathspeak) {
     super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);

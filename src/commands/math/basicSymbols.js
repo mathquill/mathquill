@@ -533,7 +533,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
 
 LatexCmds.f = P(Letter, function(_, super_) {
   _.init = function() {
-    Symbol.p.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
+    Symbol.prototype.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
   };
   _.italicize = function(bool) {
     this.jQ.html('f').toggleClass('mq-f', bool);
