@@ -116,7 +116,7 @@ clean:
 $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
 	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
@@ -124,7 +124,7 @@ $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
 	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
@@ -166,5 +166,5 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ > $@
+	cat $^ | ./script/tsc-emit-only > $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
