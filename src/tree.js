@@ -153,47 +153,59 @@ function foldNodes (ends, fold, yield_) {
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
-var Node = P(function(_) {
-  _[L] = 0;
-  _[R] = 0
-  _.parent = 0;
+class NodeBase {
+  static idCounter = 0;
+  static uniqueNodeId() { return Node.idCounter += 1; }
 
-  var id = 0;
-  function uniqueNodeId() { return id += 1; }
-
-  this.getNodeOfElement = function (el) {
+  static getNodeOfElement (el) {
     if (!el) return;
     if (!el.nodeType) throw new Error('must pass an HTMLElement to Node.getNodeOfElement')
     return el.mqBlockNode || el.mqCmdNode;
   }
 
-  this.linkElementByBlockId = function (elm, id) {
+  static linkElementByBlockId (elm, id) {
     Node.linkElementByBlockNode(elm, TempByIdDict[id]);
   };
 
-  this.linkElementByBlockNode = function (elm, blockNode) {
+  static linkElementByBlockNode (elm, blockNode) {
     elm.mqBlockNode = blockNode;
   };
 
-  this.linkElementByCmdNode = function (elm, cmdNode) {
+  static linkElementByCmdNode (elm, cmdNode) {
     elm.mqCmdNode = cmdNode;
   };
 
-  _.init = function() {
-    this.id = uniqueNodeId();
-    TempByIdDict[id] = this;
-    scheduleDictionaryCleaning(id, this);
+  // any extensions that define an init method can call
+  // this version instead of completely overwriting it
+  initBaseNode () {
+    this[L] = 0;
+    this[R] = 0
+    this.parent = 0;
+  
+    this.id = Node.uniqueNodeId();
+    this.jQ = $();
+
+    TempByIdDict[this.id] = this;
+    scheduleDictionaryCleaning(this.id, this);
 
     this.ends = {};
     this.ends[L] = 0;
     this.ends[R] = 0;
   };
 
-  _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
+  // PJS expects a init method
+  init () {
+    this.initBaseNode();
+  }
 
-  _.jQ = $();
-  _.jQadd = function(jQ) { return this.jQ = this.jQ.add(jQ); };
-  _.jQize = function(jQ) {
+  constructor () {
+    this.init();
+  }
+
+  toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
+  
+  jQadd (jQ) { return this.jQ = this.jQ.add(jQ); };
+  jQize (jQ) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ = $(jQ || this.html());
 
@@ -225,7 +237,7 @@ var Node = P(function(_) {
     return jQ;
   };
 
-  _.createDir = function(dir, cursor) {
+  createDir (dir, cursor) {
     prayDirection(dir);
     var node = this;
     node.jQize();
@@ -233,13 +245,13 @@ var Node = P(function(_) {
     cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };
-  _.createLeftOf = function(el) { return this.createDir(L, el); };
+  createLeftOf (el) { return this.createDir(L, el); };
 
-  _.selectChildren = function(leftEnd, rightEnd) {
+  selectChildren (leftEnd, rightEnd) {
     return Selection(leftEnd, rightEnd);
   };
 
-  _.bubble = function (yield_) {
+  bubble (yield_) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
@@ -248,7 +260,7 @@ var Node = P(function(_) {
     return this;
   };
 
-  _.postOrder = function(yield_) {
+  postOrder (yield_) {
     (function recurse(descendant) {
       descendant.eachChild(recurse);
       yield_(descendant);
@@ -257,64 +269,64 @@ var Node = P(function(_) {
     return this;
   };
 
-  _.isEmpty = function() {
+  isEmpty () {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-
-  _.isEmptyParens = function () {
+  
+  isEmptyParens () {
     if (!this.isEmpty()) return false;
     if (!this.parent) return false;
     return this.parent.ctrlSeq === '\\left(';
   }
 
-  _.isEmptySquareBrackets = function () {
+  isEmptySquareBrackets () {
     if (!this.isEmpty()) return false;
     if (!this.parent) return false;
     return this.parent.ctrlSeq === '\\left[';
   }
 
-  _.isStyleBlock = function() {
+  isStyleBlock () {
     return false;
   };
 
-  _.isTextBlock = function() {
+  isTextBlock () {
     return false;
   };
 
-  _.children = function() {
+  children () {
     return Fragment(this.ends[L], this.ends[R]);
   };
 
-  _.eachChild = function(yield_) {
+  eachChild (yield_) {
     eachNode(this.ends, yield_);
     return this;
   };
 
-  _.foldChildren = function (fold, yield_) {
+  foldChildren (fold, yield_) {
     return foldNodes(this.ends, fold, yield_);
   };
 
-  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+  withDirAdopt (dir, parent, withDir, oppDir) {
     Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
     return this;
   };
 
-  _.adopt = function(parent, leftward, rightward) {
+  adopt (parent, leftward, rightward) {
     Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
   };
 
-  _.disown = function() {
+  disown () {
     Fragment(this, this).disown();
     return this;
   };
 
-  _.remove = function() {
+  remove () {
     this.jQ.remove();
     return this.disown();
   };
 
-  _.isParentSimpleSubscript = function () {
+  isParentSimpleSubscript () {
     if (!this.parent) return false;
     if (!(this.parent.parent instanceof SupSub)) return false;
 
@@ -333,13 +345,13 @@ var Node = P(function(_) {
   };
 
   // Overridden by child classes
-  _.finalizeTree = function () { };
-  _.contactWeld = function () { };
-  _.blur = function () { };
-  _.intentionalBlur = function () { };
-  _.reflow = function () { };
-  _.registerInnerField = function () { };
-});
+  finalizeTree () { };
+  contactWeld () { };
+  blur () { };
+  intentionalBlur () { };
+  reflow () { };
+  registerInnerField () { };
+}
 
 function prayWellFormed(parent, leftward, rightward) {
   pray('a parent is always present', parent);

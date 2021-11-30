@@ -12,7 +12,7 @@ suite('Cursor::select()', function() {
         count += 1;
         assert.equal(frag.ends[L], leftEnd);
         assert.equal(frag.ends[R], rightEnd);
-        return Node.p.selectChildren.apply(this, arguments);
+        return Node.prototype.selectChildren.apply(this, arguments);
       };
 
       Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
@@ -25,10 +25,10 @@ suite('Cursor::select()', function() {
     }(A, B)(B, A));
   }
 
-  var parent = Node();
-  var child1 = Node().adopt(parent, parent.ends[R], 0);
-  var child2 = Node().adopt(parent, parent.ends[R], 0);
-  var child3 = Node().adopt(parent, parent.ends[R], 0);
+  var parent = new Node();
+  var child1 = new Node().adopt(parent, parent.ends[R], 0);
+  var child2 = new Node().adopt(parent, parent.ends[R], 0);
+  var child3 = new Node().adopt(parent, parent.ends[R], 0);
   var A = new Point(parent, 0, child1);
   var B = new Point(parent, child1, child2);
   var C = new Point(parent, child2, child3);
@@ -81,7 +81,7 @@ suite('Cursor::select()', function() {
   });
 
   test('different trees', function() {
-    var anotherTree = Node();
+    var anotherTree = new Node();
 
     Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();

@@ -14,8 +14,8 @@ suite('tree', function() {
     }
 
     test('the empty case', function() {
-      var parent = Node();
-      var child = Node();
+      var parent = new Node();
+      var child = new Node();
 
       child.adopt(parent, 0, 0);
 
@@ -28,9 +28,9 @@ suite('tree', function() {
     });
 
     test('with two children from the left', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new Node();
+      var one = new Node();
+      var two = new Node();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -39,9 +39,9 @@ suite('tree', function() {
     });
 
     test('with two children from the right', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new Node();
+      var one = new Node();
+      var two = new Node();
 
       two.adopt(parent, 0, 0);
       one.adopt(parent, 0, two);
@@ -50,10 +50,10 @@ suite('tree', function() {
     });
 
     test('adding one in the middle', function() {
-      var parent = Node();
-      var leftward = Node();
-      var rightward = Node();
-      var middle = Node();
+      var parent = new Node();
+      var leftward = new Node();
+      var rightward = new Node();
+      var middle = new Node();
 
       leftward.adopt(parent, 0, 0);
       rightward.adopt(parent, leftward, 0);
@@ -80,8 +80,8 @@ suite('tree', function() {
     }
 
     test('the empty case', function() {
-      var parent = Node();
-      var child = Node();
+      var parent = new Node();
+      var child = new Node();
 
       child.adopt(parent, 0, 0);
       child.disown();
@@ -91,9 +91,9 @@ suite('tree', function() {
     });
 
     test('disowning the right end child', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new Node();
+      var one = new Node();
+      var two = new Node();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -110,9 +110,9 @@ suite('tree', function() {
     });
 
     test('disowning the left end child', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new Node();
+      var one = new Node();
+      var two = new Node();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -129,10 +129,10 @@ suite('tree', function() {
     });
 
     test('disowning the middle', function() {
-      var parent = Node();
-      var leftward = Node();
-      var rightward = Node();
-      var middle = Node();
+      var parent = new Node();
+      var leftward = new Node();
+      var rightward = new Node();
+      var middle = new Node();
 
       leftward.adopt(parent, 0, 0);
       rightward.adopt(parent, leftward, 0);
@@ -166,17 +166,17 @@ suite('tree', function() {
 
     test('half-empty fragments are disallowed', function() {
       assert.throws(function() {
-        Fragment(Node(), 0)
+        Fragment(new Node(), 0)
       }, 'half-empty on the right');
 
       assert.throws(function() {
-        Fragment(0, Node());
+        Fragment(0, new Node());
       }, 'half-empty on the left');
     });
 
     test('directionalized constructor call', function() {
-      var ChNode = P(Node, { init: function(ch) { this.ch = ch; } });
-      var parent = Node();
+      var ChNode = P(Node, { init: function(ch) { this.initBaseNode(); this.ch = ch; } });
+      var parent = new Node();
       var a = ChNode('a').adopt(parent, parent.ends[R], 0);
       var b = ChNode('b').adopt(parent, parent.ends[R], 0);
       var c = ChNode('c').adopt(parent, parent.ends[R], 0);
@@ -192,9 +192,9 @@ suite('tree', function() {
     });
 
     test('disown is idempotent', function() {
-      var parent = Node();
-      var one = Node().adopt(parent, 0, 0);
-      var two = Node().adopt(parent, one, 0);
+      var parent = new Node();
+      var one = new Node().adopt(parent, 0, 0);
+      var two = new Node().adopt(parent, one, 0);
 
       var frag = Fragment(one, two);
       frag.disown();

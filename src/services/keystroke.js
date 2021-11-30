@@ -9,8 +9,8 @@ Controller.open(function(_) {
   };
 });
 
-Node.open(function(_) {
-  _.keystroke = function(key, e, ctrlr) {
+class Node extends NodeBase {  
+  keystroke (key, e, ctrlr) {
     var cursor = ctrlr.cursor;
 
     switch (key) {
@@ -189,15 +189,14 @@ Node.open(function(_) {
     ctrlr.scrollHoriz();
   };
 
-  _.moveOutOf = // called by Controller::escapeDir, moveDir
-  _.moveTowards = // called by Controller::moveDir
-  _.deleteOutOf = // called by Controller::deleteDir
-  _.deleteTowards = // called by Controller::deleteDir
-  _.unselectInto = // called by Controller::selectDir
-  _.selectOutOf = // called by Controller::selectDir
-  _.selectTowards = // called by Controller::selectDir
-    function() { pray('overridden or never called on this node'); };
-});
+  moveOutOf () { pray('overridden or never called on this node'); } // called by Controller::escapeDir, moveDir
+  moveTowards () { pray('overridden or never called on this node'); } // called by Controller::moveDir
+  deleteOutOf () { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  deleteTowards () { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  unselectInto () { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectOutOf () { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectTowards () { pray('overridden or never called on this node'); } // called by Controller::selectDir
+}
 
 Controller.open(function(_) {
   this.onNotify(function(e) {
