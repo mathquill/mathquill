@@ -58,21 +58,23 @@ var $ = P(jQuery, function(_) {
   };
 });
 
-var Point = P(function(_) {
-  _.parent = 0;
-  _[L] = 0;
-  _[R] = 0;
+class Point {
 
-  _.init = function(parent, leftward, rightward) {
+  // keeping init around only for tests
+  init (parent, leftward, rightward) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
+  }
+
+  constructor (parent, leftward, rightward) {
+    this.init(parent, leftward, rightward);
   };
 
-  this.copy = function(pt) {
-    return Point(pt.parent, pt[L], pt[R]);
+  static copy (pt) {
+    return new Point(pt.parent, pt[L], pt[R]);
   };
-});
+}
 
 /*
   Mathquill used to create a global dictionary that held onto

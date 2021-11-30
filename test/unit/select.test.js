@@ -15,9 +15,9 @@ suite('Cursor::select()', function() {
         return Node.p.selectChildren.apply(this, arguments);
       };
 
-      Point.p.init.call(cursor, A.parent, A[L], A[R]);
+      Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
       cursor.startSelection();
-      Point.p.init.call(cursor, B.parent, B[L], B[R]);
+      Point.prototype.init.call(cursor, B.parent, B[L], B[R]);
       assert.equal(cursor.select(), true);
       assert.equal(count, 1);
 
@@ -29,13 +29,13 @@ suite('Cursor::select()', function() {
   var child1 = Node().adopt(parent, parent.ends[R], 0);
   var child2 = Node().adopt(parent, parent.ends[R], 0);
   var child3 = Node().adopt(parent, parent.ends[R], 0);
-  var A = Point(parent, 0, child1);
-  var B = Point(parent, child1, child2);
-  var C = Point(parent, child2, child3);
-  var D = Point(parent, child3, 0);
-  var pt1 = Point(child1, 0, 0);
-  var pt2 = Point(child2, 0, 0);
-  var pt3 = Point(child3, 0, 0);
+  var A = new Point(parent, 0, child1);
+  var B = new Point(parent, child1, child2);
+  var C = new Point(parent, child2, child3);
+  var D = new Point(parent, child3, 0);
+  var pt1 = new Point(child1, 0, 0);
+  var pt2 = new Point(child2, 0, 0);
+  var pt3 = new Point(child3, 0, 0);
 
   test('same parent, one Node', function() {
     assertSelection(A, B, child1);
@@ -75,7 +75,7 @@ suite('Cursor::select()', function() {
   });
 
   test('same Point', function() {
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();
     assert.equal(cursor.select(), false);
   });
@@ -83,14 +83,14 @@ suite('Cursor::select()', function() {
   test('different trees', function() {
     var anotherTree = Node();
 
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();
-    Point.p.init.call(cursor, anotherTree, 0, 0);
+    Point.prototype.init.call(cursor, anotherTree, 0, 0);
     assert.throws(function() { cursor.select(); });
 
-    Point.p.init.call(cursor, anotherTree, 0, 0);
+    Point.prototype.init.call(cursor, anotherTree, 0, 0);
     cursor.startSelection();
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     assert.throws(function() { cursor.select(); });
   });
 });

@@ -185,7 +185,7 @@ var TextBlock = P(Node, function(_, super_) {
         else {
           var newTextPc = cursor[R].splitRight(this.anticursorPosition - cursorPosition);
         }
-        cursor.anticursor = Point(this, newTextPc[L], newTextPc);
+        cursor.anticursor = new Point(this, newTextPc[L], newTextPc);
       }
     }
   };
