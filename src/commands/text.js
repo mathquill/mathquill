@@ -53,7 +53,7 @@ class TextBlock extends Node {
       .map(function(text) {
         if (text.length === 0) return new Fragment();
 
-        TextPiece(text).adopt(textBlock, 0, 0);
+        new TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
       })
     ;
@@ -126,7 +126,7 @@ class TextBlock extends Node {
     cursor.show().deleteSelection();
 
     if (ch !== '$') {
-      if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
+      if (!cursor[L]) new TextPiece(ch).createLeftOf(cursor);
       else cursor[L].appendText(ch);
     }
     else if (this.isEmpty()) {
@@ -149,7 +149,7 @@ class TextBlock extends Node {
     aria.alert(ch);
   };
   writeLatex (cursor, latex) {
-    if (!cursor[L]) TextPiece(latex).createLeftOf(cursor);
+    if (!cursor[L]) new TextPiece(latex).createLeftOf(cursor);
     else cursor[L].appendText(latex);
     this.bubble(function (node) { node.reflow(); });
   };
@@ -226,7 +226,7 @@ function TextBlockFuseChildren(self) {
   // nodeType === 3 has meant a Text node since ancient times:
   //   http://reference.sitepoint.com/javascript/Node/nodeType
 
-  var textPc = TextPiece(textPcDom.data);
+  var textPc = new TextPiece(textPcDom.data);
   textPc.jQadd(textPcDom);
 
   self.children().disown();
@@ -240,54 +240,59 @@ function TextBlockFuseChildren(self) {
  * mirroring the text contents of the DOMTextNode.
  * Text contents must always be nonempty.
  */
-var TextPiece = P(Node, function(_, super_) {
-  _.init = function(text) {
-    super_.init.call(this);
+class TextPiece extends Node {
+  constructor (text) {
+    super();
+    this.init(text);
+  }
+  
+  init (text) {
+    super.init.call(this);
     this.text = text;
   };
-  _.jQadd = function(dom) { this.dom = dom; this.jQ = $(dom); };
-  _.jQize = function() {
+  jQadd (dom) { this.dom = dom; this.jQ = $(dom); };
+  jQize () {
     return this.jQadd(document.createTextNode(this.text));
   };
-  _.appendText = function(text) {
+  appendText (text) {
     this.text += text;
     this.dom.appendData(text);
   };
-  _.prependText = function(text) {
+  prependText (text) {
     this.text = text + this.text;
     this.dom.insertData(0, text);
   };
-  _.insTextAtDirEnd = function(text, dir) {
+  insTextAtDirEnd (text, dir) {
     prayDirection(dir);
     if (dir === R) this.appendText(text);
     else this.prependText(text);
   };
-  _.splitRight = function(i) {
-    var newPc = TextPiece(this.text.slice(i)).adopt(this.parent, this, this[R]);
+  splitRight (i) {
+    var newPc = new TextPiece(this.text.slice(i)).adopt(this.parent, this, this[R]);
     newPc.jQadd(this.dom.splitText(i));
     this.text = this.text.slice(0, i);
     return newPc;
   };
 
-  function endChar(dir, text) {
+  endChar(dir, text) {
     return text.charAt(dir === L ? 0 : -1 + text.length);
   }
 
-  _.moveTowards = function(dir, cursor) {
+  moveTowards (dir, cursor) {
     prayDirection(dir);
 
-    var ch = endChar(-dir, this.text)
+    var ch = this.endChar(-dir, this.text)
 
     var from = this[-dir];
     if (from) from.insTextAtDirEnd(ch, dir);
-    else TextPiece(ch).createDir(-dir, cursor);
+    else new TextPiece(ch).createDir(-dir, cursor);
     return this.deleteTowards(dir, cursor);
   };
 
-  _.mathspeak =
-  _.latex = function() { return this.text; };
+  mathspeak () { return this.text; };
+  latex () { return this.text; };
 
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (this.text.length > 1) {
       var deletedChar;
       if (dir === R) {
@@ -312,14 +317,14 @@ var TextPiece = P(Node, function(_, super_) {
     }
   };
 
-  _.selectTowards = function(dir, cursor) {
+  selectTowards (dir, cursor) {
     prayDirection(dir);
     var anticursor = cursor.anticursor;
 
-    var ch = endChar(-dir, this.text)
+    var ch = this.endChar(-dir, this.text)
 
     if (anticursor[dir] === this) {
-      var newPc = TextPiece(ch).createDir(dir, cursor);
+      var newPc = new TextPiece(ch).createDir(dir, cursor);
       anticursor[dir] = newPc;
       cursor.insDirOf(dir, newPc);
     }
@@ -327,7 +332,7 @@ var TextPiece = P(Node, function(_, super_) {
       var from = this[-dir];
       if (from) from.insTextAtDirEnd(ch, dir);
       else {
-        var newPc = TextPiece(ch).createDir(-dir, cursor);
+        var newPc = new TextPiece(ch).createDir(-dir, cursor);
         newPc.jQ.insDirOf(-dir, cursor.selection.jQ);
       }
 
@@ -338,7 +343,7 @@ var TextPiece = P(Node, function(_, super_) {
 
     return this.deleteTowards(dir, cursor);
   };
-});
+};
 
 LatexCmds.text =
 LatexCmds.textnormal =
