@@ -1,15 +1,19 @@
 /*********************************
  * Symbols for Basic Mathematics
  ********************************/
-var DigitGroupingChar = P(Symbol, function(_, super_) {
-  _.finalizeTree = _.siblingDeleted = _.siblingCreated = function(opts, dir) {
+class DigitGroupingChar extends Symbol {
+  finalizeTree (opts, dir) { this.sharedSiblingMethod(opts, dir) };
+  siblingDeleted (opts, dir) { this.sharedSiblingMethod(opts, dir) };
+  siblingCreated (opts, dir) { this.sharedSiblingMethod(opts, dir) };
+  
+  sharedSiblingMethod (opts, dir) {
     // don't try to fix digit grouping if the sibling to my right changed (dir === R or
     // undefined) and it's now a DigitGroupingChar, it will try to fix grouping
     if (dir !== L && this[R] instanceof DigitGroupingChar) return;
     this.fixDigitGrouping(opts);
   };
 
-  _.fixDigitGrouping = function (opts) {
+  fixDigitGrouping (opts) {
     if (!opts.enableDigitGrouping) return;
 
     var left = this;
@@ -83,7 +87,7 @@ var DigitGroupingChar = P(Symbol, function(_, super_) {
     }
   };
 
-  _.removeGroupingBetween = function (left, right) {
+  removeGroupingBetween (left, right) {
     var node = left;
     do {
       node.setGroupingClass(undefined);
@@ -91,7 +95,7 @@ var DigitGroupingChar = P(Symbol, function(_, super_) {
     } while (node = node[R]);
   };
 
-  _.addGroupingBetween = function (start, end) {
+  addGroupingBetween (start, end) {
     var node = start;
     var count = 0;
 
@@ -135,7 +139,7 @@ var DigitGroupingChar = P(Symbol, function(_, super_) {
     }
   };
 
-  _.setGroupingClass = function (cls) {
+  setGroupingClass (cls) {
     // nothing changed (either class is the same or it's still undefined)
     if (this._groupingClass === cls) return;
 
@@ -148,7 +152,7 @@ var DigitGroupingChar = P(Symbol, function(_, super_) {
     // cache the groupingClass
     this._groupingClass = cls;
   }
-});
+};
 
 var Digit = P(DigitGroupingChar, function(_, super_) {
   _.init = function(ch, html, mathspeak) {
