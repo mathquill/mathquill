@@ -7,8 +7,8 @@
  * Some math-tree-specific extensions to Node.
  * Both MathBlock's and MathCommand's descend from it.
  */
-var MathElement = P(Node, function(_, super_) {
-  _.finalizeInsert = function(options, cursor) { // `cursor` param is only for
+class MathElement extends Node {
+  finalizeInsert (options, cursor) { // `cursor` param is only for
       // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
       // see ea7307eb4fac77c149a11ffdf9a831df85247693
     var self = this;
@@ -29,7 +29,7 @@ var MathElement = P(Node, function(_, super_) {
   // If the maxDepth option is set, make sure
   // deeply nested content is truncated. Just return
   // false if the cursor is already too deep.
-  _.prepareInsertionAt = function(cursor) {
+  prepareInsertionAt (cursor) {
     var maxDepth = cursor.options.maxDepth;
     if (maxDepth !== undefined) {
       var cursorDepth = cursor.depth();
@@ -42,7 +42,7 @@ var MathElement = P(Node, function(_, super_) {
   };
   // Remove nodes that are more than `cutoff`
   // blocks deep from this node.
-  _.removeNodesDeeperThan = function (cutoff) {
+  removeNodesDeeperThan (cutoff) {
     var depth = 0;
     var queue = [[this, depth]];
     var current;
@@ -63,7 +63,7 @@ var MathElement = P(Node, function(_, super_) {
       });
     }
   };
-});
+}
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -156,7 +156,7 @@ var MathCommand = P(MathElement, function(_, super_) {
     cursor[dir] = this[dir];
   };
   _.selectChildren = function() {
-    return Selection(this, this);
+    return new Selection(this, this);
   };
   _.unselectInto = function(dir, cursor) {
     cursor.insAtDirEnd(-dir, cursor.anticursor.ancestors[this.id]);

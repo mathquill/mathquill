@@ -243,7 +243,7 @@ class NodeBase {
   createLeftOf (el) { return this.createDir(L, el); };
 
   selectChildren (leftEnd, rightEnd) {
-    return Selection(leftEnd, rightEnd);
+    return new Selection(leftEnd, rightEnd);
   };
 
   bubble (yield_) {
@@ -381,7 +381,7 @@ function prayWellFormed(parent, leftward, rightward) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 class Fragment {
-  init (withDir, oppDir, dir) {
+  constructor (withDir, oppDir, dir) {
     this.jQ = $();
 
     if (dir === undefined) dir = L;
@@ -415,10 +415,6 @@ class Fragment {
 
     this.jQ = this.jQ.add(accum);
   };
-
-  constructor (withDir, oppDir, dir) {
-      this.init(withDir, oppDir, dir);
-  }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
   withDirAdopt (dir, parent, withDir, oppDir) {
