@@ -3,7 +3,7 @@ suite('Cursor::select()', function() {
   cursor.selectionChanged = noop;
 
   function assertSelection(A, B, leftEnd, rightEnd) {
-    var lca = leftEnd.parent, frag = Fragment(leftEnd, rightEnd || leftEnd);
+    var lca = leftEnd.parent, frag = new Fragment(leftEnd, rightEnd || leftEnd);
 
     (function eitherOrder(A, B) {
 

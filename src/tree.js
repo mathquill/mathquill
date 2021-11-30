@@ -177,7 +177,7 @@ class NodeBase {
 
   // any extensions that define an init method can call
   // this version instead of completely overwriting it
-  initBaseNode () {
+  init () {
     this[L] = 0;
     this[R] = 0
     this.parent = 0;
@@ -192,11 +192,6 @@ class NodeBase {
     this.ends[L] = 0;
     this.ends[R] = 0;
   };
-
-  // PJS expects a init method
-  init () {
-    this.initBaseNode();
-  }
 
   constructor () {
     this.init();
@@ -294,7 +289,7 @@ class NodeBase {
   };
 
   children () {
-    return Fragment(this.ends[L], this.ends[R]);
+    return new Fragment(this.ends[L], this.ends[R]);
   };
 
   eachChild (yield_) {
@@ -307,17 +302,17 @@ class NodeBase {
   };
 
   withDirAdopt (dir, parent, withDir, oppDir) {
-    Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
+    new Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
     return this;
   };
 
   adopt (parent, leftward, rightward) {
-    Fragment(this, this).adopt(parent, leftward, rightward);
+    new Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
   };
 
   disown () {
-    Fragment(this, this).disown();
+    new Fragment(this, this).disown();
     return this;
   };
 
@@ -385,8 +380,10 @@ function prayWellFormed(parent, leftward, rightward) {
  * DocumentFragment, whose contents must be detached from the visible tree
  * and have their 'parent' pointers set to the DocumentFragment).
  */
-var Fragment = P(function(_) {
-  _.init = function(withDir, oppDir, dir) {
+class Fragment {
+  init (withDir, oppDir, dir) {
+    this.jQ = $();
+
     if (dir === undefined) dir = L;
     prayDirection(dir);
 
@@ -418,14 +415,17 @@ var Fragment = P(function(_) {
 
     this.jQ = this.jQ.add(accum);
   };
-  _.jQ = $();
+
+  constructor (withDir, oppDir, dir) {
+      this.init(withDir, oppDir, dir);
+  }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
-  _.withDirAdopt = function(dir, parent, withDir, oppDir) {
+  withDirAdopt (dir, parent, withDir, oppDir) {
     return (dir === L ? this.adopt(parent, withDir, oppDir)
                       : this.adopt(parent, oppDir, withDir));
   };
-  _.adopt = function(parent, leftward, rightward) {
+  adopt (parent, leftward, rightward) {
     prayWellFormed(parent, leftward, rightward);
 
     var self = this;
@@ -462,7 +462,7 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.disown = function() {
+  disown () {
     var self = this;
     var leftEnd = self.ends[L];
 
@@ -492,20 +492,20 @@ var Fragment = P(function(_) {
     return self;
   };
 
-  _.remove = function() {
+  remove () {
     this.jQ.remove();
     return this.disown();
   };
 
-  _.each = function (yield_) {
+  each (yield_) {
     eachNode(this.ends, yield_);
     return this;
   };
 
-  _.fold = function (fold, yield_) {
+  fold (fold, yield_) {
     return foldNodes(this.ends, fold, yield_);
   };
-});
+}
 
 
 /**

@@ -689,7 +689,7 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
       }
 
       if (leftward !== cursor[L] && !cursor.isTooDeep(1)) {
-        this.replaces(Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
+        this.replaces(new Fragment(leftward[R] || cursor.parent.ends[L], cursor[L]));
         cursor[L] = leftward;
       }
     }
@@ -905,7 +905,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       var side = this.side = -brack.side; // may be pipe with .side not yet set
       this.closeOpposing(brack);
       if (brack === cursor.parent.parent && cursor[side]) { // move the stuff between
-        Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
+        new Fragment(cursor[side], cursor.parent.ends[side], -side) // me and ghost outside
           .disown().withDirAdopt(-side, brack.parent, brack, brack[side])
           .jQ.insDirOf(side, brack.jQ);
       }
@@ -915,7 +915,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       brack = this, side = brack.side;
       if (brack.replacedFragment) brack.side = 0; // wrapping seln, don't be one-sided
       else if (cursor[-side]) { // elsewise, auto-expand so ghost is at far end
-        brack.replaces(Fragment(cursor[-side], cursor.parent.ends[-side], side));
+        brack.replaces(new Fragment(cursor[-side], cursor.parent.ends[-side], side));
         cursor[-side] = 0;
       }
       super_.createLeftOf.call(brack, cursor);
@@ -967,7 +967,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       }
       if (sib) { // auto-expand so ghost is at far end
         var origEnd = this.ends[L].ends[side];
-        Fragment(sib, farEnd, -side).disown()
+        new Fragment(sib, farEnd, -side).disown()
           .withDirAdopt(-side, this.ends[L], origEnd, 0)
           .jQ.insAtDirEnd(side, this.ends[L].jQ.removeClass('mq-empty'));
         if (origEnd.siblingCreated) origEnd.siblingCreated(cursor.options, side);

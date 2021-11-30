@@ -324,9 +324,9 @@ Controller.open(function(_) {
     this.notify('edit');
     var fragRemoved;
     if (dir === L) {
-      fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+      fragRemoved = new Fragment(cursor.parent.ends[L], cursor[L]);
     } else {
-      fragRemoved = Fragment(cursor[R], cursor.parent.ends[R]);
+      fragRemoved = new Fragment(cursor[R], cursor.parent.ends[R]);
     }
     aria.queue(fragRemoved);
     fragRemoved.remove();

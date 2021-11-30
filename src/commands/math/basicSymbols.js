@@ -283,7 +283,7 @@ var Letter = P(Variable, function(_, super_) {
       while (str.length) {
         if (autoCmds.hasOwnProperty(str)) {
           for (var i = 1, l = this; i < str.length; i += 1, l = l[L]);
-          Fragment(l, this).remove();
+          new Fragment(l, this).remove();
           cursor[L] = l[L];
           return LatexCmds[str](str).createLeftOf(cursor);
         }
@@ -357,7 +357,7 @@ var Letter = P(Variable, function(_, super_) {
 
     // removeClass and delete flags from all letters before figuring out
     // which, if any, are part of an operator name
-    Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
+    new Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
       el.italicize(true).jQ.removeClass('mq-first mq-last mq-followed-by-supsub');
       el.ctrlSeq = el.letter;
     });
@@ -859,7 +859,7 @@ var To = P(BinaryOperator, function(_, super_) {
   _.deleteTowards = function(dir, cursor) {
     if (dir === L) {
       var l = cursor[L];
-      Fragment(l, this).remove();
+      new Fragment(l, this).remove();
       cursor[L] = l[L];
       LatexCmds['−']().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
@@ -972,7 +972,7 @@ var Approx = P(BinaryOperator, function(_, super_) {
   _.deleteTowards = function(dir, cursor) {
     if (dir === L) {
       var l = cursor[L];
-      Fragment(l, this).remove();
+      new Fragment(l, this).remove();
       cursor[L] = l[L];
       Sim().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });

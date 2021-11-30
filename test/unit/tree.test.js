@@ -156,7 +156,7 @@ suite('tree', function() {
 
   suite('fragments', function() {
     test('an empty fragment', function() {
-      var empty = Fragment();
+      var empty = new Fragment();
       var count = 0;
 
       empty.each(function() { count += 1 });
@@ -166,16 +166,21 @@ suite('tree', function() {
 
     test('half-empty fragments are disallowed', function() {
       assert.throws(function() {
-        Fragment(new Node(), 0)
+        new Fragment(new Node(), 0)
       }, 'half-empty on the right');
 
       assert.throws(function() {
-        Fragment(0, new Node());
+        new Fragment(0, new Node());
       }, 'half-empty on the left');
     });
 
     test('directionalized constructor call', function() {
-      var ChNode = P(Node, { init: function(ch) { this.initBaseNode(); this.ch = ch; } });
+      var ChNode = P(Node, function (_, super_) {
+        _.init = function(ch) {
+          super_.init.call(this);
+          this.ch = ch;
+        } 
+      });
       var parent = new Node();
       var a = ChNode('a').adopt(parent, parent.ends[R], 0);
       var b = ChNode('b').adopt(parent, parent.ends[R], 0);
@@ -184,11 +189,11 @@ suite('tree', function() {
       var e = ChNode('e').adopt(parent, parent.ends[R], 0);
 
       function cat(str, node) { return str + node.ch; }
-      assert.equal('bcd', Fragment(b, d).fold('', cat));
-      assert.equal('bcd', Fragment(b, d, L).fold('', cat));
-      assert.equal('bcd', Fragment(d, b, R).fold('', cat));
-      assert.throws(function() { Fragment(d, b, L); });
-      assert.throws(function() { Fragment(b, d, R); });
+      assert.equal('bcd', new Fragment(b, d).fold('', cat));
+      assert.equal('bcd', new Fragment(b, d, L).fold('', cat));
+      assert.equal('bcd', new Fragment(d, b, R).fold('', cat));
+      assert.throws(function() { new Fragment(d, b, L); });
+      assert.throws(function() { new Fragment(b, d, R); });
     });
 
     test('disown is idempotent', function() {
@@ -196,7 +201,7 @@ suite('tree', function() {
       var one = new Node().adopt(parent, 0, 0);
       var two = new Node().adopt(parent, one, 0);
 
-      var frag = Fragment(one, two);
+      var frag = new Fragment(one, two);
       frag.disown();
       frag.disown();
     });
