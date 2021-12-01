@@ -699,27 +699,18 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
   };
 });
 
-LatexCmds.ans = P(Symbol, function(_, super_) {
-  _.init = function(ch) {
-    super_.init.call(this,
+LatexCmds.ans = () => new Symbol(
       '\\operatorname{ans}',
       '<span class="mq-ans">ans</span>',
       'ans'
     );
-  };
-});
 
 LatexCmds.percent =
-LatexCmds.percentof = P(Symbol, function (_, super_) {
-  _.init = function () {
-    super_.init.call(
-      this,
+LatexCmds.percentof = () => new Symbol(
       '\\%\\operatorname{of}',
       '<span class="mq-nonSymbola mq-operator-name">% of </span>',
       'percent of'
     )
-  };
-});
 
 var SquareRoot =
 LatexCmds.sqrt = P(MathCommand, function(_, super_) {
