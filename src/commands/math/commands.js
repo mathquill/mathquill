@@ -1151,10 +1151,11 @@ class Binomial extends DelimsNode {
 LatexCmds.binom =
 LatexCmds.binomial = Binomial;
 
-var Choose =
-LatexCmds.choose = P(Binomial, function(_) {
-  _.createLeftOf = LiveFraction.prototype.createLeftOf;
-});
+LatexCmds.choose = class extends Binomial {
+  createLeftOf (cursor) {
+    LiveFraction.prototype.createLeftOf.call(this, cursor);
+  }
+};
 
 LatexCmds.editable = // backcompat with before cfd3620 on #233
 LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
