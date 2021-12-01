@@ -184,7 +184,7 @@ Controller.open(function(_, super_) {
 
     // add a minus sign
     if (!oldMinusSign && newMinusSign) {
-      var newMinusNode = PlusMinus('-');
+      var newMinusNode = new PlusMinus('-');
       var minusSpan = document.createElement('span');
       minusSpan.textContent = '-';
       newMinusNode.jQ = $(minusSpan);

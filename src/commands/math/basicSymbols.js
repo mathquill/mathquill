@@ -846,10 +846,21 @@ function isBinaryOperator(node) {
   return true;
 }
 
-var PlusMinus = P(BinaryOperator, function(_) {
+var PlusMinus = class extends BinaryOperator {
+  constructor (ch, html, mathspeak) {
+    super();
+    this.init(ch, html, mathspeak);
+  }
 
-  _.init = VanillaSymbol.prototype.init;
-  _.contactWeld = _.siblingCreated = _.siblingDeleted = function(opts, dir) {
+  init (ch, html, mathspeak) {
+    Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
+  };
+  
+  contactWeld (opts, dir) { this.sharedSiblingMethod(opts, dir)}
+  siblingCreated (opts, dir) { this.sharedSiblingMethod(opts, dir)}
+  siblingDeleted (opts, dir) { this.sharedSiblingMethod(opts, dir)}
+  
+  sharedSiblingMethod (opts, dir) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = isBinaryOperator(this)
       ? 'mq-binary-operator'
@@ -857,7 +868,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
     return this;
   };
-});
+};
 
 LatexCmds['+'] = P(PlusMinus, function(_, super_) {
   _.init = function () {
@@ -879,9 +890,9 @@ LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(Plus
 });
 
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
-  bind(PlusMinus,'\\pm ','&plusmn;', 'plus-or-minus');
+  () => new PlusMinus('\\pm ','&plusmn;', 'plus-or-minus');
 LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
-  bind(PlusMinus,'\\mp ','&#8723;', 'minus-or-plus');
+  () => new PlusMinus('\\mp ','&#8723;', 'minus-or-plus');
 
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bindBinaryOperator('\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better

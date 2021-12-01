@@ -48,7 +48,6 @@ suite('CSS', function() {
     mq.latex('(-1,-1-1)-1,(+1;+1+1)+1,(\\pm1,\\pm1\\pm1)\\pm1');
     var spans = $(mq.el()).find('.mq-root-block').find('span');
     assert.equal(spans.length, 35, 'PlusMinus expression parsed incorrectly');
-
     function isBinaryOperator(i) { return $(spans[i]).hasClass('mq-binary-operator'); }
     function assertBinaryOperator(i, s) { assert.ok(isBinaryOperator(i), '"' + s + '" should be binary'); }
     function assertUnaryOperator(i, s) { assert.ok(!isBinaryOperator(i), '"' + s + '" should be unary'); }
