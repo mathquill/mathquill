@@ -1004,39 +1004,45 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bindBinaryOperator('\\div ','&divide;', '[/]', 'over');
 
 
-var Sim = P(BinaryOperator, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, '\\sim ', '~', '~', 'tilde');
+class Sim extends BinaryOperator {
+  constructor () {
+    this.init();
+  }
+  init () {
+    super.init('\\sim ', '~', '~', 'tilde');
   };
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     if (cursor[L] instanceof Sim) {
       var l = cursor[L];
       cursor[L] = l[L];
       l.remove();
-      Approx().createLeftOf(cursor);
+      new Approx().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.createLeftOf.apply(this, arguments);
+    super.createLeftOf.apply(this, arguments);
   };
-});
+};
 
-var Approx = P(BinaryOperator, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, '\\approx ', '&approx;', '≈', 'approximately equal');
+class Approx extends BinaryOperator {
+  constructor () {
+    this.init();
+  }
+  init () {
+    super.init('\\approx ', '&approx;', '≈', 'approximately equal');
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (dir === L) {
       var l = cursor[L];
       new Fragment(l, this).remove();
       cursor[L] = l[L];
-      Sim().createLeftOf(cursor);
+      new Sim().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.deleteTowards.apply(this, arguments);
+    super.deleteTowards.apply(this, arguments);
   };
-});
+};
 
 CharCmds['~'] = LatexCmds.sim = Sim;
 LatexCmds['≈'] = LatexCmds.approx = Approx;
