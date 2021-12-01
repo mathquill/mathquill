@@ -175,18 +175,19 @@ suite('tree', function() {
     });
 
     test('directionalized constructor call', function() {
-      var ChNode = P(Node, function (_, super_) {
-        _.init = function(ch) {
-          super_.init.call(this);
-          this.ch = ch;
-        } 
-      });
+      var ChNode = class extends Node {
+        constructor (ch) {
+          this.init(ch);
+        }
+        init (ch) { super.init(); this.ch = ch };
+      }
+
       var parent = new Node();
-      var a = ChNode('a').adopt(parent, parent.ends[R], 0);
-      var b = ChNode('b').adopt(parent, parent.ends[R], 0);
-      var c = ChNode('c').adopt(parent, parent.ends[R], 0);
-      var d = ChNode('d').adopt(parent, parent.ends[R], 0);
-      var e = ChNode('e').adopt(parent, parent.ends[R], 0);
+      var a = new ChNode('a').adopt(parent, parent.ends[R], 0);
+      var b = new ChNode('b').adopt(parent, parent.ends[R], 0);
+      var c = new ChNode('c').adopt(parent, parent.ends[R], 0);
+      var d = new ChNode('d').adopt(parent, parent.ends[R], 0);
+      var e = new ChNode('e').adopt(parent, parent.ends[R], 0);
 
       function cat(str, node) { return str + node.ch; }
       assert.equal('bcd', new Fragment(b, d).fold('', cat));
