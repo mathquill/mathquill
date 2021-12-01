@@ -694,8 +694,8 @@ LatexCmds.fraction = class FracNode extends MathCommand {
 
 var LiveFraction =
 LatexCmds.over =
-CharCmds['/'] = P(Fraction, function(_, super_) {
-  _.createLeftOf = function(cursor) {
+CharCmds['/'] = class extends Fraction {
+  createLeftOf (cursor) {
     if (!this.replacedFragment) {
       var leftward = cursor[L];
 
@@ -721,9 +721,9 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
         cursor[L] = leftward;
       }
     }
-    super_.createLeftOf.call(this, cursor);
+    super.createLeftOf.call(this, cursor);
   };
-});
+};
 
 LatexCmds.ans = () => new Symbol(
       '\\operatorname{ans}',
