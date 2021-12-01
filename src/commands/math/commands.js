@@ -126,15 +126,14 @@ LatexCmds.overrightarrow = () => new Style('\\overrightarrow', 'span', 'class="m
 LatexCmds.overleftarrow = () => new Style('\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
 LatexCmds.overleftrightarrow = () => new Style('\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
 LatexCmds.overarc = () => new Style('\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
-LatexCmds.dot = P(MathCommand, function(_, super_) {
-    _.init = function() {
-        super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
+LatexCmds.dot = () => {
+  return new MathCommand('\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
             + '<span class="mq-dot-recurring">&#x2d9;</span>'
             + '<span class="mq-empty-box">&0</span>'
             + '</span></span>'
         );
-    };
-});
+};
+
 
 // `\textcolor{color}{math}` will apply a color to the given math content, where
 // `color` is any valid CSS Color Value (see [SitePoint docs][] (recommended),
