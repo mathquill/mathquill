@@ -850,14 +850,6 @@ class DelimsNode extends MathCommand {
   };
 }
 
-function DelimsMixin(_, super_) {
-  _.jQadd = function() {
-    super_.jQadd.apply(this, arguments);
-    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
-    this.contentjQ = this.jQ.children(':eq(1)');
-  };
-}
-
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 //   first typed as one-sided bracket with matching "ghost" bracket at
 //   far end of current block, until you type an opposing one
@@ -1125,33 +1117,39 @@ LatexCmds.right = class extends MathCommand {
   };
 };
 
-var Binomial =
-LatexCmds.binom =
-LatexCmds.binomial = P(P(MathCommand, DelimsMixin), function(_, super_) {
-  var leftSymbol = SVG_SYMBOLS['('];
-  var rightSymbol = SVG_SYMBOLS[')'];
+var leftBinomialSymbol = SVG_SYMBOLS['('];
+var rightBinomialSymbol = SVG_SYMBOLS[')'];
+class Binomial extends DelimsNode {
 
-  _.ctrlSeq = '\\binom';
-  _.htmlTemplate =
+  static _todoMoveIntoConstructor =
+    Binomial.prototype.ctrlSeq = '\\binom';
+  static _todoMoveIntoConstructor =
+    Binomial.prototype.htmlTemplate =
       '<span class="mq-non-leaf mq-bracket-container">'
-    +   '<span style="width:'+ leftSymbol.width +'" class="mq-paren mq-bracket-l mq-scaled">'
-    +     leftSymbol.html
+    +   '<span style="width:'+ leftBinomialSymbol.width +'" class="mq-paren mq-bracket-l mq-scaled">'
+    +     leftBinomialSymbol.html
     +   '</span>'
-    +   '<span style="margin-left:'+ leftSymbol.width +'; margin-right:'+ rightSymbol.width +';" class="mq-non-leaf mq-bracket-middle">'
+    +   '<span style="margin-left:'+ leftBinomialSymbol.width +'; margin-right:'+ rightBinomialSymbol.width +';" class="mq-non-leaf mq-bracket-middle">'
     +     '<span class="mq-array mq-non-leaf">'
     +       '<span>&0</span>'
     +       '<span>&1</span>'
     +     '</span>'
     +   '</span>'
-    +   '<span style="width:'+ rightSymbol.width +'" class="mq-paren mq-bracket-r mq-scaled">'
-    +     rightSymbol.html
+    +   '<span style="width:'+ rightBinomialSymbol.width +'" class="mq-paren mq-bracket-r mq-scaled">'
+    +     rightBinomialSymbol.html
     +   '</span>'
     + '</span>'
   ;
-  _.textTemplate = ['choose(',',',')'];
-  _.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
-  _.ariaLabel = 'binomial';
-});
+  static _todoMoveIntoConstructor =
+    Binomial.prototype.textTemplate = ['choose(',',',')'];
+  static _todoMoveIntoConstructor =
+    Binomial.prototype.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
+  static _todoMoveIntoConstructor =
+    Binomial.prototype.ariaLabel = 'binomial';
+};
+
+LatexCmds.binom =
+LatexCmds.binomial = Binomial;
 
 var Choose =
 LatexCmds.choose = P(Binomial, function(_) {
