@@ -617,11 +617,11 @@ class NonSymbolaSymbol extends Symbol {
 
 LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
-LatexCmds['%'] = P(NonSymbolaSymbol, function(_, super_) {
-  _.init = function () {
-    super_.init.call(this, '\\%', '%', 'percent');
+LatexCmds['%'] = class extends NonSymbolaSymbol {
+  init () {
+    super.init.call(this, '\\%', '%', 'percent');
   };
-  _.parser = function () {
+  parser () {
     var optWhitespace = Parser.optWhitespace;
     var string = Parser.string;
 
@@ -633,10 +633,10 @@ LatexCmds['%'] = P(NonSymbolaSymbol, function(_, super_) {
         .map(function () {
           return LatexCmds.percentof();
         })
-      ).or(super_.parser.call(this))
+      ).or(super.parser.call(this))
     ;
   }
-});
+};
 
 LatexCmds['∥'] = LatexCmds.parallel =
   bindVanillaSymbol('\\parallel ', '&#x2225;', 'parallel');
