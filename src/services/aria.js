@@ -11,8 +11,8 @@
  * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
-var Aria = P(function(_) {
-  _.init = function() {
+class Aria {
+  constructor () {
     this.jQ = jQuery([]); // empty element
     // Add the alert DOM element only after the page has loaded.
     jQuery(document).ready(function() {
@@ -25,7 +25,7 @@ var Aria = P(function(_) {
     this.msg = '';
   };
 
-  _.queue = function(item, shouldDescribe) {
+  queue (item, shouldDescribe) {
     var output = '';
     if (item instanceof Node) {
       // Some constructs include verbal shorthand (such as simple fractions and exponents).
@@ -52,16 +52,16 @@ var Aria = P(function(_) {
     this.items.push(output);
     return this;
   };
-  _.queueDirOf = function(dir) {
+  queueDirOf (dir) {
     prayDirection(dir);
     return this.queue(dir === L ? 'before' : 'after');
   };
-  _.queueDirEndOf = function(dir) {
+  queueDirEndOf (dir) {
     prayDirection(dir);
     return this.queue(dir === L ? 'beginning of' : 'end of');
   };
 
-  _.alert = function(t) {
+  alert (t) {
     if (t) this.queue(t);
     if (this.items.length) {
       this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
@@ -70,18 +70,11 @@ var Aria = P(function(_) {
     return this.clear();
   };
 
-  _.clear = function() {
+  clear () {
     this.items.length = 0;
     return this;
   };
-});
+};
 
 // We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
-var aria = Aria();
-
-Controller.open(function(_) {
-  _.aria = aria;
-  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
-  // and http://www.gh-mathspeak.com/examples/grammar-rules/
-  _.exportMathSpeak = function() { return this.root.mathspeak(); };
-});
+var aria = new Aria();

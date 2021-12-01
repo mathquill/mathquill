@@ -103,4 +103,10 @@ var Controller = P(function(_) {
       this.container[0].contains(document.activeElement)
     );
   };
+
+  _.aria = aria;
+  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
+  // and http://www.gh-mathspeak.com/examples/grammar-rules/
+  _.exportMathSpeak = function() { return this.root.mathspeak(); };
+
 });

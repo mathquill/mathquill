@@ -28,13 +28,13 @@ PJS_SRC = ./node_modules/pjs/src/p.js
 
 BASE_SOURCES = \
   $(PJS_SRC) \
+  $(SRC_DIR)/services/aria.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
   $(SRC_DIR)/services/parser.util.js \
   $(SRC_DIR)/services/saneKeyboardEvents.util.js \
-  $(SRC_DIR)/services/aria.js \
   $(SRC_DIR)/services/exportText.js \
   $(SRC_DIR)/services/focusBlur.js \
   $(SRC_DIR)/services/keystroke.js \
