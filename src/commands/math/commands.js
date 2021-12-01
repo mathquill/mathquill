@@ -223,13 +223,17 @@ function getCtrlSeqsFromBlock(block) {
   return chars;
 }
 
-var SupSub = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '_{...}^{...}';
-  _.createLeftOf = function(cursor) {
+Options.p.charsThatBreakOutOfSupSub = '';
+
+class SupSub extends MathCommand {
+  static _todoMoveIntoConstructor =
+    SupSub.prototype.ctrlSeq = '_{...}^{...}';
+
+  createLeftOf (cursor) {
     if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
-    return super_.createLeftOf.apply(this, arguments);
+    return super.createLeftOf.apply(this, arguments);
   };
-  _.contactWeld = function(cursor) {
+  contactWeld (cursor) {
     // Look on either side for a SupSub, if one is found compare my
     // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
     // then call .addBlock() on it with my block; if I have one that
@@ -270,8 +274,7 @@ var SupSub = P(MathCommand, function(_, super_) {
       }
     }
   };
-  Options.p.charsThatBreakOutOfSupSub = '';
-  _.finalizeTree = function() {
+  finalizeTree () {
     this.ends[L].write = function(cursor, ch) {
       if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
         if (ch === '_') return;
@@ -290,13 +293,13 @@ var SupSub = P(MathCommand, function(_, super_) {
       MathBlock.prototype.write.apply(this, arguments);
     };
   };
-  _.moveTowards = function(dir, cursor, updown) {
+  moveTowards (dir, cursor, updown) {
     if (cursor.options.autoSubscriptNumerals && !this.sup) {
       cursor.insDirOf(dir, this);
     }
-    else super_.moveTowards.apply(this, arguments);
+    else super.moveTowards.apply(this, arguments);
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (cursor.options.autoSubscriptNumerals && this.sub) {
       var cmd = this.sub.ends[-dir];
       if (cmd instanceof Symbol) cmd.remove();
@@ -311,23 +314,23 @@ var SupSub = P(MathCommand, function(_, super_) {
         // `dir` (try it), the cursor appears to have gone "through" the ^2.
       }
     }
-    else super_.deleteTowards.apply(this, arguments);
+    else super.deleteTowards.apply(this, arguments);
   };
-  _.latex = function() {
+  latex () {
     function latex(prefix, block) {
       var l = block && block.latex();
       return block ? prefix + '{' + (l || ' ') + '}' : '';
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
-  _.text = function() {
+  text () {
     function text(prefix, block) {
       var l = block && block.text();
       return block ? prefix + (l.length === 1 ? l : '(' + (l || ' ') + ')') : '';
     }
     return text('_', this.sub) + text('^', this.sup);
   };
-  _.addBlock = function(block) {
+  addBlock (block) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
@@ -365,7 +368,7 @@ var SupSub = P(MathCommand, function(_, super_) {
       };
     }(this, 'sub sup'.split(' ')[i], 'sup sub'.split(' ')[i], 'down up'.split(' ')[i]));
   };
-});
+};
 
 function insLeftOfMeUnlessAtEnd(cursor) {
   // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
