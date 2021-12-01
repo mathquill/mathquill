@@ -1077,8 +1077,8 @@ LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ')
 LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 
 
-LatexCmds.left = P(MathCommand, function(_) {
-  _.parser = function() {
+LatexCmds.left = class extends MathCommand {
+  parser () {
     var regex = Parser.regex;
     var string = Parser.string;
     var succeed = Parser.succeed;
@@ -1105,13 +1105,13 @@ LatexCmds.left = P(MathCommand, function(_) {
       })
     ;
   };
-});
+};
 
-LatexCmds.right = P(MathCommand, function(_) {
-  _.parser = function() {
+LatexCmds.right = class extends MathCommand {
+  parser () {
     return Parser.fail('unmatched \\right');
   };
-});
+};
 
 var Binomial =
 LatexCmds.binom =
