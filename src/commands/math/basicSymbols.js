@@ -916,15 +916,20 @@ class To extends BinaryOperator {
 
 LatexCmds['→'] = LatexCmds.to = To;
 
-var Inequality = P(BinaryOperator, function(_, super_) {
-  _.init = function(data, strict) {
+class Inequality extends BinaryOperator {
+  constructor (data, strict) {
+    this.init(data,strict);
+  }
+
+  init (data,strict) {
     this.data = data;
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
-    super_.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
+    super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
                      data['text'+strictness], data['mathspeak'+strictness]);
-  };
-  _.swap = function(strict) {
+  }
+
+  swap (strict) {
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
     this.ctrlSeq = this.data['ctrlSeq'+strictness];
@@ -932,15 +937,15 @@ var Inequality = P(BinaryOperator, function(_, super_) {
     this.textTemplate = [ this.data['text'+strictness] ];
     this.mathspeakName = this.data['mathspeak'+strictness];
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (dir === L && !this.strict) {
       this.swap(true);
       this.bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.deleteTowards.apply(this, arguments);
+    super.deleteTowards.apply(this, arguments);
   };
-});
+};
 
 var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than or equal to',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<', mathspeakStrict: 'less than'};
@@ -964,10 +969,10 @@ var Greater = P(Inequality, function(_, super_) {
   };
 })
 
-LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
+LatexCmds['<'] = LatexCmds.lt = () => new Inequality(less, true);
 LatexCmds['>'] = LatexCmds.gt = Greater;
-LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
-LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
+LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = () => new Inequality(less, false);
+LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = () => new Inequality(greater, false);
 LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bindVanillaSymbol('\\infty ','&infin;', 'infinity');
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bindBinaryOperator('\\ne ','&ne;', 'not equal');
