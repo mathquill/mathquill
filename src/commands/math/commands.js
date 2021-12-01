@@ -177,29 +177,29 @@ LatexCmds.textcolor = class extends MathCommand {
 // Usage: \class{classname}{math}
 // Note regex that whitelists valid CSS classname characters:
 // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
-var Class = LatexCmds['class'] = P(MathCommand, function(_, super_) {
-  _.parser = function() {
-    var self = this, string = Parser.string, regex = Parser.regex;
+var Class = LatexCmds['class'] = class extends MathCommand {
+  parser () {
+    var string = Parser.string, regex = Parser.regex;
     return Parser.optWhitespace
       .then(string('{'))
       .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
       .skip(string('}'))
-      .then(function(cls) {
-        self.cls = cls || '';
-        self.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
-        self.ariaLabel = cls + ' class';
-        self.mathspeakTemplate = ['Start ' + self.ariaLabel + ',', 'End ' + self.ariaLabel];
-        return super_.parser.call(self);
+      .then((cls) => {
+        this.cls = cls || '';
+        this.htmlTemplate = '<span class="mq-class '+cls+'">&0</span>';
+        this.ariaLabel = cls + ' class';
+        this.mathspeakTemplate = ['Start ' + this.ariaLabel + ',', 'End ' + this.ariaLabel];
+        return super.parser();
       })
     ;
   };
-  _.latex = function() {
+  latex () {
     return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
   };
-  _.isStyleBlock = function() {
+  isStyleBlock () {
     return true;
   };
-});
+};
 
 // This test is used to determine whether an item may be treated as a whole number
 // for shortening the verbalized (mathspeak) forms of some fractions and superscripts.
