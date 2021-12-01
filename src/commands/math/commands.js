@@ -842,6 +842,14 @@ class DiacriticAbove extends MathCommand {
 LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
 LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 
+class DelimsNode extends MathCommand {
+  jQadd (el) {
+    super.jQadd(el);
+    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
+    this.contentjQ = this.jQ.children(':eq(1)');
+  };
+}
+
 function DelimsMixin(_, super_) {
   _.jQadd = function() {
     super_.jQadd.apply(this, arguments);
@@ -853,16 +861,20 @@ function DelimsMixin(_, super_) {
 // Round/Square/Curly/Angle Brackets (aka Parens/Brackets/Braces)
 //   first typed as one-sided bracket with matching "ghost" bracket at
 //   far end of current block, until you type an opposing one
-var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
-  _.init = function(side, open, close, ctrlSeq, end) {
-    super_.init.call(this, '\\left'+ctrlSeq, undefined, [open, close]);
+class Bracket extends DelimsNode {
+  constructor (side, open, close, ctrlSeq, end) {
+    this.init(side, open, close, ctrlSeq, end)
+  }
+
+  init (side, open, close, ctrlSeq, end) {
+    super.init('\\left'+ctrlSeq, undefined, [open, close]);
     this.side = side;
     this.sides = {};
     this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };
     this.sides[R] = { ch: close, ctrlSeq: end };
   };
-  _.numBlocks = function() { return 1; };
-  _.html = function() {
+  numBlocks () { return 1; };
+  html () {
     var leftSymbol = this.getSymbol(L);
     var rightSymbol = this.getSymbol(R);
 
@@ -878,15 +890,15 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       +   '</span>'
       + '</span>'
     ;
-    return super_.html.call(this);
+    return super.html();
   };
-  _.getSymbol = function (side) {
+  getSymbol (side) {
     return SVG_SYMBOLS[this.sides[side || R].ch] || {width: '0', html: ''};
   };
-  _.latex = function() {
+  latex () {
     return '\\left'+this.sides[L].ctrlSeq+this.ends[L].latex()+'\\right'+this.sides[R].ctrlSeq;
   };
-  _.mathspeak = function(opts) {
+  mathspeak (opts) {
     var open = this.sides[L].ch, close = this.sides[R].ch;
     if (open === '|' && close === '|') {
       this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
@@ -902,23 +914,23 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.mathspeakTemplate = ['left ' + BRACKET_NAMES[open]+',', ', right ' + BRACKET_NAMES[close]];
       this.ariaLabel = BRACKET_NAMES[open]+' block';
     }
-    return super_.mathspeak.call(this);
+    return super.mathspeak();
   };
-  _.matchBrack = function(opts, expectedSide, node) {
+  matchBrack (opts, expectedSide, node) {
     // return node iff it's a matching 1-sided bracket of expected side (if any)
     return node instanceof Bracket && node.side && node.side !== -expectedSide
       && (!opts.restrictMismatchedBrackets
         || OPP_BRACKS[this.sides[this.side].ch] === node.sides[node.side].ch
         || { '(': ']', '[': ')' }[this.sides[L].ch] === node.sides[R].ch) && node;
   };
-  _.closeOpposing = function(brack) {
+  closeOpposing (brack) {
     brack.side = 0;
     brack.sides[this.side] = this.sides[this.side]; // copy over my info (may be
     var $brack = brack.delimjQs.eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
       .removeClass('mq-ghost');
     this.replaceBracket($brack, this.side);
   };
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     if (!this.replacedFragment) { // unless wrapping seln in brackets,
         // check if next to or inside an opposing one-sided bracket
       var opts = cursor.options;
@@ -949,18 +961,18 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
         brack.replaces(new Fragment(cursor[-side], cursor.parent.ends[-side], side));
         cursor[-side] = 0;
       }
-      super_.createLeftOf.call(brack, cursor);
+      super.createLeftOf(cursor);
     }
     if (side === L) cursor.insAtLeftEnd(brack.ends[L]);
     else cursor.insRightOf(brack);
   };
-  _.placeCursor = noop;
-  _.unwrap = function() {
+  placeCursor () {};
+  unwrap () {
     this.ends[L].children().disown().adopt(this.parent, this, this[R])
       .jQ.insertAfter(this.jQ);
     this.remove();
   };
-  _.deleteSide = function(side, outward, cursor) {
+  deleteSide (side, outward, cursor) {
     var parent = this.parent, sib = this[side], farEnd = parent.ends[side];
 
     if (side === this.side) { // deleting non-ghost of one-sided bracket, unwrap
@@ -1008,7 +1020,7 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
                     : cursor.insAtDirEnd(side, this.ends[L]));
     }
   };
-  _.replaceBracket = function ($brack, side) {
+  replaceBracket ($brack, side) {
     var symbol = this.getSymbol(side);
     $brack.html(symbol.html).css('width', symbol.width);
 
@@ -1018,10 +1030,10 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       $brack.prev().css('margin-right', symbol.width);
     }
   };
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     this.deleteSide(-dir, false, cursor);
   };
-  _.finalizeTree = function() {
+  finalizeTree () {
     this.ends[L].deleteOutOf = function(dir, cursor) {
       this.parent.deleteSide(dir, true, cursor);
     };
@@ -1032,10 +1044,10 @@ var Bracket = P(P(MathCommand, DelimsMixin), function(_, super_) {
       this.side = 0;
     };
   };
-  _.siblingCreated = function(opts, dir) { // if something typed between ghost and far
+  siblingCreated (opts, dir) { // if something typed between ghost and far
     if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
   };
-});
+};
 
 var OPP_BRACKS = {
   '(': ')',
@@ -1063,18 +1075,18 @@ var BRACKET_NAMES = {
 
 function bindCharBracketPair(open, ctrlSeq, name) {
   var ctrlSeq = ctrlSeq || open, close = OPP_BRACKS[open], end = OPP_BRACKS[ctrlSeq];
-  CharCmds[open] = bind(Bracket, L, open, close, ctrlSeq, end);
-  CharCmds[close] = bind(Bracket, R, open, close, ctrlSeq, end);
+  CharCmds[open] = () => new Bracket(L, open, close, ctrlSeq, end);
+  CharCmds[close] = () => new Bracket(R, open, close, ctrlSeq, end);
   BRACKET_NAMES[open] = BRACKET_NAMES[close] = name;
 }
 bindCharBracketPair('(', null, 'parenthesis');
 bindCharBracketPair('[', null, 'bracket');
 bindCharBracketPair('{', '\\{', 'brace');
-LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
-LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
-LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+LatexCmds.langle = () => new Bracket(L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.rangle = () => new Bracket(R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+CharCmds['|'] = () => new Bracket(L, '|', '|', '|', '|');
+LatexCmds.lVert = () => new Bracket(L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
+LatexCmds.rVert = () => new Bracket( '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 
 
 LatexCmds.left = class extends MathCommand {
@@ -1095,7 +1107,7 @@ LatexCmds.left = class extends MathCommand {
               var close = end.replace(/^\\/, '');
 	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
-              var cmd = Bracket(0, open, close, ctrlSeq, end);
+              var cmd = new Bracket(0, open, close, ctrlSeq, end);
               cmd.blocks = [ block ];
               block.adopt(cmd, 0, 0);
               return cmd;
