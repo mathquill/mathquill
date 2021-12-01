@@ -410,15 +410,18 @@ LatexCmds._ = class SubscriptCommand extends SupSub {
 
 LatexCmds.superscript =
 LatexCmds.supscript =
-LatexCmds['^'] = P(SupSub, function(_, super_) {
-  _.supsub = 'sup';
-  _.htmlTemplate =
+LatexCmds['^'] = class SuperscriptCommand extends SupSub {
+  static _todoMoveIntoConstructor =
+    SuperscriptCommand.prototype.supsub = 'sup';
+  static _todoMoveIntoConstructor =
+    SuperscriptCommand.prototype.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf mq-sup-only">'
     +   '<span class="mq-sup">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = ['^(', ')'];
-  _.mathspeak = function(opts) {
+  static _todoMoveIntoConstructor =
+    SuperscriptCommand.prototype.textTemplate = ['^(', ')'];
+  mathspeak (opts) {
     // Simplify basic exponent speech for common whole numbers.
     var child = this.upInto;
     if (child !== undefined) {
@@ -460,17 +463,19 @@ LatexCmds['^'] = P(SupSub, function(_, super_) {
         return 'to the ' + innerMathspeak + suffix + ' power';
       }
     }
-    return super_.mathspeak.call(this);
+    return super.mathspeak();
   };
 
-  _.ariaLabel = 'superscript';
-  _.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
-  _.finalizeTree = function() {
+  static _todoMoveIntoConstructor =
+    SuperscriptCommand.prototype.ariaLabel = 'superscript';
+  static _todoMoveIntoConstructor =
+    SuperscriptCommand.prototype.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
+  finalizeTree () {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
-    super_.finalizeTree.call(this);
+    super.finalizeTree();
   };
-});
+};
 
 var SummationNotation = P(MathCommand, function(_, super_) {
   _.init = function(ch, html, ariaLabel) {
