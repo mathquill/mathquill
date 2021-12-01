@@ -6,11 +6,7 @@ LatexCmds.notin =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this, '\\'+latex+' ', '&'+latex+';');
-  };
-});
+LatexCmds.otimes = (latex) => new BinaryOperator('\\'+latex+' ', '&'+latex+';');
 
 LatexCmds['∗'] = LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
   bindBinaryOperator('\\ast ','&lowast;', 'low asterisk');
