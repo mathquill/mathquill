@@ -80,27 +80,31 @@ var SVG_SYMBOLS = {
   }
 };
 
-var Style = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, tagName, attrs, ariaLabel, opts) {
-    super_.init.call(this, ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
-    _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
-    _.mathspeakTemplate = ['Start' + _.ariaLabel + ',', 'End' + _.ariaLabel];
+class Style extends MathCommand {
+  constructor (ctrlSeq, tagName, attrs, ariaLabel, opts) {
+    this.init(ctrlSeq, tagName, attrs, ariaLabel, opts);
+  }
+  
+  init (ctrlSeq, tagName, attrs, ariaLabel, opts) {
+    super.init(ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
+    this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
+    this.mathspeakTemplate = ['Start' + this.ariaLabel + ',', 'End' + this.ariaLabel];
     // In most cases, mathspeak should announce the start and end of style blocks.
     // There is one exception currently (mathrm).
-    _.shouldNotSpeakDelimiters = opts && opts.shouldNotSpeakDelimiters;
+    this.shouldNotSpeakDelimiters = opts && opts.shouldNotSpeakDelimiters;
   };
-  _.mathspeak = function(opts) {
+  mathspeak (opts) {
     if (
       !this.shouldNotSpeakDelimiters ||
       (opts && opts.ignoreShorthand)
     ) {
-      return super_.mathspeak.call(this);
+      return super.mathspeak.call(this);
     }
     return this.foldChildren('', function(speech, block) {
       return speech + ' ' + block.mathspeak(opts);
     }).trim();
   };
-});
+};
 
 //fonts
 LatexCmds.mathrm = P(Style, function(_, super_) {
@@ -111,17 +115,17 @@ LatexCmds.mathrm = P(Style, function(_, super_) {
     return true;
   };
 });
-LatexCmds.mathit = bind(Style, '\\mathit', 'i', 'class="mq-font"', 'Italic Font');
-LatexCmds.mathbf = bind(Style, '\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
-LatexCmds.mathsf = bind(Style, '\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
-LatexCmds.mathtt = bind(Style, '\\mathtt', 'span', 'class="mq-monospace mq-font"', 'Math Text');
+LatexCmds.mathit = () => new Style('\\mathit', 'i', 'class="mq-font"', 'Italic Font');
+LatexCmds.mathbf = () => new Style('\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
+LatexCmds.mathsf = () => new Style('\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
+LatexCmds.mathtt = () => new Style('\\mathtt', 'span', 'class="mq-monospace mq-font"', 'Math Text');
 //text-decoration
-LatexCmds.underline = bind(Style, '\\underline', 'span', 'class="mq-non-leaf mq-underline"', 'Underline');
-LatexCmds.overline = LatexCmds.bar = bind(Style, '\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline');
-LatexCmds.overrightarrow = bind(Style, '\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"', 'Over Right Arrow');
-LatexCmds.overleftarrow = bind(Style, '\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
-LatexCmds.overleftrightarrow = bind(Style, '\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
-LatexCmds.overarc = bind(Style, '\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
+LatexCmds.underline = () => new Style('\\underline', 'span', 'class="mq-non-leaf mq-underline"', 'Underline');
+LatexCmds.overline = LatexCmds.bar = () => new Style('\\overline', 'span', 'class="mq-non-leaf mq-overline"', 'Overline');
+LatexCmds.overrightarrow = () => new Style('\\overrightarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-right"', 'Over Right Arrow');
+LatexCmds.overleftarrow = () => new Style('\\overleftarrow', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-left"', 'Over Left Arrow');
+LatexCmds.overleftrightarrow = () => new Style('\\overleftrightarrow ', 'span', 'class="mq-non-leaf mq-overarrow mq-arrow-leftright"', 'Over Left and Right Arrow');
+LatexCmds.overarc = () => new Style('\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
 LatexCmds.dot = P(MathCommand, function(_, super_) {
     _.init = function() {
         super_.init.call(this, '\\dot', '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">'
