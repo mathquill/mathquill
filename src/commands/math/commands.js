@@ -824,8 +824,11 @@ LatexCmds.cbrt = class extends NthRoot {
   };
 };
 
-var DiacriticAbove = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, symbol, textTemplate) {
+class DiacriticAbove extends MathCommand {
+  constructor (ctrlSeq, symbol, textTemplate) {
+    this.init(ctrlSeq, symbol, textTemplate);
+  }
+  init (ctrlSeq, symbol, textTemplate) {
     var htmlTemplate =
       '<span class="mq-non-leaf">'
       +   '<span class="mq-diacritic-above">'+symbol+'</span>'
@@ -833,11 +836,11 @@ var DiacriticAbove = P(MathCommand, function(_, super_) {
       + '</span>'
     ;
 
-    super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
+    super.init(ctrlSeq, htmlTemplate, textTemplate);
   };
-});
-LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
-LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
+};
+LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
+LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 
 function DelimsMixin(_, super_) {
   _.jQadd = function() {
