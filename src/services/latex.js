@@ -40,7 +40,11 @@ var latexMathParser = (function() {
       var cmdKlass = LatexCmds[ctrlSeq];
 
       if (cmdKlass) {
-        return cmdKlass(ctrlSeq).parser();
+        if (cmdKlass.constructor) {
+          return new cmdKlass(ctrlSeq).parser();
+        } else {
+          return cmdKlass(ctrlSeq).parser();
+        }
       }
       else {
         return fail('unknown command: \\'+ctrlSeq);

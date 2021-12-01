@@ -545,10 +545,10 @@ for (var fn in AutoOpNames) if (AutoOpNames.hasOwnProperty(fn)) {
 function makeOperatorName (fn) {
   return new OperatorName(fn);
 }
-LatexCmds.operatorname = P(MathCommand, function(_) {
-  _.createLeftOf = noop;
-  _.numBlocks = function() { return 1; };
-  _.parser = function() {
+LatexCmds.operatorname = class extends MathCommand {
+  createLeftOf () {};
+  numBlocks () { return 1; };
+  parser () {
     return latexMathParser.block.map(function(b) {
       // Check for the special case of \operatorname{ans}, which has
       // a special html representation
@@ -567,7 +567,7 @@ LatexCmds.operatorname = P(MathCommand, function(_) {
       return children;
     });
   };
-});
+};
 
 LatexCmds.f = P(Letter, function(_, super_) {
   _.init = function() {
