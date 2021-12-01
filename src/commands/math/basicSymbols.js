@@ -751,9 +751,11 @@ LatexCmds.forall = (latex) => new VanillaSymbol('\\'+latex+' ','&'+latex+';')
 
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
-var LatexFragment = P(MathCommand, function(_) {
-  _.init = function(latex) { this.latex = latex; };
-  _.createLeftOf = function(cursor) {
+class LatexFragment extends MathCommand {
+  init (latex) {
+    this.latex = latex;
+  }
+  createLeftOf (cursor) {
     var block = latexMathParser.parse(this.latex);
     block.children().adopt(cursor.parent, cursor[L], cursor[R]);
     cursor[L] = block.ends[R];
@@ -763,12 +765,12 @@ var LatexFragment = P(MathCommand, function(_) {
     if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
     cursor.parent.bubble(function (node) { node.reflow(); });
   };
-  _.mathspeak = function() { return latexMathParser.parse(this.latex).mathspeak(); };
-  _.parser = function() {
+  mathspeak () { return latexMathParser.parse(this.latex).mathspeak(); };
+  parser () {
     var frag = latexMathParser.parse(this.latex).children();
     return Parser.succeed(frag);
   };
-});
+};
 
 // for what seems to me like [stupid reasons][1], Unicode provides
 // subscripted and superscripted versions of all ten Arabic numerals,
@@ -794,20 +796,20 @@ var LatexFragment = P(MathCommand, function(_) {
 // [2]: http://en.wikipedia.org/wiki/Number_Forms
 // [3]: http://en.wikipedia.org/wiki/ISO/IEC_8859-1
 // [4]: http://en.wikipedia.org/wiki/Windows-1252
-LatexCmds['⁰'] = bind(LatexFragment, '^0');
-LatexCmds['¹'] = bind(LatexFragment, '^1');
-LatexCmds['²'] = bind(LatexFragment, '^2');
-LatexCmds['³'] = bind(LatexFragment, '^3');
-LatexCmds['⁴'] = bind(LatexFragment, '^4');
-LatexCmds['⁵'] = bind(LatexFragment, '^5');
-LatexCmds['⁶'] = bind(LatexFragment, '^6');
-LatexCmds['⁷'] = bind(LatexFragment, '^7');
-LatexCmds['⁸'] = bind(LatexFragment, '^8');
-LatexCmds['⁹'] = bind(LatexFragment, '^9');
+LatexCmds['⁰'] = () => new LatexFragment('^0');
+LatexCmds['¹'] = () => new LatexFragment('^1');
+LatexCmds['²'] = () => new LatexFragment('^2');
+LatexCmds['³'] = () => new LatexFragment('^3');
+LatexCmds['⁴'] = () => new LatexFragment('^4');
+LatexCmds['⁵'] = () => new LatexFragment('^5');
+LatexCmds['⁶'] = () => new LatexFragment('^6');
+LatexCmds['⁷'] = () => new LatexFragment('^7');
+LatexCmds['⁸'] = () => new LatexFragment('^8');
+LatexCmds['⁹'] = () => new LatexFragment('^9');
 
-LatexCmds['¼'] = bind(LatexFragment, '\\frac14');
-LatexCmds['½'] = bind(LatexFragment, '\\frac12');
-LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
+LatexCmds['¼'] = () => new LatexFragment('\\frac14');
+LatexCmds['½'] = () => new LatexFragment('\\frac12');
+LatexCmds['¾'] = () => new LatexFragment('\\frac34');
 
 // this is a hack to make pasting the √ symbol
 // actually insert a sqrt command. This isn't ideal,
@@ -831,7 +833,7 @@ LatexCmds['¾'] = bind(LatexFragment, '\\frac34');
 // act more like simply typing the characters out. I'd be scared to try
 // to make that change because I'm fairly confident I'd break something
 // around handling valid latex as latex rather than treating it as keystrokes.
-LatexCmds['√'] = bind(LatexFragment, '\\sqrt{}');
+LatexCmds['√'] = () => new LatexFragment('\\sqrt{}');
 
 // Binary operator determination is used in several contexts for PlusMinus nodes and their descendants.
 // For instance, we set the item's class name based on this factor, and also assign different mathspeak values (plus vs positive, negative vs minus).
