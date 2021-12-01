@@ -738,10 +738,11 @@ LatexCmds.percentof = () => new Symbol(
       'percent of'
     )
 
-var SquareRoot =
-LatexCmds.sqrt = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\sqrt';
-  _.htmlTemplate =
+class SquareRoot extends MathCommand {
+  static _todoMoveIntoConstructor =
+    SquareRoot.prototype.ctrlSeq = '\\sqrt';
+  static _todoMoveIntoConstructor =
+    SquareRoot.prototype.htmlTemplate =
       '<span class="mq-non-leaf mq-sqrt-container">'
     +   '<span class="mq-scaled mq-sqrt-prefix">'
     +     SVG_SYMBOLS.sqrt.html
@@ -749,10 +750,13 @@ LatexCmds.sqrt = P(MathCommand, function(_, super_) {
     +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = ['sqrt(', ')'];
-  _.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
-  _.ariaLabel = 'root';
-  _.parser = function() {
+  static _todoMoveIntoConstructor =
+    SquareRoot.prototype.textTemplate = ['sqrt(', ')'];
+  static _todoMoveIntoConstructor =
+    SquareRoot.prototype.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
+  static _todoMoveIntoConstructor =
+    SquareRoot.prototype.ariaLabel = 'root';
+  parser () {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
         var nthroot = NthRoot();
@@ -761,9 +765,10 @@ LatexCmds.sqrt = P(MathCommand, function(_, super_) {
         block.adopt(nthroot, optBlock, 0);
         return nthroot;
       });
-    }).or(super_.parser.call(this));
+    }).or(super.parser.call(this));
   };
-});
+};
+LatexCmds.sqrt = SquareRoot;
 
 var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\hat';
