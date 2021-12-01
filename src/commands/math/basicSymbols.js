@@ -255,7 +255,7 @@ optionProcessors.autoCommands = function(cmds) {
     if (cmd.length < 2) {
       throw 'autocommand "'+cmd+'" not minimum length of 2';
     }
-    if (LatexCmds[cmd] === OperatorName) {
+    if (LatexCmds[cmd] === OperatorName || LatexCmds[cmd] === makeOperatorName) {
       throw '"' + cmd + '" is a built-in operator name';
     }
     dict[cmd] = 1;
@@ -515,15 +515,22 @@ optionProcessors.autoOperatorNames = function(cmds) {
   dict._maxLength = maxLength;
   return dict;
 };
-var OperatorName = P(Symbol, function(_, super_) {
-  _.init = function(fn) { this.ctrlSeq = fn; };
-  _.createLeftOf = function(cursor) {
+class OperatorName extends Symbol {
+  constructor (fn) {
+    // super(); -- did not have super() originally
+    this.init(fn);
+  }
+  init (fn) {
+    // did not call super.init() originally
+    this.ctrlSeq = fn;
+  };
+  createLeftOf (cursor) {
     var fn = this.ctrlSeq;
     for (var i = 0; i < fn.length; i += 1) {
       new Letter(fn.charAt(i)).createLeftOf(cursor);
     }
   };
-  _.parser = function() {
+  parser () {
     var fn = this.ctrlSeq;
     var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
@@ -531,9 +538,12 @@ var OperatorName = P(Symbol, function(_, super_) {
     }
     return Parser.succeed(block.children());
   };
-});
+};
 for (var fn in AutoOpNames) if (AutoOpNames.hasOwnProperty(fn)) {
-  LatexCmds[fn] = OperatorName;
+  LatexCmds[fn] = makeOperatorName;
+}
+function makeOperatorName (fn) {
+  return new OperatorName(fn);
 }
 LatexCmds.operatorname = P(MathCommand, function(_) {
   _.createLeftOf = noop;
