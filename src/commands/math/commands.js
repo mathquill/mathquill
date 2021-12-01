@@ -107,14 +107,14 @@ class Style extends MathCommand {
 };
 
 //fonts
-LatexCmds.mathrm = P(Style, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, '\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
+LatexCmds.mathrm = class extends Style {
+  init () {
+    super.init('\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
   };
-  _.isTextBlock = function() {
+  isTextBlock () {
     return true;
   };
-});
+};
 LatexCmds.mathit = () => new Style('\\mathit', 'i', 'class="mq-font"', 'Italic Font');
 LatexCmds.mathbf = () => new Style('\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
 LatexCmds.mathsf = () => new Style('\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
