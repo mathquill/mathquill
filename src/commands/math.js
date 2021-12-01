@@ -532,7 +532,11 @@ class MathBlock extends MathElement {
     else if (options && options.typingPercentWritesPercentOf && ch === '%')
       return LatexCmds.percentof(ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch]) {
-      return cons(ch);
+      if (cons.constructor) {
+        return new cons(ch);
+      } else {
+        return cons(ch);
+      }
     }
     else
       return new VanillaSymbol(ch);

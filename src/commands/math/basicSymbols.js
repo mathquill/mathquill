@@ -569,15 +569,15 @@ LatexCmds.operatorname = class extends MathCommand {
   };
 };
 
-LatexCmds.f = P(Letter, function(_, super_) {
-  _.init = function() {
+LatexCmds.f = class extends Letter {
+  init () {
     Symbol.prototype.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
   };
-  _.italicize = function(bool) {
+  italicize (bool) {
     this.jQ.html('f').toggleClass('mq-f', bool);
-    return super_.italicize.apply(this, arguments);
+    return super.italicize.apply(this, arguments);
   };
-});
+};
 
 // VanillaSymbol's
 LatexCmds[' '] = LatexCmds.space = P(DigitGroupingChar, function(_, super_) {
