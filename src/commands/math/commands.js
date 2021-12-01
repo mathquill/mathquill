@@ -477,9 +477,13 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
   };
 };
 
-var SummationNotation = P(MathCommand, function(_, super_) {
-  _.init = function(ch, html, ariaLabel) {
-    _.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
+class SummationNotation extends MathCommand {
+  constructor (ch, html, ariaLabel) {
+    this.init(ch, html, ariaLabel)
+  }
+
+  init (ch, html, ariaLabel) {
+    this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="mq-to"><span>&1</span></span>'
@@ -489,25 +493,25 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
   };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
+  createLeftOf (cursor) {
+    super.createLeftOf.apply(this, arguments);
     if (cursor.options.sumStartsWithNEquals) {
       new Letter('n').createLeftOf(cursor);
       new Equality().createLeftOf(cursor);
     }
   };
-  _.latex = function() {
+  latex () {
     function simplify(latex) {
       return '{' + (latex || ' ') + '}';
     }
     return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
       '^' + simplify(this.ends[R].latex());
   };
-  _.mathspeak = function() {
+  mathspeak () {
     return 'Start ' + this.ariaLabel + ' from ' + this.ends[L].mathspeak() +
       ' to ' + this.ends[R].mathspeak() + ', end ' + this.ariaLabel + ', ';
   };
-  _.parser = function() {
+  parser () {
     var string = Parser.string;
     var optWhitespace = Parser.optWhitespace;
     var succeed = Parser.succeed;
@@ -527,7 +531,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
       });
     }).many().result(self);
   };
-  _.finalizeTree = function() {
+  finalizeTree () {
     this.ends[L].ariaLabel = 'lower bound';
     this.ends[R].ariaLabel = 'upper bound';
     this.downInto = this.ends[L];
@@ -535,18 +539,18 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     this.ends[L].upOutOf = this.ends[R];
     this.ends[R].downOutOf = this.ends[L];
   };
-});
+};
 
 LatexCmds['∑'] =
 LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;', 'sum');
+LatexCmds.summation = () => new SummationNotation('\\sum ','&sum;', 'sum');
 
 LatexCmds['∏'] =
 LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;', 'product');
+LatexCmds.product = () => new SummationNotation('\\prod ','&prod;', 'product');
 
 LatexCmds.coprod =
-LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;', 'co product');
+LatexCmds.coproduct = () => new SummationNotation('\\coprod ','&#8720;', 'co product');
 
 LatexCmds['∫'] =
 LatexCmds['int'] =
