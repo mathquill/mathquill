@@ -759,7 +759,7 @@ class SquareRoot extends MathCommand {
   parser () {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
-        var nthroot = NthRoot();
+        var nthroot = new NthRoot();
         nthroot.blocks = [ optBlock, block ];
         optBlock.adopt(nthroot, 0, 0);
         block.adopt(nthroot, optBlock, 0);
@@ -784,9 +784,9 @@ LatexCmds.hat = class Hat extends MathCommand {
     Hat.prototype.textTemplate = ['hat(', ')'];
 };
 
-var NthRoot =
-LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
-  _.htmlTemplate =
+class NthRoot extends SquareRoot {
+  static _todoMoveIntoConstructor =
+    NthRoot.prototype.htmlTemplate =
       '<span class="mq-nthroot-container mq-non-leaf">'
     +   '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
     +   '<span class="mq-scaled mq-sqrt-container">'
@@ -797,11 +797,12 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
     +   '</span>'
     + '</span>'
   ;
-  _.textTemplate = ['sqrt[', '](', ')'];
-  _.latex = function() {
+  static _todoMoveIntoConstructor =
+    NthRoot.prototype.textTemplate = ['sqrt[', '](', ')'];
+  latex () {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
-  _.mathspeak = function() {
+  mathspeak () {
     var indexMathspeak = this.ends[L].mathspeak();
     var radicandMathspeak = this.ends[R].mathspeak();
     this.ends[L].ariaLabel = 'Index';
@@ -812,7 +813,8 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
       return 'Root Index '+indexMathspeak+', Start Root, '+radicandMathspeak+', End Root';
     }
   };
-});
+};
+LatexCmds.nthroot = NthRoot;
 
 var CubeRoot =
 LatexCmds.cbrt = P(NthRoot, function(_, super_) {
