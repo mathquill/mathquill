@@ -770,16 +770,19 @@ class SquareRoot extends MathCommand {
 };
 LatexCmds.sqrt = SquareRoot;
 
-var Hat = LatexCmds.hat = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\hat';
-  _.htmlTemplate =
+LatexCmds.hat = class Hat extends MathCommand {
+  static _todoMoveIntoConstructor =
+    Hat.prototype.ctrlSeq = '\\hat';
+  static _todoMoveIntoConstructor =
+    Hat.prototype.htmlTemplate =
       '<span class="mq-non-leaf">'
     +   '<span class="mq-hat-prefix">^</span>'
     +   '<span class="mq-hat-stem">&0</span>'
     + '</span>'
   ;
-  _.textTemplate = ['hat(', ')'];
-});
+  static _todoMoveIntoConstructor =
+    Hat.prototype.textTemplate = ['hat(', ')'];
+};
 
 var NthRoot =
 LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
