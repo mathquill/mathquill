@@ -352,15 +352,18 @@ LatexCmds.textup =
 LatexCmds.textmd = P(TextBlock, {});
 
 function makeTextBlock(latex, ariaLabel, tagName, attrs) {
-  return P(TextBlock, {
-    ctrlSeq: latex,
-    ariaLabel: ariaLabel,
-    mathspeakTemplate: ['Start'+ariaLabel, 'End'+ariaLabel],
-    html: function() {
+  var klass = class extends TextBlock {
+    html () {
       var cmdId = 'mathquill-command-id=' + this.id;
       return '<'+tagName+' '+attrs+' '+cmdId+'>'+this.textContents()+'</'+tagName+'>';
-      }
-  });
+    }
+  };
+  
+  klass.prototype.ctrlSeq = latex;
+  klass.prototype.ariaLabel = ariaLabel;
+  klass.prototype.mathspeakTemplate = ['Start'+ariaLabel, 'End'+ariaLabel];
+
+  return klass;
 }
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =

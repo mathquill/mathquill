@@ -85,7 +85,11 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     if (!latex) latex = ' ';
     var cmd = LatexCmds[latex];
     if (cmd) {
-      cmd = cmd(latex);
+      if (cmd.constructor) {
+        cmd = new cmd(latex);
+      } else {
+        cmd = cmd(latex);
+      }
       if (this._replacedFragment) cmd.replaces(this._replacedFragment);
       cmd.createLeftOf(cursor);
     }
