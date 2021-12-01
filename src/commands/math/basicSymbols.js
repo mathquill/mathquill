@@ -870,24 +870,24 @@ var PlusMinus = class extends BinaryOperator {
   };
 };
 
-LatexCmds['+'] = P(PlusMinus, function(_, super_) {
-  _.init = function () {
-    super_.init.call(this, '+', '+');
+LatexCmds['+'] = class extends PlusMinus {
+  init () {
+    super.init.call(this, '+', '+');
   };
-  _.mathspeak = function() {
+  mathspeak () {
     return isBinaryOperator(this) ? 'plus' : 'positive';
   };
-});
+};
 
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
-LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = P(PlusMinus, function(_, super_) {
-  _.init = function () {
-    super_.init.call(this, '-', '&minus;');
+LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = class extends PlusMinus {
+  init () {
+    super.init.call(this, '-', '&minus;');
   };
-  _.mathspeak = function() {
+  mathspeak () {
     return isBinaryOperator(this) ? 'minus' : 'negative';
   };
-});
+};
 
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   () => new PlusMinus('\\pm ','&plusmn;', 'plus-or-minus');
@@ -906,7 +906,7 @@ var To = P(BinaryOperator, function(_, super_) {
       var l = cursor[L];
       new Fragment(l, this).remove();
       cursor[L] = l[L];
-      LatexCmds['−']().createLeftOf(cursor);
+      new LatexCmds['−']().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
