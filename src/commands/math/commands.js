@@ -475,7 +475,7 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     super_.createLeftOf.apply(this, arguments);
     if (cursor.options.sumStartsWithNEquals) {
       new Letter('n').createLeftOf(cursor);
-      Equality().createLeftOf(cursor);
+      new Equality().createLeftOf(cursor);
     }
   };
   _.latex = function() {

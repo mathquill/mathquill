@@ -980,19 +980,22 @@ LatexCmds.infty = LatexCmds.infin = LatexCmds.infinity =
   bindVanillaSymbol('\\infty ','&infin;', 'infinity');
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bindBinaryOperator('\\ne ','&ne;', 'not equal');
 
-var Equality = P(BinaryOperator, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, '=', '=', '=', 'equals');
+class Equality extends BinaryOperator {
+  constructor () {
+    this.init();
+  }
+  init () {
+    super.init('=', '=', '=', 'equals');
   };
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
       cursor[L].swap(false);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.createLeftOf.apply(this, arguments);
+    super.createLeftOf.apply(this, arguments);
   };
-});
+};
 LatexCmds['='] = Equality;
 
 LatexCmds['×'] = LatexCmds.times = bindBinaryOperator('\\times ', '&times;', '[x]', 'times');
