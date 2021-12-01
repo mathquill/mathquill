@@ -897,11 +897,11 @@ LatexCmds.mp = LatexCmds.mnplus = LatexCmds.minusplus =
 CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bindBinaryOperator('\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
-var To = P(BinaryOperator, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, '\\to ','&rarr;', 'to');
+class To extends BinaryOperator {
+  init () {
+    super.init.call(this, '\\to ','&rarr;', 'to');
   }
-  _.deleteTowards = function(dir, cursor) {
+  deleteTowards (dir, cursor) {
     if (dir === L) {
       var l = cursor[L];
       new Fragment(l, this).remove();
@@ -910,9 +910,9 @@ var To = P(BinaryOperator, function(_, super_) {
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.deleteTowards.apply(this, arguments);
+    super.deleteTowards.apply(this, arguments);
   };
-})
+}
 
 LatexCmds['→'] = LatexCmds.to = To;
 
@@ -956,7 +956,7 @@ var Greater = P(Inequality, function(_, super_) {
       var l = cursor[L];
       cursor[L] = l[L];
       l.remove();
-      To().createLeftOf(cursor);
+      new To().createLeftOf(cursor);
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
