@@ -64,10 +64,10 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
   bindBinaryOperator('\\not\\supseteq ','&#8841;', 'not superset or equal to');
 
 //the canonical sets of numbers
-LatexCmds.mathbb = P(MathCommand, function(_) {
-  _.createLeftOf = noop;
-  _.numBlocks = function() { return 1; };
-  _.parser = function() {
+LatexCmds.mathbb = class extends MathCommand {
+  createLeftOf () {};
+  numBlocks () { return 1; };
+  parser () {
     var string = Parser.string;
     var regex = Parser.regex;
     var optWhitespace = Parser.optWhitespace;
@@ -78,10 +78,15 @@ LatexCmds.mathbb = P(MathCommand, function(_) {
           .skip(string('}'))
           .map(function(c) {
               // instantiate the class for the matching char
-              return LatexCmds[c]();
-    });
+              var cmd = LatexCmds[c];
+              if (cmd.constructor) {
+                return new cmd();
+              } else {
+                return cmd();
+              }
+          });
   };
-});
+};
 
 LatexCmds.N = LatexCmds.naturals = LatexCmds.Naturals =
   bindVanillaSymbol('\\mathbb{N}','&#8469;', 'naturals');
