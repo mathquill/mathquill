@@ -1147,21 +1147,23 @@ LatexCmds.choose = P(Binomial, function(_) {
 });
 
 LatexCmds.editable = // backcompat with before cfd3620 on #233
-LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\MathQuillMathField';
-  _.htmlTemplate =
+LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
+  static _todoMoveIntoConstructor =
+    MathFieldNode.prototype.ctrlSeq = '\\MathQuillMathField';
+  static _todoMoveIntoConstructor =
+    MathFieldNode.prototype.htmlTemplate =
       '<span class="mq-editable-field">'
     +   '<span class="mq-root-block">&0</span>'
     + '</span>'
   ;
-  _.parser = function() {
+  parser () {
     var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
       .map(function(name) { self.name = name; }).or(succeed())
-      .then(super_.parser.call(self));
+      .then(super.parser.call(self));
   };
-  _.finalizeTree = function(options) {
+  finalizeTree (options) {
     var ctrlr = Controller(this.ends[L], this.jQ, options);
     ctrlr.KIND_OF_MQ = 'MathField';
     ctrlr.editable = true;
@@ -1170,12 +1172,12 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
     ctrlr.cursor.insAtRightEnd(ctrlr.root);
     RootBlockMixin(ctrlr.root);
   };
-  _.registerInnerField = function(innerFields, MathField) {
+  registerInnerField (innerFields, MathField) {
     innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
   };
-  _.latex = function(){ return this.ends[L].latex(); };
-  _.text = function(){ return this.ends[L].text(); };
-});
+  latex (){ return this.ends[L].latex(); };
+  text (){ return this.ends[L].text(); };
+};
 
 // Embed arbitrary things
 // Probably the closest DOM analogue would be an iframe?
