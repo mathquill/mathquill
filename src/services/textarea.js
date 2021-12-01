@@ -4,7 +4,7 @@
  ********************************************/
 
 Controller.open(function(_) {
-  Options.p.substituteTextarea = function() {
+  Options.prototype.substituteTextarea = function() {
     return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
                'spellcheck=false x-palm-disable-ste-all=true/>')[0];
   };
@@ -76,7 +76,7 @@ Controller.open(function(_) {
     };
     this.updateMathspeak();
   };
-  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
+  Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
     var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 

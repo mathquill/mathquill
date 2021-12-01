@@ -3,7 +3,7 @@
  *******************************************************/
 
 Controller.open(function(_) {
-  Options.p.ignoreNextMousedown = noop;
+  Options.prototype.ignoreNextMousedown = noop;
 
   // Whenever edits to the tree occur, in-progress selection events
   // must be invalidated and selection changes must not be applied to

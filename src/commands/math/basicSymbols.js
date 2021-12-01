@@ -244,7 +244,7 @@ function bindVariable (ch, html) {
 }
 
 
-Options.p.autoCommands = { _maxLength: 0 };
+Options.prototype.autoCommands = { _maxLength: 0 };
 optionProcessors.autoCommands = function(cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
@@ -265,7 +265,7 @@ optionProcessors.autoCommands = function(cmds) {
   return dict;
 };
 
-Options.p.autoParenthesizedFunctions = {_maxLength: 0};
+Options.prototype.autoParenthesizedFunctions = {_maxLength: 0};
 optionProcessors.autoParenthesizedFunctions = function (cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
@@ -458,7 +458,7 @@ var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
   // and 'arsinh', which must be exported as \operatorname{hcf} and
   // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
   // \varlimsup are not supported
-var AutoOpNames = Options.p.autoOperatorNames = { _maxLength: 9 }; // the set
+var AutoOpNames = Options.prototype.autoOperatorNames = { _maxLength: 9 }; // the set
   // of operator names that MathQuill auto-unitalicizes by default; overridable
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 (function() {

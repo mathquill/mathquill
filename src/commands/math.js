@@ -594,7 +594,7 @@ class MathBlock extends MathElement {
   };
 }
 
-Options.p.mouseEvents = true;
+Options.prototype.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
   return P(APIClasses.AbstractMathQuill, function(_, super_) {
     this.RootBlock = MathBlock;

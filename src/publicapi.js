@@ -2,7 +2,8 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, Options = P(), optionProcessors = {}, Progenote = P(), EMBEDS = {};
+var API = {}, optionProcessors = {}, Progenote = P(), EMBEDS = {};
+class Options {};
 
 /**
  * Interface Versioning (#459, #495) to allow us to virtually guarantee
@@ -89,7 +90,7 @@ function getInterface(v) {
       currentOptions[name] = (processor ? processor(value) : value);
     }
   }
-  MQ.config = function(opts) { config(Options.p, opts); return this; };
+  MQ.config = function(opts) { config(Options.prototype, opts); return this; };
   MQ.registerEmbed = function(name, options) {
     if (!/^[a-z][a-z0-9]*$/i.test(name)) {
       throw 'Embed name must start with letter and be only letters and digits';
@@ -274,7 +275,7 @@ function getInterface(v) {
     MQ[kind] = function(el, opts) {
       var mq = MQ(el);
       if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-      var ctrlr = Controller(new APIClass.RootBlock(), $(el), Options());
+      var ctrlr = Controller(new APIClass.RootBlock(), $(el), new Options());
       ctrlr.KIND_OF_MQ = kind;
       return APIClass(ctrlr).__mathquillify(opts, v);
     };

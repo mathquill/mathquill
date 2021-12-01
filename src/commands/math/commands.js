@@ -223,7 +223,7 @@ function getCtrlSeqsFromBlock(block) {
   return chars;
 }
 
-Options.p.charsThatBreakOutOfSupSub = '';
+Options.prototype.charsThatBreakOutOfSupSub = '';
 
 class SupSub extends MathCommand {
   static _todoMoveIntoConstructor =
