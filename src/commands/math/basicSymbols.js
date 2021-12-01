@@ -255,7 +255,7 @@ optionProcessors.autoCommands = function(cmds) {
     if (cmd.length < 2) {
       throw 'autocommand "'+cmd+'" not minimum length of 2';
     }
-    if (LatexCmds[cmd] === OperatorName || LatexCmds[cmd] === makeOperatorName) {
+    if (LatexCmds[cmd] === OperatorName) {
       throw '"' + cmd + '" is a built-in operator name';
     }
     dict[cmd] = 1;
@@ -548,10 +548,7 @@ class OperatorName extends Symbol {
   };
 };
 for (var fn in AutoOpNames) if (AutoOpNames.hasOwnProperty(fn)) {
-  LatexCmds[fn] = makeOperatorName;
-}
-function makeOperatorName (fn) {
-  return new OperatorName(fn);
+  LatexCmds[fn] = OperatorName;
 }
 LatexCmds.operatorname = class extends MathCommand {
   createLeftOf () {};

@@ -349,7 +349,7 @@ LatexCmds.text =
 LatexCmds.textnormal =
 LatexCmds.textrm =
 LatexCmds.textup =
-LatexCmds.textmd = P(TextBlock, {});
+LatexCmds.textmd = TextBlock;
 
 function makeTextBlock(latex, ariaLabel, tagName, attrs) {
   var klass = class extends TextBlock {
