@@ -231,7 +231,7 @@ function getInterface(v) {
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
-      var cmd = Embed().setOptions(options);
+      var cmd = new LatexCmds.embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
     _.setAriaLabel = function(ariaLabel) {

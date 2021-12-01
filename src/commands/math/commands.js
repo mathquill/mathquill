@@ -1184,15 +1184,15 @@ LatexCmds.MathQuillMathField = P(MathCommand, function(_, super_) {
 // Create by calling public API method .dropEmbedded(),
 // or by calling the global public API method .registerEmbed()
 // and rendering LaTeX like \embed{registeredName} (see test).
-var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
-  _.setOptions = function(options) {
+LatexCmds.embed = class extends Symbol {
+  setOptions (options) {
     function noop () { return ""; }
     this.text = options.text || noop;
     this.htmlTemplate = options.htmlString || "";
     this.latex = options.latex || noop;
     return this;
   };
-  _.parser = function() {
+  parser () {
     var self = this,
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('{').then(regex(/^[a-z][a-z0-9]*/i)).skip(string('}'))
@@ -1207,4 +1207,4 @@ var Embed = LatexCmds.embed = P(Symbol, function(_, super_) {
       })
     ;
   };
-});
+};
