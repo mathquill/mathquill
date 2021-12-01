@@ -579,17 +579,20 @@ var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
-LatexCmds.fraction = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\frac';
-  _.htmlTemplate =
+LatexCmds.fraction = class FracNode extends MathCommand {
+  static _todoMoveIntoConstructor =
+    FracNode.prototype.ctrlSeq = '\\frac';
+  static _todoMoveIntoConstructor =
+    FracNode.prototype.htmlTemplate =
       '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="mq-numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  _.textTemplate = ['(', ')/(', ')'];
-  _.finalizeTree = function() {
+  static _todoMoveIntoConstructor =
+    FracNode.prototype.textTemplate = ['(', ')/(', ')'];
+  finalizeTree () {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
     this.ends[L].ariaLabel = 'numerator';
@@ -601,7 +604,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     }
   };
 
-  _.mathspeak = function(opts) {
+  mathspeak (opts) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
       return cursor.parent.mathspeak();
@@ -675,10 +678,10 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
       }
     }
 
-    return super_.mathspeak.apply(this, arguments);
+    return super.mathspeak.apply(this, arguments);
   };
 
-  _.getFracDepth = function() {
+  getFracDepth () {
     var level = 0;
     var walkUp = function(item, level) {
       if(item instanceof Node && item.ctrlSeq && item.ctrlSeq.toLowerCase().search('frac') >= 0) level += 1;
@@ -687,7 +690,7 @@ LatexCmds.fraction = P(MathCommand, function(_, super_) {
     };
     return walkUp(this, level);
   };
-});
+};
 
 var LiveFraction =
 LatexCmds.over =
