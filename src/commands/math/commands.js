@@ -142,19 +142,18 @@ LatexCmds.dot = () => {
 // [SitePoint docs]: http://reference.sitepoint.com/css/colorvalues
 // [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
 // [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
-var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
-  _.setColor = function(color) {
+LatexCmds.textcolor = class extends MathCommand {
+  setColor (color) {
     this.color = color;
     this.htmlTemplate =
       '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
-    _.ariaLabel = color.replace(/^\\/, '');
-    _.mathspeakTemplate = ['Start ' + _.ariaLabel + ',', 'End ' + _.ariaLabel];
+    this.ariaLabel = color.replace(/^\\/, '');
+    this.mathspeakTemplate = ['Start ' + this.ariaLabel + ',', 'End ' + this.ariaLabel];
   };
-  _.latex = function() {
+  latex () {
     return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
   };
-  _.parser = function() {
-    var self = this;
+  parser () {
     var optWhitespace = Parser.optWhitespace;
     var string = Parser.string;
     var regex = Parser.regex;
@@ -163,16 +162,16 @@ var TextColor = LatexCmds.textcolor = P(MathCommand, function(_, super_) {
       .then(string('{'))
       .then(regex(/^[#\w\s.,()%-]*/))
       .skip(string('}'))
-      .then(function(color) {
-        self.setColor(color);
-        return super_.parser.call(self);
+      .then((color) => {
+        this.setColor(color);
+        return super.parser();
       })
     ;
   };
-  _.isStyleBlock = function() {
+  isStyleBlock () {
     return true;
   };
-});
+};
 
 // Very similar to the \textcolor command, but will add the given CSS class.
 // Usage: \class{classname}{math}
