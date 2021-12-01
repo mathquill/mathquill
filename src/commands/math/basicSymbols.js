@@ -604,14 +604,19 @@ LatexCmds.square = bindVanillaSymbol('\\square ', '\u25A1', 'square');
 LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 
 // does not use Symbola font
-var NonSymbolaSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
+class NonSymbolaSymbol extends Symbol {
+  constructor (ch, html) {
+    super();
+    this.init(ch, html);
+  }
+
+  init (ch, html) {
+    super.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
-});
+};
 
 LatexCmds['@'] = NonSymbolaSymbol;
-LatexCmds['&'] = bind(NonSymbolaSymbol, '\\&', '&amp;', 'and');
+LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
 LatexCmds['%'] = P(NonSymbolaSymbol, function(_, super_) {
   _.init = function () {
     super_.init.call(this, '\\%', '%', 'percent');
@@ -716,8 +721,8 @@ LatexCmds.varrho = //AMS and LaTeX
   bindVariable('\\varrho ','&#1009;', 'rho');
 
 //Greek constants, look best in non-italicized Times New Roman
-LatexCmds.pi = LatexCmds['π'] = bind(NonSymbolaSymbol,'\\pi ','&pi;', 'pi');
-LatexCmds.lambda = bind(NonSymbolaSymbol,'\\lambda ','&lambda;', 'lambda');
+LatexCmds.pi = LatexCmds['π'] = () => new NonSymbolaSymbol('\\pi ','&pi;', 'pi');
+LatexCmds.lambda = () => new NonSymbolaSymbol('\\lambda ','&lambda;', 'lambda');
 
 //uppercase greek letters
 
