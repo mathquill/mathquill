@@ -382,23 +382,31 @@ function insLeftOfMeUnlessAtEnd(cursor) {
 }
 
 LatexCmds.subscript =
-LatexCmds._ = P(SupSub, function(_, super_) {
-  _.supsub = 'sub';
-  _.htmlTemplate =
+LatexCmds._ = class SubscriptCommand extends SupSub {
+  static _todoMoveIntoConstructor =
+    SubscriptCommand.prototype.supsub = 'sub';
+  static _todoMoveIntoConstructor =
+    SubscriptCommand.prototype.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf">'
     +   '<span class="mq-sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
-  ;
-  _.textTemplate = [ '_' ];
-  _.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
-  _.ariaLabel = 'subscript';
-  _.finalizeTree = function() {
+  
+  static _todoMoveIntoConstructor =
+    SubscriptCommand.prototype.textTemplate = [ '_' ];
+  
+  static _todoMoveIntoConstructor =
+    SubscriptCommand.prototype.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
+  
+  static _todoMoveIntoConstructor =
+    SubscriptCommand.prototype.ariaLabel = 'subscript';
+  
+  finalizeTree () {
     this.downInto = this.sub = this.ends[L];
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
-    super_.finalizeTree.call(this);
+    super.finalizeTree()
   };
-});
+};
 
 LatexCmds.superscript =
 LatexCmds.supscript =

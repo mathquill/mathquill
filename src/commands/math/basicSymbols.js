@@ -170,7 +170,7 @@ class Digit extends DigitGroupingChar {
             || (cursor[L] instanceof SupSub
                 && cursor[L][L] instanceof Variable
                 && cursor[L][L].isItalic !== false))) {
-      LatexCmds._().createLeftOf(cursor);
+      new LatexCmds._().createLeftOf(cursor);
       super.createLeftOf.call(this, cursor);
       cursor.insRightOf(cursor.parent.parent);
     }
