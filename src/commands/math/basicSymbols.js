@@ -308,7 +308,15 @@ class Letter extends Variable {
           for (var i = 1, l = this; i < str.length; i += 1, l = l[L]);
           new Fragment(l, this).remove();
           cursor[L] = l[L];
-          return LatexCmds[str](str).createLeftOf(cursor);
+
+          var cmd = LatexCmds[str];
+          if (cmd.constructor) {
+            cmd = new cmd(str);
+          } else {
+            cmd = cmd(str);
+          }
+
+          return cmd.createLeftOf(cursor);
         }
         str = str.slice(1);
       }
@@ -667,11 +675,7 @@ LatexCmds.sigma =
 LatexCmds.tau =
 LatexCmds.chi =
 LatexCmds.psi =
-LatexCmds.omega = P(Variable, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
-});
+LatexCmds.omega = (latex) => new Variable('\\'+latex+' ','&'+latex+';');
 
 //why can't anybody FUCKING agree on these
 LatexCmds.phi = //W3C or Unicode?
@@ -743,11 +747,7 @@ LatexCmds.Sigma =
 LatexCmds.Phi =
 LatexCmds.Psi =
 LatexCmds.Omega =
-LatexCmds.forall = P(VanillaSymbol, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
-});
+LatexCmds.forall = (latex) => new VanillaSymbol('\\'+latex+' ','&'+latex+';')
 
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string

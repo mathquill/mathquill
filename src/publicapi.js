@@ -180,7 +180,11 @@ function getInterface(v) {
         cmd = cmd.slice(1);
         var klass = LatexCmds[cmd];
         if (klass) {
-          cmd = klass(cmd);
+          if (klass.constructor) {
+            cmd = new klass(cmd);
+          } else {
+            cmd = klass(cmd);
+          }
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());
           cmd.createLeftOf(cursor.show());
         }
