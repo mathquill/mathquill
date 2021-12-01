@@ -554,9 +554,9 @@ LatexCmds.coproduct = () => new SummationNotation('\\coprod ','&#8720;', 'co pro
 
 LatexCmds['∫'] =
 LatexCmds['int'] =
-LatexCmds.integral = P(SummationNotation, function(_, super_) {
-  _.init = function() {
-    _.ariaLabel = 'integral';
+LatexCmds.integral = class extends SummationNotation {
+  init () {
+    this.ariaLabel = 'integral';
     var htmlTemplate =
       '<span class="mq-int mq-non-leaf">'
     +   '<big>&int;</big>'
@@ -569,9 +569,12 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
     ;
     Symbol.prototype.init.call(this, '\\int ', htmlTemplate, 'integral');
   };
-  // FIXME: refactor rather than overriding
-  _.createLeftOf = MathCommand.prototype.createLeftOf;
-});
+  
+  createLeftOf (cursor) {
+    // FIXME: refactor rather than overriding
+    MathCommand.prototype.createLeftOf.call(this, cursor);
+  }
+};
 var Fraction =
 LatexCmds.frac =
 LatexCmds.dfrac =
