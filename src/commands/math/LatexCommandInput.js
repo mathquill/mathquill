@@ -2,17 +2,19 @@
  * Input box to type backslash commands
  ***************************************/
 
-var LatexCommandInput =
-CharCmds['\\'] = P(MathCommand, function(_, super_) {
-  _.ctrlSeq = '\\';
-  _.replaces = function(replacedFragment) {
+CharCmds['\\'] = class LatexCommandInput extends MathCommand {
+  static _todoMoveIntoConstructor =
+    LatexCommandInput.prototype.ctrlSeq = '\\';
+  replaces (replacedFragment) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  _.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
-  _.textTemplate = ['\\'];
-  _.createBlocks = function() {
-    super_.createBlocks.call(this);
+  static _todoMoveIntoConstructor =
+    LatexCommandInput.prototype.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
+  static _todoMoveIntoConstructor =
+    LatexCommandInput.prototype.textTemplate = ['\\'];
+  createBlocks () {
+    super.createBlocks();
     this.ends[L].focus = function() {
       this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
@@ -51,11 +53,11 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
         e.preventDefault();
         return;
       }
-      return super_.keystroke.apply(this, arguments);
+      return super.keystroke.apply(this, arguments);
     };
   };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.call(this, cursor);
+  createLeftOf (cursor) {
+    super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
       var el = this.jQ[0];
@@ -69,10 +71,10 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
         ).insertBefore(this.jQ).add(this.jQ);
     }
   };
-  _.latex = function() {
+  latex () {
     return '\\' + this.ends[L].latex() + ' ';
   };
-  _.renderCommand = function(cursor) {
+  renderCommand (cursor) {
     this.jQ = this.jQ.last();
     this.remove();
     if (this[R]) {
@@ -103,5 +105,5 @@ CharCmds['\\'] = P(MathCommand, function(_, super_) {
     }
     return cmd;
   };
-});
+};
 
