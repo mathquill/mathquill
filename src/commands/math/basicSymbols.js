@@ -952,11 +952,14 @@ var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than 
 var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater than or equal to',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>', mathspeakStrict: 'greater than'};
 
-var Greater = P(Inequality, function(_, super_) {
-  _.init = function() {
-    super_.init.call(this, greater, true);
+class Greater extends Inequality {
+  constructor () {
+    this.init();
+  }
+  init () {
+    super.init.call(this, greater, true);
   };
-  _.createLeftOf = function(cursor) {
+  createLeftOf (cursor) {
     if (cursor[L] instanceof BinaryOperator && cursor[L].ctrlSeq === '-') {
       var l = cursor[L];
       cursor[L] = l[L];
@@ -965,9 +968,9 @@ var Greater = P(Inequality, function(_, super_) {
       cursor[L].bubble(function (node) { node.reflow(); });
       return;
     }
-    super_.createLeftOf.apply(this, arguments);
+    super.createLeftOf.apply(this, arguments);
   };
-})
+}
 
 LatexCmds['<'] = LatexCmds.lt = () => new Inequality(less, true);
 LatexCmds['>'] = LatexCmds.gt = Greater;
