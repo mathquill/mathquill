@@ -580,17 +580,17 @@ LatexCmds.f = class extends Letter {
 };
 
 // VanillaSymbol's
-LatexCmds[' '] = LatexCmds.space = P(DigitGroupingChar, function(_, super_) {
-  _.init = function () {
-    super_.init.call(this, '\\ ', '<span>&nbsp;</span>', ' ');
+LatexCmds[' '] = LatexCmds.space = class extends DigitGroupingChar {
+  init () {
+    super.init.call(this, '\\ ', '<span>&nbsp;</span>', ' ');
   };
-});
+};
 
-LatexCmds['.'] = P(DigitGroupingChar, function(_, super_) {
-  _.init = function () {
-    super_.init.call(this, '.', '<span class="mq-digit">.</span>', '.');
+LatexCmds['.'] =  class extends DigitGroupingChar {
+  init () {
+    super.init.call(this, '.', '<span class="mq-digit">.</span>', '.');
   };
-});
+};
 
 LatexCmds["'"] = LatexCmds.prime = bindVanillaSymbol("'", '&prime;', 'prime');
 LatexCmds['″'] = LatexCmds.dprime = bindVanillaSymbol('″', '&Prime;', 'double prime');
