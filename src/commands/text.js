@@ -22,13 +22,13 @@ class TextBlock extends Node {
   };
 
   jQadd (jQ) {
-    super.jQadd.call(this, jQ);
+    super.jQadd(jQ);
     if (this.ends[L]) this.ends[L].jQadd(this.jQ[0].firstChild);
   };
 
   createLeftOf (cursor) {
     var textBlock = this;
-    super.createLeftOf.call(this, cursor);
+    super.createLeftOf(cursor);
 
     cursor.insAtRightEnd(textBlock);
 
@@ -246,7 +246,7 @@ class TextPiece extends Node {
   }
 
   init (text) {
-    super.init.call(this);
+    super.init();
     this.text = text;
   };
   jQadd (dom) { this.dom = dom; this.jQ = $(dom); };
@@ -388,13 +388,13 @@ class RootMathCommand extends MathCommand {
   }
 
   init (cursor) {
-    super.init.call(this, '$');
+    super.init('$');
     this.cursor = cursor;
   };
   static _todoMoveIntoConstructor =
     RootMathCommand.prototype.htmlTemplate = '<span class="mq-math-mode">&0</span>';
   createBlocks () {
-    super.createBlocks.call(this);
+    super.createBlocks()
 
     this.ends[L].cursor = this.cursor;
     this.ends[L].write = function(cursor, ch) {

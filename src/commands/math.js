@@ -116,7 +116,7 @@ class MathCommand extends MathElement {
     var replacedFragment = cmd.replacedFragment;
 
     cmd.createBlocks();
-    super.createLeftOf.call(cmd, cursor);
+    super.createLeftOf(cursor);
     if (replacedFragment) {
       replacedFragment.adopt(cmd.ends[L], 0, 0);
       replacedFragment.jQ.appendTo(cmd.ends[L].jQ);

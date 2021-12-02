@@ -98,7 +98,7 @@ class Style extends MathCommand {
       !this.shouldNotSpeakDelimiters ||
       (opts && opts.ignoreShorthand)
     ) {
-      return super.mathspeak.call(this);
+      return super.mathspeak();
     }
     return this.foldChildren('', function(speech, block) {
       return speech + ' ' + block.mathspeak(opts);
@@ -721,7 +721,7 @@ CharCmds['/'] = class extends Fraction {
         cursor[L] = leftward;
       }
     }
-    super.createLeftOf.call(this, cursor);
+    super.createLeftOf(cursor);
   };
 };
 
@@ -765,7 +765,7 @@ class SquareRoot extends MathCommand {
         block.adopt(nthroot, optBlock, 0);
         return nthroot;
       });
-    }).or(super.parser.call(this));
+    }).or(super.parser());
   };
 };
 LatexCmds.sqrt = SquareRoot;
@@ -1172,7 +1172,7 @@ LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
       string = Parser.string, regex = Parser.regex, succeed = Parser.succeed;
     return string('[').then(regex(/^[a-z][a-z0-9]*/i)).skip(string(']'))
       .map(function(name) { self.name = name; }).or(succeed())
-      .then(super.parser.call(self));
+      .then(super.parser());
   };
   finalizeTree (options) {
     var ctrlr = Controller(this.ends[L], this.jQ, options);

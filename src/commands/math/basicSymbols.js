@@ -159,7 +159,7 @@ class Digit extends DigitGroupingChar {
     this.init(ch, html, mathspeak);
   }
   init (ch, html, mathspeak) {
-    super.init.call(this, ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
+    super.init(ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
   };
 
   createLeftOf (cursor) {
@@ -170,10 +170,10 @@ class Digit extends DigitGroupingChar {
                 && cursor[L][L] instanceof Variable
                 && cursor[L][L].isItalic !== false))) {
       new LatexCmds._().createLeftOf(cursor);
-      super.createLeftOf.call(this, cursor);
+      super.createLeftOf(cursor);
       cursor.insRightOf(cursor.parent.parent);
     }
-    else super.createLeftOf.call(this, cursor);
+    else super.createLeftOf(cursor);
   };
   mathspeak (opts) {
     if (opts && opts.createdLeftOf) {
@@ -184,7 +184,7 @@ class Digit extends DigitGroupingChar {
               || (cursor[L] instanceof SupSub
                   && cursor[L][L] instanceof Variable
                   && cursor[L][L].isItalic !== false))) {
-        return 'Subscript ' + super.mathspeak.call(this) + ' Baseline';
+        return 'Subscript ' + super.mathspeak() + ' Baseline';
       }
     }
     return super.mathspeak.apply(this, arguments);
@@ -197,7 +197,7 @@ class Variable extends Symbol {
   }
 
   init (ch, html) {
-    super.init.call(this, ch, '<var>'+(html || ch)+'</var>');
+    super.init(ch, '<var>'+(html || ch)+'</var>');
   };
   text () {
     var text = this.ctrlSeq;
@@ -226,7 +226,7 @@ class Variable extends Symbol {
       text.length > 1 ||
       (this.parent && this.parent.parent && this.parent.parent.isTextBlock())
     ) {
-      return super.mathspeak.call(this);
+      return super.mathspeak();
     } else {
       // Apple voices in VoiceOver (such as Alex, Bruce, and Victoria) do
       // some strange pronunciation given certain expressions,
@@ -286,7 +286,8 @@ class Letter extends Variable {
     this.init(ch);
   }
   init (ch) { 
-    return super.init.call(this, this.letter = ch);
+    this.letter = ch;
+    return super.init(ch);
   };
   checkAutoCmds (cursor) {
     //handle autoCommands
@@ -603,7 +604,7 @@ class NonSymbolaSymbol extends Symbol {
   }
 
   init (ch, html) {
-    super.init.call(this, ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
+    super.init(ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 };
 
@@ -611,7 +612,7 @@ LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
 LatexCmds['%'] = class extends NonSymbolaSymbol {
   init () {
-    super.init.call(this, '\\%', '%', 'percent');
+    super.init('\\%', '%', 'percent');
   };
   parser () {
     var optWhitespace = Parser.optWhitespace;
@@ -625,7 +626,7 @@ LatexCmds['%'] = class extends NonSymbolaSymbol {
         .map(function () {
           return LatexCmds.percentof();
         })
-      ).or(super.parser.call(this))
+      ).or(super.parser())
     ;
   }
 };
@@ -866,7 +867,7 @@ var PlusMinus = class extends BinaryOperator {
 
 LatexCmds['+'] = class extends PlusMinus {
   init () {
-    super.init.call(this, '+', '+');
+    super.init('+', '+');
   };
   mathspeak () {
     return isBinaryOperator(this) ? 'plus' : 'positive';
@@ -876,7 +877,7 @@ LatexCmds['+'] = class extends PlusMinus {
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
 LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = class extends PlusMinus {
   init () {
-    super.init.call(this, '-', '&minus;');
+    super.init('-', '&minus;');
   };
   mathspeak () {
     return isBinaryOperator(this) ? 'minus' : 'negative';
@@ -893,7 +894,7 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
 
 class To extends BinaryOperator {
   init () {
-    super.init.call(this, '\\to ','&rarr;', 'to');
+    super.init('\\to ','&rarr;', 'to');
   }
   deleteTowards (dir, cursor) {
     if (dir === L) {
@@ -919,7 +920,7 @@ class Inequality extends BinaryOperator {
     this.data = data;
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
-    super.init.call(this, data['ctrlSeq'+strictness], data['html'+strictness],
+    super.init(data['ctrlSeq'+strictness], data['html'+strictness],
                      data['text'+strictness], data['mathspeak'+strictness]);
   }
 
@@ -951,7 +952,7 @@ class Greater extends Inequality {
     this.init();
   }
   init () {
-    super.init.call(this, greater, true);
+    super.init(greater, true);
   };
   createLeftOf (cursor) {
     if (cursor[L] instanceof BinaryOperator && cursor[L].ctrlSeq === '-') {
