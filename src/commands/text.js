@@ -436,12 +436,12 @@ class RootTextBlock extends RootMathBlock {
   };
 };
 API.TextField = function(APIClasses) {
-  return P(APIClasses.EditableField, function(_, super_) {
-    this.RootBlock = RootTextBlock;
-    _.__mathquillify = function() {
-      return super_.__mathquillify.call(this, 'mq-editable-field mq-text-mode');
+  return class extends APIClasses.EditableField {
+    static RootBlock = RootTextBlock;
+    __mathquillify () {
+      return super.__mathquillify('mq-editable-field mq-text-mode');
     };
-    _.latex = function(latex) {
+    latex = function(latex) {
       if (arguments.length > 0) {
         this.__controller.renderLatexText(latex);
         if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
@@ -449,5 +449,5 @@ API.TextField = function(APIClasses) {
       }
       return this.__controller.exportLatex();
     };
-  });
+  };
 };

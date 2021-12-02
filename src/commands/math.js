@@ -595,12 +595,6 @@ API.StaticMath = function(APIClasses) {
   return class StaticMath extends APIClasses.AbstractMathQuill {
     static RootBlock = MathBlock;
 
-    constructor (el) {
-      // makes the `new` keyword optional when creating a StaticMath
-      if (!(this instanceof StaticMath)) return new StaticMath(el);
-      this.init(el);
-    }
-
     __mathquillify (opts, interfaceVersion) {
       this.config(opts);
       super.__mathquillify('mq-math-mode');
@@ -645,12 +639,6 @@ RootBlockMixin(RootMathBlock.prototype); // adds methods to RootMathBlock
 API.MathField = function(APIClasses) {
   return class MathField extends APIClasses.EditableField {
     static RootBlock = RootMathBlock;
-    constructor (el) {
-      // makes the `new` keyword optional when creating a StaticMath
-      if (!(this instanceof MathField)) return new MathField(el);
-
-      this.init(el);
-    }
 
     __mathquillify (opts, interfaceVersion) {
       this.config(opts);
