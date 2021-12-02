@@ -643,16 +643,23 @@ class RootMathBlock extends MathBlock {}
 RootBlockMixin(RootMathBlock.prototype); // adds methods to RootMathBlock
 
 API.MathField = function(APIClasses) {
-  return P(APIClasses.EditableField, function(_, super_) {
-    this.RootBlock = RootMathBlock;
-    _.__mathquillify = function(opts, interfaceVersion) {
+  return class MathField extends APIClasses.EditableField {
+    static RootBlock = RootMathBlock;
+    constructor (el) {
+      // makes the `new` keyword optional when creating a StaticMath
+      if (!(this instanceof MathField)) return new MathField(el);
+
+      this.init(el);
+    }
+
+    __mathquillify (opts, interfaceVersion) {
       this.config(opts);
       if (interfaceVersion > 1) this.__controller.root.reflow = noop;
-      super_.__mathquillify.call(this, 'mq-editable-field mq-math-mode');
+      super.__mathquillify('mq-editable-field mq-math-mode');
       delete this.__controller.root.reflow;
       return this;
     };
-  });
+  };
 };
 
 API.InnerMathField = function(APIClasses) {
