@@ -208,7 +208,7 @@ ControllerBase.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {};
 ControllerBase.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
 ControllerBase.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
 
-class Controller extends Controller_focusBlur {
+class Controller_keystroke extends Controller_focusBlur {
   keystroke (key, evt) {
     this.cursor.parent.keystroke(key, evt, this);
   };

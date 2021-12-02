@@ -85,7 +85,7 @@ optionProcessors.maxDepth = function(depth) {
   return (typeof depth === 'number') ? depth : undefined;
 };
 
-class Controller extends Controller_keystroke {
+class Controller_latex extends Controller_keystroke {
   cleanLatex (latex) {
     //prune unnecessary spaces
     return latex.replace(/(\\[a-z]+) (?![a-z])/ig,'$1')

@@ -21,11 +21,8 @@ Options.prototype.ignoreNextMousedown = noop;
   });
 })();
 
-
-ControllerBase.open(function(_) {
-
-
-  _.delegateMouseEvents = function() {
+class Controller extends Controller_latex {
+  delegateMouseEvents () {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function(e) {
@@ -109,7 +106,7 @@ ControllerBase.open(function(_) {
     });
   }
   
-  _.seek = function($target, pageX, pageY) {
+  seek ($target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
     var node;
     var targetElm = $target && $target[0];
@@ -141,4 +138,4 @@ ControllerBase.open(function(_) {
                         // always hits no-selection case in scrollHoriz and scrolls slower
     return this;
   };
-});
+};
