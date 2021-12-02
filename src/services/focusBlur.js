@@ -13,8 +13,8 @@ ControllerBase.onNotify(function (e) {
   }
 });
 
-ControllerBase.open(function(_) {
-  _.disableGroupingForSeconds = function (seconds) {
+class Controller extends Controller_exportLatex {
+  disableGroupingForSeconds (seconds) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;
 
@@ -28,7 +28,7 @@ ControllerBase.open(function(_) {
     }
   }
 
-  _.focusBlurEvents = function() {
+  focusBlurEvents () {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout;
     ctrlr.textarea.focus(function() {
@@ -79,11 +79,11 @@ ControllerBase.open(function(_) {
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };
-  _.unbindFocusBlurEvents = function() {
+  unbindFocusBlurEvents () {
     var ctrlr = this;
     ctrlr.textarea.unbind('focus blur');
   };
-});
+};
 
 /**
  * TODO: I wanted to move MathBlock::focus and blur here, it would clean

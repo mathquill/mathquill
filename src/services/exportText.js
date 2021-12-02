@@ -3,7 +3,7 @@
  * As you can see, only half-baked so far.
  **********************************************/
 
-class Controller extends ControllerBase {
+class Controller_exportLatex extends ControllerBase {
   exportText () {
     return this.root.foldChildren('', function(text, child) {
       return text + child.text();
