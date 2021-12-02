@@ -596,26 +596,33 @@ class MathBlock extends MathElement {
 
 Options.prototype.mouseEvents = true;
 API.StaticMath = function(APIClasses) {
-  return P(APIClasses.AbstractMathQuill, function(_, super_) {
-    this.RootBlock = MathBlock;
-    _.__mathquillify = function(opts, interfaceVersion) {
+  return class StaticMath extends APIClasses.AbstractMathQuill {
+    static RootBlock = MathBlock;
+
+    constructor (el) {
+      // makes the `new` keyword optional when creating a StaticMath
+      if (!(this instanceof StaticMath)) return new StaticMath(el);
+      this.init(el);
+    }
+
+    __mathquillify (opts, interfaceVersion) {
       this.config(opts);
-      super_.__mathquillify.call(this, 'mq-math-mode');
+      super.__mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
         this.__controller.delegateMouseEvents();
         this.__controller.staticMathTextareaEvents();
       }
       return this;
     };
-    _.init = function() {
-      super_.init.apply(this, arguments);
+    init () {
+      super.init.apply(this, arguments);
       var innerFields = this.innerFields = [];
       this.__controller.root.postOrder(function (node) {
         node.registerInnerField(innerFields, APIClasses.InnerMathField);
       });
     };
-    _.latex = function() {
-      var returned = super_.latex.apply(this, arguments);
+    latex () {
+      var returned = super.latex.apply(this, arguments);
       if (arguments.length > 0) {
         var innerFields = this.innerFields = [];
         this.__controller.root.postOrder(function (node) {
@@ -626,14 +633,14 @@ API.StaticMath = function(APIClasses) {
       }
       return returned;
     };
-    _.setAriaLabel = function(ariaLabel) {
+    setAriaLabel (ariaLabel) {
       this.__controller.setAriaLabel(ariaLabel);
       return this;
     };
-    _.getAriaLabel = function () {
+    getAriaLabel () {
       return this.__controller.getAriaLabel();
     };
-  });
+  };
 };
 
 var RootMathBlock = P(MathBlock, RootBlockMixin);
