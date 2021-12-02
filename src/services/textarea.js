@@ -8,7 +8,7 @@ Options.prototype.substituteTextarea = function() {
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
-class Controller extends Controller_mouse {
+class Controller extends Controller_scrollHoriz {
   createTextarea () {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();

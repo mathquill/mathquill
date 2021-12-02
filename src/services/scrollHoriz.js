@@ -3,7 +3,7 @@
  * overflow their width
  **********************************************/
 
-class Controller extends Controller_mouse {
+class Controller_scrollHoriz extends Controller_mouse {
   setOverflowClasses () {
     var root = this.root.jQ[0];
     var shouldHaveOverflowRight = false;
