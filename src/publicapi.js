@@ -279,7 +279,7 @@ function getInterface(v) {
     MQ[kind] = function(el, opts) {
       var mq = MQ(el);
       if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-      var ctrlr = Controller(new APIClass.RootBlock(), $(el), new Options());
+      var ctrlr = new Controller(new APIClass.RootBlock(), $(el), new Options());
       ctrlr.KIND_OF_MQ = kind;
       return new APIClass(ctrlr).__mathquillify(opts, v);
     };

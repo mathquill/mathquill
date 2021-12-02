@@ -8,7 +8,7 @@ Options.prototype.ignoreNextMousedown = noop;
   // must be invalidated and selection changes must not be applied to
   // the edited tree. cancelSelectionOnEdit takes care of this.
   var cancelSelectionOnEdit;
-  Controller.onNotify(function (e) {
+  ControllerBase.onNotify(function (e) {
     if ((e === 'edit' || e === 'replace')) {
       // this will be called any time ANY mathquill is edited. We only want
       // to cancel selection if the selection is happening within the mathquill
@@ -22,7 +22,7 @@ Options.prototype.ignoreNextMousedown = noop;
 })();
 
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
 
 
   _.delegateMouseEvents = function() {

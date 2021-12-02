@@ -1,4 +1,4 @@
-Controller.onNotify(function (e) {
+ControllerBase.onNotify(function (e) {
   // these try to cover all ways that mathquill can be modified
   if (e === 'edit' || e === 'replace' || e === undefined) {
     var controller = this.controller;
@@ -13,7 +13,7 @@ Controller.onNotify(function (e) {
   }
 });
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
   _.disableGroupingForSeconds = function (seconds) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;

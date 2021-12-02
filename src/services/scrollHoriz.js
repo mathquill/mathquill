@@ -3,7 +3,7 @@
  * overflow their width
  **********************************************/
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
   _.setOverflowClasses = function () {
     var root = this.root.jQ[0];
     var shouldHaveOverflowRight = false;

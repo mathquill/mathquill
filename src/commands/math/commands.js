@@ -1175,7 +1175,7 @@ LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
       .then(super.parser());
   };
   finalizeTree (options) {
-    var ctrlr = Controller(this.ends[L], this.jQ, options);
+    var ctrlr = new Controller(this.ends[L], this.jQ, options);
     ctrlr.KIND_OF_MQ = 'MathField';
     ctrlr.editable = true;
     ctrlr.createTextarea();

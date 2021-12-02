@@ -8,7 +8,7 @@ Options.prototype.substituteTextarea = function() {
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();

@@ -3,7 +3,7 @@
  * interaction with the typist.
  ****************************************/
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
   _.keystroke = function(key, evt) {
     this.cursor.parent.keystroke(key, evt, this);
   };
@@ -198,7 +198,7 @@ class Node extends NodeBase {
   selectTowards () { pray('overridden or never called on this node'); } // called by Controller::selectDir
 }
 
-Controller.onNotify(function(e) {
+ControllerBase.onNotify(function(e) {
   if (e === 'move' || e === 'upDown') this.show().clearSelection();
 });
 optionProcessors.leftRightIntoCmdGoes = function(updown) {
@@ -210,11 +210,11 @@ optionProcessors.leftRightIntoCmdGoes = function(updown) {
 };
 
 
-Controller.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
-Controller.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-Controller.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+ControllerBase.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
+ControllerBase.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
+ControllerBase.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
 
-Controller.open(function(_) {
+ControllerBase.open(function(_) {
 
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
