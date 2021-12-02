@@ -109,5 +109,3 @@ class ControllerBase {
   // and http://www.gh-mathspeak.com/examples/grammar-rules/
   exportMathSpeak () { return this.root.mathspeak(); };
 };
-
-class Controller extends ControllerBase {}

@@ -3,10 +3,10 @@
  * As you can see, only half-baked so far.
  **********************************************/
 
-ControllerBase.open(function(_, super_) {
-  _.exportText = function() {
+class Controller extends ControllerBase {
+  exportText () {
     return this.root.foldChildren('', function(text, child) {
       return text + child.text();
     });
   };
-});
+};
