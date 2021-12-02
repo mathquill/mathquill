@@ -651,18 +651,18 @@ API.MathField = function(APIClasses) {
 };
 
 API.InnerMathField = function(APIClasses) {
-  return P(APIClasses.MathField, function(_, super_) {
-    _.makeStatic = function() {
+  return class extends APIClasses.MathField {
+    makeStatic () {
       this.__controller.editable = false;
       this.__controller.root.blur();
       this.__controller.unbindEditablesEvents();
       this.__controller.container.removeClass('mq-editable-field');
     };
-    _.makeEditable = function() {
+    makeEditable () {
       this.__controller.editable = true;
       this.__controller.editablesTextareaEvents();
       this.__controller.cursor.insAtRightEnd(this.__controller.root);
       this.__controller.container.addClass('mq-editable-field');
     };
-  });
+  };
 };

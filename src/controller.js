@@ -27,7 +27,7 @@ var Controller = P(function(_) {
   _.handle = function(name, dir) {
     var handlers = this.options.handlers;
     if (handlers && handlers.fns[name]) {
-      var mq = handlers.APIClasses[this.KIND_OF_MQ](this);
+      var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);
       if (dir === L || dir === R) handlers.fns[name](dir, mq);
       else handlers.fns[name](mq);
     }

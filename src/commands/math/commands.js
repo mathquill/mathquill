@@ -1184,7 +1184,7 @@ LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
     RootBlockMixin(ctrlr.root);
   };
   registerInnerField (innerFields, MathField) {
-    innerFields.push(innerFields[this.name] = MathField(this.ends[L].controller));
+    innerFields.push(innerFields[this.name] = new MathField(this.ends[L].controller));
   };
   latex (){ return this.ends[L].latex(); };
   text (){ return this.ends[L].text(); };
