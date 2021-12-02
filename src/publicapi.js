@@ -99,14 +99,17 @@ function getInterface(v) {
     EMBEDS[name] = options;
   };
 
-  var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
-    _.init = function(ctrlr) {
+  var AbstractMathQuill = APIClasses.AbstractMathQuill = class extends Progenote {
+    constructor (ctrlr) {
+      this.init(ctrlr);
+    }
+    init (ctrlr) {
       this.__controller = ctrlr;
       this.__options = ctrlr.options;
       this.id = ctrlr.id;
       this.data = ctrlr.data;
     };
-    _.__mathquillify = function(classNames) {
+    __mathquillify (classNames) {
       var ctrlr = this.__controller, root = ctrlr.root, el = ctrlr.container;
       ctrlr.createTextarea();
 
@@ -121,11 +124,11 @@ function getInterface(v) {
         .append(contents);
       };
     };
-    _.config = function(opts) { config(this.__options, opts); return this; };
-    _.el = function() { return this.__controller.container[0]; };
-    _.text = function() { return this.__controller.exportText(); };
-    _.mathspeak = function() { return this.__controller.exportMathSpeak(); };
-    _.latex = function(latex) {
+    config (opts) { config(this.__options, opts); return this; };
+    el () { return this.__controller.container[0]; };
+    text () { return this.__controller.exportText(); };
+    mathspeak () { return this.__controller.exportMathSpeak(); };
+    latex (latex) {
       if (arguments.length > 0) {
         this.__controller.renderLatexMath(latex);
         if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
@@ -133,41 +136,41 @@ function getInterface(v) {
       }
       return this.__controller.exportLatex();
     };
-    _.html = function() {
+    html () {
       return this.__controller.root.jQ.html()
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
         .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
         .replace(/ class=(""|(?= |>))/g, '');
     };
-    _.reflow = function() {
+    reflow () {
       this.__controller.root.postOrder(function (node) { node.reflow(); });
       return this;
     };
-  });
+  };
   MQ.prototype = AbstractMathQuill.prototype;
 
-  APIClasses.EditableField = P(AbstractMathQuill, function(_, super_) {
-    _.__mathquillify = function() {
-      super_.__mathquillify.apply(this, arguments);
+  APIClasses.EditableField = class extends AbstractMathQuill {
+    __mathquillify () {
+      super.__mathquillify.apply(this, arguments);
       this.__controller.editable = true;
       this.__controller.delegateMouseEvents();
       this.__controller.editablesTextareaEvents();
       return this;
     };
-    _.focus = function() {
+    focus () {
       this.__controller.textarea[0].focus();
       this.__controller.scrollHoriz();
       return this;
     };
-    _.blur = function() { this.__controller.textarea.blur(); return this; };
-    _.write = function(latex) {
+    blur () { this.__controller.textarea.blur(); return this; };
+    write (latex) {
       this.__controller.writeLatex(latex);
       this.__controller.scrollHoriz();
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
       return this;
     };
-    _.empty = function() {
+    empty () {
       var root = this.__controller.root, cursor = this.__controller.cursor;
 
       root.ends[L] = root.ends[R] = 0;
@@ -176,7 +179,7 @@ function getInterface(v) {
       cursor.insAtRightEnd(root);
       return this;
     };
-    _.cmd = function(cmd) {
+    cmd (cmd) {
       var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
@@ -198,36 +201,36 @@ function getInterface(v) {
       if (ctrlr.blurred) cursor.hide().parent.blur();
       return this;
     };
-    _.select = function() {
+    select () {
       var ctrlr = this.__controller;
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
       while (ctrlr.cursor[L]) ctrlr.selectLeft();
       return this;
     };
-    _.clearSelection = function() {
+    clearSelection () {
       this.__controller.cursor.clearSelection();
       return this;
     };
 
-    _.moveToDirEnd = function(dir) {
+    moveToDirEnd (dir) {
       this.__controller.notify('move').cursor.insAtDirEnd(dir, this.__controller.root);
       return this;
     };
-    _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
-    _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
+    moveToLeftEnd () { return this.moveToDirEnd(L); };
+    moveToRightEnd () { return this.moveToDirEnd(R); };
 
-    _.keystroke = function(keys, evt) {
+    keystroke (keys, evt) {
       var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
         this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
       }
       return this;
     };
-    _.typedText = function(text) {
+    typedText (text) {
       for (var i = 0; i < text.length; i += 1) this.__controller.typedText(text.charAt(i));
       return this;
     };
-    _.dropEmbedded = function(pageX, pageY, options) {
+    dropEmbedded (pageX, pageY, options) {
       var clientX = pageX - $(window).scrollLeft();
       var clientY = pageY - $(window).scrollTop();
 
@@ -236,21 +239,21 @@ function getInterface(v) {
       var cmd = new LatexCmds.embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
-    _.setAriaLabel = function(ariaLabel) {
+    setAriaLabel (ariaLabel) {
       this.__controller.setAriaLabel(ariaLabel);
       return this;
     };
-    _.getAriaLabel = function () {
+    getAriaLabel () {
       return this.__controller.getAriaLabel();
     };
-    _.setAriaPostLabel = function(ariaPostLabel, timeout) {
+    setAriaPostLabel (ariaPostLabel, timeout) {
       this.__controller.setAriaPostLabel(ariaPostLabel, timeout);
       return this;
     };
-    _.getAriaPostLabel = function () {
+    getAriaPostLabel () {
       return this.__controller.getAriaPostLabel();
     };
-    _.clickAt = function(clientX, clientY, target) {
+    clickAt (clientX, clientY, target) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller, root = ctrlr.root;
       if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
@@ -258,11 +261,11 @@ function getInterface(v) {
       if (ctrlr.blurred) this.focus();
       return this;
     };
-    _.ignoreNextMousedown = function(fn) {
+    ignoreNextMousedown (fn) {
       this.__controller.cursor.options.ignoreNextMousedown = fn;
       return this;
     };
-  });
+  };
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
   MQ.EditableField.prototype = APIClasses.EditableField.prototype;
 
