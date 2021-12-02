@@ -383,8 +383,8 @@ function insLeftOfMeUnlessAtEnd(cursor) {
 
 LatexCmds.subscript =
 LatexCmds._ = class SubscriptCommand extends SupSub {
-  static _todoMoveIntoConstructor =
-    SubscriptCommand.prototype.supsub = 'sub';
+  supsub = 'sub';
+  
   static _todoMoveIntoConstructor =
     SubscriptCommand.prototype.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf">'
@@ -411,8 +411,8 @@ LatexCmds._ = class SubscriptCommand extends SupSub {
 LatexCmds.superscript =
 LatexCmds.supscript =
 LatexCmds['^'] = class SuperscriptCommand extends SupSub {
-  static _todoMoveIntoConstructor =
-    SuperscriptCommand.prototype.supsub = 'sup';
+  supsub = 'sup';
+
   static _todoMoveIntoConstructor =
     SuperscriptCommand.prototype.htmlTemplate =
       '<span class="mq-supsub mq-non-leaf mq-sup-only">'
