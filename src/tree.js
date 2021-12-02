@@ -48,15 +48,14 @@ function prayDirection(dir) {
  * uses `this.constructor()` everywhere (hence calling `$`), but never ever does
  * `this.constructor.find` or anything like that, always doing `jQuery.find`.
  */
-var $ = P(jQuery, function(_) {
-  _.insDirOf = function(dir, el) {
-    return dir === L ?
-      this.insertBefore(el.first()) : this.insertAfter(el.last());
-  };
-  _.insAtDirEnd = function(dir, el) {
-    return dir === L ? this.prependTo(el) : this.appendTo(el);
-  };
-});
+var $ = jQuery;
+$.fn.insDirOf = function (dir, el) {
+  return dir === L ?
+    this.insertBefore(el.first()) : this.insertAfter(el.last());
+};
+$.fn.insAtDirEnd = function (dir, el) {
+  return dir === L ? this.prependTo(el) : this.appendTo(el);
+};
 
 class Point {
 
