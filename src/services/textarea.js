@@ -2,12 +2,13 @@
  * Manage the MathQuill instance's textarea
  * (as owned by the Controller)
  ********************************************/
+Options.prototype.substituteTextarea = function() {
+  return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+             'spellcheck=false x-palm-disable-ste-all=true/>')[0];
+};
+Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
 Controller.open(function(_) {
-  Options.prototype.substituteTextarea = function() {
-    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-               'spellcheck=false x-palm-disable-ste-all=true/>')[0];
-  };
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();
@@ -76,7 +77,6 @@ Controller.open(function(_) {
     };
     this.updateMathspeak();
   };
-  Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
   _.editablesTextareaEvents = function() {
     var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 

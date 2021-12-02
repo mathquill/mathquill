@@ -1,19 +1,19 @@
+Controller.onNotify(function (e) {
+  // these try to cover all ways that mathquill can be modified
+  if (e === 'edit' || e === 'replace' || e === undefined) {
+    var controller = this.controller;
+    if (!controller) return;
+    if (!controller.options.enableDigitGrouping) return;
+
+    // blurred === false means we are focused. blurred === true or
+    // blurred === undefined means we are not focused.
+    if (controller.blurred !== false) return;
+
+    controller.disableGroupingForSeconds(1);
+  }
+});
+
 Controller.open(function(_) {
-  this.onNotify(function (e) {
-    // these try to cover all ways that mathquill can be modified
-    if (e === 'edit' || e === 'replace' || e === undefined) {
-      var controller = this.controller;
-      if (!controller) return;
-      if (!controller.options.enableDigitGrouping) return;
-
-      // blurred === false means we are focused. blurred === true or
-      // blurred === undefined means we are not focused.
-      if (controller.blurred !== false) return;
-
-      controller.disableGroupingForSeconds(1);
-    }
-  });
-
   _.disableGroupingForSeconds = function (seconds) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;

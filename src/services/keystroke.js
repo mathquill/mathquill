@@ -198,10 +198,24 @@ class Node extends NodeBase {
   selectTowards () { pray('overridden or never called on this node'); } // called by Controller::selectDir
 }
 
+Controller.onNotify(function(e) {
+  if (e === 'move' || e === 'upDown') this.show().clearSelection();
+});
+optionProcessors.leftRightIntoCmdGoes = function(updown) {
+  if (updown && updown !== 'up' && updown !== 'down') {
+    throw '"up" or "down" required for leftRightIntoCmdGoes option, '
+          + 'got "'+updown+'"';
+  }
+  return updown;
+};
+
+
+Controller.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
+Controller.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
+Controller.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+
 Controller.open(function(_) {
-  this.onNotify(function(e) {
-    if (e === 'move' || e === 'upDown') this.show().clearSelection();
-  });
+
   _.escapeDir = function(dir, key, e) {
     prayDirection(dir);
     var cursor = this.cursor;
@@ -216,14 +230,6 @@ Controller.open(function(_) {
     cursor.parent.moveOutOf(dir, cursor);
     aria.alert();
     return this.notify('move');
-  };
-
-  optionProcessors.leftRightIntoCmdGoes = function(updown) {
-    if (updown && updown !== 'up' && updown !== 'down') {
-      throw '"up" or "down" required for leftRightIntoCmdGoes option, '
-            + 'got "'+updown+'"';
-    }
-    return updown;
   };
   _.moveDir = function(dir) {
     prayDirection(dir);
@@ -252,9 +258,10 @@ Controller.open(function(_) {
    *       as close to directly above/below the current position as possible)
    *   + unless it's exactly `true`, stop bubbling
    */
-  _.moveUp = function() { return moveUpDown(this, 'up'); };
-  _.moveDown = function() { return moveUpDown(this, 'down'); };
-  function moveUpDown(self, dir) {
+  _.moveUp = function() { return this.moveUpDown('up'); };
+  _.moveDown = function() { return this.moveUpDown('down'); };
+  _.moveUpDown = function moveUpDown(dir) {
+    var self = this;
     var cursor = self.notify('upDown').cursor;
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
     if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
@@ -271,9 +278,6 @@ Controller.open(function(_) {
     }
     return self;
   }
-  this.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
-
-  this.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
   _.deleteDir = function(dir) {
     prayDirection(dir);
     var cursor = this.cursor;
@@ -342,7 +346,6 @@ Controller.open(function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
 
-  this.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
   _.selectDir = function(dir) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);

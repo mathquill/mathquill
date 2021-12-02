@@ -80,6 +80,11 @@ var latexMathParser = (function() {
   return latexMath;
 })();
 
+
+optionProcessors.maxDepth = function(depth) {
+  return (typeof depth === 'number') ? depth : undefined;
+};
+
 Controller.open(function(_, super_) {
   _.cleanLatex = function (latex) {
     //prune unnecessary spaces
@@ -87,10 +92,6 @@ Controller.open(function(_, super_) {
   }
   _.exportLatex = function() {
     return this.cleanLatex(this.root.latex());
-  };
-
-  optionProcessors.maxDepth = function(depth) {
-    return (typeof depth === 'number') ? depth : undefined;
   };
   _.writeLatex = function(latex) {
     var cursor = this.notify('edit').cursor;

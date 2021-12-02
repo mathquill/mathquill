@@ -1,15 +1,14 @@
 /********************************************************
  * Deals with mouse events for clicking, drag-to-select
  *******************************************************/
+Options.prototype.ignoreNextMousedown = noop;
 
-Controller.open(function(_) {
-  Options.prototype.ignoreNextMousedown = noop;
-
+(function () {
   // Whenever edits to the tree occur, in-progress selection events
   // must be invalidated and selection changes must not be applied to
   // the edited tree. cancelSelectionOnEdit takes care of this.
   var cancelSelectionOnEdit;
-  this.onNotify(function (e) {
+  Controller.onNotify(function (e) {
     if ((e === 'edit' || e === 'replace')) {
       // this will be called any time ANY mathquill is edited. We only want
       // to cancel selection if the selection is happening within the mathquill
@@ -20,6 +19,11 @@ Controller.open(function(_) {
       }
     }
   });
+})();
+
+
+Controller.open(function(_) {
+
 
   _.delegateMouseEvents = function() {
     var ultimateRootjQ = this.root.jQ;
@@ -104,9 +108,7 @@ Controller.open(function(_) {
       // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
     });
   }
-});
-
-Controller.open(function(_) {
+  
   _.seek = function($target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
     var node;
