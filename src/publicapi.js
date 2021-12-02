@@ -2,8 +2,9 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, optionProcessors = {}, Progenote = P(), EMBEDS = {};
+var API = {}, optionProcessors = {}, EMBEDS = {};
 class Options {};
+class Progenote {}
 
 /**
  * Interface Versioning (#459, #495) to allow us to virtually guarantee
@@ -31,7 +32,7 @@ function MathQuill(el) {
   insistOnInterVer();
   return MQ1(el);
 };
-MathQuill.prototype = Progenote.p;
+MathQuill.prototype = Progenote.prototype;
 MathQuill.VERSION = "{VERSION}";
 MathQuill.interfaceVersion = function(v) {
   // shim for #459-era interface versioning (ended with #495)
