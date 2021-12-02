@@ -24,10 +24,7 @@ SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
-PJS_SRC = ./node_modules/pjs/src/p.js
-
 BASE_SOURCES = \
-  $(PJS_SRC) \
   $(SRC_DIR)/services/aria.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/cursor.js \
@@ -112,8 +109,6 @@ css: $(BUILD_CSS)
 font: $(FONT_TARGET)
 clean:
 	rm -rf $(BUILD_DIR)
-
-$(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
