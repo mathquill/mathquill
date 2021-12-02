@@ -3,12 +3,6 @@
  * interaction with the typist.
  ****************************************/
 
-ControllerBase.open(function(_) {
-  _.keystroke = function(key, evt) {
-    this.cursor.parent.keystroke(key, evt, this);
-  };
-});
-
 class Node extends NodeBase {  
   keystroke (key, e, ctrlr) {
     var cursor = ctrlr.cursor;
@@ -214,9 +208,12 @@ ControllerBase.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {};
 ControllerBase.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
 ControllerBase.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
 
-ControllerBase.open(function(_) {
+class Controller extends Controller_focusBlur {
+  keystroke (key, evt) {
+    this.cursor.parent.keystroke(key, evt, this);
+  };
 
-  _.escapeDir = function(dir, key, e) {
+  escapeDir (dir, key, e) {
     prayDirection(dir);
     var cursor = this.cursor;
 
@@ -231,7 +228,7 @@ ControllerBase.open(function(_) {
     aria.alert();
     return this.notify('move');
   };
-  _.moveDir = function(dir) {
+  moveDir (dir) {
     prayDirection(dir);
     var cursor = this.cursor, updown = cursor.options.leftRightIntoCmdGoes;
 
@@ -243,8 +240,8 @@ ControllerBase.open(function(_) {
 
     return this.notify('move');
   };
-  _.moveLeft = function() { return this.moveDir(L); };
-  _.moveRight = function() { return this.moveDir(R); };
+  moveLeft () { return this.moveDir(L); };
+  moveRight () { return this.moveDir(R); };
 
   /**
    * moveUp and moveDown have almost identical algorithms:
@@ -258,9 +255,9 @@ ControllerBase.open(function(_) {
    *       as close to directly above/below the current position as possible)
    *   + unless it's exactly `true`, stop bubbling
    */
-  _.moveUp = function() { return this.moveUpDown('up'); };
-  _.moveDown = function() { return this.moveUpDown('down'); };
-  _.moveUpDown = function moveUpDown(dir) {
+  moveUp () { return this.moveUpDown('up'); };
+  moveDown () { return this.moveUpDown('down'); };
+  moveUpDown (dir) {
     var self = this;
     var cursor = self.notify('upDown').cursor;
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
@@ -278,7 +275,7 @@ ControllerBase.open(function(_) {
     }
     return self;
   }
-  _.deleteDir = function(dir) {
+  deleteDir (dir) {
     prayDirection(dir);
     var cursor = this.cursor;
     var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
@@ -320,7 +317,7 @@ ControllerBase.open(function(_) {
 
     return this;
   };
-  _.ctrlDeleteDir = function(dir) {
+  ctrlDeleteDir (dir) {
     prayDirection(dir);
     var cursor = this.cursor;
     if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
@@ -343,10 +340,10 @@ ControllerBase.open(function(_) {
 
     return this;
   };
-  _.backspace = function() { return this.deleteDir(L); };
-  _.deleteForward = function() { return this.deleteDir(R); };
+  backspace () { return this.deleteDir(L); };
+  deleteForward () { return this.deleteDir(R); };
 
-  _.selectDir = function(dir) {
+  selectDir (dir) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
 
@@ -368,6 +365,6 @@ ControllerBase.open(function(_) {
     cursor.select() || cursor.show();
     if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
   };
-  _.selectLeft = function() { return this.selectDir(L); };
-  _.selectRight = function() { return this.selectDir(R); };
-});
+  selectLeft () { return this.selectDir(L); };
+  selectRight () { return this.selectDir(R); };
+};

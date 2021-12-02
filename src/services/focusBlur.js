@@ -13,7 +13,7 @@ ControllerBase.onNotify(function (e) {
   }
 });
 
-class Controller extends Controller_exportLatex {
+class Controller_focusBlur extends Controller_exportLatex {
   disableGroupingForSeconds (seconds) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;
