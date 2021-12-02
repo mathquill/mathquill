@@ -8,8 +8,8 @@ Options.prototype.substituteTextarea = function() {
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
-ControllerBase.open(function(_) {
-  _.createTextarea = function() {
+class Controller extends Controller_mouse {
+  createTextarea () {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
@@ -20,7 +20,7 @@ ControllerBase.open(function(_) {
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
   };
-  _.selectionChanged = function() {
+  selectionChanged () {
     var ctrlr = this;
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
@@ -34,7 +34,7 @@ ControllerBase.open(function(_) {
       });
     }
   };
-  _.setTextareaSelection = function() {
+  setTextareaSelection () {
     this.textareaSelectionTimeout = undefined;
     var latex = '';
     if (this.cursor.selection) {
@@ -77,7 +77,7 @@ ControllerBase.open(function(_) {
     };
     this.updateMathspeak();
   };
-  _.editablesTextareaEvents = function() {
+  editablesTextareaEvents () {
     var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
@@ -86,7 +86,7 @@ ControllerBase.open(function(_) {
     this.focusBlurEvents();
     this.updateMathspeak();
   };
-  _.unbindEditablesEvents = function() {
+  unbindEditablesEvents () {
     var ctrlr = this, textarea = ctrlr.textarea,
       textareaSpan = ctrlr.textareaSpan;
 
@@ -101,13 +101,13 @@ ControllerBase.open(function(_) {
       ctrlr.blurred = true;
       textarea.bind('cut paste', false);
   };
-  _.typedText = function(ch) {
+  typedText (ch) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify().cursor;
     cursor.parent.write(cursor, ch);
     this.scrollHoriz();
   };
-  _.cut = function() {
+  cut () {
     var ctrlr = this, cursor = ctrlr.cursor;
     if (cursor.selection) {
       setTimeout(function() {
@@ -119,10 +119,10 @@ ControllerBase.open(function(_) {
       });
     }
   };
-  _.copy = function() {
+  copy () {
     this.setTextareaSelection();
   };
-  _.paste = function(text) {
+  paste (text) {
     // TODO: document `statelessClipboard` config option in README, after
     // making it work like it should, that is, in both text and math mode
     // (currently only works in math fields, so worse than pointless, it
@@ -143,7 +143,7 @@ ControllerBase.open(function(_) {
       this.options.onPaste();
     }
   };
-  _.updateMathspeak = function() {
+  updateMathspeak () {
     var ctrlr = this;
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
     var ariaLabel = ctrlr.getAriaLabel();
@@ -169,4 +169,4 @@ ControllerBase.open(function(_) {
       );
     }
   };
-});
+};

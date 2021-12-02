@@ -21,7 +21,7 @@ Options.prototype.ignoreNextMousedown = noop;
   });
 })();
 
-class Controller extends Controller_latex {
+class Controller_mouse extends Controller_latex {
   delegateMouseEvents () {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
