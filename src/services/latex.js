@@ -85,22 +85,22 @@ optionProcessors.maxDepth = function(depth) {
   return (typeof depth === 'number') ? depth : undefined;
 };
 
-ControllerBase.open(function(_, super_) {
-  _.cleanLatex = function (latex) {
+class Controller extends Controller_keystroke {
+  cleanLatex (latex) {
     //prune unnecessary spaces
     return latex.replace(/(\\[a-z]+) (?![a-z])/ig,'$1')
   }
-  _.exportLatex = function() {
+  exportLatex () {
     return this.cleanLatex(this.root.latex());
   };
-  _.writeLatex = function(latex) {
+  writeLatex (latex) {
     var cursor = this.notify('edit').cursor;
     cursor.parent.writeLatex(cursor, latex);
 
     return this;
   };
 
-  _.classifyLatexForEfficientUpdate = function (latex) {
+  classifyLatexForEfficientUpdate (latex) {
     if (typeof latex !== 'string') return;
 
     var matches = latex.match(/-?[0-9.]+$/g);
@@ -112,7 +112,7 @@ ControllerBase.open(function(_, super_) {
       };
     }
   };
-  _.renderLatexMathEfficiently = function (latex) {
+  renderLatexMathEfficiently (latex) {
     var root = this.root;
     var oldLatex = this.exportLatex();
     if (root.ends[L] && root.ends[R] && oldLatex === latex) {
@@ -264,7 +264,7 @@ ControllerBase.open(function(_, super_) {
 
     return true;
   };
-  _.renderLatexMathFromScratch = function (latex) {
+  renderLatexMathFromScratch (latex) {
     var root = this.root, cursor = this.cursor;
     var all = Parser.all;
     var eof = Parser.eof;
@@ -291,13 +291,13 @@ ControllerBase.open(function(_, super_) {
     delete cursor.selection;
     cursor.insAtRightEnd(root);
   };
-  _.renderLatexMath = function(latex) {
+  renderLatexMath (latex) {
     this.notify('replace');
 
     if (this.renderLatexMathEfficiently(latex)) return;
     this.renderLatexMathFromScratch(latex);
   };
-  _.renderLatexText = function(latex) {
+  renderLatexText (latex) {
     var root = this.root, cursor = this.cursor;
 
     root.jQ.children().slice(1).remove();
@@ -343,4 +343,4 @@ ControllerBase.open(function(_, super_) {
       root.finalizeInsert(cursor.options);
     }
   };
-});
+};
