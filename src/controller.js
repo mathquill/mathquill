@@ -3,10 +3,6 @@
  ********************************************/
 
 class ControllerBase {
-  static open (cb) {
-    cb(ControllerBase.prototype);
-  }
-
   constructor (root, container, options) {
     this.id = root.id;
     this.data = {};
