@@ -156,7 +156,6 @@ class DigitGroupingChar extends Symbol {
 
 class Digit extends DigitGroupingChar {
   constructor (ch, html, mathspeak) {
-    super();
     this.init(ch, html, mathspeak);
   }
   init (ch, html, mathspeak) {
@@ -194,7 +193,6 @@ class Digit extends DigitGroupingChar {
 
 class Variable extends Symbol {
   constructor (ch, html) {
-    super();
     this.init(ch, html);
   }
 
@@ -285,7 +283,6 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 
 class Letter extends Variable {
   constructor (ch) {
-    super();
     this.init(ch);
   }
   init (ch) { 
@@ -525,11 +522,10 @@ optionProcessors.autoOperatorNames = function(cmds) {
 };
 class OperatorName extends Symbol {
   constructor (fn) {
-    // super(); -- did not have super() originally
     this.init(fn);
   }
   init (fn) {
-    // did not call super.init() originally
+    // TODO - did not call super.init() originally
     this.ctrlSeq = fn;
   };
   createLeftOf (cursor) {
@@ -603,7 +599,6 @@ LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 // does not use Symbola font
 class NonSymbolaSymbol extends Symbol {
   constructor (ch, html) {
-    super();
     this.init(ch, html);
   }
 
@@ -848,7 +843,6 @@ function isBinaryOperator(node) {
 
 var PlusMinus = class extends BinaryOperator {
   constructor (ch, html, mathspeak) {
-    super();
     this.init(ch, html, mathspeak);
   }
 

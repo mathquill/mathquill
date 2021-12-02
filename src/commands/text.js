@@ -242,7 +242,6 @@ function TextBlockFuseChildren(self) {
  */
 class TextPiece extends Node {
   constructor (text) {
-    super();
     this.init(text);
   }
 
@@ -385,7 +384,6 @@ LatexCmds.lowercase =
 
 class RootMathCommand extends MathCommand {
   constructor (cursor) {
-    super();
     this.init(cursor);
   }
 

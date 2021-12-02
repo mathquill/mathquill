@@ -71,7 +71,6 @@ class MathElement extends Node {
  */
 class MathCommand extends MathElement {
   constructor (ctrlSeq, htmlTemplate, textTemplate) {
-    super();
     this.init(ctrlSeq, htmlTemplate, textTemplate);
   };
 
@@ -351,7 +350,6 @@ class MathCommand extends MathElement {
  */
 class Symbol extends MathCommand {
   constructor (ctrlSeq, html, text, mathspeak) {
-    super(ctrlSeq, html, text);
     this.init(ctrlSeq, html, text, mathspeak);
   }
 
@@ -395,7 +393,6 @@ class Symbol extends MathCommand {
 };
 class VanillaSymbol extends Symbol {
   constructor (ch, html, mathspeak) {
-    super();
     this.init(ch, html, mathspeak);
   }
   init (ch, html, mathspeak) {
@@ -408,7 +405,6 @@ function bindVanillaSymbol (ch, html, mathspeak) {
 
 class BinaryOperator extends Symbol {
   constructor (ctrlSeq, html, text, mathspeak) {
-    super();
     this.init(ctrlSeq, html, text, mathspeak);
   }
   init (ctrlSeq, html, text, mathspeak) {
