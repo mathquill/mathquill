@@ -639,7 +639,9 @@ API.StaticMath = function(APIClasses) {
   };
 };
 
-var RootMathBlock = P(MathBlock, RootBlockMixin);
+class RootMathBlock extends MathBlock {}
+RootBlockMixin(RootMathBlock.prototype); // adds methods to RootMathBlock
+
 API.MathField = function(APIClasses) {
   return P(APIClasses.EditableField, function(_, super_) {
     this.RootBlock = RootMathBlock;

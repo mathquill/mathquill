@@ -297,10 +297,12 @@ var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
 function RootBlockMixin(_) {
-  var names = 'moveOutOf deleteOutOf selectOutOf upOutOf downOutOf'.split(' ');
-  for (var i = 0; i < names.length; i += 1) (function(name) {
-    _[name] = function(dir) { this.controller.handle(name, dir); };
-  }(names[i]));
+  _.moveOutOf = function (dir) { this.controller.handle('moveOutOf', dir) }
+  _.deleteOutOf = function (dir) { this.controller.handle('deleteOutOf', dir) }
+  _.selectOutOf = function (dir) { this.controller.handle('selectOutOf', dir) }
+  _.upOutOf = function (dir) { this.controller.handle('upOutOf', dir) }
+  _.downOutOf = function (dir) { this.controller.handle('downOutOf', dir) }
+
   _.reflow = function() {
     this.controller.handle('reflow');
     this.controller.handle('edited');
