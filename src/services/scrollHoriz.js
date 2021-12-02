@@ -3,8 +3,8 @@
  * overflow their width
  **********************************************/
 
-ControllerBase.open(function(_) {
-  _.setOverflowClasses = function () {
+class Controller extends Controller_mouse {
+  setOverflowClasses () {
     var root = this.root.jQ[0];
     var shouldHaveOverflowRight = false;
     var shouldHaveOverflowLeft = false;
@@ -20,7 +20,7 @@ ControllerBase.open(function(_) {
     if (root.classList.contains('mq-editing-overflow-left') !== shouldHaveOverflowLeft)
       root.classList.toggle('mq-editing-overflow-left')
   }
-  _.scrollHoriz = function() {
+  scrollHoriz () {
     var cursor = this.cursor, seln = cursor.selection;
     var rootRect = this.root.jQ[0].getBoundingClientRect();
     if (!cursor.jQ[0] && !seln) {
@@ -62,4 +62,4 @@ ControllerBase.open(function(_) {
       this.setOverflowClasses();
     }.bind(this));
   };
-});
+};
