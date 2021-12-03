@@ -320,7 +320,7 @@ class MathCommand extends MathElement {
       return latex + '{' + (child.latex() || ' ') + '}';
     });
   };
-  static _todoMoveIntoConstructor = MathCommand.prototype.textTemplate = [''];
+  textTemplate = [''];
   text () {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.textTemplate[i], function(text, child) {
@@ -332,7 +332,7 @@ class MathCommand extends MathElement {
       return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
-  static _todoMoveIntoConstructor = MathCommand.prototype.mathspeakTemplate = [''];
+  mathspeakTemplate = [''];
   mathspeak () {
     var cmd = this, i = 0;
     return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
@@ -471,7 +471,7 @@ class MathBlock extends MathElement {
     });
   };
 
-  static _todoMoveIntoConstructor = MathBlock.prototype.ariaLabel = 'block';
+  ariaLabel = 'block';
 
   keystroke (key, e, ctrlr) {
     if (ctrlr.options.spaceBehavesLikeTab

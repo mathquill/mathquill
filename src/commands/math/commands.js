@@ -222,8 +222,7 @@ function getCtrlSeqsFromBlock(block) {
 Options.prototype.charsThatBreakOutOfSupSub = '';
 
 class SupSub extends MathCommand {
-  static _todoMoveIntoConstructor =
-    SupSub.prototype.ctrlSeq = '_{...}^{...}';
+  ctrlSeq = '_{...}^{...}';
 
   createLeftOf (cursor) {
     if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
@@ -381,21 +380,17 @@ LatexCmds.subscript =
 LatexCmds._ = class SubscriptCommand extends SupSub {
   supsub = 'sub';
   
-  static _todoMoveIntoConstructor =
-    SubscriptCommand.prototype.htmlTemplate =
+  htmlTemplate =
       '<span class="mq-supsub mq-non-leaf">'
     +   '<span class="mq-sub">&0</span>'
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   
-  static _todoMoveIntoConstructor =
-    SubscriptCommand.prototype.textTemplate = [ '_' ];
+  textTemplate = [ '_' ];
   
-  static _todoMoveIntoConstructor =
-    SubscriptCommand.prototype.mathspeakTemplate = [ 'Subscript,', ', Baseline'];
+  mathspeakTemplate = [ 'Subscript,', ', Baseline'];
   
-  static _todoMoveIntoConstructor =
-    SubscriptCommand.prototype.ariaLabel = 'subscript';
+  ariaLabel = 'subscript';
   
   finalizeTree () {
     this.downInto = this.sub = this.ends[L];
@@ -409,14 +404,12 @@ LatexCmds.supscript =
 LatexCmds['^'] = class SuperscriptCommand extends SupSub {
   supsub = 'sup';
 
-  static _todoMoveIntoConstructor =
-    SuperscriptCommand.prototype.htmlTemplate =
+  htmlTemplate =
       '<span class="mq-supsub mq-non-leaf mq-sup-only">'
     +   '<span class="mq-sup">&0</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    SuperscriptCommand.prototype.textTemplate = ['^(', ')'];
+  textTemplate = ['^(', ')'];
   mathspeak (opts) {
     // Simplify basic exponent speech for common whole numbers.
     var child = this.upInto;
@@ -462,10 +455,8 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
     return super.mathspeak();
   };
 
-  static _todoMoveIntoConstructor =
-    SuperscriptCommand.prototype.ariaLabel = 'superscript';
-  static _todoMoveIntoConstructor =
-    SuperscriptCommand.prototype.mathspeakTemplate = [ 'Superscript,', ', Baseline'];
+  ariaLabel = 'superscript';
+  mathspeakTemplate = [ 'Superscript,', ', Baseline'];
   finalizeTree () {
     this.upInto = this.sup = this.ends[R];
     this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -577,18 +568,15 @@ LatexCmds.frac =
 LatexCmds.dfrac =
 LatexCmds.cfrac =
 LatexCmds.fraction = class FracNode extends MathCommand {
-  static _todoMoveIntoConstructor =
-    FracNode.prototype.ctrlSeq = '\\frac';
-  static _todoMoveIntoConstructor =
-    FracNode.prototype.htmlTemplate =
+  ctrlSeq = '\\frac';
+  htmlTemplate =
       '<span class="mq-fraction mq-non-leaf">'
     +   '<span class="mq-numerator">&0</span>'
     +   '<span class="mq-denominator">&1</span>'
     +   '<span style="display:inline-block;width:0">&#8203;</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    FracNode.prototype.textTemplate = ['(', ')/(', ')'];
+  textTemplate = ['(', ')/(', ')'];
   finalizeTree () {
     this.upInto = this.ends[R].upOutOf = this.ends[L];
     this.downInto = this.ends[L].downOutOf = this.ends[R];
@@ -736,10 +724,8 @@ LatexCmds.percentof = () => new Symbol(
     )
 
 class SquareRoot extends MathCommand {
-  static _todoMoveIntoConstructor =
-    SquareRoot.prototype.ctrlSeq = '\\sqrt';
-  static _todoMoveIntoConstructor =
-    SquareRoot.prototype.htmlTemplate =
+  ctrlSeq = '\\sqrt';
+  htmlTemplate =
       '<span class="mq-non-leaf mq-sqrt-container">'
     +   '<span class="mq-scaled mq-sqrt-prefix">'
     +     SVG_SYMBOLS.sqrt.html
@@ -747,12 +733,9 @@ class SquareRoot extends MathCommand {
     +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    SquareRoot.prototype.textTemplate = ['sqrt(', ')'];
-  static _todoMoveIntoConstructor =
-    SquareRoot.prototype.mathspeakTemplate = ['StartRoot,', ', EndRoot'];
-  static _todoMoveIntoConstructor =
-    SquareRoot.prototype.ariaLabel = 'root';
+  textTemplate = ['sqrt(', ')'];
+  mathspeakTemplate = ['StartRoot,', ', EndRoot'];
+  ariaLabel = 'root';
   parser () {
     return latexMathParser.optBlock.then(function(optBlock) {
       return latexMathParser.block.map(function(block) {
@@ -768,22 +751,18 @@ class SquareRoot extends MathCommand {
 LatexCmds.sqrt = SquareRoot;
 
 LatexCmds.hat = class Hat extends MathCommand {
-  static _todoMoveIntoConstructor =
-    Hat.prototype.ctrlSeq = '\\hat';
-  static _todoMoveIntoConstructor =
-    Hat.prototype.htmlTemplate =
+  ctrlSeq = '\\hat';
+  htmlTemplate =
       '<span class="mq-non-leaf">'
     +   '<span class="mq-hat-prefix">^</span>'
     +   '<span class="mq-hat-stem">&0</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    Hat.prototype.textTemplate = ['hat(', ')'];
+  textTemplate = ['hat(', ')'];
 };
 
 class NthRoot extends SquareRoot {
-  static _todoMoveIntoConstructor =
-    NthRoot.prototype.htmlTemplate =
+  htmlTemplate =
       '<span class="mq-nthroot-container mq-non-leaf">'
     +   '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
     +   '<span class="mq-scaled mq-sqrt-container">'
@@ -794,8 +773,7 @@ class NthRoot extends SquareRoot {
     +   '</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    NthRoot.prototype.textTemplate = ['sqrt[', '](', ')'];
+  textTemplate = ['sqrt[', '](', ')'];
   latex () {
     return '\\sqrt['+this.ends[L].latex()+']{'+this.ends[R].latex()+'}';
   };
@@ -1111,10 +1089,8 @@ var leftBinomialSymbol = SVG_SYMBOLS['('];
 var rightBinomialSymbol = SVG_SYMBOLS[')'];
 class Binomial extends DelimsNode {
 
-  static _todoMoveIntoConstructor =
-    Binomial.prototype.ctrlSeq = '\\binom';
-  static _todoMoveIntoConstructor =
-    Binomial.prototype.htmlTemplate =
+  ctrlSeq = '\\binom';
+  htmlTemplate =
       '<span class="mq-non-leaf mq-bracket-container">'
     +   '<span style="width:'+ leftBinomialSymbol.width +'" class="mq-paren mq-bracket-l mq-scaled">'
     +     leftBinomialSymbol.html
@@ -1130,12 +1106,9 @@ class Binomial extends DelimsNode {
     +   '</span>'
     + '</span>'
   ;
-  static _todoMoveIntoConstructor =
-    Binomial.prototype.textTemplate = ['choose(',',',')'];
-  static _todoMoveIntoConstructor =
-    Binomial.prototype.mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
-  static _todoMoveIntoConstructor =
-    Binomial.prototype.ariaLabel = 'binomial';
+  textTemplate = ['choose(',',',')'];
+  mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
+  ariaLabel = 'binomial';
 };
 
 LatexCmds.binom =
@@ -1149,10 +1122,8 @@ LatexCmds.choose = class extends Binomial {
 
 LatexCmds.editable = // backcompat with before cfd3620 on #233
 LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
-  static _todoMoveIntoConstructor =
-    MathFieldNode.prototype.ctrlSeq = '\\MathQuillMathField';
-  static _todoMoveIntoConstructor =
-    MathFieldNode.prototype.htmlTemplate =
+  ctrlSeq = '\\MathQuillMathField';
+  htmlTemplate =
       '<span class="mq-editable-field">'
     +   '<span class="mq-root-block">&0</span>'
     + '</span>'

@@ -3,16 +3,13 @@
  ***************************************/
 
 CharCmds['\\'] = class LatexCommandInput extends MathCommand {
-  static _todoMoveIntoConstructor =
-    LatexCommandInput.prototype.ctrlSeq = '\\';
+  ctrlSeq = '\\';
   replaces (replacedFragment) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
-  static _todoMoveIntoConstructor =
-    LatexCommandInput.prototype.htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
-  static _todoMoveIntoConstructor =
-    LatexCommandInput.prototype.textTemplate = ['\\'];
+  htmlTemplate = '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
+  textTemplate = ['\\'];
   createBlocks () {
     super.createBlocks();
     this.ends[L].focus = function() {

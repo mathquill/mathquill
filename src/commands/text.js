@@ -9,10 +9,8 @@
  * Wraps a single HTMLSpanElement.
  */
 class TextBlock extends Node {
-  static _todoMoveIntoConstructor =
-    TextBlock.prototype.ctrlSeq = '\\text';
-  static _todoMoveIntoConstructor =
-    TextBlock.prototype.ariaLabel = 'Text';
+  ctrlSeq = '\\text';
+  ariaLabel = 'Text';
 
   replaces (replacedText) {
     if (replacedText instanceof Fragment)
@@ -78,9 +76,7 @@ class TextBlock extends Node {
     );
   };
 
-  static _todoMoveIntoConstructor =
-    TextBlock.prototype.mathspeakTemplate =
-      ['Start'+TextBlock.prototype.ariaLabel, 'End'+TextBlock.prototype.ariaLabel];
+  mathspeakTemplate = ['StartText', 'EndText'];
   mathspeak (opts) {
     if (opts && opts.ignoreShorthand) {
       return this.mathspeakTemplate[0]+', '+this.textContents() +', '+this.mathspeakTemplate[1]
@@ -347,18 +343,16 @@ LatexCmds.textup =
 LatexCmds.textmd = TextBlock;
 
 function makeTextBlock(latex, ariaLabel, tagName, attrs) {
-  var klass = class extends TextBlock {
+  return class extends TextBlock {
+    ctrlSeq = latex;
+    mathspeakTemplate = ['Start'+ariaLabel, 'End'+ariaLabel];
+    ariaLabel = ariaLabel;
+
     html () {
       var cmdId = 'mathquill-command-id=' + this.id;
       return '<'+tagName+' '+attrs+' '+cmdId+'>'+this.textContents()+'</'+tagName+'>';
     }
   };
-  
-  klass.prototype.ctrlSeq = latex;
-  klass.prototype.ariaLabel = ariaLabel;
-  klass.prototype.mathspeakTemplate = ['Start'+ariaLabel, 'End'+ariaLabel];
-
-  return klass;
 }
 
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
@@ -383,8 +377,7 @@ class RootMathCommand extends MathCommand {
     super('$');
     this.cursor = cursor;
   };
-  static _todoMoveIntoConstructor =
-    RootMathCommand.prototype.htmlTemplate = '<span class="mq-math-mode">&0</span>';
+  htmlTemplate = '<span class="mq-math-mode">&0</span>';
   createBlocks () {
     super.createBlocks()
 
