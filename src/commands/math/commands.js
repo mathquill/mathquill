@@ -82,11 +82,7 @@ var SVG_SYMBOLS = {
 
 class Style extends MathCommand {
   constructor (ctrlSeq, tagName, attrs, ariaLabel, opts) {
-    this.init(ctrlSeq, tagName, attrs, ariaLabel, opts);
-  }
-  
-  init (ctrlSeq, tagName, attrs, ariaLabel, opts) {
-    super.init(ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
+    super(ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     this.mathspeakTemplate = ['Start' + this.ariaLabel + ',', 'End' + this.ariaLabel];
     // In most cases, mathspeak should announce the start and end of style blocks.
@@ -108,8 +104,8 @@ class Style extends MathCommand {
 
 //fonts
 LatexCmds.mathrm = class extends Style {
-  init () {
-    super.init('\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
+  constructor () {
+    super('\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', { shouldNotSpeakDelimiters: true });
   };
   isTextBlock () {
     return true;
@@ -479,10 +475,6 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
 
 class SummationNotation extends MathCommand {
   constructor (ch, html, ariaLabel) {
-    this.init(ch, html, ariaLabel)
-  }
-
-  init (ch, html, ariaLabel) {
     this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
@@ -556,8 +548,6 @@ LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = class extends SummationNotation {
   constructor () {
-    super();
-    
     this.ariaLabel = 'integral';
     var htmlTemplate =
       '<span class="mq-int mq-non-leaf">'

@@ -156,10 +156,7 @@ class DigitGroupingChar extends Symbol {
 
 class Digit extends DigitGroupingChar {
   constructor (ch, html, mathspeak) {
-    this.init(ch, html, mathspeak);
-  }
-  init (ch, html, mathspeak) {
-    super.init(ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
+    super(ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
   };
 
   createLeftOf (cursor) {
@@ -193,11 +190,7 @@ class Digit extends DigitGroupingChar {
 
 class Variable extends Symbol {
   constructor (ch, html) {
-    this.init(ch, html);
-  }
-
-  init (ch, html) {
-    super.init(ch, '<var>'+(html || ch)+'</var>');
+    super(ch, '<var>'+(html || ch)+'</var>');
   };
   text () {
     var text = this.ctrlSeq;
@@ -283,11 +276,8 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 
 class Letter extends Variable {
   constructor (ch) {
-    this.init(ch);
-  }
-  init (ch) { 
     this.letter = ch;
-    return super.init(ch);
+    return super(ch);
   };
   checkAutoCmds (cursor) {
     //handle autoCommands
@@ -523,10 +513,6 @@ optionProcessors.autoOperatorNames = function(cmds) {
 };
 class OperatorName extends Symbol {
   constructor (fn) {
-    this.init(fn);
-  }
-  init (fn) {
-    // TODO - did not call super.init() originally
     this.ctrlSeq = fn;
   };
   createLeftOf (cursor) {
@@ -572,7 +558,7 @@ LatexCmds.operatorname = class extends MathCommand {
 };
 
 LatexCmds.f = class extends Letter {
-  init () {
+  constructor() {
     Symbol.prototype.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
   };
   italicize (bool) {
@@ -600,19 +586,15 @@ LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 // does not use Symbola font
 class NonSymbolaSymbol extends Symbol {
   constructor (ch, html) {
-    this.init(ch, html);
-  }
-
-  init (ch, html) {
-    super.init(ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
+    super(ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 };
 
 LatexCmds['@'] = NonSymbolaSymbol;
 LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
 LatexCmds['%'] = class extends NonSymbolaSymbol {
-  init () {
-    super.init('\\%', '%', 'percent');
+  constructor() {
+    super('\\%', '%', 'percent');
   };
   parser () {
     var optWhitespace = Parser.optWhitespace;
@@ -737,7 +719,7 @@ LatexCmds.forall = (latex) => new VanillaSymbol('\\'+latex+' ','&'+latex+';')
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
 class LatexFragment extends MathCommand {
-  init (latex) {
+  constructor (latex) {
     this.latex = latex;
   }
   createLeftOf (cursor) {
@@ -844,10 +826,6 @@ function isBinaryOperator(node) {
 
 var PlusMinus = class extends BinaryOperator {
   constructor (ch, html, mathspeak) {
-    this.init(ch, html, mathspeak);
-  }
-
-  init (ch, html, mathspeak) {
     Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
   
@@ -866,8 +844,8 @@ var PlusMinus = class extends BinaryOperator {
 };
 
 LatexCmds['+'] = class extends PlusMinus {
-  init () {
-    super.init('+', '+');
+  constructor () {
+    super('+', '+');
   };
   mathspeak () {
     return isBinaryOperator(this) ? 'plus' : 'positive';
@@ -876,8 +854,8 @@ LatexCmds['+'] = class extends PlusMinus {
 
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
 LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = class extends PlusMinus {
-  init () {
-    super.init('-', '&minus;');
+  constructor () {
+    super('-', '&minus;');
   };
   mathspeak () {
     return isBinaryOperator(this) ? 'minus' : 'negative';
@@ -893,8 +871,8 @@ CharCmds['*'] = LatexCmds.sdot = LatexCmds.cdot =
   bindBinaryOperator('\\cdot ', '&middot;', '*', 'times'); //semantically should be &sdot;, but &middot; looks better
 
 class To extends BinaryOperator {
-  init () {
-    super.init('\\to ','&rarr;', 'to');
+  constructor () {
+    super('\\to ','&rarr;', 'to');
   }
   deleteTowards (dir, cursor) {
     if (dir === L) {
@@ -913,14 +891,10 @@ LatexCmds['→'] = LatexCmds.to = To;
 
 class Inequality extends BinaryOperator {
   constructor (data, strict) {
-    this.init(data,strict);
-  }
-
-  init (data,strict) {
     this.data = data;
     this.strict = strict;
     var strictness = (strict ? 'Strict' : '');
-    super.init(data['ctrlSeq'+strictness], data['html'+strictness],
+    super(data['ctrlSeq'+strictness], data['html'+strictness],
                      data['text'+strictness], data['mathspeak'+strictness]);
   }
 
@@ -949,10 +923,7 @@ var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater
 
 class Greater extends Inequality {
   constructor () {
-    this.init();
-  }
-  init () {
-    super.init(greater, true);
+    super(greater, true);
   };
   createLeftOf (cursor) {
     if (cursor[L] instanceof BinaryOperator && cursor[L].ctrlSeq === '-') {
@@ -977,10 +948,7 @@ LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bindBinaryOperator('\\ne ','&n
 
 class Equality extends BinaryOperator {
   constructor () {
-    this.init();
-  }
-  init () {
-    super.init('=', '=', '=', 'equals');
+    super('=', '=', '=', 'equals');
   };
   createLeftOf (cursor) {
     if (cursor[L] instanceof Inequality && cursor[L].strict) {
@@ -1001,10 +969,7 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
 
 class Sim extends BinaryOperator {
   constructor () {
-    this.init();
-  }
-  init () {
-    super.init('\\sim ', '~', '~', 'tilde');
+    super('\\sim ', '~', '~', 'tilde');
   };
   createLeftOf (cursor) {
     if (cursor[L] instanceof Sim) {
@@ -1021,10 +986,7 @@ class Sim extends BinaryOperator {
 
 class Approx extends BinaryOperator {
   constructor () {
-    this.init();
-  }
-  init () {
-    super.init('\\approx ', '&approx;', '≈', 'approximately equal');
+    super('\\approx ', '&approx;', '≈', 'approximately equal');
   };
   deleteTowards (dir, cursor) {
     if (dir === L) {
