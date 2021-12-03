@@ -513,8 +513,7 @@ optionProcessors.autoOperatorNames = function(cmds) {
 };
 class OperatorName extends Symbol {
   constructor (fn) {
-    this.ctrlSeq = fn;
-    //TODO - no super?
+    super(fn);
   };
   createLeftOf (cursor) {
     var fn = this.ctrlSeq;
