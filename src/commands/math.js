@@ -604,8 +604,8 @@ API.StaticMath = function(APIClasses) {
       }
       return this;
     };
-    init () {
-      super.init.apply(this, arguments);
+    constructor (el) {
+      super(el);
       var innerFields = this.innerFields = [];
       this.__controller.root.postOrder(function (node) {
         node.registerInnerField(innerFields, APIClasses.InnerMathField);

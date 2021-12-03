@@ -555,7 +555,9 @@ LatexCmds.coproduct = () => new SummationNotation('\\coprod ','&#8720;', 'co pro
 LatexCmds['∫'] =
 LatexCmds['int'] =
 LatexCmds.integral = class extends SummationNotation {
-  init () {
+  constructor () {
+    super();
+    
     this.ariaLabel = 'integral';
     var htmlTemplate =
       '<span class="mq-int mq-non-leaf">'
@@ -826,9 +828,6 @@ LatexCmds.cbrt = class extends NthRoot {
 
 class DiacriticAbove extends MathCommand {
   constructor (ctrlSeq, symbol, textTemplate) {
-    this.init(ctrlSeq, symbol, textTemplate);
-  }
-  init (ctrlSeq, symbol, textTemplate) {
     var htmlTemplate =
       '<span class="mq-non-leaf">'
       +   '<span class="mq-diacritic-above">'+symbol+'</span>'
@@ -836,7 +835,7 @@ class DiacriticAbove extends MathCommand {
       + '</span>'
     ;
 
-    super.init(ctrlSeq, htmlTemplate, textTemplate);
+    super(ctrlSeq, htmlTemplate, textTemplate);
   };
 };
 LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
@@ -855,11 +854,7 @@ class DelimsNode extends MathCommand {
 //   far end of current block, until you type an opposing one
 class Bracket extends DelimsNode {
   constructor (side, open, close, ctrlSeq, end) {
-    this.init(side, open, close, ctrlSeq, end)
-  }
-
-  init (side, open, close, ctrlSeq, end) {
-    super.init('\\left'+ctrlSeq, undefined, [open, close]);
+    super('\\left'+ctrlSeq, undefined, [open, close]);
     this.side = side;
     this.sides = {};
     this.sides[L] = { ch: open, ctrlSeq: ctrlSeq };

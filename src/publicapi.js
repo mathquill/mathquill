@@ -101,9 +101,6 @@ function getInterface(v) {
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = class extends Progenote {
     constructor (ctrlr) {
-      this.init(ctrlr);
-    }
-    init (ctrlr) {
       this.__controller = ctrlr;
       this.__options = ctrlr.options;
       this.id = ctrlr.id;
