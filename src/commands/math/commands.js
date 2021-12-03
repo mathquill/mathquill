@@ -485,7 +485,7 @@ class SummationNotation extends MathCommand {
     ;
 
     super();
-    Symbol.prototype.init.call(this, ch, htmlTemplate);
+    Symbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(this, ch, htmlTemplate);
   };
   createLeftOf (cursor) {
     super.createLeftOf.apply(this, arguments);
@@ -561,7 +561,10 @@ LatexCmds.integral = class extends SummationNotation {
     +   '</span>'
     + '</span>'
     ;
-    Symbol.prototype.init.call(this, '\\int ', htmlTemplate, 'integral');
+
+    super('\\int ', '', 'integral');
+
+    this.htmlTemplate = htmlTemplate;
   };
   
   createLeftOf (cursor) {
