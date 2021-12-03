@@ -357,7 +357,9 @@ class Symbol extends MathCommand {
   };
 
   setCtrlSeqHtmlTextAndMathspeak (ctrlSeq, htmlTemplate, text, mathspeak) {
-    if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
+    if (!text && !!ctrlSeq) {
+      text = ctrlSeq.replace(/^\\/, '');
+    }
 
     this.mathspeakName = mathspeak || text;
     super.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, [text]);  

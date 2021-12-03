@@ -475,7 +475,7 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
 
 class SummationNotation extends MathCommand {
   constructor (ch, html, ariaLabel) {
-    this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
+    this.ariaLabel = ariaLabel || ch.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
     +   '<span class="mq-to"><span>&1</span></span>'

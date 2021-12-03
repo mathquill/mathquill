@@ -560,7 +560,10 @@ LatexCmds.operatorname = class extends MathCommand {
 
 LatexCmds.f = class extends Letter {
   constructor() {
-    Symbol.prototype.init.call(this, this.letter = 'f', '<var class="mq-f">f</var>');
+    this.letter = 'f';
+    super(this.letter);
+
+    this.htmlTemplate = '<var class="mq-f">f</var>';
   };
   italicize (bool) {
     this.jQ.html('f').toggleClass('mq-f', bool);
