@@ -12,11 +12,7 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Cursor extends Point {
   constructor (initParent, options, controller) {
-    this.init(initParent, options, controller);
-  }
-
-  init (initParent, options, controller) {
-    super.init();
+    super();
     this.controller = controller;
     this.parent = initParent;
     this.options = options;
