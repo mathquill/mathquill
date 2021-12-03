@@ -71,17 +71,19 @@ class MathElement extends Node {
  */
 class MathCommand extends MathElement {
   constructor (ctrlSeq, htmlTemplate, textTemplate) {
+    super();
     this.init(ctrlSeq, htmlTemplate, textTemplate);
   };
 
   init (ctrlSeq, htmlTemplate, textTemplate) {
     super.init();
+    this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
+  }
 
-    var cmd = this;
-
-    if (!cmd.ctrlSeq) cmd.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) cmd.htmlTemplate = htmlTemplate;
-    if (textTemplate) cmd.textTemplate = textTemplate;
+  setCtrlSeqHtmlAndText (ctrlSeq, htmlTemplate, textTemplate) {
+    if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
+    if (htmlTemplate) this.htmlTemplate = htmlTemplate;
+    if (textTemplate) this.textTemplate = textTemplate;
   }
 
   // obvious methods
@@ -350,11 +352,16 @@ class MathCommand extends MathElement {
  */
 class Symbol extends MathCommand {
   constructor (ctrlSeq, html, text, mathspeak) {
+    super();
+    this.setCtrlSeqHtmlTextAndMathspeak(ctrlSeq, html, text, mathspeak);
+  };
+
+  setCtrlSeqHtmlTextAndMathspeak (ctrlSeq, htmlTemplate, text, mathspeak) {
     if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
 
     this.mathspeakName = mathspeak || text;
-    super(ctrlSeq, html, [ text ]);
-  };
+    super.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, [text]);  
+  }
 
   parser () { return Parser.succeed(this); };
   numBlocks () { return 0; };

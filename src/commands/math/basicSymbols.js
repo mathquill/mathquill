@@ -514,6 +514,7 @@ optionProcessors.autoOperatorNames = function(cmds) {
 class OperatorName extends Symbol {
   constructor (fn) {
     this.ctrlSeq = fn;
+    //TODO - no super?
   };
   createLeftOf (cursor) {
     var fn = this.ctrlSeq;
@@ -721,6 +722,7 @@ LatexCmds.forall = (latex) => new VanillaSymbol('\\'+latex+' ','&'+latex+';')
 class LatexFragment extends MathCommand {
   constructor (latex) {
     this.latex = latex;
+    // TODO - no super?
   }
   createLeftOf (cursor) {
     var block = latexMathParser.parse(this.latex);

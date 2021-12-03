@@ -483,6 +483,8 @@ class SummationNotation extends MathCommand {
     +   '<span class="mq-from"><span>&0</span></span>'
     + '</span>'
     ;
+
+    super();
     Symbol.prototype.init.call(this, ch, htmlTemplate);
   };
   createLeftOf (cursor) {
