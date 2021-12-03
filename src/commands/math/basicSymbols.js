@@ -826,7 +826,7 @@ function isBinaryOperator(node) {
 
 var PlusMinus = class extends BinaryOperator {
   constructor (ch, html, mathspeak) {
-    Symbol.prototype.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
+    super(ch, html, undefined, mathspeak, true);
   };
   
   contactWeld (opts, dir) { this.sharedSiblingMethod(opts, dir)}

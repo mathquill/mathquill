@@ -350,14 +350,10 @@ class MathCommand extends MathElement {
  */
 class Symbol extends MathCommand {
   constructor (ctrlSeq, html, text, mathspeak) {
-    this.init(ctrlSeq, html, text, mathspeak);
-  }
-
-  init (ctrlSeq, html, text, mathspeak) {
     if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
 
     this.mathspeakName = mathspeak || text;
-    super.init(ctrlSeq, html, [ text ]);
+    super(ctrlSeq, html, [ text ]);
   };
 
   parser () { return Parser.succeed(this); };
@@ -393,10 +389,7 @@ class Symbol extends MathCommand {
 };
 class VanillaSymbol extends Symbol {
   constructor (ch, html, mathspeak) {
-    this.init(ch, html, mathspeak);
-  }
-  init (ch, html, mathspeak) {
-    super.init(ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
+    super(ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
 }
 function bindVanillaSymbol (ch, html, mathspeak) {
@@ -404,11 +397,12 @@ function bindVanillaSymbol (ch, html, mathspeak) {
 }
 
 class BinaryOperator extends Symbol {
-  constructor (ctrlSeq, html, text, mathspeak) {
-    this.init(ctrlSeq, html, text, mathspeak);
-  }
-  init (ctrlSeq, html, text, mathspeak) {
-    super.init(ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak);
+  constructor (ctrlSeq, html, text, mathspeak, treatLikeSymbol) {
+    if (treatLikeSymbol) {
+      super(ctrlSeq, '<span>'+(html || ctrlSeq)+'</span>', undefined, mathspeak);
+    } else {
+      super(ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak);
+    }
   };
 };
 function bindBinaryOperator (ctrlSeq, html, text, mathspeak) {

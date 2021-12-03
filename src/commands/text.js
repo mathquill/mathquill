@@ -242,11 +242,7 @@ function TextBlockFuseChildren(self) {
  */
 class TextPiece extends Node {
   constructor (text) {
-    this.init(text);
-  }
-
-  init (text) {
-    super.init();
+    super();
     this.text = text;
   };
   jQadd (dom) { this.dom = dom; this.jQ = $(dom); };
@@ -384,11 +380,7 @@ LatexCmds.lowercase =
 
 class RootMathCommand extends MathCommand {
   constructor (cursor) {
-    this.init(cursor);
-  }
-
-  init (cursor) {
-    super.init('$');
+    super('$');
     this.cursor = cursor;
   };
   static _todoMoveIntoConstructor =
