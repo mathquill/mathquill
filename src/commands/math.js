@@ -72,11 +72,6 @@ class MathElement extends Node {
 class MathCommand extends MathElement {
   constructor (ctrlSeq, htmlTemplate, textTemplate) {
     super();
-    this.init(ctrlSeq, htmlTemplate, textTemplate);
-  };
-
-  init (ctrlSeq, htmlTemplate, textTemplate) {
-    super.init();
     this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
   }
 

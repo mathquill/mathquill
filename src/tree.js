@@ -147,9 +147,7 @@ class NodeBase {
     elm.mqCmdNode = cmdNode;
   };
 
-  // any extensions that define an init method can call
-  // this version instead of completely overwriting it
-  init () {
+  constructor () {
     // it's possible for this to get called multiple times
     // during the transitionary period from PJS to Typescript.
     // don't do anything the second time.
@@ -169,10 +167,6 @@ class NodeBase {
     this.ends[L] = 0;
     this.ends[R] = 0;
   };
-
-  constructor () {
-    this.init();
-  }
 
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
   
