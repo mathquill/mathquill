@@ -177,9 +177,9 @@ suite('tree', function() {
     test('directionalized constructor call', function() {
       var ChNode = class extends Node {
         constructor (ch) {
-          this.init(ch);
-        }
-        init (ch) { super.init(); this.ch = ch };
+          super();
+          this.ch = ch
+        };
       }
 
       var parent = new Node();
