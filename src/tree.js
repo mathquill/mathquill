@@ -125,6 +125,8 @@ function foldNodes (ends, fold, yield_) {
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
+var defaultJQ = $();
+
 class NodeBase {
   static idCounter = 0;
   static uniqueNodeId() { return NodeBase.idCounter += 1; }
@@ -147,25 +149,16 @@ class NodeBase {
     elm.mqCmdNode = cmdNode;
   };
 
+  [L] = 0;
+  [R] = 0;
+  parent = 0;
+  ends = {[L]: 0, [R]: 0}
+  jQ = defaultJQ;
+  id = NodeBase.uniqueNodeId();
+
   constructor () {
-    // it's possible for this to get called multiple times
-    // during the transitionary period from PJS to Typescript.
-    // don't do anything the second time.
-    if (this.id !== undefined) return;
-
-    this[L] = 0;
-    this[R] = 0
-    this.parent = 0;
-  
-    this.id = NodeBase.uniqueNodeId();
-    this.jQ = $();
-
     TempByIdDict[this.id] = this;
     scheduleDictionaryCleaning(this.id, this);
-
-    this.ends = {};
-    this.ends[L] = 0;
-    this.ends[R] = 0;
   };
 
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
