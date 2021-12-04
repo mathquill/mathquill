@@ -199,7 +199,7 @@ class NodeBase {
   createLeftOf (el) { return this.createDir(L, el); };
 
   selectChildren (leftEnd, rightEnd) {
-    return new Selection(leftEnd, rightEnd);
+    return new MQSelection(leftEnd, rightEnd);
   };
 
   bubble (yield_) {

@@ -283,7 +283,7 @@ class Cursor extends Point {
   };
 }
 
-class Selection extends Fragment {
+class MQSelection extends Fragment {
   constructor (withDir, oppDir, dir) {
     super(withDir, oppDir, dir);
 

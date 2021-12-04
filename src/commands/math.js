@@ -158,7 +158,7 @@ class MathCommand extends MathElement {
     cursor[dir] = this[dir];
   };
   selectChildren () {
-    return new Selection(this, this);
+    return new MQSelection(this, this);
   };
   unselectInto (dir, cursor) {
     cursor.insAtDirEnd(-dir, cursor.anticursor.ancestors[this.id]);
