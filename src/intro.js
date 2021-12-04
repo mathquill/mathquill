@@ -20,18 +20,6 @@ if (!jQuery) throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
 function noop() {}
 
 /**
- * sugar to make defining lots of commands easier.
- * TODO: rethink this.
- */
-var __slice = [].slice;
-function bind(cons /*, args... */) {
-  var args = __slice.call(arguments, 1);
-  return function() {
-    return cons.apply(this, args);
-  };
-}
-
-/**
  * a development-only debug method.  This definition and all
  * calls to `pray` will be stripped from the minified
  * build of mathquill.
