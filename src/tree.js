@@ -11,12 +11,6 @@
 //
 // the contract is that they can be used as object properties
 // and (-L) === R, and (-R) === L.
-var L = -1;
-var R = 1;
-
-function prayDirection(dir) {
-  pray('a direction was passed', dir === L || dir === R);
-}
 
 /**
  * Tiny extension of jQuery adding directionalized DOM manipulation methods.
@@ -86,21 +80,6 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-var TempByIdDict = {};
-var cleaningScheduled = false;
-
-function scheduleDictionaryCleaning () {
-  if (!cleaningScheduled) {
-    cleaningScheduled = true;
-    setTimeout(cleanDictionary);
-  }
-}
-
-function cleanDictionary () {
-  cleaningScheduled = false;
-  TempByIdDict = {};
-}
-
 function eachNode (ends, yield_) {
   var el = ends[L];
   if (!el) return;
@@ -138,7 +117,7 @@ class NodeBase {
   }
 
   static linkElementByBlockId (elm, id) {
-    NodeBase.linkElementByBlockNode(elm, TempByIdDict[id]);
+    NodeBase.linkElementByBlockNode(elm, NodeBase.TempByIdDict[id]);
   };
 
   static linkElementByBlockNode (elm, blockNode) {
@@ -149,6 +128,19 @@ class NodeBase {
     elm.mqCmdNode = cmdNode;
   };
 
+  static TempByIdDict = {};
+  static cleaningScheduled = false;
+  static scheduleDictionaryCleaning () {
+    if (!NodeBase.cleaningScheduled) {
+      NodeBase.cleaningScheduled = true;
+      setTimeout(NodeBase.cleanDictionary);
+    }
+  }
+  static cleanDictionary () {
+    NodeBase.cleaningScheduled = false;
+    NodeBase.TempByIdDict = {};
+  }
+
   [L] = 0;
   [R] = 0;
   parent = 0;
@@ -157,8 +149,8 @@ class NodeBase {
   id = NodeBase.uniqueNodeId();
 
   constructor () {
-    TempByIdDict[this.id] = this;
-    scheduleDictionaryCleaning(this.id, this);
+    NodeBase.TempByIdDict[this.id] = this;
+    NodeBase.scheduleDictionaryCleaning(this.id, this);
   };
 
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
@@ -174,7 +166,7 @@ class NodeBase {
         var cmdId = el.getAttribute('mathquill-command-id');
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
-          var cmdNode = TempByIdDict[cmdId]
+          var cmdNode = NodeBase.TempByIdDict[cmdId]
           cmdNode.jQadd(el);
           NodeBase.linkElementByCmdNode(el, cmdNode);
         }
@@ -182,7 +174,7 @@ class NodeBase {
         var blockId = el.getAttribute('mathquill-block-id');
         if (blockId) {
           el.removeAttribute('mathquill-block-id');
-          var blockNode = TempByIdDict[blockId]
+          var blockNode = NodeBase.TempByIdDict[blockId]
           blockNode.jQadd(el);
           NodeBase.linkElementByBlockNode(el, blockNode);
         }

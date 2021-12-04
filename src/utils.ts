@@ -1,3 +1,9 @@
+type L = -1;
+type R = 1;
+const L:L = -1;
+const R:R = 1;
+type Direction = L | R;
+
 var jQuery = (window as any).jQuery;
 var min = Math.min;
 var max = Math.max;
@@ -19,3 +25,8 @@ function noop() {}
 function pray(message:string, cond:any) {
 if (!cond) throw new Error('prayer failed: '+message);
 }
+
+function prayDirection(dir:Direction) {
+  pray('a direction was passed', dir === L || dir === R);
+}
+
