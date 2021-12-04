@@ -152,6 +152,9 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 #
 # -*- Test tasks -*-
 #
+.PHONY:
+lint:
+	npx tsc --noEmit
 
 .PHONY: test server run-server
 server:
