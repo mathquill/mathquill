@@ -27,7 +27,7 @@ class Controller_mouse extends Controller_latex {
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function(e) {
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = Node.getNodeOfElement(rootjQ[0]) || Node.getNodeOfElement(ultimateRootjQ[0]);
+      var root = NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0]);
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
@@ -116,7 +116,7 @@ class Controller_mouse extends Controller_latex {
     // node that mathquill is aware of
     while (targetElm) {
       // try to find the MQ Node associated with the DOM Element
-      node = Node.getNodeOfElement(targetElm);
+      node = NodeBase.getNodeOfElement(targetElm);
       if (node) break;
 
       // must be too deep, traverse up to the parent DOM Element

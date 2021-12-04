@@ -8,7 +8,7 @@
  * opposed to hierchical, nested, tree-structured math.
  * Wraps a single HTMLSpanElement.
  */
-class TextBlock extends Node {
+class TextBlock extends MQNode {
   ctrlSeq = '\\text';
   ariaLabel = 'Text';
 
@@ -236,7 +236,7 @@ function TextBlockFuseChildren(self) {
  * mirroring the text contents of the DOMTextNode.
  * Text contents must always be nonempty.
  */
-class TextPiece extends Node {
+class TextPiece extends MQNode {
   constructor (text) {
     super();
     this.text = text;

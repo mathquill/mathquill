@@ -127,16 +127,16 @@ function foldNodes (ends, fold, yield_) {
  */
 class NodeBase {
   static idCounter = 0;
-  static uniqueNodeId() { return Node.idCounter += 1; }
+  static uniqueNodeId() { return NodeBase.idCounter += 1; }
 
   static getNodeOfElement (el) {
     if (!el) return;
-    if (!el.nodeType) throw new Error('must pass an HTMLElement to Node.getNodeOfElement')
+    if (!el.nodeType) throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement')
     return el.mqBlockNode || el.mqCmdNode;
   }
 
   static linkElementByBlockId (elm, id) {
-    Node.linkElementByBlockNode(elm, TempByIdDict[id]);
+    NodeBase.linkElementByBlockNode(elm, TempByIdDict[id]);
   };
 
   static linkElementByBlockNode (elm, blockNode) {
@@ -157,7 +157,7 @@ class NodeBase {
     this[R] = 0
     this.parent = 0;
   
-    this.id = Node.uniqueNodeId();
+    this.id = NodeBase.uniqueNodeId();
     this.jQ = $();
 
     TempByIdDict[this.id] = this;
@@ -183,7 +183,7 @@ class NodeBase {
           el.removeAttribute('mathquill-command-id');
           var cmdNode = TempByIdDict[cmdId]
           cmdNode.jQadd(el);
-          Node.linkElementByCmdNode(el, cmdNode);
+          NodeBase.linkElementByCmdNode(el, cmdNode);
         }
 
         var blockId = el.getAttribute('mathquill-block-id');
@@ -191,7 +191,7 @@ class NodeBase {
           el.removeAttribute('mathquill-block-id');
           var blockNode = TempByIdDict[blockId]
           blockNode.jQadd(el);
-          Node.linkElementByBlockNode(el, blockNode);
+          NodeBase.linkElementByBlockNode(el, blockNode);
         }
       }
       for (el = el.firstChild; el; el = el.nextSibling) {
@@ -364,8 +364,8 @@ class Fragment {
 
     if (!withDir) return;
 
-    pray('withDir is passed to Fragment', withDir instanceof Node);
-    pray('oppDir is passed to Fragment', oppDir instanceof Node);
+    pray('withDir is passed to Fragment', withDir instanceof MQNode);
+    pray('oppDir is passed to Fragment', oppDir instanceof MQNode);
     pray('withDir and oppDir have the same parent',
          withDir.parent === oppDir.parent);
 

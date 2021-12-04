@@ -27,7 +27,7 @@ class Aria {
 
   queue (item, shouldDescribe) {
     var output = '';
-    if (item instanceof Node) {
+    if (item instanceof MQNode) {
       // Some constructs include verbal shorthand (such as simple fractions and exponents).
       // Since ARIA alerts relate to moving through interactive content, we don't want to use that shorthand if it exists
       // since doing so may be ambiguous or confusing.

@@ -4,10 +4,10 @@
 
 /**
  * Math tree node base class.
- * Some math-tree-specific extensions to Node.
+ * Some math-tree-specific extensions to MQNode.
  * Both MathBlock's and MathCommand's descend from it.
  */
-class MathElement extends Node {
+class MathElement extends MQNode {
   finalizeInsert (options, cursor) { // `cursor` param is only for
       // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
       // see ea7307eb4fac77c149a11ffdf9a831df85247693

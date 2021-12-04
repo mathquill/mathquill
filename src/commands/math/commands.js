@@ -330,14 +330,14 @@ class SupSub extends MathCommand {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
       block.jQ = $('<span class="mq-sup"/>').append(block.jQ.children()).prependTo(this.jQ);
-      Node.linkElementByBlockNode(block.jQ[0], block);
+      NodeBase.linkElementByBlockNode(block.jQ[0], block);
     }
     else {
       this.sub = this.downInto = this.sup.downOutOf = block;
       block.adopt(this, 0, this.sup).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>').append(block.jQ.children())
         .appendTo(this.jQ.removeClass('mq-sup-only'));
-      Node.linkElementByBlockNode(block.jQ[0], block);
+      NodeBase.linkElementByBlockNode(block.jQ[0], block);
       this.jQ.append('<span style="display:inline-block;width:0">&#8203;</span>');
     }
 
@@ -669,7 +669,7 @@ LatexCmds.fraction = class FracNode extends MathCommand {
   getFracDepth () {
     var level = 0;
     var walkUp = function(item, level) {
-      if(item instanceof Node && item.ctrlSeq && item.ctrlSeq.toLowerCase().search('frac') >= 0) level += 1;
+      if(item instanceof MQNode && item.ctrlSeq && item.ctrlSeq.toLowerCase().search('frac') >= 0) level += 1;
       if(item.parent) return walkUp(item.parent, level);
       else return level;
     };

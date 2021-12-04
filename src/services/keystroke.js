@@ -2,8 +2,7 @@
  * Deals with the browser DOM events from
  * interaction with the typist.
  ****************************************/
-
-class Node extends NodeBase {  
+class MQNode extends NodeBase {  
   keystroke (key, e, ctrlr) {
     var cursor = ctrlr.cursor;
 
@@ -129,12 +128,12 @@ class Node extends NodeBase {
 
     // These remaining hotkeys are only of benefit to people running screen readers.
     case 'Ctrl-Alt-Up': // speak parent block that has focus
-      if (cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
+      if (cursor.parent.parent && cursor.parent.parent instanceof MQNode) aria.queue(cursor.parent.parent);
       else aria.queue('nothing above');
       break;
 
     case 'Ctrl-Alt-Down': // speak current block that has focus
-      if (cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
+      if (cursor.parent && cursor.parent instanceof MQNode) aria.queue(cursor.parent);
       else aria.queue('block is empty');
       break;
 
@@ -143,7 +142,7 @@ class Node extends NodeBase {
         cursor.parent.parent &&
         cursor.parent.parent.ends &&
         cursor.parent.parent.ends[L] &&
-        cursor.parent.parent.ends[L] instanceof Node
+        cursor.parent.parent.ends[L] instanceof MQNode
       ) {
         aria.queue(cursor.parent.parent.ends[L]);
       } else {
@@ -156,7 +155,7 @@ class Node extends NodeBase {
         cursor.parent.parent &&
         cursor.parent.parent.ends &&
         cursor.parent.parent.ends[R] &&
-        cursor.parent.parent.ends[R] instanceof Node
+        cursor.parent.parent.ends[R] instanceof MQNode
       ) {
         aria.queue(cursor.parent.parent.ends[R]);
       } else {
@@ -268,7 +267,7 @@ class Controller_keystroke extends Controller_focusBlur {
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
-          if (prop instanceof Node) cursor.jumpUpDown(ancestor, prop);
+          if (prop instanceof MQNode) cursor.jumpUpDown(ancestor, prop);
           if (prop !== true) return false;
         }
       });
@@ -279,7 +278,7 @@ class Controller_keystroke extends Controller_focusBlur {
     prayDirection(dir);
     var cursor = this.cursor;
     var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
-    if(cursorEl && cursorEl instanceof Node) {
+    if(cursorEl && cursorEl instanceof MQNode) {
       if(cursorEl.sides) {
         aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
       // generally, speak the current element if it has no blocks,
@@ -288,7 +287,7 @@ class Controller_keystroke extends Controller_focusBlur {
       } else if (!cursorEl.blocks && cursorEl.parent.ctrlSeq !== '\\text') {
         aria.queue(cursorEl);
       }
-    } else if(cursorElParent && cursorElParent instanceof Node) {
+    } else if(cursorElParent && cursorElParent instanceof MQNode) {
       if(cursorElParent.sides) {
         aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
       } else if (cursorElParent.blocks && cursorElParent.mathspeakTemplate) {
