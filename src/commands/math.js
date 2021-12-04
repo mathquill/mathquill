@@ -345,7 +345,7 @@ class MathCommand extends MathElement {
 /**
  * Lightweight command without blocks or children.
  */
-class Symbol extends MathCommand {
+class MQSymbol extends MathCommand {
   constructor (ctrlSeq, html, text, mathspeak) {
     super();
     this.setCtrlSeqHtmlTextAndMathspeak(ctrlSeq, html, text, mathspeak);
@@ -391,7 +391,7 @@ class Symbol extends MathCommand {
   placeCursor () {};
   isEmpty (){ return true; };
 };
-class VanillaSymbol extends Symbol {
+class VanillaSymbol extends MQSymbol {
   constructor (ch, html, mathspeak) {
     super(ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
@@ -400,7 +400,7 @@ function bindVanillaSymbol (ch, html, mathspeak) {
   return () => new VanillaSymbol(ch, html, mathspeak);
 }
 
-class BinaryOperator extends Symbol {
+class BinaryOperator extends MQSymbol {
   constructor (ctrlSeq, html, text, mathspeak, treatLikeSymbol) {
     if (treatLikeSymbol) {
       super(ctrlSeq, '<span>'+(html || ctrlSeq)+'</span>', undefined, mathspeak);

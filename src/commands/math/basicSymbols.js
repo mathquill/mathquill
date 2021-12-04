@@ -1,7 +1,7 @@
 /*********************************
  * Symbols for Basic Mathematics
  ********************************/
-class DigitGroupingChar extends Symbol {
+class DigitGroupingChar extends MQSymbol {
   finalizeTree (opts, dir) { this.sharedSiblingMethod(opts, dir) };
   siblingDeleted (opts, dir) { this.sharedSiblingMethod(opts, dir) };
   siblingCreated (opts, dir) { this.sharedSiblingMethod(opts, dir) };
@@ -188,7 +188,7 @@ class Digit extends DigitGroupingChar {
   };
 }
 
-class Variable extends Symbol {
+class Variable extends MQSymbol {
   constructor (ch, html) {
     super(ch, '<var>'+(html || ch)+'</var>');
   };
@@ -511,7 +511,7 @@ optionProcessors.autoOperatorNames = function(cmds) {
   dict._maxLength = maxLength;
   return dict;
 };
-class OperatorName extends Symbol {
+class OperatorName extends MQSymbol {
   constructor (fn) {
     super(fn);
   };
@@ -587,7 +587,7 @@ LatexCmds.square = bindVanillaSymbol('\\square ', '\u25A1', 'square');
 LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 
 // does not use Symbola font
-class NonSymbolaSymbol extends Symbol {
+class NonSymbolaSymbol extends MQSymbol {
   constructor (ch, html) {
     super(ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
@@ -704,7 +704,7 @@ LatexCmds.Upsilon = //LaTeX
 LatexCmds.Upsi = //Elsevier and 9573-13
 LatexCmds.upsih = //W3C/Unicode "upsilon with hook"
 LatexCmds.Upsih = //'cos it makes sense to me
-  () => new Symbol('\\Upsilon ','<var style="font-family: serif">&upsih;</var>', 'capital upsilon'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
+  () => new MQSymbol('\\Upsilon ','<var style="font-family: serif">&upsih;</var>', 'capital upsilon'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
 //other symbols with the same LaTeX command and HTML character entity reference
 LatexCmds.Gamma =

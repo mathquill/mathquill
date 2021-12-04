@@ -126,7 +126,7 @@ case ':':
 case ';':
   return VanillaSymbol('\\; ','   ', 'semicolon');
 case '!':
-  return Symbol('\\! ','<span style="margin-right:-.2em"></span>', 'exclamation point');
+  return MQSymbol('\\! ','<span style="margin-right:-.2em"></span>', 'exclamation point');
 */
 
 //binary operators
@@ -255,7 +255,7 @@ LatexCmds.bull = LatexCmds.bullet = bindVanillaSymbol('\\bullet ','&bull;', 'bul
 LatexCmds.setminus = LatexCmds.smallsetminus =
   bindVanillaSymbol('\\setminus ','&#8726;', 'set minus');
 
-LatexCmds.not = //bind(Symbol,'\\not ','<span class="not">/</span>', 'not');
+LatexCmds.not = //bind(MQSymbol,'\\not ','<span class="not">/</span>', 'not');
 LatexCmds['¬'] = LatexCmds.neg = bindVanillaSymbol('\\neg ','&not;', 'not');
 
 LatexCmds['…'] = LatexCmds.dots = LatexCmds.ellip = LatexCmds.hellip =

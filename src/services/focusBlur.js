@@ -94,7 +94,7 @@ class Controller_focusBlur extends Controller_exportLatex {
  * Problem is, there's lots of calls to .focus()/.blur() on nodes
  * outside Controller::focusBlurEvents(), such as .postOrder('blur') on
  * insertion, which if MathBlock::blur becomes MQNode::blur, would add the
- * 'blur' CSS class to all Symbol's (because .isEmpty() is true for all
+ * 'blur' CSS class to all MQSymbol's (because .isEmpty() is true for all
  * of them).
  *
  * I'm not even sure there aren't other troublesome calls to .focus() or

@@ -274,7 +274,7 @@ class SupSub extends MathCommand {
       if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
         if (ch === '_') return;
         var cmd = this.chToCmd(ch, cursor.options);
-        if (cmd instanceof Symbol) cursor.deleteSelection();
+        if (cmd instanceof MQSymbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
         cmd.createLeftOf(cursor.show());
         aria.queue('Baseline').alert(cmd.mathspeak({ createdLeftOf: cursor }));
@@ -297,7 +297,7 @@ class SupSub extends MathCommand {
   deleteTowards (dir, cursor) {
     if (cursor.options.autoSubscriptNumerals && this.sub) {
       var cmd = this.sub.ends[-dir];
-      if (cmd instanceof Symbol) cmd.remove();
+      if (cmd instanceof MQSymbol) cmd.remove();
       else if (cmd) cmd.deleteTowards(dir, cursor.insAtDirEnd(-dir, this.sub));
 
       // TODO: factor out a .removeBlock() or something
@@ -476,7 +476,7 @@ class SummationNotation extends MathCommand {
     ;
 
     super();
-    Symbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(this, ch, htmlTemplate);
+    MQSymbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(this, ch, htmlTemplate);
   };
   createLeftOf (cursor) {
     super.createLeftOf.apply(this, arguments);
@@ -710,14 +710,14 @@ CharCmds['/'] = class extends Fraction {
   };
 };
 
-LatexCmds.ans = () => new Symbol(
+LatexCmds.ans = () => new MQSymbol(
       '\\operatorname{ans}',
       '<span class="mq-ans">ans</span>',
       'ans'
     );
 
 LatexCmds.percent =
-LatexCmds.percentof = () => new Symbol(
+LatexCmds.percentof = () => new MQSymbol(
       '\\%\\operatorname{of}',
       '<span class="mq-nonSymbola mq-operator-name">% of </span>',
       'percent of'
@@ -1153,12 +1153,12 @@ LatexCmds.MathQuillMathField = class MathFieldNode extends MathCommand {
 
 // Embed arbitrary things
 // Probably the closest DOM analogue would be an iframe?
-// From MathQuill's perspective, it's a Symbol, it can be
+// From MathQuill's perspective, it's a MQSymbol, it can be
 // anywhere and the cursor can go around it but never in it.
 // Create by calling public API method .dropEmbedded(),
 // or by calling the global public API method .registerEmbed()
 // and rendering LaTeX like \embed{registeredName} (see test).
-LatexCmds.embed = class extends Symbol {
+LatexCmds.embed = class extends MQSymbol {
   setOptions (options) {
     function noop () { return ""; }
     this.text = options.text || noop;
