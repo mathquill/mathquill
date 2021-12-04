@@ -25,6 +25,7 @@ INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
 BASE_SOURCES = \
+  $(SRC_DIR)/utils.ts \
   $(SRC_DIR)/services/aria.js \
   $(SRC_DIR)/tree.js \
   $(SRC_DIR)/cursor.js \
