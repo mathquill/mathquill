@@ -29,7 +29,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/services/aria.ts \
   $(SRC_DIR)/tree.ts \
   $(SRC_DIR)/cursor.ts \
-  $(SRC_DIR)/controller.js \
+  $(SRC_DIR)/controller.ts \
   $(SRC_DIR)/publicapi.js \
   $(SRC_DIR)/services/parser.util.js \
   $(SRC_DIR)/services/saneKeyboardEvents.util.js \
