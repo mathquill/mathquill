@@ -181,6 +181,7 @@ class NodeBase {
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
   ctrlSeq:string | undefined;
+  ariaLabel:string | undefined;
   sides:{[L]:{ch:string, ctrlSeq:string}, [R]: {ch:string, ctrlSeq:string}} | undefined;
   blocks:MathBlock[] | undefined;
   mathspeakTemplate:string[] | undefined;
@@ -358,7 +359,10 @@ class NodeBase {
   reflow () { };
   registerInnerField () { };
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
-  mathspeak (_options?:{createdLeftOf:Cursor}) {};
+  mathspeak (_options?:{
+    createdLeftOf?:Cursor, 
+    ignoreShorthand?: boolean
+  }) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
 

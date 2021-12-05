@@ -8,7 +8,6 @@ type MathBlock = any;
 
 declare var $:$;
 declare var SupSub:any;
-declare var aria:any;
 declare var Controller_focusBlur:any;
 declare var optionProcessors:any;
 declare var MathBlock:MathBlock;

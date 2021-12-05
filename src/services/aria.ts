@@ -11,22 +11,25 @@
  * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
+type AriaQueueItem = MQNode | Fragment | string;
+
 class Aria {
+  jQ = jQuery([]); // empty element
+  msg = '';
+  items:AriaQueueItem[] = [];
+
   constructor () {
-    this.jQ = jQuery([]); // empty element
     // Add the alert DOM element only after the page has loaded.
-    jQuery(document).ready(function() {
+    jQuery(document).ready(() => {
       var el = '.mq-aria-alert';
       // No matter how many Mathquill instances exist, we only need one alert object to say something.
       if (!jQuery(el).length) jQuery('body').append("<p aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></p>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
       this.jQ = jQuery(el);
-    }.bind(this));
-    this.items = [];
-    this.msg = '';
+    });
   };
 
-  queue (item, shouldDescribe) {
-    var output = '';
+  queue (item:AriaQueueItem, shouldDescribe:boolean = false) {
+    var output:Fragment | string = '';
     if (item instanceof MQNode) {
       // Some constructs include verbal shorthand (such as simple fractions and exponents).
       // Since ARIA alerts relate to moving through interactive content, we don't want to use that shorthand if it exists
@@ -52,16 +55,16 @@ class Aria {
     this.items.push(output);
     return this;
   };
-  queueDirOf (dir) {
+  queueDirOf (dir:Direction) {
     prayDirection(dir);
     return this.queue(dir === L ? 'before' : 'after');
   };
-  queueDirEndOf (dir) {
+  queueDirEndOf (dir:Direction) {
     prayDirection(dir);
     return this.queue(dir === L ? 'beginning of' : 'end of');
   };
 
-  alert (t) {
+  alert (t?:AriaQueueItem) {
     if (t) this.queue(t);
     if (this.items.length) {
       this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
