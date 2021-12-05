@@ -1,9 +1,21 @@
 /*********************************************
  * Controller for a MathQuill instance
  ********************************************/
-
 class ControllerBase {
-  constructor (root, container, options) {
+  id:number;
+  data:ControllerData;
+  root:ControllerRoot;
+  container:$;
+  options:CursorOptions;
+  aria:Aria;
+  ariaLabel:string;
+  ariaPostLabel:string;
+  cursor:Cursor;
+  editable:boolean | undefined;
+  _ariaAlertTimeout:number;
+  KIND_OF_MQ:KIND_OF_MQ;
+
+  constructor (root:ControllerRoot, container:$, options:CursorOptions) {
     this.id = root.id;
     this.data = {};
 
@@ -21,7 +33,7 @@ class ControllerBase {
     // TODO: stop depending on root.cursor, and rm it
   };
 
-  handle (name, dir) {
+  handle (name:HandlerName, dir:Direction) {
     var handlers = this.options.handlers;
     if (handlers && handlers.fns[name]) {
       var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);
@@ -30,15 +42,15 @@ class ControllerBase {
     }
   };
 
-  static notifyees = [];
-  static onNotify (f) { ControllerBase.notifyees.push(f); };
-  notify () {
+  static notifyees:((e:ControllerEvent) => void)[] = [];
+  static onNotify (f:(e:ControllerEvent) => void) { ControllerBase.notifyees.push(f); };
+  notify (e:ControllerEvent) {
     for (var i = 0; i < ControllerBase.notifyees.length; i += 1) {
-      ControllerBase.notifyees[i].apply(this.cursor, arguments);
+      ControllerBase.notifyees[i].call(this.cursor, e);
     }
     return this;
   };
-  setAriaLabel (ariaLabel) {
+  setAriaLabel (ariaLabel:string) {
     var oldAriaLabel = this.getAriaLabel();
     if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
       this.ariaLabel = ariaLabel;
@@ -65,14 +77,14 @@ class ControllerBase {
       return '';
     }
   };
-  setAriaPostLabel (ariaPostLabel, timeout) {
+  setAriaPostLabel (ariaPostLabel:string, timeout:number) {
     if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel !== '') {
       if (
         ariaPostLabel !== this.ariaPostLabel &&
         typeof timeout === 'number'
       ) {
         if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
-        this._ariaAlertTimeout = setTimeout(function() {
+        this._ariaAlertTimeout = setTimeout(() => {
           if (this.containerHasFocus()) {
             // Voice the new label, but do not update content mathspeak to prevent double-speech.
             aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
@@ -80,7 +92,7 @@ class ControllerBase {
             // This mathquill does not have focus, so update its mathspeak.
             this.updateMathspeak();
           }
-        }.bind(this), timeout);
+        }, timeout);
       }
       this.ariaPostLabel = ariaPostLabel;
     } else {
@@ -100,6 +112,8 @@ class ControllerBase {
       this.container[0].contains(document.activeElement)
     );
   };
+
+  updateMathspeak () {}; // overridden
 
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/

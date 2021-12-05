@@ -50,6 +50,9 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         e.preventDefault();
         return;
       }
+
+      // TODO - this has thrown as part of visual tests. The _super.keystroke is
+      // undefined. Let's see if typescript conversions catches the error
       return super.keystroke.apply(this, arguments);
     };
   };
