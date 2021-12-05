@@ -35,7 +35,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/services/saneKeyboardEvents.util.js \
   $(SRC_DIR)/services/exportText.js \
   $(SRC_DIR)/services/focusBlur.js \
-  $(SRC_DIR)/services/keystroke.js \
+  $(SRC_DIR)/services/keystroke.ts \
   $(SRC_DIR)/services/latex.js \
   $(SRC_DIR)/services/mouse.js \
   $(SRC_DIR)/services/scrollHoriz.js \
