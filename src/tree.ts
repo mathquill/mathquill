@@ -19,20 +19,20 @@ $.fn.insAtDirEnd = function (dir:Direction, el:$) {
 };
 
 class Point {
-  [L]:MQNode;
-  [R]:MQNode;
+  [L]?:NodeRef;
+  [R]?:NodeRef;
   parent:MQNode;
 
+  constructor (parent:MQNode, leftward?:NodeRef, rightward?:NodeRef) {
+    this.init(parent, leftward, rightward);
+  };
+
   // keeping init around only for tests
-  init (parent:MQNode, leftward:MQNode, rightward:MQNode) {
+  init (parent:MQNode, leftward?:NodeRef, rightward?:NodeRef) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
   }
-
-  constructor (parent:MQNode, leftward:MQNode, rightward:MQNode) {
-    this.init(parent, leftward, rightward);
-  };
 
   static copy (pt:Point) {
     return new Point(pt.parent, pt[L], pt[R]);
@@ -232,12 +232,12 @@ class NodeBase {
     var node = this;
     node.jQize();
     node.jQ.insDirOf(dir, cursor.jQ);
-    cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
+    cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   };
-  createLeftOf (el:NodeRef) { return this.createDir(L, el); };
+  createLeftOf (cursor:Cursor) { return this.createDir(L, cursor); };
 
-  selectChildren (leftEnd:NodeRef, rightEnd:NodeRef) {
+  selectChildren (leftEnd:MQNode, rightEnd:MQNode) {
     return new MQSelection(leftEnd, rightEnd);
   };
 
@@ -252,10 +252,10 @@ class NodeBase {
     return this;
   };
 
-  postOrder (yield_:(el:NodeRef) => void) {
+  postOrder (yield_:(el:MQNode) => void) {
     var self = this.getSelfNode();
 
-    (function recurse(descendant:NodeRef) {
+    (function recurse(descendant:MQNode) {
       if (!descendant) return false;
       descendant.eachChild(recurse);
       yield_(descendant);
@@ -293,7 +293,7 @@ class NodeBase {
     return new Fragment(this.ends[L] as MQNode, this.ends[R] as MQNode);
   };
 
-  eachChild (yield_:(el:NodeRef) => boolean) {
+  eachChild (yield_:(el:MQNode) => boolean) {
     eachNode(this.ends, yield_);
     return this;
   };
@@ -308,10 +308,10 @@ class NodeBase {
     return this;
   };
 
-  adopt (parent:MQNode, leftward:MQNode, rightward:MQNode) {
+  adopt (parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
     var self = this.getSelfNode();
     new Fragment(self, self).adopt(parent, leftward, rightward);
-    return this;
+    return this.getSelfNode();
   };
 
   disown () {
@@ -352,12 +352,15 @@ class NodeBase {
   html () {};
   finalizeTree () { };
   contactWeld () { };
-  blur () { };
+  blur (_cursor?:Cursor) { };
+  focus () {};
   intentionalBlur () { };
   reflow () { };
   registerInnerField () { };
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
   mathspeak (_options?:{createdLeftOf:Cursor}) {};
+  seek (_pageX:number, _cursor:Cursor) {};
+  siblingDeleted (_options:CursorOptions, _dir:Direction) {};
 
 }
 
@@ -440,7 +443,7 @@ class Fragment {
     return (dir === L ? this.adopt(parent, withDir, oppDir)
                       : this.adopt(parent, oppDir, withDir));
   };
-  adopt (parent:MQNode, leftward:MQNode, rightward:MQNode) {
+  adopt (parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
     prayWellFormed(parent, leftward, rightward);
 
     var self = this;
@@ -522,7 +525,7 @@ class Fragment {
     return this;
   };
 
-  fold (fold:HTMLElement[], yield_: (fold:HTMLElement[], el:MQNode) => HTMLElement[]) {
+  fold <T>(fold:T, yield_: (fold:T, el:MQNode) => T) {
     return foldNodes(this.ends as Ends, fold, yield_); // TODO - the types of Ends are not compatible
   };
 }
