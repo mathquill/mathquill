@@ -280,7 +280,8 @@ class Controller_keystroke extends Controller_focusBlur {
   deleteDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor;
-    var cursorEl = cursor[dir] as MQNode, cursorElParent = cursor.parent.parent;
+    var cursorEl = cursor[dir] as MQNode;
+    var cursorElParent = cursor.parent.parent;
     
     if(cursorEl && cursorEl instanceof MQNode) {
       if(cursorEl.sides ) {

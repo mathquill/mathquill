@@ -10,28 +10,31 @@
  * Tiny extension of jQuery adding directionalized DOM manipulation methods.
  */
 var $ = jQuery;
-$.fn.insDirOf = function (dir, el) {
+$.fn.insDirOf = function (dir:Direction, el:$) {
   return dir === L ?
     this.insertBefore(el.first()) : this.insertAfter(el.last());
 };
-$.fn.insAtDirEnd = function (dir, el) {
+$.fn.insAtDirEnd = function (dir:Direction, el:$) {
   return dir === L ? this.prependTo(el) : this.appendTo(el);
 };
 
 class Point {
+  [L]:MQNode;
+  [R]:MQNode;
+  parent:MQNode;
 
   // keeping init around only for tests
-  init (parent, leftward, rightward) {
+  init (parent:MQNode, leftward:MQNode, rightward:MQNode) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
   }
 
-  constructor (parent, leftward, rightward) {
+  constructor (parent:MQNode, leftward:MQNode, rightward:MQNode) {
     this.init(parent, leftward, rightward);
   };
 
-  static copy (pt) {
+  static copy (pt:Point) {
     return new Point(pt.parent, pt[L], pt[R]);
   };
 }
@@ -74,7 +77,7 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-function eachNode (ends:Ends, yield_:(el:NodeRef) => boolean) {
+function eachNode (ends:Ends, yield_:(el:MQNode) => boolean) {
   var el = ends[L];
   if (!el) return;
 
@@ -87,12 +90,12 @@ function eachNode (ends:Ends, yield_:(el:NodeRef) => boolean) {
   // verify that this will throw an error. So I'm keeping the behavior but ignoring the
   // type error.
   for (; el !== stop; el = (el as MQNode)[R]) {
-    var result = yield_(el);
+    var result = yield_(el as MQNode); // TODO - might be passing in 0 intead of a MQNode, but tests want this
     if (result === false) break;
   }
 }
 
-function foldNodes (ends:Ends, fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold) {
+function foldNodes <T>(ends:Ends, fold:T, yield_:(fold:T, el:MQNode) => T) {
   var el = ends[L];
   if (!el) return fold;
 
@@ -105,7 +108,7 @@ function foldNodes (ends:Ends, fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold
   // verify that this will throw an error. So I'm keeping the behavior but ignoring the
   // type error.
   for (; el !== stop; el = (el as MQNode)[R]) {
-    fold = yield_(fold, el);
+    fold = yield_(fold, el as MQNode); // TODO - might be passing in 0 intead of a MQNode, but tests want this
   }
 
   return fold;
@@ -181,6 +184,8 @@ class NodeBase {
   sides:{[L]:{ch:string, ctrlSeq:string}, [R]: {ch:string, ctrlSeq:string}} | undefined;
   blocks:MathBlock[] | undefined;
   mathspeakTemplate:string[] | undefined;
+  upInto:MQNode | undefined;
+  downInto:MQNode | undefined;
 
   constructor () {
     NodeBase.TempByIdDict[this.id] = this;
@@ -237,7 +242,7 @@ class NodeBase {
   };
 
   bubble (yield_:(ancestor:NodeRef) => boolean) {
-    var self = this as any as MQNode;
+    var self = this.getSelfNode();
     
     for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
@@ -248,7 +253,7 @@ class NodeBase {
   };
 
   postOrder (yield_:(el:NodeRef) => void) {
-    var self = this as any as MQNode;
+    var self = this.getSelfNode();
 
     (function recurse(descendant:NodeRef) {
       if (!descendant) return false;
@@ -285,7 +290,7 @@ class NodeBase {
   };
 
   children () {
-    return new Fragment(this.ends[L], this.ends[R]);
+    return new Fragment(this.ends[L] as MQNode, this.ends[R] as MQNode);
   };
 
   eachChild (yield_:(el:NodeRef) => boolean) {
@@ -293,22 +298,25 @@ class NodeBase {
     return this;
   };
 
-  foldChildren (fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold) {
+  foldChildren (fold:string, yield_:(fold:string, el:MQNode) => string) {
     return foldNodes(this.ends, fold, yield_);
   };
 
-  withDirAdopt (dir:Direction, parent:NodeRef, withDir:Direction, oppDir:Direction) {
-    new Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
+  withDirAdopt (dir:Direction, parent:MQNode, withDir:MQNode, oppDir:MQNode) {
+    const self = this.getSelfNode();
+    new Fragment(self, self).withDirAdopt(dir, parent, withDir, oppDir);
     return this;
   };
 
-  adopt (parent:NodeRef, leftward:NodeRef, rightward:NodeRef) {
-    new Fragment(this, this).adopt(parent, leftward, rightward);
+  adopt (parent:MQNode, leftward:MQNode, rightward:MQNode) {
+    var self = this.getSelfNode();
+    new Fragment(self, self).adopt(parent, leftward, rightward);
     return this;
   };
 
   disown () {
-    new Fragment(this, this).disown();
+    var self = this.getSelfNode();
+    new Fragment(self, self).disown();
     return this;
   };
 
@@ -335,6 +343,11 @@ class NodeBase {
     return true;
   };
 
+  getSelfNode () {
+    // dumb dance to tell typescript that we eventually become a MQNod
+    return this as any as MQNode
+  }
+
   // Overridden by child classes
   html () {};
   finalizeTree () { };
@@ -348,7 +361,7 @@ class NodeBase {
 
 }
 
-function prayWellFormed(parent, leftward, rightward) {
+function prayWellFormed(parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
   pray('a parent is always present', parent);
   pray('leftward is properly set up', (function() {
     // either it's empty and `rightward` is the left end child (possibly empty)
@@ -381,9 +394,15 @@ function prayWellFormed(parent, leftward, rightward) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 class Fragment {
-  constructor (withDir, oppDir, dir) {
-    this.jQ = $();
+  ends: {
+    [L]?: MQNode,
+    [R]?: MQNode
+  }
 
+  jQ = defaultJQ;
+  disowned:boolean = false;
+
+  constructor (withDir:MQNode, oppDir:MQNode, dir?:Direction) {
     if (dir === undefined) dir = L;
     prayDirection(dir);
 
@@ -398,8 +417,8 @@ class Fragment {
     pray('withDir and oppDir have the same parent',
          withDir.parent === oppDir.parent);
 
-    this.ends[dir] = withDir;
-    this.ends[-dir] = oppDir;
+    this.ends[dir as Direction] = withDir;
+    this.ends[-dir as Direction] = oppDir;
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the
@@ -408,7 +427,7 @@ class Fragment {
     // quadratic time in the number of elements.
     //
     // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
-    var accum = this.fold([], function (accum, el) {
+    var accum = this.fold([], function (accum:HTMLElement[], el:MQNode) {
       accum.push.apply(accum, el.jQ.get());
       return accum;
     });
@@ -417,20 +436,21 @@ class Fragment {
   };
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
-  withDirAdopt (dir, parent, withDir, oppDir) {
+  withDirAdopt (dir:Direction, parent:MQNode, withDir:MQNode, oppDir:MQNode) {
     return (dir === L ? this.adopt(parent, withDir, oppDir)
                       : this.adopt(parent, oppDir, withDir));
   };
-  adopt (parent, leftward, rightward) {
+  adopt (parent:MQNode, leftward:MQNode, rightward:MQNode) {
     prayWellFormed(parent, leftward, rightward);
 
     var self = this;
-    self.disowned = false;
+    this.disowned = false;
 
     var leftEnd = self.ends[L];
     if (!leftEnd) return this;
 
     var rightEnd = self.ends[R];
+    if (!rightEnd) return this; // TODO - I added this, should I have?
 
     if (leftward) {
       // NB: this is handled in the ::each() block
@@ -445,14 +465,15 @@ class Fragment {
       parent.ends[R] = rightEnd;
     }
 
-    self.ends[R][R] = rightward;
+    rightEnd[R] = rightward;
 
-    self.each(function(el) {
+    self.each(function(el:MQNode) {
       el[L] = leftward;
       el.parent = parent;
       if (leftward) leftward[R] = el;
 
       leftward = el;
+      return true;
     });
 
     return self;
@@ -465,22 +486,25 @@ class Fragment {
     // guard for empty and already-disowned fragments
     if (!leftEnd || self.disowned) return self;
 
-    self.disowned = true;
+    this.disowned = true;
 
     var rightEnd = self.ends[R]
+    if (!rightEnd) return self; // TODO - I added this, should I have?
     var parent = leftEnd.parent;
 
     prayWellFormed(parent, leftEnd[L], leftEnd);
     prayWellFormed(parent, rightEnd, rightEnd[R]);
 
     if (leftEnd[L]) {
-      leftEnd[L][R] = rightEnd[R];
+      var leftLeftEnd = leftEnd[L] as MQNode; // TODO - code already assumed this was defined
+      leftLeftEnd[R] = rightEnd[R];
     } else {
       parent.ends[L] = rightEnd[R];
     }
 
     if (rightEnd[R]) {
-      rightEnd[R][L] = leftEnd[L];
+      var rightRightEnd = rightEnd[R] as MQNode; // TODO - code already assumed this was true
+      rightRightEnd[L] = leftEnd[L];
     } else {
       parent.ends[R] = leftEnd[L];
     }
@@ -493,13 +517,13 @@ class Fragment {
     return this.disown();
   };
 
-  each (yield_) {
-    eachNode(this.ends, yield_);
+  each (yield_:(el:MQNode) => boolean) {
+    eachNode(this.ends as Ends, yield_); // TODO - the types of Ends are not compatible
     return this;
   };
 
-  fold (fold, yield_) {
-    return foldNodes(this.ends, fold, yield_);
+  fold (fold:HTMLElement[], yield_: (fold:HTMLElement[], el:MQNode) => HTMLElement[]) {
+    return foldNodes(this.ends as Ends, fold, yield_); // TODO - the types of Ends are not compatible
   };
 }
 
