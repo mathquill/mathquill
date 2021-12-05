@@ -26,7 +26,7 @@ OUTRO = $(SRC_DIR)/outro.js
 
 BASE_SOURCES = \
   $(SRC_DIR)/utils.ts \
-  $(SRC_DIR)/services/aria.js \
+  $(SRC_DIR)/services/aria.ts \
   $(SRC_DIR)/tree.ts \
   $(SRC_DIR)/cursor.ts \
   $(SRC_DIR)/controller.js \
