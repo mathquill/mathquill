@@ -113,8 +113,8 @@ function foldNodes (ends:Ends, fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold
 
 
 type HTMLElementTrackingNode = {
-  mqBlockNode?: MQNode;
-  mqCmdNode?: MQNode;
+  mqBlockNode?: NodeBase;
+  mqCmdNode?: NodeBase;
 }
 
 type Ends = {
@@ -144,15 +144,15 @@ class NodeBase {
     NodeBase.linkElementByBlockNode(elm, NodeBase.TempByIdDict[id]);
   };
 
-  static linkElementByBlockNode (elm:HTMLElement, blockNode:MQNode) {
+  static linkElementByBlockNode (elm:HTMLElement, blockNode:NodeBase) {
     (elm as HTMLElementTrackingNode).mqBlockNode = blockNode;
   };
 
-  static linkElementByCmdNode (elm:HTMLElement, cmdNode:MQNode) {
+  static linkElementByCmdNode (elm:HTMLElement, cmdNode:NodeBase) {
     (elm as HTMLElementTrackingNode).mqCmdNode = cmdNode;
   };
 
-  static TempByIdDict:Record<number|string, MQNode> = {};
+  static TempByIdDict:Record<number|string, NodeBase> = {};
   static cleaningScheduled = false;
   static scheduleDictionaryCleaning () {
     if (!NodeBase.cleaningScheduled) {
@@ -165,13 +165,22 @@ class NodeBase {
     NodeBase.TempByIdDict = {};
   }
 
+
+  // TODO - life would be so much better in typescript of these were undefined instead of
+  // 0. The ! would save us in cases where we know a node is defined.
   [L]:NodeRef = 0;
   [R]:NodeRef = 0;
-  parent:NodeRef = 0;
+
+  //TODO - can this ever actually stay 0? if so we need to add null checks
+  parent:MQNode = 0 as any as MQNode;
+    
   ends:Ends = {[L]: 0, [R]: 0}
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
-  ctrlSeq:String | undefined;
+  ctrlSeq:string | undefined;
+  sides:{[L]:{ch:string, ctrlSeq:string}, [R]: {ch:string, ctrlSeq:string}} | undefined;
+  blocks:MathBlock[] | undefined;
+  mathspeakTemplate:string[] | undefined;
 
   constructor () {
     NodeBase.TempByIdDict[this.id] = this;
@@ -228,7 +237,9 @@ class NodeBase {
   };
 
   bubble (yield_:(ancestor:NodeRef) => boolean) {
-    for (var ancestor:NodeRef = this; ancestor; ancestor = ancestor.parent) {
+    var self = this as any as MQNode;
+    
+    for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
     }
@@ -237,14 +248,16 @@ class NodeBase {
   };
 
   postOrder (yield_:(el:NodeRef) => void) {
+    var self = this as any as MQNode;
+
     (function recurse(descendant:NodeRef) {
       if (!descendant) return false;
       descendant.eachChild(recurse);
       yield_(descendant);
       return true;
-    })(this);
+    })(self);
 
-    return this;
+    return self;
   };
 
   isEmpty () {
@@ -330,6 +343,9 @@ class NodeBase {
   intentionalBlur () { };
   reflow () { };
   registerInnerField () { };
+  chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
+  mathspeak (_options?:{createdLeftOf:Cursor}) {};
+
 }
 
 function prayWellFormed(parent, leftward, rightward) {

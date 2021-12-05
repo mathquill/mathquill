@@ -2,8 +2,8 @@
  * Deals with the browser DOM events from
  * interaction with the typist.
  ****************************************/
-class MQNode extends NodeBase {  
-  keystroke (key, e, ctrlr) {
+ class MQNode extends NodeBase {  
+  keystroke (key:string, e:KeyboardEvent, ctrlr:Controller) {
     var cursor = ctrlr.cursor;
 
     switch (key) {
@@ -98,6 +98,7 @@ class MQNode extends NodeBase {
       } else {
         ctrlr.selectLeft();
       }
+      break; // TODO - added this break, but should I have? Seems so...
 
     case 'Shift-Down':
       if (cursor[R]) {
@@ -106,6 +107,7 @@ class MQNode extends NodeBase {
       else {
         ctrlr.selectRight();
       }
+      break; // TODO - added this break, but should I have? Seems so...
 
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
@@ -191,10 +193,10 @@ class MQNode extends NodeBase {
   selectTowards () { pray('overridden or never called on this node'); } // called by Controller::selectDir
 }
 
-ControllerBase.onNotify(function(e) {
+ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) {
   if (e === 'move' || e === 'upDown') this.show().clearSelection();
 });
-optionProcessors.leftRightIntoCmdGoes = function(updown) {
+optionProcessors.leftRightIntoCmdGoes = function(updown:'up'|'down') {
   if (updown && updown !== 'up' && updown !== 'down') {
     throw '"up" or "down" required for leftRightIntoCmdGoes option, '
           + 'got "'+updown+'"';
@@ -203,16 +205,16 @@ optionProcessors.leftRightIntoCmdGoes = function(updown) {
 };
 
 
-ControllerBase.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
-ControllerBase.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-ControllerBase.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e !== 'upDown') this.upDownCache = {}; });
+ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e === 'edit') this.show().deleteSelection(); });
+ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e !== 'select') this.endSelection(); });
 
 class Controller_keystroke extends Controller_focusBlur {
-  keystroke (key, evt) {
+  keystroke (key:string, evt:KeyboardEvent) {
     this.cursor.parent.keystroke(key, evt, this);
   };
 
-  escapeDir (dir, key, e) {
+  escapeDir (dir:Direction, _key:string, e:KeyboardEvent) {
     prayDirection(dir);
     var cursor = this.cursor;
 
@@ -227,7 +229,7 @@ class Controller_keystroke extends Controller_focusBlur {
     aria.alert();
     return this.notify('move');
   };
-  moveDir (dir) {
+  moveDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor, updown = cursor.options.leftRightIntoCmdGoes;
 
@@ -256,31 +258,33 @@ class Controller_keystroke extends Controller_focusBlur {
    */
   moveUp () { return this.moveUpDown('up'); };
   moveDown () { return this.moveUpDown('down'); };
-  moveUpDown (dir) {
+  moveUpDown (dir:'up'|'down') {
     var self = this;
     var cursor = self.notify('upDown').cursor;
     var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
     if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
     else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
     else {
-      cursor.parent.bubble(function(ancestor) {
+      cursor.parent.bubble(function(ancestor:any) { // TODO - revist this
         var prop = ancestor[dirOutOf];
         if (prop) {
           if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
           if (prop instanceof MQNode) cursor.jumpUpDown(ancestor, prop);
           if (prop !== true) return false;
         }
+        return undefined;
       });
     }
     return self;
   }
-  deleteDir (dir) {
+  deleteDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor;
-    var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
+    var cursorEl = cursor[dir] as MQNode, cursorElParent = cursor.parent.parent;
+    
     if(cursorEl && cursorEl instanceof MQNode) {
-      if(cursorEl.sides) {
-        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
+      if(cursorEl.sides ) {
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir as Direction].ch).mathspeak({createdLeftOf: cursor}));
       // generally, speak the current element if it has no blocks,
       // but don't for text block commands as the deleteTowards method
       // in the TextCommand class is responsible for speaking the new character under the cursor.
@@ -312,11 +316,11 @@ class Controller_keystroke extends Controller_focusBlur {
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node) { node.reflow(); });
+    cursor.parent.bubble(function (node:MQNode) { node.reflow(); });
 
     return this;
   };
-  ctrlDeleteDir (dir) {
+  ctrlDeleteDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor;
     if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
@@ -335,14 +339,14 @@ class Controller_keystroke extends Controller_focusBlur {
 
     if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
     if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node) { node.reflow(); });
+    cursor.parent.bubble(function (node:MQNode) { node.reflow(); });
 
     return this;
   };
   backspace () { return this.deleteDir(L); };
   deleteForward () { return this.deleteDir(R); };
 
-  selectDir (dir) {
+  selectDir (dir:Direction) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
 
