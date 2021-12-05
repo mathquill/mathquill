@@ -28,7 +28,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/utils.ts \
   $(SRC_DIR)/services/aria.js \
   $(SRC_DIR)/tree.ts \
-  $(SRC_DIR)/cursor.js \
+  $(SRC_DIR)/cursor.ts \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
   $(SRC_DIR)/services/parser.util.js \
