@@ -1,3 +1,9 @@
+
+// L = 'left'
+// R = 'right'
+//
+// the contract is that they can be used as object properties
+// and (-L) === R, and (-R) === L.
 type L = -1;
 type R = 1;
 const L:L = -1;

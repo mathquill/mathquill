@@ -6,12 +6,6 @@
  * of the tree.
  ************************************************/
 
-// L = 'left'
-// R = 'right'
-//
-// the contract is that they can be used as object properties
-// and (-L) === R, and (-R) === L.
-
 /**
  * Tiny extension of jQuery adding directionalized DOM manipulation methods.
  */
@@ -80,25 +74,52 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-function eachNode (ends, yield_) {
+function eachNode (ends:Ends, yield_:(el:NodeRef) => boolean) {
   var el = ends[L];
   if (!el) return;
 
-  for (; el !== ends[R][R]; el = el[R]) {
+  var stop = ends[R];
+  if (!stop) return; //shouldn't happen because ends[L] is defined;
+  stop = stop[R];
+
+  // TODO - this cas as MQNode is actually important to keep tests passing. I went to
+  // fix this code to gracefully handle an undefined el and there are tests that actually
+  // verify that this will throw an error. So I'm keeping the behavior but ignoring the
+  // type error.
+  for (; el !== stop; el = (el as MQNode)[R]) {
     var result = yield_(el);
     if (result === false) break;
   }
 }
 
-function foldNodes (ends, fold, yield_) {
+function foldNodes (ends:Ends, fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold) {
   var el = ends[L];
   if (!el) return fold;
 
-  for (; el !== ends[R][R]; el = el[R]) {
+  var stop = ends[R];
+  if (!stop) return; fold; //shouldn't happen because ends[L] is defined;
+  stop = stop[R];
+
+  // TODO - this cas as MQNode is actually important to keep tests passing. I went to
+  // fix this code to gracefully handle an undefined el and there are tests that actually
+  // verify that this will throw an error. So I'm keeping the behavior but ignoring the
+  // type error.
+  for (; el !== stop; el = (el as MQNode)[R]) {
     fold = yield_(fold, el);
   }
 
   return fold;
+}
+
+
+type HTMLElementTrackingNode = {
+  mqBlockNode?: MQNode;
+  mqCmdNode?: MQNode;
+}
+
+type Ends = {
+  [L]: NodeRef,
+  [R]: NodeRef
 }
 
 /**
@@ -106,29 +127,32 @@ function foldNodes (ends, fold, yield_) {
  */
 var defaultJQ = $();
 
+
 class NodeBase {
   static idCounter = 0;
   static uniqueNodeId() { return NodeBase.idCounter += 1; }
 
-  static getNodeOfElement (el) {
+  static getNodeOfElement (el:HTMLElement) {
     if (!el) return;
     if (!el.nodeType) throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement')
-    return el.mqBlockNode || el.mqCmdNode;
+    
+    var elTrackingNode = el as HTMLElementTrackingNode;
+    return elTrackingNode.mqBlockNode || elTrackingNode.mqCmdNode;
   }
 
-  static linkElementByBlockId (elm, id) {
+  static linkElementByBlockId (elm:HTMLElement, id:number) {
     NodeBase.linkElementByBlockNode(elm, NodeBase.TempByIdDict[id]);
   };
 
-  static linkElementByBlockNode (elm, blockNode) {
-    elm.mqBlockNode = blockNode;
+  static linkElementByBlockNode (elm:HTMLElement, blockNode:MQNode) {
+    (elm as HTMLElementTrackingNode).mqBlockNode = blockNode;
   };
 
-  static linkElementByCmdNode (elm, cmdNode) {
-    elm.mqCmdNode = cmdNode;
+  static linkElementByCmdNode (elm:HTMLElement, cmdNode:MQNode) {
+    (elm as HTMLElementTrackingNode).mqCmdNode = cmdNode;
   };
 
-  static TempByIdDict = {};
+  static TempByIdDict:Record<number|string, MQNode> = {};
   static cleaningScheduled = false;
   static scheduleDictionaryCleaning () {
     if (!NodeBase.cleaningScheduled) {
@@ -141,26 +165,27 @@ class NodeBase {
     NodeBase.TempByIdDict = {};
   }
 
-  [L] = 0;
-  [R] = 0;
-  parent = 0;
-  ends = {[L]: 0, [R]: 0}
+  [L]:NodeRef = 0;
+  [R]:NodeRef = 0;
+  parent:NodeRef = 0;
+  ends:Ends = {[L]: 0, [R]: 0}
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
+  ctrlSeq:String | undefined;
 
   constructor () {
     NodeBase.TempByIdDict[this.id] = this;
-    NodeBase.scheduleDictionaryCleaning(this.id, this);
+    NodeBase.scheduleDictionaryCleaning();
   };
-
+  
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
   
-  jQadd (jQ) { return this.jQ = this.jQ.add(jQ); };
-  jQize (jQ) {
+  jQadd (jQ:$) { return this.jQ = this.jQ.add(jQ); };
+  jQize (el?:HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ = $(jQ || this.html());
+    var jQ:$ = $(el || this.html());
 
-    function jQadd(el) {
+    function jQadd(el:HTMLElement) {
 
       if (el.getAttribute) {
         var cmdId = el.getAttribute('mathquill-command-id');
@@ -179,8 +204,8 @@ class NodeBase {
           NodeBase.linkElementByBlockNode(el, blockNode);
         }
       }
-      for (el = el.firstChild; el; el = el.nextSibling) {
-        jQadd(el);
+      for (var child = el.firstChild; child; child = child.nextSibling) {
+        jQadd(child as HTMLElement); // TODO - revist cast
       }
     }
 
@@ -188,7 +213,7 @@ class NodeBase {
     return jQ;
   };
 
-  createDir (dir, cursor) {
+  createDir (dir:Direction, cursor:Cursor) {
     prayDirection(dir);
     var node = this;
     node.jQize();
@@ -196,14 +221,14 @@ class NodeBase {
     cursor[dir] = node.adopt(cursor.parent, cursor[L], cursor[R]);
     return node;
   };
-  createLeftOf (el) { return this.createDir(L, el); };
+  createLeftOf (el:NodeRef) { return this.createDir(L, el); };
 
-  selectChildren (leftEnd, rightEnd) {
+  selectChildren (leftEnd:NodeRef, rightEnd:NodeRef) {
     return new MQSelection(leftEnd, rightEnd);
   };
 
-  bubble (yield_) {
-    for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
+  bubble (yield_:(ancestor:NodeRef) => boolean) {
+    for (var ancestor:NodeRef = this; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
     }
@@ -211,10 +236,12 @@ class NodeBase {
     return this;
   };
 
-  postOrder (yield_) {
-    (function recurse(descendant) {
+  postOrder (yield_:(el:NodeRef) => void) {
+    (function recurse(descendant:NodeRef) {
+      if (!descendant) return false;
       descendant.eachChild(recurse);
       yield_(descendant);
+      return true;
     })(this);
 
     return this;
@@ -248,21 +275,21 @@ class NodeBase {
     return new Fragment(this.ends[L], this.ends[R]);
   };
 
-  eachChild (yield_) {
+  eachChild (yield_:(el:NodeRef) => boolean) {
     eachNode(this.ends, yield_);
     return this;
   };
 
-  foldChildren (fold, yield_) {
+  foldChildren (fold:Fold, yield_:(fold:Fold, el:NodeRef) => Fold) {
     return foldNodes(this.ends, fold, yield_);
   };
 
-  withDirAdopt (dir, parent, withDir, oppDir) {
+  withDirAdopt (dir:Direction, parent:NodeRef, withDir:Direction, oppDir:Direction) {
     new Fragment(this, this).withDirAdopt(dir, parent, withDir, oppDir);
     return this;
   };
 
-  adopt (parent, leftward, rightward) {
+  adopt (parent:NodeRef, leftward:NodeRef, rightward:NodeRef) {
     new Fragment(this, this).adopt(parent, leftward, rightward);
     return this;
   };
@@ -296,6 +323,7 @@ class NodeBase {
   };
 
   // Overridden by child classes
+  html () {};
   finalizeTree () { };
   contactWeld () { };
   blur () { };
