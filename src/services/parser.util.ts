@@ -94,16 +94,18 @@ class Parser<T> {
 
     return new Parser(function(stream, onSuccess, onFailure) {
       var xs: T[] = [];
-      var result = true as any as T;
+      var result: boolean = true;
       var failure;
 
       for (var i = 0; i < min; i += 1) {
-        result = self._(stream, success, firstFailure);
+        // TODO, this may be incorrect for parsers that return boolean
+        // (or generally, falsey) values
+        result = !!self._(stream, success, firstFailure);
         if (!result) return onFailure(stream, failure as any as string);
       }
 
       for (; i < (max as number) && result; i += 1) {
-        result = self._(stream, success, secondFailure);
+        self._(stream, success, secondFailure);
       }
 
       return onSuccess(stream, xs);
