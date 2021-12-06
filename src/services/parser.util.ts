@@ -14,7 +14,7 @@ type UnknownParserResult = any;
 
 type ParserBody<T> = (
   stream: string,
-  onSuccess: (stream: string, result: UnknownParserResult) => UnknownParserResult,
+  onSuccess: (stream: string, result: T) => UnknownParserResult,
   onFailure: (stream: string, msg: string) => UnknownParserResult
 ) => T;
 
