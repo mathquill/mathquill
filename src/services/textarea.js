@@ -28,14 +28,14 @@ class Controller extends Controller_scrollHoriz {
     // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
     //
     // Note, this timeout may be cleared by the blur handler in focusBlur.js
-    if (ctrlr.textareaSelectionTimeout === undefined) {
+    if (!ctrlr.textareaSelectionTimeout) {
       ctrlr.textareaSelectionTimeout = setTimeout(function() {
         ctrlr.setTextareaSelection();
       });
     }
   };
   setTextareaSelection () {
-    this.textareaSelectionTimeout = undefined;
+    this.textareaSelectionTimeout = 0;
     var latex = '';
     if (this.cursor.selection) {
       //cleanLatex prunes unnecessary spaces. defined in latex.js

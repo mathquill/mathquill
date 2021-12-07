@@ -95,12 +95,12 @@ function eachNode (ends:Ends, yield_:(el:MQNode) => boolean) {
   }
 }
 
-function foldNodes <T>(ends:Ends, fold:T, yield_:(fold:T, el:MQNode) => T) {
+function foldNodes <T>(ends:Ends, fold:T, yield_:(fold:T, el:MQNode) => T):T {
   var el = ends[L];
   if (!el) return fold;
 
   var stop = ends[R];
-  if (!stop) return; fold; //shouldn't happen because ends[L] is defined;
+  if (!stop) return fold; //shouldn't happen because ends[L] is defined;
   stop = stop[R];
 
   // TODO - this cas as MQNode is actually important to keep tests passing. I went to
@@ -242,7 +242,7 @@ class NodeBase {
     return new MQSelection(leftEnd, rightEnd);
   };
 
-  bubble (yield_:(ancestor:NodeRef) => boolean) {
+  bubble (yield_:(ancestor:NodeRef) => boolean | undefined) {
     var self = this.getSelfNode();
     
     for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {

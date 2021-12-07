@@ -14,6 +14,7 @@ class ControllerBase {
   editable:boolean | undefined;
   _ariaAlertTimeout:number;
   KIND_OF_MQ:KIND_OF_MQ;
+  textarea:$ | undefined;
 
   constructor (root:ControllerRoot, container:$, options:CursorOptions) {
     this.id = root.id;
@@ -42,11 +43,11 @@ class ControllerBase {
     }
   };
 
-  static notifyees:((e:ControllerEvent) => void)[] = [];
-  static onNotify (f:(e:ControllerEvent) => void) { ControllerBase.notifyees.push(f); };
+  static notifyees:((cursor:Cursor, e:ControllerEvent) => void)[] = [];
+  static onNotify (f:(cursor:Cursor, e:ControllerEvent) => void) { ControllerBase.notifyees.push(f); };
   notify (e:ControllerEvent) {
     for (var i = 0; i < ControllerBase.notifyees.length; i += 1) {
-      ControllerBase.notifyees[i].call(this.cursor, e);
+      ControllerBase.notifyees[i](this.cursor, e);
     }
     return this;
   };
@@ -112,10 +113,14 @@ class ControllerBase {
       this.container[0].contains(document.activeElement)
     );
   };
-
-  updateMathspeak () {}; // overridden
-
+ 
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/
   exportMathSpeak () { return this.root.mathspeak(); };
+
+   // overridden
+   updateMathspeak () {};
+   scrollHoriz () {}; 
+   selectionChanged () {};
+   setOverflowClasses () {};
 };

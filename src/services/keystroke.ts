@@ -184,17 +184,17 @@
     ctrlr.scrollHoriz();
   };
 
-  moveOutOf () { pray('overridden or never called on this node'); } // called by Controller::escapeDir, moveDir
-  moveTowards () { pray('overridden or never called on this node'); } // called by Controller::moveDir
-  deleteOutOf () { pray('overridden or never called on this node'); } // called by Controller::deleteDir
-  deleteTowards () { pray('overridden or never called on this node'); } // called by Controller::deleteDir
-  unselectInto () { pray('overridden or never called on this node'); } // called by Controller::selectDir
-  selectOutOf () { pray('overridden or never called on this node'); } // called by Controller::selectDir
-  selectTowards () { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  moveOutOf (_dir:Direction, _cursor:Cursor, _updown?:'up' | 'down') { pray('overridden or never called on this node'); } // called by Controller::escapeDir, moveDir
+  moveTowards (_dir:Direction, _cursor:Cursor, _updown?:'up' | 'down') { pray('overridden or never called on this node'); } // called by Controller::moveDir
+  deleteOutOf (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  deleteTowards (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  unselectInto (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectOutOf (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectTowards (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
 }
 
-ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) {
-  if (e === 'move' || e === 'upDown') this.show().clearSelection();
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) {
+  if (e === 'move' || e === 'upDown') cursor.show().clearSelection();
 });
 optionProcessors.leftRightIntoCmdGoes = function(updown:'up'|'down') {
   if (updown && updown !== 'up' && updown !== 'down') {
@@ -205,9 +205,9 @@ optionProcessors.leftRightIntoCmdGoes = function(updown:'up'|'down') {
 };
 
 
-ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e !== 'upDown') this.upDownCache = {}; });
-ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e === 'edit') this.show().deleteSelection(); });
-ControllerBase.onNotify(function(this:Controller, e:ControllerEvent) { if (e !== 'select') this.endSelection(); });
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e !== 'upDown') cursor.upDownCache = {}; });
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e === 'edit') cursor.show().deleteSelection(); });
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e !== 'select') cursor.endSelection(); });
 
 class Controller_keystroke extends Controller_focusBlur {
   keystroke (key:string, evt:KeyboardEvent) {
@@ -232,11 +232,12 @@ class Controller_keystroke extends Controller_focusBlur {
   moveDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor, updown = cursor.options.leftRightIntoCmdGoes;
+    var cursorDir = cursor[dir];
 
     if (cursor.selection) {
-      cursor.insDirOf(dir, cursor.selection.ends[dir]);
+      cursor.insDirOf(dir, cursor.selection.ends[dir] as MQNode); // TODO - already assumed end is defined
     }
-    else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor, updown);
+    else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
 
     return this.notify('move');
@@ -261,9 +262,24 @@ class Controller_keystroke extends Controller_focusBlur {
   moveUpDown (dir:'up'|'down') {
     var self = this;
     var cursor = self.notify('upDown').cursor;
-    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
-    else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
+    var dirInto:'upInto' | 'downInto';
+    var dirOutOf:'upOutOf' | 'downOutOf';
+
+    if (dir === 'up') {
+      dirInto = 'upInto';
+      dirOutOf = 'upOutOf';
+    } else {
+      dirInto = 'downInto';
+      dirOutOf = 'downOutOf';
+    }
+
+    var cursorL = cursor[L];
+    var cursorR = cursor[R];
+    var cursorR_dirInto = cursorR && cursorR[dirInto];
+    var cursorL_dirInto = cursorL && cursorL[dirInto];
+
+    if (cursorR_dirInto) cursor.insAtLeftEnd(cursorR_dirInto);
+    else if (cursorL_dirInto) cursor.insAtRightEnd(cursorL_dirInto);
     else {
       cursor.parent.bubble(function(ancestor:any) { // TODO - revist this
         var prop = ancestor[dirOutOf];
@@ -311,13 +327,19 @@ class Controller_keystroke extends Controller_focusBlur {
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
     if (!hadSelection) {
-      if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
+      const cursorDir = cursor[dir];
+      if (cursorDir) cursorDir.deleteTowards(dir, cursor);
       else cursor.parent.deleteOutOf(dir, cursor);
     }
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node:MQNode) { node.reflow(); });
+    const cursorL = cursor[L] as MQNode; // TODO - already assumed defined
+    const cursorR = cursor[R] as MQNode; // TODO - already assumed defined
+    if (cursorL.siblingDeleted) cursorL.siblingDeleted(cursor.options, R);
+    if (cursorR.siblingDeleted) cursorR.siblingDeleted(cursor.options, L);
+    cursor.parent.bubble(function (node) {
+       (node as MQNode).reflow(); // TODO - already assumed defined
+       return undefined;
+    });
 
     return this;
   };
@@ -329,18 +351,23 @@ class Controller_keystroke extends Controller_focusBlur {
     this.notify('edit');
     var fragRemoved;
     if (dir === L) {
-      fragRemoved = new Fragment(cursor.parent.ends[L], cursor[L]);
+      fragRemoved = new Fragment((cursor.parent as MQNode).ends[L] as MQNode, cursor[L] as MQNode); // TODO - already assuminig all are defined
     } else {
-      fragRemoved = new Fragment(cursor[R], cursor.parent.ends[R]);
+      fragRemoved = new Fragment(cursor[R] as MQNode, (cursor.parent as MQNode).ends[R] as MQNode); // TODO - already assuming all are defined
     }
     aria.queue(fragRemoved);
     fragRemoved.remove();
 
     cursor.insAtDirEnd(dir, cursor.parent);
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node:MQNode) { node.reflow(); });
+    const cursorL = cursor[L];
+    const cursorR = cursor[R];
+    if (cursorL) cursorL.siblingDeleted(cursor.options, R);
+    if (cursorR) cursorR.siblingDeleted(cursor.options, L);
+    cursor.parent.bubble(function (node) {
+      (node as MQNode).reflow();  // TODO - already assumed was defined
+      return undefined;
+    });
 
     return this;
   };
@@ -358,7 +385,7 @@ class Controller_keystroke extends Controller_focusBlur {
       // "if node we're selecting towards is inside selection (hence retracting)
       // and is on the *far side* of the selection (hence is only node selected)
       // and the anticursor is *inside* that node, not just on the other side"
-      if (seln && seln.ends[dir] === node && cursor.anticursor[-dir] !== node) {
+      if (seln && seln.ends[dir] === node && (cursor.anticursor as Anticursor)[-dir as Direction] !== node) { // TODO - already assumed anticursor is defined
         node.unselectInto(dir, cursor);
       }
       else node.selectTowards(dir, cursor);
@@ -367,7 +394,10 @@ class Controller_keystroke extends Controller_focusBlur {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
+    var selection = cursor.selection;
+    if (selection) {
+      aria.clear().queue(selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
+    }
   };
   selectLeft () { return this.selectDir(L); };
   selectRight () { return this.selectDir(R); };

@@ -1,10 +1,12 @@
-ControllerBase.onNotify(function (e) {
+ControllerBase.onNotify(function (cursor, e) {
   // these try to cover all ways that mathquill can be modified
   if (e === 'edit' || e === 'replace' || e === undefined) {
-    var controller = this.controller;
+    var controller = cursor.controller;
     if (!controller) return;
     if (!controller.options.enableDigitGrouping) return;
 
+    // TODO - maybe reconsider these 3 states and drop down to only 2
+    //
     // blurred === false means we are focused. blurred === true or
     // blurred === undefined means we are not focused.
     if (controller.blurred !== false) return;
@@ -14,7 +16,11 @@ ControllerBase.onNotify(function (e) {
 });
 
 class Controller_focusBlur extends Controller_exportLatex {
-  disableGroupingForSeconds (seconds) {
+  blurred:boolean;
+  __disableGroupingTimeout:number;
+  textareaSelectionTimeout:number;
+
+  disableGroupingForSeconds (seconds:number) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;
 
@@ -30,7 +36,7 @@ class Controller_focusBlur extends Controller_exportLatex {
 
   focusBlurEvents () {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
-    var blurTimeout;
+    var blurTimeout:number;
     ctrlr.textarea.focus(function() {
       ctrlr.updateMathspeak();
       ctrlr.blurred = false;
@@ -48,7 +54,7 @@ class Controller_focusBlur extends Controller_exportLatex {
     }).blur(function() {
       if (ctrlr.textareaSelectionTimeout) {
         clearTimeout(ctrlr.textareaSelectionTimeout);
-        ctrlr.textareaSelectionTimeout = undefined;
+        ctrlr.textareaSelectionTimeout = 0;
       }
       ctrlr.disableGroupingForSeconds(0);
       ctrlr.blurred = true;

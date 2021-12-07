@@ -8,13 +8,13 @@ Options.prototype.ignoreNextMousedown = noop;
   // must be invalidated and selection changes must not be applied to
   // the edited tree. cancelSelectionOnEdit takes care of this.
   var cancelSelectionOnEdit;
-  ControllerBase.onNotify(function (e) {
+  ControllerBase.onNotify(function (cursor, e) {
     if ((e === 'edit' || e === 'replace')) {
       // this will be called any time ANY mathquill is edited. We only want
       // to cancel selection if the selection is happening within the mathquill
       // that dispatched the notify. Otherwise you won't be able to select any
       // mathquills while a slider is playing.
-      if (cancelSelectionOnEdit && cancelSelectionOnEdit.cursor === this) {
+      if (cancelSelectionOnEdit && cancelSelectionOnEdit.cursor === cursor) {
         cancelSelectionOnEdit.cb();
       }
     }

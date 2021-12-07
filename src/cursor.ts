@@ -339,7 +339,7 @@ class MQSelection extends Fragment {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  join (methodName:'html', separatorToken:string) {
+  join (methodName:'html' | 'mathspeak', separatorToken:string):string {
     var separator = separatorToken || '';
     return this.fold('', function(fold, child) {
       return fold + separator + child[methodName]();
