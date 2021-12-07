@@ -3,11 +3,15 @@
  *******************************************************/
 Options.prototype.ignoreNextMousedown = noop;
 
+// Whenever edits to the tree occur, in-progress selection events
+// must be invalidated and selection changes must not be applied to
+// the edited tree. cancelSelectionOnEdit takes care of this.
+var cancelSelectionOnEdit: undefined | {
+  cb: () => void,
+  cursor: Cursor
+};
+
 (function () {
-  // Whenever edits to the tree occur, in-progress selection events
-  // must be invalidated and selection changes must not be applied to
-  // the edited tree. cancelSelectionOnEdit takes care of this.
-  var cancelSelectionOnEdit;
   ControllerBase.onNotify(function (cursor, e) {
     if ((e === 'edit' || e === 'replace')) {
       // this will be called any time ANY mathquill is edited. We only want
@@ -25,21 +29,21 @@ class Controller_mouse extends Controller_latex {
   delegateMouseEvents () {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
-    this.container.bind('mousedown.mathquill', function(e) {
+    this.container.bind('mousedown.mathquill', function(e:MouseEvent) {
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0]);
+      var root = (NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
-      e.target.unselectable = true; // http://jsbin.com/yagekiji/1
+      (e.target as any).unselectable = true; // http://jsbin.com/yagekiji/1 // TODO - no idea what this unselectable property is
 
       if (cursor.options.ignoreNextMousedown(e)) return;
       else cursor.options.ignoreNextMousedown = noop;
 
-      var target;
-      function mousemove(e) { target = $(e.target); }
-      function docmousemove(e) {
+      var target:HTMLElement | undefined;
+      function mousemove(e:MouseEvent) { target = $(e.target); }
+      function docmousemove(e:MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
         if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
@@ -48,10 +52,12 @@ class Controller_mouse extends Controller_latex {
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
 
-      function unbindListeners (e) {
+      function unbindListeners (e:MouseEvent) {
         // delete the mouse handlers now that we're not dragging anymore
         rootjQ.unbind('mousemove', mousemove);
-        $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+
+        const anyTarget = e.target as any;  // TODO - why do we need to cast to any?
+        $(anyTarget.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
         cancelSelectionOnEdit = undefined;
       }
 
@@ -65,7 +71,7 @@ class Controller_mouse extends Controller_latex {
         }
       }
 
-      function mouseup(e) {
+      function mouseup(e:MouseEvent) {
         cursor.blink = blink;
         if (!cursor.selection) updateCursor();
         unbindListeners(e);
@@ -100,16 +106,17 @@ class Controller_mouse extends Controller_latex {
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
       rootjQ.mousemove(mousemove);
-      $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+      const anyTarget = e.target as any;  // TODO - why do we need to cast to any?
+      $(anyTarget.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
       // listen on document not just body to not only hear about mousemove and
       // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
     });
   }
   
-  seek ($target, pageX, pageY) {
+  seek ($target:[HTMLElement], pageX:number, _pageY:number) {
     var cursor = this.notify('select').cursor;
     var node;
-    var targetElm = $target && $target[0];
+    var targetElm:HTMLElement | null = $target && $target[0];
 
     // we can click on an element that is deeply nested past the point
     // that mathquill knows about. We need to traverse up to the first

@@ -19,6 +19,11 @@ declare var SupSub:any;
 declare var optionProcessors:any;
 declare var MathBlock:MathBlock;
 declare var RootMathCommand:any;
+declare var Options:{
+    prototype: {
+        ignoreNextMousedown: () => void;
+    }
+}
 
 
 declare var Letter:typeof TempSingleCharNode;
