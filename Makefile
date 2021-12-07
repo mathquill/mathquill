@@ -39,7 +39,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/services/latex.ts \
   $(SRC_DIR)/services/mouse.ts \
   $(SRC_DIR)/services/scrollHoriz.ts \
-  $(SRC_DIR)/services/textarea.js
+  $(SRC_DIR)/services/textarea.ts
 
 SOURCES_FULL = \
   $(BASE_SOURCES) \
