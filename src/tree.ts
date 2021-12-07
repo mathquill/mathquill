@@ -351,6 +351,7 @@ class NodeBase {
 
   // Overridden by child classes
   html () {};
+  text () {};
   finalizeTree () { };
   contactWeld () { };
   blur (_cursor?:Cursor) { };
