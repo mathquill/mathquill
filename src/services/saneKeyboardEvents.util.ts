@@ -20,6 +20,7 @@
  *    + event handler logic
  *    + attach event handlers and export methods
  ************************************************/
+type TextareaChecker = ((e?:Event) => void);
 
 var saneKeyboardEvents = (function() {
   // The following [key values][1] map was compiled from the
@@ -31,7 +32,7 @@ var saneKeyboardEvents = (function() {
   // [1]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#keys-keyvalues
   // [2]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
   // [3]: http://unixpapa.com/js/key.html
-  var KEY_VALUES = {
+  const KEY_VALUES:Record<number,string | undefined> = {
     8: 'Backspace',
     9: 'Tab',
 
@@ -67,7 +68,7 @@ var saneKeyboardEvents = (function() {
 
   // To the extent possible, create a normalized string representation
   // of the key combo (i.e., key code and modifier keys).
-  function stringify(evt) {
+  function stringify(evt:JQ_KeyboardEvent) {
     var which = evt.which || evt.keyCode;
     var keyVal = KEY_VALUES[which];
     var key;
@@ -88,9 +89,9 @@ var saneKeyboardEvents = (function() {
 
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function saneKeyboardEvents(el, controller) {
-    var keydown = null;
-    var keypress = null;
+  return function saneKeyboardEvents(el:HTMLElement, controller:Controller) {
+    var keydown:JQ_KeyboardEvent | null = null;
+    var keypress:KeyboardEvent | null = null;
 
     var textarea = jQuery(el);
     var target = jQuery(controller.container || textarea);
@@ -103,20 +104,21 @@ var saneKeyboardEvents = (function() {
     // after selecting something and then typing, the textarea is
     // incorrectly reported as selected during the input event (but not
     // subsequently).
-    var checkTextarea = noop, timeoutId;
-    function checkTextareaFor(checker) {
+    var checkTextarea:TextareaChecker = noop;
+    var timeoutId:number;
+    function checkTextareaFor(checker:TextareaChecker) {
       checkTextarea = checker;
       clearTimeout(timeoutId);
       timeoutId = setTimeout(checker);
     }
-    function checkTextareaOnce(checker) {
+    function checkTextareaOnce(checker:TextareaChecker) {
       checkTextareaFor(function(e) {
         checkTextarea = noop;
         clearTimeout(timeoutId);
         checker(e);
       });
     }
-    target.bind('keydown keypress input keyup paste', function(e) {
+    target.bind('keydown keypress input keyup paste', function(e:KeyboardEvent) {
       checkTextarea(e);
     });
 
@@ -132,7 +134,7 @@ var saneKeyboardEvents = (function() {
     }
 
     // -*- public methods -*- //
-    function select(text) {
+    function select(text:string) {
       // check textarea at least once/one last time before munging (so
       // no race condition if selection happens after keypress/paste but
       // before checkTextarea), then never again ('cos it's been munged)
@@ -160,20 +162,20 @@ var saneKeyboardEvents = (function() {
 
     function handleKey() {
       if (controller.options && controller.options.overrideKeystroke) {
-        controller.options.overrideKeystroke(stringify(keydown), keydown);
+        controller.options.overrideKeystroke(stringify(keydown!), keydown); // TODO - already assumed keydown was defined
       } else {
-        controller.keystroke(stringify(keydown), keydown);
+        controller.keystroke(stringify(keydown!), keydown); // TODO - already assumed keydown was defined
       }
     }
 
     // -*- event handlers -*- //
-    function onKeydown(e) {
+    function onKeydown(e:KeyboardEvent) {
       if (e.target !== textarea[0]) return;
 
       keydown = e;
       keypress = null;
 
-      if (shouldBeSelected) checkTextareaOnce(function(e) {
+      if (shouldBeSelected) checkTextareaOnce(function(e?:Event) {
         if (!(e && e.type === 'focusout')) {
           // re-select textarea in case it's an unrecognized key that clears
           // the selection, then never again, 'cos next thing might be blur
@@ -184,7 +186,7 @@ var saneKeyboardEvents = (function() {
       handleKey();
     }
 
-    function isArrowKey (e) {
+    function isArrowKey (e:JQ_KeyboardEvent) {
       if (!e || !e.originalEvent) return false;
 
       // The keyPress event in FF reports which=0 for some reason. The new
@@ -199,7 +201,7 @@ var saneKeyboardEvents = (function() {
 
       return false;
     }
-    function onKeypress(e) {
+    function onKeypress(e:KeyboardEvent) {
       if (e.target !== textarea[0]) return;
 
       // call the key handler for repeated keypresses.
@@ -218,7 +220,7 @@ var saneKeyboardEvents = (function() {
         checkTextareaFor(typedText);
       }
     }
-    function onKeyup(e) {
+    function onKeyup(e:KeyboardEvent) {
       if (e.target !== textarea[0]) return;
 
       // Handle case of no keypress event being sent
@@ -274,7 +276,7 @@ var saneKeyboardEvents = (function() {
       textarea.val('');
     }
 
-    function onPaste(e) {
+    function onPaste(e:Event) {
       if (e.target !== textarea[0]) return;
 
       // browsers are dumb.
@@ -309,9 +311,9 @@ var saneKeyboardEvents = (function() {
         keypress: onKeypress,
         keyup: onKeyup,
         focusout: onBlur,
-        copy: function(e) { e.preventDefault(); },
-        cut: function(e) { e.preventDefault(); },
-        paste: function(e) { e.preventDefault(); }
+        copy: function(e:Event) { e.preventDefault(); },
+        cut: function(e:Event) { e.preventDefault(); },
+        paste: function(e:Event) { e.preventDefault(); }
       });
     } else {
       target.bind({
