@@ -1,11 +1,17 @@
+class TempSingleCharNode extends MQNode {
+  constructor (_char:string) {
+    super();
+  }
+}
+
 // Parser MathBlock
 var latexMathParser = (function() {
-  function commandToBlock(cmd) { // can also take in a Fragment
+  function commandToBlock(cmd:MQNode | Fragment):MathBlock { // can also take in a Fragment
     var block = new MathBlock();
     cmd.adopt(block, 0, 0);
     return block;
   }
-  function joinBlocks(blocks) {
+  function joinBlocks(blocks:MathBlock) {
     var firstBlock = blocks[0] || new MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
@@ -36,14 +42,17 @@ var latexMathParser = (function() {
       regex(/^[a-z]+/i)
       .or(regex(/^\s+/).result(' '))
       .or(any)
-    )).then(function(ctrlSeq) {
-      var cmdKlass = LatexCmds[ctrlSeq];
+    ))
+    .then(function(ctrlSeq):Parser<MQNode> { // TODO - is Parser<MQNode> correct?
+      var cmdKlass = (LatexCmds as AnyLatexCmds)[ctrlSeq];
 
       if (cmdKlass) {
         if (cmdKlass.constructor) {
-          return new cmdKlass(ctrlSeq).parser();
+          var actualClass = cmdKlass as typeof TempSingleCharNode; // TODO - figure out how to know the difference
+          return new actualClass(ctrlSeq).parser();
         } else {
-          return cmdKlass(ctrlSeq).parser();
+          var builder = cmdKlass as (c:string) => TempSingleCharNode; // TODO - figur out how to know the difference
+          return builder(ctrlSeq).parser();
         }
       }
       else {
@@ -60,20 +69,24 @@ var latexMathParser = (function() {
   ;
 
   // Parsers yielding MathBlocks
-  var mathGroup = string('{').then(function() { return mathSequence; }).skip(string('}'));
+  var mathGroup:Parser<string> = string('{').then(function() { return mathSequence; }).skip(string('}'));
   var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
   var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
 
   var optMathBlock =
     string('[').then(
       mathBlock.then(function(block) {
-        return block.join('latex') !== ']' ? succeed(block) : fail();
+        return block.join('latex') !== ']' ? succeed(block) : fail('');
       })
       .many().map(joinBlocks).skip(optWhitespace)
     ).skip(string(']'))
   ;
 
-  var latexMath = mathSequence;
+  // TODO - this is super gross
+  var latexMath:typeof mathSequence & {
+    block: typeof mathBlock;
+    optBlock: typeof optMathBlock
+  } = mathSequence as any;
 
   latexMath.block = mathBlock;
   latexMath.optBlock = optMathBlock;
@@ -81,26 +94,26 @@ var latexMathParser = (function() {
 })();
 
 
-optionProcessors.maxDepth = function(depth) {
+optionProcessors.maxDepth = function(depth:number) {
   return (typeof depth === 'number') ? depth : undefined;
 };
 
 class Controller_latex extends Controller_keystroke {
-  cleanLatex (latex) {
+  cleanLatex (latex:string) {
     //prune unnecessary spaces
     return latex.replace(/(\\[a-z]+) (?![a-z])/ig,'$1')
   }
   exportLatex () {
     return this.cleanLatex(this.root.latex());
   };
-  writeLatex (latex) {
+  writeLatex (latex:string) {
     var cursor = this.notify('edit').cursor;
     cursor.parent.writeLatex(cursor, latex);
 
     return this;
   };
 
-  classifyLatexForEfficientUpdate (latex) {
+  classifyLatexForEfficientUpdate (latex:string) {
     if (typeof latex !== 'string') return;
 
     var matches = latex.match(/-?[0-9.]+$/g);
@@ -111,8 +124,10 @@ class Controller_latex extends Controller_keystroke {
         digits: matches[0]
       };
     }
+
+    return;
   };
-  renderLatexMathEfficiently (latex) {
+  renderLatexMathEfficiently (latex:string) {
     var root = this.root;
     var oldLatex = this.exportLatex();
     if (root.ends[L] && root.ends[R] && oldLatex === latex) {
@@ -149,7 +164,7 @@ class Controller_latex extends Controller_keystroke {
     var oldCharNodes = [];
     for (var i= oldDigits.length - 1; i >= 0; i--) {
       // the tree does not match what we expect
-      if (charNode.ctrlSeq !== oldDigits[i]) {
+      if (!charNode || charNode.ctrlSeq !== oldDigits[i]) {
         return false;
       }
 
@@ -170,15 +185,18 @@ class Controller_latex extends Controller_keystroke {
     // remove the minus sign
     if (oldMinusSign && !newMinusSign) {
       var oldMinusNode = charNode;
+      if (!oldMinusNode) return false;
       if (oldMinusNode.ctrlSeq !== '-') return false;
       if (oldMinusNode[R] !== oldCharNodes[0]) return false;
       if (oldMinusNode.parent !== root) return false;
-      if (oldMinusNode[L] && oldMinusNode[L].parent !== root) return false;
+
+      const oldMinusNodeL = oldMinusNode[L];
+      if (oldMinusNodeL && oldMinusNodeL.parent !== root) return false;
 
       oldCharNodes[0][L] = oldMinusNode[L];
 
       if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
-      if (oldMinusNode[L]) oldMinusNode[L][R] = oldCharNodes[0];
+      if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
       oldMinusNode.jQ.remove();
     }
@@ -190,7 +208,8 @@ class Controller_latex extends Controller_keystroke {
       minusSpan.textContent = '-';
       newMinusNode.jQ = $(minusSpan);
 
-      if (oldCharNodes[0][L]) oldCharNodes[0][L][R] = newMinusNode;
+      var oldCharNodes0L = oldCharNodes[0][L];
+      if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
       if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
 
       newMinusNode.parent = root;
@@ -242,7 +261,9 @@ class Controller_latex extends Controller_keystroke {
         // splice this node in
         newNode[L] = root.ends[R];
         newNode[R] = 0;
-        newNode[L][R] = newNode;
+
+        const newNodeL = newNode[L] as MQNode; // TODO - we were already assuming defined
+        newNodeL[R] = newNode;
         root.ends[R] = newNode;
       }
 
@@ -258,13 +279,13 @@ class Controller_latex extends Controller_keystroke {
     this.cursor.resetToEnd(this);
 
     var rightMost = root.ends[R];
-    if (rightMost.fixDigitGrouping) {
+    if (rightMost) {
       rightMost.fixDigitGrouping(this.cursor.options);
     }
 
     return true;
   };
-  renderLatexMathFromScratch (latex) {
+  renderLatexMathFromScratch (latex:string) {
     var root = this.root, cursor = this.cursor;
     var all = Parser.all;
     var eof = Parser.eof;
@@ -291,13 +312,13 @@ class Controller_latex extends Controller_keystroke {
     delete cursor.selection;
     cursor.insAtRightEnd(root);
   };
-  renderLatexMath (latex) {
+  renderLatexMath (latex:string) {
     this.notify('replace');
 
     if (this.renderLatexMathEfficiently(latex)) return;
     this.renderLatexMathFromScratch(latex);
   };
-  renderLatexText (latex) {
+  renderLatexText (latex:string) {
     var root = this.root, cursor = this.cursor;
 
     root.jQ.children().slice(1).remove();
@@ -331,7 +352,7 @@ class Controller_latex extends Controller_keystroke {
     var escapedDollar = string('\\$').result('$');
     var textChar = escapedDollar.or(regex(/^[^$]/)).map((ch) => new VanillaSymbol(ch));
     var latexText = mathMode.or(textChar).many();
-    var commands = latexText.skip(eof).or(all.result(false)).parse(latex);
+    var commands = latexText.skip(eof).or(all.result<false>(false)).parse(latex);
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {

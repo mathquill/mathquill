@@ -182,6 +182,7 @@ class NodeBase {
   id = NodeBase.uniqueNodeId();
   ctrlSeq:string | undefined;
   ariaLabel:string | undefined;
+  mathspeakName:string | undefined;
   sides:{[L]:{ch:string, ctrlSeq:string}, [R]: {ch:string, ctrlSeq:string}} | undefined;
   blocks:MathBlock[] | undefined;
   mathspeakTemplate:string[] | undefined;
@@ -350,6 +351,7 @@ class NodeBase {
   }
 
   // Overridden by child classes
+  parser ():Parser<MQNode> { return undefined as any }; // TODO - is Parser<MQNode> correct?
   html () {};
   text () {};
   finalizeTree () { };
@@ -366,6 +368,9 @@ class NodeBase {
   }) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
+  finalizeInsert (_options:CursorOptions, _cursor?:Cursor) {};
+  fixDigitGrouping (_opts:CursorOptions) {};
+  writeLatex (_cursor:Cursor, _latex:string) {};
 
 }
 

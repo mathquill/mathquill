@@ -189,7 +189,7 @@ class Parser<T> {
     });
   };
 
-  static fail (msg: string) {
+  static fail<Q> (msg: string):Parser<Q> {
     return new Parser(function(stream, _, onFailure) {
       return onFailure(stream, msg);
     });
