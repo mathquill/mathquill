@@ -33,7 +33,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/publicapi.js \
   $(SRC_DIR)/services/parser.util.ts \
   $(SRC_DIR)/services/saneKeyboardEvents.util.ts \
-  $(SRC_DIR)/services/exportText.js \
+  $(SRC_DIR)/services/exportText.ts \
   $(SRC_DIR)/services/focusBlur.js \
   $(SRC_DIR)/services/keystroke.ts \
   $(SRC_DIR)/services/latex.js \
