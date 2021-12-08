@@ -354,6 +354,7 @@ class NodeBase {
   parser ():Parser<MQNode> { return undefined as any }; // TODO - is Parser<MQNode> correct?
   html () {};
   text () {};
+  latex ():string { return '' };
   finalizeTree () { };
   contactWeld () { };
   blur (_cursor?:Cursor) { };
@@ -371,6 +372,7 @@ class NodeBase {
   finalizeInsert (_options:CursorOptions, _cursor?:Cursor) {};
   fixDigitGrouping (_opts:CursorOptions) {};
   writeLatex (_cursor:Cursor, _latex:string) {};
+  write (_cursor:Cursor, _ch:string) {};
 
 }
 

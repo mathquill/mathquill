@@ -1,12 +1,10 @@
-type Controller = any;
-
 type $ = any;
 type NodeRef = MQNode | 0;
 type ControllerEvent = 'move' | 'upDown' | 'replace' | 'edit' | 'select' | undefined;
 type CursorOptions = any;
 type MathBlock = any;
 type ControllerData = any;
-type ControllerRoot = MQNode & {controller?:Controller, cursor?:Cursor, latex: () => string};
+type ControllerRoot = MQNode & {controller:Controller, cursor?:Cursor, latex: () => string};
 type HandlerName = any;
 type KIND_OF_MQ = any;
 type JQ_KeyboardEvent = KeyboardEvent & {
@@ -22,6 +20,8 @@ declare var RootMathCommand:any;
 declare var Options:{
     prototype: {
         ignoreNextMousedown: () => void;
+        substituteTextarea: () => void;
+        substituteKeyboardEvents: typeof saneKeyboardEvents
     }
 }
 

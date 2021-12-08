@@ -9,6 +9,8 @@ Options.prototype.substituteTextarea = function() {
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
 class Controller extends Controller_scrollHoriz {
+  selectFn: (text:string) => void;
+
   createTextarea () {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();
@@ -47,7 +49,7 @@ class Controller extends Controller_scrollHoriz {
     }
     this.selectFn(latex);
   };
-  _.staticMathTextareaEvents = function() {
+  staticMathTextareaEvents () {
     var ctrlr = this, cursor = ctrlr.cursor,
       textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
@@ -71,7 +73,7 @@ class Controller extends Controller_scrollHoriz {
       ctrlr.blurred = true;
     }
 
-    ctrlr.selectFn = function(text) {
+    ctrlr.selectFn = function(text:string) {
       textarea.val(text);
       if (text) textarea.select();
     };
@@ -81,7 +83,7 @@ class Controller extends Controller_scrollHoriz {
     var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
 
     var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
-    this.selectFn = function(text) { keyboardEventsShim.select(text); };
+    this.selectFn = function(text:string) { keyboardEventsShim.select(text); };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
     this.updateMathspeak();
@@ -90,7 +92,7 @@ class Controller extends Controller_scrollHoriz {
     var ctrlr = this, textarea = ctrlr.textarea,
       textareaSpan = ctrlr.textareaSpan;
 
-      this.selectFn = function(text) {
+      this.selectFn = function(text:string) {
         textarea.val(text);
         if (text) textarea.select();
       };
@@ -101,9 +103,9 @@ class Controller extends Controller_scrollHoriz {
       ctrlr.blurred = true;
       textarea.bind('cut paste', false);
   };
-  typedText (ch) {
+  typedText (ch:string) {
     if (ch === '\n') return this.handle('enter');
-    var cursor = this.notify().cursor;
+    var cursor = this.notify(undefined).cursor;
     cursor.parent.write(cursor, ch);
     this.scrollHoriz();
   };
@@ -112,7 +114,10 @@ class Controller extends Controller_scrollHoriz {
     if (cursor.selection) {
       setTimeout(function() {
         ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble(function (node) { node.reflow(); });
+        cursor.parent.bubble(function (node) {
+          (node as MQNode).reflow(); // TODO - already assumed node defined
+          return undefined;
+        });
         if (ctrlr.options && ctrlr.options.onCut) {
           ctrlr.options.onCut();
         }
@@ -122,7 +127,7 @@ class Controller extends Controller_scrollHoriz {
   copy () {
     this.setTextareaSelection();
   };
-  paste (text) {
+  paste (text:string) {
     // TODO: document `statelessClipboard` config option in README, after
     // making it work like it should, that is, in both text and math mode
     // (currently only works in math fields, so worse than pointless, it

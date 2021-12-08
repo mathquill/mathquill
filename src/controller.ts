@@ -15,6 +15,8 @@ class ControllerBase {
   _ariaAlertTimeout:number;
   KIND_OF_MQ:KIND_OF_MQ;
   textarea:$ | undefined;
+  textareaSpan:$ | undefined;
+  mathspeakSpan:$ | undefined;
 
   constructor (root:ControllerRoot, container:$, options:CursorOptions) {
     this.id = root.id;
@@ -28,13 +30,18 @@ class ControllerBase {
     this.ariaLabel = 'Math Input';
     this.ariaPostLabel = '';
 
-    root.controller = this;
+    root.controller = this.getControllerSelf();
 
-    this.cursor = root.cursor = new Cursor(root, options, this);
+    this.cursor = root.cursor = new Cursor(root, options, this.getControllerSelf());
     // TODO: stop depending on root.cursor, and rm it
   };
 
-  handle (name:HandlerName, dir:Direction) {
+  getControllerSelf() {
+    // dance we have to do to tell this thing it's a full controller
+    return this as any as Controller;
+  }
+
+  handle (name:HandlerName, dir?:Direction) {
     var handlers = this.options.handlers;
     if (handlers && handlers.fns[name]) {
       var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);

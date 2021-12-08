@@ -268,7 +268,7 @@ class Cursor extends Point {
     this.selectionChanged();
     return true;
   };
-  resetToEnd (controller:Controller) {
+  resetToEnd (controller:ControllerBase) {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
@@ -339,8 +339,7 @@ class MQSelection extends Fragment {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  join (methodName:'html' | 'mathspeak', separatorToken:string):string {
-    var separator = separatorToken || '';
+  join (methodName:'html' | 'mathspeak' | 'latex', separator:string = ''):string {
     return this.fold('', function(fold, child) {
       return fold + separator + child[methodName]();
     });

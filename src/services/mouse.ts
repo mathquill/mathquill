@@ -33,7 +33,8 @@ class Controller_mouse extends Controller_latex {
       var rootjQ = $(e.target).closest('.mq-root-block');
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
-      var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
+      var textareaSpan = ctrlr.textareaSpan;
+      var textarea = ctrlr.textarea;
 
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
       (e.target as any).unselectable = true; // http://jsbin.com/yagekiji/1 // TODO - no idea what this unselectable property is
@@ -41,7 +42,7 @@ class Controller_mouse extends Controller_latex {
       if (cursor.options.ignoreNextMousedown(e)) return;
       else cursor.options.ignoreNextMousedown = noop;
 
-      var target:HTMLElement | undefined;
+      var target:$ | undefined;
       function mousemove(e:MouseEvent) { target = $(e.target); }
       function docmousemove(e:MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();

@@ -11,7 +11,7 @@
  * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
-type AriaQueueItem = MQNode | Fragment | string;
+type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
   jQ = jQuery([]); // empty element
@@ -50,7 +50,7 @@ class Aria {
         output = itemMathspeak;
       }
     } else {
-      output = item;
+      output = item || '';
     }
     this.items.push(output);
     return this;
