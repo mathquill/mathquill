@@ -77,7 +77,7 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-function eachNode (ends:Ends, yield_:(el:MQNode) => boolean) {
+function eachNode (ends:Ends, yield_:(el:MQNode) => boolean | undefined) {
   var el = ends[L];
   if (!el) return;
 
@@ -182,12 +182,15 @@ class NodeBase {
   id = NodeBase.uniqueNodeId();
   ctrlSeq:string | undefined;
   ariaLabel:string | undefined;
+  textTemplate:string[] | undefined;
+  htmlTemplate:string | undefined;
   mathspeakName:string | undefined;
   sides:{[L]:{ch:string, ctrlSeq:string}, [R]: {ch:string, ctrlSeq:string}} | undefined;
   blocks:MathBlock[] | undefined;
   mathspeakTemplate:string[] | undefined;
   upInto:MQNode | undefined;
   downInto:MQNode | undefined;
+  isPartOfOperator:boolean | undefined;
 
   constructor () {
     NodeBase.TempByIdDict[this.id] = this;
@@ -243,7 +246,7 @@ class NodeBase {
     return new MQSelection(leftEnd, rightEnd);
   };
 
-  bubble (yield_:(ancestor:NodeRef) => boolean | undefined) {
+  bubble (yield_:(ancestor:MQNode) => boolean | undefined) {
     var self = this.getSelfNode();
     
     for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {
@@ -295,12 +298,12 @@ class NodeBase {
     return new Fragment(this.ends[L] as MQNode, this.ends[R] as MQNode);
   };
 
-  eachChild (yield_:(el:MQNode) => boolean) {
+  eachChild (yield_:(el:MQNode) => boolean | undefined) {
     eachNode(this.ends, yield_);
     return this;
   };
 
-  foldChildren (fold:string, yield_:(fold:string, el:MQNode) => string) {
+  foldChildren <T>(fold:T, yield_:(fold:T, el:MQNode) => T) {
     return foldNodes(this.ends, fold, yield_);
   };
 
@@ -352,16 +355,16 @@ class NodeBase {
 
   // Overridden by child classes
   parser ():Parser<MQNode> { return undefined as any }; // TODO - is Parser<MQNode> correct?
-  html () {};
-  text () {};
+  html ():string { return '' };
+  text ():string { return '' };
   latex ():string { return '' };
-  finalizeTree () { };
-  contactWeld () { };
+  finalizeTree (_options:CursorOptions) { };
+  contactWeld (_cursor?:Cursor) { };
   blur (_cursor?:Cursor) { };
   focus () {};
   intentionalBlur () { };
   reflow () { };
-  registerInnerField () { };
+  registerInnerField (_a:any, _b:any) { }; // TODO - I really don't think this belongs on the base node
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
   mathspeak (_options?:{
     createdLeftOf?:Cursor, 
@@ -369,6 +372,7 @@ class NodeBase {
   }) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
+  siblingCreated (_options:CursorOptions, _dir:Direction) {};
   finalizeInsert (_options:CursorOptions, _cursor?:Cursor) {};
   fixDigitGrouping (_opts:CursorOptions) {};
   writeLatex (_cursor:Cursor, _latex:string) {};
@@ -532,7 +536,7 @@ class Fragment {
     return this.disown();
   };
 
-  each (yield_:(el:MQNode) => boolean) {
+  each (yield_:(el:MQNode) => boolean | undefined) {
     eachNode(this.ends as Ends, yield_); // TODO - the types of Ends are not compatible
     return this;
   };

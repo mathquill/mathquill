@@ -11,7 +11,7 @@ var latexMathParser = (function() {
     cmd.adopt(block, 0, 0);
     return block;
   }
-  function joinBlocks(blocks:MathBlock) {
+  function joinBlocks(blocks:MathBlock[]) {
     var firstBlock = blocks[0] || new MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
@@ -44,7 +44,7 @@ var latexMathParser = (function() {
       .or(any)
     ))
     .then(function(ctrlSeq):Parser<MQNode> { // TODO - is Parser<MQNode> correct?
-      var cmdKlass = (LatexCmds as AnyLatexCmds)[ctrlSeq];
+      var cmdKlass = (LatexCmds as LatexCmdsSingleChar)[ctrlSeq];
 
       if (cmdKlass) {
         if (cmdKlass.constructor) {
@@ -69,7 +69,7 @@ var latexMathParser = (function() {
   ;
 
   // Parsers yielding MathBlocks
-  var mathGroup:Parser<string> = string('{').then(function() { return mathSequence; }).skip(string('}'));
+  var mathGroup:Parser<MathBlock>= string('{').then(function() { return mathSequence; }).skip(string('}'));
   var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
   var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
 
@@ -290,7 +290,7 @@ class Controller_latex extends Controller_keystroke {
     var all = Parser.all;
     var eof = Parser.eof;
 
-    var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
+    var block = latexMathParser.skip(eof).or(all.result<false>(false)).parse(latex);
 
     root.ends[L] = root.ends[R] = 0;
 

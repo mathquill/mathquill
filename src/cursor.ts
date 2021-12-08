@@ -310,7 +310,7 @@ class Cursor extends Point {
     }
     return depth;
   };
-  isTooDeep (offset:number) {
+  isTooDeep (offset?:number) {
     if (this.options.maxDepth !== undefined) {
       return this.depth() + (offset || 0) > this.options.maxDepth;
     } else {
@@ -339,7 +339,7 @@ class MQSelection extends Fragment {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   };
-  join (methodName:'html' | 'mathspeak' | 'latex', separator:string = ''):string {
+  join (methodName:JoinMethod, separator:string = ''):string {
     return this.fold('', function(fold, child) {
       return fold + separator + child[methodName]();
     });

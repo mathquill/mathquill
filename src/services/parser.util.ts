@@ -189,9 +189,9 @@ class Parser<T> {
     });
   };
 
-  static fail<Q> (msg: string):Parser<Q> {
+  static fail (msg: string):Parser<never> {
     return new Parser(function(stream, _, onFailure) {
-      return onFailure(stream, msg);
+      return onFailure(stream, msg) as never;
     });
   };
 
