@@ -43,13 +43,13 @@ BASE_SOURCES = \
 
 SOURCES_FULL = \
   $(BASE_SOURCES) \
-  $(SRC_DIR)/commands/math.js \
+  $(SRC_DIR)/commands/math.ts \
   $(SRC_DIR)/commands/text.js \
   $(SRC_DIR)/commands/math/*.js
 
 SOURCES_BASIC = \
   $(BASE_SOURCES) \
-  $(SRC_DIR)/commands/math.js \
+  $(SRC_DIR)/commands/math.ts \
   $(SRC_DIR)/commands/math/basicSymbols.js \
   $(SRC_DIR)/commands/math/commands.js
 
