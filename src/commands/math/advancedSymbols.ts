@@ -6,7 +6,7 @@ LatexCmds.notin =
 LatexCmds.cong =
 LatexCmds.equiv =
 LatexCmds.oplus =
-LatexCmds.otimes = (latex) => new BinaryOperator('\\'+latex+' ', '&'+latex+';');
+LatexCmds.otimes = (latex:string) => new BinaryOperator('\\'+latex+' ', '&'+latex+';');
 
 LatexCmds['∗'] = LatexCmds.ast = LatexCmds.star = LatexCmds.loast = LatexCmds.lowast =
   bindBinaryOperator('\\ast ','&lowast;', 'low asterisk');
@@ -65,7 +65,7 @@ LatexCmds.notsupersete = LatexCmds.notsuperseteq =
 
 //the canonical sets of numbers
 LatexCmds.mathbb = class extends MathCommand {
-  createLeftOf () {};
+  createLeftOf (_cursor:Cursor) {};
   numBlocks () { return 1; };
   parser () {
     var string = Parser.string;

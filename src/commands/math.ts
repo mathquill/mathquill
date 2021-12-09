@@ -130,7 +130,6 @@ class MathCommand extends MathElement {
     }
     cmd.finalizeInsert(cursor.options);
     cmd.placeCursor(cursor);
-    return this;
   };
   createBlocks () {
     var cmd = this,

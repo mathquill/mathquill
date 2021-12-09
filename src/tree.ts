@@ -240,7 +240,7 @@ class NodeBase {
     cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   };
-  createLeftOf (cursor:Cursor) { return this.createDir(L, cursor); };
+  createLeftOf (cursor:Cursor) { this.createDir(L, cursor); };
 
   selectChildren (leftEnd:MQNode, rightEnd:MQNode) {
     return new MQSelection(leftEnd, rightEnd);
@@ -553,4 +553,4 @@ class Fragment {
  *
  * (Commands are all subclasses of Node.)
  */
-var LatexCmds = {}, CharCmds = {};
+var LatexCmds:LatexCmdsAny = {}, CharCmds:CharCmdsAny = {};
