@@ -9,7 +9,7 @@
 /**
  * Tiny extension of jQuery adding directionalized DOM manipulation methods.
  */
-var $ = jQuery;
+var $:$ = jQuery;
 $.fn.insDirOf = function (dir:Direction, el:$) {
   return dir === L ?
     this.insertBefore(el.first()) : this.insertAfter(el.last());
@@ -199,8 +199,8 @@ class NodeBase {
   
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
   
-  jQadd (jQ:$) { return this.jQ = this.jQ.add(jQ); };
-  jQize (el?:HTMLElement) {
+  jQadd (jQ:$ | HTMLElement) { return this.jQ = this.jQ.add(jQ); };
+  jQize (el?:$ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ:$ = $(el || this.html());
 

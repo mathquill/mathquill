@@ -89,7 +89,7 @@ var saneKeyboardEvents = (function() {
 
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
-  return function saneKeyboardEvents(el:HTMLElement, controller:Controller) {
+  return function saneKeyboardEvents(el:$, controller:Controller) {
     var keydown:JQ_KeyboardEvent | null = null;
     var keypress:KeyboardEvent | null = null;
 

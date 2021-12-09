@@ -37,7 +37,8 @@ class Controller_focusBlur extends Controller_exportLatex {
   focusBlurEvents () {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
     var blurTimeout:number;
-    ctrlr.textarea.focus(function() {
+    const textarea = ctrlr.getTextareaOrThrow();
+    textarea.focus(function() {
       ctrlr.updateMathspeak();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
@@ -86,8 +87,8 @@ class Controller_focusBlur extends Controller_exportLatex {
     cursor.hide().parent.blur();
   };
   unbindFocusBlurEvents () {
-    var ctrlr = this;
-    ctrlr.textarea.unbind('focus blur');
+    var textarea = this.getTextareaOrThrow();
+    textarea.unbind('focus blur');
   };
 };
 

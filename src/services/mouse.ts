@@ -30,12 +30,13 @@ class Controller_mouse extends Controller_latex {
   delegateMouseEvents () {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
-    this.container.bind('mousedown.mathquill', function(e:MouseEvent) {
+    this.container.bind('mousedown.mathquill', function(_e:Event) {
+      var e = _e as MouseEvent;
       var rootjQ = $(e.target).closest('.mq-root-block');
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
-      var textareaSpan = ctrlr.textareaSpan;
-      var textarea = ctrlr.textarea;
+      var textareaSpan = ctrlr.getTextareaSpanOrThrow();
+      var textarea = ctrlr.getTextareaOrThrow();
 
       e.preventDefault(); // doesn't work in IE≤8, but it's a one-line fix:
       (e.target as any).unselectable = true; // http://jsbin.com/yagekiji/1 // TODO - no idea what this unselectable property is
@@ -44,10 +45,10 @@ class Controller_mouse extends Controller_latex {
       else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
       var target:$ | undefined;
-      function mousemove(e:MouseEvent) { target = $(e.target); }
+      function mousemove(e:Event) { target = $(e.target); }
       function docmousemove(e:MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        ctrlr.seek(target!, e.pageX, e.pageY).cursor.select(); // TODO- assuming target is defined
         if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
         target = undefined;
       }
@@ -115,7 +116,7 @@ class Controller_mouse extends Controller_latex {
     });
   }
   
-  seek ($target:[HTMLElement], pageX:number, _pageY:number) {
+  seek ($target:$, pageX:number, _pageY:number) {
     var cursor = this.notify('select').cursor;
     var node;
     var targetElm:HTMLElement | null = $target && $target[0];

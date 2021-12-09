@@ -120,6 +120,18 @@ class ControllerBase {
       this.container[0].contains(document.activeElement)
     );
   };
+
+  getTextareaOrThrow () {
+    var textarea = this.textarea;
+    if (!textarea) throw new Error('expected a textarea');
+    return textarea;
+  }
+
+  getTextareaSpanOrThrow () {
+    var textareaSpan = this.textareaSpan;
+    if (!textareaSpan) throw new Error('expected a textareaSpan');
+    return textareaSpan;
+  }
  
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/

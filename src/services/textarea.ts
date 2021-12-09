@@ -17,7 +17,7 @@ class Controller extends Controller_scrollHoriz {
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
+    this.textarea = $(textarea).appendTo(textareaSpan);
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
@@ -50,8 +50,10 @@ class Controller extends Controller_scrollHoriz {
     this.selectFn(latex);
   };
   staticMathTextareaEvents () {
-    var ctrlr = this, cursor = ctrlr.cursor,
-      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+    var ctrlr = this
+    var cursor = ctrlr.cursor
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     this.container.prepend(jQuery('<span aria-hidden="true" class="mq-selectable">')
       .text('$'+ctrlr.exportLatex()+'$'));
@@ -80,7 +82,9 @@ class Controller extends Controller_scrollHoriz {
     this.updateMathspeak();
   };
   editablesTextareaEvents () {
-    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+    var ctrlr = this;
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
     this.selectFn = function(text:string) { keyboardEventsShim.select(text); };
@@ -89,8 +93,9 @@ class Controller extends Controller_scrollHoriz {
     this.updateMathspeak();
   };
   unbindEditablesEvents () {
-    var ctrlr = this, textarea = ctrlr.textarea,
-      textareaSpan = ctrlr.textareaSpan;
+    var ctrlr = this
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
       this.selectFn = function(text:string) {
         textarea.val(text);
@@ -158,6 +163,8 @@ class Controller extends Controller_scrollHoriz {
         : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
     aria.jQ.empty();
+
+    const textarea = ctrlr.getTextareaOrThrow();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
     // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
     // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
@@ -165,10 +172,10 @@ class Controller extends Controller_scrollHoriz {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      ctrlr.textarea.attr('aria-label', '');
+      textarea.attr('aria-label', '');
       ctrlr.mathspeakSpan.text((labelWithSuffix+' ' + mathspeak).trim());
     } else {
-      ctrlr.textarea.attr(
+      textarea.attr(
         'aria-label',
         (labelWithSuffix+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
