@@ -79,10 +79,10 @@ LatexCmds.mathbb = class extends MathCommand {
           .map(function(c) {
               // instantiate the class for the matching char
               var cmd = LatexCmds[c];
-              if (cmd.constructor) {
+              if (isMQNodeClass(cmd)) {
                 return new cmd();
               } else {
-                return cmd();
+                return (cmd as MQNodeBuilderNoParam)();
               }
           });
   };

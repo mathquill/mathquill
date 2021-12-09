@@ -21,6 +21,13 @@ type CharCmdsAny = any;
 type LatexCmdsSingleCharBuilder = Record<string, (char:string) => MQNode>;
 type LatexCmdsSingleChar = Record<string, undefined | typeof TempSingleCharNode | ((char:string) => TempSingleCharNode)>
 
+type MQNodeBuilderNoParam= () => MQNode;
+type MQNodeBuilderOneParam= (string:string) => MQNode;
+
+type LatexCmd = typeof MQNode | MQNodeBuilderNoParam | MQNodeBuilderOneParam;
+type LatexCmds = Record<string,LatexCmd>
+type CharCmds = Record<string,LatexCmd>
+
 declare var MQ1:any;
 declare var SupSub:any;
 declare var RootMathCommand:any;

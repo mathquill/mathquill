@@ -553,4 +553,9 @@ class Fragment {
  *
  * (Commands are all subclasses of Node.)
  */
-var LatexCmds:LatexCmdsAny = {}, CharCmds:CharCmdsAny = {};
+var LatexCmds:LatexCmds = {}
+var CharCmds:CharCmds = {};
+
+function isMQNodeClass (cmd:any): cmd is (typeof MQNode) {
+  return cmd && cmd.constructor 
+}
