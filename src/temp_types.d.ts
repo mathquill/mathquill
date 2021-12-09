@@ -1,31 +1,9 @@
 type NodeRef = MQNode | 0;
 type ControllerEvent = 'move' | 'upDown' | 'replace' | 'edit' | 'select' | undefined;
 type JoinMethod = 'html' | 'mathspeak' | 'latex' | 'text';
-type CursorOptions = {
-    ignoreNextMousedown: (e:MouseEvent) => boolean;
-    substituteTextarea: () => HTMLElement;
-    substituteKeyboardEvents: typeof saneKeyboardEvents;
-    spaceBehavesLikeTab: boolean | undefined;
-    typingAsteriskWritesTimesSymbol: boolean | undefined;
-    typingSlashWritesDivisionSymbol: boolean | undefined;
-    typingPercentWritesPercentOf: boolean | undefined;
-    resetCursorOnBlur: boolean | undefined;
-    leftRightIntoCmdGoes: 'up' | 'down' | undefined;
-    enableDigitGrouping: boolean | undefined;
-    mouseEvents: boolean | undefined;
-    maxDepth: number | undefined;
-    disableCopyPaste: boolean | undefined;
-    statelessClipboard: boolean | undefined;
-    onPaste?: () => void;
-    onCut?: () => void;
-    overrideTypedText?:(text:string) => void;
-    overrideKeystroke: (key:string, event:KeyboardEvent) => void;
-    autoOperatorNames:{
-        _maxLength?: number;
-        [id:string]:any;
-    };
-    handlers: HandlerOptions
-};
+type CursorOptions = typeof Options.prototype;
+
+type API = any;
 type HandlerOptions = any;
 type ControllerData = any;
 type ControllerRoot = MQNode & {controller:Controller, cursor?:Cursor, latex: () => string};
@@ -35,21 +13,18 @@ type APIClasses = any;
 type JQ_KeyboardEvent = KeyboardEvent & {
     originalEvent?: KeyboardEvent
 }
+type RootBlockMixinInput = any;
 
+type MQ = any;
 type LatexCmdsAny = any;
 type CharCmdsAny = any;
 type LatexCmdsSingleCharBuilder = Record<string, (char:string) => MQNode>;
 type LatexCmdsSingleChar = Record<string, undefined | typeof TempSingleCharNode | ((char:string) => TempSingleCharNode)>
 
-declare var RootBlockMixin:any;
-declare var API:any;
+declare var MQ1:any;
 declare var SupSub:any;
-declare var optionProcessors:any;
 declare var RootMathCommand:any;
-declare var Options:{
-    prototype:CursorOptions;
-}
-
+declare var validateAutoCommandsOption:any;
 
 declare var Letter:typeof TempSingleCharNode;
 declare var Digit:typeof TempSingleCharNode;
@@ -73,6 +48,7 @@ interface $ {
     addClass(cls:string):$;
     hasClass(cls:string):boolean;
     appendTo(el:JQSelector):$;
+    append(el:JQSelector):$;
     prepend(el:JQSelector):$;
     replaceWith(el:JQSelector):$;
     attr(attr:string, val:string|number|null):$;
@@ -82,11 +58,12 @@ interface $ {
     add(el:JQSelector):$;
     val(val:string):$;
     parent():$;
-    children():$;
+    children(selector?:string):$;
     stop():$;
     html():string;
     html(t:string):$;
     text(str:string):$;
+    text():string;
     animate(properties: Object, duration?: string|number, complete?: Function):$;
     empty():$;
     bind(evt:string, cb:boolean | ((evt:Event) => any)): $
@@ -99,6 +76,8 @@ interface $ {
     first():$
     last():$
     slice(start: number, end?: number): $;
+    scrollLeft():number;
+    scrollTop():number;
     closest(selector:JQSelector): $;
     outerWidth():number;
     offset():{left:number, top:number} // TODO - this can be undefined
@@ -106,4 +85,5 @@ interface $ {
     [index:number]:HTMLElement; // TODO - this can be undefined....
     get():HTMLElement[];
     get(index:number):HTMLElement;
+    contents():$;
 }

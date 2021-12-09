@@ -2,8 +2,48 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
-var API = {}, optionProcessors = {}, EMBEDS = {};
-class Options {};
+var API:API = {
+
+};
+
+var EMBEDS:Record<string,CursorOptions> = {};
+
+class OptionProcessors {
+  maxDepth: (n:number) => CursorOptions['maxDepth'];
+  leftRightIntoCmdGoes: (s:'up'|'down') => CursorOptions['leftRightIntoCmdGoes'];
+  autoCommands: (list:string) => CursorOptions['autoOperatorNames'];
+  autoOperatorNames: (list:string) => CursorOptions['autoOperatorNames'];
+  autoParenthesizedFunctions: (list:string) => CursorOptions['autoOperatorNames'];
+}
+
+const optionProcessors = new OptionProcessors();
+
+class Options {
+  ignoreNextMousedown: (_el:MouseEvent) => boolean;
+  substituteTextarea: () => HTMLElement;
+  substituteKeyboardEvents:typeof saneKeyboardEvents;
+
+  spaceBehavesLikeTab?: boolean;
+  typingAsteriskWritesTimesSymbol?: boolean;
+  typingSlashWritesDivisionSymbol: boolean;
+  typingPercentWritesPercentOf?: boolean;
+  resetCursorOnBlur?: boolean | undefined;
+  leftRightIntoCmdGoes?: 'up' | 'down';
+  enableDigitGrouping?: boolean;
+  mouseEvents?: boolean;
+  maxDepth?: number;
+  disableCopyPaste?: boolean;
+  statelessClipboard?: boolean;
+  onPaste?: () => void;
+  onCut?: () => void;
+  overrideTypedText?:(text:string) => void;
+  overrideKeystroke: (key:string, event:KeyboardEvent) => void;
+  autoOperatorNames:{
+      _maxLength?: number;
+      [id:string]:any;
+  };
+  handlers: HandlerOptions
+};
 class Progenote {}
 
 /**
@@ -14,7 +54,7 @@ class Progenote {}
  * The methods are shimmed in outro.js so that MQ.MathField.prototype etc can
  * be accessed.
  */
-function insistOnInterVer() {
+var insistOnInterVer = function() {
   if (window.console) console.warn(
     'You are using the MathQuill API without specifying an interface version, ' +
     'which will fail in v1.0.0. Easiest fix is to do the following before ' +
@@ -28,13 +68,13 @@ function insistOnInterVer() {
   );
 }
 // globally exported API object
-function MathQuill(el) {
+function MathQuill(el:HTMLElement) {
   insistOnInterVer();
   return MQ1(el);
 };
 MathQuill.prototype = Progenote.prototype;
 MathQuill.VERSION = "{VERSION}";
-MathQuill.interfaceVersion = function(v) {
+MathQuill.interfaceVersion = function(v:number) {
   // shim for #459-era interface versioning (ended with #495)
   if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
   insistOnInterVer = function() {
@@ -56,7 +96,7 @@ MathQuill.interfaceVersion = function(v) {
 MathQuill.getInterface = getInterface;
 
 var MIN = getInterface.MIN = 1, MAX = getInterface.MAX = 2;
-function getInterface(v) {
+function getInterface(v:number) {
   if (!(MIN <= v && v <= MAX)) throw 'Only interface versions between ' +
     MIN + ' and ' + MAX + ' supported. You specified: ' + v;
 
@@ -69,44 +109,51 @@ function getInterface(v) {
    *   assert(MQ(mathFieldSpan).id === MQ(mathFieldSpan).id);
    *
    */
-  function MQ(el) {
+  var MQ:MQ = function (el:HTMLElement) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockNode = NodeBase.getNodeOfElement($(el).children('.mq-root-block')[0]);
+    var blockNode = NodeBase.getNodeOfElement($(el).children('.mq-root-block')[0]) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? new APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
-  var APIClasses = {};
 
   MQ.L = L;
   MQ.R = R;
   MQ.saneKeyboardEvents = saneKeyboardEvents;
 
-  function config(currentOptions, newOptions) {
+  function config(currentOptions:CursorOptions, newOptions:CursorOptions) {
     if (newOptions && newOptions.handlers) {
       newOptions.handlers = { fns: newOptions.handlers, APIClasses: APIClasses };
     }
     for (var name in newOptions) if (newOptions.hasOwnProperty(name)) {
-      var value = newOptions[name], processor = optionProcessors[name];
-      currentOptions[name] = (processor ? processor(value) : value);
+      var value = (newOptions as any)[name]; // TODO - think about typing this better
+      var processor = (optionProcessors as any)[name]; // TODO - validate option processors better
+      (currentOptions as any)[name] = (processor ? processor(value) : value); // TODO - think about typing better
     }
   }
-  MQ.config = function(opts) { config(Options.prototype, opts); return this; };
-  MQ.registerEmbed = function(name, options) {
+  MQ.config = function(opts:CursorOptions) { config(Options.prototype, opts); return this; };
+  MQ.registerEmbed = function(name:string, options:CursorOptions) {
     if (!/^[a-z][a-z0-9]*$/i.test(name)) {
       throw 'Embed name must start with letter and be only letters and digits';
     }
     EMBEDS[name] = options;
   };
 
-  var AbstractMathQuill = APIClasses.AbstractMathQuill = class extends Progenote {
-    constructor (ctrlr) {
+  class AbstractMathQuill extends Progenote {
+    __controller:Controller;
+    __options:CursorOptions;
+    id:number;
+    data:ControllerData;
+    revert?: () => $;
+
+    constructor (ctrlr:Controller) {
+      super();
       this.__controller = ctrlr;
       this.__options = ctrlr.options;
       this.id = ctrlr.id;
       this.data = ctrlr.data;
     };
-    __mathquillify (classNames) {
+    __mathquillify (classNames:string) {
       var ctrlr = this.__controller, root = ctrlr.root, el = ctrlr.container;
       ctrlr.createTextarea();
 
@@ -121,11 +168,11 @@ function getInterface(v) {
         .append(contents);
       };
     };
-    config (opts) { config(this.__options, opts); return this; };
+    config (opts:CursorOptions) { config(this.__options, opts); return this; };
     el () { return this.__controller.container[0]; };
     text () { return this.__controller.exportText(); };
     mathspeak () { return this.__controller.exportMathSpeak(); };
-    latex (latex) {
+    latex (latex:string) {
       if (arguments.length > 0) {
         this.__controller.renderLatexMath(latex);
         if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
@@ -147,21 +194,21 @@ function getInterface(v) {
   };
   MQ.prototype = AbstractMathQuill.prototype;
 
-  APIClasses.EditableField = class extends AbstractMathQuill {
-    __mathquillify () {
-      super.__mathquillify.apply(this, arguments);
+  class EditableField extends AbstractMathQuill {
+    __mathquillify (classNames:string) {
+      super.__mathquillify(classNames);
       this.__controller.editable = true;
       this.__controller.delegateMouseEvents();
       this.__controller.editablesTextareaEvents();
       return this;
     };
     focus () {
-      this.__controller.textarea[0].focus();
+      this.__controller.getTextareaOrThrow()[0].focus();
       this.__controller.scrollHoriz();
       return this;
     };
-    blur () { this.__controller.textarea.blur(); return this; };
-    write (latex) {
+    blur () { this.__controller.getTextareaOrThrow().blur(); return this; };
+    write (latex:string) {
       this.__controller.writeLatex(latex);
       this.__controller.scrollHoriz();
       if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
@@ -176,19 +223,20 @@ function getInterface(v) {
       cursor.insAtRightEnd(root);
       return this;
     };
-    cmd (cmd) {
-      var ctrlr = this.__controller.notify(), cursor = ctrlr.cursor;
+    cmd (cmd:string) {
+      var ctrlr = this.__controller.notify(undefined), cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
-        var klass = LatexCmds[cmd];
+        var klass = (LatexCmds as LatexCmdsAny)[cmd];
+        var node;
         if (klass) {
           if (klass.constructor) {
-            cmd = new klass(cmd);
+            node = new klass(cmd);
           } else {
-            cmd = klass(cmd);
+            node = klass(cmd);
           }
-          if (cursor.selection) cmd.replaces(cursor.replaceSelection());
-          cmd.createLeftOf(cursor.show());
+          if (cursor.selection) node.replaces(cursor.replaceSelection());
+          node.createLeftOf(cursor.show());
         }
         else /* TODO: API needs better error reporting */;
       }
@@ -209,48 +257,48 @@ function getInterface(v) {
       return this;
     };
 
-    moveToDirEnd (dir) {
+    moveToDirEnd (dir:Direction) {
       this.__controller.notify('move').cursor.insAtDirEnd(dir, this.__controller.root);
       return this;
     };
     moveToLeftEnd () { return this.moveToDirEnd(L); };
     moveToRightEnd () { return this.moveToDirEnd(R); };
 
-    keystroke (keys, evt) {
-      var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
+    keystroke (keysString:string, evt:KeyboardEvent) {
+      var keys = keysString.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
         this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
       }
       return this;
     };
-    typedText (text) {
+    typedText (text:string) {
       for (var i = 0; i < text.length; i += 1) this.__controller.typedText(text.charAt(i));
       return this;
     };
-    dropEmbedded (pageX, pageY, options) {
+    dropEmbedded (pageX:number, pageY:number, options:CursorOptions) {
       var clientX = pageX - $(window).scrollLeft();
       var clientY = pageY - $(window).scrollTop();
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
-      var cmd = new LatexCmds.embed().setOptions(options);
+      var cmd = new (LatexCmds as LatexCmdsAny).embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
-    setAriaLabel (ariaLabel) {
+    setAriaLabel (ariaLabel:string) {
       this.__controller.setAriaLabel(ariaLabel);
       return this;
     };
     getAriaLabel () {
       return this.__controller.getAriaLabel();
     };
-    setAriaPostLabel (ariaPostLabel, timeout) {
+    setAriaPostLabel (ariaPostLabel:string, timeout:number) {
       this.__controller.setAriaPostLabel(ariaPostLabel, timeout);
       return this;
     };
     getAriaPostLabel () {
       return this.__controller.getAriaPostLabel();
     };
-    clickAt (clientX, clientY, target) {
+    clickAt (clientX:number, clientY:number, target:HTMLElement) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller, root = ctrlr.root;
       if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
@@ -258,13 +306,19 @@ function getInterface(v) {
       if (ctrlr.blurred) this.focus();
       return this;
     };
-    ignoreNextMousedown (fn) {
+    ignoreNextMousedown (fn:CursorOptions['ignoreNextMousedown']) {
       this.__controller.cursor.options.ignoreNextMousedown = fn;
       return this;
     };
   };
   MQ.EditableField = function() { throw "wtf don't call me, I'm 'abstract'"; };
-  MQ.EditableField.prototype = APIClasses.EditableField.prototype;
+  MQ.EditableField.prototype = EditableField.prototype;
+
+
+  var APIClasses:APIClasses = {
+    AbstractMathQuill,
+    EditableField
+  };
 
   /**
    * Export the API functions that MathQuill-ify an HTML element into API objects
@@ -273,7 +327,7 @@ function getInterface(v) {
    */
   for (var kind in API) (function(kind, defAPIClass) {
     var APIClass = APIClasses[kind] = defAPIClass(APIClasses);
-    MQ[kind] = function(el, opts) {
+    MQ[kind] = function(el:HTMLElement, opts:CursorOptions) {
       var mq = MQ(el);
       if (mq instanceof APIClass || !el || !el.nodeType) return mq;
       var ctrlr = new Controller(new APIClass.RootBlock(), $(el), new Options());
@@ -293,12 +347,12 @@ MathQuill.noConflict = function() {
 var origMathQuill = window.MathQuill;
 window.MathQuill = MathQuill;
 
-function RootBlockMixin(_) {
-  _.moveOutOf = function (dir) { this.controller.handle('moveOutOf', dir) }
-  _.deleteOutOf = function (dir) { this.controller.handle('deleteOutOf', dir) }
-  _.selectOutOf = function (dir) { this.controller.handle('selectOutOf', dir) }
-  _.upOutOf = function (dir) { this.controller.handle('upOutOf', dir) }
-  _.downOutOf = function (dir) { this.controller.handle('downOutOf', dir) }
+function RootBlockMixin(_:RootBlockMixinInput) {
+  _.moveOutOf = function (dir:Direction) { this.controller.handle('moveOutOf', dir) }
+  _.deleteOutOf = function (dir:Direction) { this.controller.handle('deleteOutOf', dir) }
+  _.selectOutOf = function (dir:Direction) { this.controller.handle('selectOutOf', dir) }
+  _.upOutOf = function (dir:Direction) { this.controller.handle('upOutOf', dir) }
+  _.downOutOf = function (dir:Direction) { this.controller.handle('downOutOf', dir) }
 
   _.reflow = function() {
     this.controller.handle('reflow');
@@ -306,3 +360,5 @@ function RootBlockMixin(_) {
     this.controller.handle('edit');
   };
 }
+
+
