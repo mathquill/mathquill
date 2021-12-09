@@ -30,7 +30,7 @@ BASE_SOURCES = \
   $(SRC_DIR)/tree.ts \
   $(SRC_DIR)/cursor.ts \
   $(SRC_DIR)/controller.ts \
-  $(SRC_DIR)/publicapi.js \
+  $(SRC_DIR)/publicapi.ts \
   $(SRC_DIR)/services/parser.util.ts \
   $(SRC_DIR)/services/saneKeyboardEvents.util.ts \
   $(SRC_DIR)/services/exportText.ts \
