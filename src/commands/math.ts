@@ -153,7 +153,7 @@ class MathCommand extends MathElement {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  moveTowards (dir:Direction, cursor:CursorOptions, updown?:'up'|'down') {
+  moveTowards (dir:Direction, cursor:Cursor, updown?:'up'|'down') {
     var updownInto:NodeRef | undefined;
     if (updown === 'up') {
       updownInto = this.upInto;
@@ -161,7 +161,8 @@ class MathCommand extends MathElement {
       updownInto = this.downInto;
     }
     
-    cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir as Direction]);
+    const el = (updownInto || this.ends[-dir as Direction]) as MQNode; // TODO - was already assuming node defined
+    cursor.insAtDirEnd(-dir as Direction, el);
     aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
   };
   deleteTowards (dir:Direction, cursor:Cursor) {
@@ -470,7 +471,7 @@ class MathBlock extends MathElement {
         tempOp += cmd.mathspeak();
       } else {
         if(tempOp!=='') {
-          if(autoOps._maxLength > 0) {
+          if(autoOps._maxLength! > 0) {
             var x = autoOps[tempOp.toLowerCase()];
             if(typeof x === 'string') tempOp = x;
           }

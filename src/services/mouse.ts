@@ -1,7 +1,8 @@
 /********************************************************
  * Deals with mouse events for clicking, drag-to-select
  *******************************************************/
-Options.prototype.ignoreNextMousedown = noop;
+const ignoreNextMouseDownNoop = (_el:MouseEvent) => { return false };
+Options.prototype.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
 // Whenever edits to the tree occur, in-progress selection events
 // must be invalidated and selection changes must not be applied to
@@ -40,7 +41,7 @@ class Controller_mouse extends Controller_latex {
       (e.target as any).unselectable = true; // http://jsbin.com/yagekiji/1 // TODO - no idea what this unselectable property is
 
       if (cursor.options.ignoreNextMousedown(e)) return;
-      else cursor.options.ignoreNextMousedown = noop;
+      else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
       var target:$ | undefined;
       function mousemove(e:MouseEvent) { target = $(e.target); }
