@@ -6,6 +6,11 @@ type MathspeakOptions = {
     createdLeftOf?:Cursor, 
     ignoreShorthand?: boolean
 }
+type EmbedOptions = {
+    latex?: () => string;
+    text?: () => string;
+    htmlString?: string;
+}
 
 type API = any;
 type HandlerOptions = any;
@@ -18,7 +23,11 @@ type JQ_KeyboardEvent = KeyboardEvent & {
     originalEvent?: KeyboardEvent
 }
 type RootBlockMixinInput = any;
+type BracketSide = L | R | 0;
 
+type InnerMathField = any;
+type InnerFields = any;
+type EmbedOptionsData = any;
 type MQ = any;
 type LatexCmdsAny = any;
 type CharCmdsAny = any;
@@ -39,6 +48,7 @@ declare var validateAutoCommandsOption:any;
 declare var Letter:typeof TempSingleCharNode;
 declare var Digit:typeof TempSingleCharNode;
 declare var PlusMinus:typeof TempSingleCharNode;
+declare var Equality:typeof MQNode;
 
 
 
@@ -52,6 +62,7 @@ interface $ {
     insDirOf(dir:Direction, jQ:$):$,
     insAtDirEnd(dir:Direction, jQ:$):$;
     insertBefore(el:HTMLElement | $):$;
+    insertAfter(el:HTMLElement | $):$;
     wrapAll(el:JQSelector):$;
     removeClass(cls:string):$;
     toggleClass(cls:string):$;
@@ -60,11 +71,14 @@ interface $ {
     appendTo(el:JQSelector):$;
     append(el:JQSelector):$;
     prepend(el:JQSelector):$;
+    prependTo(el:JQSelector):$;
     replaceWith(el:JQSelector):$;
     attr(attr:string, val:string|number|null):$;
+    css(prop:string, val:string|number|null):$;
     remove():$;
     detach():$;
     select():$;
+    eq(num:number):$;
     add(el:JQSelector):$;
     val(val:string):$;
     parent():$;
@@ -74,6 +88,8 @@ interface $ {
     html(t:string):$;
     text(str:string):$;
     text():string;
+    next():$;
+    prev():$;
     animate(properties: Object, duration?: string|number, complete?: Function):$;
     empty():$;
     bind(evt:string, cb:boolean | ((evt:Event) => any)): $

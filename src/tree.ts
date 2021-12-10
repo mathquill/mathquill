@@ -190,6 +190,9 @@ class NodeBase {
   mathspeakTemplate:string[] | undefined;
   upInto:MQNode | undefined;
   downInto:MQNode | undefined;
+  upOutOf?:MQNode | ((cursor:Cursor) => Cursor | undefined);
+  downOutOf?:MQNode | ((cursor:Cursor) => Cursor | undefined);
+
   isPartOfOperator:boolean | undefined;
 
   constructor () {
@@ -364,7 +367,7 @@ class NodeBase {
   focus () {};
   intentionalBlur () { };
   reflow () { };
-  registerInnerField (_a:any, _b:any) { }; // TODO - I really don't think this belongs on the base node
+  registerInnerField (_innerFields:InnerFields, _mathField:InnerMathField) { }; // TODO - I really don't think this belongs on the base node
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
   mathspeak (_options?:MathspeakOptions) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
@@ -452,7 +455,7 @@ class Fragment {
   };
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
-  withDirAdopt (dir:Direction, parent:MQNode, withDir:MQNode, oppDir:MQNode) {
+  withDirAdopt (dir:Direction, parent:MQNode, withDir:NodeRef, oppDir:NodeRef) {
     return (dir === L ? this.adopt(parent, withDir, oppDir)
                       : this.adopt(parent, oppDir, withDir));
   };

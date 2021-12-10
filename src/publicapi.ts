@@ -6,7 +6,7 @@ var API:API = {
 
 };
 
-var EMBEDS:Record<string,CursorOptions> = {};
+var EMBEDS:Record<string, (data:EmbedOptionsData) => EmbedOptions> = {};
 
 class OptionProcessors {
   maxDepth: (n:number) => CursorOptions['maxDepth'];
@@ -23,7 +23,10 @@ class Options {
   substituteTextarea: () => HTMLElement;
   substituteKeyboardEvents:typeof saneKeyboardEvents;
 
+  restrictMismatchedBrackets?:boolean;
+  typingSlashCreatesNewFraction?:boolean;
   charsThatBreakOutOfSupSub:string;
+  sumStartsWithNEquals?:boolean;
   autoSubscriptNumerals?: boolean;
   supSubsRequireOperand?: boolean;
   spaceBehavesLikeTab?: boolean;
@@ -135,7 +138,7 @@ function getInterface(v:number) {
     }
   }
   MQ.config = function(opts:CursorOptions) { config(Options.prototype, opts); return this; };
-  MQ.registerEmbed = function(name:string, options:CursorOptions) {
+  MQ.registerEmbed = function(name:string, options:(data:EmbedOptionsData) => EmbedOptions) {
     if (!/^[a-z][a-z0-9]*$/i.test(name)) {
       throw 'Embed name must start with letter and be only letters and digits';
     }
@@ -278,13 +281,13 @@ function getInterface(v:number) {
       for (var i = 0; i < text.length; i += 1) this.__controller.typedText(text.charAt(i));
       return this;
     };
-    dropEmbedded (pageX:number, pageY:number, options:CursorOptions) {
+    dropEmbedded (pageX:number, pageY:number, options:EmbedOptions) {
       var clientX = pageX - $(window).scrollLeft();
       var clientY = pageY - $(window).scrollTop();
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
-      var cmd = new (LatexCmds as LatexCmdsAny).embed().setOptions(options);
+      var cmd = new EmbedNode().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
     setAriaLabel (ariaLabel:string) {

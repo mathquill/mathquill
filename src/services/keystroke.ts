@@ -281,12 +281,12 @@ class Controller_keystroke extends Controller_focusBlur {
     if (cursorR_dirInto) cursor.insAtLeftEnd(cursorR_dirInto);
     else if (cursorL_dirInto) cursor.insAtRightEnd(cursorL_dirInto);
     else {
-      cursor.parent.bubble(function(ancestor:any) { // TODO - revist this
+      cursor.parent.bubble(function(ancestor:MQNode) { // TODO - revist this
         var prop = ancestor[dirOutOf];
         if (prop) {
-          if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
+          if (typeof prop === 'function') prop = prop.call(ancestor,cursor) as any; // TODO - figure out if we need to assign to prop
           if (prop instanceof MQNode) cursor.jumpUpDown(ancestor, prop);
-          if (prop !== true) return false;
+          if (prop as any !== true) return false; // TODO - figure out how this can return true
         }
         return undefined;
       });
