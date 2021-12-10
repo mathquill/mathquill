@@ -366,10 +366,7 @@ class NodeBase {
   reflow () { };
   registerInnerField (_a:any, _b:any) { }; // TODO - I really don't think this belongs on the base node
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
-  mathspeak (_options?:{
-    createdLeftOf?:Cursor, 
-    ignoreShorthand?: boolean
-  }) { return '' };
+  mathspeak (_options?:MathspeakOptions) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
   siblingCreated (_options:CursorOptions, _dir:Direction) {};

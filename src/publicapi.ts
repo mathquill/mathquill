@@ -23,6 +23,9 @@ class Options {
   substituteTextarea: () => HTMLElement;
   substituteKeyboardEvents:typeof saneKeyboardEvents;
 
+  charsThatBreakOutOfSupSub:string;
+  autoSubscriptNumerals?: boolean;
+  supSubsRequireOperand?: boolean;
   spaceBehavesLikeTab?: boolean;
   typingAsteriskWritesTimesSymbol?: boolean;
   typingSlashWritesDivisionSymbol: boolean;

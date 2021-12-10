@@ -81,7 +81,9 @@ var SVG_SYMBOLS = {
 };
 
 class Style extends MathCommand {
-  constructor (ctrlSeq, tagName, attrs, ariaLabel, opts) {
+  shouldNotSpeakDelimiters:boolean | undefined;
+  
+  constructor (ctrlSeq:string, tagName:string, attrs:string, ariaLabel?:string, opts?:{shouldNotSpeakDelimiters: boolean}) {
     super(ctrlSeq, '<'+tagName+' '+attrs+'>&0</'+tagName+'>');
     this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     this.mathspeakTemplate = ['Start' + this.ariaLabel + ',', 'End' + this.ariaLabel];
@@ -89,7 +91,7 @@ class Style extends MathCommand {
     // There is one exception currently (mathrm).
     this.shouldNotSpeakDelimiters = opts && opts.shouldNotSpeakDelimiters;
   };
-  mathspeak (opts) {
+  mathspeak (opts?:MathspeakOptions) {
     if (
       !this.shouldNotSpeakDelimiters ||
       (opts && opts.ignoreShorthand)
@@ -139,7 +141,9 @@ LatexCmds.dot = () => {
 // [Mozilla docs]: https://developer.mozilla.org/en-US/docs/CSS/color_value#Values
 // [W3C spec]: http://dev.w3.org/csswg/css3-color/#colorunits
 LatexCmds.textcolor = class extends MathCommand {
-  setColor (color) {
+  color:string | undefined;
+  
+  setColor (color:string) {
     this.color = color;
     this.htmlTemplate =
       '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
@@ -147,7 +151,8 @@ LatexCmds.textcolor = class extends MathCommand {
     this.mathspeakTemplate = ['Start ' + this.ariaLabel + ',', 'End ' + this.ariaLabel];
   };
   latex () {
-    return '\\textcolor{' + this.color + '}{' + this.blocks[0].latex() + '}';
+    var blocks0 = this.blocks![0]; // TODO - already assumed this.blocks is defined
+    return '\\textcolor{' + this.color + '}{' + blocks0.latex() + '}';
   };
   parser () {
     var optWhitespace = Parser.optWhitespace;
@@ -174,6 +179,8 @@ LatexCmds.textcolor = class extends MathCommand {
 // Note regex that whitelists valid CSS classname characters:
 // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
 var Class = LatexCmds['class'] = class extends MathCommand {
+  cls:string | undefined;
+
   parser () {
     var string = Parser.string, regex = Parser.regex;
     return Parser.optWhitespace
@@ -190,7 +197,8 @@ var Class = LatexCmds['class'] = class extends MathCommand {
     ;
   };
   latex () {
-    return '\\class{' + this.cls + '}{' + this.blocks[0].latex() + '}';
+    var blocks0 = this.blocks![0]; // TODO - already assumed this.blocks defined
+    return '\\class{' + this.cls + '}{' + blocks0.latex() + '}';
   };
   isStyleBlock () {
     return true;
@@ -204,7 +212,7 @@ var intRgx = /^[\+\-]?[\d]+$/;
 // Traverses the top level of the passed block's children and returns the concatenation of their ctrlSeq properties.
 // Used in shortened mathspeak computations as a block's .text() method can be potentially expensive.
 //
-function getCtrlSeqsFromBlock(block) {
+function getCtrlSeqsFromBlock(block:NodeRef) {
   if (
     typeof(block) !== 'object' ||
     typeof(block.children) !== 'function'
@@ -224,11 +232,11 @@ Options.prototype.charsThatBreakOutOfSupSub = '';
 class SupSub extends MathCommand {
   ctrlSeq = '_{...}^{...}';
 
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
     if (!this.replacedFragment && !cursor[L] && cursor.options.supSubsRequireOperand) return;
-    return super.createLeftOf.apply(this, arguments);
+    return super.createLeftOf(cursor);
   };
-  contactWeld (cursor) {
+  contactWeld (cursor:Cursor) {
     // Look on either side for a SupSub, if one is found compare my
     // .sub, .sup with its .sub, .sup. If I have one that it doesn't,
     // then call .addBlock() on it with my block; if I have one that
@@ -270,7 +278,8 @@ class SupSub extends MathCommand {
     }
   };
   finalizeTree () {
-    this.ends[L].write = function(cursor, ch) {
+    var endsL = this.ends[L] as MQNode; // TODO - already assuming endsL defined
+    endsL.write = function(cursor:Cursor, ch:string) {
       if (cursor.options.autoSubscriptNumerals && this === this.parent.sub) {
         if (ch === '_') return;
         var cmd = this.chToCmd(ch, cursor.options);
@@ -285,16 +294,16 @@ class SupSub extends MathCommand {
         cursor.insRightOf(this.parent);
         aria.queue('Baseline');
       }
-      MathBlock.prototype.write.apply(this, arguments);
+      MathBlock.prototype.write.call(this, cursor, ch);
     };
   };
-  moveTowards (dir, cursor, updown) {
+  moveTowards (dir:Direction, cursor:Cursor, updown?:'up'|'down') {
     if (cursor.options.autoSubscriptNumerals && !this.sup) {
       cursor.insDirOf(dir, this);
     }
-    else super.moveTowards.apply(this, arguments);
+    else super.moveTowards(dir, cursor, updown);
   };
-  deleteTowards (dir, cursor) {
+  deleteTowards (dir:Direction, cursor:Cursor) {
     if (cursor.options.autoSubscriptNumerals && this.sub) {
       var cmd = this.sub.ends[-dir];
       if (cmd instanceof MQSymbol) cmd.remove();
@@ -309,23 +318,23 @@ class SupSub extends MathCommand {
         // `dir` (try it), the cursor appears to have gone "through" the ^2.
       }
     }
-    else super.deleteTowards.apply(this, arguments);
+    else super.deleteTowards(dir, cursor)
   };
   latex () {
-    function latex(prefix, block) {
+    function latex(prefix:string, block:NodeRef) {
       var l = block && block.latex();
       return block ? prefix + '{' + (l || ' ') + '}' : '';
     }
     return latex('_', this.sub) + latex('^', this.sup);
   };
   text () {
-    function text(prefix, block) {
-      var l = block && block.text();
+    function text(prefix:string, block:NodeRef) {
+      var l = (block && block.text()) || '';
       return block ? prefix + (l.length === 1 ? l : '(' + (l || ' ') + ')') : '';
     }
     return text('_', this.sub) + text('^', this.sup);
   };
-  addBlock (block) {
+  addBlock (block:MathBlock) {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = this.sub.upOutOf = block;
       block.adopt(this, this.sub, 0).downOutOf = this.sub;
@@ -344,14 +353,14 @@ class SupSub extends MathCommand {
 
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd, supsub, oppositeSupsub, updown) {
-      cmd[supsub].deleteOutOf = function(dir, cursor) {
+      cmd[supsub].deleteOutOf = function(dir:Direction, cursor:Cursor) {
         cursor.insDirOf((this[dir] ? -dir : dir), this.parent);
         if (!this.isEmpty()) {
           var end = this.ends[dir];
           this.children().disown()
             .withDirAdopt(dir, cursor.parent, cursor[dir], cursor[-dir])
             .jQ.insDirOf(-dir, cursor.jQ);
-          cursor[-dir] = end;
+          cursor[-dir as Direction] = end;
         }
         cmd.supsub = oppositeSupsub;
         delete cmd[supsub];
@@ -365,7 +374,7 @@ class SupSub extends MathCommand {
   };
 };
 
-function insLeftOfMeUnlessAtEnd(cursor) {
+function insLeftOfMeUnlessAtEnd(cursor:Cursor) {
   // cursor.insLeftOf(cmd), unless cursor at the end of block, and every
   // ancestor cmd is at the end of every ancestor block
   var cmd = this.parent, ancestorCmd = cursor;
@@ -410,7 +419,7 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
     + '</span>'
   ;
   textTemplate = ['^(', ')'];
-  mathspeak (opts) {
+  mathspeak (opts:MathspeakOptions) {
     // Simplify basic exponent speech for common whole numbers.
     var child = this.upInto;
     if (child !== undefined) {
@@ -465,7 +474,10 @@ LatexCmds['^'] = class SuperscriptCommand extends SupSub {
 };
 
 class SummationNotation extends MathCommand {
-  constructor (ch, html, ariaLabel) {
+  
+  constructor (ch:string, html:string, ariaLabel?:string) {
+    super();
+
     this.ariaLabel = ariaLabel || ch.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">'
@@ -475,7 +487,6 @@ class SummationNotation extends MathCommand {
     + '</span>'
     ;
 
-    super();
     MQSymbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(this, ch, htmlTemplate);
   };
   createLeftOf (cursor) {
@@ -680,7 +691,7 @@ LatexCmds.fraction = class FracNode extends MathCommand {
 var LiveFraction =
 LatexCmds.over =
 CharCmds['/'] = class extends Fraction {
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
     if (!this.replacedFragment) {
       var leftward = cursor[L];
 

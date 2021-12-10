@@ -2,6 +2,10 @@ type NodeRef = MQNode | 0;
 type ControllerEvent = 'move' | 'upDown' | 'replace' | 'edit' | 'select' | undefined;
 type JoinMethod = 'html' | 'mathspeak' | 'latex' | 'text';
 type CursorOptions = typeof Options.prototype;
+type MathspeakOptions = {
+    createdLeftOf?:Cursor, 
+    ignoreShorthand?: boolean
+}
 
 type API = any;
 type HandlerOptions = any;
@@ -29,7 +33,6 @@ type LatexCmds = Record<string,LatexCmd>
 type CharCmds = Record<string,LatexCmd>
 
 declare var MQ1:any;
-declare var SupSub:any;
 declare var RootMathCommand:any;
 declare var validateAutoCommandsOption:any;
 
