@@ -12,6 +12,18 @@ type EmbedOptions = {
     htmlString?: string;
 }
 
+
+type InequalityData = {
+    ctrlSeq:string;
+    ctrlSeqStrict:string;
+    html:string;
+    htmlStrict:string;
+    text:string;
+    textStrict:string;
+    mathspeak:string;
+    mathspeakStrict:string;
+}
+
 type API = any;
 type HandlerOptions = any;
 type ControllerData = any;
@@ -25,6 +37,7 @@ type JQ_KeyboardEvent = KeyboardEvent & {
 type RootBlockMixinInput = any;
 type BracketSide = L | R | 0;
 
+type ParserAny = any;
 type InnerMathField = any;
 type InnerFields = any;
 type EmbedOptionsData = any;
@@ -34,25 +47,17 @@ type CharCmdsAny = any;
 type LatexCmdsSingleCharBuilder = Record<string, (char:string) => MQNode>;
 type LatexCmdsSingleChar = Record<string, undefined | typeof TempSingleCharNode | ((char:string) => TempSingleCharNode)>
 
+type LatexFragmentBuilderNoParam = () => LatexFragment;
 type MQNodeBuilderNoParam= () => MQNode;
 type MQNodeBuilderOneParam= (string:string) => MQNode;
 
-type LatexCmd = typeof MQNode | MQNodeBuilderNoParam | MQNodeBuilderOneParam;
+type LatexCmd = typeof MQNode | MQNodeBuilderNoParam | MQNodeBuilderOneParam | LatexFragmentBuilderNoParam;
 type LatexCmds = Record<string,LatexCmd>
 type CharCmds = Record<string,LatexCmd>
 
 declare var MQ1:any;
 declare var RootMathCommand:any;
 declare var validateAutoCommandsOption:any;
-
-declare var Letter:typeof TempSingleCharNode;
-declare var Digit:typeof TempSingleCharNode;
-declare var PlusMinus:typeof TempSingleCharNode;
-declare var Equality:typeof MQNode;
-
-
-
-
 
 type JQSelector = $ | HTMLElement | string | null | Window | NodeListOf<ChildNode> | HTMLElement[] | EventTarget;
 interface $ {
@@ -65,7 +70,7 @@ interface $ {
     insertAfter(el:HTMLElement | $):$;
     wrapAll(el:JQSelector):$;
     removeClass(cls:string):$;
-    toggleClass(cls:string):$;
+    toggleClass(cls:string, bool?:boolean):$;
     addClass(cls:string):$;
     hasClass(cls:string):boolean;
     appendTo(el:JQSelector):$;

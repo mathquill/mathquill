@@ -2,22 +2,22 @@
  * Symbols for Basic Mathematics
  ********************************/
 class DigitGroupingChar extends MQSymbol {
-  finalizeTree (opts, dir) { this.sharedSiblingMethod(opts, dir) };
-  siblingDeleted (opts, dir) { this.sharedSiblingMethod(opts, dir) };
-  siblingCreated (opts, dir) { this.sharedSiblingMethod(opts, dir) };
+  finalizeTree (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
+  siblingDeleted (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
+  siblingCreated (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
   
-  sharedSiblingMethod (opts, dir) {
+  sharedSiblingMethod (opts:CursorOptions, dir:Direction) {
     // don't try to fix digit grouping if the sibling to my right changed (dir === R or
     // undefined) and it's now a DigitGroupingChar, it will try to fix grouping
     if (dir !== L && this[R] instanceof DigitGroupingChar) return;
     this.fixDigitGrouping(opts);
   };
 
-  fixDigitGrouping (opts) {
+  fixDigitGrouping (opts:CursorOptions) {
     if (!opts.enableDigitGrouping) return;
 
-    var left = this;
-    var right = this;
+    var left:NodeRef = this;
+    var right:NodeRef = this;
 
     var spacesFound = 0;
     var dots = [];
@@ -26,10 +26,10 @@ class DigitGroupingChar extends MQSymbol {
     var DOT = '.';
 
     // traverse left as far as possible (starting at this char)
-    var node = left;
+    var node:NodeRef = left;
     do {
-      if (/^[0-9]$/.test(node.ctrlSeq)) {
-        left = node
+      if (/^[0-9]$/.test(node.ctrlSeq!)) {
+        left = node 
       } else if (node.ctrlSeq === SPACE) {
         left = node
         spacesFound += 1;
@@ -43,7 +43,7 @@ class DigitGroupingChar extends MQSymbol {
 
     // traverse right as far as possible (starting to right of this char)
     while (node = right[R]) {
-      if (/^[0-9]$/.test(node.ctrlSeq)) {
+      if (/^[0-9]$/.test(node.ctrlSeq!)) {
         right = node
       } else if (node.ctrlSeq === SPACE) {
         right = node
@@ -57,19 +57,19 @@ class DigitGroupingChar extends MQSymbol {
     }
 
     // trim the leading spaces
-    while (right !== left && left.ctrlSeq === SPACE) {
+    while (right !== left && left && left.ctrlSeq === SPACE) {
       left = left[R];
       spacesFound -= 1;
     }
 
     // trim the trailing spaces
-    while (right !== left && right.ctrlSeq === SPACE) {
+    while (right !== left && right && right.ctrlSeq === SPACE) {
       right = right[L];
       spacesFound -= 1;
     }
 
     // happens when you only have a space
-    if (left === right && left.ctrlSeq === SPACE) return;
+    if (left === right && left && left.ctrlSeq === SPACE) return;
 
     var disableFormatting = spacesFound > 0 || dots.length > 1;
     if (disableFormatting) {
@@ -87,15 +87,17 @@ class DigitGroupingChar extends MQSymbol {
     }
   };
 
-  removeGroupingBetween (left, right) {
+  removeGroupingBetween (left:NodeRef, right:NodeRef) {
     var node = left;
     do {
-      node.setGroupingClass(undefined);
-      if (node === right) break;
+      if (node instanceof DigitGroupingChar) {
+        node.setGroupingClass(undefined);        
+      }
+      if (!node || node === right) break;
     } while (node = node[R]);
   };
 
-  addGroupingBetween (start, end) {
+  addGroupingBetween (start:NodeRef, end:NodeRef) {
     var node = start;
     var count = 0;
 
@@ -132,14 +134,17 @@ class DigitGroupingChar extends MQSymbol {
         }
       }
 
-      node.setGroupingClass(cls);
+      if (node instanceof DigitGroupingChar) {
+        node.setGroupingClass(cls);
+      }
 
       if (node === end) break;
-      node = node[L];
+      node = node[L] as DigitGroupingChar;
     }
   };
 
-  setGroupingClass (cls) {
+  _groupingClass?:string;
+  setGroupingClass (cls:string | undefined) {
     // nothing changed (either class is the same or it's still undefined)
     if (this._groupingClass === cls) return;
 
@@ -155,45 +160,63 @@ class DigitGroupingChar extends MQSymbol {
 };
 
 class Digit extends DigitGroupingChar {
-  constructor (ch, html, mathspeak) {
+  constructor (ch:string, html?:string, mathspeak?:string) {
     super(ch, '<span class="mq-digit">'+(html || ch)+'</span>', undefined, mathspeak);
   };
 
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
+    const cursorL = cursor[L];
+    const cursorLL = cursorL && cursorL[L];
+    const cursorParentParentSub = (
+      cursor.parent.parent instanceof SupSub ?
+        cursor.parent.parent.sub
+        : undefined
+    )
+
     if (cursor.options.autoSubscriptNumerals
-        && cursor.parent !== cursor.parent.parent.sub
-        && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
-            || (cursor[L] instanceof SupSub
-                && cursor[L][L] instanceof Variable
-                && cursor[L][L].isItalic !== false))) {
-      new LatexCmds._().createLeftOf(cursor);
+        && cursor.parent !== cursorParentParentSub
+        && ((cursorL instanceof Variable && cursorL.isItalic !== false)
+            || (cursorL instanceof SupSub
+                && cursorLL instanceof Variable
+                && cursorLL.isItalic !== false))) {
+      new SubscriptCommand().createLeftOf(cursor);
       super.createLeftOf(cursor);
       cursor.insRightOf(cursor.parent.parent);
     }
     else super.createLeftOf(cursor);
   };
-  mathspeak (opts) {
+  mathspeak (opts:MathspeakOptions) {
     if (opts && opts.createdLeftOf) {
       var cursor = opts.createdLeftOf;
+      var cursorL = cursor[L];
+      var cursorLL = cursorL && cursorL[L];
+      const cursorParentParentSub = (
+        cursor.parent.parent instanceof SupSub ?
+          cursor.parent.parent.sub
+          : undefined
+      )
+  
       if (cursor.options.autoSubscriptNumerals
-          && cursor.parent !== cursor.parent.parent.sub
-          && ((cursor[L] instanceof Variable && cursor[L].isItalic !== false)
+          && cursor.parent !== cursorParentParentSub
+          && ((cursorL instanceof Variable && cursorL.isItalic !== false)
               || (cursor[L] instanceof SupSub
-                  && cursor[L][L] instanceof Variable
-                  && cursor[L][L].isItalic !== false))) {
+                  && cursorLL instanceof Variable
+                  && cursorLL.isItalic !== false))) {
         return 'Subscript ' + super.mathspeak() + ' Baseline';
       }
     }
-    return super.mathspeak.apply(this, arguments);
+    return super.mathspeak();
   };
 }
 
 class Variable extends MQSymbol {
-  constructor (ch, html) {
+  isItalic?:boolean;
+
+  constructor (ch:string, html?:string) {
     super(ch, '<var>'+(html || ch)+'</var>');
   };
   text () {
-    var text = this.ctrlSeq;
+    var text = this.ctrlSeq || '';
     if (this.isPartOfOperator) {
       if (text[0] == '\\') {
         text = text.slice(1, text.length);
@@ -204,7 +227,7 @@ class Variable extends MQSymbol {
     } else {
       if (this[L] && !(this[L] instanceof Variable)
           && !(this[L] instanceof BinaryOperator)
-          && this[L].ctrlSeq !== '\\ ')
+          && (this[L] as MQNode).ctrlSeq !== '\\ ')
         text = '*' + text;
       if (this[R] && !(this[R] instanceof BinaryOperator)
           && !(this[R] instanceof SupSub))
@@ -213,7 +236,7 @@ class Variable extends MQSymbol {
     return text;
   };
   mathspeak () {
-    var text = this.ctrlSeq;
+    var text = this.ctrlSeq || '';
     if (
       this.isPartOfOperator ||
       text.length > 1 ||
@@ -230,23 +253,29 @@ class Variable extends MQSymbol {
     }
   };
 };
-function bindVariable (ch, html) {
+function bindVariable (ch:string, html:string, _unusedMathspeak?:string) {
   return () => new Variable(ch, html);
 }
 
 
 Options.prototype.autoCommands = { _maxLength: 0 };
-optionProcessors.autoCommands = function(cmds) {
+optionProcessors.autoCommands = function(cmds:string) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  var list = cmds.split(' ');
+  var dict:AutoDict = {}
+  var maxLength = 0;
+
   for (var i = 0; i < list.length; i += 1) {
     var cmd = list[i];
     if (cmd.length < 2) {
       throw 'autocommand "'+cmd+'" not minimum length of 2';
     }
-    if (LatexCmds[cmd] === OperatorName) {
+
+    // TODO - why doesn't typescript think that OperatorName is a possible value
+    // in LatexCmds? OperatorName extends MQNode
+    if ((LatexCmds as LatexCmdsAny)[cmd] === OperatorName) {
       throw '"' + cmd + '" is a built-in operator name';
     }
     dict[cmd] = 1;
@@ -261,7 +290,9 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of only letters';
   }
-  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  var list = cmds.split(' ');
+  var dict:AutoDict = {}
+  var maxLength = 0;
   for (var i = 0; i < list.length; i += 1) {
     var cmd = list[i];
     if (cmd.length < 2) {
@@ -275,43 +306,53 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 }
 
 class Letter extends Variable {
-  constructor (ch) {
+  letter:string;
+  
+  constructor (ch:string) {
+    super(ch);
     this.letter = ch;
-    return super(ch);
   };
-  checkAutoCmds (cursor) {
+  checkAutoCmds (cursor:Cursor) {
     //handle autoCommands
-    var autoCmds = cursor.options.autoCommands, maxLength = autoCmds._maxLength;
+    var autoCmds = cursor.options.autoCommands;
+    var  maxLength = autoCmds._maxLength || 0;
     if (maxLength > 0) {
       // want longest possible autocommand, so join together longest
       // sequence of letters
-      var str = '', l = this, i = 0;
+      var str = '';
+      var l:NodeRef = this;
+      var i = 0;
       // FIXME: l.ctrlSeq === l.letter checks if first or last in an operator name
       while (l instanceof Letter && l.ctrlSeq === l.letter && i < maxLength) {
-        str = l.letter + str, l = l[L], i += 1;
+        str = l.letter + str;
+        l = l[L];
+        i += 1;
       }
       // check for an autocommand, going thru substrings longest to shortest
       while (str.length) {
         if (autoCmds.hasOwnProperty(str)) {
-          for (var i = 1, l = this; i < str.length; i += 1, l = l[L]);
-          new Fragment(l, this).remove();
-          cursor[L] = l[L];
+          l = this;
+          for (i = 1; l && i < str.length; i += 1, l = l[L]);
+
+          new Fragment(l as MQNode, this).remove();
+          cursor[L] = (l as MQNode)[L];
 
           var cmd = LatexCmds[str];
-          if (cmd.constructor) {
-            cmd = new cmd(str);
+          var node;
+          if (isMQNodeClass(cmd)) {
+            node = new (cmd as typeof TempSingleCharNode)(str); // TODO - How do we know that this class expects a single str input?
           } else {
-            cmd = cmd(str);
+            node = cmd(str);
           }
 
-          return cmd.createLeftOf(cursor);
+          return node.createLeftOf(cursor);
         }
         str = str.slice(1);
       }
     }
   }
 
-  autoParenthesize (cursor) {
+  autoParenthesize (cursor:Cursor) {
     //exit early if already parenthesized
     var right = cursor.parent.ends[R]
     if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
@@ -324,9 +365,12 @@ class Letter extends Variable {
     }
 
     //handle autoParenthesized functions
-    var str = '', l = this, i = 0;
+    var str = '';
+    var l:NodeRef = this
+    var i = 0;
 
-    var autoParenthesizedFunctions = cursor.options.autoParenthesizedFunctions, maxLength = autoParenthesizedFunctions._maxLength;
+    var autoParenthesizedFunctions = cursor.options.autoParenthesizedFunctions;
+    var maxLength = autoParenthesizedFunctions._maxLength || 0;
     var autoOperatorNames = cursor.options.autoOperatorNames
     while (l instanceof Letter && i < maxLength) {
       str = l.letter + str, l = l[L], i += 1;
@@ -341,30 +385,30 @@ class Letter extends Variable {
     }
   }
 
-  createLeftOf (cursor) {
-    super.createLeftOf.apply(this, arguments);
+  createLeftOf (cursor:Cursor) {
+    super.createLeftOf(cursor);
 
     this.checkAutoCmds(cursor);
     this.autoParenthesize(cursor);
   };
-  italicize (bool) {
+  italicize (bool:boolean) {
     this.isItalic = bool;
     this.isPartOfOperator = !bool;
     this.jQ.toggleClass('mq-operator-name', !bool);
     return this;
   };
-  finalizeTree (opts, dir) {this.sharedSiblingMethod(opts, dir)};
-  siblingDeleted (opts, dir) {this.sharedSiblingMethod(opts, dir)};
-  siblingCreated (opts, dir) {this.sharedSiblingMethod(opts, dir)};
+  finalizeTree (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
+  siblingDeleted (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
+  siblingCreated (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
   
-  sharedSiblingMethod (opts, dir) {
+  sharedSiblingMethod (opts:CursorOptions, dir:Direction) {
     // don't auto-un-italicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will un-italicize everyone
     if (dir !== L && this[R] instanceof Letter) return;
     this.autoUnItalicize(opts);
   };
 
-  autoUnItalicize (opts) {
+  autoUnItalicize (opts:CursorOptions) {
     var autoOps = opts.autoOperatorNames;
     if (autoOps._maxLength === 0) return;
 
@@ -381,30 +425,50 @@ class Letter extends Variable {
 
     // removeClass and delete flags from all letters before figuring out
     // which, if any, are part of an operator name
-    new Fragment(l[R] || this.parent.ends[L], r[L] || this.parent.ends[R]).each(function(el) {
-      el.italicize(true).jQ.removeClass('mq-first mq-last mq-followed-by-supsub');
-      el.ctrlSeq = el.letter;
+    var lR = l && l[R];
+    var rL = r && r[L];
+
+    new Fragment(lR || this.parent.ends[L] as MQNode, rL || this.parent.ends[R] as MQNode).each(function(el) {
+      if (el instanceof Letter) {
+        el.italicize(true).jQ.removeClass('mq-first mq-last mq-followed-by-supsub');
+        el.ctrlSeq = el.letter;  
+      }
+      return undefined;
     });
 
+    let autoOpsLength = autoOps._maxLength || 0;
+    
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
-    outer: for (var i = 0, first = l[R] || this.parent.ends[L]; i < str.length; i += 1, first = first[R]) {
-      for (var len = min(autoOps._maxLength, str.length - i); len > 0; len -= 1) {
+    outer: for (var i = 0, first = (l as MQNode)[R] || this.parent.ends[L]; first && i < str.length; i += 1, first = (first as MQNode)[R]) {
+      for (var len = min(autoOpsLength, str.length - i); len > 0; len -= 1) {
         var word = str.slice(i, i + len);
+        var last:MQNode = undefined!; // TODO - TS complaining that we use last before assigning to it
+
         if (autoOps.hasOwnProperty(word)) {
-          for (var j = 0, letter = first; j < len; j += 1, letter = letter[R]) {
-            letter.italicize(false);
-            var last = letter;
+          for (var j = 0, letter:NodeRef = first; j < len; j += 1, letter = (letter as MQNode)[R]) {
+            if (letter instanceof Letter) {
+              letter.italicize(false);
+              last = letter;
+            }
           }
 
           var isBuiltIn = BuiltInOpNames.hasOwnProperty(word);
           first.ctrlSeq = (isBuiltIn ? '\\' : '\\operatorname{') + first.ctrlSeq;
           last.ctrlSeq += (isBuiltIn ? ' ' : '}');
-          if (TwoWordOpNames.hasOwnProperty(word)) last[L][L][L].jQ.addClass('mq-last');
+
+
+          if (TwoWordOpNames.hasOwnProperty(word)) {
+            const lastL = last[L];
+            const lastLL = lastL && lastL[L];
+            const lastLLL = (lastLL && lastLL[L]) as MQNode;
+            lastLLL.jQ.addClass('mq-last');
+          }
+
           if (!this.shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
           if (!this.shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
-              var supsub = last[R]; // XXX monkey-patching, but what's the right thing here?
+              var supsub = last[R] as MQNode; // XXX monkey-patching, but what's the right thing here?
               // Have operatorname-specific code in SupSub? A CSS-like language to style the
               // math tree, but which ignores cursor and selection (which CSS can't)?
               var respace = supsub.siblingCreated = supsub.siblingDeleted = function() {
@@ -424,7 +488,7 @@ class Letter extends Variable {
       }
     }
   };
-  shouldOmitPadding(node) {
+  shouldOmitPadding(node:NodeRef) {
     // omit padding if no node
     if (!node) return true;
 
@@ -440,13 +504,13 @@ class Letter extends Variable {
     return false;
   }
 };
-var BuiltInOpNames = {}; // the set of operator names like \sin, \cos, etc that
+var BuiltInOpNames:AutoDict = {}; // the set of operator names like \sin, \cos, etc that
   // are built-into LaTeX, see Section 3.17 of the Short Math Guide: http://tinyurl.com/jm9okjc
   // MathQuill auto-unitalicizes some operator names not in that set, like 'hcf'
   // and 'arsinh', which must be exported as \operatorname{hcf} and
   // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
   // \varlimsup are not supported
-var AutoOpNames = Options.prototype.autoOperatorNames = { _maxLength: 9 }; // the set
+var AutoOpNames:AutoDict = Options.prototype.autoOperatorNames = { _maxLength: 9 }; // the set
   // of operator names that MathQuill auto-unitalicizes by default; overridable
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
 (function() {
@@ -486,7 +550,9 @@ optionProcessors.autoOperatorNames = function(cmds) {
   if (!/^[a-z\|\-]+(?: [a-z\|\-]+)*$/i.test(cmds)) {
     throw '"'+cmds+'" not a space-delimited list of letters or "|"';
   }
-  var list = cmds.split(' '), dict = {}, maxLength = 0;
+  var list = cmds.split(' ');
+  var dict:AutoDict = {};
+  var maxLength = 0;
   for (var i = 0; i < list.length; i += 1) {
     var cmd = list[i];
     if (cmd.length < 2) {
@@ -512,10 +578,11 @@ optionProcessors.autoOperatorNames = function(cmds) {
   return dict;
 };
 class OperatorName extends MQSymbol {
-  constructor (fn) {
+  ctrlSeq:string;
+  constructor (fn:string) {
     super(fn);
   };
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
     var fn = this.ctrlSeq;
     for (var i = 0; i < fn.length; i += 1) {
       new Letter(fn.charAt(i)).createLeftOf(cursor);
@@ -527,11 +594,11 @@ class OperatorName extends MQSymbol {
     for (var i = 0; i < fn.length; i += 1) {
       new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
     }
-    return Parser.succeed(block.children());
+    return Parser.succeed(block.children()) as ParserAny;
   };
 };
 for (var fn in AutoOpNames) if (AutoOpNames.hasOwnProperty(fn)) {
-  LatexCmds[fn] = OperatorName;
+  (LatexCmds as LatexCmdsAny)[fn as string] = OperatorName;
 }
 LatexCmds.operatorname = class extends MathCommand {
   createLeftOf () {};
@@ -549,24 +616,29 @@ LatexCmds.operatorname = class extends MathCommand {
         } else {
           isAllLetters = false;
         }
+        return undefined;
       });
-      if (isAllLetters && str === 'ans') return LatexCmds[str](str);
+      if (isAllLetters && str === 'ans') {
+        return AnsBuilder();
+      }
       // In cases other than `ans`, just return the children directly
       return children;
-    });
+    }) as ParserAny;
   };
 };
 
 LatexCmds.f = class extends Letter {
+  letter:string;
   constructor() {
-    this.letter = 'f';
-    super(this.letter);
+    var letter = 'f';
+    super(letter);
 
+    this.letter = letter;
     this.htmlTemplate = '<var class="mq-f">f</var>';
   };
-  italicize (bool) {
+  italicize (bool:boolean) {
     this.jQ.html('f').toggleClass('mq-f', bool);
-    return super.italicize.apply(this, arguments);
+    return super.italicize(bool);
   };
 };
 
@@ -588,12 +660,12 @@ LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 
 // does not use Symbola font
 class NonSymbolaSymbol extends MQSymbol {
-  constructor (ch, html) {
+  constructor (ch:string, html?:string, _unusedMathspeak?:string) {
     super(ch, '<span class="mq-nonSymbola">'+(html || ch)+'</span>');
   };
 };
 
-LatexCmds['@'] = NonSymbolaSymbol;
+LatexCmds['@'] = () => new NonSymbolaSymbol('@');
 LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
 LatexCmds['%'] = class extends NonSymbolaSymbol {
   constructor() {
@@ -609,9 +681,9 @@ LatexCmds['%'] = class extends NonSymbolaSymbol {
       .then(
         string('\\operatorname{of}')
         .map(function () {
-          return LatexCmds.percentof();
+          return PercentOfBuilder();
         })
-      ).or(super.parser())
+      ).or(super.parser()) as ParserAny
     ;
   }
 };
@@ -722,24 +794,31 @@ LatexCmds.forall = (latex) => new VanillaSymbol('\\'+latex+' ','&'+latex+';')
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
 class LatexFragment extends MathCommand {
-  constructor (latex) {
-    this.latex = latex;
-    // TODO - no super?
+  latexStr:string;
+
+  constructor (latex:string) {
+    super(); // TODO - added this super call but it didn't exist before typeescript conversion
+    this.latexStr = latex;
   }
-  createLeftOf (cursor) {
-    var block = latexMathParser.parse(this.latex);
-    block.children().adopt(cursor.parent, cursor[L], cursor[R]);
+  
+  createLeftOf (cursor:Cursor) {
+    var block = latexMathParser.parse(this.latexStr);
+    block.children().adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
     cursor[L] = block.ends[R];
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor.options, cursor);
-    if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
-    if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-    cursor.parent.bubble(function (node) { node.reflow(); });
+    var blockEndsR = block.ends[R];
+    var blockEndsRR = blockEndsR && blockEndsR[R];
+    if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
+    var blockEndsL = block.ends[L];
+    var blockEndsLL = blockEndsL && blockEndsL[L] ;
+    if (blockEndsLL) blockEndsLL.siblingCreated(cursor.options, R);
+    cursor.parent.bubble(function (node) { node.reflow(); return undefined; });
   };
-  mathspeak () { return latexMathParser.parse(this.latex).mathspeak(); };
+  mathspeak () { return latexMathParser.parse(this.latexStr).mathspeak(); };
   parser () {
-    var frag = latexMathParser.parse(this.latex).children();
-    return Parser.succeed(frag);
+    var frag = latexMathParser.parse(this.latexStr).children();
+    return Parser.succeed(frag) as ParserAny; 
   };
 };
 
@@ -808,12 +887,16 @@ LatexCmds['√'] = () => new LatexFragment('\\sqrt{}');
 
 // Binary operator determination is used in several contexts for PlusMinus nodes and their descendants.
 // For instance, we set the item's class name based on this factor, and also assign different mathspeak values (plus vs positive, negative vs minus).
-function isBinaryOperator(node) {
-  if (node[L]) {
+function isBinaryOperator(node:NodeRef):boolean {
+  if (!node) return false;
+
+  const nodeL = node[L];
+
+  if (nodeL) {
     // If the left sibling is a binary operator or a separator (comma, semicolon, colon, space)
     // or an open bracket (open parenthesis, open square bracket)
     // consider the operator to be unary
-    if (node[L] instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(node[L].ctrlSeq)) {
+    if (nodeL instanceof BinaryOperator || /^(\\ )|[,;:\(\[]$/.test(nodeL.ctrlSeq!)) {
       return false;
     }
   } else if (node.parent && node.parent.parent && node.parent.parent.isStyleBlock()) {
@@ -829,15 +912,15 @@ function isBinaryOperator(node) {
 }
 
 var PlusMinus = class extends BinaryOperator {
-  constructor (ch, html, mathspeak) {
+  constructor (ch?:string, html?:string, mathspeak?:string) {
     super(ch, html, undefined, mathspeak, true);
   };
   
-  contactWeld (opts, dir) { this.sharedSiblingMethod(opts, dir)}
-  siblingCreated (opts, dir) { this.sharedSiblingMethod(opts, dir)}
-  siblingDeleted (opts, dir) { this.sharedSiblingMethod(opts, dir)}
+  contactWeld (opts?:CursorOptions, dir?:Direction) { this.sharedSiblingMethod(opts, dir)}
+  siblingCreated (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir)}
+  siblingDeleted (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir)}
   
-  sharedSiblingMethod (opts, dir) {
+  sharedSiblingMethod (_opts?:CursorOptions, dir?:Direction) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = isBinaryOperator(this)
       ? 'mq-binary-operator'
@@ -851,20 +934,21 @@ LatexCmds['+'] = class extends PlusMinus {
   constructor () {
     super('+', '+');
   };
-  mathspeak () {
+  mathspeak ():string {
     return isBinaryOperator(this) ? 'plus' : 'positive';
   };
 };
 
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
-LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = class extends PlusMinus {
+class MinusNode extends PlusMinus {
   constructor () {
     super('-', '&minus;');
   };
-  mathspeak () {
+  mathspeak ():string {
     return isBinaryOperator(this) ? 'minus' : 'negative';
   };
 };
+LatexCmds['−'] = LatexCmds['—'] = LatexCmds['–'] = LatexCmds['-'] = MinusNode;
 
 LatexCmds['±'] = LatexCmds.pm = LatexCmds.plusmn = LatexCmds.plusminus =
   () => new PlusMinus('\\pm ','&plusmn;', 'plus-or-minus');
@@ -878,67 +962,72 @@ class To extends BinaryOperator {
   constructor () {
     super('\\to ','&rarr;', 'to');
   }
-  deleteTowards (dir, cursor) {
+  deleteTowards (dir:Direction, cursor:Cursor) {
     if (dir === L) {
-      var l = cursor[L];
+      var l = cursor[L] as MQNode;
       new Fragment(l, this).remove();
       cursor[L] = l[L];
-      new LatexCmds['−']().createLeftOf(cursor);
-      cursor[L].bubble(function (node) { node.reflow(); });
+      new MinusNode().createLeftOf(cursor);
+      (cursor[L] as MQNode).bubble(function (node) { node.reflow(); return undefined });
       return;
     }
-    super.deleteTowards.apply(this, arguments);
+    super.deleteTowards(dir, cursor);
   };
 }
 
 LatexCmds['→'] = LatexCmds.to = To;
 
 class Inequality extends BinaryOperator {
-  constructor (data, strict) {
+  strict:boolean;
+  data:InequalityData;
+
+  constructor (data:InequalityData, strict:boolean) {
+    var strictness:''|'Strict' = (strict ? 'Strict' : '');
+    super(data[`ctrlSeq${strictness}`], data[`html${strictness}`],
+                     data[`text${strictness}`], data[`mathspeak${strictness}`]);
+
     this.data = data;
     this.strict = strict;
-    var strictness = (strict ? 'Strict' : '');
-    super(data['ctrlSeq'+strictness], data['html'+strictness],
-                     data['text'+strictness], data['mathspeak'+strictness]);
   }
 
-  swap (strict) {
+  swap (strict:boolean) {
     this.strict = strict;
-    var strictness = (strict ? 'Strict' : '');
-    this.ctrlSeq = this.data['ctrlSeq'+strictness];
-    this.jQ.html(this.data['html'+strictness]);
-    this.textTemplate = [ this.data['text'+strictness] ];
-    this.mathspeakName = this.data['mathspeak'+strictness];
+    var strictness:''|'Strict' = (strict ? 'Strict' : '');
+    this.ctrlSeq = this.data[`ctrlSeq${strictness}`];
+    this.jQ.html(this.data[`html${strictness}`]);
+    this.textTemplate = [this.data[`text${strictness}`] ];
+    this.mathspeakName = this.data[`mathspeak${strictness}`];
   };
-  deleteTowards (dir, cursor) {
+  deleteTowards (dir:Direction, cursor:Cursor) {
     if (dir === L && !this.strict) {
       this.swap(true);
-      this.bubble(function (node) { node.reflow(); });
+      this.bubble(function (node) { node.reflow(); return undefined });
       return;
     }
-    super.deleteTowards.apply(this, arguments);
+    super.deleteTowards(dir, cursor);
   };
 };
 
-var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than or equal to',
+var less:InequalityData = { ctrlSeq: '\\le ', html: '&le;', text: '≤', mathspeak: 'less than or equal to',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<', mathspeakStrict: 'less than'};
-var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater than or equal to',
+var greater:InequalityData = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥', mathspeak: 'greater than or equal to',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>', mathspeakStrict: 'greater than'};
 
 class Greater extends Inequality {
   constructor () {
     super(greater, true);
   };
-  createLeftOf (cursor) {
-    if (cursor[L] instanceof BinaryOperator && cursor[L].ctrlSeq === '-') {
-      var l = cursor[L];
+  createLeftOf (cursor:Cursor) {
+    const cursorL = cursor[L];
+    if (cursorL instanceof BinaryOperator && cursorL.ctrlSeq === '-') {
+      var l = cursorL;
       cursor[L] = l[L];
       l.remove();
       new To().createLeftOf(cursor);
-      cursor[L].bubble(function (node) { node.reflow(); });
+      (cursor[L] as MQNode).bubble(function (node) { node.reflow(); return undefined });
       return;
     }
-    super.createLeftOf.apply(this, arguments);
+    super.createLeftOf(cursor);
   };
 }
 
@@ -954,13 +1043,14 @@ class Equality extends BinaryOperator {
   constructor () {
     super('=', '=', '=', 'equals');
   };
-  createLeftOf (cursor) {
-    if (cursor[L] instanceof Inequality && cursor[L].strict) {
-      cursor[L].swap(false);
-      cursor[L].bubble(function (node) { node.reflow(); });
+  createLeftOf (cursor:Cursor) {
+    var cursorL = cursor[L];
+    if (cursorL instanceof Inequality && cursorL.strict) {
+      cursorL.swap(false);
+      cursorL.bubble(function (node) { node.reflow(); return undefined});
       return;
     }
-    super.createLeftOf.apply(this, arguments);
+    super.createLeftOf(cursor);
   };
 };
 LatexCmds['='] = Equality;
@@ -975,16 +1065,16 @@ class Sim extends BinaryOperator {
   constructor () {
     super('\\sim ', '~', '~', 'tilde');
   };
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
     if (cursor[L] instanceof Sim) {
-      var l = cursor[L];
+      var l = cursor[L] as MQNode;
       cursor[L] = l[L];
       l.remove();
       new Approx().createLeftOf(cursor);
-      cursor[L].bubble(function (node) { node.reflow(); });
+      (cursor[L] as MQNode).bubble(function (node) { node.reflow(); return undefined });
       return;
     }
-    super.createLeftOf.apply(this, arguments);
+    super.createLeftOf(cursor);
   };
 };
 
@@ -992,16 +1082,16 @@ class Approx extends BinaryOperator {
   constructor () {
     super('\\approx ', '&approx;', '≈', 'approximately equal');
   };
-  deleteTowards (dir, cursor) {
+  deleteTowards (dir:Direction, cursor:Cursor) {
     if (dir === L) {
-      var l = cursor[L];
+      var l = cursor[L] as MQNode;
       new Fragment(l, this).remove();
       cursor[L] = l[L];
       new Sim().createLeftOf(cursor);
-      cursor[L].bubble(function (node) { node.reflow(); });
+      (cursor[L] as MQNode).bubble(function (node) { node.reflow(); return undefined });
       return;
     }
-    super.deleteTowards.apply(this, arguments);
+    super.deleteTowards(dir, cursor);
   };
 };
 

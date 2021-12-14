@@ -412,7 +412,7 @@ class MQSymbol extends MathCommand {
 
   latex (){ return this.ctrlSeq || ''; };
   text (){ return this.textTemplate.join(''); };
-  mathspeak (){ return this.mathspeakName || ''; };
+  mathspeak (_opts?:MathspeakOptions){ return this.mathspeakName || ''; };
   placeCursor () {};
   isEmpty (){ return true; };
 };

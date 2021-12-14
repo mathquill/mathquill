@@ -361,8 +361,8 @@ class NodeBase {
   html ():string { return '' };
   text ():string { return '' };
   latex ():string { return '' };
-  finalizeTree (_options:CursorOptions) { };
-  contactWeld (_cursor?:Cursor) { };
+  finalizeTree (_options:CursorOptions, _dir?: Direction) { };
+  contactWeld (_cursor?:Cursor|CursorOptions, _dir?:Direction) { }; // TODO - this type definition is insane. Cleanup implementation?
   blur (_cursor?:Cursor) { };
   focus () {};
   intentionalBlur () { };
@@ -557,5 +557,5 @@ var LatexCmds:LatexCmds = {}
 var CharCmds:CharCmds = {};
 
 function isMQNodeClass (cmd:any): cmd is (typeof MQNode) {
-  return cmd && cmd.constructor 
+  return cmd && cmd.prototype instanceof MQNode
 }

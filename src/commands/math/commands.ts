@@ -399,8 +399,7 @@ function insLeftOfMeUnlessAtEnd(this:MQNode, cursor:Cursor) {
   return undefined;
 }
 
-LatexCmds.subscript =
-LatexCmds._ = class SubscriptCommand extends SupSub {
+class SubscriptCommand extends SupSub {
   supsub = 'sub' as const;
   
   htmlTemplate =
@@ -421,6 +420,8 @@ LatexCmds._ = class SubscriptCommand extends SupSub {
     super.finalizeTree()
   };
 };
+LatexCmds.subscript =
+LatexCmds._ = SubscriptCommand;
 
 LatexCmds.superscript =
 LatexCmds.supscript =
@@ -744,18 +745,20 @@ CharCmds['/'] = class extends Fraction {
   };
 };
 
-LatexCmds.ans = () => new MQSymbol(
+const AnsBuilder = () => new MQSymbol(
       '\\operatorname{ans}',
       '<span class="mq-ans">ans</span>',
       'ans'
     );
+LatexCmds.ans = AnsBuilder;
 
-LatexCmds.percent =
-LatexCmds.percentof = () => new MQSymbol(
+const PercentOfBuilder = () => new MQSymbol(
       '\\%\\operatorname{of}',
       '<span class="mq-nonSymbola mq-operator-name">% of </span>',
       'percent of'
     )
+LatexCmds.percent =
+LatexCmds.percentof = PercentOfBuilder
 
 class SquareRoot extends MathCommand {
   ctrlSeq = '\\sqrt';

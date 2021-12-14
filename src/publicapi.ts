@@ -17,6 +17,10 @@ class OptionProcessors {
 }
 
 const optionProcessors = new OptionProcessors();
+type AutoDict = {
+  _maxLength?: number;
+  [id:string]:any;
+}
 
 class Options {
   ignoreNextMousedown: (_el:MouseEvent) => boolean;
@@ -44,10 +48,9 @@ class Options {
   onCut?: () => void;
   overrideTypedText?:(text:string) => void;
   overrideKeystroke: (key:string, event:KeyboardEvent) => void;
-  autoOperatorNames:{
-      _maxLength?: number;
-      [id:string]:any;
-  };
+  autoOperatorNames: AutoDict;
+  autoCommands: AutoDict;
+  autoParenthesizedFunctions: AutoDict;
   handlers: HandlerOptions
 };
 class Progenote {}
