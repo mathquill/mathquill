@@ -4,7 +4,9 @@
 
 CharCmds['\\'] = class LatexCommandInput extends MathCommand {
   ctrlSeq = '\\';
-  replaces (replacedFragment) {
+  _replacedFragment?:Fragment;
+
+  replaces (replacedFragment:Fragment) {
     this._replacedFragment = replacedFragment.disown();
     this.isEmpty = function() { return false; };
   };
@@ -12,21 +14,23 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
   textTemplate = ['\\'];
   createBlocks () {
     super.createBlocks();
-    this.ends[L].focus = function() {
+    const endsL = this.ends[L] as MQNode;
+
+    endsL.focus = function() {
       this.parent.jQ.addClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
-    this.ends[L].blur = function() {
+    endsL.blur = function() {
       this.parent.jQ.removeClass('mq-hasCursor');
       if (this.isEmpty())
         this.parent.jQ.addClass('mq-empty');
 
       return this;
     };
-    this.ends[L].write = function(cursor, ch) {
+    endsL.write = function(cursor, ch) {
       cursor.show().deleteSelection();
 
       if (ch.match(/[a-z]/i)) {
@@ -35,28 +39,28 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         aria.alert(ch);
       }
       else {
-        var cmd = this.parent.renderCommand(cursor);
+        var cmd = (this.parent as LatexCommandInput).renderCommand(cursor);
         // TODO needs tests
         aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
         if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
         else aria.alert();
       }
     };
-    this.ends[L].keystroke = function(key, e, ctrlr) {
+
+    var originalKeystroke = endsL.keystroke;
+    endsL.keystroke = function(key, e, ctrlr) {
       if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
-        var cmd = this.parent.renderCommand(ctrlr.cursor);
+        var cmd = (this.parent as LatexCommandInput).renderCommand(ctrlr.cursor);
         // TODO needs tests
         aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
         e.preventDefault();
         return;
       }
 
-      // TODO - this has thrown as part of visual tests. The _super.keystroke is
-      // undefined. Let's see if typescript conversions catches the error
-      return super.keystroke.apply(this, arguments);
+      return originalKeystroke.call(this, key, e, ctrlr);
     };
   };
-  createLeftOf (cursor) {
+  createLeftOf (cursor:Cursor) {
     super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
@@ -65,45 +69,51 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         this._replacedFragment.jQ.addClass('mq-blur').bind(
           'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function(e) {
-            $(e.target = el).trigger(e);
+            // TODO - overwritting e.target
+            (e as any).target = el
+            $(el).trigger(e);
             return false;
           }
         ).insertBefore(this.jQ).add(this.jQ);
     }
   };
   latex () {
-    return '\\' + this.ends[L].latex() + ' ';
+    return '\\' + (this.ends[L] as MQNode).latex() + ' ';
   };
-  renderCommand (cursor) {
+  renderCommand (cursor:Cursor) {
     this.jQ = this.jQ.last();
     this.remove();
     if (this[R]) {
-      cursor.insLeftOf(this[R]);
+      cursor.insLeftOf(this[R] as MQNode);
     } else {
       cursor.insAtRightEnd(this.parent);
     }
 
-    var latex = this.ends[L].latex();
+    var latex = (this.ends[L] as MQNode).latex();
     if (!latex) latex = ' ';
     var cmd = LatexCmds[latex];
+
     if (cmd) {
-      if (cmd.constructor) {
-        cmd = new cmd(latex);
+      let node:MQNode;
+      if (isMQNodeClass(cmd)) {
+        node = new (cmd as typeof TempSingleCharNode)(latex);
       } else {
-        cmd = cmd(latex);
+        node = cmd(latex);
       }
-      if (this._replacedFragment) cmd.replaces(this._replacedFragment);
-      cmd.createLeftOf(cursor);
+      if (this._replacedFragment) (node as MathCommand).replaces(this._replacedFragment);
+      node.createLeftOf(cursor);
+      return node;
     }
     else {
-      cmd = new TextBlock();
-      cmd.replaces(latex);
-      cmd.createLeftOf(cursor);
-      cursor.insRightOf(cmd);
-      if (this._replacedFragment)
+      const node = new TextBlock();
+      node.replaces(latex);
+      node.createLeftOf(cursor);
+      cursor.insRightOf(node);
+      if (this._replacedFragment) {
         this._replacedFragment.remove();
+      }
+      return node;
     }
-    return cmd;
   };
 };
 

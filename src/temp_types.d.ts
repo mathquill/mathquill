@@ -58,6 +58,7 @@ type CharCmds = Record<string,LatexCmd>
 declare var MQ1:any;
 declare var RootMathCommand:any;
 declare var validateAutoCommandsOption:any;
+declare var TextBlock:any;
 
 type JQSelector = $ | HTMLElement | string | null | Window | NodeListOf<ChildNode> | HTMLElement[] | EventTarget;
 interface $ {
@@ -80,6 +81,7 @@ interface $ {
     replaceWith(el:JQSelector):$;
     attr(attr:string, val:string|number|null):$;
     css(prop:string, val:string|number|null):$;
+    trigger(e:Event):$;
     remove():$;
     detach():$;
     select():$;
