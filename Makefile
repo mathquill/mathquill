@@ -44,7 +44,7 @@ BASE_SOURCES = \
 SOURCES_FULL = \
   $(BASE_SOURCES) \
   $(SRC_DIR)/commands/math.ts \
-  $(SRC_DIR)/commands/text.js \
+  $(SRC_DIR)/commands/text.ts \
   $(SRC_DIR)/commands/math/advancedSymbols.ts \
   $(SRC_DIR)/commands/math/basicSymbols.ts \
   $(SRC_DIR)/commands/math/commands.ts \
