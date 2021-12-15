@@ -343,7 +343,7 @@ class Controller_latex extends Controller_keystroke {
 
         rootMathCommand.createBlocks();
         var rootMathBlock = rootMathCommand.ends[L];
-        block.children().adopt(rootMathBlock, 0, 0);
+        block.children().adopt(rootMathBlock as MQNode, 0, 0);
 
         return rootMathCommand;
       })

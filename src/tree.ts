@@ -202,7 +202,7 @@ class NodeBase {
   
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
   
-  jQadd (jQ:$ | HTMLElement) { return this.jQ = this.jQ.add(jQ); };
+  jQadd (jQ:$ | HTMLElement | ChildNode) { return this.jQ = this.jQ.add(jQ); };
   jQize (el?:$ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ:$ = $(el || this.html());
@@ -421,7 +421,7 @@ class Fragment {
   jQ = defaultJQ;
   disowned:boolean = false;
 
-  constructor (withDir:MQNode, oppDir:MQNode, dir?:Direction) {
+  constructor (withDir?:MQNode, oppDir?:MQNode, dir?:Direction) {
     if (dir === undefined) dir = L;
     prayDirection(dir);
 
@@ -429,7 +429,7 @@ class Fragment {
 
     this.ends = {};
 
-    if (!withDir) return;
+    if (!withDir || !oppDir) return;
 
     pray('withDir is passed to Fragment', withDir instanceof MQNode);
     pray('oppDir is passed to Fragment', oppDir instanceof MQNode);

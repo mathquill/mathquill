@@ -56,9 +56,7 @@ type LatexCmds = Record<string,LatexCmd>
 type CharCmds = Record<string,LatexCmd>
 
 declare var MQ1:any;
-declare var RootMathCommand:any;
 declare var validateAutoCommandsOption:any;
-declare var TextBlock:any;
 
 type JQSelector = $ | HTMLElement | string | null | Window | NodeListOf<ChildNode> | HTMLElement[] | EventTarget;
 interface $ {
@@ -85,6 +83,7 @@ interface $ {
     remove():$;
     detach():$;
     select():$;
+    width():number;
     eq(num:number):$;
     add(el:JQSelector):$;
     val(val:string):$;

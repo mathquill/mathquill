@@ -12,8 +12,12 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Anticursor extends Point {
   ancestors:Record<string|number, Anticursor | MQNode | undefined> = {};
-  constructor (cursor:Cursor) {
-    super(cursor.parent, cursor[L], cursor[R])
+  constructor (parent: MQNode, leftward?:NodeRef, rightward?:NodeRef) {
+    super(parent, leftward, rightward)
+  }
+
+  static fromCursor (cursor:Cursor) {
+    return new Anticursor(cursor.parent, cursor[L], cursor[R]);
   }
 }
 
@@ -190,7 +194,7 @@ class Cursor extends Point {
     if (grampR) grampR.siblingDeleted(cursor.options, L);
   };
   startSelection () {
-    var anticursor = this.anticursor = new Anticursor(this);
+    var anticursor = this.anticursor = Anticursor.fromCursor(this);
     var ancestors = anticursor.ancestors;
 
     for (var ancestor:MQNode | Anticursor= anticursor; ancestor.parent; ancestor = ancestor.parent) {
