@@ -273,9 +273,7 @@ optionProcessors.autoCommands = function(cmds:string) {
       throw 'autocommand "'+cmd+'" not minimum length of 2';
     }
 
-    // TODO - why doesn't typescript think that OperatorName is a possible value
-    // in LatexCmds? OperatorName extends MQNode
-    if ((LatexCmds as LatexCmdsAny)[cmd] === OperatorName) {
+    if (LatexCmds[cmd] === OperatorName) {
       throw '"' + cmd + '" is a built-in operator name';
     }
     dict[cmd] = 1;
@@ -579,8 +577,8 @@ optionProcessors.autoOperatorNames = function(cmds) {
 };
 class OperatorName extends MQSymbol {
   ctrlSeq:string;
-  constructor (fn:string) {
-    super(fn);
+  constructor (fn?:string) {
+    super(fn || '');
   };
   createLeftOf (cursor:Cursor) {
     var fn = this.ctrlSeq;
