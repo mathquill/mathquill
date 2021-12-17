@@ -63,7 +63,7 @@ class Cursor extends Point {
     return this;
   };
   hide () {
-    if ('intervalId' in this)
+    if (this.intervalId)
       clearInterval(this.intervalId);
     this.intervalId = 0;
     this.jQ.detach();
@@ -164,7 +164,7 @@ class Cursor extends Point {
     if (!this[R]) { //then find something to be rightward to insLeftOf
       var thisL = this[L];
       if (thisL)
-        this[R] = thisL;
+        this[R] = thisL[R];
       else {
         while (!this[R]) {
           var newParent = this.parent[R];
