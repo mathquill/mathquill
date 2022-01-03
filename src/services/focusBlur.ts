@@ -1,20 +1,26 @@
-Controller.open(function(_) {
-  this.onNotify(function (e) {
-    // these try to cover all ways that mathquill can be modified
-    if (e === 'edit' || e === 'replace' || e === undefined) {
-      var controller = this.controller;
-      if (!controller) return;
-      if (!controller.options.enableDigitGrouping) return;
+ControllerBase.onNotify(function (cursor, e) {
+  // these try to cover all ways that mathquill can be modified
+  if (e === 'edit' || e === 'replace' || e === undefined) {
+    var controller = cursor.controller;
+    if (!controller) return;
+    if (!controller.options.enableDigitGrouping) return;
 
-      // blurred === false means we are focused. blurred === true or
-      // blurred === undefined means we are not focused.
-      if (controller.blurred !== false) return;
+    // TODO - maybe reconsider these 3 states and drop down to only 2
+    //
+    // blurred === false means we are focused. blurred === true or
+    // blurred === undefined means we are not focused.
+    if (controller.blurred !== false) return;
 
-      controller.disableGroupingForSeconds(1);
-    }
-  });
+    controller.disableGroupingForSeconds(1);
+  }
+});
 
-  _.disableGroupingForSeconds = function (seconds) {
+class Controller_focusBlur extends Controller_exportText {
+  blurred:boolean;
+  __disableGroupingTimeout:number;
+  textareaSelectionTimeout:number;
+
+  disableGroupingForSeconds (seconds:number) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;
 
@@ -28,10 +34,11 @@ Controller.open(function(_) {
     }
   }
 
-  _.focusBlurEvents = function() {
+  focusBlurEvents () {
     var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
-    var blurTimeout;
-    ctrlr.textarea.focus(function() {
+    var blurTimeout:number;
+    const textarea = ctrlr.getTextareaOrThrow();
+    textarea.focus(function() {
       ctrlr.updateMathspeak();
       ctrlr.blurred = false;
       clearTimeout(blurTimeout);
@@ -48,7 +55,7 @@ Controller.open(function(_) {
     }).blur(function() {
       if (ctrlr.textareaSelectionTimeout) {
         clearTimeout(ctrlr.textareaSelectionTimeout);
-        ctrlr.textareaSelectionTimeout = undefined;
+        ctrlr.textareaSelectionTimeout = 0;
       }
       ctrlr.disableGroupingForSeconds(0);
       ctrlr.blurred = true;
@@ -79,11 +86,11 @@ Controller.open(function(_) {
     ctrlr.blurred = true;
     cursor.hide().parent.blur();
   };
-  _.unbindFocusBlurEvents = function() {
-    var ctrlr = this;
-    ctrlr.textarea.unbind('focus blur');
+  unbindFocusBlurEvents () {
+    var textarea = this.getTextareaOrThrow();
+    textarea.unbind('focus blur');
   };
-});
+};
 
 /**
  * TODO: I wanted to move MathBlock::focus and blur here, it would clean
@@ -93,8 +100,8 @@ Controller.open(function(_) {
  *
  * Problem is, there's lots of calls to .focus()/.blur() on nodes
  * outside Controller::focusBlurEvents(), such as .postOrder('blur') on
- * insertion, which if MathBlock::blur becomes Node::blur, would add the
- * 'blur' CSS class to all Symbol's (because .isEmpty() is true for all
+ * insertion, which if MathBlock::blur becomes MQNode::blur, would add the
+ * 'blur' CSS class to all MQSymbol's (because .isEmpty() is true for all
  * of them).
  *
  * I'm not even sure there aren't other troublesome calls to .focus() or

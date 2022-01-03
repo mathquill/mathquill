@@ -14,8 +14,8 @@ suite('tree', function() {
     }
 
     test('the empty case', function() {
-      var parent = Node();
-      var child = Node();
+      var parent = new MQNode();
+      var child = new MQNode();
 
       child.adopt(parent, 0, 0);
 
@@ -28,9 +28,9 @@ suite('tree', function() {
     });
 
     test('with two children from the left', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new MQNode();
+      var one = new MQNode();
+      var two = new MQNode();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -39,9 +39,9 @@ suite('tree', function() {
     });
 
     test('with two children from the right', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new MQNode();
+      var one = new MQNode();
+      var two = new MQNode();
 
       two.adopt(parent, 0, 0);
       one.adopt(parent, 0, two);
@@ -50,10 +50,10 @@ suite('tree', function() {
     });
 
     test('adding one in the middle', function() {
-      var parent = Node();
-      var leftward = Node();
-      var rightward = Node();
-      var middle = Node();
+      var parent = new MQNode();
+      var leftward = new MQNode();
+      var rightward = new MQNode();
+      var middle = new MQNode();
 
       leftward.adopt(parent, 0, 0);
       rightward.adopt(parent, leftward, 0);
@@ -80,8 +80,8 @@ suite('tree', function() {
     }
 
     test('the empty case', function() {
-      var parent = Node();
-      var child = Node();
+      var parent = new MQNode();
+      var child = new MQNode();
 
       child.adopt(parent, 0, 0);
       child.disown();
@@ -91,9 +91,9 @@ suite('tree', function() {
     });
 
     test('disowning the right end child', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new MQNode();
+      var one = new MQNode();
+      var two = new MQNode();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -110,9 +110,9 @@ suite('tree', function() {
     });
 
     test('disowning the left end child', function() {
-      var parent = Node();
-      var one = Node();
-      var two = Node();
+      var parent = new MQNode();
+      var one = new MQNode();
+      var two = new MQNode();
 
       one.adopt(parent, 0, 0);
       two.adopt(parent, one, 0);
@@ -129,10 +129,10 @@ suite('tree', function() {
     });
 
     test('disowning the middle', function() {
-      var parent = Node();
-      var leftward = Node();
-      var rightward = Node();
-      var middle = Node();
+      var parent = new MQNode();
+      var leftward = new MQNode();
+      var rightward = new MQNode();
+      var middle = new MQNode();
 
       leftward.adopt(parent, 0, 0);
       rightward.adopt(parent, leftward, 0);
@@ -156,7 +156,7 @@ suite('tree', function() {
 
   suite('fragments', function() {
     test('an empty fragment', function() {
-      var empty = Fragment();
+      var empty = new Fragment();
       var count = 0;
 
       empty.each(function() { count += 1 });
@@ -166,37 +166,43 @@ suite('tree', function() {
 
     test('half-empty fragments are disallowed', function() {
       assert.throws(function() {
-        Fragment(Node(), 0)
+        new Fragment(new MQNode(), 0)
       }, 'half-empty on the right');
 
       assert.throws(function() {
-        Fragment(0, Node());
+        new Fragment(0, new MQNode());
       }, 'half-empty on the left');
     });
 
     test('directionalized constructor call', function() {
-      var ChNode = P(Node, { init: function(ch) { this.ch = ch; } });
-      var parent = Node();
-      var a = ChNode('a').adopt(parent, parent.ends[R], 0);
-      var b = ChNode('b').adopt(parent, parent.ends[R], 0);
-      var c = ChNode('c').adopt(parent, parent.ends[R], 0);
-      var d = ChNode('d').adopt(parent, parent.ends[R], 0);
-      var e = ChNode('e').adopt(parent, parent.ends[R], 0);
+      var ChNode = class extends MQNode {
+        constructor (ch) {
+          super();
+          this.ch = ch
+        };
+      }
+
+      var parent = new MQNode();
+      var a = new ChNode('a').adopt(parent, parent.ends[R], 0);
+      var b = new ChNode('b').adopt(parent, parent.ends[R], 0);
+      var c = new ChNode('c').adopt(parent, parent.ends[R], 0);
+      var d = new ChNode('d').adopt(parent, parent.ends[R], 0);
+      var e = new ChNode('e').adopt(parent, parent.ends[R], 0);
 
       function cat(str, node) { return str + node.ch; }
-      assert.equal('bcd', Fragment(b, d).fold('', cat));
-      assert.equal('bcd', Fragment(b, d, L).fold('', cat));
-      assert.equal('bcd', Fragment(d, b, R).fold('', cat));
-      assert.throws(function() { Fragment(d, b, L); });
-      assert.throws(function() { Fragment(b, d, R); });
+      assert.equal('bcd', new Fragment(b, d).fold('', cat));
+      assert.equal('bcd', new Fragment(b, d, L).fold('', cat));
+      assert.equal('bcd', new Fragment(d, b, R).fold('', cat));
+      assert.throws(function() { new Fragment(d, b, L); });
+      assert.throws(function() { new Fragment(b, d, R); });
     });
 
     test('disown is idempotent', function() {
-      var parent = Node();
-      var one = Node().adopt(parent, 0, 0);
-      var two = Node().adopt(parent, one, 0);
+      var parent = new MQNode();
+      var one = new MQNode().adopt(parent, 0, 0);
+      var two = new MQNode().adopt(parent, one, 0);
 
-      var frag = Fragment(one, two);
+      var frag = new Fragment(one, two);
       frag.disown();
       frag.disown();
     });

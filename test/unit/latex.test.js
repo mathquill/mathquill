@@ -3,7 +3,7 @@ suite('latex', function() {
     if (arguments.length < 2) latex = str;
 
     var result = latexMathParser.parse(str).postOrder(function (node) {
-      node.finalizeTree(Options.p)
+      node.finalizeTree(Options.prototype)
     }).join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''

@@ -24,36 +24,38 @@ SRC_DIR = ./src
 INTRO = $(SRC_DIR)/intro.js
 OUTRO = $(SRC_DIR)/outro.js
 
-PJS_SRC = ./node_modules/pjs/src/p.js
-
 BASE_SOURCES = \
-  $(PJS_SRC) \
-  $(SRC_DIR)/tree.js \
-  $(SRC_DIR)/cursor.js \
-  $(SRC_DIR)/controller.js \
-  $(SRC_DIR)/publicapi.js \
-  $(SRC_DIR)/services/parser.util.js \
-  $(SRC_DIR)/services/saneKeyboardEvents.util.js \
-  $(SRC_DIR)/services/aria.js \
-  $(SRC_DIR)/services/exportText.js \
-  $(SRC_DIR)/services/focusBlur.js \
-  $(SRC_DIR)/services/keystroke.js \
-  $(SRC_DIR)/services/latex.js \
-  $(SRC_DIR)/services/mouse.js \
-  $(SRC_DIR)/services/scrollHoriz.js \
-  $(SRC_DIR)/services/textarea.js
+  $(SRC_DIR)/utils.ts \
+  $(SRC_DIR)/services/aria.ts \
+  $(SRC_DIR)/tree.ts \
+  $(SRC_DIR)/cursor.ts \
+  $(SRC_DIR)/controller.ts \
+  $(SRC_DIR)/publicapi.ts \
+  $(SRC_DIR)/services/parser.util.ts \
+  $(SRC_DIR)/services/saneKeyboardEvents.util.ts \
+  $(SRC_DIR)/services/exportText.ts \
+  $(SRC_DIR)/services/focusBlur.ts \
+  $(SRC_DIR)/services/keystroke.ts \
+  $(SRC_DIR)/services/latex.ts \
+  $(SRC_DIR)/services/mouse.ts \
+  $(SRC_DIR)/services/scrollHoriz.ts \
+  $(SRC_DIR)/services/textarea.ts
 
 SOURCES_FULL = \
   $(BASE_SOURCES) \
-  $(SRC_DIR)/commands/math.js \
-  $(SRC_DIR)/commands/text.js \
-  $(SRC_DIR)/commands/math/*.js
+  $(SRC_DIR)/commands/math.ts \
+  $(SRC_DIR)/commands/text.ts \
+  $(SRC_DIR)/commands/math/advancedSymbols.ts \
+  $(SRC_DIR)/commands/math/basicSymbols.ts \
+  $(SRC_DIR)/commands/math/commands.ts \
+  $(SRC_DIR)/commands/math/LatexCommandInput.ts
+
 
 SOURCES_BASIC = \
   $(BASE_SOURCES) \
-  $(SRC_DIR)/commands/math.js \
-  $(SRC_DIR)/commands/math/basicSymbols.js \
-  $(SRC_DIR)/commands/math/commands.js
+  $(SRC_DIR)/commands/math.ts \
+  $(SRC_DIR)/commands/math/basicSymbols.ts \
+  $(SRC_DIR)/commands/math/commands.ts
 
 CSS_DIR = $(SRC_DIR)/css
 CSS_MAIN = $(CSS_DIR)/main.less
@@ -113,10 +115,8 @@ font: $(FONT_TARGET)
 clean:
 	rm -rf $(BUILD_DIR)
 
-$(PJS_SRC): $(NODE_MODULES_INSTALLED)
-
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
 	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
@@ -124,7 +124,7 @@ $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 	$(UGLIFY) $(UGLIFY_OPTS) < $< > $@
 
 $(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ | ./script/escape-non-ascii > $@
+	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
 	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
@@ -157,6 +157,9 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 #
 # -*- Test tasks -*-
 #
+.PHONY:
+lint:
+	npx tsc --noEmit
 
 .PHONY: test server run-server
 server:
@@ -166,5 +169,5 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
-	cat $^ > $@
+	cat $^ | ./script/tsc-emit-only > $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@

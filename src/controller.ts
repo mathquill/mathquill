@@ -1,47 +1,64 @@
 /*********************************************
- * Controller for a MathQuill instance,
- * on which services are registered with
- *
- *   Controller.open(function(_) { ... });
- *
+ * Controller for a MathQuill instance
  ********************************************/
+class ControllerBase {
+  id:number;
+  data:ControllerData;
+  root:ControllerRoot;
+  container:$;
+  options:CursorOptions;
+  aria:Aria;
+  ariaLabel:string;
+  ariaPostLabel:string;
+  cursor:Cursor;
+  editable:boolean | undefined;
+  _ariaAlertTimeout:number;
+  KIND_OF_MQ:KIND_OF_MQ;
+  textarea:$ | undefined;
+  textareaSpan:$ | undefined;
+  mathspeakSpan:$ | undefined;
 
-var Controller = P(function(_) {
-  _.init = function(root, container, options) {
+  constructor (root:ControllerRoot, container:$, options:CursorOptions) {
     this.id = root.id;
     this.data = {};
 
     this.root = root;
     this.container = container;
     this.options = options;
-
+    
+    this.aria = aria;
     this.ariaLabel = 'Math Input';
     this.ariaPostLabel = '';
 
-    root.controller = this;
+    root.controller = this.getControllerSelf();
 
-    this.cursor = root.cursor = Cursor(root, options, this);
+    this.cursor = root.cursor = new Cursor(root, options, this.getControllerSelf());
     // TODO: stop depending on root.cursor, and rm it
   };
 
-  _.handle = function(name, dir) {
+  getControllerSelf() {
+    // dance we have to do to tell this thing it's a full controller
+    return this as any as Controller;
+  }
+
+  handle (name:HandlerName, dir?:Direction) {
     var handlers = this.options.handlers;
     if (handlers && handlers.fns[name]) {
-      var mq = handlers.APIClasses[this.KIND_OF_MQ](this);
+      var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);
       if (dir === L || dir === R) handlers.fns[name](dir, mq);
       else handlers.fns[name](mq);
     }
   };
 
-  var notifyees = [];
-  this.onNotify = function(f) { notifyees.push(f); };
-  _.notify = function() {
-    for (var i = 0; i < notifyees.length; i += 1) {
-      notifyees[i].apply(this.cursor, arguments);
+  static notifyees:((cursor:Cursor, e:ControllerEvent) => void)[] = [];
+  static onNotify (f:(cursor:Cursor, e:ControllerEvent) => void) { ControllerBase.notifyees.push(f); };
+  notify (e:ControllerEvent) {
+    for (var i = 0; i < ControllerBase.notifyees.length; i += 1) {
+      ControllerBase.notifyees[i](this.cursor, e);
     }
     return this;
   };
-  _.setAriaLabel = function(ariaLabel) {
+  setAriaLabel (ariaLabel:string) {
     var oldAriaLabel = this.getAriaLabel();
     if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
       this.ariaLabel = ariaLabel;
@@ -59,7 +76,7 @@ var Controller = P(function(_) {
     }
     return this;
   };
-  _.getAriaLabel = function () {
+  getAriaLabel () {
     if (this.ariaLabel !== 'Math Input') {
       return this.ariaLabel;
     } else if (this.editable) {
@@ -68,14 +85,14 @@ var Controller = P(function(_) {
       return '';
     }
   };
-  _.setAriaPostLabel = function(ariaPostLabel, timeout) {
+  setAriaPostLabel (ariaPostLabel:string, timeout:number) {
     if(ariaPostLabel && typeof ariaPostLabel === 'string' && ariaPostLabel !== '') {
       if (
         ariaPostLabel !== this.ariaPostLabel &&
         typeof timeout === 'number'
       ) {
         if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
-        this._ariaAlertTimeout = setTimeout(function() {
+        this._ariaAlertTimeout = setTimeout(() => {
           if (this.containerHasFocus()) {
             // Voice the new label, but do not update content mathspeak to prevent double-speech.
             aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
@@ -83,7 +100,7 @@ var Controller = P(function(_) {
             // This mathquill does not have focus, so update its mathspeak.
             this.updateMathspeak();
           }
-        }.bind(this), timeout);
+        }, timeout);
       }
       this.ariaPostLabel = ariaPostLabel;
     } else {
@@ -92,10 +109,10 @@ var Controller = P(function(_) {
     }
     return this;
   };
-  _.getAriaPostLabel = function () {
+  getAriaPostLabel () {
     return this.ariaPostLabel || '';
   };
-  _.containerHasFocus = function () {
+  containerHasFocus () {
     return (
       document.activeElement &&
       this.container &&
@@ -103,4 +120,26 @@ var Controller = P(function(_) {
       this.container[0].contains(document.activeElement)
     );
   };
-});
+
+  getTextareaOrThrow () {
+    var textarea = this.textarea;
+    if (!textarea) throw new Error('expected a textarea');
+    return textarea;
+  }
+
+  getTextareaSpanOrThrow () {
+    var textareaSpan = this.textareaSpan;
+    if (!textareaSpan) throw new Error('expected a textareaSpan');
+    return textareaSpan;
+  }
+ 
+  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
+  // and http://www.gh-mathspeak.com/examples/grammar-rules/
+  exportMathSpeak () { return this.root.mathspeak(); };
+
+   // overridden
+   updateMathspeak () {};
+   scrollHoriz () {}; 
+   selectionChanged () {};
+   setOverflowClasses () {};
+};

@@ -48,7 +48,7 @@ suite('text', function() {
 
   test('changes the text nodes as the cursor moves around', function() {
     var block = fromLatex('\\text{abc}');
-    var ctrlr = Controller(block, 0, 0);
+    var ctrlr = new Controller(block, 0, 0);
     var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();
@@ -75,7 +75,7 @@ suite('text', function() {
 
   test('does not change latex as the cursor moves around', function() {
     var block = fromLatex('\\text{x}');
-    var ctrlr = Controller(block, 0, 0);
+    var ctrlr = new Controller(block, 0, 0);
     var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();

@@ -2,15 +2,8 @@
  * Deals with the browser DOM events from
  * interaction with the typist.
  ****************************************/
-
-Controller.open(function(_) {
-  _.keystroke = function(key, evt) {
-    this.cursor.parent.keystroke(key, evt, this);
-  };
-});
-
-Node.open(function(_) {
-  _.keystroke = function(key, e, ctrlr) {
+ class MQNode extends NodeBase {  
+  keystroke (key:string, e:KeyboardEvent, ctrlr:Controller) {
     var cursor = ctrlr.cursor;
 
     switch (key) {
@@ -105,6 +98,7 @@ Node.open(function(_) {
       } else {
         ctrlr.selectLeft();
       }
+      break;
 
     case 'Shift-Down':
       if (cursor[R]) {
@@ -113,6 +107,7 @@ Node.open(function(_) {
       else {
         ctrlr.selectRight();
       }
+      break;
 
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
@@ -135,12 +130,12 @@ Node.open(function(_) {
 
     // These remaining hotkeys are only of benefit to people running screen readers.
     case 'Ctrl-Alt-Up': // speak parent block that has focus
-      if (cursor.parent.parent && cursor.parent.parent instanceof Node) aria.queue(cursor.parent.parent);
+      if (cursor.parent.parent && cursor.parent.parent instanceof MQNode) aria.queue(cursor.parent.parent);
       else aria.queue('nothing above');
       break;
 
     case 'Ctrl-Alt-Down': // speak current block that has focus
-      if (cursor.parent && cursor.parent instanceof Node) aria.queue(cursor.parent);
+      if (cursor.parent && cursor.parent instanceof MQNode) aria.queue(cursor.parent);
       else aria.queue('block is empty');
       break;
 
@@ -149,7 +144,7 @@ Node.open(function(_) {
         cursor.parent.parent &&
         cursor.parent.parent.ends &&
         cursor.parent.parent.ends[L] &&
-        cursor.parent.parent.ends[L] instanceof Node
+        cursor.parent.parent.ends[L] instanceof MQNode
       ) {
         aria.queue(cursor.parent.parent.ends[L]);
       } else {
@@ -162,7 +157,7 @@ Node.open(function(_) {
         cursor.parent.parent &&
         cursor.parent.parent.ends &&
         cursor.parent.parent.ends[R] &&
-        cursor.parent.parent.ends[R] instanceof Node
+        cursor.parent.parent.ends[R] instanceof MQNode
       ) {
         aria.queue(cursor.parent.parent.ends[R]);
       } else {
@@ -189,21 +184,37 @@ Node.open(function(_) {
     ctrlr.scrollHoriz();
   };
 
-  _.moveOutOf = // called by Controller::escapeDir, moveDir
-  _.moveTowards = // called by Controller::moveDir
-  _.deleteOutOf = // called by Controller::deleteDir
-  _.deleteTowards = // called by Controller::deleteDir
-  _.unselectInto = // called by Controller::selectDir
-  _.selectOutOf = // called by Controller::selectDir
-  _.selectTowards = // called by Controller::selectDir
-    function() { pray('overridden or never called on this node'); };
-});
+  moveOutOf (_dir:Direction, _cursor:Cursor, _updown?:'up' | 'down') { pray('overridden or never called on this node'); } // called by Controller::escapeDir, moveDir
+  moveTowards (_dir:Direction, _cursor:Cursor, _updown?:'up' | 'down') { pray('overridden or never called on this node'); } // called by Controller::moveDir
+  deleteOutOf (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  deleteTowards (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::deleteDir
+  unselectInto (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectOutOf (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
+  selectTowards (_dir:Direction, _cursor:Cursor) { pray('overridden or never called on this node'); } // called by Controller::selectDir
+}
 
-Controller.open(function(_) {
-  this.onNotify(function(e) {
-    if (e === 'move' || e === 'upDown') this.show().clearSelection();
-  });
-  _.escapeDir = function(dir, key, e) {
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) {
+  if (e === 'move' || e === 'upDown') cursor.show().clearSelection();
+});
+optionProcessors.leftRightIntoCmdGoes = function(updown:'up'|'down') {
+  if (updown && updown !== 'up' && updown !== 'down') {
+    throw '"up" or "down" required for leftRightIntoCmdGoes option, '
+          + 'got "'+updown+'"';
+  }
+  return updown;
+};
+
+
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e !== 'upDown') cursor.upDownCache = {}; });
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e === 'edit') cursor.show().deleteSelection(); });
+ControllerBase.onNotify(function(cursor:Cursor, e:ControllerEvent) { if (e !== 'select') cursor.endSelection(); });
+
+class Controller_keystroke extends Controller_focusBlur {
+  keystroke (key:string, evt:KeyboardEvent) {
+    this.cursor.parent.keystroke(key, evt, this.getControllerSelf());
+  };
+
+  escapeDir (dir:Direction, _key:string, e:KeyboardEvent) {
     prayDirection(dir);
     var cursor = this.cursor;
 
@@ -218,28 +229,21 @@ Controller.open(function(_) {
     aria.alert();
     return this.notify('move');
   };
-
-  optionProcessors.leftRightIntoCmdGoes = function(updown) {
-    if (updown && updown !== 'up' && updown !== 'down') {
-      throw '"up" or "down" required for leftRightIntoCmdGoes option, '
-            + 'got "'+updown+'"';
-    }
-    return updown;
-  };
-  _.moveDir = function(dir) {
+  moveDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor, updown = cursor.options.leftRightIntoCmdGoes;
+    var cursorDir = cursor[dir];
 
     if (cursor.selection) {
-      cursor.insDirOf(dir, cursor.selection.ends[dir]);
+      cursor.insDirOf(dir, cursor.selection.ends[dir] as MQNode);
     }
-    else if (cursor[dir]) cursor[dir].moveTowards(dir, cursor, updown);
+    else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
 
     return this.notify('move');
   };
-  _.moveLeft = function() { return this.moveDir(L); };
-  _.moveRight = function() { return this.moveDir(R); };
+  moveLeft () { return this.moveDir(L); };
+  moveRight () { return this.moveDir(R); };
 
   /**
    * moveUp and moveDown have almost identical algorithms:
@@ -253,42 +257,58 @@ Controller.open(function(_) {
    *       as close to directly above/below the current position as possible)
    *   + unless it's exactly `true`, stop bubbling
    */
-  _.moveUp = function() { return moveUpDown(this, 'up'); };
-  _.moveDown = function() { return moveUpDown(this, 'down'); };
-  function moveUpDown(self, dir) {
+  moveUp () { return this.moveUpDown('up'); };
+  moveDown () { return this.moveUpDown('down'); };
+  moveUpDown (dir:'up'|'down') {
+    var self = this;
     var cursor = self.notify('upDown').cursor;
-    var dirInto = dir+'Into', dirOutOf = dir+'OutOf';
-    if (cursor[R][dirInto]) cursor.insAtLeftEnd(cursor[R][dirInto]);
-    else if (cursor[L][dirInto]) cursor.insAtRightEnd(cursor[L][dirInto]);
+    var dirInto:'upInto' | 'downInto';
+    var dirOutOf:'upOutOf' | 'downOutOf';
+
+    if (dir === 'up') {
+      dirInto = 'upInto';
+      dirOutOf = 'upOutOf';
+    } else {
+      dirInto = 'downInto';
+      dirOutOf = 'downOutOf';
+    }
+
+    var cursorL = cursor[L];
+    var cursorR = cursor[R];
+    var cursorR_dirInto = cursorR && cursorR[dirInto];
+    var cursorL_dirInto = cursorL && cursorL[dirInto];
+
+    if (cursorR_dirInto) cursor.insAtLeftEnd(cursorR_dirInto);
+    else if (cursorL_dirInto) cursor.insAtRightEnd(cursorL_dirInto);
     else {
-      cursor.parent.bubble(function(ancestor) {
+      cursor.parent.bubble(function(ancestor:MQNode) { // TODO - revist this
         var prop = ancestor[dirOutOf];
         if (prop) {
-          if (typeof prop === 'function') prop = ancestor[dirOutOf](cursor);
-          if (prop instanceof Node) cursor.jumpUpDown(ancestor, prop);
-          if (prop !== true) return false;
+          if (typeof prop === 'function') prop = prop.call(ancestor,cursor) as any; // TODO - figure out if we need to assign to prop
+          if (prop instanceof MQNode) cursor.jumpUpDown(ancestor, prop);
+          if (prop as any !== true) return false; // TODO - figure out how this can return true
         }
+        return undefined;
       });
     }
     return self;
   }
-  this.onNotify(function(e) { if (e !== 'upDown') this.upDownCache = {}; });
-
-  this.onNotify(function(e) { if (e === 'edit') this.show().deleteSelection(); });
-  _.deleteDir = function(dir) {
+  deleteDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor;
-    var cursorEl = cursor[dir], cursorElParent = cursor.parent.parent;
-    if(cursorEl && cursorEl instanceof Node) {
-      if(cursorEl.sides) {
-        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir].ch).mathspeak({createdLeftOf: cursor}));
+    var cursorEl = cursor[dir] as MQNode;
+    var cursorElParent = cursor.parent.parent;
+    
+    if(cursorEl && cursorEl instanceof MQNode) {
+      if(cursorEl.sides ) {
+        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir as Direction].ch).mathspeak({createdLeftOf: cursor}));
       // generally, speak the current element if it has no blocks,
       // but don't for text block commands as the deleteTowards method
       // in the TextCommand class is responsible for speaking the new character under the cursor.
       } else if (!cursorEl.blocks && cursorEl.parent.ctrlSeq !== '\\text') {
         aria.queue(cursorEl);
       }
-    } else if(cursorElParent && cursorElParent instanceof Node) {
+    } else if(cursorElParent && cursorElParent instanceof MQNode) {
       if(cursorElParent.sides) {
         aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
       } else if (cursorElParent.blocks && cursorElParent.mathspeakTemplate) {
@@ -307,17 +327,23 @@ Controller.open(function(_) {
     var hadSelection = cursor.selection;
     this.notify('edit'); // deletes selection if present
     if (!hadSelection) {
-      if (cursor[dir]) cursor[dir].deleteTowards(dir, cursor);
+      const cursorDir = cursor[dir];
+      if (cursorDir) cursorDir.deleteTowards(dir, cursor);
       else cursor.parent.deleteOutOf(dir, cursor);
     }
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node) { node.reflow(); });
+    const cursorL = cursor[L] as MQNode;
+    const cursorR = cursor[R] as MQNode;
+    if (cursorL.siblingDeleted) cursorL.siblingDeleted(cursor.options, R);
+    if (cursorR.siblingDeleted) cursorR.siblingDeleted(cursor.options, L);
+    cursor.parent.bubble(function (node) {
+       (node as MQNode).reflow();
+       return undefined;
+    });
 
     return this;
   };
-  _.ctrlDeleteDir = function(dir) {
+  ctrlDeleteDir (dir:Direction) {
     prayDirection(dir);
     var cursor = this.cursor;
     if (!cursor[dir] || cursor.selection) return this.deleteDir(dir);
@@ -325,26 +351,30 @@ Controller.open(function(_) {
     this.notify('edit');
     var fragRemoved;
     if (dir === L) {
-      fragRemoved = Fragment(cursor.parent.ends[L], cursor[L]);
+      fragRemoved = new Fragment((cursor.parent as MQNode).ends[L] as MQNode, cursor[L] as MQNode);
     } else {
-      fragRemoved = Fragment(cursor[R], cursor.parent.ends[R]);
+      fragRemoved = new Fragment(cursor[R] as MQNode, (cursor.parent as MQNode).ends[R] as MQNode);
     }
     aria.queue(fragRemoved);
     fragRemoved.remove();
 
     cursor.insAtDirEnd(dir, cursor.parent);
 
-    if (cursor[L].siblingDeleted) cursor[L].siblingDeleted(cursor.options, R);
-    if (cursor[R].siblingDeleted) cursor[R].siblingDeleted(cursor.options, L);
-    cursor.parent.bubble(function (node) { node.reflow(); });
+    const cursorL = cursor[L];
+    const cursorR = cursor[R];
+    if (cursorL) cursorL.siblingDeleted(cursor.options, R);
+    if (cursorR) cursorR.siblingDeleted(cursor.options, L);
+    cursor.parent.bubble(function (node) {
+      (node as MQNode).reflow();
+      return undefined;
+    });
 
     return this;
   };
-  _.backspace = function() { return this.deleteDir(L); };
-  _.deleteForward = function() { return this.deleteDir(R); };
+  backspace () { return this.deleteDir(L); };
+  deleteForward () { return this.deleteDir(R); };
 
-  this.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
-  _.selectDir = function(dir) {
+  selectDir (dir:Direction) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
 
@@ -355,7 +385,7 @@ Controller.open(function(_) {
       // "if node we're selecting towards is inside selection (hence retracting)
       // and is on the *far side* of the selection (hence is only node selected)
       // and the anticursor is *inside* that node, not just on the other side"
-      if (seln && seln.ends[dir] === node && cursor.anticursor[-dir] !== node) {
+      if (seln && seln.ends[dir] === node && (cursor.anticursor as Anticursor)[-dir as Direction] !== node) {
         node.unselectInto(dir, cursor);
       }
       else node.selectTowards(dir, cursor);
@@ -364,8 +394,11 @@ Controller.open(function(_) {
 
     cursor.clearSelection();
     cursor.select() || cursor.show();
-    if (cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
+    var selection = cursor.selection;
+    if (selection) {
+      aria.clear().queue(selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
+    }
   };
-  _.selectLeft = function() { return this.selectDir(L); };
-  _.selectRight = function() { return this.selectDir(R); };
-});
+  selectLeft () { return this.selectDir(L); };
+  selectRight () { return this.selectDir(R); };
+};

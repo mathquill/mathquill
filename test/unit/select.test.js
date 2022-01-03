@@ -1,9 +1,9 @@
 suite('Cursor::select()', function() {
-  var cursor = Cursor();
+  var cursor = new Cursor();
   cursor.selectionChanged = noop;
 
   function assertSelection(A, B, leftEnd, rightEnd) {
-    var lca = leftEnd.parent, frag = Fragment(leftEnd, rightEnd || leftEnd);
+    var lca = leftEnd.parent, frag = new Fragment(leftEnd, rightEnd || leftEnd);
 
     (function eitherOrder(A, B) {
 
@@ -12,12 +12,12 @@ suite('Cursor::select()', function() {
         count += 1;
         assert.equal(frag.ends[L], leftEnd);
         assert.equal(frag.ends[R], rightEnd);
-        return Node.p.selectChildren.apply(this, arguments);
+        return MQNode.prototype.selectChildren.apply(this, arguments);
       };
 
-      Point.p.init.call(cursor, A.parent, A[L], A[R]);
+      Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
       cursor.startSelection();
-      Point.p.init.call(cursor, B.parent, B[L], B[R]);
+      Point.prototype.init.call(cursor, B.parent, B[L], B[R]);
       assert.equal(cursor.select(), true);
       assert.equal(count, 1);
 
@@ -25,17 +25,17 @@ suite('Cursor::select()', function() {
     }(A, B)(B, A));
   }
 
-  var parent = Node();
-  var child1 = Node().adopt(parent, parent.ends[R], 0);
-  var child2 = Node().adopt(parent, parent.ends[R], 0);
-  var child3 = Node().adopt(parent, parent.ends[R], 0);
-  var A = Point(parent, 0, child1);
-  var B = Point(parent, child1, child2);
-  var C = Point(parent, child2, child3);
-  var D = Point(parent, child3, 0);
-  var pt1 = Point(child1, 0, 0);
-  var pt2 = Point(child2, 0, 0);
-  var pt3 = Point(child3, 0, 0);
+  var parent = new MQNode();
+  var child1 = new MQNode().adopt(parent, parent.ends[R], 0);
+  var child2 = new MQNode().adopt(parent, parent.ends[R], 0);
+  var child3 = new MQNode().adopt(parent, parent.ends[R], 0);
+  var A = new Point(parent, 0, child1);
+  var B = new Point(parent, child1, child2);
+  var C = new Point(parent, child2, child3);
+  var D = new Point(parent, child3, 0);
+  var pt1 = new Point(child1, 0, 0);
+  var pt2 = new Point(child2, 0, 0);
+  var pt3 = new Point(child3, 0, 0);
 
   test('same parent, one Node', function() {
     assertSelection(A, B, child1);
@@ -75,22 +75,22 @@ suite('Cursor::select()', function() {
   });
 
   test('same Point', function() {
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();
     assert.equal(cursor.select(), false);
   });
 
   test('different trees', function() {
-    var anotherTree = Node();
+    var anotherTree = new MQNode();
 
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();
-    Point.p.init.call(cursor, anotherTree, 0, 0);
+    Point.prototype.init.call(cursor, anotherTree, 0, 0);
     assert.throws(function() { cursor.select(); });
 
-    Point.p.init.call(cursor, anotherTree, 0, 0);
+    Point.prototype.init.call(cursor, anotherTree, 0, 0);
     cursor.startSelection();
-    Point.p.init.call(cursor, A.parent, A[L], A[R]);
+    Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     assert.throws(function() { cursor.select(); });
   });
 });

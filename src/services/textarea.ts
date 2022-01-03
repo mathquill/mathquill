@@ -2,24 +2,27 @@
  * Manage the MathQuill instance's textarea
  * (as owned by the Controller)
  ********************************************/
+Options.prototype.substituteTextarea = function() {
+  return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+             'spellcheck=false x-palm-disable-ste-all=true/>')[0];
+};
+Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
-Controller.open(function(_) {
-  Options.p.substituteTextarea = function() {
-    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-               'spellcheck=false x-palm-disable-ste-all=true/>')[0];
-  };
-  _.createTextarea = function() {
+class Controller extends Controller_scrollHoriz {
+  selectFn: (text:string) => void;
+
+  createTextarea () {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
       textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    textarea = this.textarea = $(textarea).appendTo(textareaSpan);
+    this.textarea = $(textarea).appendTo(textareaSpan);
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
   };
-  _.selectionChanged = function() {
+  selectionChanged () {
     var ctrlr = this;
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
@@ -27,14 +30,14 @@ Controller.open(function(_) {
     // https://github.com/mathquill/mathquill/issues/43#issuecomment-1399080
     //
     // Note, this timeout may be cleared by the blur handler in focusBlur.js
-    if (ctrlr.textareaSelectionTimeout === undefined) {
+    if (!ctrlr.textareaSelectionTimeout) {
       ctrlr.textareaSelectionTimeout = setTimeout(function() {
         ctrlr.setTextareaSelection();
       });
     }
   };
-  _.setTextareaSelection = function() {
-    this.textareaSelectionTimeout = undefined;
+  setTextareaSelection () {
+    this.textareaSelectionTimeout = 0;
     var latex = '';
     if (this.cursor.selection) {
       //cleanLatex prunes unnecessary spaces. defined in latex.js
@@ -46,9 +49,11 @@ Controller.open(function(_) {
     }
     this.selectFn(latex);
   };
-  _.staticMathTextareaEvents = function() {
-    var ctrlr = this, cursor = ctrlr.cursor,
-      textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+  staticMathTextareaEvents () {
+    var ctrlr = this
+    var cursor = ctrlr.cursor
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     this.container.prepend(jQuery('<span aria-hidden="true" class="mq-selectable">')
       .text('$'+ctrlr.exportLatex()+'$'));
@@ -70,27 +75,29 @@ Controller.open(function(_) {
       ctrlr.blurred = true;
     }
 
-    ctrlr.selectFn = function(text) {
+    ctrlr.selectFn = function(text:string) {
       textarea.val(text);
       if (text) textarea.select();
     };
     this.updateMathspeak();
   };
-  Options.p.substituteKeyboardEvents = saneKeyboardEvents;
-  _.editablesTextareaEvents = function() {
-    var ctrlr = this, textarea = ctrlr.textarea, textareaSpan = ctrlr.textareaSpan;
+  editablesTextareaEvents () {
+    var ctrlr = this;
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
-    this.selectFn = function(text) { keyboardEventsShim.select(text); };
+    this.selectFn = function(text:string) { keyboardEventsShim.select(text); };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
     this.updateMathspeak();
   };
-  _.unbindEditablesEvents = function() {
-    var ctrlr = this, textarea = ctrlr.textarea,
-      textareaSpan = ctrlr.textareaSpan;
+  unbindEditablesEvents () {
+    var ctrlr = this
+    const textarea = ctrlr.getTextareaOrThrow();
+    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-      this.selectFn = function(text) {
+      this.selectFn = function(text:string) {
         textarea.val(text);
         if (text) textarea.select();
       };
@@ -101,28 +108,31 @@ Controller.open(function(_) {
       ctrlr.blurred = true;
       textarea.bind('cut paste', false);
   };
-  _.typedText = function(ch) {
+  typedText (ch:string) {
     if (ch === '\n') return this.handle('enter');
-    var cursor = this.notify().cursor;
+    var cursor = this.notify(undefined).cursor;
     cursor.parent.write(cursor, ch);
     this.scrollHoriz();
   };
-  _.cut = function() {
+  cut () {
     var ctrlr = this, cursor = ctrlr.cursor;
     if (cursor.selection) {
       setTimeout(function() {
         ctrlr.notify('edit'); // deletes selection if present
-        cursor.parent.bubble(function (node) { node.reflow(); });
+        cursor.parent.bubble(function (node) {
+          (node as MQNode).reflow();
+          return undefined;
+        });
         if (ctrlr.options && ctrlr.options.onCut) {
           ctrlr.options.onCut();
         }
       });
     }
   };
-  _.copy = function() {
+  copy () {
     this.setTextareaSelection();
   };
-  _.paste = function(text) {
+  paste (text:string) {
     // TODO: document `statelessClipboard` config option in README, after
     // making it work like it should, that is, in both text and math mode
     // (currently only works in math fields, so worse than pointless, it
@@ -143,7 +153,7 @@ Controller.open(function(_) {
       this.options.onPaste();
     }
   };
-  _.updateMathspeak = function() {
+  updateMathspeak () {
     var ctrlr = this;
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
     var ariaLabel = ctrlr.getAriaLabel();
@@ -153,6 +163,8 @@ Controller.open(function(_) {
         : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
     aria.jQ.empty();
+
+    const textarea = ctrlr.getTextareaOrThrow();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.
     // For editable math, assign the mathspeak to the textarea's ARIA label (AT can use text navigation to interrogate the content).
     // Be certain to include the mathspeak for only one of these, though, as we don't want to include outdated labels if a field's editable state changes.
@@ -160,13 +172,13 @@ Controller.open(function(_) {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      ctrlr.textarea.attr('aria-label', '');
+      textarea.attr('aria-label', '');
       ctrlr.mathspeakSpan.text((labelWithSuffix+' ' + mathspeak).trim());
     } else {
-      ctrlr.textarea.attr(
+      textarea.attr(
         'aria-label',
         (labelWithSuffix+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
     }
   };
-});
+};
