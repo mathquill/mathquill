@@ -15,7 +15,7 @@ ControllerBase.onNotify(function (cursor, e) {
   }
 });
 
-class Controller_focusBlur extends Controller_exportLatex {
+class Controller_focusBlur extends Controller_exportText {
   blurred:boolean;
   __disableGroupingTimeout:number;
   textareaSelectionTimeout:number;
