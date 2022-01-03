@@ -288,7 +288,7 @@ class SupSub extends MathCommand {
     }
   };
   finalizeTree () {
-    var endsL = this.ends[L] as MQNode; // TODO - already assuming endsL defined
+    var endsL = this.ends[L] as MQNode;
     endsL.write = function(cursor:Cursor, ch:string) {
       if (cursor.options.autoSubscriptNumerals && this === (this.parent as SupSub).sub) {
         if (ch === '_') return;
@@ -363,7 +363,7 @@ class SupSub extends MathCommand {
 
     // like 'sub sup'.split(' ').forEach(function(supsub) { ... });
     for (var i = 0; i < 2; i += 1) (function(cmd:SupSub, supsub:'sup'|'sub', oppositeSupsub:'sup'|'sub', updown:'up'|'down') {
-      const cmdSubSub = cmd[supsub]!; // TODO - already assuming defined
+      const cmdSubSub = cmd[supsub]!;
       cmdSubSub.deleteOutOf = function(dir:Direction, cursor:Cursor) {
         cursor.insDirOf((this[dir] ? (-dir as Direction) : dir), this.parent);
         if (!this.isEmpty()) {

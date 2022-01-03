@@ -82,7 +82,6 @@ var latexMathParser = (function() {
     ).skip(string(']'))
   ;
 
-  // TODO - this is super gross
   var latexMath:typeof mathSequence & {
     block: typeof mathBlock;
     optBlock: typeof optMathBlock

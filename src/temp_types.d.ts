@@ -112,9 +112,9 @@ interface $ {
     scrollTop():number;
     closest(selector:JQSelector): $;
     outerWidth():number;
-    offset():{left:number, top:number} // TODO - this can be undefined
+    offset():{left:number, top:number} // TODO - this can be undefined. Either fix uses or wait until removing jquery
     length: number;
-    [index:number]:HTMLElement; // TODO - this can be undefined....
+    [index:number]:HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
     get():HTMLElement[];
     get(index:number):HTMLElement;
     contents():$;

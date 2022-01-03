@@ -207,9 +207,8 @@ class NodeBase {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ:$ = $(el || this.html());
 
-    function jQadd(el:HTMLElement) {
-
-      if (el.getAttribute) {
+    function jQadd(el:HTMLElement | ChildNode) {
+      if ('getAttribute' in el) {
         var cmdId = el.getAttribute('mathquill-command-id');
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
@@ -227,7 +226,7 @@ class NodeBase {
         }
       }
       for (var child = el.firstChild; child; child = child.nextSibling) {
-        jQadd(child as HTMLElement); // TODO - revist cast
+        jQadd(child);
       }
     }
 
@@ -357,17 +356,17 @@ class NodeBase {
   }
 
   // Overridden by child classes
-  parser ():Parser<MQNode> { return undefined as any }; // TODO - is Parser<MQNode> correct?
+  parser ():Parser<MQNode> { return undefined as any };
   html ():string { return '' };
   text ():string { return '' };
   latex ():string { return '' };
   finalizeTree (_options:CursorOptions, _dir?: Direction) { };
-  contactWeld (_cursor?:Cursor|CursorOptions, _dir?:Direction) { }; // TODO - this type definition is insane. Cleanup implementation?
+  contactWeld (_cursor?:Cursor|CursorOptions, _dir?:Direction) { };
   blur (_cursor?:Cursor) { };
   focus () {};
   intentionalBlur () { };
   reflow () { };
-  registerInnerField (_innerFields:InnerFields, _mathField:InnerMathField) { }; // TODO - I really don't think this belongs on the base node
+  registerInnerField (_innerFields:InnerFields, _mathField:InnerMathField) { };
   chToCmd (_ch:string, _options?:CursorOptions):this { return undefined as any};
   mathspeak (_options?:MathspeakOptions) { return '' };
   seek (_pageX:number, _cursor:Cursor) {};
