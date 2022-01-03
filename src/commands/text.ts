@@ -419,7 +419,7 @@ class RootMathCommand extends MathCommand {
         MathBlock.prototype.write.call(this, cursor, ch);
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
-        this.parent.deleteTowards(undefined!, cursor); // TODO - before refactor this referenced undeclared "dir" variable.
+        this.parent.deleteTowards(undefined!, cursor);
         new VanillaSymbol('\\$','$').createLeftOf(cursor.show());
       }
       else if (!cursor[R])

@@ -152,7 +152,7 @@ LatexCmds.textcolor = class extends MathCommand {
     this.mathspeakTemplate = ['Start ' + this.ariaLabel + ',', 'End ' + this.ariaLabel];
   };
   latex () {
-    var blocks0 = this.blocks![0]; // TODO - already assumed this.blocks is defined
+    var blocks0 = this.blocks![0];
     return '\\textcolor{' + this.color + '}{' + blocks0.latex() + '}';
   };
   parser () {
@@ -198,7 +198,7 @@ var Class = LatexCmds['class'] = class extends MathCommand {
     ;
   };
   latex () {
-    var blocks0 = this.blocks![0]; // TODO - already assumed this.blocks defined
+    var blocks0 = this.blocks![0];
     return '\\class{' + this.cls + '}{' + blocks0.latex() + '}';
   };
   isStyleBlock () {
@@ -376,7 +376,7 @@ class SupSub extends MathCommand {
         cmd.supsub = oppositeSupsub;
         delete cmd[supsub];
         delete cmd[`${updown}Into`];
-        const cmdOppositeSupsub = cmd[oppositeSupsub]!; //TODO - already assumed defined
+        const cmdOppositeSupsub = cmd[oppositeSupsub]!;
         cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
         delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
         if (supsub === 'sub') $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();

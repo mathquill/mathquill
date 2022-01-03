@@ -120,7 +120,7 @@ class Controller extends Controller_scrollHoriz {
       setTimeout(function() {
         ctrlr.notify('edit'); // deletes selection if present
         cursor.parent.bubble(function (node) {
-          (node as MQNode).reflow(); // TODO - already assumed node defined
+          (node as MQNode).reflow();
           return undefined;
         });
         if (ctrlr.options && ctrlr.options.onCut) {

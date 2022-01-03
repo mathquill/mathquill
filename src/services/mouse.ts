@@ -48,7 +48,7 @@ class Controller_mouse extends Controller_latex {
       function mousemove(e:Event) { target = $(e.target); }
       function docmousemove(e:MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target!, e.pageX, e.pageY).cursor.select(); // TODO- assuming target is defined
+        ctrlr.seek(target!, e.pageX, e.pageY).cursor.select();
         if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
         target = undefined;
       }

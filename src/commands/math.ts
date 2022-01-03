@@ -122,7 +122,7 @@ class MathCommand extends MathElement {
     cmd.createBlocks();
     super.createLeftOf(cursor);
     if (replacedFragment) {
-      const cmdEndsL = cmd.ends[L] as MQNode; // TODO - already assumed defined
+      const cmdEndsL = cmd.ends[L] as MQNode;
       replacedFragment.adopt(cmdEndsL, 0, 0);
       replacedFragment.jQ.appendTo(cmdEndsL.jQ);
       cmd.placeCursor(cursor);
@@ -144,7 +144,7 @@ class MathCommand extends MathElement {
   placeCursor (cursor:Cursor) {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
-    cursor.insAtRightEnd(this.foldChildren(this.ends[L] as MQNode, function(leftward, child) { // TODO - already assumed was defined
+    cursor.insAtRightEnd(this.foldChildren(this.ends[L] as MQNode, function(leftward, child) {
       return leftward.isEmpty() ? leftward : child;
     }));
   };
@@ -160,7 +160,7 @@ class MathCommand extends MathElement {
       updownInto = this.downInto;
     }
     
-    const el = (updownInto || this.ends[-dir as Direction]) as MQNode; // TODO - was already assuming node defined
+    const el = (updownInto || this.ends[-dir as Direction]) as MQNode;
     cursor.insAtDirEnd(-dir as Direction, el);
     aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
   };
@@ -176,8 +176,8 @@ class MathCommand extends MathElement {
     return new MQSelection(this, this);
   };
   unselectInto (dir:Direction, cursor:Cursor) {
-    const antiCursor = cursor.anticursor as Anticursor; // TODO - already assumed was defined
-    const ancestor = antiCursor.ancestors[this.id] as MQNode; // TODO -already assumed was defined
+    const antiCursor = cursor.anticursor as Anticursor;
+    const ancestor = antiCursor.ancestors[this.id] as MQNode;
     cursor.insAtDirEnd(-dir as Direction, ancestor);
   };
   seek (pageX:number, cursor:Cursor) {
@@ -202,7 +202,7 @@ class MathCommand extends MathElement {
       if (pageX < blockBounds[L]) {
         // closer to this block's left bound, or the bound left of that?
         if (pageX - leftLeftBound < blockBounds[L] - pageX) {
-          if (block[L]) cursor.insAtRightEnd(block[L] as MQNode); // TODO - assumed block[L] is defined
+          if (block[L]) cursor.insAtRightEnd(block[L] as MQNode);
           else cursor.insLeftOf(cmd);
         }
         else cursor.insAtLeftEnd(block);
@@ -255,7 +255,7 @@ class MathCommand extends MathElement {
     your HTML template would have to have '&amp;123'.
   */
   numBlocks () {
-    var matches = (this.htmlTemplate as string).match(/&\d+/g); //TODO - already assumed defined
+    var matches = (this.htmlTemplate as string).match(/&\d+/g);
     return matches ? matches.length : 0;
   };
   html () {
@@ -295,9 +295,9 @@ class MathCommand extends MathElement {
     //   production without pray(), because it will then TypeError on .slice().
 
     var cmd = this;
-    var blocks = cmd.blocks as MathBlock[]; // TODO - assumed blocks is defined
+    var blocks = cmd.blocks as MathBlock[];
     var cmdId = ' mathquill-command-id=' + cmd.id;
-    var tokens = (cmd.htmlTemplate as string).match(/<[^<>]+>|[^<>]+/g) as string[]; //TODO - already assuming htmlTemplate defined and that matches exist
+    var tokens = (cmd.htmlTemplate as string).match(/<[^<>]+>|[^<>]+/g) as string[];
 
     pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
@@ -525,7 +525,7 @@ class MathBlock extends MathElement {
 
     if (!updownInto && this[dir]) {
       const otherDir = -dir as Direction;
-      cursor.insAtDirEnd(otherDir, this[dir] as MQNode); // TODO - already assumed this[dir] is node
+      cursor.insAtDirEnd(otherDir, this[dir] as MQNode);
       aria.queueDirEndOf(otherDir).queue(cursor.parent, true);
     }
     else {
@@ -545,9 +545,9 @@ class MathBlock extends MathElement {
       return cursor.insAtRightEnd(this);
     }
 
-    var endsL = this.ends[L] as MQNode; // TODO - already assuming node defined
+    var endsL = this.ends[L] as MQNode;
     if (pageX < endsL.jQ.offset().left) return cursor.insAtLeftEnd(this);
-    while (pageX < node.jQ.offset().left) node = node[L] as MQNode; // TODO - already assuming node defined
+    while (pageX < node.jQ.offset().left) node = node[L] as MQNode;
     return node.seek(pageX, cursor);
   };
   chToCmd (ch:string, options:CursorOptions) {
@@ -602,8 +602,8 @@ class MathBlock extends MathElement {
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.ends[R];
       var blockEndsL = block.ends[L];
-      var blockEndsRR = (blockEndsR as MQNode)[R]; // TODO - already assuminig defined
-      var blockEndsLL = (blockEndsL as MQNode)[L]; // TODO - already assuming defnied
+      var blockEndsRR = (blockEndsR as MQNode)[R];
+      var blockEndsLL = (blockEndsL as MQNode)[L];
       if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
       if (blockEndsLL) blockEndsLL.siblingCreated(cursor.options, R);
       cursor.parent.bubble(function (node) {

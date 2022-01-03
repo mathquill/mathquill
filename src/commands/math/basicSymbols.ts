@@ -795,7 +795,7 @@ class LatexFragment extends MathCommand {
   latexStr:string;
 
   constructor (latex:string) {
-    super(); // TODO - added this super call but it didn't exist before typeescript conversion
+    super();
     this.latexStr = latex;
   }
   

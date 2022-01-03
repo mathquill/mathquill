@@ -162,9 +162,9 @@ var saneKeyboardEvents = (function() {
 
     function handleKey() {
       if (controller.options && controller.options.overrideKeystroke) {
-        controller.options.overrideKeystroke(stringify(keydown!), keydown!); // TODO - already assumed keydown was defined
+        controller.options.overrideKeystroke(stringify(keydown!), keydown!);
       } else {
-        controller.keystroke(stringify(keydown!), keydown!); // TODO - already assumed keydown was defined
+        controller.keystroke(stringify(keydown!), keydown!);
       }
     }
 

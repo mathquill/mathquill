@@ -50,10 +50,10 @@ class Cursor extends Point {
     else { //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
         var selection = this.selection;
-        if ( selection && (selection.ends[L] as MQNode)[L] === this[L]) // TODO - already assumed selection and selection.ends[L] is defined
+        if ( selection && (selection.ends[L] as MQNode)[L] === this[L])
           this.jQ.insertBefore(selection.jQ);
         else
-          this.jQ.insertBefore((this[R] as MQNode).jQ.first()); // TODO - already assumed this[R] is defined
+          this.jQ.insertBefore((this[R] as MQNode).jQ.first());
       }
       else
         this.jQ.appendTo(this.parent.jQ);
@@ -84,7 +84,7 @@ class Cursor extends Point {
   insDirOf (dir:Direction, el:MQNode) {
     prayDirection(dir);
     this.jQ.insDirOf(dir, el.jQ);
-    this.withDirInsertAt(dir, el.parent, el[dir], el); // TODO - already assumed el[dir] defined
+    this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
     return this;
   };
@@ -206,7 +206,7 @@ class Cursor extends Point {
   };
   select () {
     var _lca;
-    var anticursor = this.anticursor!; //TODO - already assumed anticursor was defined
+    var anticursor = this.anticursor!;
     if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
 
     // Find the lowest common ancestor (`lca`), and the ancestor of the cursor
@@ -218,7 +218,7 @@ class Cursor extends Point {
       }
     }
     pray('cursor and anticursor in the same tree', _lca);
-    var lca = _lca as MQNode; // TODO - already assumed _lca is node after maknig past pray()
+    var lca = _lca as MQNode;
 
     // The cursor and the anticursor should be in the same tree, because the
     // mousemove handler attached to the document, unlike the one attached to
@@ -228,7 +228,7 @@ class Cursor extends Point {
 
     // The other end of the selection fragment, the ancestor of the anticursor
     // whose parent is the LCA.
-    var antiAncestor = anticursor.ancestors[lca.id] as MQNode; // TODO - already assumed node was defined
+    var antiAncestor = anticursor.ancestors[lca.id] as MQNode;
 
     // Now we have two either Nodes or Points, guaranteed to have a common
     // parent and guaranteed that if both are Points, they are not the same,
@@ -265,9 +265,9 @@ class Cursor extends Point {
     if (leftEnd instanceof Point) leftEnd = leftEnd[R];
     if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
-    this.hide().selection = lca.selectChildren(leftEnd as MQNode, rightEnd as MQNode); // TODO - already assumed nodes defined
+    this.hide().selection = lca.selectChildren(leftEnd as MQNode, rightEnd as MQNode);
 
-    var insEl = this.selection!.ends[dir] as MQNode; //TODO - already assumed selection exists and end is defined
+    var insEl = this.selection!.ends[dir] as MQNode;
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -291,8 +291,8 @@ class Cursor extends Point {
     var selection = this.selection;
     if (!selection) return;
 
-    this[L] = (selection.ends[L] as MQNode)[L]; // TODO - already assumed was defined
-    this[R] = (selection.ends[R] as MQNode)[R]; // TODO - already assumed was defined
+    this[L] = (selection.ends[L] as MQNode)[L];
+    this[R] = (selection.ends[R] as MQNode)[R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
@@ -300,8 +300,8 @@ class Cursor extends Point {
   replaceSelection () {
     var seln = this.selection;
     if (seln) {
-      this[L] = (seln.ends[L] as MQNode)[L]; //TODO - already assumed was defined
-      this[R] = (seln.ends[R] as MQNode)[R]; //TODO - already assumed was defined
+      this[L] = (seln.ends[L] as MQNode)[L];
+      this[R] = (seln.ends[R] as MQNode)[R];
       delete this.selection;
     }
     return seln;

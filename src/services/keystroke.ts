@@ -98,7 +98,7 @@
       } else {
         ctrlr.selectLeft();
       }
-      break; // TODO - added this break, but should I have? Seems so...
+      break;
 
     case 'Shift-Down':
       if (cursor[R]) {
@@ -107,7 +107,7 @@
       else {
         ctrlr.selectRight();
       }
-      break; // TODO - added this break, but should I have? Seems so...
+      break;
 
     case 'Ctrl-Up': break;
     case 'Ctrl-Down': break;
@@ -235,7 +235,7 @@ class Controller_keystroke extends Controller_focusBlur {
     var cursorDir = cursor[dir];
 
     if (cursor.selection) {
-      cursor.insDirOf(dir, cursor.selection.ends[dir] as MQNode); // TODO - already assumed end is defined
+      cursor.insDirOf(dir, cursor.selection.ends[dir] as MQNode);
     }
     else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
@@ -332,12 +332,12 @@ class Controller_keystroke extends Controller_focusBlur {
       else cursor.parent.deleteOutOf(dir, cursor);
     }
 
-    const cursorL = cursor[L] as MQNode; // TODO - already assumed defined
-    const cursorR = cursor[R] as MQNode; // TODO - already assumed defined
+    const cursorL = cursor[L] as MQNode;
+    const cursorR = cursor[R] as MQNode;
     if (cursorL.siblingDeleted) cursorL.siblingDeleted(cursor.options, R);
     if (cursorR.siblingDeleted) cursorR.siblingDeleted(cursor.options, L);
     cursor.parent.bubble(function (node) {
-       (node as MQNode).reflow(); // TODO - already assumed defined
+       (node as MQNode).reflow();
        return undefined;
     });
 
@@ -351,9 +351,9 @@ class Controller_keystroke extends Controller_focusBlur {
     this.notify('edit');
     var fragRemoved;
     if (dir === L) {
-      fragRemoved = new Fragment((cursor.parent as MQNode).ends[L] as MQNode, cursor[L] as MQNode); // TODO - already assuminig all are defined
+      fragRemoved = new Fragment((cursor.parent as MQNode).ends[L] as MQNode, cursor[L] as MQNode);
     } else {
-      fragRemoved = new Fragment(cursor[R] as MQNode, (cursor.parent as MQNode).ends[R] as MQNode); // TODO - already assuming all are defined
+      fragRemoved = new Fragment(cursor[R] as MQNode, (cursor.parent as MQNode).ends[R] as MQNode);
     }
     aria.queue(fragRemoved);
     fragRemoved.remove();
@@ -365,7 +365,7 @@ class Controller_keystroke extends Controller_focusBlur {
     if (cursorL) cursorL.siblingDeleted(cursor.options, R);
     if (cursorR) cursorR.siblingDeleted(cursor.options, L);
     cursor.parent.bubble(function (node) {
-      (node as MQNode).reflow();  // TODO - already assumed was defined
+      (node as MQNode).reflow();
       return undefined;
     });
 
@@ -385,7 +385,7 @@ class Controller_keystroke extends Controller_focusBlur {
       // "if node we're selecting towards is inside selection (hence retracting)
       // and is on the *far side* of the selection (hence is only node selected)
       // and the anticursor is *inside* that node, not just on the other side"
-      if (seln && seln.ends[dir] === node && (cursor.anticursor as Anticursor)[-dir as Direction] !== node) { // TODO - already assumed anticursor is defined
+      if (seln && seln.ends[dir] === node && (cursor.anticursor as Anticursor)[-dir as Direction] !== node) {
         node.unselectInto(dir, cursor);
       }
       else node.selectTowards(dir, cursor);

@@ -85,7 +85,7 @@ function eachNode (ends:Ends, yield_:(el:MQNode) => boolean | undefined) {
   if (!stop) return; //shouldn't happen because ends[L] is defined;
   stop = stop[R];
 
-  // TODO - this cas as MQNode is actually important to keep tests passing. I went to
+  // TODO - this cast as MQNode is actually important to keep tests passing. I went to
   // fix this code to gracefully handle an undefined el and there are tests that actually
   // verify that this will throw an error. So I'm keeping the behavior but ignoring the
   // type error.
@@ -103,7 +103,7 @@ function foldNodes <T>(ends:Ends, fold:T, yield_:(fold:T, el:MQNode) => T):T {
   if (!stop) return fold; //shouldn't happen because ends[L] is defined;
   stop = stop[R];
 
-  // TODO - this cas as MQNode is actually important to keep tests passing. I went to
+  // TODO - this cast as MQNode is actually important to keep tests passing. I went to
   // fix this code to gracefully handle an undefined el and there are tests that actually
   // verify that this will throw an error. So I'm keeping the behavior but ignoring the
   // type error.
@@ -174,7 +174,7 @@ class NodeBase {
   [L]:NodeRef = 0;
   [R]:NodeRef = 0;
 
-  //TODO - can this ever actually stay 0? if so we need to add null checks
+  // TODO - can this ever actually stay 0? if so we need to add null checks
   parent:MQNode = 0 as any as MQNode;
     
   ends:Ends = {[L]: 0, [R]: 0}
@@ -469,7 +469,7 @@ class Fragment {
     if (!leftEnd) return this;
 
     var rightEnd = self.ends[R];
-    if (!rightEnd) return this; // TODO - I added this, should I have?
+    if (!rightEnd) return this;
 
     if (leftward) {
       // NB: this is handled in the ::each() block
@@ -508,21 +508,21 @@ class Fragment {
     this.disowned = true;
 
     var rightEnd = self.ends[R]
-    if (!rightEnd) return self; // TODO - I added this, should I have?
+    if (!rightEnd) return self;
     var parent = leftEnd.parent;
 
     prayWellFormed(parent, leftEnd[L], leftEnd);
     prayWellFormed(parent, rightEnd, rightEnd[R]);
 
     if (leftEnd[L]) {
-      var leftLeftEnd = leftEnd[L] as MQNode; // TODO - code already assumed this was defined
+      var leftLeftEnd = leftEnd[L] as MQNode;
       leftLeftEnd[R] = rightEnd[R];
     } else {
       parent.ends[L] = rightEnd[R];
     }
 
     if (rightEnd[R]) {
-      var rightRightEnd = rightEnd[R] as MQNode; // TODO - code already assumed this was true
+      var rightRightEnd = rightEnd[R] as MQNode;
       rightRightEnd[L] = leftEnd[L];
     } else {
       parent.ends[R] = leftEnd[L];

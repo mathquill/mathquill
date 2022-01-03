@@ -51,7 +51,7 @@ var latexMathParser = (function() {
           var actualClass = cmdKlass as typeof TempSingleCharNode; // TODO - figure out how to know the difference
           return new actualClass(ctrlSeq).parser();
         } else {
-          var builder = cmdKlass as (c:string) => TempSingleCharNode; // TODO - figur out how to know the difference
+          var builder = cmdKlass as (c:string) => TempSingleCharNode; // TODO - figure out how to know the difference
           return builder(ctrlSeq).parser();
         }
       }
@@ -262,7 +262,7 @@ class Controller_latex extends Controller_keystroke {
         newNode[L] = root.ends[R];
         newNode[R] = 0;
 
-        const newNodeL = newNode[L] as MQNode; // TODO - we were already assuming defined
+        const newNodeL = newNode[L] as MQNode;
         newNodeL[R] = newNode;
         root.ends[R] = newNode;
       }
