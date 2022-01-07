@@ -451,7 +451,7 @@ var PlusMinus = P(BinaryOperator, function(_) {
 
       return 'mq-binary-operator';
     };
-    
+
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = determineOpClassType(this);
     return this;
@@ -526,3 +526,15 @@ LatexCmds['÷'] = LatexCmds.div = LatexCmds.divide = LatexCmds.divides =
   bind(BinaryOperator,'\\div ','&divide;', '[/]');
 
 CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
+
+for (var cmd in LatexCmds) {
+  if (LatexCmds.hasOwnProperty(cmd)) {
+    constructor = LatexCmds[cmd];
+    var block = constructor();
+    var findUnicodePattern = /&#(.*);/;
+    var arr = findUnicodePattern.exec(block.htmlTemplate);
+    if (arr && arr[1]) {
+        LatexCmds[String.fromCharCode(parseInt(arr[1]))] = constructor;
+    }
+  }
+}
