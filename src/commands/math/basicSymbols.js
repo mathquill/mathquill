@@ -278,27 +278,32 @@ LatexCmds['%'] = bind(NonSymbolaSymbol, '\\%', '%');
 //the following are all Greek to me, but this helped a lot: http://www.ams.org/STIX/ion/stixsig03.html
 
 //lowercase Greek letter variables
-LatexCmds.alpha =
-LatexCmds.beta =
-LatexCmds.gamma =
-LatexCmds.delta =
-LatexCmds.zeta =
-LatexCmds.eta =
-LatexCmds.theta =
-LatexCmds.iota =
-LatexCmds.kappa =
-LatexCmds.mu =
-LatexCmds.nu =
-LatexCmds.xi =
-LatexCmds.rho =
-LatexCmds.sigma =
-LatexCmds.tau =
-LatexCmds.chi =
-LatexCmds.psi =
-LatexCmds.omega = P(Variable, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
+var smallGreek = [
+'alpha',
+'beta',
+'gamma',
+'delta',
+'zeta',
+'eta',
+'theta',
+'iota',
+'kappa',
+'mu',
+'nu',
+'xi',
+'rho',
+'sigma',
+'tau',
+'chi',
+'psi',
+'omega'
+];
+smallGreek.forEach(function(symbol) {
+  LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
+  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
+  if (resolvedEntityInfo) {
+    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
+  }
 });
 
 //why can't anybody FUCKING agree on these
@@ -361,20 +366,25 @@ LatexCmds.Upsih = //'cos it makes sense to me
   bind(Symbol,'\\Upsilon ','<var style="font-family: serif">&upsih;</var>'); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
 //other symbols with the same LaTeX command and HTML character entity reference
-LatexCmds.Gamma =
-LatexCmds.Delta =
-LatexCmds.Theta =
-LatexCmds.Lambda =
-LatexCmds.Xi =
-LatexCmds.Pi =
-LatexCmds.Sigma =
-LatexCmds.Phi =
-LatexCmds.Psi =
-LatexCmds.Omega =
-LatexCmds.forall = P(VanillaSymbol, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this,'\\'+latex+' ','&'+latex+';');
-  };
+var bigGreek = [
+'Gamma',
+'Delta',
+'Theta',
+'Lambda',
+'Xi',
+'Pi',
+'Sigma',
+'Phi',
+'Psi',
+'Omega',
+'forall'
+];
+bigGreek.forEach(function(symbol) {
+  LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
+  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
+  if (resolvedEntityInfo) {
+    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
+  }
 });
 
 // symbols that aren't a single MathCommand, but are instead a whole
@@ -529,12 +539,23 @@ CharCmds['~'] = LatexCmds.sim = bind(BinaryOperator, '\\sim ', '~', '~');
 
 for (var cmd in LatexCmds) {
   if (LatexCmds.hasOwnProperty(cmd)) {
-    constructor = LatexCmds[cmd];
-    var block = constructor();
-    var findUnicodePattern = /&#(.*);/;
-    var arr = findUnicodePattern.exec(block.htmlTemplate);
-    if (arr && arr[1]) {
+      constructor = LatexCmds[cmd];
+      var block = constructor();
+      // find templates with a unicode character code
+      // we can programatically generate the character in a string
+      var findUnicodePattern = /&#(.*);/;
+      var arr = findUnicodePattern.exec(block.htmlTemplate);
+      if (arr && arr[1]) {
         LatexCmds[String.fromCharCode(parseInt(arr[1]))] = constructor;
-    }
+      } else {
+        var findHtmlEntityPattern = /&(.*);/;
+        var maybeEntity = findHtmlEntityPattern.exec(block.htmlTemplate);
+        if (maybeEntity && maybeEntity[1]) {
+          var entityInfoLookup = htmlEntities['&' + maybeEntity[1] + ';'];
+          if (entityInfoLookup) {
+              LatexCmds[entityInfoLookup.characters] = constructor;
+            }
+        }
+      }
   }
 }

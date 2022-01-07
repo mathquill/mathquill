@@ -2,14 +2,20 @@
  * Symbols for Advanced Mathematics
  ***********************************/
 
-LatexCmds.notin =
-LatexCmds.cong =
-LatexCmds.equiv =
-LatexCmds.oplus =
-LatexCmds.otimes = P(BinaryOperator, function(_, super_) {
-  _.init = function(latex) {
-    super_.init.call(this, '\\'+latex+' ', '&'+latex+';');
-  };
+var miscSymbols = [
+'notin',
+'cong',
+'equiv',
+'oplus',
+'otimes'
+];
+
+miscSymbols.forEach(function(symbol) {
+  LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
+  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
+  if (resolvedEntityInfo) {
+    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
+  }
 });
 
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
