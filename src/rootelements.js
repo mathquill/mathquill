@@ -246,6 +246,7 @@ var RootMathBlock = P(MathBlock, function(_, _super) {
 
     case 'Shift-Backspace':
     case 'Backspace':
+      this.cursor.selectLeft();
       this.cursor.backspace();
       break;
 
