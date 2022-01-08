@@ -300,10 +300,6 @@ var smallGreek = [
 ];
 smallGreek.forEach(function(symbol) {
   LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
-  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
-  if (resolvedEntityInfo) {
-    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
-  }
 });
 
 //why can't anybody FUCKING agree on these
@@ -381,10 +377,6 @@ var bigGreek = [
 ];
 bigGreek.forEach(function(symbol) {
   LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
-  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
-  if (resolvedEntityInfo) {
-    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
-  }
 });
 
 // symbols that aren't a single MathCommand, but are instead a whole

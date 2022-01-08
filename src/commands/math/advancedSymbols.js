@@ -12,10 +12,6 @@ var miscSymbols = [
 
 miscSymbols.forEach(function(symbol) {
   LatexCmds[symbol] = bind(VanillaSymbol, '\\' + symbol, '&' + symbol + ';');
-  resolvedEntityInfo = htmlEntities['&' + symbol + ';'];
-  if (resolvedEntityInfo) {
-    LatexCmds[resolvedEntityInfo.characters] = LatexCmds[symbol];
-  }
 });
 
 LatexCmds['≠'] = LatexCmds.ne = LatexCmds.neq = bind(BinaryOperator,'\\ne ','&ne;');
