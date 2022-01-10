@@ -9,4 +9,3 @@
  */
 
 (function() {
-Node = undefined;
