@@ -370,14 +370,14 @@ var Cursor = P(Point, function(_) {
         'Triangle',
         'Is Approximately Equal To',
         'Is Perpendicular To',
-      ].map(alt => alt.replace(/ /g, ''));
+      ].map(function(alt) { return alt.replace(/ /g, '')});
 
-      const srOnlyClassId = this[dir].jQ.get(0).className.split(/\s+/).find(classname =>
-        ariaMathAltTags.some(alt =>
-          classname.includes(alt) && classname.length > alt.length
-        )
-      );
-      srOnlyClassId && jQuery(`.${srOnlyClassId}`).remove();
+      const srOnlyClassId = this[dir].jQ.get(0).className.split(/\s+/).find(function(classname) {
+        return ariaMathAltTags.some(function(alt) {
+          return classname.includes(alt) && classname.length > alt.length;
+        });
+      });
+      srOnlyClassId && jQuery('.'.concat(srOnlyClassId)).remove();
 
       if (this[dir].isEmpty())
         this[dir] = this[dir].remove()[dir];
