@@ -18,14 +18,10 @@ class Aria {
   msg = '';
   items:AriaQueueItem[] = [];
 
-  constructor () {
-    // Add the alert DOM element only after the page has loaded.
-    jQuery(document).ready(() => {
-      var el = '.mq-aria-alert';
-      // No matter how many Mathquill instances exist, we only need one alert object to say something.
-      if (!jQuery(el).length) jQuery('body').append("<p aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></p>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
-      this.jQ = jQuery(el);
-    });
+  constructor () {};
+
+  setElement(jQ:$) {
+    this.jQ = jQ;
   };
 
   queue (item:AriaQueueItem, shouldDescribe:boolean = false) {

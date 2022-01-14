@@ -16,6 +16,7 @@ class ControllerBase {
   KIND_OF_MQ:KIND_OF_MQ;
   textarea:$ | undefined;
   textareaSpan:$ | undefined;
+  ariaSpan:$ | undefined;
   mathspeakSpan:$ | undefined;
 
   constructor (root:ControllerRoot, container:$, options:CursorOptions) {
