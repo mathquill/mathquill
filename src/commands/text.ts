@@ -104,11 +104,11 @@ class TextBlock extends MQNode {
   // the cursor
   moveTowards (dir:Direction, cursor:Cursor) {
     cursor.insAtDirEnd(-dir as Direction, this);
-    aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
+    cursor.controller.aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
   };
   moveOutOf (dir:Direction, cursor:Cursor) {
     cursor.insDirOf(dir, this);
-    aria.queueDirOf(dir).queue(this);
+    cursor.controller.aria.queueDirOf(dir).queue(this);
   };
   unselectInto (dir:Direction, cursor:Cursor) {
     this.moveTowards(dir, cursor);
@@ -156,7 +156,7 @@ class TextBlock extends MQNode {
     }
     this.bubble(function (node) { node.reflow(); return undefined; });
     // TODO needs tests
-    aria.alert(ch);
+    cursor.controller.aria.alert(ch);
   };
   writeLatex (cursor:Cursor, latex:string) {
     const cursorL = cursor[L];
@@ -325,13 +325,13 @@ class TextPiece extends MQNode {
         deletedChar = this.textStr[this.textStr.length - 1];
         this.textStr = this.textStr.slice(0, -1);
       }
-      aria.queue(deletedChar);
+      cursor.controller.aria.queue(deletedChar);
     }
     else {
       this.remove();
       this.jQ.remove();
       cursor[dir] = this[dir];
-      aria.queue(this.textStr);
+      cursor.controller.aria.queue(this.textStr);
     }
   };
 

@@ -74,6 +74,3 @@ class Aria {
     return this;
   };
 };
-
-// We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
-var aria = new Aria();

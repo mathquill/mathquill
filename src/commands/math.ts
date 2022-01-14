@@ -162,7 +162,7 @@ class MathCommand extends MathElement {
     
     const el = (updownInto || this.ends[-dir as Direction]) as MQNode;
     cursor.insAtDirEnd(-dir as Direction, el);
-    aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
+    cursor.controller.aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
   };
   deleteTowards (dir:Direction, cursor:Cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
@@ -395,7 +395,7 @@ class MQSymbol extends MathCommand {
     cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir as Direction] = this;
     cursor[dir] = this[dir];
-    aria.queue(this);
+    cursor.controller.aria.queue(this);
   };
   deleteTowards (dir:Direction, cursor:Cursor) {
     cursor[dir] = this.remove()[dir];
@@ -526,11 +526,11 @@ class MathBlock extends MathElement {
     if (!updownInto && this[dir]) {
       const otherDir = -dir as Direction;
       cursor.insAtDirEnd(otherDir, this[dir] as MQNode);
-      aria.queueDirEndOf(otherDir).queue(cursor.parent, true);
+      cursor.controller.aria.queueDirEndOf(otherDir).queue(cursor.parent, true);
     }
     else {
       cursor.insDirOf(dir, this.parent);
-      aria.queueDirOf(dir).queue(this.parent);
+      cursor.controller.aria.queueDirOf(dir).queue(this.parent);
     }
   };
   selectOutOf (dir:Direction, cursor:Cursor) {
@@ -580,9 +580,9 @@ class MathBlock extends MathElement {
       cmd.createLeftOf(cursor.show());
       // special-case the slash so that fractions are voiced while typing
       if (ch === '/') {
-        aria.alert('over');
+        cursor.controller.aria.alert('over');
       } else {
-        aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+        cursor.controller.aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
       }
     }
   };

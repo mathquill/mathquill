@@ -49,7 +49,7 @@ class Controller_mouse extends Controller_latex {
       function docmousemove(e:MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target!, e.pageX, e.pageY).cursor.select();
-        if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
+        if(cursor.selection) cursor.controller.aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
@@ -67,7 +67,7 @@ class Controller_mouse extends Controller_latex {
       function updateCursor () {
         if (ctrlr.editable) {
           cursor.show();
-          aria.queue(cursor.parent).alert();
+          cursor.controller.aria.queue(cursor.parent).alert();
         }
         else {
           textareaSpan.detach();

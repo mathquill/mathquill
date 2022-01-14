@@ -36,14 +36,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       if (ch.match(/[a-z]/i)) {
         new VanillaSymbol(ch).createLeftOf(cursor);
         // TODO needs tests
-        aria.alert(ch);
+        cursor.controller.aria.alert(ch);
       }
       else {
         var cmd = (this.parent as LatexCommandInput).renderCommand(cursor);
         // TODO needs tests
-        aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
+        cursor.controller.aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
         if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
-        else aria.alert();
+        else cursor.controller.aria.alert();
       }
     };
 
@@ -52,7 +52,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
         var cmd = (this.parent as LatexCommandInput).renderCommand(ctrlr.cursor);
         // TODO needs tests
-        aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
+        cursor.controller.aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
         e.preventDefault();
         return;
       }

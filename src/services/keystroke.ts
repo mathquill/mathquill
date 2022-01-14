@@ -32,13 +32,13 @@
     // End -> move to the end of the current block.
     case 'End':
       ctrlr.notify('move').cursor.insAtRightEnd(cursor.parent);
-      aria.queue("end of").queue(cursor.parent, true);
+      ctrlr.aria.queue("end of").queue(cursor.parent, true);
       break;
 
     // Ctrl-End -> move all the way to the end of the root block.
     case 'Ctrl-End':
       ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
-      aria.queue("end of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
+      ctrlr.aria.queue("end of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-End -> select to the end of the current block.
@@ -58,13 +58,13 @@
     // Home -> move to the start of the current block.
     case 'Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(cursor.parent);
-      aria.queue("beginning of").queue(cursor.parent, true);
+      ctrlr.aria.queue("beginning of").queue(cursor.parent, true);
       break;
 
     // Ctrl-Home -> move all the way to the start of the root block.
     case 'Ctrl-Home':
       ctrlr.notify('move').cursor.insAtLeftEnd(ctrlr.root);
-      aria.queue("beginning of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
+      ctrlr.aria.queue("beginning of").queue(ctrlr.ariaLabel).queue(ctrlr.root).queue(ctrlr.ariaPostLabel);
       break;
 
     // Shift-Home -> select to the start of the current block.
@@ -130,13 +130,13 @@
 
     // These remaining hotkeys are only of benefit to people running screen readers.
     case 'Ctrl-Alt-Up': // speak parent block that has focus
-      if (cursor.parent.parent && cursor.parent.parent instanceof MQNode) aria.queue(cursor.parent.parent);
-      else aria.queue('nothing above');
+      if (cursor.parent.parent && cursor.parent.parent instanceof MQNode) ctrlr.aria.queue(cursor.parent.parent);
+      else ctrlr.aria.queue('nothing above');
       break;
 
     case 'Ctrl-Alt-Down': // speak current block that has focus
-      if (cursor.parent && cursor.parent instanceof MQNode) aria.queue(cursor.parent);
-      else aria.queue('block is empty');
+      if (cursor.parent && cursor.parent instanceof MQNode) ctrlr.aria.queue(cursor.parent);
+      else ctrlr.aria.queue('block is empty');
       break;
 
     case 'Ctrl-Alt-Left': // speak left-adjacent block
@@ -146,9 +146,9 @@
         cursor.parent.parent.ends[L] &&
         cursor.parent.parent.ends[L] instanceof MQNode
       ) {
-        aria.queue(cursor.parent.parent.ends[L]);
+        ctrlr.aria.queue(cursor.parent.parent.ends[L]);
       } else {
-        aria.queue('nothing to the left');
+        ctrlr.aria.queue('nothing to the left');
       }
       break;
 
@@ -159,27 +159,27 @@
         cursor.parent.parent.ends[R] &&
         cursor.parent.parent.ends[R] instanceof MQNode
       ) {
-        aria.queue(cursor.parent.parent.ends[R]);
+        ctrlr.aria.queue(cursor.parent.parent.ends[R]);
       } else {
-        aria.queue('nothing to the right');
+        ctrlr.aria.queue('nothing to the right');
       }
       break;
 
     case 'Ctrl-Alt-Shift-Down': // speak selection
-      if (cursor.selection) aria.queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected');
-      else aria.queue('nothing selected');
+      if (cursor.selection) ctrlr.aria.queue(cursor.selection.join('mathspeak', ' ').trim() + ' selected');
+      else ctrlr.aria.queue('nothing selected');
       break;
 
     case 'Ctrl-Alt-=':
     case 'Ctrl-Alt-Shift-Right': // speak ARIA post label (evaluation or error)
-      if (ctrlr.ariaPostLabel.length) aria.queue(ctrlr.ariaPostLabel);
-      else aria.queue('no answer');
+      if (ctrlr.ariaPostLabel.length) ctrlr.aria.queue(ctrlr.ariaPostLabel);
+      else ctrlr.aria.queue('no answer');
       break;
 
     default:
       return;
     }
-    aria.alert();
+    ctrlr.aria.alert();
     e.preventDefault();
     ctrlr.scrollHoriz();
   };
@@ -226,7 +226,7 @@ class Controller_keystroke extends Controller_focusBlur {
     if (cursor.parent === this.root) return;
 
     cursor.parent.moveOutOf(dir, cursor);
-    aria.alert();
+    cursor.controller.aria.alert();
     return this.notify('move');
   };
   moveDir (dir:Direction) {
@@ -298,29 +298,30 @@ class Controller_keystroke extends Controller_focusBlur {
     var cursor = this.cursor;
     var cursorEl = cursor[dir] as MQNode;
     var cursorElParent = cursor.parent.parent;
-    
+    var ctrlr = cursor.controller;
+
     if(cursorEl && cursorEl instanceof MQNode) {
       if(cursorEl.sides ) {
-        aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir as Direction].ch).mathspeak({createdLeftOf: cursor}));
+        ctrlr.aria.queue(cursorEl.parent.chToCmd(cursorEl.sides[-dir as Direction].ch).mathspeak({createdLeftOf: cursor}));
       // generally, speak the current element if it has no blocks,
       // but don't for text block commands as the deleteTowards method
       // in the TextCommand class is responsible for speaking the new character under the cursor.
       } else if (!cursorEl.blocks && cursorEl.parent.ctrlSeq !== '\\text') {
-        aria.queue(cursorEl);
+        ctrlr.aria.queue(cursorEl);
       }
     } else if(cursorElParent && cursorElParent instanceof MQNode) {
       if(cursorElParent.sides) {
-        aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
+        ctrlr.aria.queue(cursorElParent.parent.chToCmd(cursorElParent.sides[dir].ch).mathspeak({createdLeftOf: cursor}));
       } else if (cursorElParent.blocks && cursorElParent.mathspeakTemplate) {
         if (cursorElParent.upInto && cursorElParent.downInto) { // likely a fraction, and we just backspaced over the slash
-          aria.queue(cursorElParent.mathspeakTemplate[1]);
+          ctrlr.aria.queue(cursorElParent.mathspeakTemplate[1]);
         } else {
           var mst = cursorElParent.mathspeakTemplate;
           var textToQueue = dir === L ? mst[0] : mst[mst.length - 1];
-          aria.queue(textToQueue);
+          ctrlr.aria.queue(textToQueue);
         }
       } else {
-        aria.queue(cursorElParent);
+        ctrlr.aria.queue(cursorElParent);
       }
     }
 
@@ -337,8 +338,8 @@ class Controller_keystroke extends Controller_focusBlur {
     if (cursorL.siblingDeleted) cursorL.siblingDeleted(cursor.options, R);
     if (cursorR.siblingDeleted) cursorR.siblingDeleted(cursor.options, L);
     cursor.parent.bubble(function (node) {
-       (node as MQNode).reflow();
-       return undefined;
+      (node as MQNode).reflow();
+      return undefined;
     });
 
     return this;
@@ -355,7 +356,7 @@ class Controller_keystroke extends Controller_focusBlur {
     } else {
       fragRemoved = new Fragment(cursor[R] as MQNode, (cursor.parent as MQNode).ends[R] as MQNode);
     }
-    aria.queue(fragRemoved);
+    cursor.controller.aria.queue(fragRemoved);
     fragRemoved.remove();
 
     cursor.insAtDirEnd(dir, cursor.parent);
@@ -396,7 +397,7 @@ class Controller_keystroke extends Controller_focusBlur {
     cursor.select() || cursor.show();
     var selection = cursor.selection;
     if (selection) {
-      aria.clear().queue(selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
+      cursor.controller.aria.clear().queue(selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
     }
   };
   selectLeft () { return this.selectDir(L); };

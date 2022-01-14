@@ -27,7 +27,7 @@ class ControllerBase {
     this.container = container;
     this.options = options;
     
-    this.aria = aria;
+    this.aria = new Aria();
     this.ariaLabel = 'Math Input';
     this.ariaPostLabel = '';
 
@@ -96,7 +96,7 @@ class ControllerBase {
         this._ariaAlertTimeout = setTimeout(() => {
           if (this.containerHasFocus()) {
             // Voice the new label, but do not update content mathspeak to prevent double-speech.
-            aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
+            this.aria.alert(this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim());
             } else {
             // This mathquill does not have focus, so update its mathspeak.
             this.updateMathspeak();
