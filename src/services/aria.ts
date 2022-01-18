@@ -14,11 +14,14 @@
 type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
+  controller:Controller;
   jQ = jQuery('<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>');
   msg = '';
   items:AriaQueueItem[] = [];
 
-  constructor () {};
+  constructor (controller:Controller) {
+    this.controller = controller;
+  };
 
   setContainer(el:$) {
     this.jQ.appendTo(el);
@@ -63,8 +66,14 @@ class Aria {
   alert (t?:AriaQueueItem) {
     if (t) this.queue(t);
     if (this.items.length) {
+      // To cut down on potential verbiage from multiple Mathquills firing near-simultaneous ARIA alerts,
+      // update the text of this instance if its container also has keyboard focus.
+      // If it does not, leave the DOM unchanged but flush the queue regardless.
+      // Note: updating the msg variable regardless of focus for unit tests.
       this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
-      this.jQ.empty().text(this.msg);
+      if (this.controller.containerHasFocus()) {
+        this.jQ.empty().text(this.msg);
+      }
     }
     return this.clear();
   };

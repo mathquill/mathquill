@@ -26,7 +26,7 @@ class ControllerBase {
     this.container = container;
     this.options = options;
     
-    this.aria = new Aria();
+    this.aria = new Aria(this);
     this.ariaLabel = 'Math Input';
     this.ariaPostLabel = '';
 
