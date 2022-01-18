@@ -14,14 +14,14 @@
 type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
-  jQ = jQuery([]); // empty element
+  jQ = jQuery('<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>');
   msg = '';
   items:AriaQueueItem[] = [];
 
   constructor () {};
 
-  setElement(jQ:$) {
-    this.jQ = jQ;
+  setContainer(el:$) {
+    this.jQ.appendTo(el);
   };
 
   queue (item:AriaQueueItem, shouldDescribe:boolean = false) {

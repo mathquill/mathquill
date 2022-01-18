@@ -16,7 +16,6 @@ class ControllerBase {
   KIND_OF_MQ:KIND_OF_MQ;
   textarea:$ | undefined;
   textareaSpan:$ | undefined;
-  ariaSpan:$ | undefined;
   mathspeakSpan:$ | undefined;
 
   constructor (root:ControllerRoot, container:$, options:CursorOptions) {
@@ -133,7 +132,7 @@ class ControllerBase {
     if (!textareaSpan) throw new Error('expected a textareaSpan');
     return textareaSpan;
   }
- 
+
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
   // and http://www.gh-mathspeak.com/examples/grammar-rules/
   exportMathSpeak () { return this.root.mathspeak(); };

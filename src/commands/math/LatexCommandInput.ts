@@ -52,7 +52,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
         var cmd = (this.parent as LatexCommandInput).renderCommand(ctrlr.cursor);
         // TODO needs tests
-        cursor.controller.aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
+        ctrlr.aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
         e.preventDefault();
         return;
       }
