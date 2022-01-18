@@ -18,6 +18,7 @@ class Controller extends Controller_scrollHoriz {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
     this.textarea = $(textarea).appendTo(textareaSpan);
+    this.aria.setContainer(this.textareaSpan);
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
@@ -162,7 +163,7 @@ class Controller extends Controller_scrollHoriz {
         ? ariaLabel + ':'
         : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
-    aria.jQ.empty();
+    this.aria.clear();
 
     const textarea = ctrlr.getTextareaOrThrow();
     // For static math, provide mathspeak in a visually hidden span to allow screen readers and other AT to traverse the content.

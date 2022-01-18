@@ -125,7 +125,7 @@ class Cursor extends Point {
       var pageX = self.offset().left;
       to.seek(pageX, self);
     }
-    aria.queue(to, true);
+    self.controller.aria.queue(to, true);
   };
   offset () {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
