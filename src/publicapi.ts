@@ -14,7 +14,7 @@ class OptionProcessors {
   autoCommands: (list:string) => CursorOptions['autoOperatorNames'];
   autoOperatorNames: (list:string) => CursorOptions['autoOperatorNames'];
   autoParenthesizedFunctions: (list:string) => CursorOptions['autoOperatorNames'];
-  transparentDelimiters: (list:string) => CursorOptions['autoOperatorNames'];
+  transparentDelimiters: (list:string) => CursorOptions['transparentDelimiters'];
 }
 
 const optionProcessors = new OptionProcessors();

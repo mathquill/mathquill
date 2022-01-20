@@ -278,9 +278,9 @@ class NodeBase {
 
   isTransparentDelimiter (cursor:Cursor | undefined) {
     if (!this.isEmpty()) return false;
-    if (!this.parent || !this.parent.ctrlSeq) return false;
     if (!cursor || !cursor.options || !cursor.options.transparentDelimiters) return false;
     var transparentDelimiters = cursor.options.transparentDelimiters;
+    if (!this.parent || this.parent.ctrlSeq === undefined) return false;
     var  maxLength = transparentDelimiters._maxLength || 0;
     if (maxLength > 0) {
       // Remove any leading \ from the ctrl sequence before looking it up.
