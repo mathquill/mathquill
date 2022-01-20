@@ -176,7 +176,7 @@ class NodeBase {
 
   // TODO - can this ever actually stay 0? if so we need to add null checks
   parent:MQNode = 0 as any as MQNode;
-    
+
   ends:Ends = {[L]: 0, [R]: 0}
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
@@ -275,17 +275,19 @@ class NodeBase {
   isEmpty () {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-  
-  isEmptyParens () {
-    if (!this.isEmpty()) return false;
-    if (!this.parent) return false;
-    return this.parent.ctrlSeq === '\\left(';
-  }
 
-  isEmptySquareBrackets () {
+  isTransparentDelimiter (cursor:Cursor | undefined) {
     if (!this.isEmpty()) return false;
     if (!this.parent) return false;
-    return this.parent.ctrlSeq === '\\left[';
+    if (!cursor || !cursor.options || !cursor.options.transparentDelimiters) return false;
+    var transparentDelimiters = cursor.options.transparentDelimiters;
+    var  maxLength = transparentDelimiters._maxLength || 0;
+    if (maxLength > 0) {
+      // Remove any leading \ from the ctrl sequence before looking it up.
+      var key = this.parent.ctrlSeq.replace(/^\\+/, '');
+      return transparentDelimiters.hasOwnProperty(key);
+    }
+    return false;
   }
 
   isStyleBlock () {
@@ -351,7 +353,7 @@ class NodeBase {
   };
 
   getSelfNode () {
-    // dumb dance to tell typescript that we eventually become a MQNod
+    // dumb dance to tell typescript that we eventually become a MQNode
     return this as any as MQNode
   }
 
@@ -376,7 +378,6 @@ class NodeBase {
   fixDigitGrouping (_opts:CursorOptions) {};
   writeLatex (_cursor:Cursor, _latex:string) {};
   write (_cursor:Cursor, _ch:string) {};
-
 }
 
 function prayWellFormed(parent:MQNode, leftward:NodeRef, rightward:NodeRef) {

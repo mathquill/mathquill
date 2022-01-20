@@ -619,14 +619,12 @@ class MathBlock extends MathElement {
 
     return this;
   };
-  blur () {
+  blur (cursor:Cursor) {
     this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
       this.jQ.addClass('mq-empty');
-      if (this.isEmptyParens()) {
-        this.jQ.addClass('mq-empty-parens');
-      } else if (this.isEmptySquareBrackets()) {
-        this.jQ.addClass('mq-empty-square-brackets');
+      if (this.isTransparentDelimiter(cursor)) {
+        this.jQ.addClass('mq-transparent-delimiter');
       }
     }
     return this;

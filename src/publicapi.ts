@@ -14,6 +14,7 @@ class OptionProcessors {
   autoCommands: (list:string) => CursorOptions['autoOperatorNames'];
   autoOperatorNames: (list:string) => CursorOptions['autoOperatorNames'];
   autoParenthesizedFunctions: (list:string) => CursorOptions['autoOperatorNames'];
+  transparentDelimiters: (list:string) => CursorOptions['autoOperatorNames'];
 }
 
 const optionProcessors = new OptionProcessors();
@@ -51,6 +52,7 @@ class Options {
   autoOperatorNames: AutoDict;
   autoCommands: AutoDict;
   autoParenthesizedFunctions: AutoDict;
+  transparentDelimiters: AutoDict;
   handlers: HandlerOptions
 };
 class Progenote {}
