@@ -1,4 +1,4 @@
-suite('transparentDelimiters', function() {
+suite('quietEmptyDelimiters', function() {
   test('transparent class properly applied to empty delimiters' function() {
     var el = $('<span></span>');
     var mq = MQ.MathField(el.appendTo('#mock')[0]);
@@ -6,15 +6,15 @@ suite('transparentDelimiters', function() {
     // Test that parens are not transparent by default.
     mq.typedText('sin(').keystroke('Tab');
     assert.equal(mq.latex(), '\\sin\\left(\\right)');
-    assert.equal(el.find('.mq-transparent-delimiter').length, 0);
+    assert.equal(el.find('.mq-quiet-delimiter').length, 0);
 
-    // Make parens transparent and verify the mq-transparent-delimiter class is applied.
+    // Make parens transparent and verify the mq-quiet-delimiter class is applied.
     mq.latex('');
     mq.config({
-      transparentDelimiters: 'left('
+      quietEmptyDelimiters: '('
     });
     mq.typedText('sin(').keystroke('Tab');
     assert.equal(mq.latex(), '\\sin\\left(\\right)');
-    assert.equal(el.find('.mq-transparent-delimiter').length, 1);
+    assert.equal(el.find('.mq-quiet-delimiter').length, 1);
   });
 });

@@ -623,8 +623,8 @@ class MathBlock extends MathElement {
     this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
       this.jQ.addClass('mq-empty');
-      if (this.isTransparentDelimiter(cursor)) {
-        this.jQ.addClass('mq-transparent-delimiter');
+      if (cursor && this.isQuietEmptyDelimiter(cursor.options.quietEmptyDelimiters)) {
+        this.jQ.addClass('mq-quiet-delimiter');
       }
     }
     return this;

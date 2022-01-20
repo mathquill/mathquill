@@ -276,18 +276,14 @@ class NodeBase {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
 
-  isTransparentDelimiter (cursor:Cursor | undefined) {
+  isQuietEmptyDelimiter (dlms: { [id:string]:any; } | undefined) {
+    console.log("Checking", dlms);
     if (!this.isEmpty()) return false;
-    if (!cursor || !cursor.options || !cursor.options.transparentDelimiters) return false;
-    var transparentDelimiters = cursor.options.transparentDelimiters;
+    if (!dlms) return false;
     if (!this.parent || this.parent.ctrlSeq === undefined) return false;
-    var  maxLength = transparentDelimiters._maxLength || 0;
-    if (maxLength > 0) {
-      // Remove any leading \ from the ctrl sequence before looking it up.
-      var key = this.parent.ctrlSeq.replace(/^\\+/, '');
-      return transparentDelimiters.hasOwnProperty(key);
-    }
-    return false;
+    // Remove any leading \left or \right from the ctrl sequence before looking it up.
+    var key = this.parent.ctrlSeq.replace(/^\\(left|right)?/, '');
+    return dlms.hasOwnProperty(key);
   }
 
   isStyleBlock () {

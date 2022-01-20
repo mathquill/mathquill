@@ -283,21 +283,17 @@ optionProcessors.autoCommands = function(cmds:string) {
   return dict;
 };
 
-Options.prototype.transparentDelimiters = { _maxLength: 0 };
-optionProcessors.transparentDelimiters = function(dlms:string) {
-  if (!/^[a-z]*(\(|\)|\[|\]|\{|\})(?: [a-z]*(\(|\)|\[|\]|\{|\}))*$/i.test(dlms)) {
+Options.prototype.quietEmptyDelimiters = {};
+optionProcessors.quietEmptyDelimiters = function(dlms:string) {
+  if (!/^(\(|\)|\[|\]|\{|\}|langle|rangle)(?: (\(|\)|\[|\]|\{|\}|langle|rangle))*$/i.test(dlms)) {
     throw '"'+dlms+'" not a space-delimited list of recognized delimiters';
   }
   var list = dlms.split(' ');
-  var dict:AutoDict = {}
-  var maxLength = 0;
-
+  var dict: { [id:string]:any; } = {};
   for (var i = 0; i < list.length; i += 1) {
     var dlm = list[i];
     dict[dlm] = 1;
-    maxLength = max(maxLength, dlm.length);
   }
-  dict._maxLength = maxLength;
   return dict;
 };
 
