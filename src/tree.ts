@@ -278,7 +278,7 @@ class NodeBase {
 
   isTransparentDelimiter (cursor:Cursor | undefined) {
     if (!this.isEmpty()) return false;
-    if (!this.parent) return false;
+    if (!this.parent || !this.parent.ctrlSeq) return false;
     if (!cursor || !cursor.options || !cursor.options.transparentDelimiters) return false;
     var transparentDelimiters = cursor.options.transparentDelimiters;
     var  maxLength = transparentDelimiters._maxLength || 0;
