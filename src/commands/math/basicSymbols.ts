@@ -285,9 +285,6 @@ optionProcessors.autoCommands = function(cmds:string) {
 
 Options.prototype.quietEmptyDelimiters = {};
 optionProcessors.quietEmptyDelimiters = function(dlms:string) {
-  if (!/^(\(|\)|\[|\]|\{|\}|langle|rangle)(?: (\(|\)|\[|\]|\{|\}|langle|rangle))*$/i.test(dlms)) {
-    throw '"'+dlms+'" not a space-delimited list of recognized delimiters';
-  }
   var list = dlms.split(' ');
   var dict: { [id:string]:any; } = {};
   for (var i = 0; i < list.length; i += 1) {
