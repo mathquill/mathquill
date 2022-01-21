@@ -8,9 +8,7 @@
  * Both MathBlock's and MathCommand's descend from it.
  */
 class MathElement extends MQNode {
-  finalizeInsert (options:CursorOptions, cursor?:Cursor) { // `cursor` param is only for
-      // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
-      // see ea7307eb4fac77c149a11ffdf9a831df85247693
+  finalizeInsert (options:CursorOptions, cursor:Cursor) {
     var self = this;
     self.postOrder(function (node) { node.finalizeTree(options) });
     self.postOrder(function (node) { node.contactWeld(cursor) });
@@ -19,7 +17,7 @@ class MathElement extends MQNode {
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly by 'reflow' handlers.
-    self.postOrder(function (node) { node.blur(); });
+    self.postOrder(function (node) { node.blur(cursor); });
 
     self.postOrder(function (node) { node.reflow(); });
     var selfR = self[R];
@@ -77,7 +75,7 @@ class MathElement extends MQNode {
  */
 class MathCommand extends MathElement {
   replacedFragment:Fragment | undefined;
-  
+
   constructor (ctrlSeq?:string, htmlTemplate?:string, textTemplate?:string[]) {
     super();
     this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
@@ -128,7 +126,7 @@ class MathCommand extends MathElement {
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
-    cmd.finalizeInsert(cursor.options);
+    cmd.finalizeInsert(cursor.options, cursor);
     cmd.placeCursor(cursor);
   };
   createBlocks () {
@@ -159,7 +157,7 @@ class MathCommand extends MathElement {
     } else if (updown === 'down') {
       updownInto = this.downInto;
     }
-    
+
     const el = (updownInto || this.ends[-dir as Direction]) as MQNode;
     cursor.insAtDirEnd(-dir as Direction, el);
     cursor.controller.aria.queueDirEndOf(-dir as Direction).queue(cursor.parent, true);
@@ -380,7 +378,7 @@ class MQSymbol extends MathCommand {
     }
 
     this.mathspeakName = mathspeak || text;
-    super.setCtrlSeqHtmlAndText(ctrlSeq, html, [text || '']);  
+    super.setCtrlSeqHtmlAndText(ctrlSeq, html, [text || '']);
   }
 
   parser () { return Parser.succeed(this); };
