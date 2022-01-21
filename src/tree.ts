@@ -138,7 +138,7 @@ class NodeBase {
   static getNodeOfElement (el:HTMLElement) {
     if (!el) return;
     if (!el.nodeType) throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement')
-    
+
     var elTrackingNode = el as HTMLElementTrackingNode;
     return elTrackingNode.mqBlockNode || elTrackingNode.mqCmdNode;
   }
@@ -199,9 +199,9 @@ class NodeBase {
     NodeBase.TempByIdDict[this.id] = this;
     NodeBase.scheduleDictionaryCleaning();
   };
-  
+
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
-  
+
   jQadd (jQ:$ | HTMLElement | ChildNode) { return this.jQ = this.jQ.add(jQ); };
   jQize (el?:$ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
@@ -250,7 +250,7 @@ class NodeBase {
 
   bubble (yield_:(ancestor:MQNode) => boolean | undefined) {
     var self = this.getSelfNode();
-    
+
     for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
@@ -358,8 +358,8 @@ class NodeBase {
   text ():string { return '' };
   latex ():string { return '' };
   finalizeTree (_options:CursorOptions, _dir?: Direction) { };
-  contactWeld (_cursor?:Cursor|CursorOptions, _dir?:Direction) { };
-  blur (_cursor?:Cursor) { };
+  contactWeld (_cursor:Cursor, _dir?:Direction) { };
+  blur (_cursor:Cursor) { };
   focus () {};
   intentionalBlur () { };
   reflow () { };
@@ -369,7 +369,7 @@ class NodeBase {
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
   siblingCreated (_options:CursorOptions, _dir:Direction) {};
-  finalizeInsert (_options:CursorOptions, _cursor?:Cursor) {};
+  finalizeInsert (_options:CursorOptions, _cursor:Cursor) {};
   fixDigitGrouping (_opts:CursorOptions) {};
   writeLatex (_cursor:Cursor, _latex:string) {};
   write (_cursor:Cursor, _ch:string) {};

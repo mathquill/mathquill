@@ -74,10 +74,9 @@ class Controller_focusBlur extends Controller_exportText {
       blur();
       ctrlr.updateMathspeak();
     }
-    function blur() {
-      // not directly in the textarea blur handler so as to be synchronous with/in the same frame as  clearing/blurring selection
-      cursor.hide().parent.blur(cursor);
-      ctrlr.container.removeClass('mq-focused');
+    function blur() { // not directly in the textarea blur handler so as to be
+      cursor.hide().parent.blur(cursor); // synchronous with/in the same frame as
+      ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
 
       if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {

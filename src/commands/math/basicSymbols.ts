@@ -5,7 +5,7 @@ class DigitGroupingChar extends MQSymbol {
   finalizeTree (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
   siblingDeleted (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
   siblingCreated (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir) };
-  
+
   sharedSiblingMethod (opts:CursorOptions, dir:Direction) {
     // don't try to fix digit grouping if the sibling to my right changed (dir === R or
     // undefined) and it's now a DigitGroupingChar, it will try to fix grouping
@@ -29,7 +29,7 @@ class DigitGroupingChar extends MQSymbol {
     var node:NodeRef = left;
     do {
       if (/^[0-9]$/.test(node.ctrlSeq!)) {
-        left = node 
+        left = node
       } else if (node.ctrlSeq === SPACE) {
         left = node
         spacesFound += 1;
@@ -91,7 +91,7 @@ class DigitGroupingChar extends MQSymbol {
     var node = left;
     do {
       if (node instanceof DigitGroupingChar) {
-        node.setGroupingClass(undefined);        
+        node.setGroupingClass(undefined);
       }
       if (!node || node === right) break;
     } while (node = node[R]);
@@ -195,7 +195,7 @@ class Digit extends DigitGroupingChar {
           cursor.parent.parent.sub
           : undefined
       )
-  
+
       if (cursor.options.autoSubscriptNumerals
           && cursor.parent !== cursorParentParentSub
           && ((cursorL instanceof Variable && cursorL.isItalic !== false)
@@ -316,7 +316,7 @@ optionProcessors.autoParenthesizedFunctions = function (cmds) {
 
 class Letter extends Variable {
   letter:string;
-  
+
   constructor (ch:string) {
     super(ch);
     this.letter = ch;
@@ -409,7 +409,7 @@ class Letter extends Variable {
   finalizeTree (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
   siblingDeleted (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
   siblingCreated (opts:CursorOptions, dir:Direction) {this.sharedSiblingMethod(opts, dir)};
-  
+
   sharedSiblingMethod (opts:CursorOptions, dir:Direction) {
     // don't auto-un-italicize if the sibling to my right changed (dir === R or
     // undefined) and it's now a Letter, it will un-italicize everyone
@@ -440,13 +440,13 @@ class Letter extends Variable {
     new Fragment(lR || this.parent.ends[L] as MQNode, rL || this.parent.ends[R] as MQNode).each(function(el) {
       if (el instanceof Letter) {
         el.italicize(true).jQ.removeClass('mq-first mq-last mq-followed-by-supsub');
-        el.ctrlSeq = el.letter;  
+        el.ctrlSeq = el.letter;
       }
       return undefined;
     });
 
     let autoOpsLength = autoOps._maxLength || 0;
-    
+
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
     outer: for (var i = 0, first = (l as MQNode)[R] || this.parent.ends[L]; first && i < str.length; i += 1, first = (first as MQNode)[R]) {
@@ -809,7 +809,7 @@ class LatexFragment extends MathCommand {
     super();
     this.latexStr = latex;
   }
-  
+
   createLeftOf (cursor:Cursor) {
     var block = latexMathParser.parse(this.latexStr);
     block.children().adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
@@ -827,7 +827,7 @@ class LatexFragment extends MathCommand {
   mathspeak () { return latexMathParser.parse(this.latexStr).mathspeak(); };
   parser () {
     var frag = latexMathParser.parse(this.latexStr).children();
-    return Parser.succeed(frag) as ParserAny; 
+    return Parser.succeed(frag) as ParserAny;
   };
 };
 
@@ -924,11 +924,11 @@ var PlusMinus = class extends BinaryOperator {
   constructor (ch?:string, html?:string, mathspeak?:string) {
     super(ch, html, undefined, mathspeak, true);
   };
-  
-  contactWeld (opts?:CursorOptions, dir?:Direction) { this.sharedSiblingMethod(opts, dir)}
+
+  contactWeld (cursor:Cursor, dir?:Direction) { this.sharedSiblingMethod(cursor.options, dir)}
   siblingCreated (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir)}
   siblingDeleted (opts:CursorOptions, dir:Direction) { this.sharedSiblingMethod(opts, dir)}
-  
+
   sharedSiblingMethod (_opts?:CursorOptions, dir?:Direction) {
     if (dir === R) return; // ignore if sibling only changed on the right
     this.jQ[0].className = isBinaryOperator(this)
