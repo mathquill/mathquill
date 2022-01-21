@@ -277,7 +277,6 @@ class NodeBase {
   };
 
   isQuietEmptyDelimiter (dlms: { [id:string]:any; } | undefined) {
-    console.log("Checking", dlms);
     if (!this.isEmpty()) return false;
     if (!dlms) return false;
     if (!this.parent || this.parent.ctrlSeq === undefined) return false;
