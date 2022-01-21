@@ -216,7 +216,7 @@ class Controller_latex extends Controller_keystroke {
       newMinusNode[R] = oldCharNodes[0];
       oldCharNodes[0][L] = newMinusNode;
 
-      newMinusNode.contactWeld(); // decide if binary operator
+      newMinusNode.contactWeld(this.cursor); // decide if binary operator
       newMinusNode.jQ.insertBefore(oldCharNodes[0].jQ);
     }
 
@@ -303,7 +303,7 @@ class Controller_latex extends Controller_keystroke {
       var html = block.join('html');
       jQ.html(html);
       root.jQize(jQ.children());
-      root.finalizeInsert(cursor.options);
+      root.finalizeInsert(cursor.options, cursor);
     } else {
       jQ.empty();
     }
@@ -360,7 +360,7 @@ class Controller_latex extends Controller_keystroke {
 
       root.jQize().appendTo(root.jQ);
 
-      root.finalizeInsert(cursor.options);
+      root.finalizeInsert(cursor.options, cursor);
     }
   };
 };

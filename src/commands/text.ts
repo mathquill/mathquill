@@ -217,7 +217,7 @@ class TextBlock extends MQNode {
   };
 
   blur (cursor:Cursor) {
-    MathBlock.prototype.blur.call(this);
+    MathBlock.prototype.blur.call(this, cursor);
     if (!cursor) return;
     if (this.textContents() === '') {
       this.remove();

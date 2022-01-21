@@ -138,7 +138,7 @@ class NodeBase {
   static getNodeOfElement (el:HTMLElement) {
     if (!el) return;
     if (!el.nodeType) throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement')
-    
+
     var elTrackingNode = el as HTMLElementTrackingNode;
     return elTrackingNode.mqBlockNode || elTrackingNode.mqCmdNode;
   }
@@ -176,7 +176,7 @@ class NodeBase {
 
   // TODO - can this ever actually stay 0? if so we need to add null checks
   parent:MQNode = 0 as any as MQNode;
-    
+
   ends:Ends = {[L]: 0, [R]: 0}
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
@@ -199,9 +199,9 @@ class NodeBase {
     NodeBase.TempByIdDict[this.id] = this;
     NodeBase.scheduleDictionaryCleaning();
   };
-  
+
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
-  
+
   jQadd (jQ:$ | HTMLElement | ChildNode) { return this.jQ = this.jQ.add(jQ); };
   jQize (el?:$ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
@@ -250,7 +250,7 @@ class NodeBase {
 
   bubble (yield_:(ancestor:MQNode) => boolean | undefined) {
     var self = this.getSelfNode();
-    
+
     for (var ancestor:NodeRef = self; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
@@ -275,17 +275,14 @@ class NodeBase {
   isEmpty () {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-  
-  isEmptyParens () {
-    if (!this.isEmpty()) return false;
-    if (!this.parent) return false;
-    return this.parent.ctrlSeq === '\\left(';
-  }
 
-  isEmptySquareBrackets () {
+  isQuietEmptyDelimiter (dlms: { [id:string]:any; } | undefined) {
     if (!this.isEmpty()) return false;
-    if (!this.parent) return false;
-    return this.parent.ctrlSeq === '\\left[';
+    if (!dlms) return false;
+    if (!this.parent || this.parent.ctrlSeq === undefined) return false;
+    // Remove any leading \left or \right from the ctrl sequence before looking it up.
+    var key = this.parent.ctrlSeq.replace(/^\\(left|right)?/, '');
+    return dlms.hasOwnProperty(key);
   }
 
   isStyleBlock () {
@@ -351,7 +348,7 @@ class NodeBase {
   };
 
   getSelfNode () {
-    // dumb dance to tell typescript that we eventually become a MQNod
+    // dumb dance to tell typescript that we eventually become a MQNode
     return this as any as MQNode
   }
 
@@ -361,8 +358,8 @@ class NodeBase {
   text ():string { return '' };
   latex ():string { return '' };
   finalizeTree (_options:CursorOptions, _dir?: Direction) { };
-  contactWeld (_cursor?:Cursor|CursorOptions, _dir?:Direction) { };
-  blur (_cursor?:Cursor) { };
+  contactWeld (_cursor:Cursor, _dir?:Direction) { };
+  blur (_cursor:Cursor) { };
   focus () {};
   intentionalBlur () { };
   reflow () { };
@@ -372,11 +369,10 @@ class NodeBase {
   seek (_pageX:number, _cursor:Cursor) {};
   siblingDeleted (_options:CursorOptions, _dir:Direction) {};
   siblingCreated (_options:CursorOptions, _dir:Direction) {};
-  finalizeInsert (_options:CursorOptions, _cursor?:Cursor) {};
+  finalizeInsert (_options:CursorOptions, _cursor:Cursor) {};
   fixDigitGrouping (_opts:CursorOptions) {};
   writeLatex (_cursor:Cursor, _latex:string) {};
   write (_cursor:Cursor, _ch:string) {};
-
 }
 
 function prayWellFormed(parent:MQNode, leftward:NodeRef, rightward:NodeRef) {

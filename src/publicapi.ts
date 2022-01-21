@@ -14,6 +14,7 @@ class OptionProcessors {
   autoCommands: (list:string) => CursorOptions['autoOperatorNames'];
   autoOperatorNames: (list:string) => CursorOptions['autoOperatorNames'];
   autoParenthesizedFunctions: (list:string) => CursorOptions['autoOperatorNames'];
+  quietEmptyDelimiters: (list:string) => CursorOptions['quietEmptyDelimiters'];
 }
 
 const optionProcessors = new OptionProcessors();
@@ -51,6 +52,7 @@ class Options {
   autoOperatorNames: AutoDict;
   autoCommands: AutoDict;
   autoParenthesizedFunctions: AutoDict;
+  quietEmptyDelimiters: { [id:string]:any; };
   handlers: HandlerOptions
 };
 class Progenote {}
@@ -184,7 +186,8 @@ function getInterface(v:number) {
     latex (latex:string) {
       if (arguments.length > 0) {
         this.__controller.renderLatexMath(latex);
-        if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
+        const cursor = this.__controller.cursor;
+        if (this.__controller.blurred) cursor.hide().parent.blur(cursor);
         return this;
       }
       return this.__controller.exportLatex();
@@ -220,7 +223,8 @@ function getInterface(v:number) {
     write (latex:string) {
       this.__controller.writeLatex(latex);
       this.__controller.scrollHoriz();
-      if (this.__controller.blurred) this.__controller.cursor.hide().parent.blur();
+      const cursor = this.__controller.cursor;
+      if (this.__controller.blurred) cursor.hide().parent.blur(cursor);
       return this;
     };
     empty () {
@@ -252,7 +256,7 @@ function getInterface(v:number) {
       else cursor.parent.write(cursor, cmd);
 
       ctrlr.scrollHoriz();
-      if (ctrlr.blurred) cursor.hide().parent.blur();
+      if (ctrlr.blurred) cursor.hide().parent.blur(cursor);
       return this;
     };
     select () {
