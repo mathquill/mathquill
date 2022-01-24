@@ -18,8 +18,11 @@ $.fn.insAtDirEnd = function (dir:Direction, el:$) {
   return dir === L ? this.prependTo(el) : this.appendTo(el);
 };
 
+/** A cursor-like location in an mq node tree. */
 class Point {
+  /** The node to the left of this point (or 0 for the position before a first child) */
   [L]?:NodeRef;
+  /** The node to the right of this point (or 0 for the position after a last child) */
   [R]?:NodeRef;
   parent:MQNode;
 
@@ -177,7 +180,9 @@ class NodeBase {
   // TODO - can this ever actually stay 0? if so we need to add null checks
   parent:MQNode = 0 as any as MQNode;
 
+  /** The (doubly-linked) list of this node's children. */
   ends:Ends = {[L]: 0, [R]: 0}
+
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
   ctrlSeq:string | undefined;
@@ -203,6 +208,11 @@ class NodeBase {
   toString () { return '{{ MathQuill Node #'+this.id+' }}'; };
 
   jQadd (jQ:$ | HTMLElement | ChildNode) { return this.jQ = this.jQ.add(jQ); };
+  /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
+   *
+   * TODO: The only part of this method that depends on `this` is generating the DOM, so maybe pull out the rest into
+   * a static function (and remove the `el` parameter from this method).
+   */
   jQize (el?:$ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
     var jQ:$ = $(el || this.html());
@@ -312,6 +322,11 @@ class NodeBase {
     return this;
   };
 
+  /**
+   * Add this node to the given parent node's children, at the position between the adjacent
+   * children `leftward` (or the beginning if omitted) and `rightward` (or the end if omitted).
+   * See `Fragment#adopt()`
+   */
   adopt (parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
     var self = this.getSelfNode();
     new Fragment(self, self).adopt(parent, leftward, rightward);
@@ -354,6 +369,7 @@ class NodeBase {
 
   // Overridden by child classes
   parser ():Parser<MQNode> { return undefined as any };
+  /** Render this node to an HTML string */
   html ():string { return '' };
   text ():string { return '' };
   latex ():string { return '' };
@@ -408,6 +424,7 @@ function prayWellFormed(parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 class Fragment {
+  /** The (doubly-linked) list of nodes contained in this fragment. */
   ends: {
     [L]?: MQNode,
     [R]?: MQNode
@@ -454,6 +471,12 @@ class Fragment {
     return (dir === L ? this.adopt(parent, withDir, oppDir)
                       : this.adopt(parent, oppDir, withDir));
   };
+  /**
+   * Splice this fragment into the given parent node's children, at the position between the adjacent
+   * children `leftward` (or the beginning if omitted) and `rightward` (or the end if omitted).
+   *
+   * TODO: why do we need both leftward and rightward? It seems to me that `rightward` is always expected to be `leftward ? leftward[R] : parent.ends[L]`.
+   */
   adopt (parent:MQNode, leftward:NodeRef, rightward:NodeRef) {
     prayWellFormed(parent, leftward, rightward);
 
@@ -493,6 +516,9 @@ class Fragment {
     return self;
   };
 
+  /**
+   * Remove the nodes in this fragment from their parent.
+   */
   disown () {
     var self = this;
     var leftEnd = self.ends[L];

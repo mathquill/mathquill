@@ -25,6 +25,9 @@ class Cursor extends Point {
   controller:Controller
   parent:MQNode;
   options:CursorOptions;
+  /** Slightly more than just a "cache", this remembers the cursor's position in each block node, so that we can return to the right
+   * point in that node when moving up and down among blocks.
+   */
   upDownCache:Record<number|string, Point | undefined> = {};
   blink: () => void;
   _jQ:$;
@@ -81,6 +84,7 @@ class Cursor extends Point {
     // FIXME pass cursor to .blur() so text can fix cursor pointers when removing itself
     if (oldParent !== parent && oldParent.blur) oldParent.blur(this);
   };
+  /** Place the cursor before or after `el`, according the side specified by `dir`. */
   insDirOf (dir:Direction, el:MQNode) {
     prayDirection(dir);
     this.jQ.insDirOf(dir, el.jQ);
@@ -91,6 +95,7 @@ class Cursor extends Point {
   insLeftOf (el:MQNode) { return this.insDirOf(L, el); };
   insRightOf (el:MQNode) { return this.insDirOf(R, el); };
 
+  /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
   insAtDirEnd (dir:Direction, el:MQNode) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
@@ -116,7 +121,7 @@ class Cursor extends Point {
     if (cached) {
       var cachedR = cached[R];
       if (cachedR) {
-        self.insLeftOf(cachedR) 
+        self.insLeftOf(cachedR)
       } else {
         self.insAtRightEnd(cached.parent);
       }
