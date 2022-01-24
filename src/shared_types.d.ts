@@ -3,7 +3,7 @@ type ControllerEvent = 'move' | 'upDown' | 'replace' | 'edit' | 'select' | undef
 type JoinMethod = 'html' | 'mathspeak' | 'latex' | 'text';
 type CursorOptions = typeof Options.prototype;
 type MathspeakOptions = {
-    createdLeftOf?:Cursor, 
+    createdLeftOf?:Cursor,
     ignoreShorthand?: boolean
 }
 type EmbedOptions = {
@@ -62,8 +62,9 @@ type JQSelector = $ | HTMLElement | string | null | Window | NodeListOf<ChildNod
 interface $ {
     (selector?:JQSelector):$;
     fn: any;
-    jqAdd(el:$):$;
+    /** Insert this collection either just before or just after `jQ`, according to the direction specified by `dir`. */
     insDirOf(dir:Direction, jQ:$):$,
+    /** Insert this collection into `jQ` either at the beginning or end of its children, according to the direction specified by `dir`. */
     insAtDirEnd(dir:Direction, jQ:$):$;
     insertBefore(el:HTMLElement | $):$;
     insertAfter(el:HTMLElement | $):$;
