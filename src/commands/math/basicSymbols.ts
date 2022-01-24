@@ -368,8 +368,8 @@ class Letter extends Variable {
       return
     }
 
-    //exit early if in simple subscript
-    if (this.isParentSimpleSubscript()) {
+    //exit early if in simple subscript and noAutoOpsInSubscripts is set.
+    if (this.shouldIgnoreOpInParentSimpleSubscript(cursor.options)) {
       return;
     }
 
@@ -421,8 +421,8 @@ class Letter extends Variable {
     var autoOps = opts.autoOperatorNames;
     if (autoOps._maxLength === 0) return;
 
-    //exit early if in simple subscript
-    if (this.isParentSimpleSubscript()) {
+    //exit early if in simple subscript and ignoreAutoOpsInSubscripts is set.
+    if (this.shouldIgnoreOpInParentSimpleSubscript(opts)) {
       return;
     }
 

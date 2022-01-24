@@ -344,7 +344,8 @@ class NodeBase {
     return this.disown();
   };
 
-  isParentSimpleSubscript () {
+  shouldIgnoreOpInParentSimpleSubscript (options:CursorOptions) {
+    if (!options.noAutoOpsInSubscripts) return false;
     if (!this.parent) return false;
     if (!(this.parent.parent instanceof SupSub)) return false;
 
