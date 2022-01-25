@@ -322,6 +322,11 @@ class Letter extends Variable {
     this.letter = ch;
   };
   checkAutoCmds (cursor:Cursor) {
+    //exit early if in simple subscript and disableAutoOpsInSubscripts is set.
+    if (this.shouldIgnoreOpInParentSimpleSubscript(cursor.options)) {
+      return;
+    }
+
     //handle autoCommands
     var autoCmds = cursor.options.autoCommands;
     var  maxLength = autoCmds._maxLength || 0;

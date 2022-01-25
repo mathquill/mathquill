@@ -1155,11 +1155,18 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('autoCommands', function() {
+    var normalConfig = {
+      autoOperatorNames: 'sin pp',
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
+    };
+    var subscriptConfig = {
+      autoOperatorNames: 'sin pp',
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent',
+      disableAutoOpsInSubscripts: true
+    };
+
     setup(function() {
-      mq.config({
-        autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
-      });
+      mq.config(normalConfig);
     });
 
     test('individual commands', function(){
@@ -1269,6 +1276,21 @@ suite('typing with auto-replaces', function() {
                       'MQ.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
+
+    test('no auto commands in simple subscripts', function () {
+      mq.config(normalConfig);
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('pi')
+      assertLatex('x_{\\pi}');
+      mq.latex('');
+      mq.config(subscriptConfig);
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('pi');
+      assertLatex('x_{pi}');
+      mq.config(normalConfig);
+    })
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
