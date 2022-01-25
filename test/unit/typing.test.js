@@ -1054,7 +1054,7 @@ suite('typing with auto-replaces', function() {
       autoParenthesizedFunctions: 'sin cos tan ln',
       autoOperatorNames: 'sin ln',
       autoCommands: 'sum int',
-      noAutoOpsInSubscripts: true
+      disableAutoOpsInSubscripts: true
     };
 
     setup(function() {
