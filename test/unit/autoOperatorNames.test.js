@@ -1,10 +1,16 @@
 suite('autoOperatorNames', function() {
   var mq;
+  var normalConfig = {
+    autoCommands: 'sum int'
+  };
+  var subscriptConfig = {
+    autoCommands: 'sum int',
+    disableAutoSubstitutionInSubscripts: true
+  };
+
   setup(function() {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
-    mq.config({
-      autoCommands: 'sum int'
-    });
+    mq.config(normalConfig);
   });
 
   function assertLatex(input, expected) {
@@ -67,15 +73,29 @@ suite('autoOperatorNames', function() {
     assertLatex('int allows operatorname', '\\int_{\\sin}^{ }');
   })
 
-  test('does not work in simple subscripts when typing', function () {
+  test('no auto operator names in simple subscripts when typing', function () {
+    mq.config(normalConfig);
+    mq.typedText('x_')
+    mq.typedText('sin')
+    assertLatex('subscripts turn to operatorname','x_{\\sin}');
+    mq.latex('');
+    mq.config(subscriptConfig);
     mq.typedText('x_')
     mq.typedText('sin')
     assertLatex('subscripts do not turn to operatorname','x_{sin}');
+    mq.config(normalConfig);
   })
 
-  test('does not work in simple subscripts when pasting', function () {
-    $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+  test('no auto operator names in simple subscripts when pasting', function () {
+    var textarea = $(mq.el()).find('textarea');
+    mq.config(normalConfig);
+    textarea.trigger('paste').val('x_{sin}').trigger('input');
+    assertLatex('subscripts turn to operatorname','x_{\\sin}');
+    mq.latex('');
+    mq.config(subscriptConfig);
+    textarea.trigger('paste').val('x_{sin}').trigger('input');
     assertLatex('subscripts do not turn to operatorname','x_{sin}');
+    mq.config(normalConfig);
   })
 
   test('text() output', function(){

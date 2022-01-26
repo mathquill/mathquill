@@ -1045,12 +1045,20 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('autoParenthesizedFunctions', function() {
+    var normalConfig = {
+      autoParenthesizedFunctions: 'sin cos tan ln',
+      autoOperatorNames: 'sin ln',
+      autoCommands: 'sum int'
+    };
+    var subscriptConfig = {
+      autoParenthesizedFunctions: 'sin cos tan ln',
+      autoOperatorNames: 'sin ln',
+      autoCommands: 'sum int',
+      disableAutoSubstitutionInSubscripts: true
+    };
+
     setup(function() {
-      mq.config({
-        autoParenthesizedFunctions: 'sin cos tan ln',
-        autoOperatorNames: 'sin ln',
-        autoCommands: 'sum int'
-      });
+      mq.config(normalConfig);
     });
 
     test('individual commands', function(){
@@ -1104,16 +1112,31 @@ suite('typing with auto-replaces', function() {
       assertLatex('\\int_{\\sin\\left(\\right)}^{ }');
     })
 
-    test('does not work in simple subscripts', function () {
+    test('no auto operator names in simple subscripts', function () {
+      mq.config(normalConfig);
       mq.typedText('x_')
       assertLatex('x_{ }');
       mq.typedText('sin')
+      assertLatex('x_{\\sin\\left(\\right)}');
+      mq.latex('');
+      mq.config(subscriptConfig);
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('sin');
       assertLatex('x_{sin}');
+      mq.config(normalConfig);
     })
 
-    test('does not work in simple subscripts when pasting', function () {
-      $(mq.el()).find('textarea').trigger('paste').val('x_{sin}').trigger('input');
+    test('no auto operator names in simple subscripts when pasting', function () {
+      var textarea = $(mq.el()).find('textarea');
+      mq.config(normalConfig);
+      textarea.trigger('paste').val('x_{sin}').trigger('input');
+      assertLatex('x_{\\sin}');
+      mq.latex('');
+      mq.config(subscriptConfig);
+      textarea.trigger('paste').val('x_{sin}').trigger('input');
       assertLatex('x_{sin}');
+      mq.config(normalConfig);
     })
   });
 
@@ -1132,11 +1155,18 @@ suite('typing with auto-replaces', function() {
   });
 
   suite('autoCommands', function() {
+    var normalConfig = {
+      autoOperatorNames: 'sin pp',
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
+    };
+    var subscriptConfig = {
+      autoOperatorNames: 'sin pp',
+      autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent',
+      disableAutoSubstitutionInSubscripts: true
+    };
+
     setup(function() {
-      mq.config({
-        autoOperatorNames: 'sin pp',
-        autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent'
-      });
+      mq.config(normalConfig);
     });
 
     test('individual commands', function(){
@@ -1246,6 +1276,21 @@ suite('typing with auto-replaces', function() {
                       'MQ.config({ autoCommands: "'+cmds[i]+'" })');
       }
     });
+
+    test('no auto commands in simple subscripts', function () {
+      mq.config(normalConfig);
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('pi')
+      assertLatex('x_{\\pi}');
+      mq.latex('');
+      mq.config(subscriptConfig);
+      mq.typedText('x_')
+      assertLatex('x_{ }');
+      mq.typedText('pi');
+      assertLatex('x_{pi}');
+      mq.config(normalConfig);
+    })
 
     suite('command list not perfectly space-delimited', function() {
       test('double space', function() {
