@@ -16,11 +16,11 @@ ControllerBase.onNotify(function (cursor, e) {
 });
 
 class Controller_focusBlur extends Controller_exportText {
-  blurred:boolean;
-  __disableGroupingTimeout:number;
-  textareaSelectionTimeout:number;
+  blurred: boolean;
+  __disableGroupingTimeout: number;
+  textareaSelectionTimeout: number;
 
-  disableGroupingForSeconds (seconds:number) {
+  disableGroupingForSeconds(seconds: number) {
     clearTimeout(this.__disableGroupingTimeout);
     var jQ = this.root.jQ;
 
@@ -34,47 +34,55 @@ class Controller_focusBlur extends Controller_exportText {
     }
   }
 
-  focusBlurEvents () {
-    var ctrlr = this, root = ctrlr.root, cursor = ctrlr.cursor;
-    var blurTimeout:number;
+  focusBlurEvents() {
+    var ctrlr = this,
+      root = ctrlr.root,
+      cursor = ctrlr.cursor;
+    var blurTimeout: number;
     const textarea = ctrlr.getTextareaOrThrow();
-    textarea.focus(function() {
-      ctrlr.updateMathspeak();
-      ctrlr.blurred = false;
-      clearTimeout(blurTimeout);
-      ctrlr.container.addClass('mq-focused');
-      if (!cursor.parent) cursor.insAtRightEnd(root);
-      if (cursor.selection) {
-        cursor.selection.jQ.removeClass('mq-blur');
-        ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
-      } else {
-        cursor.show();
-      }
-      ctrlr.setOverflowClasses();
-
-    }).blur(function() {
-      if (ctrlr.textareaSelectionTimeout) {
-        clearTimeout(ctrlr.textareaSelectionTimeout);
-        ctrlr.textareaSelectionTimeout = 0;
-      }
-      ctrlr.disableGroupingForSeconds(0);
-      ctrlr.blurred = true;
-      blurTimeout = setTimeout(function() { // wait for blur on window; if
-        root.postOrder(function (node) { node.intentionalBlur(); }); // none, intentional blur: #264
-        cursor.clearSelection().endSelection();
-        blur();
+    textarea
+      .focus(function () {
         ctrlr.updateMathspeak();
-        ctrlr.scrollHoriz();
+        ctrlr.blurred = false;
+        clearTimeout(blurTimeout);
+        ctrlr.container.addClass('mq-focused');
+        if (!cursor.parent) cursor.insAtRightEnd(root);
+        if (cursor.selection) {
+          cursor.selection.jQ.removeClass('mq-blur');
+          ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
+        } else {
+          cursor.show();
+        }
+        ctrlr.setOverflowClasses();
+      })
+      .blur(function () {
+        if (ctrlr.textareaSelectionTimeout) {
+          clearTimeout(ctrlr.textareaSelectionTimeout);
+          ctrlr.textareaSelectionTimeout = 0;
+        }
+        ctrlr.disableGroupingForSeconds(0);
+        ctrlr.blurred = true;
+        blurTimeout = setTimeout(function () {
+          // wait for blur on window; if
+          root.postOrder(function (node) {
+            node.intentionalBlur();
+          }); // none, intentional blur: #264
+          cursor.clearSelection().endSelection();
+          blur();
+          ctrlr.updateMathspeak();
+          ctrlr.scrollHoriz();
+        });
+        $(window).bind('blur', windowBlur);
       });
-      $(window).bind('blur', windowBlur);
-    });
-    function windowBlur() { // blur event also fired on window, just switching
+    function windowBlur() {
+      // blur event also fired on window, just switching
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
       if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
       blur();
       ctrlr.updateMathspeak();
     }
-    function blur() { // not directly in the textarea blur handler so as to be
+    function blur() {
+      // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(cursor); // synchronous with/in the same frame as
       ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
@@ -85,12 +93,12 @@ class Controller_focusBlur extends Controller_exportText {
     }
     ctrlr.blurred = true;
     cursor.hide().parent.blur(cursor);
-  };
-  unbindFocusBlurEvents () {
+  }
+  unbindFocusBlurEvents() {
     var textarea = this.getTextareaOrThrow();
     textarea.unbind('focus blur');
-  };
-};
+  }
+}
 
 /**
  * TODO: I wanted to move MathBlock::focus and blur here, it would clean

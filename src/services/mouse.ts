@@ -1,20 +1,24 @@
 /********************************************************
  * Deals with mouse events for clicking, drag-to-select
  *******************************************************/
-const ignoreNextMouseDownNoop = (_el:MouseEvent) => { return false };
+const ignoreNextMouseDownNoop = (_el: MouseEvent) => {
+  return false;
+};
 Options.prototype.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
 // Whenever edits to the tree occur, in-progress selection events
 // must be invalidated and selection changes must not be applied to
 // the edited tree. cancelSelectionOnEdit takes care of this.
-var cancelSelectionOnEdit: undefined | {
-  cb: () => void,
-  cursor: Cursor
-};
+var cancelSelectionOnEdit:
+  | undefined
+  | {
+      cb: () => void;
+      cursor: Cursor;
+    };
 
 (function () {
   ControllerBase.onNotify(function (cursor, e) {
-    if ((e === 'edit' || e === 'replace')) {
+    if (e === 'edit' || e === 'replace') {
       // this will be called any time ANY mathquill is edited. We only want
       // to cancel selection if the selection is happening within the mathquill
       // that dispatched the notify. Otherwise you won't be able to select any
@@ -27,14 +31,17 @@ var cancelSelectionOnEdit: undefined | {
 })();
 
 class Controller_mouse extends Controller_latex {
-  delegateMouseEvents () {
+  delegateMouseEvents() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
-    this.container.bind('mousedown.mathquill', function(_e:Event) {
+    this.container.bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = (NodeBase.getNodeOfElement(rootjQ[0]) || NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
-      var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
+      var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
+        NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
+      var ctrlr = root.controller,
+        cursor = ctrlr.cursor,
+        blink = cursor.blink;
       var textareaSpan = ctrlr.getTextareaSpanOrThrow();
       var textarea = ctrlr.getTextareaOrThrow();
 
@@ -44,37 +51,44 @@ class Controller_mouse extends Controller_latex {
       if (cursor.options.ignoreNextMousedown(e)) return;
       else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
-      var target:$ | undefined;
-      function mousemove(e:Event) { target = $(e.target); }
-      function docmousemove(e:MouseEvent) {
+      var target: $ | undefined;
+      function mousemove(e: Event) {
+        target = $(e.target);
+      }
+      function docmousemove(e: MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target!, e.pageX, e.pageY).cursor.select();
-        if(cursor.selection) cursor.controller.aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
+        if (cursor.selection)
+          cursor.controller.aria
+            .clear()
+            .queue(cursor.selection.join('mathspeak') + ' selected')
+            .alert();
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
 
-      function unbindListeners (e:MouseEvent) {
+      function unbindListeners(e: MouseEvent) {
         // delete the mouse handlers now that we're not dragging anymore
         rootjQ.unbind('mousemove', mousemove);
 
-        const anyTarget = e.target as any;  // TODO - why do we need to cast to any?
-        $(anyTarget.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+        const anyTarget = e.target as any; // TODO - why do we need to cast to any?
+        $(anyTarget.ownerDocument)
+          .unbind('mousemove', docmousemove)
+          .unbind('mouseup', mouseup);
         cancelSelectionOnEdit = undefined;
       }
 
-      function updateCursor () {
+      function updateCursor() {
         if (ctrlr.editable) {
           cursor.show();
           cursor.controller.aria.queue(cursor.parent).alert();
-        }
-        else {
+        } else {
           textareaSpan.detach();
         }
       }
 
-      function mouseup(e:MouseEvent) {
+      function mouseup(e: MouseEvent) {
         cursor.blink = blink;
         if (!cursor.selection) updateCursor();
         unbindListeners(e);
@@ -92,8 +106,8 @@ class Controller_mouse extends Controller_latex {
           cursor.clearSelection();
           updateCursor();
           unbindListeners(e);
-        }
-      }
+        },
+      };
 
       if (ctrlr.blurred) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
@@ -109,17 +123,17 @@ class Controller_mouse extends Controller_latex {
       ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
 
       rootjQ.mousemove(mousemove);
-      const anyTarget = e.target as any;  // TODO - why do we need to cast to any?
+      const anyTarget = e.target as any; // TODO - why do we need to cast to any?
       $(anyTarget.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
       // listen on document not just body to not only hear about mousemove and
       // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
     });
   }
-  
-  seek ($target:$, pageX:number, _pageY:number) {
+
+  seek($target: $, pageX: number, _pageY: number) {
     var cursor = this.notify('select').cursor;
     var node;
-    var targetElm:HTMLElement | null = $target && $target[0];
+    var targetElm: HTMLElement | null = $target && $target[0];
 
     // we can click on an element that is deeply nested past the point
     // that mathquill knows about. We need to traverse up to the first
@@ -145,7 +159,7 @@ class Controller_mouse extends Controller_latex {
 
     node.seek(pageX, cursor);
     this.scrollHoriz(); // before .selectFrom when mouse-selecting, so
-                        // always hits no-selection case in scrollHoriz and scrolls slower
+    // always hits no-selection case in scrollHoriz and scrolls slower
     return this;
-  };
-};
+  }
+}

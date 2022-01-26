@@ -2,17 +2,21 @@
  * Manage the MathQuill instance's textarea
  * (as owned by the Controller)
  ********************************************/
-Options.prototype.substituteTextarea = function() {
-  return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-             'spellcheck=false x-palm-disable-ste-all=true/>')[0];
+Options.prototype.substituteTextarea = function () {
+  return $(
+    '<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+      'spellcheck=false x-palm-disable-ste-all=true/>'
+  )[0];
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
 class Controller extends Controller_scrollHoriz {
-  selectFn: (text:string) => void;
+  selectFn: (text: string) => void;
 
-  createTextarea () {
-    var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
+  createTextarea() {
+    var textareaSpan = (this.textareaSpan = $(
+        '<span class="mq-textarea"></span>'
+      )),
       textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
@@ -21,9 +25,11 @@ class Controller extends Controller_scrollHoriz {
     this.aria.setContainer(this.textareaSpan);
 
     var ctrlr = this;
-    ctrlr.cursor.selectionChanged = function() { ctrlr.selectionChanged(); };
-  };
-  selectionChanged () {
+    ctrlr.cursor.selectionChanged = function () {
+      ctrlr.selectionChanged();
+    };
+  }
+  selectionChanged() {
     var ctrlr = this;
 
     // throttle calls to setTextareaSelection(), because setting textarea.value
@@ -32,12 +38,12 @@ class Controller extends Controller_scrollHoriz {
     //
     // Note, this timeout may be cleared by the blur handler in focusBlur.js
     if (!ctrlr.textareaSelectionTimeout) {
-      ctrlr.textareaSelectionTimeout = setTimeout(function() {
+      ctrlr.textareaSelectionTimeout = setTimeout(function () {
         ctrlr.setTextareaSelection();
       });
     }
-  };
-  setTextareaSelection () {
+  }
+  setTextareaSelection() {
     this.textareaSelectionTimeout = 0;
     var latex = '';
     if (this.cursor.selection) {
@@ -49,15 +55,18 @@ class Controller extends Controller_scrollHoriz {
       }
     }
     this.selectFn(latex);
-  };
-  staticMathTextareaEvents () {
-    var ctrlr = this
-    var cursor = ctrlr.cursor
+  }
+  staticMathTextareaEvents() {
+    var ctrlr = this;
+    var cursor = ctrlr.cursor;
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    this.container.prepend(jQuery('<span aria-hidden="true" class="mq-selectable">')
-      .text('$'+ctrlr.exportLatex()+'$'));
+    this.container.prepend(
+      jQuery('<span aria-hidden="true" class="mq-selectable">').text(
+        '$' + ctrlr.exportLatex() + '$'
+      )
+    );
     this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
     this.container.prepend(this.mathspeakSpan);
     ctrlr.blurred = true;
@@ -65,60 +74,72 @@ class Controller extends Controller_scrollHoriz {
     if (ctrlr.options.disableCopyPaste) {
       textarea.bind('copy', false);
     } else {
-      textarea.bind('copy', function() { ctrlr.setTextareaSelection(); })
+      textarea.bind('copy', function () {
+        ctrlr.setTextareaSelection();
+      });
     }
-    textarea.focus(function() { ctrlr.blurred = false; }).blur(function() {
-      if (cursor.selection) cursor.selection.clear();
-      setTimeout(detach); //detaching during blur explodes in WebKit
-    });
+    textarea
+      .focus(function () {
+        ctrlr.blurred = false;
+      })
+      .blur(function () {
+        if (cursor.selection) cursor.selection.clear();
+        setTimeout(detach); //detaching during blur explodes in WebKit
+      });
     function detach() {
       textareaSpan.detach();
       ctrlr.blurred = true;
     }
 
-    ctrlr.selectFn = function(text:string) {
+    ctrlr.selectFn = function (text: string) {
       textarea.val(text);
       if (text) textarea.select();
     };
     this.updateMathspeak();
-  };
-  editablesTextareaEvents () {
+  }
+  editablesTextareaEvents() {
     var ctrlr = this;
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(textarea, this);
-    this.selectFn = function(text:string) { keyboardEventsShim.select(text); };
+    var keyboardEventsShim = this.options.substituteKeyboardEvents(
+      textarea,
+      this
+    );
+    this.selectFn = function (text: string) {
+      keyboardEventsShim.select(text);
+    };
     this.container.prepend(textareaSpan);
     this.focusBlurEvents();
     this.updateMathspeak();
-  };
-  unbindEditablesEvents () {
-    var ctrlr = this
+  }
+  unbindEditablesEvents() {
+    var ctrlr = this;
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-      this.selectFn = function(text:string) {
-        textarea.val(text);
-        if (text) textarea.select();
-      };
-      textareaSpan.remove();
+    this.selectFn = function (text: string) {
+      textarea.val(text);
+      if (text) textarea.select();
+    };
+    textareaSpan.remove();
 
-      this.unbindFocusBlurEvents();
+    this.unbindFocusBlurEvents();
 
-      ctrlr.blurred = true;
-      textarea.bind('cut paste', false);
-  };
-  typedText (ch:string) {
+    ctrlr.blurred = true;
+    textarea.bind('cut paste', false);
+  }
+  typedText(ch: string) {
     if (ch === '\n') return this.handle('enter');
     var cursor = this.notify(undefined).cursor;
     cursor.parent.write(cursor, ch);
     this.scrollHoriz();
-  };
-  cut () {
-    var ctrlr = this, cursor = ctrlr.cursor;
+  }
+  cut() {
+    var ctrlr = this,
+      cursor = ctrlr.cursor;
     if (cursor.selection) {
-      setTimeout(function() {
+      setTimeout(function () {
         ctrlr.notify('edit'); // deletes selection if present
         cursor.parent.bubble(function (node) {
           (node as MQNode).reflow();
@@ -129,22 +150,21 @@ class Controller extends Controller_scrollHoriz {
         }
       });
     }
-  };
-  copy () {
+  }
+  copy() {
     this.setTextareaSelection();
-  };
-  paste (text:string) {
+  }
+  paste(text: string) {
     // TODO: document `statelessClipboard` config option in README, after
     // making it work like it should, that is, in both text and math mode
     // (currently only works in math fields, so worse than pointless, it
     //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
     //  cut/copied LaTeX)
     if (this.options.statelessClipboard) {
-      if (text.slice(0,1) === '$' && text.slice(-1) === '$') {
+      if (text.slice(0, 1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
-      }
-      else {
-        text = '\\text{'+text+'}';
+      } else {
+        text = '\\text{' + text + '}';
       }
     }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
@@ -153,15 +173,14 @@ class Controller extends Controller_scrollHoriz {
     if (this.options && this.options.onPaste) {
       this.options.onPaste();
     }
-  };
-  updateMathspeak () {
+  }
+  updateMathspeak() {
     var ctrlr = this;
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
     var ariaLabel = ctrlr.getAriaLabel();
-    var labelWithSuffix =
-      /[A-Za-z0-9]$/.test(ariaLabel)
-        ? ariaLabel + ':'
-        : ariaLabel;
+    var labelWithSuffix = /[A-Za-z0-9]$/.test(ariaLabel)
+      ? ariaLabel + ':'
+      : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
     this.aria.clear();
 
@@ -174,12 +193,12 @@ class Controller extends Controller_scrollHoriz {
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
       textarea.attr('aria-label', '');
-      ctrlr.mathspeakSpan.text((labelWithSuffix+' ' + mathspeak).trim());
+      ctrlr.mathspeakSpan.text((labelWithSuffix + ' ' + mathspeak).trim());
     } else {
       textarea.attr(
         'aria-label',
-        (labelWithSuffix+' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
+        (labelWithSuffix + ' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
     }
-  };
-};
+  }
+}

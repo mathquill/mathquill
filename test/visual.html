@@ -1,547 +1,1297 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=624" />
 
-<meta charset="UTF-8">
-<meta name="viewport" content="width=624">
+    <title>MathQuill Test Page</title>
 
-<title>MathQuill Test Page</title>
+    <link rel="stylesheet" type="text/css" href="support/home.css" />
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
 
-<link rel="stylesheet" type="text/css" href="support/home.css">
-<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+    <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
 
-<script type="text/javascript" src="support/jquery-1.5.2.js"></script>
-
-<style type="text/css">
-body {
-  font-size: .8em;
-}
-#body {
-  padding: 1.25em;
-}
-h1 {
-  font-size: 2.5em;
-}
-td {
-  width: 33%;
-}
-#static-latex-rendering-table td {
-  width: 50%;
-}
-#show-textareas-button {
-  float: right;
-}
-.show-textareas .mq-editable-field.mq-text-mode {
-  overflow: visible;
-}
-.show-textareas .mq-textarea textarea {
-  font-size: inherit;
-  clip: auto !important;
-  resize: auto !important;
-  height: auto !important;
-  width: auto !important;
-  top: -45px;
-}
-
-/* Non-white background test */
-.different-bgcolor.mq-editable-field {
-  background: black;
-  color: white;
-}
-.different-bgcolor.mq-editable-field .cursor {
-  border-color: white;
-}
-
-#overflow-test {
-  width: 100px;
-}
-
-</style>
-
-</head>
-<body>
-<div id="body">
-
-<a href="http://github.com/laughinghan/mathquill"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub!"></a>
-
-<h1><a href="http://mathquill.github.com">MathQuill</a> Tests <small>local test page</small></h1>
-
-<button id="show-textareas-button">Show Textareas</button>
-
-<h3>MathQuill Editables</h3>
-
-<p>In all editable fields, the selection should clear and ghost parens should solidify if you click outside, but not if you switch tabs/windows and switch back to this page.
-
-<table id="editables">
-<tr><th colspan=3>Initial LaTeX
-<tr>
-  <td><span class="mathquill-math-field">\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span>
-  <td><span class="mathquill-text-field">lolwut $a^2 + b^2 = c^2$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
-  <td><span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span>
-</table>
-
-<p>Touch taps/clicks/mousedown to drag should work anywhere in the blue box: <div class="math-container" style="border: solid 1px lightblue; height: 5em; width: 15em; line-height: 5em; text-align: center; -webkit-tap-highlight-color: rgba(0,0,0,0)"><span class="mathquill-math-field">x_{very\ long\ thing}^2 + a_0 = 0</span></div>
-
-<h3>Redrawing</h3>
-<p>
-  <span id="reflowing-test">\sqrt{}</span>
-  should look the same as
-  <span class="mathquill-static-math">
-    \sqrt{\pi\sqrt\sqrt\frac12}
-  </span>
-</p>
-<script type="text/javascript">
-  $(function() {
-    var count = 0;
-    MQ.MathField($('#reflowing-test')[0], {
-      handlers: { edit: function() { count += 1; } }, // also test 'edit' hook
-    }).focus().moveToLeftEnd().keystroke('Right');
-    var textarea = $('#reflowing-test textarea');
-    // paste some stuff that needs resizing
-    textarea.trigger('paste');
-    textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
-    setTimeout(function() { if (count !== 1) throw 'reflow not called'; });
-  });
-</script>
-
-<h3>Behavior Options</h3>
-
-<p><span id="custom-behavior">x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span></p>
-<p>Space should behave like Tab, left and right should go through the upper block, sums should start with <code>n=</code>, exponents should require an base, any of <code>+-=&lt;&gt;</code> should break out of an exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and <code>sum</code> should all be auto-commands, but <code>only</code> should be the only auto-operator name (so <code>sin</code> etc. shouldn't automatically become non-italicized).</p>
-
-<script>
-$(function() {
-  MQ.MathField($('#custom-behavior')[0], {
-    spaceBehavesLikeTab: true,
-    leftRightIntoCmdGoes: 'up',
-    restrictMismatchedBrackets: true,
-    sumStartsWithNEquals: true,
-    supSubsRequireOperand: true,
-    charsThatBreakOutOfSupSub: '+-=<>',
-    autoSubscriptNumerals: true,
-    autoCommands: 'pi theta sqrt sum',
-    autoOperatorNames: 'only'
-  });
-});
-</script>
-
-<h3>Up/Down seeking and caching</h3>
-
-<p>
-  <span id="seek-test" class="mathquill-math-field">
-    \frac{1}{\sqrt \sqrt \sqrt \sqrt \sqrt \sqrt x}
-  </span>
-</p>
-
-<p>
-&uarr; If you hit down from next to the 1, you should end up inside one of the square roots. If you hit up from the right of the x and then hit down again, you should end up where you were.
-</p>
-
-<h3>Horizontal overflow</h3>
-
-<p>
-<span id="overflow-test">
-  \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
-</span>
-(for comparison: <input value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"/>)
-</p>
-
-<script>
-$(function() {
-  var overflowTest = $('#overflow-test');
-  MQ.MathField(overflowTest[0]);
-  var width = overflowTest.outerWidth(true);
-  if (width !== 102) {
-    throw 'math field '+width+'px wide instead of 102px';
-  }
-});
-</script>
-
-<h3>Selection Tests</h3>
-
-<p id="selection-tests"><span class="mathquill-text-field different-bgcolor">lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.  Also, awesomesauce: $\int_0^1 \sin x dx.</span>
-
-<p>Even in IE&lt;9, the background color of the parens and square root radical should be the background color of the selection.
-
-<p>Static math with mouseEvents set to false should not interact with the mouse: <span class="static-math-no-mouse-events">12 + 34</span></p>
-
-<p>Even in the case where it has an empty element: <span class="static-math-no-mouse-events">\sqrt{} </span></p>
-
-<h3>Dynamic mathquill-ification</h3>
-<table id="dynamic-initial">
-<tr><th colspan=3>Initial LaTeX
-<tr>
-  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
-  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
-  <td><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span>
-<tr>
-  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
-  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
-  <td><span>\frac{ \text{apples} }{ \text{oranges} } = \text{NaN}</span>
-</table>
-<table id="dynamic-reflow">
-<tr><th colspan=3><code>MQ(...).reflow()</code>
-<tr>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-  <td><span>\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } + \binom{n}{k}</span>
-</table>
-
-<h3>Static LaTeX rendering (<code>.mathquill-static-math</code>) tests</h3>
-<table id="static-latex-rendering-table">
-<tr><td><span class="mathquill-static-math">^{\frac{as}{ }df}</span><td><span>^{\frac{as}{ }df}</span>
-<tr><td><span class="mathquill-static-math">e^{i\pi}+1=0</span><td><span>e^{i\pi}+1=0</span>
-<tr><td><span class="mathquill-static-math">\sqrt[n]{1}</span><td><span>\sqrt[n]{1}</span>
-<tr><td><span class="mathquill-static-math">\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span></td><td><span>\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span>
-<tr><td><span class="mathquill-static-math">12a\sin b</span></td><td><span>12a\sin b</span>
-<tr><td><span class="mathquill-static-math">1a^2 \sin b</span></td><td><span>1a^2 \sin b</span>
-<tr><td><span class="mathquill-static-math">a + \sin b</span></td><td><span>a + \sin b</span>
-<tr><td><span class="mathquill-static-math">a + b</span></td><td><span>a + b</span>
-<tr><td><span class="mathquill-static-math">\sum\sin</span></td><td><span>\sum\sin</span>
-<tr><td><span class="mathquill-static-math">\sum a</span></td><td><span>\sum a</span>
-<tr><td><span class="mathquill-static-math">(\sin)</span></td><td><span>(\sin)</span>
-<tr><td><span class="mathquill-static-math">\left(\sin\right)</span></td><td><span>\left(\sin\right)</span>
-<tr><td><span class="mathquill-static-math">(x)\sin(x)</span></td><td><span>(x)\sin(x)</span>
-<tr><td><span class="mathquill-static-math">\left(x\right)\sin\left(x\right)</span></td><td><span>\left(x\right)\sin\left(x\right)</span>
-<tr><td><span class="mathquill-static-math">a \sin b</span></td><td><span>a \sin b</span>
-<tr><td><span class="mathquill-static-math">-1 + +-2</span><td><span>-1 + +-2</span>
-<tr><td><span class="mathquill-static-math">\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span><td><span>\left ( n+1 \right ) + \frac{1}{\frac{n}{k}} + \binom{n}{k}</span>
-<tr><td><span class="mathquill-static-math">x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span><td><span>x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span>
-<tr><td><span class="mathquill-static-math" style="font-size:14.99px">\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span><td><span>\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span>
-<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\left| a + \left| b \right| \right|</span><td><span>\left| a + \left| b \right| \right|</span>
-<tr><td><span class="mathquill-static-math" style="font-size:1.4375em">\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span><td><span>\sqrt{x}+\sqrt{\frac{x}{\frac{ }{\frac{ }{ }}}}+\sqrt{\frac{x}{\frac{ }{\frac{ }{\frac{ }{\frac{ }{ }}}}}}</span>
-<tr><td><span class="mathquill-static-math">1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span><td><span>1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span>^M
-<tr><td><span class="mathquill-static-math">x\ \ \ +\ \ \ y</span><td><span>x\ \ \ +\ \ \ y</span>^M
-<tr><td><span class="mathquill-static-math">\sum _{n=0}^3\cos x</span><td><span>\sum _{n=0}^3\cos x</span>^M
-<tr><td><span class="mathquill-static-math">\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span><td><span>\vec x + \tilde x + \vec A + \tilde A + \vec{abcd} + \tilde{abcd}</span>^M
-<tr><td><span class="mathquill-static-math">\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span><td><span>\int _{\phi =0}^{2\pi }\int _{\theta =0}^{\pi }\int _{r=0}^{\infty }f(r,\theta ,\phi )r^2\sin \theta drd\theta d\phi </span>
-<tr><td><span class="mathquill-static-math">\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span><td><span>\int_0^{\frac{\frac{1}{2}}{3}} \int_0^{\frac{1}{\frac{2}{3}}} \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span>
-<tr><td><span class="mathquill-static-math">\overline{abc}</span><td><span>\overline{abc}</span>
-<tr><td><span class="mathquill-static-math">\overleftarrow{abc}</span><td><span>\overleftarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overrightarrow{abc}</span><td><span>\overrightarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overleftrightarrow{abc}</span><td><span>\overleftrightarrow{abc}</span>
-<tr><td><span class="mathquill-static-math">\overarc{abc}</span><td><span>\overarc{abc}</span>
-<tr><td colspan=2><span id="sixes"></span>
-<script>
-$(function() {
-    var i,
-        sixes = '',
-        start = 10,
-        end = 40;
-    for (i = start; i <= end; i++) {
-        sixes += '<span style="font-size: ' + i + 'px" class="mathquill-math-field">6<\/span>';
-    }
-    $('#sixes').html(sixes);
-    $('#sixes .mathquill-math-field').each(function() { MQ.MathField(this); });
-});
-</script>
-</table>
-
-<p id="paren-alignment">Parentheses vertical alignment at font sizes ranging from 10px to 24px: <button>Click Me</button></p>
-<script>
-$('#paren-alignment button').click(function() {
-  var html = '<div>';
-  for (var i = 10; i <= 24; i += 1) {
-    html += i+'px: <span class="mathquill-static-math" style="font-size:'+i+'px">\\left(\\left(\\left(\\left(\\left(\\left(\\left( \\right)\\right)\\right)\\right)\\right)\\right)\\right)+\\left(1\\right)+\\left(x\\right)+\\left(y\\right)+\\left(\\frac{1}{2}\\right)+\\left(\\frac{\\frac{1}{x}}{2}\\right)+\\left(\\frac{1}{\\frac{x}{2}}\\right)+\\left(\\frac{\\frac{\\frac{1}{2}}{\\frac{3}{4}}}{\\frac{\\frac{5}{6}}{\\frac{7}{8}}}\\right)</span><br>';
-  }
-  html += '</div>';
-  $(html).insertAfter('#paren-alignment').find('.mathquill-static-math').each(function() {
-    MQ.StaticMath(this);
-  });
-});
-</script>
-
-<h3>Dynamic rendering performance</h3>
-<p id="latex-render-perf">LaTeX: <textarea></textarea> <button>&rarr;</button> <span class="mathquill-math-field"></span></p>
-<p id="html-render-perf">HTML: <textarea></textarea> <button>&rarr;</button> <span class="mq-math-mode"></span></p>
-
-<p>There should be no space between here <span class="mathquill-static-math">            </span>and here, even in IE8</p>
-
-<h3>Textcolor</h3>
-
-<p>Colors should match their names:
-<span class="mathquill-static-math">
-  \textcolor{#0000FF}{blue} + \textcolor{red}{red}
-  = \textcolor { rgb(255, -10, 255) } {magenta}
-</span>
-</p>
-<p>Nested <code>\textcolor</code>: the 2 should be red, the "a+" green, the 4 blue, and the "+b" green again.
-<span class="mathquill-static-math">
-e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
-</span>
-</p>
-
-<h3>Adding CSS class</h3>
-<style type="text/css">
-  .testclass { background-color: #5A8; border-radius: 5px; padding: 4px; font-weight:bold;color:gold;}
-</style>
-<p>Second term should be styled like <span class='testclass'>this</span>:
-  <span class="mathquill-static-math">
-x+\class{testclass}{y}+z
-</span>
-</p>
-
-<h3>substituteTextarea</h3>
-
-<p>In Safari on iOS, this should be focusable but not bring up the on-screen keyboard; to test, try focusing anything else and confirm this blurs: <span id="no-kbd-math"></span> (confirmed working on iOS 6.1.3)</p>
-
-<h3>overrideKeystroke and overrideTypedText</h3>
-
-<p>Should be able to prevent typing in this field: <span id="disable-typing">1+2+3</span></p>
-
-<p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing">1+2+3</span></p>
-
-<h3>Text mode</h3>
-
-<p>Spaces at the beginning and end of text mode blocks should be visible: <span class="mathquill-static-math">1\text{ And }2</span></p>
-
-<p>Mutiple consecutive spaces in the middle of a text mode block should not collapse into one space: <span class="mathquill-static-math">\text{three   spaces}</span></p>
-<p>
-  <ul>
-      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
-      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
-
-  </ul
-  ><span id="select-all-right-arrow">3</span>
-</p>
-
-<h3>substituteKeyboardEvents (legacy, use overrideKeystroke and overrideTypedText instead)</h3>
-
-<p>Should be able to prevent cut, typing, and pasting in this field: <span id="disable-typing-ske">1+2+3</span></p>
-
-<p>Should wrap anything you type in '&lt;&gt;': <span id="wrap-typing-ske">1+2+3</span></p>
-
-<p>
-  <ul>
-      <li>[Firefox] Should not change '3' to '33' when you select all and press right arrow.</li>
-      <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
-
-  </ul
-  ><span id="select-all-right-arrow-ske">3</span>
-</p>
-
-</div>
-<script type="text/javascript">
-window.onerror = function(err) {
-  console.log(err); // to show up in Selenium WebDriver logs
-  $('html').css('background', 'red');
-};
-</script>
-<script type="text/javascript" src="../build/mathquill.js"></script>
-<script type="text/javascript">
-MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
-
-$('#show-textareas-button').click(function() {
-  $(document.body).toggleClass('show-textareas');
-});
-
-//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
-//elements according to their CSS class.
-$(function() {
-  $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
-  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents: false }); });
-  $('.mathquill-math-field').each(function() { MQ.MathField(this); });
-  $('.mathquill-text-field').each(function() { MQ.TextField(this); });
-});
-
-// test selecting from outside the mathquill editable
-var $mq = $('.math-container .mathquill-math-field');
-$('.math-container').mousedown(function(e) {
-  if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
-  $mq.triggerHandler(e);
-})
-// test API for "fast touch taps" #622 & #403
-.bind('touchstart', function() {
-  var moved = false;
-  $(this).bind('touchmove.tmp', function() { moved = true; })
-  .bind('touchend.tmp', function(e) {
-    $(this).off('.tmp');
-    MathQuill($mq[0]).ignoreNextMousedown(function() {
-      return Date.now() < e.timeStamp + 1000;
-    });
-    if (moved) return; // note that this happens after .ignoreNextMousedown()
-      // because even if the touch gesture doesn't 'count' as a tap to us,
-      // we still want to suppress the legacy mouse events, else we'd react
-      // fast to some taps and slow to others, that'd be weird
-    var touch = e.originalEvent.changedTouches[0];
-    MathQuill($mq[0]).clickAt(touch.clientX, touch.clientY, touch.target);
-  });
-});
-
-// Selection Tests
-document.body.onload = function() {
-  setTimeout(function() {
-    $('#selection-tests .mathquill-text-field').each(function() {
-      var start = +new Date;
-      $('textarea', this).focus().trigger({type: 'keydown', ctrlKey: true, which: 65});
-      console.log('Time taken to Select All (should be &lt;50ms):',new Date - start);
-    });
-  });
-};
-
-// Dynamic MathQuill-ification
-// Initial LaTeX
-$('#dynamic-initial tr').each(function() {
-  var math = $('span', this);
-  if (!math.length) return;
-
-  MQ.StaticMath(math[0]);
-  MQ.MathField(math[1]);
-  MQ.MathField(math[2]).revert();
-});
-// MQ(...).reflow()
-$('#dynamic-reflow tr').each(function() {
-  var math = $('span', this), td;
-  if (!math.length) return;
-
-  td = math.eq(0).parent();
-  math.eq(0).detach();
-  MQ.StaticMath(math[0]);
-  math.eq(0).appendTo(td);
-  MQ(math[0]).reflow();
-
-  td = math.eq(1).parent();
-  math.eq(1).detach();
-  MQ.MathField(math[1]);
-  math.eq(1).appendTo(td);
-  MQ(math[1]).reflow();
-
-  td = math.eq(2).parent();
-  math.eq(2).detach();
-  MQ.MathField(math[2]).revert();
-  math.eq(2).appendTo(td);
-  if (MQ(math[2])) throw 'should been have reverted';
-});
-
-// Dynamic rendering performance
-function Avgs() {
-  return {
-    avgs: {},
-    add: function(k, v) {
-      if (!this.avgs[k]) this.avgs[k] = { n: 0, avg: 0 };
-      var avgObj = this.avgs[k];
-      avgObj.avg = (avgObj.n*avgObj.avg + v) / (avgObj.n + 1);
-      avgObj.n += 1;
-      return avgObj.avg + 'ms (across ' + avgObj.n + ' trials)';
-    }
-  };
-}
-var performance = window.performance || Date;
-window.rawLogs = [];
-function timeAndLog(f) {
-  var currentLog = [];
-  $.fn.mathquill.setLogFn(function(msg) {
-    currentLog.push({ msg: msg, now: performance.now() });
-  });
-  var start = performance.now();
-  f();
-  var duration = performance.now() - start;
-  $.fn.mathquill.setLogFn($.noop);
-
-  var timeline = [], prev = 0;
-  for (var i = 0; i < currentLog.length; i += 1) {
-    var now = Math.round((currentLog[i].now - start)*1000);
-    timeline.push(now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg);
-    prev = now;
-  }
-  timeline = timeline.join('\n');
-
-  rawLogs.push({
-    start: start,
-    duration: duration,
-    log: currentLog,
-    timeline: timeline
-  });
-  if (timeline.length) {
-    // for tablets without a console
-    if (location.hash === '#alert') alert(timeline);
-    else console.log(timeline);
-  }
-  return duration;
-};
-(function() {
-  var textarea = $('#latex-render-perf textarea');
-  var mathquill = $('#latex-render-perf .mathquill-math-field');
-  var avgs = Avgs();
-  $('#latex-render-perf button').click(function() {
-    var latex = textarea.val();
-    var duration = timeAndLog(function() {
-      mathquill.mathquill('latex', latex);
-    });
-    $('#html-render-perf').after('<p>'+duration+'ms rendering <code>'+latex+'</code>, for an average of '+avgs.add(latex, duration)+'</p>');
-    $('#html-render-perf textarea').val(mathquill.mathquill('html'));
-  });
-}());
-(function() {
-  var textarea = $('#html-render-perf textarea');
-  var span = $('#html-render-perf span');
-  var avgs = Avgs();
-  $('#html-render-perf button').click(function() {
-    var html = textarea.val();
-    var duration = timeAndLog(function() {
-      span.html(html);
-    });
-    $('<p>'+duration+'ms rendering <code></code>, for an average of '+avgs.add(html, duration)+'</p>').find('code').text(html).end()
-      .insertAfter('#html-render-perf');
-  });
-}());
-
-MQ.MathField($('#no-kbd-math')[0], {
-  substituteTextarea: function() {
-    return $('<span tabindex=0 style="display:inline-block;width:1px;height:1px" />')[0];
-  }
-});
-
-MQ.MathField($('#disable-typing')[0], {
-  overrideTypedText: $.noop,
-});
-
-var OTTMQ = MQ.MathField($('#wrap-typing')[0], {
-  overrideTypedText: function (text) {
-    OTTMQ.typedText('<');
-    OTTMQ.typedText(text);
-    OTTMQ.typedText('>');
-  }
-});
-
-var OKSMQ = MQ.MathField($('#select-all-right-arrow')[0], {
-  overrideKeystroke: function (key) {
-    OKSMQ.keystroke(key);
-  }
-});
-
-MQ.MathField($('#disable-typing-ske')[0], {
-  substituteKeyboardEvents: function(textarea, handlers) {
-    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
-      cut: $.noop,
-      paste: $.noop,
-      keystroke: $.noop,
-      typedText: $.noop
-    }));
-  }
-});
-
-var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
-  substituteKeyboardEvents: function(textarea, handlers) {
-    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
-      typedText: function (text) {
-        SKEMQ1.typedText('<');
-        SKEMQ1.typedText(text);
-        SKEMQ1.typedText('>');
+    <style type="text/css">
+      body {
+        font-size: 0.8em;
       }
-    }));
-  }
-});
-
-var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
-  substituteKeyboardEvents: function(textarea, handlers) {
-    return MQ.saneKeyboardEvents(textarea, $.extend({}, handlers, {
-      keystroke: function (key) {
-        SKEMQ2.keystroke(key);
+      #body {
+        padding: 1.25em;
       }
-    }));
-  }
-});
-</script>
-</body>
+      h1 {
+        font-size: 2.5em;
+      }
+      td {
+        width: 33%;
+      }
+      #static-latex-rendering-table td {
+        width: 50%;
+      }
+      #show-textareas-button {
+        float: right;
+      }
+      .show-textareas .mq-editable-field.mq-text-mode {
+        overflow: visible;
+      }
+      .show-textareas .mq-textarea textarea {
+        font-size: inherit;
+        clip: auto !important;
+        resize: auto !important;
+        height: auto !important;
+        width: auto !important;
+        top: -45px;
+      }
+
+      /* Non-white background test */
+      .different-bgcolor.mq-editable-field {
+        background: black;
+        color: white;
+      }
+      .different-bgcolor.mq-editable-field .cursor {
+        border-color: white;
+      }
+
+      #overflow-test {
+        width: 100px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="body">
+      <a href="http://github.com/laughinghan/mathquill"
+        ><img
+          style="position: absolute; top: 0; right: 0; border: 0"
+          src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+          alt="Fork me on GitHub!"
+      /></a>
+
+      <h1>
+        <a href="http://mathquill.github.com">MathQuill</a> Tests
+        <small>local test page</small>
+      </h1>
+
+      <button id="show-textareas-button">Show Textareas</button>
+
+      <h3>MathQuill Editables</h3>
+
+      <p>
+        In all editable fields, the selection should clear and ghost parens
+        should solidify if you click outside, but not if you switch tabs/windows
+        and switch back to this page.
+      </p>
+
+      <table id="editables">
+        <tr>
+          <th colspan="3">
+            Initial LaTeX
+            <tr>
+              <td>
+                <span class="mathquill-math-field"
+                  >\frac{d}{dx}\sqrt{x}=\frac{1}{2\sqrt{x}}</span
+                >
+              </td>
+              <td>
+                <span class="mathquill-text-field"
+                  >lolwut $a^2 + b^2 = c^2$. Also, awesomesauce: $\int_0^1 \sin
+                  x dx.</span
+                >
+              </td>
+              <td>
+                <span class="mathquill-static-math"
+                  >\sqrt{\MathQuillMathField{x^2+y^2}}</span
+                >
+              </td>
+            </tr>
+          </th>
+        </tr>
+      </table>
+
+      <p>
+        Touch taps/clicks/mousedown to drag should work anywhere in the blue
+        box:
+      </p>
+      <div
+        class="math-container"
+        style="
+          border: solid 1px lightblue;
+          height: 5em;
+          width: 15em;
+          line-height: 5em;
+          text-align: center;
+          -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+        "
+      >
+        <span class="mathquill-math-field"
+          >x_{very\ long\ thing}^2 + a_0 = 0</span
+        >
+      </div>
+
+      <h3>Redrawing</h3>
+      <p>
+        <span id="reflowing-test">\sqrt{}</span>
+        should look the same as
+        <span class="mathquill-static-math"> \sqrt{\pi\sqrt\sqrt\frac12} </span>
+      </p>
+      <script type="text/javascript">
+        $(function () {
+          var count = 0;
+          MQ.MathField($('#reflowing-test')[0], {
+            handlers: {
+              edit: function () {
+                count += 1;
+              },
+            }, // also test 'edit' hook
+          })
+            .focus()
+            .moveToLeftEnd()
+            .keystroke('Right');
+          var textarea = $('#reflowing-test textarea');
+          // paste some stuff that needs resizing
+          textarea.trigger('paste');
+          textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
+          setTimeout(function () {
+            if (count !== 1) throw 'reflow not called';
+          });
+        });
+      </script>
+
+      <h3>Behavior Options</h3>
+
+      <p>
+        <span id="custom-behavior"
+          >x_a^b + \frac{\sqrt[n]{x}}{\frac{1}{2}}</span
+        >
+      </p>
+      <p>
+        Space should behave like Tab, left and right should go through the upper
+        block, sums should start with <code>n=</code>, exponents should require
+        an base, any of <code>+-=&lt;&gt;</code> should break out of an
+        exponent, <code>pi</code>, <code>theta</code>, <code>sqrt</code>, and
+        <code>sum</code> should all be auto-commands, but
+        <code>only</code> should be the only auto-operator name (so
+        <code>sin</code> etc. shouldn't automatically become non-italicized).
+      </p>
+
+      <script>
+        $(function () {
+          MQ.MathField($('#custom-behavior')[0], {
+            spaceBehavesLikeTab: true,
+            leftRightIntoCmdGoes: 'up',
+            restrictMismatchedBrackets: true,
+            sumStartsWithNEquals: true,
+            supSubsRequireOperand: true,
+            charsThatBreakOutOfSupSub: '+-=<>',
+            autoSubscriptNumerals: true,
+            autoCommands: 'pi theta sqrt sum',
+            autoOperatorNames: 'only',
+          });
+        });
+      </script>
+
+      <h3>Up/Down seeking and caching</h3>
+
+      <p>
+        <span id="seek-test" class="mathquill-math-field">
+          \frac{1}{\sqrt \sqrt \sqrt \sqrt \sqrt \sqrt x}
+        </span>
+      </p>
+
+      <p>
+        &uarr; If you hit down from next to the 1, you should end up inside one
+        of the square roots. If you hit up from the right of the x and then hit
+        down again, you should end up where you were.
+      </p>
+
+      <h3>Horizontal overflow</h3>
+
+      <p>
+        <span id="overflow-test">
+          \frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}
+        </span>
+        (for comparison:
+        <input
+          value="\frac{d}{dx}\sqrt{x}=\frac{d}{dx}x^{\frac{1}{2}}=\frac{1}{2}x^{-\frac{1}{2}}=\frac{1}{2\sqrt{x}}"
+        />)
+      </p>
+
+      <script>
+        $(function () {
+          var overflowTest = $('#overflow-test');
+          MQ.MathField(overflowTest[0]);
+          var width = overflowTest.outerWidth(true);
+          if (width !== 102) {
+            throw 'math field ' + width + 'px wide instead of 102px';
+          }
+        });
+      </script>
+
+      <h3>Selection Tests</h3>
+
+      <p id="selection-tests">
+        <span class="mathquill-text-field different-bgcolor"
+          >lolwut $a^2 + b^2 = c^2$. $\sqrt{ \left( \frac{1}{2} \right) }$.
+          Also, awesomesauce: $\int_0^1 \sin x dx.</span
+        >
+      </p>
+
+      <p>
+        Even in IE&lt;9, the background color of the parens and square root
+        radical should be the background color of the selection.
+      </p>
+
+      <p>
+        Static math with mouseEvents set to false should not interact with the
+        mouse: <span class="static-math-no-mouse-events">12 + 34</span>
+      </p>
+
+      <p>
+        Even in the case where it has an empty element:
+        <span class="static-math-no-mouse-events">\sqrt{} </span>
+      </p>
+
+      <h3>Dynamic mathquill-ification</h3>
+      <table id="dynamic-initial">
+        <tr>
+          <th colspan="3">
+            Initial LaTeX
+            <tr>
+              <td>
+                <span
+                  >\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} =
+                  \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span
+                >
+              </td>
+              <td>
+                <span
+                  >\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} =
+                  \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span
+                >
+              </td>
+              <td>
+                <span
+                  >\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} =
+                  \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span
+                >
+                <tr>
+                  <td>
+                    <span
+                      >\frac{ \text{apples} }{ \text{oranges} } =
+                      \text{NaN}</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      >\frac{ \text{apples} }{ \text{oranges} } =
+                      \text{NaN}</span
+                    >
+                  </td>
+                  <td>
+                    <span
+                      >\frac{ \text{apples} }{ \text{oranges} } =
+                      \text{NaN}</span
+                    >
+                  </td>
+                </tr>
+              </td>
+            </tr>
+          </th>
+        </tr>
+      </table>
+
+      <table id="dynamic-reflow">
+        <tr>
+          <th colspan="3">
+            <code>MQ(...).reflow()</code>
+            <tr>
+              <td>
+                <span
+                  >\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } +
+                  \binom{n}{k}</span
+                >
+              </td>
+              <td>
+                <span
+                  >\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } +
+                  \binom{n}{k}</span
+                >
+              </td>
+              <td>
+                <span
+                  >\sqrt{ \left ( \frac{x^2 + y^2}{2} \right ) } +
+                  \binom{n}{k}</span
+                >
+              </td>
+            </tr>
+          </th>
+        </tr>
+      </table>
+
+      <h3>
+        Static LaTeX rendering (<code>.mathquill-static-math</code>) tests
+      </h3>
+      <table id="static-latex-rendering-table">
+        <tr>
+          <td><span class="mathquill-static-math">^{\frac{as}{ }df}</span></td>
+          <td>
+            <span>^{\frac{as}{ }df}</span>
+            <tr>
+              <td><span class="mathquill-static-math">e^{i\pi}+1=0</span></td>
+              <td>
+                <span>e^{i\pi}+1=0</span>
+                <tr>
+                  <td>
+                    <span class="mathquill-static-math">\sqrt[n]{1}</span>
+                  </td>
+                  <td>
+                    <span>\sqrt[n]{1}</span>
+                    <tr>
+                      <td>
+                        <span class="mathquill-static-math"
+                          >\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span
+                        >
+                      </td>
+                      <td>
+                        <span>\sin ^2x+\sin ^2\left(x\right)+\sin ^2(x)</span>
+                        <tr>
+                          <td>
+                            <span class="mathquill-static-math">12a\sin b</span>
+                          </td>
+                          <td>
+                            <span>12a\sin b</span>
+                            <tr>
+                              <td>
+                                <span class="mathquill-static-math"
+                                  >1a^2 \sin b</span
+                                >
+                              </td>
+                              <td>
+                                <span>1a^2 \sin b</span>
+                                <tr>
+                                  <td>
+                                    <span class="mathquill-static-math"
+                                      >a + \sin b</span
+                                    >
+                                  </td>
+                                  <td>
+                                    <span>a + \sin b</span>
+                                    <tr>
+                                      <td>
+                                        <span class="mathquill-static-math"
+                                          >a + b</span
+                                        >
+                                      </td>
+                                      <td>
+                                        <span>a + b</span>
+                                        <tr>
+                                          <td>
+                                            <span class="mathquill-static-math"
+                                              >\sum\sin</span
+                                            >
+                                          </td>
+                                          <td>
+                                            <span>\sum\sin</span>
+                                            <tr>
+                                              <td>
+                                                <span
+                                                  class="mathquill-static-math"
+                                                  >\sum a</span
+                                                >
+                                              </td>
+                                              <td>
+                                                <span>\sum a</span>
+                                                <tr>
+                                                  <td>
+                                                    <span
+                                                      class="mathquill-static-math"
+                                                      >(\sin)</span
+                                                    >
+                                                  </td>
+                                                  <td>
+                                                    <span>(\sin)</span>
+                                                    <tr>
+                                                      <td>
+                                                        <span
+                                                          class="mathquill-static-math"
+                                                          >\left(\sin\right)</span
+                                                        >
+                                                      </td>
+                                                      <td>
+                                                        <span
+                                                          >\left(\sin\right)</span
+                                                        >
+                                                        <tr>
+                                                          <td>
+                                                            <span
+                                                              class="mathquill-static-math"
+                                                              >(x)\sin(x)</span
+                                                            >
+                                                          </td>
+                                                          <td>
+                                                            <span
+                                                              >(x)\sin(x)</span
+                                                            >
+                                                            <tr>
+                                                              <td>
+                                                                <span
+                                                                  class="mathquill-static-math"
+                                                                  >\left(x\right)\sin\left(x\right)</span
+                                                                >
+                                                              </td>
+                                                              <td>
+                                                                <span
+                                                                  >\left(x\right)\sin\left(x\right)</span
+                                                                >
+                                                                <tr>
+                                                                  <td>
+                                                                    <span
+                                                                      class="mathquill-static-math"
+                                                                      >a \sin
+                                                                      b</span
+                                                                    >
+                                                                  </td>
+                                                                  <td>
+                                                                    <span
+                                                                      >a \sin
+                                                                      b</span
+                                                                    >
+                                                                    <tr>
+                                                                      <td>
+                                                                        <span
+                                                                          class="mathquill-static-math"
+                                                                          >-1 +
+                                                                          +-2</span
+                                                                        >
+                                                                      </td>
+                                                                      <td>
+                                                                        <span
+                                                                          >-1 +
+                                                                          +-2</span
+                                                                        >
+                                                                        <tr>
+                                                                          <td>
+                                                                            <span
+                                                                              class="mathquill-static-math"
+                                                                              >\left
+                                                                              (
+                                                                              n+1
+                                                                              \right
+                                                                              )
+                                                                              +
+                                                                              \frac{1}{\frac{n}{k}}
+                                                                              +
+                                                                              \binom{n}{k}</span
+                                                                            >
+                                                                          </td>
+                                                                          <td>
+                                                                            <span
+                                                                              >\left
+                                                                              (
+                                                                              n+1
+                                                                              \right
+                                                                              )
+                                                                              +
+                                                                              \frac{1}{\frac{n}{k}}
+                                                                              +
+                                                                              \binom{n}{k}</span
+                                                                            >
+                                                                            <tr>
+                                                                              <td>
+                                                                                <span
+                                                                                  class="mathquill-static-math"
+                                                                                  >x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span
+                                                                                >
+                                                                              </td>
+                                                                              <td>
+                                                                                <span
+                                                                                  >x_{\frac{1}{\frac{2}{3}}}^{\frac{\frac{1}{2}}{3}}</span
+                                                                                >
+                                                                                <tr>
+                                                                                  <td>
+                                                                                    <span
+                                                                                      class="mathquill-static-math"
+                                                                                      style="
+                                                                                        font-size: 14.99px;
+                                                                                      "
+                                                                                      >\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span
+                                                                                    >
+                                                                                  </td>
+                                                                                  <td>
+                                                                                    <span
+                                                                                      >\left(\frac{\frac{\frac{1}{2}}{\frac{3}{4}}}{\frac{\frac{5}{6}}{\frac{7}{8}}}\right)</span
+                                                                                    >
+                                                                                    <tr>
+                                                                                      <td>
+                                                                                        <span
+                                                                                          class="mathquill-static-math"
+                                                                                          style="
+                                                                                            font-size: 1.4375em;
+                                                                                          "
+                                                                                          >\left|
+                                                                                          a
+                                                                                          +
+                                                                                          \left|
+                                                                                          b
+                                                                                          \right|
+                                                                                          \right|</span
+                                                                                        >
+                                                                                      </td>
+                                                                                      <td>
+                                                                                        <span
+                                                                                          >\left|
+                                                                                          a
+                                                                                          +
+                                                                                          \left|
+                                                                                          b
+                                                                                          \right|
+                                                                                          \right|</span
+                                                                                        >
+                                                                                        <tr>
+                                                                                          <td>
+                                                                                            <span
+                                                                                              class="mathquill-static-math"
+                                                                                              style="
+                                                                                                font-size: 1.4375em;
+                                                                                              "
+                                                                                              >\sqrt{x}+\sqrt{\frac{x}{\frac{
+                                                                                              }{\frac{
+                                                                                              }{
+                                                                                              }}}}+\sqrt{\frac{x}{\frac{
+                                                                                              }{\frac{
+                                                                                              }{\frac{
+                                                                                              }{\frac{
+                                                                                              }{
+                                                                                              }}}}}}</span
+                                                                                            >
+                                                                                          </td>
+                                                                                          <td>
+                                                                                            <span
+                                                                                              >\sqrt{x}+\sqrt{\frac{x}{\frac{
+                                                                                              }{\frac{
+                                                                                              }{
+                                                                                              }}}}+\sqrt{\frac{x}{\frac{
+                                                                                              }{\frac{
+                                                                                              }{\frac{
+                                                                                              }{\frac{
+                                                                                              }{
+                                                                                              }}}}}}</span
+                                                                                            >
+                                                                                            <tr>
+                                                                                              <td>
+                                                                                                <span
+                                                                                                  class="mathquill-static-math"
+                                                                                                  >1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span
+                                                                                                >
+                                                                                              </td>
+                                                                                              <td>
+                                                                                                <span
+                                                                                                  >1+\sum_0^n+\sum_{i=0123}^n+\sum_0^{wordiness}</span
+                                                                                                >^M
+                                                                                                <tr>
+                                                                                                  <td>
+                                                                                                    <span
+                                                                                                      class="mathquill-static-math"
+                                                                                                      >x\
+                                                                                                      \
+                                                                                                      \
+                                                                                                      +\
+                                                                                                      \
+                                                                                                      \
+                                                                                                      y</span
+                                                                                                    >
+                                                                                                  </td>
+                                                                                                  <td>
+                                                                                                    <span
+                                                                                                      >x\
+                                                                                                      \
+                                                                                                      \
+                                                                                                      +\
+                                                                                                      \
+                                                                                                      \
+                                                                                                      y</span
+                                                                                                    >^M
+                                                                                                    <tr>
+                                                                                                      <td>
+                                                                                                        <span
+                                                                                                          class="mathquill-static-math"
+                                                                                                          >\sum
+                                                                                                          _{n=0}^3\cos
+                                                                                                          x</span
+                                                                                                        >
+                                                                                                      </td>
+                                                                                                      <td>
+                                                                                                        <span
+                                                                                                          >\sum
+                                                                                                          _{n=0}^3\cos
+                                                                                                          x</span
+                                                                                                        >^M
+                                                                                                        <tr>
+                                                                                                          <td>
+                                                                                                            <span
+                                                                                                              class="mathquill-static-math"
+                                                                                                              >\vec
+                                                                                                              x
+                                                                                                              +
+                                                                                                              \tilde
+                                                                                                              x
+                                                                                                              +
+                                                                                                              \vec
+                                                                                                              A
+                                                                                                              +
+                                                                                                              \tilde
+                                                                                                              A
+                                                                                                              +
+                                                                                                              \vec{abcd}
+                                                                                                              +
+                                                                                                              \tilde{abcd}</span
+                                                                                                            >
+                                                                                                          </td>
+                                                                                                          <td>
+                                                                                                            <span
+                                                                                                              >\vec
+                                                                                                              x
+                                                                                                              +
+                                                                                                              \tilde
+                                                                                                              x
+                                                                                                              +
+                                                                                                              \vec
+                                                                                                              A
+                                                                                                              +
+                                                                                                              \tilde
+                                                                                                              A
+                                                                                                              +
+                                                                                                              \vec{abcd}
+                                                                                                              +
+                                                                                                              \tilde{abcd}</span
+                                                                                                            >^M
+                                                                                                            <tr>
+                                                                                                              <td>
+                                                                                                                <span
+                                                                                                                  class="mathquill-static-math"
+                                                                                                                  >\int
+                                                                                                                  _{\phi
+                                                                                                                  =0}^{2\pi
+                                                                                                                  }\int
+                                                                                                                  _{\theta
+                                                                                                                  =0}^{\pi
+                                                                                                                  }\int
+                                                                                                                  _{r=0}^{\infty
+                                                                                                                  }f(r,\theta
+                                                                                                                  ,\phi
+                                                                                                                  )r^2\sin
+                                                                                                                  \theta
+                                                                                                                  drd\theta
+                                                                                                                  d\phi
+                                                                                                                </span>
+                                                                                                              </td>
+                                                                                                              <td>
+                                                                                                                <span
+                                                                                                                  >\int
+                                                                                                                  _{\phi
+                                                                                                                  =0}^{2\pi
+                                                                                                                  }\int
+                                                                                                                  _{\theta
+                                                                                                                  =0}^{\pi
+                                                                                                                  }\int
+                                                                                                                  _{r=0}^{\infty
+                                                                                                                  }f(r,\theta
+                                                                                                                  ,\phi
+                                                                                                                  )r^2\sin
+                                                                                                                  \theta
+                                                                                                                  drd\theta
+                                                                                                                  d\phi
+                                                                                                                </span>
+                                                                                                                <tr>
+                                                                                                                  <td>
+                                                                                                                    <span
+                                                                                                                      class="mathquill-static-math"
+                                                                                                                      >\int_0^{\frac{\frac{1}{2}}{3}}
+                                                                                                                      \int_0^{\frac{1}{\frac{2}{3}}}
+                                                                                                                      \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span
+                                                                                                                    >
+                                                                                                                  </td>
+                                                                                                                  <td>
+                                                                                                                    <span
+                                                                                                                      >\int_0^{\frac{\frac{1}{2}}{3}}
+                                                                                                                      \int_0^{\frac{1}{\frac{2}{3}}}
+                                                                                                                      \int_0^{\frac{1}{\frac{2}{\frac{3}{\frac{4}{5}}}}}</span
+                                                                                                                    >
+                                                                                                                    <tr>
+                                                                                                                      <td>
+                                                                                                                        <span
+                                                                                                                          class="mathquill-static-math"
+                                                                                                                          >\overline{abc}</span
+                                                                                                                        >
+                                                                                                                      </td>
+                                                                                                                      <td>
+                                                                                                                        <span
+                                                                                                                          >\overline{abc}</span
+                                                                                                                        >
+                                                                                                                        <tr>
+                                                                                                                          <td>
+                                                                                                                            <span
+                                                                                                                              class="mathquill-static-math"
+                                                                                                                              >\overleftarrow{abc}</span
+                                                                                                                            >
+                                                                                                                          </td>
+                                                                                                                          <td>
+                                                                                                                            <span
+                                                                                                                              >\overleftarrow{abc}</span
+                                                                                                                            >
+                                                                                                                            <tr>
+                                                                                                                              <td>
+                                                                                                                                <span
+                                                                                                                                  class="mathquill-static-math"
+                                                                                                                                  >\overrightarrow{abc}</span
+                                                                                                                                >
+                                                                                                                              </td>
+                                                                                                                              <td>
+                                                                                                                                <span
+                                                                                                                                  >\overrightarrow{abc}</span
+                                                                                                                                >
+                                                                                                                                <tr>
+                                                                                                                                  <td>
+                                                                                                                                    <span
+                                                                                                                                      class="mathquill-static-math"
+                                                                                                                                      >\overleftrightarrow{abc}</span
+                                                                                                                                    >
+                                                                                                                                  </td>
+                                                                                                                                  <td>
+                                                                                                                                    <span
+                                                                                                                                      >\overleftrightarrow{abc}</span
+                                                                                                                                    >
+                                                                                                                                    <tr>
+                                                                                                                                      <td>
+                                                                                                                                        <span
+                                                                                                                                          class="mathquill-static-math"
+                                                                                                                                          >\overarc{abc}</span
+                                                                                                                                        >
+                                                                                                                                      </td>
+                                                                                                                                      <td>
+                                                                                                                                        <span
+                                                                                                                                          >\overarc{abc}</span
+                                                                                                                                        >
+                                                                                                                                        <tr>
+                                                                                                                                          <td
+                                                                                                                                            colspan="2"
+                                                                                                                                          >
+                                                                                                                                            <span
+                                                                                                                                              id="sixes"
+                                                                                                                                            ></span>
+                                                                                                                                            <script>
+                                                                                                                                              $(
+                                                                                                                                                function () {
+                                                                                                                                                  var i,
+                                                                                                                                                    sixes =
+                                                                                                                                                      '',
+                                                                                                                                                    start = 10,
+                                                                                                                                                    end = 40;
+                                                                                                                                                  for (
+                                                                                                                                                    i =
+                                                                                                                                                      start;
+                                                                                                                                                    i <=
+                                                                                                                                                    end;
+                                                                                                                                                    i++
+                                                                                                                                                  ) {
+                                                                                                                                                    sixes +=
+                                                                                                                                                      '<span style="font-size: ' +
+                                                                                                                                                      i +
+                                                                                                                                                      'px" class="mathquill-math-field">6<\/span>';
+                                                                                                                                                  }
+                                                                                                                                                  $(
+                                                                                                                                                    '#sixes'
+                                                                                                                                                  ).html(
+                                                                                                                                                    sixes
+                                                                                                                                                  );
+                                                                                                                                                  $(
+                                                                                                                                                    '#sixes .mathquill-math-field'
+                                                                                                                                                  ).each(
+                                                                                                                                                    function () {
+                                                                                                                                                      MQ.MathField(
+                                                                                                                                                        this
+                                                                                                                                                      );
+                                                                                                                                                    }
+                                                                                                                                                  );
+                                                                                                                                                }
+                                                                                                                                              );
+                                                                                                                                            </script>
+                                                                                                                                          </td>
+                                                                                                                                        </tr>
+                                                                                                                                      </td>
+                                                                                                                                    </tr>
+                                                                                                                                  </td>
+                                                                                                                                </tr>
+                                                                                                                              </td>
+                                                                                                                            </tr>
+                                                                                                                          </td>
+                                                                                                                        </tr>
+                                                                                                                      </td>
+                                                                                                                    </tr>
+                                                                                                                  </td>
+                                                                                                                </tr>
+                                                                                                              </td>
+                                                                                                            </tr>
+                                                                                                          </td>
+                                                                                                        </tr>
+                                                                                                      </td>
+                                                                                                    </tr>
+                                                                                                  </td>
+                                                                                                </tr>
+                                                                                              </td>
+                                                                                            </tr>
+                                                                                          </td>
+                                                                                        </tr>
+                                                                                      </td>
+                                                                                    </tr>
+                                                                                  </td>
+                                                                                </tr>
+                                                                              </td>
+                                                                            </tr>
+                                                                          </td>
+                                                                        </tr>
+                                                                      </td>
+                                                                    </tr>
+                                                                  </td>
+                                                                </tr>
+                                                              </td>
+                                                            </tr>
+                                                          </td>
+                                                        </tr>
+                                                      </td>
+                                                    </tr>
+                                                  </td>
+                                                </tr>
+                                              </td>
+                                            </tr>
+                                          </td>
+                                        </tr>
+                                      </td>
+                                    </tr>
+                                  </td>
+                                </tr>
+                              </td>
+                            </tr>
+                          </td>
+                        </tr>
+                      </td>
+                    </tr>
+                  </td>
+                </tr>
+              </td>
+            </tr>
+          </td>
+        </tr>
+      </table>
+
+      <p id="paren-alignment">
+        Parentheses vertical alignment at font sizes ranging from 10px to 24px:
+        <button>Click Me</button>
+      </p>
+      <script>
+        $('#paren-alignment button').click(function () {
+          var html = '<div>';
+          for (var i = 10; i <= 24; i += 1) {
+            html +=
+              i +
+              'px: <span class="mathquill-static-math" style="font-size:' +
+              i +
+              'px">\\left(\\left(\\left(\\left(\\left(\\left(\\left( \\right)\\right)\\right)\\right)\\right)\\right)\\right)+\\left(1\\right)+\\left(x\\right)+\\left(y\\right)+\\left(\\frac{1}{2}\\right)+\\left(\\frac{\\frac{1}{x}}{2}\\right)+\\left(\\frac{1}{\\frac{x}{2}}\\right)+\\left(\\frac{\\frac{\\frac{1}{2}}{\\frac{3}{4}}}{\\frac{\\frac{5}{6}}{\\frac{7}{8}}}\\right)</span><br>';
+          }
+          html += '</div>';
+          $(html)
+            .insertAfter('#paren-alignment')
+            .find('.mathquill-static-math')
+            .each(function () {
+              MQ.StaticMath(this);
+            });
+        });
+      </script>
+
+      <h3>Dynamic rendering performance</h3>
+      <p id="latex-render-perf">
+        LaTeX: <textarea></textarea> <button>&rarr;</button>
+        <span class="mathquill-math-field"></span>
+      </p>
+      <p id="html-render-perf">
+        HTML: <textarea></textarea> <button>&rarr;</button>
+        <span class="mq-math-mode"></span>
+      </p>
+
+      <p>
+        There should be no space between here
+        <span class="mathquill-static-math"> </span>and here, even in IE8
+      </p>
+
+      <h3>Textcolor</h3>
+
+      <p>
+        Colors should match their names:
+        <span class="mathquill-static-math">
+          \textcolor{#0000FF}{blue} + \textcolor{red}{red} = \textcolor {
+          rgb(255, -10, 255) } {magenta}
+        </span>
+      </p>
+      <p>
+        Nested <code>\textcolor</code>: the 2 should be red, the "a+" green, the
+        4 blue, and the "+b" green again.
+        <span class="mathquill-static-math">
+          e^{\textcolor{#FF0000}{2}}\sin(x^\textcolor{#00FF00}{{a+\textcolor{blue}{4}+b}})
+        </span>
+      </p>
+
+      <h3>Adding CSS class</h3>
+      <style type="text/css">
+        .testclass {
+          background-color: #5a8;
+          border-radius: 5px;
+          padding: 4px;
+          font-weight: bold;
+          color: gold;
+        }
+      </style>
+      <p>
+        Second term should be styled like <span class="testclass">this</span>:
+        <span class="mathquill-static-math"> x+\class{testclass}{y}+z </span>
+      </p>
+
+      <h3>substituteTextarea</h3>
+
+      <p>
+        In Safari on iOS, this should be focusable but not bring up the
+        on-screen keyboard; to test, try focusing anything else and confirm this
+        blurs: <span id="no-kbd-math"></span> (confirmed working on iOS 6.1.3)
+      </p>
+
+      <h3>overrideKeystroke and overrideTypedText</h3>
+
+      <p>
+        Should be able to prevent typing in this field:
+        <span id="disable-typing">1+2+3</span>
+      </p>
+
+      <p>
+        Should wrap anything you type in '&lt;&gt;':
+        <span id="wrap-typing">1+2+3</span>
+      </p>
+
+      <h3>Text mode</h3>
+
+      <p>
+        Spaces at the beginning and end of text mode blocks should be visible:
+        <span class="mathquill-static-math">1\text{ And }2</span>
+      </p>
+
+      <p>
+        Mutiple consecutive spaces in the middle of a text mode block should not
+        collapse into one space:
+        <span class="mathquill-static-math">\text{three spaces}</span>
+      </p>
+      <ul>
+        <li>
+          [Firefox] Should not change '3' to '33' when you select all and press
+          right arrow.
+        </li>
+        <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+      </ul>
+      <span id="select-all-right-arrow">3</span>
+
+      <h3>
+        substituteKeyboardEvents (legacy, use overrideKeystroke and
+        overrideTypedText instead)
+      </h3>
+
+      <p>
+        Should be able to prevent cut, typing, and pasting in this field:
+        <span id="disable-typing-ske">1+2+3</span>
+      </p>
+
+      <p>
+        Should wrap anything you type in '&lt;&gt;':
+        <span id="wrap-typing-ske">1+2+3</span>
+      </p>
+
+      <ul>
+        <li>
+          [Firefox] Should not change '3' to '33' when you select all and press
+          right arrow.
+        </li>
+        <li>[All Browsers] ctrl-c or cmd-c should not throw an error</li>
+      </ul>
+      <span id="select-all-right-arrow-ske">3</span>
+    </div>
+    <script type="text/javascript">
+      window.onerror = function (err) {
+        console.log(err); // to show up in Selenium WebDriver logs
+        $('html').css('background', 'red');
+      };
+    </script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+    <script type="text/javascript">
+      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+
+      $('#show-textareas-button').click(function () {
+        $(document.body).toggleClass('show-textareas');
+      });
+
+      //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
+      //elements according to their CSS class.
+      $(function () {
+        $('.mathquill-static-math').each(function () {
+          MQ.StaticMath(this);
+        });
+        $('.static-math-no-mouse-events').each(function () {
+          MQ.StaticMath(this, { mouseEvents: false });
+        });
+        $('.mathquill-math-field').each(function () {
+          MQ.MathField(this);
+        });
+        $('.mathquill-text-field').each(function () {
+          MQ.TextField(this);
+        });
+      });
+
+      // test selecting from outside the mathquill editable
+      var $mq = $('.math-container .mathquill-math-field');
+      $('.math-container')
+        .mousedown(function (e) {
+          if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
+          $mq.triggerHandler(e);
+        })
+        // test API for "fast touch taps" #622 & #403
+        .bind('touchstart', function () {
+          var moved = false;
+          $(this)
+            .bind('touchmove.tmp', function () {
+              moved = true;
+            })
+            .bind('touchend.tmp', function (e) {
+              $(this).off('.tmp');
+              MathQuill($mq[0]).ignoreNextMousedown(function () {
+                return Date.now() < e.timeStamp + 1000;
+              });
+              if (moved) return; // note that this happens after .ignoreNextMousedown()
+              // because even if the touch gesture doesn't 'count' as a tap to us,
+              // we still want to suppress the legacy mouse events, else we'd react
+              // fast to some taps and slow to others, that'd be weird
+              var touch = e.originalEvent.changedTouches[0];
+              MathQuill($mq[0]).clickAt(
+                touch.clientX,
+                touch.clientY,
+                touch.target
+              );
+            });
+        });
+
+      // Selection Tests
+      document.body.onload = function () {
+        setTimeout(function () {
+          $('#selection-tests .mathquill-text-field').each(function () {
+            var start = +new Date();
+            $('textarea', this)
+              .focus()
+              .trigger({ type: 'keydown', ctrlKey: true, which: 65 });
+            console.log(
+              'Time taken to Select All (should be &lt;50ms):',
+              new Date() - start
+            );
+          });
+        });
+      };
+
+      // Dynamic MathQuill-ification
+      // Initial LaTeX
+      $('#dynamic-initial tr').each(function () {
+        var math = $('span', this);
+        if (!math.length) return;
+
+        MQ.StaticMath(math[0]);
+        MQ.MathField(math[1]);
+        MQ.MathField(math[2]).revert();
+      });
+      // MQ(...).reflow()
+      $('#dynamic-reflow tr').each(function () {
+        var math = $('span', this),
+          td;
+        if (!math.length) return;
+
+        td = math.eq(0).parent();
+        math.eq(0).detach();
+        MQ.StaticMath(math[0]);
+        math.eq(0).appendTo(td);
+        MQ(math[0]).reflow();
+
+        td = math.eq(1).parent();
+        math.eq(1).detach();
+        MQ.MathField(math[1]);
+        math.eq(1).appendTo(td);
+        MQ(math[1]).reflow();
+
+        td = math.eq(2).parent();
+        math.eq(2).detach();
+        MQ.MathField(math[2]).revert();
+        math.eq(2).appendTo(td);
+        if (MQ(math[2])) throw 'should been have reverted';
+      });
+
+      // Dynamic rendering performance
+      function Avgs() {
+        return {
+          avgs: {},
+          add: function (k, v) {
+            if (!this.avgs[k]) this.avgs[k] = { n: 0, avg: 0 };
+            var avgObj = this.avgs[k];
+            avgObj.avg = (avgObj.n * avgObj.avg + v) / (avgObj.n + 1);
+            avgObj.n += 1;
+            return avgObj.avg + 'ms (across ' + avgObj.n + ' trials)';
+          },
+        };
+      }
+      var performance = window.performance || Date;
+      window.rawLogs = [];
+      function timeAndLog(f) {
+        var currentLog = [];
+        $.fn.mathquill.setLogFn(function (msg) {
+          currentLog.push({ msg: msg, now: performance.now() });
+        });
+        var start = performance.now();
+        f();
+        var duration = performance.now() - start;
+        $.fn.mathquill.setLogFn($.noop);
+
+        var timeline = [],
+          prev = 0;
+        for (var i = 0; i < currentLog.length; i += 1) {
+          var now = Math.round((currentLog[i].now - start) * 1000);
+          timeline.push(
+            now + ': [' + (now - prev) + 'µs] ' + currentLog[i].msg
+          );
+          prev = now;
+        }
+        timeline = timeline.join('\n');
+
+        rawLogs.push({
+          start: start,
+          duration: duration,
+          log: currentLog,
+          timeline: timeline,
+        });
+        if (timeline.length) {
+          // for tablets without a console
+          if (location.hash === '#alert') alert(timeline);
+          else console.log(timeline);
+        }
+        return duration;
+      }
+      (function () {
+        var textarea = $('#latex-render-perf textarea');
+        var mathquill = $('#latex-render-perf .mathquill-math-field');
+        var avgs = Avgs();
+        $('#latex-render-perf button').click(function () {
+          var latex = textarea.val();
+          var duration = timeAndLog(function () {
+            mathquill.mathquill('latex', latex);
+          });
+          $('#html-render-perf').after(
+            '<p>' +
+              duration +
+              'ms rendering <code>' +
+              latex +
+              '</code>, for an average of ' +
+              avgs.add(latex, duration) +
+              '</p>'
+          );
+          $('#html-render-perf textarea').val(mathquill.mathquill('html'));
+        });
+      })();
+      (function () {
+        var textarea = $('#html-render-perf textarea');
+        var span = $('#html-render-perf span');
+        var avgs = Avgs();
+        $('#html-render-perf button').click(function () {
+          var html = textarea.val();
+          var duration = timeAndLog(function () {
+            span.html(html);
+          });
+          $(
+            '<p>' +
+              duration +
+              'ms rendering <code></code>, for an average of ' +
+              avgs.add(html, duration) +
+              '</p>'
+          )
+            .find('code')
+            .text(html)
+            .end()
+            .insertAfter('#html-render-perf');
+        });
+      })();
+
+      MQ.MathField($('#no-kbd-math')[0], {
+        substituteTextarea: function () {
+          return $(
+            '<span tabindex=0 style="display:inline-block;width:1px;height:1px" />'
+          )[0];
+        },
+      });
+
+      MQ.MathField($('#disable-typing')[0], {
+        overrideTypedText: $.noop,
+      });
+
+      var OTTMQ = MQ.MathField($('#wrap-typing')[0], {
+        overrideTypedText: function (text) {
+          OTTMQ.typedText('<');
+          OTTMQ.typedText(text);
+          OTTMQ.typedText('>');
+        },
+      });
+
+      var OKSMQ = MQ.MathField($('#select-all-right-arrow')[0], {
+        overrideKeystroke: function (key) {
+          OKSMQ.keystroke(key);
+        },
+      });
+
+      MQ.MathField($('#disable-typing-ske')[0], {
+        substituteKeyboardEvents: function (textarea, handlers) {
+          return MQ.saneKeyboardEvents(
+            textarea,
+            $.extend({}, handlers, {
+              cut: $.noop,
+              paste: $.noop,
+              keystroke: $.noop,
+              typedText: $.noop,
+            })
+          );
+        },
+      });
+
+      var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
+        substituteKeyboardEvents: function (textarea, handlers) {
+          return MQ.saneKeyboardEvents(
+            textarea,
+            $.extend({}, handlers, {
+              typedText: function (text) {
+                SKEMQ1.typedText('<');
+                SKEMQ1.typedText(text);
+                SKEMQ1.typedText('>');
+              },
+            })
+          );
+        },
+      });
+
+      var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
+        substituteKeyboardEvents: function (textarea, handlers) {
+          return MQ.saneKeyboardEvents(
+            textarea,
+            $.extend({}, handlers, {
+              keystroke: function (key) {
+                SKEMQ2.keystroke(key);
+              },
+            })
+          );
+        },
+      });
+    </script>
+  </body>
 </html>

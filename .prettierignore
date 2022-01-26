@@ -1,0 +1,6 @@
+*.min.js
+*.min.css
+build
+src/intro.js
+src/outro.js
+test/support/jquery-1.5.2.js

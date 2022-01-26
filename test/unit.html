@@ -3,40 +3,52 @@
 <html>
   <head>
     <!-- allow fancy checkmarks to show up -->
-    <meta charset="UTF-8">
+    <meta charset="UTF-8" />
 
     <!-- complain about uncaught errors -->
     <script type="text/javascript">
-    window.onerror = function() {
-      document.documentElement.style.background = 'red';
-    };
+      window.onerror = function () {
+        document.documentElement.style.background = 'red';
+      };
     </script>
 
     <!-- better living through jQuery -->
     <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
 
     <!-- mocha test framework -->
-    <script type="text/javascript" src="../node_modules/mocha/mocha.js"></script>
-    <link rel="stylesheet" type="text/css" href="../node_modules/mocha/mocha.css" />
+    <script
+      type="text/javascript"
+      src="../node_modules/mocha/mocha.js"
+    ></script>
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../node_modules/mocha/mocha.css"
+    />
 
     <!-- home-grown assertions -->
     <script src="support/assert.js" type="text/javascript"></script>
 
     <!-- configure mocha and chai -->
     <script type="text/javascript">
-      var post_xunit_to = new URLSearchParams(location.search).get('post_xunit_to');
+      var post_xunit_to = new URLSearchParams(location.search).get(
+        'post_xunit_to'
+      );
 
       mocha.setup({
         ui: 'tdd',
         reporter: post_xunit_to ? 'xunit' : 'html',
-        bail: false
+        bail: false,
       });
     </script>
 
     <!-- include the library with the tests inlined -->
-    <script id="mathquill" type="text/javascript" src="../build/mathquill.test.js"
-      onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')">
-    </script>
+    <script
+      id="mathquill"
+      type="text/javascript"
+      src="../build/mathquill.test.js"
+      onerror="alert('couldn\'t find `build/mathquill.test.js`. Please run `make test` before opening this file.')"
+    ></script>
 
     <!-- include MathQuill-basic -->
     <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
@@ -45,7 +57,6 @@
       MQBasic = MathQuill.noConflict().getInterface(MathQuill.getInterface.MAX);
       MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
     </script>
-
   </head>
 
   <body>
@@ -55,16 +66,20 @@
     <div id="qunit"></div>
 
     <script type="text/javascript">
-      teardown(function() { $('#mock').empty(); });
+      teardown(function () {
+        $('#mock').empty();
+      });
 
       function runXUnit() {
         var xunit = '';
-        Mocha.process.stdout.write = function(line) { xunit += line; };
+        Mocha.process.stdout.write = function (line) {
+          xunit += line;
+        };
         var runner = mocha.run();
 
         // the following is based on https://github.com/saucelabs-sample-scripts/JavaScript/blob/4946c5cf0ab7325dce5562881dba7c28e30989e5/reporting_mocha.js
         var failedTests = [];
-        runner.on('fail', function(test, err) {
+        runner.on('fail', function (test, err) {
           function flattenTitles(test) {
             var titles = [];
             while (test.parent.title) {
@@ -74,12 +89,18 @@
             return titles.reverse();
           }
 
-          failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+          failedTests.push({
+            name: test.title,
+            result: false,
+            message: err.message,
+            stack: err.stack,
+            titles: flattenTitles(test),
+          });
         });
 
-        runner.on('end', function() {
-          setTimeout(function() {
-            $.post(post_xunit_to, xunit).complete(function() {
+        runner.on('end', function () {
+          setTimeout(function () {
+            $.post(post_xunit_to, xunit).complete(function () {
               window.mochaResults = runner.stats;
               window.mochaResults.reports = failedTests;
             });
@@ -87,29 +108,29 @@
         });
       }
 
-      function runJenkins(){
+      function runJenkins() {
         var json = location.search.indexOf('json') >= 0;
         var listTests = location.search.indexOf('listTests') >= 0;
         var startTime = Date.now();
         var suiteMap = {};
         var runner = mocha.run();
 
-        runner.on('suite', function(suite) {
+        runner.on('suite', function (suite) {
           var title = xmlEscape(suite.fullTitle());
           suiteMap[title] = {
-            assertions: []
+            assertions: [],
           };
           if (listTests) {
             suiteMap[title].assertions.push({
               elapsedTime: 0,
               timestamp: 0,
               result: true,
-              message: "okay"
+              message: 'okay',
             });
           }
         });
 
-        runner.on('pass', function(test) {
+        runner.on('pass', function (test) {
           if (!listTests) {
             var title = getTestSuiteTitle(test);
             var elapsedTime = test.duration / 1000;
@@ -118,12 +139,12 @@
               elapsedTime: elapsedTime,
               timestamp: timestamp,
               result: true,
-              message: xmlEscape(test.title)
+              message: xmlEscape(test.title),
             });
           }
         });
 
-        runner.on('fail', function(test, err) {
+        runner.on('fail', function (test, err) {
           if (!listTests) {
             var title = getTestSuiteTitle(test);
             var elapsedTime = test.duration / 1000;
@@ -135,32 +156,32 @@
               message: xmlEscape(err.message),
               stacktrace: xmlEscape(err.stack),
               expected: true,
-              actual: false
+              actual: false,
             });
           }
         });
 
-        runner.on('end', function() {
+        runner.on('end', function () {
           var moduleResults = [];
           for (var suiteTitle in suiteMap) {
             if (suiteMap.hasOwnProperty(suiteTitle)) {
               var suiteResults = suiteMap[suiteTitle];
               var duration = 0;
-              suiteResults.assertions.forEach(function(assertion) {
+              suiteResults.assertions.forEach(function (assertion) {
                 duration += assertion.elapsedTime;
               });
               moduleResults.push({
                 name: suiteTitle,
                 assertions: suiteResults.assertions,
-                time: duration
+                time: duration,
               });
             }
           }
           var testResults = {
-            modules: { "mathquill": moduleResults },
+            modules: { mathquill: moduleResults },
             passes: runner.stats.passes,
             failures: runner.stats.failures,
-            skips: 0
+            skips: 0,
           };
           if (json) {
             window.testResultsString = JSON.stringify(testResults, null, 2);
@@ -175,7 +196,7 @@
 
         // must escape a few symbols in xml attributes:
         //http://stackoverflow.com/questions/866706/which-characters-are-invalid-unless-encoded-in-an-xml-attribute
-        function xmlEscape(string){
+        function xmlEscape(string) {
           string = string || '';
           string = string.replace(/&/g, '&amp;');
           string = string.replace(/"/g, '&quot;');
@@ -183,7 +204,7 @@
           return string;
         }
 
-        function outputXML (results) {
+        function outputXML(results) {
           var xml = [];
           xml.push('<?xml version="1.0"?>');
           xml.push('<testsuites>');
@@ -192,19 +213,34 @@
             var module = results.modules[moduleName];
             for (var i = 0; i < module.length; i++) {
               var test = module[i];
-              xml.push('<testsuite name="'+ moduleName + '.' + test.name + '" time="' + test.time + '">');
+              xml.push(
+                '<testsuite name="' +
+                  moduleName +
+                  '.' +
+                  test.name +
+                  '" time="' +
+                  test.time +
+                  '">'
+              );
 
-              for (var j=0; j<test.assertions.length; j++) {
+              for (var j = 0; j < test.assertions.length; j++) {
                 var assertion = test.assertions[j];
-                var assertionMessage = assertion.message || 'no-assertion-message';
+                var assertionMessage =
+                  assertion.message || 'no-assertion-message';
                 var assertionTime = assertion.elapsedTime;
 
-                xml.push('<testcase name="' + assertionMessage + '" time="' + assertionTime + '">');
+                xml.push(
+                  '<testcase name="' +
+                    assertionMessage +
+                    '" time="' +
+                    assertionTime +
+                    '">'
+                );
 
                 if (assertion.result === false) {
-                  xml.push('<failure message="'+ assertionMessage +'">');
-                  xml.push('Expected: ' + assertion.expected + "\n");
-                  xml.push('Actual: ' + assertion.actual + "\n");
+                  xml.push('<failure message="' + assertionMessage + '">');
+                  xml.push('Expected: ' + assertion.expected + '\n');
+                  xml.push('Actual: ' + assertion.actual + '\n');
                   xml.push('Stacktrace: ' + assertion.stacktrace);
                   xml.push('</failure>');
                 } else if (assertion.result === undefined) {

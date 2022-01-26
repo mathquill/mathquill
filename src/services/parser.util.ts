@@ -1,13 +1,11 @@
-
 function parseError(stream: string, message: string): never {
   if (stream) {
-    stream = "'"+stream+"'";
-  }
-  else {
+    stream = "'" + stream + "'";
+  } else {
     stream = 'EOF';
   }
 
-  throw 'Parse Error: '+message+' at '+stream;
+  throw 'Parse Error: ' + message + ' at ' + stream;
 }
 
 type UnknownParserResult = any;
@@ -18,7 +16,6 @@ type ParserBody<T> = (
   onFailure: (stream: string, msg: string) => UnknownParserResult
 ) => T;
 
-
 class Parser<T> {
   _: ParserBody<T>;
 
@@ -28,50 +25,52 @@ class Parser<T> {
   // You should never call the constructor, rather you should
   // construct your Parser from the base parsers and the
   // parser combinator methods.
-  constructor (body: ParserBody<T>) {
+  constructor(body: ParserBody<T>) {
     this._ = body;
   }
 
-  parse (stream: string): T {
-    return this.skip(Parser.eof)._(''+stream, success, parseError);
+  parse(stream: string): T {
+    return this.skip(Parser.eof)._('' + stream, success, parseError);
 
-    function success(_stream: string, result: T) { return result; }
-  };
+    function success(_stream: string, result: T) {
+      return result;
+    }
+  }
 
   // -*- primitive combinators -*- //
-  or <Q>(alternative: Parser<Q>): Parser<T|Q> {
+  or<Q>(alternative: Parser<Q>): Parser<T | Q> {
     pray('or is passed a parser', alternative instanceof Parser);
 
     var self = this;
 
-    return new Parser(function(stream, onSuccess, onFailure) {
+    return new Parser(function (stream, onSuccess, onFailure) {
       return self._(stream, onSuccess, failure);
 
       function failure(_newStream: string) {
         return alternative._(stream, onSuccess, onFailure);
       }
     });
-  };
+  }
 
-  then<Q> (next:Parser<Q>|((result: T)=>Parser<Q>)):Parser<Q> {
+  then<Q>(next: Parser<Q> | ((result: T) => Parser<Q>)): Parser<Q> {
     var self = this;
 
-    return new Parser<Q>(function(stream: string, onSuccess, onFailure) {
+    return new Parser<Q>(function (stream: string, onSuccess, onFailure) {
       return self._(stream, success, onFailure) as any as Q;
 
       function success(newStream: string, result: T) {
-        var nextParser = (next instanceof Parser ? next : next(result));
+        var nextParser = next instanceof Parser ? next : next(result);
         pray('a parser is returned', nextParser instanceof Parser);
         return nextParser._(newStream, onSuccess, onFailure);
       }
     });
-  };
+  }
 
   // -*- optimized iterative combinators -*- //
-  many (): Parser<T[]> {
+  many(): Parser<T[]> {
     var self = this;
 
-    return new Parser(function(stream, onSuccess, _onFailure) {
+    return new Parser(function (stream, onSuccess, _onFailure) {
       var xs: T[] = [];
       while (self._(stream, success, failure));
       return onSuccess(stream, xs);
@@ -86,13 +85,13 @@ class Parser<T> {
         return false;
       }
     });
-  };
+  }
 
-  times (min: number, max?: number): Parser<T[]> {
+  times(min: number, max?: number): Parser<T[]> {
     if (arguments.length < 2) max = min;
     var self = this;
 
-    return new Parser(function(stream, onSuccess, onFailure) {
+    return new Parser(function (stream, onSuccess, onFailure) {
       var xs: T[] = [];
       var result: boolean = true;
       var failure;
@@ -126,74 +125,80 @@ class Parser<T> {
         return false;
       }
     });
-  };
+  }
 
   // -*- higher-level combinators -*- //
-  result<Q> (res: Q): Parser<Q> { return this.then(Parser.succeed(res)); };
-  atMost (n: number) { return this.times(0, n); };
-  atLeast (n: number) {
+  result<Q>(res: Q): Parser<Q> {
+    return this.then(Parser.succeed(res));
+  }
+  atMost(n: number) {
+    return this.times(0, n);
+  }
+  atLeast(n: number) {
     var self = this;
-    return self.times(n).then(function(start) {
-      return self.many().map(function(end) {
+    return self.times(n).then(function (start) {
+      return self.many().map(function (end) {
         return start.concat(end);
       });
     });
-  };
+  }
 
-  map<Q> (fn: (result: T)=>Q): Parser<Q> {
-    return this.then(function(result) { return Parser.succeed(fn(result)); });
-  };
+  map<Q>(fn: (result: T) => Q): Parser<Q> {
+    return this.then(function (result) {
+      return Parser.succeed(fn(result));
+    });
+  }
 
-  skip<Q> (two: Parser<Q>): Parser<T> {
-    return this.then(function(result) { return two.result(result); });
-  };
+  skip<Q>(two: Parser<Q>): Parser<T> {
+    return this.then(function (result) {
+      return two.result(result);
+    });
+  }
 
   // -*- primitive parsers -*- //
-  static string (str: string): Parser<string> {
+  static string(str: string): Parser<string> {
     var len = str.length;
-    var expected = "expected '"+str+"'";
+    var expected = "expected '" + str + "'";
 
-    return new Parser(function(stream, onSuccess, onFailure) {
+    return new Parser(function (stream, onSuccess, onFailure) {
       var head = stream.slice(0, len);
 
       if (head === str) {
         return onSuccess(stream.slice(len), head);
-      }
-      else {
+      } else {
         return onFailure(stream, expected);
       }
     });
-  };
+  }
 
-  static regex (re: RegExp): Parser<string> {
+  static regex(re: RegExp): Parser<string> {
     pray('regexp parser is anchored', re.toString().charAt(1) === '^');
 
-    var expected = 'expected '+re;
+    var expected = 'expected ' + re;
 
-    return new Parser(function(stream, onSuccess, onFailure) {
+    return new Parser(function (stream, onSuccess, onFailure) {
       var match = re.exec(stream);
 
       if (match) {
         var result = match[0];
         return onSuccess(stream.slice(result.length), result);
-      }
-      else {
+      } else {
         return onFailure(stream, expected);
       }
     });
-  };
+  }
 
-  static succeed<Q> (result: Q): Parser<Q> {
-    return new Parser(function(stream: string, onSuccess) {
+  static succeed<Q>(result: Q): Parser<Q> {
+    return new Parser(function (stream: string, onSuccess) {
       return onSuccess(stream, result);
     });
-  };
+  }
 
-  static fail (msg: string):Parser<never> {
-    return new Parser(function(stream, _, onFailure) {
+  static fail(msg: string): Parser<never> {
+    return new Parser(function (stream, _, onFailure) {
       return onFailure(stream, msg) as never;
     });
-  };
+  }
 
   static letter = Parser.regex(/^[a-z]/i);
   static letters = Parser.regex(/^[a-z]*/i);
@@ -202,19 +207,31 @@ class Parser<T> {
   static whitespace = Parser.regex(/^\s+/);
   static optWhitespace = Parser.regex(/^\s*/);
 
-  static any: Parser<string> = new Parser(function(stream, onSuccess, onFailure) {
+  static any: Parser<string> = new Parser(function (
+    stream,
+    onSuccess,
+    onFailure
+  ) {
     if (!stream) return onFailure(stream, 'expected any character');
 
     return onSuccess(stream.slice(1), stream.charAt(0));
   });
 
-  static all: Parser<string> = new Parser(function(stream, onSuccess, _onFailure) {
+  static all: Parser<string> = new Parser(function (
+    stream,
+    onSuccess,
+    _onFailure
+  ) {
     return onSuccess('', stream);
   });
 
-  static eof: Parser<string> = new Parser(function(stream, onSuccess, onFailure) {
+  static eof: Parser<string> = new Parser(function (
+    stream,
+    onSuccess,
+    onFailure
+  ) {
     if (stream) return onFailure(stream, 'expected EOF');
 
     return onSuccess(stream, stream);
   });
-};
+}

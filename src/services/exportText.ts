@@ -4,9 +4,9 @@
  **********************************************/
 
 class Controller_exportText extends ControllerBase {
-  exportText () {
-    return this.root.foldChildren('', function(text, child) {
+  exportText() {
+    return this.root.foldChildren('', function (text, child) {
       return text + child.text();
     });
-  };
-};
+  }
+}
