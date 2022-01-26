@@ -102,7 +102,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all basic dev js uglify css font clean
+.PHONY: all basic dev js uglify css font clean setup-gitconfig
 all: font css uglify
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 unminified_basic: $(BASIC_JS) $(BASIC_CSS)
@@ -114,6 +114,12 @@ css: $(BUILD_CSS)
 font: $(FONT_TARGET)
 clean:
 	rm -rf $(BUILD_DIR)
+# This adds an entry to your local .git/config file that looks like this:
+# [include]
+# 	path = ../.gitconfig
+# that tells git to include the additional configuration specified inside the .gitconfig file that's checked in here.
+setup-gitconfig:
+	@git config --local include.path ../.gitconfig
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
