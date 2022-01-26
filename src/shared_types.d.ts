@@ -6,7 +6,7 @@ type ControllerEvent =
   | 'edit'
   | 'select'
   | undefined;
-type JoinMethod = 'html' | 'mathspeak' | 'latex' | 'text';
+type JoinMethod = 'mathspeak' | 'latex' | 'text';
 type CursorOptions = typeof Options.prototype;
 type MathspeakOptions = {
   createdLeftOf?: Cursor;
@@ -21,8 +21,8 @@ type EmbedOptions = {
 type InequalityData = {
   ctrlSeq: string;
   ctrlSeqStrict: string;
-  html: string;
-  htmlStrict: string;
+  htmlEntity: string;
+  htmlEntityStrict: string;
   text: string;
   textStrict: string;
   mathspeak: string;

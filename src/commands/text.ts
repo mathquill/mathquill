@@ -90,12 +90,10 @@ class TextBlock extends MQNode {
     );
   }
   html() {
-    return (
-      '<span class="mq-text-mode" mathquill-command-id=' +
-      this.id +
-      '>' +
-      this.textContents() +
-      '</span>'
+    return h(
+      'span',
+      { class: 'mq-text-mode', 'mathquill-command-id': this.id },
+      [h.text(this.textContents())]
     );
   }
 
@@ -158,7 +156,7 @@ class TextBlock extends MQNode {
       else if (cursorL instanceof TextPiece) cursorL.appendText(ch);
     } else if (this.isEmpty()) {
       cursor.insRightOf(this);
-      new VanillaSymbol('\\$', '$').createLeftOf(cursor);
+      new VanillaSymbol('\\$', h.text('$')).createLeftOf(cursor);
     } else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
     else {
@@ -415,8 +413,8 @@ LatexCmds.text =
 function makeTextBlock(
   latex: string,
   ariaLabel: string,
-  tagName: string,
-  attrs: string
+  tagName: TagName,
+  attrs: { style?: string; class: string }
 ) {
   return class extends TextBlock {
     ctrlSeq = latex;
@@ -424,20 +422,9 @@ function makeTextBlock(
     ariaLabel = ariaLabel;
 
     html() {
-      var cmdId = 'mathquill-command-id=' + this.id;
-      return (
-        '<' +
-        tagName +
-        ' ' +
-        attrs +
-        ' ' +
-        cmdId +
-        '>' +
-        this.textContents() +
-        '</' +
-        tagName +
-        '>'
-      );
+      return h(tagName, { ...attrs, 'mathquill-command-id': this.id }, [
+        h.text(this.textContents()),
+      ]);
     }
   };
 }
@@ -448,41 +435,35 @@ LatexCmds.em =
   LatexCmds.emph =
   LatexCmds.textit =
   LatexCmds.textsl =
-    makeTextBlock('\\textit', 'Italic', 'i', 'class="mq-text-mode"');
+    makeTextBlock('\\textit', 'Italic', 'i', { class: 'mq-text-mode' });
 LatexCmds.strong =
   LatexCmds.bold =
   LatexCmds.textbf =
-    makeTextBlock('\\textbf', 'Bold', 'b', 'class="mq-text-mode"');
+    makeTextBlock('\\textbf', 'Bold', 'b', { class: 'mq-text-mode' });
 LatexCmds.sf = LatexCmds.textsf = makeTextBlock(
   '\\textsf',
   'Sans serif font',
   'span',
-  'class="mq-sans-serif mq-text-mode"'
+  { class: 'mq-sans-serif mq-text-mode' }
 );
 LatexCmds.tt = LatexCmds.texttt = makeTextBlock(
   '\\texttt',
   'Mono space font',
   'span',
-  'class="mq-monospace mq-text-mode"'
+  { class: 'mq-monospace mq-text-mode' }
 );
-LatexCmds.textsc = makeTextBlock(
-  '\\textsc',
-  'Variable font',
-  'span',
-  'style="font-variant:small-caps" class="mq-text-mode"'
-);
-LatexCmds.uppercase = makeTextBlock(
-  '\\uppercase',
-  'Uppercase',
-  'span',
-  'style="text-transform:uppercase" class="mq-text-mode"'
-);
-LatexCmds.lowercase = makeTextBlock(
-  '\\lowercase',
-  'Lowercase',
-  'span',
-  'style="text-transform:lowercase" class="mq-text-mode"'
-);
+LatexCmds.textsc = makeTextBlock('\\textsc', 'Variable font', 'span', {
+  style: 'font-variant:small-caps',
+  class: 'mq-text-mode',
+});
+LatexCmds.uppercase = makeTextBlock('\\uppercase', 'Uppercase', 'span', {
+  style: 'text-transform:uppercase',
+  class: 'mq-text-mode',
+});
+LatexCmds.lowercase = makeTextBlock('\\lowercase', 'Lowercase', 'span', {
+  style: 'text-transform:lowercase',
+  class: 'mq-text-mode',
+});
 
 class RootMathCommand extends MathCommand {
   cursor: Cursor;
@@ -490,7 +471,7 @@ class RootMathCommand extends MathCommand {
     super('$');
     this.cursor = cursor;
   }
-  htmlTemplate = '<span class="mq-math-mode">&0</span>';
+  htmlTemplate = h('span', { class: 'mq-math-mode' }, [h.block(0)]);
   createBlocks() {
     super.createBlocks();
     const endsL = this.ends[L] as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
@@ -500,7 +481,7 @@ class RootMathCommand extends MathCommand {
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
         this.parent.deleteTowards(undefined!, cursor);
-        new VanillaSymbol('\\$', '$').createLeftOf(cursor.show());
+        new VanillaSymbol('\\$', h.text('$')).createLeftOf(cursor.show());
       } else if (!cursor[R]) cursor.insRightOf(this.parent);
       else if (!cursor[L]) cursor.insLeftOf(this.parent);
       else MathBlock.prototype.write.call(this, cursor, ch);
@@ -521,8 +502,8 @@ class RootTextBlock extends RootMathBlock {
     if (ch === '$') new RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
-      if (ch === '<') html = '&lt;';
-      else if (ch === '>') html = '&gt;';
+      if (ch === '<') html = h.entityText('&lt;');
+      else if (ch === '>') html = h.entityText('&gt;');
       new VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   }

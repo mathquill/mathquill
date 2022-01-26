@@ -77,16 +77,19 @@ class MathElement extends MQNode {
   }
 }
 
+type HTMLTemplate = HTMLElement;
+
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
 class MathCommand extends MathElement {
   replacedFragment: Fragment | undefined;
+  protected htmlTemplate: HTMLTemplate | undefined;
 
   constructor(
     ctrlSeq?: string,
-    htmlTemplate?: string,
+    htmlTemplate?: HTMLTemplate,
     textTemplate?: string[]
   ) {
     super();
@@ -95,7 +98,7 @@ class MathCommand extends MathElement {
 
   setCtrlSeqHtmlAndText(
     ctrlSeq?: string,
-    htmlTemplate?: string,
+    htmlTemplate?: HTMLTemplate,
     textTemplate?: string[]
   ) {
     if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
@@ -270,10 +273,13 @@ class MathCommand extends MathElement {
     Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
     your HTML template would have to have '&amp;123'.
   */
+
   numBlocks() {
-    var matches = (this.htmlTemplate as string).match(/&\d+/g);
-    return matches ? matches.length : 0;
+    return (
+      this.htmlTemplate?.querySelectorAll('[mq-block-placeholder]').length || 0
+    );
   }
+
   html() {
     // Render the entire math subtree rooted at this command, as HTML.
     // Expects .createBlocks() to have been called already, since it uses the
@@ -310,56 +316,30 @@ class MathCommand extends MathElement {
     //   and token becomes undefined. This will not infinite loop, even in
     //   production without pray(), because it will then TypeError on .slice().
 
-    var cmd = this;
-    var blocks = cmd.blocks as MathBlock[];
-    var cmdId = ' mathquill-command-id=' + cmd.id;
-    var tokens = (cmd.htmlTemplate as string).match(
-      /<[^<>]+>|[^<>]+/g
-    ) as string[];
-
-    pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
-
+    const blocks = this.blocks || [];
+    pray('htmlTemplate is defined', this.htmlTemplate);
+    const dom = this.htmlTemplate.cloneNode(true) as HTMLElement;
     // add cmdId and aria-hidden (for screen reader users) to all top-level tags
-    // Note: with the RegExp search/replace approach, it's possible that an element which is both a command and block may contain redundant aria-hidden attributes.
-    // In practice this doesn't appear to cause problems for screen readers.
-    for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
-      // top-level self-closing tags
-      if (token.slice(-2) === '/>') {
-        tokens[i] = token.slice(0, -2) + cmdId + ' aria-hidden="true"/>';
-      }
-      // top-level open tags
-      else if (token.charAt(0) === '<') {
-        pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
+    dom.setAttribute('aria-hidden', 'true');
+    dom.setAttribute('mathquill-command-id', '' + this.id);
 
-        tokens[i] = token.slice(0, -1) + cmdId + ' aria-hidden="true">';
-
-        // skip matching top-level close tag and all tag pairs in between
-        var nesting = 1;
-        do {
-          (i += 1), (token = tokens[i]);
-          pray('no missing close tags', token);
-          // close tags
-          if (token.slice(0, 2) === '</') {
-            nesting -= 1;
-          }
-          // non-self-closing open tags
-          else if (token.charAt(0) === '<' && token.slice(-2) !== '/>') {
-            nesting += 1;
-          }
-        } while (nesting > 0);
-      }
+    const placeholders = dom.querySelectorAll('[mq-block-placeholder]');
+    for (let i = 0; i < placeholders.length; i++) {
+      const placeholder = placeholders[i];
+      const index = parseInt(
+        placeholder.getAttribute('mq-block-placeholder') || ''
+      );
+      pray(
+        'block placeholder has a valid mq-block-placeholder attribute',
+        index >= 0 && index < blocks.length
+      );
+      const block = blocks[index];
+      placeholder.removeAttribute('mq-block-placeholder');
+      placeholder.setAttribute('mathquill-block-id', '' + block.id);
+      appendChildren(placeholder, block.html());
     }
-    return tokens
-      .join('')
-      .replace(/>&(\d+)/g, function (_$0: string, $1: string) {
-        var num1 = parseInt($1, 10);
-        return (
-          ' mathquill-block-id=' +
-          blocks[num1].id +
-          ' aria-hidden="true">' +
-          blocks[num1].join('html')
-        );
-      });
+
+    return dom;
   }
 
   // methods to export a string representation of the math tree
@@ -411,7 +391,7 @@ class MathCommand extends MathElement {
 class MQSymbol extends MathCommand {
   constructor(
     ctrlSeq?: string,
-    html?: string,
+    html?: HTMLElement,
     text?: string,
     mathspeak?: string
   ) {
@@ -421,7 +401,7 @@ class MQSymbol extends MathCommand {
 
   setCtrlSeqHtmlTextAndMathspeak(
     ctrlSeq?: string,
-    html?: string,
+    html?: HTMLElement,
     text?: string,
     mathspeak?: string
   ) {
@@ -436,6 +416,7 @@ class MQSymbol extends MathCommand {
   parser() {
     return Parser.succeed(this);
   }
+
   numBlocks() {
     return 0;
   }
@@ -478,18 +459,27 @@ class MQSymbol extends MathCommand {
   }
 }
 class VanillaSymbol extends MQSymbol {
-  constructor(ch: string, html?: string, mathspeak?: string) {
-    super(ch, '<span>' + (html || ch) + '</span>', undefined, mathspeak);
+  constructor(ch: string, html?: ChildNode, mathspeak?: string) {
+    super(ch, h('span', {}, [html || h.text(ch)]), undefined, mathspeak);
   }
 }
-function bindVanillaSymbol(ch: string, html?: string, mathspeak?: string) {
-  return () => new VanillaSymbol(ch, html, mathspeak);
+function bindVanillaSymbol(
+  ch: string,
+  htmlEntity?: string,
+  mathspeak?: string
+) {
+  return () =>
+    new VanillaSymbol(
+      ch,
+      htmlEntity ? h.entityText(htmlEntity) : undefined,
+      mathspeak
+    );
 }
 
 class BinaryOperator extends MQSymbol {
   constructor(
     ctrlSeq?: string,
-    html?: string,
+    html?: ChildNode,
     text?: string,
     mathspeak?: string,
     treatLikeSymbol?: boolean
@@ -497,14 +487,14 @@ class BinaryOperator extends MQSymbol {
     if (treatLikeSymbol) {
       super(
         ctrlSeq,
-        '<span>' + (html || ctrlSeq) + '</span>',
+        h('span', {}, [html || h.text(ctrlSeq || '')]),
         undefined,
         mathspeak
       );
     } else {
       super(
         ctrlSeq,
-        '<span class="mq-binary-operator">' + html + '</span>',
+        h('span', { class: 'mq-binary-operator' }, html ? [html] : []),
         text,
         mathspeak
       );
@@ -513,11 +503,17 @@ class BinaryOperator extends MQSymbol {
 }
 function bindBinaryOperator(
   ctrlSeq?: string,
-  html?: string,
+  htmlEntity?: string,
   text?: string,
   mathspeak?: string
 ) {
-  return () => new BinaryOperator(ctrlSeq, html, text, mathspeak);
+  return () =>
+    new BinaryOperator(
+      ctrlSeq,
+      htmlEntity ? h.entityText(htmlEntity) : undefined,
+      text,
+      mathspeak
+    );
 }
 
 /**
@@ -534,7 +530,13 @@ class MathBlock extends MathElement {
     });
   }
   html() {
-    return this.join('html');
+    const fragment = document.createDocumentFragment();
+    this.eachChild((el) => {
+      const childHtml = el.html();
+      appendChildren(fragment, childHtml);
+      return undefined;
+    });
+    return fragment;
   }
   latex() {
     return this.join('latex');

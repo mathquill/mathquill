@@ -49,7 +49,9 @@ class Cursor extends Point {
       (this.jQ =
       this._jQ =
         $(
-          h('span', { class: 'mq-cursor' }, [document.createTextNode('\u200B')])
+          h('span', { class: 'mq-cursor' }, [
+            document.createTextNode(U_ZERO_WIDTH_SPACE),
+          ])
         ));
     //closured for setInterval
     this.blink = function () {

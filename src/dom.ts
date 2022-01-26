@@ -1,6 +1,6 @@
 const urlParams = new URLSearchParams(window.location.search);
 
-type TagName = 'span' | 'textarea';
+type TagName = 'svg' | 'span' | 'textarea' | 'i' | 'b' | 'big' | 'sup' | 'var';
 
 interface CreateElementAttributes {
   class?: string;
@@ -9,30 +9,71 @@ interface CreateElementAttributes {
 }
 
 function parseHTML(s: string) {
+  // https://youmightnotneedjquery.com/#parse_html
   const tmp = document.implementation.createHTMLDocument('');
   tmp.body.innerHTML = s;
   return tmp.body.childNodes;
 }
 
-function h(
+interface HtmlBuilder {
+  (
+    type: TagName,
+    attributes?: CreateElementAttributes,
+    children?: ChildNode[] | NodeListOf<ChildNode>
+  ): HTMLElement;
+
+  text(s: string): Text;
+  block(n: number): ChildNode;
+  entityText(s: string): Text;
+}
+
+const h: HtmlBuilder = function h(
   type: TagName,
   attributes?: CreateElementAttributes,
   children?: ChildNode[] | NodeListOf<ChildNode>
-): HTMLElement {
-  // https://youmightnotneedjquery.com/#parse_html
-  const el = document.createElement(type);
+): HTMLElement | SVGSVGElement {
+  const el =
+    type === 'svg'
+      ? document.createElementNS('http://www.w3.org/2000/svg', 'svg')
+      : document.createElement(type);
   for (const key in attributes) {
     const value = attributes[key];
     if (value === undefined) continue;
     el.setAttribute(key, typeof value === 'string' ? value : String(value));
   }
 
-  if (children) {
-    for (let i = 0; i < children.length; i++) {
-      el.appendChild(children[i]);
-    }
-  }
+  appendChildren(el, children);
+
   return el;
+} as HtmlBuilder;
+
+h.text = (s: string) => document.createTextNode(s);
+h.block = (n: number) => h('span', { 'mq-block-placeholder': n });
+h.entityText = (s: string) => {
+  // TODO: replace with h.text(U_BLAHBLAH) or maybe a named entity->unicode lookup
+  const val = parseHTML(s);
+  pray(
+    'entity parses to a single text node',
+    val.length === 1 && val[0] instanceof Text
+  );
+  return val[0] as Text;
+};
+
+function appendChildren(
+  parent: ParentNode,
+  children?: ChildNode | NodeListOf<ChildNode> | DocumentFragment | ChildNode[]
+) {
+  if (!children) return;
+
+  if (children instanceof Node) {
+    parent.appendChild(children);
+    return;
+  }
+  const list =
+    children instanceof DocumentFragment ? children.childNodes : children;
+  for (let i = 0; i < list.length; i++) {
+    parent.appendChild(list[i]);
+  }
 }
 
 function closest(el: unknown | null, s: string) {

@@ -12,8 +12,10 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       return false;
     };
   }
-  htmlTemplate =
-    '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
+  htmlTemplate = h('span', { class: 'mq-latex-command-input mq-non-leaf' }, [
+    h.text('\\'),
+    h('span', {}, [h.block(0)]),
+  ]);
   textTemplate = ['\\'];
   createBlocks() {
     super.createBlocks();

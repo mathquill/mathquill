@@ -8,7 +8,7 @@ LatexCmds.notin =
   LatexCmds.oplus =
   LatexCmds.otimes =
     (latex: string) =>
-      new BinaryOperator('\\' + latex + ' ', '&' + latex + ';');
+      new BinaryOperator('\\' + latex + ' ', h.entityText('&' + latex + ';'));
 
 LatexCmds['∗'] =
   LatexCmds.ast =
