@@ -304,9 +304,7 @@ function getInterface(v: number) {
       return this;
     }
     select() {
-      var ctrlr = this.__controller;
-      ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
-      while (ctrlr.cursor[L]) ctrlr.selectLeft();
+      this.__controller.selectAll();
       return this;
     }
     clearSelection() {

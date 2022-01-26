@@ -2,6 +2,13 @@
  * Deals with the browser DOM events from
  * interaction with the typist.
  ****************************************/
+
+/**
+ * Only one incremental selection may be open at a time. Track whether
+ * an incremental selection is open to help enforce this invariant.
+ */
+var INCREMENTAL_SELECTION_OPEN = false;
+
 class MQNode extends NodeBase {
   keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
     var cursor = ctrlr.cursor;
@@ -47,16 +54,12 @@ class MQNode extends NodeBase {
 
       // Shift-End -> select to the end of the current block.
       case 'Shift-End':
-        while (cursor[R]) {
-          ctrlr.selectRight();
-        }
+        ctrlr.selectToBlockEndInDir(R);
         break;
 
       // Ctrl-Shift-End -> select all the way to the end of the root block.
       case 'Ctrl-Shift-End':
-        while (cursor[R] || cursor.parent !== ctrlr.root) {
-          ctrlr.selectRight();
-        }
+        ctrlr.selectToRootEndInDir(R);
         break;
 
       // Home -> move to the start of the current block.
@@ -77,16 +80,12 @@ class MQNode extends NodeBase {
 
       // Shift-Home -> select to the start of the current block.
       case 'Shift-Home':
-        while (cursor[L]) {
-          ctrlr.selectLeft();
-        }
+        ctrlr.selectToBlockEndInDir(L);
         break;
 
       // Ctrl-Shift-Home -> select all the way to the start of the root block.
       case 'Ctrl-Shift-Home':
-        while (cursor[L] || cursor.parent !== ctrlr.root) {
-          ctrlr.selectLeft();
-        }
+        ctrlr.selectToRootEndInDir(L);
         break;
 
       case 'Left':
@@ -115,19 +114,23 @@ class MQNode extends NodeBase {
         break;
 
       case 'Shift-Up':
-        if (cursor[L]) {
-          while (cursor[L]) ctrlr.selectLeft();
-        } else {
-          ctrlr.selectLeft();
-        }
+        ctrlr.withIncrementalSelection((selectDir) => {
+          if (cursor[L]) {
+            while (cursor[L]) selectDir(L);
+          } else {
+            selectDir(L);
+          }
+        });
         break;
 
       case 'Shift-Down':
-        if (cursor[R]) {
-          while (cursor[R]) ctrlr.selectRight();
-        } else {
-          ctrlr.selectRight();
-        }
+        ctrlr.withIncrementalSelection((selectDir) => {
+          if (cursor[R]) {
+            while (cursor[R]) selectDir(R);
+          } else {
+            selectDir(R);
+          }
+        });
         break;
 
       case 'Ctrl-Up':
@@ -147,8 +150,7 @@ class MQNode extends NodeBase {
 
       case 'Meta-A':
       case 'Ctrl-A':
-        ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
-        while (cursor[L]) ctrlr.selectLeft();
+        ctrlr.selectAll();
         break;
 
       // These remaining hotkeys are only of benefit to people running screen readers.
@@ -455,12 +457,38 @@ class Controller_keystroke extends Controller_focusBlur {
     return this.deleteDir(R);
   }
 
-  selectDir(dir: Direction) {
-    var cursor = this.notify('select').cursor,
+  /**
+   * startIncrementalSelection, selectDirIncremental, and finishIncrementalSelection
+   * should only be called by withIncrementalSelection because they must
+   * be called in sequence.
+   */
+  private startIncrementalSelection() {
+    pray(
+      "Multiple selections can't be simultaneously open",
+      !INCREMENTAL_SELECTION_OPEN
+    );
+
+    INCREMENTAL_SELECTION_OPEN = true;
+    this.notify('select');
+    var cursor = this.cursor;
+    if (!cursor.anticursor) cursor.startSelection();
+  }
+
+  /**
+   * Update the selection model, stored in cursor, without modifying
+   * selection DOM.
+   *
+   * startIncrementalSelection, selectDirIncremental, and finishIncrementalSelection
+   * should only be called by withIncrementalSelection because they must
+   * be called in sequence.
+   */
+  private selectDirIncremental(dir: Direction) {
+    pray('A selection is open', INCREMENTAL_SELECTION_OPEN);
+    INCREMENTAL_SELECTION_OPEN = true;
+
+    var cursor = this.cursor,
       seln = cursor.selection;
     prayDirection(dir);
-
-    if (!cursor.anticursor) cursor.startSelection();
 
     var node = cursor[dir];
     if (node) {
@@ -475,7 +503,18 @@ class Controller_keystroke extends Controller_focusBlur {
         node.unselectInto(dir, cursor);
       } else node.selectTowards(dir, cursor);
     } else cursor.parent.selectOutOf(dir, cursor);
+  }
 
+  /**
+   * Update selection DOM to match cursor model
+   *
+   * startIncrementalSelection, selectDirIncremental, and finishIncrementalSelection
+   * should only be called by withIncrementalSelection because they must
+   * be called in sequence.
+   */
+  private finishIncrementalSelection() {
+    pray('A selection is open', INCREMENTAL_SELECTION_OPEN);
+    var cursor = this.cursor;
     cursor.clearSelection();
     cursor.select() || cursor.show();
     var selection = cursor.selection;
@@ -484,11 +523,76 @@ class Controller_keystroke extends Controller_focusBlur {
         .clear()
         .queue(selection.join('mathspeak', ' ').trim() + ' selected'); // clearing first because selection fires several times, and we don't want repeated speech.
     }
+    INCREMENTAL_SELECTION_OPEN = false;
+  }
+
+  /**
+   * Used to build a selection incrementally in a loop. Calls the passed
+   * callback with a selectDir function that may be called many times,
+   * and defers updating the view until the incremental selection is
+   * complete
+   *
+   * Wraps up calling
+   *
+   *     this.startSelection()
+   *     this.selectDirIncremental(dir) // possibly many times
+   *     this.finishSelection()
+   *
+   * with extra error handling and invariant enforcement
+   */
+  withIncrementalSelection(cb: (selectDir: (dir: Direction) => void) => void) {
+    try {
+      this.startIncrementalSelection();
+      try {
+        cb((dir) => this.selectDirIncremental(dir));
+      } finally {
+        // Since we have started a selection, attempt to finish it even
+        // if the callback throws an error
+        this.finishIncrementalSelection();
+      }
+    } finally {
+      // Mark selection as closed even if finishSelection throws an
+      // error. Makes a possible error in finishSelection more
+      // recoverable
+      INCREMENTAL_SELECTION_OPEN = false;
+    }
+  }
+
+  /**
+   * Grow selection one unit in the given direction
+   *
+   * Note, this should not be called in a loop. To incrementally grow a
+   * selection, use withIncrementalSelection
+   */
+  selectDir(dir: Direction) {
+    this.withIncrementalSelection((selectDir) => selectDir(dir));
   }
   selectLeft() {
     return this.selectDir(L);
   }
   selectRight() {
     return this.selectDir(R);
+  }
+  selectAll() {
+    this.notify('move');
+    const cursor = this.cursor;
+    cursor.insAtRightEnd(this.root);
+    this.withIncrementalSelection((selectDir) => {
+      while (cursor[L]) selectDir(L);
+    });
+  }
+  selectToBlockEndInDir(dir: Direction) {
+    const cursor = this.cursor;
+    this.withIncrementalSelection((selectDir) => {
+      while (cursor[dir]) selectDir(dir);
+    });
+  }
+  selectToRootEndInDir(dir: Direction) {
+    const cursor = this.cursor;
+    this.withIncrementalSelection((selectDir) => {
+      while (cursor[dir] || cursor.parent !== this.root) {
+        selectDir(dir);
+      }
+    });
   }
 }
