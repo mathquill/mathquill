@@ -4,8 +4,8 @@
  ********************************************/
 Options.prototype.substituteTextarea = function () {
   return $(
-    "<textarea autocapitalize=off autocomplete=off autocorrect=off " +
-      "spellcheck=false x-palm-disable-ste-all=true/>"
+    '<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
+      'spellcheck=false x-palm-disable-ste-all=true/>'
   )[0];
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
@@ -19,7 +19,7 @@ class Controller extends Controller_scrollHoriz {
       )),
       textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
-      throw "substituteTextarea() must return a DOM element, got " + textarea;
+      throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
     this.textarea = $(textarea).appendTo(textareaSpan);
     this.aria.setContainer(this.textareaSpan);
@@ -45,13 +45,13 @@ class Controller extends Controller_scrollHoriz {
   }
   setTextareaSelection() {
     this.textareaSelectionTimeout = 0;
-    var latex = "";
+    var latex = '';
     if (this.cursor.selection) {
       //cleanLatex prunes unnecessary spaces. defined in latex.js
-      latex = this.cleanLatex(this.cursor.selection.join("latex"));
+      latex = this.cleanLatex(this.cursor.selection.join('latex'));
       if (this.options.statelessClipboard) {
         // FIXME: like paste, only this works for math fields; should ask parent
-        latex = "$" + latex + "$";
+        latex = '$' + latex + '$';
       }
     }
     this.selectFn(latex);
@@ -64,17 +64,17 @@ class Controller extends Controller_scrollHoriz {
 
     this.container.prepend(
       jQuery('<span aria-hidden="true" class="mq-selectable">').text(
-        "$" + ctrlr.exportLatex() + "$"
+        '$' + ctrlr.exportLatex() + '$'
       )
     );
     this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
     this.container.prepend(this.mathspeakSpan);
     ctrlr.blurred = true;
-    textarea.bind("cut paste", false);
+    textarea.bind('cut paste', false);
     if (ctrlr.options.disableCopyPaste) {
-      textarea.bind("copy", false);
+      textarea.bind('copy', false);
     } else {
-      textarea.bind("copy", function () {
+      textarea.bind('copy', function () {
         ctrlr.setTextareaSelection();
       });
     }
@@ -127,10 +127,10 @@ class Controller extends Controller_scrollHoriz {
     this.unbindFocusBlurEvents();
 
     ctrlr.blurred = true;
-    textarea.bind("cut paste", false);
+    textarea.bind('cut paste', false);
   }
   typedText(ch: string) {
-    if (ch === "\n") return this.handle("enter");
+    if (ch === '\n') return this.handle('enter');
     var cursor = this.notify(undefined).cursor;
     cursor.parent.write(cursor, ch);
     this.scrollHoriz();
@@ -140,7 +140,7 @@ class Controller extends Controller_scrollHoriz {
       cursor = ctrlr.cursor;
     if (cursor.selection) {
       setTimeout(function () {
-        ctrlr.notify("edit"); // deletes selection if present
+        ctrlr.notify('edit'); // deletes selection if present
         cursor.parent.bubble(function (node) {
           (node as MQNode).reflow();
           return undefined;
@@ -161,10 +161,10 @@ class Controller extends Controller_scrollHoriz {
     //  only gets in the way by \text{}-ifying pasted stuff and $-ifying
     //  cut/copied LaTeX)
     if (this.options.statelessClipboard) {
-      if (text.slice(0, 1) === "$" && text.slice(-1) === "$") {
+      if (text.slice(0, 1) === '$' && text.slice(-1) === '$') {
         text = text.slice(1, -1);
       } else {
-        text = "\\text{" + text + "}";
+        text = '\\text{' + text + '}';
       }
     }
     // FIXME: this always inserts math or a TextBlock, even in a RootTextBlock
@@ -179,7 +179,7 @@ class Controller extends Controller_scrollHoriz {
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
     var ariaLabel = ctrlr.getAriaLabel();
     var labelWithSuffix = /[A-Za-z0-9]$/.test(ariaLabel)
-      ? ariaLabel + ":"
+      ? ariaLabel + ':'
       : ariaLabel;
     var mathspeak = ctrlr.root.mathspeak().trim();
     this.aria.clear();
@@ -192,12 +192,12 @@ class Controller extends Controller_scrollHoriz {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      textarea.attr("aria-label", "");
-      ctrlr.mathspeakSpan.text((labelWithSuffix + " " + mathspeak).trim());
+      textarea.attr('aria-label', '');
+      ctrlr.mathspeakSpan.text((labelWithSuffix + ' ' + mathspeak).trim());
     } else {
       textarea.attr(
-        "aria-label",
-        (labelWithSuffix + " " + mathspeak + " " + ctrlr.ariaPostLabel).trim()
+        'aria-label',
+        (labelWithSuffix + ' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
     }
   }

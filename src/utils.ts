@@ -13,7 +13,7 @@ var jQuery = (window as any).jQuery;
 var min = Math.min;
 var max = Math.max;
 
-if (!jQuery) throw "MathQuill requires jQuery 1.5.2+ to be loaded first";
+if (!jQuery) throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
 
 function noop() {}
 
@@ -28,9 +28,9 @@ function noop() {}
  * name.
  */
 function pray(message: string, cond?: any) {
-  if (!cond) throw new Error("prayer failed: " + message);
+  if (!cond) throw new Error('prayer failed: ' + message);
 }
 
 function prayDirection(dir: Direction) {
-  pray("a direction was passed", dir === L || dir === R);
+  pray('a direction was passed', dir === L || dir === R);
 }

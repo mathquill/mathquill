@@ -8,7 +8,7 @@
     <!-- complain about uncaught errors -->
     <script type="text/javascript">
       window.onerror = function () {
-        document.documentElement.style.background = "red";
+        document.documentElement.style.background = 'red';
       };
     </script>
 
@@ -32,12 +32,12 @@
     <!-- configure mocha and chai -->
     <script type="text/javascript">
       var post_xunit_to = new URLSearchParams(location.search).get(
-        "post_xunit_to"
+        'post_xunit_to'
       );
 
       mocha.setup({
-        ui: "tdd",
-        reporter: post_xunit_to ? "xunit" : "html",
+        ui: 'tdd',
+        reporter: post_xunit_to ? 'xunit' : 'html',
         bail: false,
       });
     </script>
@@ -67,11 +67,11 @@
 
     <script type="text/javascript">
       teardown(function () {
-        $("#mock").empty();
+        $('#mock').empty();
       });
 
       function runXUnit() {
-        var xunit = "";
+        var xunit = '';
         Mocha.process.stdout.write = function (line) {
           xunit += line;
         };
@@ -79,7 +79,7 @@
 
         // the following is based on https://github.com/saucelabs-sample-scripts/JavaScript/blob/4946c5cf0ab7325dce5562881dba7c28e30989e5/reporting_mocha.js
         var failedTests = [];
-        runner.on("fail", function (test, err) {
+        runner.on('fail', function (test, err) {
           function flattenTitles(test) {
             var titles = [];
             while (test.parent.title) {
@@ -98,7 +98,7 @@
           });
         });
 
-        runner.on("end", function () {
+        runner.on('end', function () {
           setTimeout(function () {
             $.post(post_xunit_to, xunit).complete(function () {
               window.mochaResults = runner.stats;
@@ -109,13 +109,13 @@
       }
 
       function runJenkins() {
-        var json = location.search.indexOf("json") >= 0;
-        var listTests = location.search.indexOf("listTests") >= 0;
+        var json = location.search.indexOf('json') >= 0;
+        var listTests = location.search.indexOf('listTests') >= 0;
         var startTime = Date.now();
         var suiteMap = {};
         var runner = mocha.run();
 
-        runner.on("suite", function (suite) {
+        runner.on('suite', function (suite) {
           var title = xmlEscape(suite.fullTitle());
           suiteMap[title] = {
             assertions: [],
@@ -125,12 +125,12 @@
               elapsedTime: 0,
               timestamp: 0,
               result: true,
-              message: "okay",
+              message: 'okay',
             });
           }
         });
 
-        runner.on("pass", function (test) {
+        runner.on('pass', function (test) {
           if (!listTests) {
             var title = getTestSuiteTitle(test);
             var elapsedTime = test.duration / 1000;
@@ -144,7 +144,7 @@
           }
         });
 
-        runner.on("fail", function (test, err) {
+        runner.on('fail', function (test, err) {
           if (!listTests) {
             var title = getTestSuiteTitle(test);
             var elapsedTime = test.duration / 1000;
@@ -161,7 +161,7 @@
           }
         });
 
-        runner.on("end", function () {
+        runner.on('end', function () {
           var moduleResults = [];
           for (var suiteTitle in suiteMap) {
             if (suiteMap.hasOwnProperty(suiteTitle)) {
@@ -197,17 +197,17 @@
         // must escape a few symbols in xml attributes:
         //http://stackoverflow.com/questions/866706/which-characters-are-invalid-unless-encoded-in-an-xml-attribute
         function xmlEscape(string) {
-          string = string || "";
-          string = string.replace(/&/g, "&amp;");
-          string = string.replace(/"/g, "&quot;");
-          string = string.replace(/</g, "&lt;");
+          string = string || '';
+          string = string.replace(/&/g, '&amp;');
+          string = string.replace(/"/g, '&quot;');
+          string = string.replace(/</g, '&lt;');
           return string;
         }
 
         function outputXML(results) {
           var xml = [];
           xml.push('<?xml version="1.0"?>');
-          xml.push("<testsuites>");
+          xml.push('<testsuites>');
 
           for (var moduleName in results.modules) {
             var module = results.modules[moduleName];
@@ -216,7 +216,7 @@
               xml.push(
                 '<testsuite name="' +
                   moduleName +
-                  "." +
+                  '.' +
                   test.name +
                   '" time="' +
                   test.time +
@@ -226,7 +226,7 @@
               for (var j = 0; j < test.assertions.length; j++) {
                 var assertion = test.assertions[j];
                 var assertionMessage =
-                  assertion.message || "no-assertion-message";
+                  assertion.message || 'no-assertion-message';
                 var assertionTime = assertion.elapsedTime;
 
                 xml.push(
@@ -239,23 +239,23 @@
 
                 if (assertion.result === false) {
                   xml.push('<failure message="' + assertionMessage + '">');
-                  xml.push("Expected: " + assertion.expected + "\n");
-                  xml.push("Actual: " + assertion.actual + "\n");
-                  xml.push("Stacktrace: " + assertion.stacktrace);
-                  xml.push("</failure>");
+                  xml.push('Expected: ' + assertion.expected + '\n');
+                  xml.push('Actual: ' + assertion.actual + '\n');
+                  xml.push('Stacktrace: ' + assertion.stacktrace);
+                  xml.push('</failure>');
                 } else if (assertion.result === undefined) {
-                  xml.push("<skipped />");
+                  xml.push('<skipped />');
                 }
 
-                xml.push("</testcase>");
+                xml.push('</testcase>');
               }
 
-              xml.push("</testsuite>");
+              xml.push('</testsuite>');
             }
           }
 
-          xml.push("</testsuites>");
-          return xml.join("\n");
+          xml.push('</testsuites>');
+          return xml.join('\n');
         }
       }
 

@@ -1,12 +1,12 @@
 type NodeRef = MQNode | 0;
 type ControllerEvent =
-  | "move"
-  | "upDown"
-  | "replace"
-  | "edit"
-  | "select"
+  | 'move'
+  | 'upDown'
+  | 'replace'
+  | 'edit'
+  | 'select'
   | undefined;
-type JoinMethod = "html" | "mathspeak" | "latex" | "text";
+type JoinMethod = 'html' | 'mathspeak' | 'latex' | 'text';
 type CursorOptions = typeof Options.prototype;
 type MathspeakOptions = {
   createdLeftOf?: Cursor;

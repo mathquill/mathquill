@@ -16,15 +16,15 @@ class Controller_scrollHoriz extends Controller_mouse {
       shouldHaveOverflowLeft = scroll > 0;
     }
     if (
-      root.classList.contains("mq-editing-overflow-right") !==
+      root.classList.contains('mq-editing-overflow-right') !==
       shouldHaveOverflowRight
     )
-      root.classList.toggle("mq-editing-overflow-right");
+      root.classList.toggle('mq-editing-overflow-right');
     if (
-      root.classList.contains("mq-editing-overflow-left") !==
+      root.classList.contains('mq-editing-overflow-left') !==
       shouldHaveOverflowLeft
     )
-      root.classList.toggle("mq-editing-overflow-left");
+      root.classList.toggle('mq-editing-overflow-left');
   }
   scrollHoriz() {
     var cursor = this.cursor,
@@ -65,7 +65,7 @@ class Controller_scrollHoriz extends Controller_mouse {
     if (scrollBy < 0 && root.scrollLeft === 0) return;
     if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width)
       return;
-    this.root.jQ.stop().animate({ scrollLeft: "+=" + scrollBy }, 100, () => {
+    this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, () => {
       this.setOverflowClasses();
     });
   }

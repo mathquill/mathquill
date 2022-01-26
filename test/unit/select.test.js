@@ -1,4 +1,4 @@
-suite("Cursor::select()", function () {
+suite('Cursor::select()', function () {
   var cursor = new Cursor();
   cursor.selectionChanged = noop;
 
@@ -37,19 +37,19 @@ suite("Cursor::select()", function () {
   var pt2 = new Point(child2, 0, 0);
   var pt3 = new Point(child3, 0, 0);
 
-  test("same parent, one Node", function () {
+  test('same parent, one Node', function () {
     assertSelection(A, B, child1);
     assertSelection(B, C, child2);
     assertSelection(C, D, child3);
   });
 
-  test("same Parent, many Nodes", function () {
+  test('same Parent, many Nodes', function () {
     assertSelection(A, C, child1, child2);
     assertSelection(A, D, child1, child3);
     assertSelection(B, D, child2, child3);
   });
 
-  test("Point next to parent of other Point", function () {
+  test('Point next to parent of other Point', function () {
     assertSelection(A, pt1, child1);
     assertSelection(B, pt1, child1);
 
@@ -66,7 +66,7 @@ suite("Cursor::select()", function () {
     assertSelection(pt1, pt3, child1, child3);
   });
 
-  test("Point is sibling of parent of other Point", function () {
+  test('Point is sibling of parent of other Point', function () {
     assertSelection(A, pt2, child1, child2);
     assertSelection(A, pt3, child1, child3);
     assertSelection(B, pt3, child2, child3);
@@ -74,13 +74,13 @@ suite("Cursor::select()", function () {
     assertSelection(pt1, C, child1, child2);
   });
 
-  test("same Point", function () {
+  test('same Point', function () {
     Point.prototype.init.call(cursor, A.parent, A[L], A[R]);
     cursor.startSelection();
     assert.equal(cursor.select(), false);
   });
 
-  test("different trees", function () {
+  test('different trees', function () {
     var anotherTree = new MQNode();
 
     Point.prototype.init.call(cursor, A.parent, A[L], A[R]);

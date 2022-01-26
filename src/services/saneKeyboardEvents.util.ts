@@ -33,37 +33,37 @@ var saneKeyboardEvents = (function () {
   // [2]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
   // [3]: http://unixpapa.com/js/key.html
   const KEY_VALUES: Record<number, string | undefined> = {
-    8: "Backspace",
-    9: "Tab",
+    8: 'Backspace',
+    9: 'Tab',
 
-    10: "Enter", // for Safari on iOS
+    10: 'Enter', // for Safari on iOS
 
-    13: "Enter",
+    13: 'Enter',
 
-    16: "Shift",
-    17: "Control",
-    18: "Alt",
-    20: "CapsLock",
+    16: 'Shift',
+    17: 'Control',
+    18: 'Alt',
+    20: 'CapsLock',
 
-    27: "Esc",
+    27: 'Esc',
 
-    32: "Spacebar",
+    32: 'Spacebar',
 
-    33: "PageUp",
-    34: "PageDown",
-    35: "End",
-    36: "Home",
+    33: 'PageUp',
+    34: 'PageDown',
+    35: 'End',
+    36: 'Home',
 
-    37: "Left",
-    38: "Up",
-    39: "Right",
-    40: "Down",
+    37: 'Left',
+    38: 'Up',
+    39: 'Right',
+    40: 'Down',
 
-    45: "Insert",
+    45: 'Insert',
 
-    46: "Del",
+    46: 'Del',
 
-    144: "NumLock",
+    144: 'NumLock',
   };
 
   // To the extent possible, create a normalized string representation
@@ -74,17 +74,17 @@ var saneKeyboardEvents = (function () {
     var key;
     var modifiers = [];
 
-    if (evt.ctrlKey) modifiers.push("Ctrl");
-    if (evt.originalEvent && evt.originalEvent.metaKey) modifiers.push("Meta");
-    if (evt.altKey) modifiers.push("Alt");
-    if (evt.shiftKey) modifiers.push("Shift");
+    if (evt.ctrlKey) modifiers.push('Ctrl');
+    if (evt.originalEvent && evt.originalEvent.metaKey) modifiers.push('Meta');
+    if (evt.altKey) modifiers.push('Alt');
+    if (evt.shiftKey) modifiers.push('Shift');
 
     key = keyVal || String.fromCharCode(which);
 
     if (!modifiers.length && !keyVal) return key;
 
     modifiers.push(key);
-    return modifiers.join("-");
+    return modifiers.join('-');
   }
 
   // create a keyboard events shim that calls callbacks at useful times
@@ -119,7 +119,7 @@ var saneKeyboardEvents = (function () {
       });
     }
     target.bind(
-      "keydown keypress input keyup paste",
+      'keydown keypress input keyup paste',
       function (e: KeyboardEvent) {
         checkTextarea(e);
       }
@@ -159,7 +159,7 @@ var saneKeyboardEvents = (function () {
     function hasSelection() {
       var dom = textarea[0];
 
-      if (!("selectionStart" in dom)) return false;
+      if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
     }
 
@@ -180,7 +180,7 @@ var saneKeyboardEvents = (function () {
 
       if (shouldBeSelected)
         checkTextareaOnce(function (e?: Event) {
-          if (!(e && e.type === "focusout")) {
+          if (!(e && e.type === 'focusout')) {
             // re-select textarea in case it's an unrecognized key that clears
             // the selection, then never again, 'cos next thing might be blur
             guardedTextareaSelect();
@@ -196,10 +196,10 @@ var saneKeyboardEvents = (function () {
       // The keyPress event in FF reports which=0 for some reason. The new
       // .key property seems to report reasonable results, so we're using that
       switch (e.originalEvent.key) {
-        case "ArrowRight":
-        case "ArrowLeft":
-        case "ArrowDown":
-        case "ArrowUp":
+        case 'ArrowRight':
+        case 'ArrowLeft':
+        case 'ArrowDown':
+        case 'ArrowUp':
           return true;
       }
 
@@ -260,7 +260,7 @@ var saneKeyboardEvents = (function () {
 
       var text = textarea.val();
       if (text.length === 1) {
-        textarea.val("");
+        textarea.val('');
         if (controller.options && controller.options.overrideTypedText) {
           controller.options.overrideTypedText(text);
         } else {
@@ -276,7 +276,7 @@ var saneKeyboardEvents = (function () {
       keypress = null;
       checkTextarea = noop;
       clearTimeout(timeoutId);
-      textarea.val("");
+      textarea.val('');
     }
 
     function onPaste(e: Event) {
@@ -302,7 +302,7 @@ var saneKeyboardEvents = (function () {
     }
     function pastedText() {
       var text = textarea.val();
-      textarea.val("");
+      textarea.val('');
       if (text) controller.paste(text);
     }
 

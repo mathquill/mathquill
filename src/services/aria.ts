@@ -18,7 +18,7 @@ class Aria {
   jQ = jQuery(
     '<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>'
   );
-  msg = "";
+  msg = '';
   items: AriaQueueItem[] = [];
 
   constructor(controller: Controller) {
@@ -30,7 +30,7 @@ class Aria {
   }
 
   queue(item: AriaQueueItem, shouldDescribe: boolean = false) {
-    var output: Fragment | string = "";
+    var output: Fragment | string = '';
     if (item instanceof MQNode) {
       // Some constructs include verbal shorthand (such as simple fractions and exponents).
       // Since ARIA alerts relate to moving through interactive content, we don't want to use that shorthand if it exists
@@ -41,29 +41,29 @@ class Aria {
         if (
           item.parent &&
           item.parent.ariaLabel &&
-          item.ariaLabel === "block"
+          item.ariaLabel === 'block'
         ) {
-          output = item.parent.ariaLabel + " " + itemMathspeak;
+          output = item.parent.ariaLabel + ' ' + itemMathspeak;
         } else if (item.ariaLabel) {
-          output = item.ariaLabel + " " + itemMathspeak;
+          output = item.ariaLabel + ' ' + itemMathspeak;
         }
       }
-      if (output === "") {
+      if (output === '') {
         output = itemMathspeak;
       }
     } else {
-      output = item || "";
+      output = item || '';
     }
     this.items.push(output);
     return this;
   }
   queueDirOf(dir: Direction) {
     prayDirection(dir);
-    return this.queue(dir === L ? "before" : "after");
+    return this.queue(dir === L ? 'before' : 'after');
   }
   queueDirEndOf(dir: Direction) {
     prayDirection(dir);
-    return this.queue(dir === L ? "beginning of" : "end of");
+    return this.queue(dir === L ? 'beginning of' : 'end of');
   }
 
   alert(t?: AriaQueueItem) {
@@ -74,8 +74,8 @@ class Aria {
       // If it does not, leave the DOM unchanged but flush the queue regardless.
       // Note: updating the msg variable regardless of focus for unit tests.
       this.msg = this.items
-        .join(" ")
-        .replace(/ +(?= )/g, "")
+        .join(' ')
+        .replace(/ +(?= )/g, '')
         .trim();
       if (this.controller.containerHasFocus()) {
         this.jQ.empty().text(this.msg);

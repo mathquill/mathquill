@@ -9,15 +9,15 @@
  * Wraps a single HTMLSpanElement.
  */
 class TextBlock extends MQNode {
-  ctrlSeq = "\\text";
-  ariaLabel = "Text";
+  ctrlSeq = '\\text';
+  ariaLabel = 'Text';
   replacedText?: string;
   anticursorPosition?: number;
 
   replaces(replacedText: Fragment | string) {
     if (replacedText instanceof Fragment)
       this.replacedText = replacedText.remove().jQ.text();
-    else if (typeof replacedText === "string") this.replacedText = replacedText;
+    else if (typeof replacedText === 'string') this.replacedText = replacedText;
   }
 
   jQadd(jQ: $) {
@@ -60,9 +60,9 @@ class TextBlock extends MQNode {
     var regex = Parser.regex;
     var optWhitespace = Parser.optWhitespace;
     return optWhitespace
-      .then(string("{"))
+      .then(string('{'))
       .then(regex(/^[^}]*/))
-      .skip(string("}"))
+      .skip(string('}'))
       .map(function (text) {
         if (text.length === 0) return new Fragment();
 
@@ -72,7 +72,7 @@ class TextBlock extends MQNode {
   }
 
   textContents() {
-    return this.foldChildren("", function (text, child) {
+    return this.foldChildren('', function (text, child) {
       return text + (child as TextPiece).textStr;
     });
   }
@@ -81,32 +81,32 @@ class TextBlock extends MQNode {
   }
   latex() {
     var contents = this.textContents();
-    if (contents.length === 0) return "";
+    if (contents.length === 0) return '';
     return (
       this.ctrlSeq +
-      "{" +
-      contents.replace(/\\/g, "\\backslash ").replace(/[{}]/g, "\\$&") +
-      "}"
+      '{' +
+      contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') +
+      '}'
     );
   }
   html() {
     return (
       '<span class="mq-text-mode" mathquill-command-id=' +
       this.id +
-      ">" +
+      '>' +
       this.textContents() +
-      "</span>"
+      '</span>'
     );
   }
 
-  mathspeakTemplate = ["StartText", "EndText"];
+  mathspeakTemplate = ['StartText', 'EndText'];
   mathspeak(opts?: MathspeakOptions) {
     if (opts && opts.ignoreShorthand) {
       return (
         this.mathspeakTemplate[0] +
-        ", " +
+        ', ' +
         this.textContents() +
-        ", " +
+        ', ' +
         this.mathspeakTemplate[1]
       );
     } else {
@@ -152,13 +152,13 @@ class TextBlock extends MQNode {
   write(cursor: Cursor, ch: string) {
     cursor.show().deleteSelection();
 
-    if (ch !== "$") {
+    if (ch !== '$') {
       let cursorL = cursor[L];
       if (!cursorL) new TextPiece(ch).createLeftOf(cursor);
       else if (cursorL instanceof TextPiece) cursorL.appendText(ch);
     } else if (this.isEmpty()) {
       cursor.insRightOf(this);
-      new VanillaSymbol("\\$", "$").createLeftOf(cursor);
+      new VanillaSymbol('\\$', '$').createLeftOf(cursor);
     } else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
     else {
@@ -253,7 +253,7 @@ class TextBlock extends MQNode {
   blur(cursor: Cursor) {
     MathBlock.prototype.blur.call(this, cursor);
     if (!cursor) return;
-    if (this.textContents() === "") {
+    if (this.textContents() === '') {
       this.remove();
       if (cursor[L] === this) cursor[L] = this[L];
       else if (cursor[R] === this) cursor[R] = this[R];
@@ -270,7 +270,7 @@ function TextBlockFuseChildren(self: TextBlock) {
 
   var textPcDom = self.jQ[0].firstChild as Text;
   if (!textPcDom) return;
-  pray("only node in TextBlock span is Text node", textPcDom.nodeType === 3);
+  pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
   // nodeType === 3 has meant a Text node since ancient times:
   //   http://reference.sitepoint.com/javascript/Node/nodeType
 
@@ -420,23 +420,23 @@ function makeTextBlock(
 ) {
   return class extends TextBlock {
     ctrlSeq = latex;
-    mathspeakTemplate = ["Start" + ariaLabel, "End" + ariaLabel];
+    mathspeakTemplate = ['Start' + ariaLabel, 'End' + ariaLabel];
     ariaLabel = ariaLabel;
 
     html() {
-      var cmdId = "mathquill-command-id=" + this.id;
+      var cmdId = 'mathquill-command-id=' + this.id;
       return (
-        "<" +
+        '<' +
         tagName +
-        " " +
+        ' ' +
         attrs +
-        " " +
+        ' ' +
         cmdId +
-        ">" +
+        '>' +
         this.textContents() +
-        "</" +
+        '</' +
         tagName +
-        ">"
+        '>'
       );
     }
   };
@@ -448,46 +448,46 @@ LatexCmds.em =
   LatexCmds.emph =
   LatexCmds.textit =
   LatexCmds.textsl =
-    makeTextBlock("\\textit", "Italic", "i", 'class="mq-text-mode"');
+    makeTextBlock('\\textit', 'Italic', 'i', 'class="mq-text-mode"');
 LatexCmds.strong =
   LatexCmds.bold =
   LatexCmds.textbf =
-    makeTextBlock("\\textbf", "Bold", "b", 'class="mq-text-mode"');
+    makeTextBlock('\\textbf', 'Bold', 'b', 'class="mq-text-mode"');
 LatexCmds.sf = LatexCmds.textsf = makeTextBlock(
-  "\\textsf",
-  "Sans serif font",
-  "span",
+  '\\textsf',
+  'Sans serif font',
+  'span',
   'class="mq-sans-serif mq-text-mode"'
 );
 LatexCmds.tt = LatexCmds.texttt = makeTextBlock(
-  "\\texttt",
-  "Mono space font",
-  "span",
+  '\\texttt',
+  'Mono space font',
+  'span',
   'class="mq-monospace mq-text-mode"'
 );
 LatexCmds.textsc = makeTextBlock(
-  "\\textsc",
-  "Variable font",
-  "span",
+  '\\textsc',
+  'Variable font',
+  'span',
   'style="font-variant:small-caps" class="mq-text-mode"'
 );
 LatexCmds.uppercase = makeTextBlock(
-  "\\uppercase",
-  "Uppercase",
-  "span",
+  '\\uppercase',
+  'Uppercase',
+  'span',
   'style="text-transform:uppercase" class="mq-text-mode"'
 );
 LatexCmds.lowercase = makeTextBlock(
-  "\\lowercase",
-  "Lowercase",
-  "span",
+  '\\lowercase',
+  'Lowercase',
+  'span',
   'style="text-transform:lowercase" class="mq-text-mode"'
 );
 
 class RootMathCommand extends MathCommand {
   cursor: Cursor;
   constructor(cursor: Cursor) {
-    super("$");
+    super('$');
     this.cursor = cursor;
   }
   htmlTemplate = '<span class="mq-math-mode">&0</span>';
@@ -496,33 +496,33 @@ class RootMathCommand extends MathCommand {
     const endsL = this.ends[L] as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
     endsL.cursor = this.cursor;
     endsL.write = function (cursor: Cursor, ch: string) {
-      if (ch !== "$") MathBlock.prototype.write.call(this, cursor, ch);
+      if (ch !== '$') MathBlock.prototype.write.call(this, cursor, ch);
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
         this.parent.deleteTowards(undefined!, cursor);
-        new VanillaSymbol("\\$", "$").createLeftOf(cursor.show());
+        new VanillaSymbol('\\$', '$').createLeftOf(cursor.show());
       } else if (!cursor[R]) cursor.insRightOf(this.parent);
       else if (!cursor[L]) cursor.insLeftOf(this.parent);
       else MathBlock.prototype.write.call(this, cursor, ch);
     };
   }
   latex() {
-    return "$" + (this.ends[L] as MQNode).latex() + "$";
+    return '$' + (this.ends[L] as MQNode).latex() + '$';
   }
 }
 
 class RootTextBlock extends RootMathBlock {
   keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
-    if (key === "Spacebar" || key === "Shift-Spacebar") return;
+    if (key === 'Spacebar' || key === 'Shift-Spacebar') return;
     return super.keystroke(key, e, ctrlr);
   }
   write(cursor: Cursor, ch: string) {
     cursor.show().deleteSelection();
-    if (ch === "$") new RootMathCommand(cursor).createLeftOf(cursor);
+    if (ch === '$') new RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
-      if (ch === "<") html = "&lt;";
-      else if (ch === ">") html = "&gt;";
+      if (ch === '<') html = '&lt;';
+      else if (ch === '>') html = '&gt;';
       new VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   }
@@ -531,7 +531,7 @@ API.TextField = function (APIClasses: APIClasses) {
   return class extends APIClasses.EditableField {
     static RootBlock = RootTextBlock;
     __mathquillify() {
-      return super.__mathquillify("mq-editable-field mq-text-mode");
+      return super.__mathquillify('mq-editable-field mq-text-mode');
     }
     latex(latex: string) {
       if (arguments.length > 0) {

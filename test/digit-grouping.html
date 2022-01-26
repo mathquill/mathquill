@@ -44,51 +44,51 @@
     <script type="text/javascript">
       MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
-      var mqDisabled = MQ.MathField($("#grouping-disabled")[0], {
+      var mqDisabled = MQ.MathField($('#grouping-disabled')[0], {
         autoSubscriptNumerals: true,
         autoCommands:
-          "alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square",
-        autoParenthesizedFunctions: "sin cos",
+          'alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square',
+        autoParenthesizedFunctions: 'sin cos',
         enableDigitGrouping: false,
       });
 
-      var mqEnabled = MQ.MathField($("#grouping-enabled")[0], {
+      var mqEnabled = MQ.MathField($('#grouping-enabled')[0], {
         autoSubscriptNumerals: true,
         autoCommands:
-          "alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square",
-        autoParenthesizedFunctions: "sin cos",
+          'alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square',
+        autoParenthesizedFunctions: 'sin cos',
         enableDigitGrouping: true,
       });
 
-      var mqOptimized = MQ.MathField($("#optimized")[0], {
+      var mqOptimized = MQ.MathField($('#optimized')[0], {
         autoSubscriptNumerals: true,
         autoCommands:
-          "alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square",
-        autoParenthesizedFunctions: "sin cos",
+          'alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square',
+        autoParenthesizedFunctions: 'sin cos',
         enableDigitGrouping: true,
       });
 
-      var mqEdgeCases = MQ.MathField($("#edge-cases")[0], {
+      var mqEdgeCases = MQ.MathField($('#edge-cases')[0], {
         autoSubscriptNumerals: true,
         autoCommands:
-          "alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square",
-        autoParenthesizedFunctions: "sin cos",
+          'alpha beta sqrt theta phi pi tau nthroot sum prod int ans percent mid square',
+        autoParenthesizedFunctions: 'sin cos',
         enableDigitGrouping: true,
       });
 
       var optimizedLatexs = [
-        "",
-        "1",
-        "12",
-        "123",
-        "123",
-        "1234",
-        "1235",
-        "123456.",
-        "12356.3",
-        "12356.3234",
-        "12356.3234.23",
-        "12356.323423",
+        '',
+        '1',
+        '12',
+        '123',
+        '123',
+        '1234',
+        '1235',
+        '123456.',
+        '12356.3',
+        '12356.3234',
+        '12356.3234.23',
+        '12356.323423',
       ];
       setInterval(function () {
         // cycle through the latex values
@@ -98,22 +98,22 @@
       }, 2000);
 
       var edgeCaseLatexs = [
-        "",
-        "1\\ ",
-        "\\ 1",
-        "\\ 1\\ ",
-        "a",
-        "a\\ ",
-        "\\ a",
-        "a\\ a",
-        "\\ a\\ ",
-        ".",
-        ".\\ .",
-        "..",
-        "2..",
-        "..2",
-        "\\ \\ ",
-        "\\ \\ \\ ",
+        '',
+        '1\\ ',
+        '\\ 1',
+        '\\ 1\\ ',
+        'a',
+        'a\\ ',
+        '\\ a',
+        'a\\ a',
+        '\\ a\\ ',
+        '.',
+        '.\\ .',
+        '..',
+        '2..',
+        '..2',
+        '\\ \\ ',
+        '\\ \\ \\ ',
       ];
       setInterval(function () {
         // cycle through the latex values

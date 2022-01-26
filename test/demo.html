@@ -153,55 +153,55 @@
       //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
       //elements according to their CSS class.
       $(function () {
-        $(".mathquill-static-math").each(function () {
+        $('.mathquill-static-math').each(function () {
           MQ.StaticMath(this);
         });
-        $(".static-math-no-mouse-events").each(function () {
+        $('.static-math-no-mouse-events').each(function () {
           MQ.StaticMath(this, { mouseEvents: false });
         });
-        $(".mathquill-math-field").each(function () {
+        $('.mathquill-math-field').each(function () {
           MQ.MathField(this);
         });
-        $(".mathquill-text-field").each(function () {
+        $('.mathquill-text-field').each(function () {
           MQ.TextField(this);
         });
       });
 
-      $("#show-html-source").toggle(
+      $('#show-html-source').toggle(
         function () {
           $(this)
-            .html("Hide Semantically Meaningful HTML Source")
+            .html('Hide Semantically Meaningful HTML Source')
             .parent()
             .next()
             .show();
         },
         function () {
           $(this)
-            .html("Show Semantically Meaningful HTML Source")
+            .html('Show Semantically Meaningful HTML Source')
             .parent()
             .next()
             .hide();
         }
       );
 
-      var latexMath = $("#editable-math"),
-        latexSource = $("#latex-source"),
-        htmlSource = $("#html-source"),
-        codecogsimg = $("#codecogsimg"),
-        codecogslink = $("#codecogslink"),
-        htmlTransplantExample = $("#html-transplant-example");
+      var latexMath = $('#editable-math'),
+        latexSource = $('#latex-source'),
+        htmlSource = $('#html-source'),
+        codecogsimg = $('#codecogsimg'),
+        codecogslink = $('#codecogslink'),
+        htmlTransplantExample = $('#html-transplant-example');
 
-      $("#codecogs").click(function () {
+      $('#codecogs').click(function () {
         var latex = latexSource.val();
         codecogslink.attr(
-          "href",
-          "http://latex.codecogs.com/gif.latex?" + latex
+          'href',
+          'http://latex.codecogs.com/gif.latex?' + latex
         );
-        codecogsimg.attr("src", "http://latex.codecogs.com/gif.latex?" + latex);
+        codecogsimg.attr('src', 'http://latex.codecogs.com/gif.latex?' + latex);
       });
 
       $(function () {
-        var latexMath = MQ($("#editable-math")[0]);
+        var latexMath = MQ($('#editable-math')[0]);
         latexMath.config({
           handlers: {
             edit: function () {
@@ -216,7 +216,7 @@
         latexMath.focus();
 
         latexSource.val(latexMath.latex());
-        latexSource.bind("keydown keypress", function () {
+        latexSource.bind('keydown keypress', function () {
           var oldtext = latexSource.val();
           setTimeout(function () {
             var newtext = latexSource.val();
@@ -235,11 +235,11 @@
           latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
       });
 
-      $(".insert-trigger").click(function () {
-        var latex = $(this).data("latex");
+      $('.insert-trigger').click(function () {
+        var latex = $(this).data('latex');
         $(this)
           .parent()
-          .find(".mathquill-math-field")
+          .find('.mathquill-math-field')
           .each(function () {
             var mathquill = MQ(this);
             mathquill.write(latex);
@@ -249,22 +249,22 @@
       //print the HTML source as an indented tree. TODO: syntax highlight
       function printTree(html) {
         html = html.match(/<[a-z]+|<\/[a-z]+>|./gi);
-        if (!html) return "";
-        var indent = "\n",
+        if (!html) return '';
+        var indent = '\n',
           tree = [];
         for (var i = 0; i < html.length; i += 1) {
           var token = html[i];
-          if (token.charAt(0) === "<") {
-            if (token.charAt(1) === "/") {
+          if (token.charAt(0) === '<') {
+            if (token.charAt(1) === '/') {
               //dedent on close tag
               indent = indent.slice(0, -2);
-              if (html[i + 1] && html[i + 1].slice(0, 2) === "</")
+              if (html[i + 1] && html[i + 1].slice(0, 2) === '</')
                 //but maintain indent for close tags that come after other close tags
                 token += indent.slice(0, -2);
             } else {
               //indent on open tag
               tree.push(indent);
-              indent += "  ";
+              indent += '  ';
             }
 
             token = token.toLowerCase();
@@ -272,7 +272,7 @@
 
           tree.push(token);
         }
-        return tree.join("").slice(1);
+        return tree.join('').slice(1);
       }
     </script>
   </body>

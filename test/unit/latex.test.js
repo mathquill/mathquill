@@ -1,4 +1,4 @@
-suite("latex", function () {
+suite('latex', function () {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
@@ -7,7 +7,7 @@ suite("latex", function () {
       .postOrder(function (node) {
         node.finalizeTree(Options.prototype);
       })
-      .join("latex");
+      .join('latex');
     assert.equal(
       result,
       latex,
@@ -15,257 +15,257 @@ suite("latex", function () {
     );
   }
 
-  test("empty LaTeX", function () {
-    assertParsesLatex("");
-    assertParsesLatex(" ", "");
-    assertParsesLatex("{}", "");
-    assertParsesLatex("   {}{} {{{}}  }", "");
+  test('empty LaTeX', function () {
+    assertParsesLatex('');
+    assertParsesLatex(' ', '');
+    assertParsesLatex('{}', '');
+    assertParsesLatex('   {}{} {{{}}  }', '');
   });
 
-  test("variables", function () {
-    assertParsesLatex("xyz");
+  test('variables', function () {
+    assertParsesLatex('xyz');
   });
 
-  test("variables that can be mathbb", function () {
-    assertParsesLatex("PNZQRCH");
+  test('variables that can be mathbb', function () {
+    assertParsesLatex('PNZQRCH');
   });
 
-  test("can parse mathbb symbols", function () {
+  test('can parse mathbb symbols', function () {
     assertParsesLatex(
-      "\\P\\N\\Z\\Q\\R\\C\\H",
-      "\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}"
+      '\\P\\N\\Z\\Q\\R\\C\\H',
+      '\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}'
     );
     assertParsesLatex(
-      "\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}"
+      '\\mathbb{P}\\mathbb{N}\\mathbb{Z}\\mathbb{Q}\\mathbb{R}\\mathbb{C}\\mathbb{H}'
     );
   });
 
-  test("can parse mathbb error case", function () {
+  test('can parse mathbb error case', function () {
     assert.throws(function () {
-      assertParsesLatex("\\mathbb + 2");
+      assertParsesLatex('\\mathbb + 2');
     });
     assert.throws(function () {
-      assertParsesLatex("\\mathbb{A}");
-    });
-  });
-
-  test("simple exponent", function () {
-    assertParsesLatex("x^{n}");
-  });
-
-  test("block exponent", function () {
-    assertParsesLatex("x^{n}", "x^{n}");
-    assertParsesLatex("x^{nm}");
-    assertParsesLatex("x^{}", "x^{ }");
-  });
-
-  test("nested exponents", function () {
-    assertParsesLatex("x^{n^{m}}");
-  });
-
-  test("exponents with spaces", function () {
-    assertParsesLatex("x^ 2", "x^{2}");
-
-    assertParsesLatex("x ^2", "x^{2}");
-  });
-
-  test("inner groups", function () {
-    assertParsesLatex("a{bc}d", "abcd");
-    assertParsesLatex("{bc}d", "bcd");
-    assertParsesLatex("a{bc}", "abc");
-    assertParsesLatex("{bc}", "bc");
-
-    assertParsesLatex("x^{a{bc}d}", "x^{abcd}");
-    assertParsesLatex("x^{a{bc}}", "x^{abc}");
-    assertParsesLatex("x^{{bc}}", "x^{bc}");
-    assertParsesLatex("x^{{bc}d}", "x^{bcd}");
-
-    assertParsesLatex("{asdf{asdf{asdf}asdf}asdf}", "asdfasdfasdfasdfasdf");
-  });
-
-  test("commands without braces", function () {
-    assertParsesLatex("\\frac12", "\\frac{1}{2}");
-    assertParsesLatex("\\frac1a", "\\frac{1}{a}");
-    assertParsesLatex("\\frac ab", "\\frac{a}{b}");
-
-    assertParsesLatex("\\frac a b", "\\frac{a}{b}");
-    assertParsesLatex(" \\frac a b ", "\\frac{a}{b}");
-    assertParsesLatex("\\frac{1} 2", "\\frac{1}{2}");
-    assertParsesLatex("\\frac{ 1 } 2", "\\frac{1}{2}");
-
-    assert.throws(function () {
-      latexMathParser.parse("\\frac");
+      assertParsesLatex('\\mathbb{A}');
     });
   });
 
-  test("whitespace", function () {
-    assertParsesLatex("  a + b ", "a+b");
-    assertParsesLatex("       ", "");
-    assertParsesLatex("", "");
+  test('simple exponent', function () {
+    assertParsesLatex('x^{n}');
   });
 
-  test("parens", function () {
-    var tree = latexMathParser.parse("\\left(123\\right)");
-
-    assert.ok(tree.ends[L] instanceof Bracket);
-    var contents = tree.ends[L].ends[L].join("latex");
-    assert.equal(contents, "123");
-    assert.equal(tree.join("latex"), "\\left(123\\right)");
+  test('block exponent', function () {
+    assertParsesLatex('x^{n}', 'x^{n}');
+    assertParsesLatex('x^{nm}');
+    assertParsesLatex('x^{}', 'x^{ }');
   });
 
-  test("\\langle/\\rangle (issue #508)", function () {
-    var tree = latexMathParser.parse("\\left\\langle 123\\right\\rangle)");
-
-    assert.ok(tree.ends[L] instanceof Bracket);
-    var contents = tree.ends[L].ends[L].join("latex");
-    assert.equal(contents, "123");
-    assert.equal(tree.join("latex"), "\\left\\langle 123\\right\\rangle )");
+  test('nested exponents', function () {
+    assertParsesLatex('x^{n^{m}}');
   });
 
-  test("\\langle/\\rangle (without whitespace)", function () {
-    var tree = latexMathParser.parse("\\left\\langle123\\right\\rangle)");
+  test('exponents with spaces', function () {
+    assertParsesLatex('x^ 2', 'x^{2}');
 
-    assert.ok(tree.ends[L] instanceof Bracket);
-    var contents = tree.ends[L].ends[L].join("latex");
-    assert.equal(contents, "123");
-    assert.equal(tree.join("latex"), "\\left\\langle 123\\right\\rangle )");
+    assertParsesLatex('x ^2', 'x^{2}');
   });
 
-  test("\\lVert/\\rVert", function () {
-    var tree = latexMathParser.parse("\\left\\lVert 123\\right\\rVert)");
+  test('inner groups', function () {
+    assertParsesLatex('a{bc}d', 'abcd');
+    assertParsesLatex('{bc}d', 'bcd');
+    assertParsesLatex('a{bc}', 'abc');
+    assertParsesLatex('{bc}', 'bc');
 
-    assert.ok(tree.ends[L] instanceof Bracket);
-    var contents = tree.ends[L].ends[L].join("latex");
-    assert.equal(contents, "123");
-    assert.equal(tree.join("latex"), "\\left\\lVert 123\\right\\rVert )");
+    assertParsesLatex('x^{a{bc}d}', 'x^{abcd}');
+    assertParsesLatex('x^{a{bc}}', 'x^{abc}');
+    assertParsesLatex('x^{{bc}}', 'x^{bc}');
+    assertParsesLatex('x^{{bc}d}', 'x^{bcd}');
+
+    assertParsesLatex('{asdf{asdf{asdf}asdf}asdf}', 'asdfasdfasdfasdfasdf');
   });
 
-  test("\\lVert/\\rVert (without whitespace)", function () {
-    var tree = latexMathParser.parse("\\left\\lVert123\\right\\rVert)");
+  test('commands without braces', function () {
+    assertParsesLatex('\\frac12', '\\frac{1}{2}');
+    assertParsesLatex('\\frac1a', '\\frac{1}{a}');
+    assertParsesLatex('\\frac ab', '\\frac{a}{b}');
 
-    assert.ok(tree.ends[L] instanceof Bracket);
-    var contents = tree.ends[L].ends[L].join("latex");
-    assert.equal(contents, "123");
-    assert.equal(tree.join("latex"), "\\left\\lVert 123\\right\\rVert )");
-  });
+    assertParsesLatex('\\frac a b', '\\frac{a}{b}');
+    assertParsesLatex(' \\frac a b ', '\\frac{a}{b}');
+    assertParsesLatex('\\frac{1} 2', '\\frac{1}{2}');
+    assertParsesLatex('\\frac{ 1 } 2', '\\frac{1}{2}');
 
-  test("\\langler should not parse", function () {
     assert.throws(function () {
-      latexMathParser.parse("\\left\\langler123\\right\\rangler");
+      latexMathParser.parse('\\frac');
     });
   });
 
-  test("\\lVerte should not parse", function () {
+  test('whitespace', function () {
+    assertParsesLatex('  a + b ', 'a+b');
+    assertParsesLatex('       ', '');
+    assertParsesLatex('', '');
+  });
+
+  test('parens', function () {
+    var tree = latexMathParser.parse('\\left(123\\right)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left(123\\right)');
+  });
+
+  test('\\langle/\\rangle (issue #508)', function () {
+    var tree = latexMathParser.parse('\\left\\langle 123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
+  });
+
+  test('\\langle/\\rangle (without whitespace)', function () {
+    var tree = latexMathParser.parse('\\left\\langle123\\right\\rangle)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\langle 123\\right\\rangle )');
+  });
+
+  test('\\lVert/\\rVert', function () {
+    var tree = latexMathParser.parse('\\left\\lVert 123\\right\\rVert)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\lVert 123\\right\\rVert )');
+  });
+
+  test('\\lVert/\\rVert (without whitespace)', function () {
+    var tree = latexMathParser.parse('\\left\\lVert123\\right\\rVert)');
+
+    assert.ok(tree.ends[L] instanceof Bracket);
+    var contents = tree.ends[L].ends[L].join('latex');
+    assert.equal(contents, '123');
+    assert.equal(tree.join('latex'), '\\left\\lVert 123\\right\\rVert )');
+  });
+
+  test('\\langler should not parse', function () {
     assert.throws(function () {
-      latexMathParser.parse("\\left\\lVerte123\\right\\rVerte");
+      latexMathParser.parse('\\left\\langler123\\right\\rangler');
     });
   });
 
-  test("parens with whitespace", function () {
-    assertParsesLatex("\\left ( 123 \\right ) ", "\\left(123\\right)");
+  test('\\lVerte should not parse', function () {
+    assert.throws(function () {
+      latexMathParser.parse('\\left\\lVerte123\\right\\rVerte');
+    });
   });
 
-  test("escaped whitespace", function () {
-    assertParsesLatex("\\ ", "\\ ");
-    assertParsesLatex("\\      ", "\\ ");
-    assertParsesLatex("  \\   \\\t\t\t\\   \\\n\n\n", "\\ \\ \\ \\ ");
-    assertParsesLatex("\\space\\   \\   space  ", "\\ \\ \\ space");
+  test('parens with whitespace', function () {
+    assertParsesLatex('\\left ( 123 \\right ) ', '\\left(123\\right)');
   });
 
-  test("\\text", function () {
-    assertParsesLatex("\\text { lol! } ", "\\text{ lol! }");
+  test('escaped whitespace', function () {
+    assertParsesLatex('\\ ', '\\ ');
+    assertParsesLatex('\\      ', '\\ ');
+    assertParsesLatex('  \\   \\\t\t\t\\   \\\n\n\n', '\\ \\ \\ \\ ');
+    assertParsesLatex('\\space\\   \\   space  ', '\\ \\ \\ space');
+  });
+
+  test('\\text', function () {
+    assertParsesLatex('\\text { lol! } ', '\\text{ lol! }');
     assertParsesLatex(
-      "\\text{apples} \\ne \\text{oranges}",
-      "\\text{apples}\\ne \\text{oranges}"
+      '\\text{apples} \\ne \\text{oranges}',
+      '\\text{apples}\\ne \\text{oranges}'
     );
-    assertParsesLatex("\\text{}", "");
+    assertParsesLatex('\\text{}', '');
   });
 
-  test("\\textcolor", function () {
-    assertParsesLatex("\\textcolor{blue}{8}", "\\textcolor{blue}{8}");
+  test('\\textcolor', function () {
+    assertParsesLatex('\\textcolor{blue}{8}', '\\textcolor{blue}{8}');
   });
 
-  test("\\class", function () {
-    assertParsesLatex("\\class{name}{8}", "\\class{name}{8}");
-    assertParsesLatex("\\class{name}{8-4}", "\\class{name}{8-4}");
+  test('\\class', function () {
+    assertParsesLatex('\\class{name}{8}', '\\class{name}{8}');
+    assertParsesLatex('\\class{name}{8-4}', '\\class{name}{8-4}');
   });
 
-  test("not real LaTex commands, but valid symbols", function () {
-    assertParsesLatex("\\parallelogram ");
-    assertParsesLatex("\\circledot ", "\\odot ");
-    assertParsesLatex("\\degree ");
-    assertParsesLatex("\\square ");
+  test('not real LaTex commands, but valid symbols', function () {
+    assertParsesLatex('\\parallelogram ');
+    assertParsesLatex('\\circledot ', '\\odot ');
+    assertParsesLatex('\\degree ');
+    assertParsesLatex('\\square ');
   });
 
-  suite("public API", function () {
+  suite('public API', function () {
     var mq;
     setup(function () {
-      mq = MQ.MathField($("<span></span>").appendTo("#mock")[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
 
-    suite(".latex(...)", function () {
+    suite('.latex(...)', function () {
       function assertParsesLatex(str, latex) {
         if (arguments.length < 2) latex = str;
         mq.latex(str);
         assert.equal(mq.latex(), latex);
       }
 
-      test("basic rendering", function () {
+      test('basic rendering', function () {
         assertParsesLatex(
-          "x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }",
-          "x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}"
+          'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+          'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}'
         );
       });
 
-      test("re-rendering", function () {
-        assertParsesLatex("a x^2 + b x + c = 0", "ax^{2}+bx+c=0");
+      test('re-rendering', function () {
+        assertParsesLatex('a x^2 + b x + c = 0', 'ax^{2}+bx+c=0');
         assertParsesLatex(
-          "x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }",
-          "x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}"
+          'x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
+          'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}'
         );
       });
 
-      test("empty LaTeX", function () {
-        assertParsesLatex("");
-        assertParsesLatex(" ", "");
-        assertParsesLatex("{}", "");
-        assertParsesLatex("   {}{} {{{}}  }", "");
+      test('empty LaTeX', function () {
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
       });
 
-      test("coerces to a string", function () {
-        assertParsesLatex(undefined, "undefined");
-        assertParsesLatex(null, "null");
-        assertParsesLatex(0, "0");
-        assertParsesLatex(Infinity, "Infinity");
-        assertParsesLatex(NaN, "NaN");
-        assertParsesLatex(true, "true");
-        assertParsesLatex(false, "false");
-        assertParsesLatex({}, "[objectObject]"); // lol, the space gets ignored
+      test('coerces to a string', function () {
+        assertParsesLatex(undefined, 'undefined');
+        assertParsesLatex(null, 'null');
+        assertParsesLatex(0, '0');
+        assertParsesLatex(Infinity, 'Infinity');
+        assertParsesLatex(NaN, 'NaN');
+        assertParsesLatex(true, 'true');
+        assertParsesLatex(false, 'false');
+        assertParsesLatex({}, '[objectObject]'); // lol, the space gets ignored
         assertParsesLatex(
           {
             toString: function () {
-              return "thing";
+              return 'thing';
             },
           },
-          "thing"
+          'thing'
         );
       });
     });
 
-    suite(".write(...)", function () {
-      test("empty LaTeX", function () {
+    suite('.write(...)', function () {
+      test('empty LaTeX', function () {
         function assertParsesLatex(str, latex) {
           if (arguments.length < 2) latex = str;
           mq.write(str);
           assert.equal(mq.latex(), latex);
         }
-        assertParsesLatex("");
-        assertParsesLatex(" ", "");
-        assertParsesLatex("{}", "");
-        assertParsesLatex("   {}{} {{{}}  }", "");
+        assertParsesLatex('');
+        assertParsesLatex(' ', '');
+        assertParsesLatex('{}', '');
+        assertParsesLatex('   {}{} {{{}}  }', '');
       });
 
-      test("overflow triggers automatic horizontal scroll", function (done) {
+      test('overflow triggers automatic horizontal scroll', function (done) {
         var mqEl = mq.el();
         var rootEl = mq.__controller.root.jQ[0];
         var cursor = mq.__controller.cursor;
@@ -273,7 +273,7 @@ suite("latex", function () {
         $(mqEl).width(10);
         var previousScrollLeft = rootEl.scrollLeft;
 
-        mq.write("abc");
+        mq.write('abc');
         setTimeout(afterScroll, 150);
 
         function afterScroll() {
@@ -282,12 +282,12 @@ suite("latex", function () {
           try {
             assert.ok(
               rootEl.scrollLeft > previousScrollLeft,
-              "scrolls on write"
+              'scrolls on write'
             );
             assert.ok(
               mqEl.getBoundingClientRect().right >
                 cursor.jQ[0].getBoundingClientRect().right,
-              "cursor right end is inside the field"
+              'cursor right end is inside the field'
             );
           } catch (error) {
             done(error);
@@ -298,68 +298,68 @@ suite("latex", function () {
         }
       });
 
-      suite("\\sum", function () {
-        test("basic", function () {
-          mq.write("\\sum_{n=0}^5");
-          assert.equal(mq.latex(), "\\sum_{n=0}^{5}");
-          mq.write("x^n");
-          assert.equal(mq.latex(), "\\sum_{n=0}^{5}x^{n}");
+      suite('\\sum', function () {
+        test('basic', function () {
+          mq.write('\\sum_{n=0}^5');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{5}');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{5}x^{n}');
         });
 
-        test("only lower bound", function () {
-          mq.write("\\sum_{n=0}");
-          assert.equal(mq.latex(), "\\sum_{n=0}^{ }");
-          mq.write("x^n");
-          assert.equal(mq.latex(), "\\sum_{n=0}^{ }x^{n}");
+        test('only lower bound', function () {
+          mq.write('\\sum_{n=0}');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^{n}');
         });
 
-        test("only upper bound", function () {
-          mq.write("\\sum^5");
-          assert.equal(mq.latex(), "\\sum_{ }^{5}");
-          mq.write("x^n");
-          assert.equal(mq.latex(), "\\sum_{ }^{5}x^{n}");
+        test('only upper bound', function () {
+          mq.write('\\sum^5');
+          assert.equal(mq.latex(), '\\sum_{ }^{5}');
+          mq.write('x^n');
+          assert.equal(mq.latex(), '\\sum_{ }^{5}x^{n}');
         });
       });
     });
   });
 
-  suite("\\MathQuillMathField", function () {
+  suite('\\MathQuillMathField', function () {
     var outer, inner1, inner2;
     setup(function () {
       outer = MQ.StaticMath(
         $(
-          "<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>"
-        ).appendTo("#mock")[0]
+          '<span>\\frac{\\MathQuillMathField{x_0 + x_1 + x_2}}{\\MathQuillMathField{3}}</span>'
+        ).appendTo('#mock')[0]
       );
       inner1 = outer.innerFields[0];
       inner2 = outer.innerFields[1];
     });
 
-    test("initial latex", function () {
-      assert.equal(inner1.latex(), "x_{0}+x_{1}+x_{2}");
-      assert.equal(inner2.latex(), "3");
-      assert.equal(outer.latex(), "\\frac{x_{0}+x_{1}+x_{2}}{3}");
+    test('initial latex', function () {
+      assert.equal(inner1.latex(), 'x_{0}+x_{1}+x_{2}');
+      assert.equal(inner2.latex(), '3');
+      assert.equal(outer.latex(), '\\frac{x_{0}+x_{1}+x_{2}}{3}');
     });
 
-    test("setting latex", function () {
-      inner1.latex("\\sum_{i=0}^N x_i");
-      inner2.latex("N");
-      assert.equal(inner1.latex(), "\\sum_{i=0}^{N}x_{i}");
-      assert.equal(inner2.latex(), "N");
-      assert.equal(outer.latex(), "\\frac{\\sum_{i=0}^{N}x_{i}}{N}");
+    test('setting latex', function () {
+      inner1.latex('\\sum_{i=0}^N x_i');
+      inner2.latex('N');
+      assert.equal(inner1.latex(), '\\sum_{i=0}^{N}x_{i}');
+      assert.equal(inner2.latex(), 'N');
+      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^{N}x_{i}}{N}');
     });
 
-    test("writing latex", function () {
-      inner1.write("+ x_3");
-      inner2.write("+ 1");
-      assert.equal(inner1.latex(), "x_{0}+x_{1}+x_{2}+x_{3}");
-      assert.equal(inner2.latex(), "3+1");
-      assert.equal(outer.latex(), "\\frac{x_{0}+x_{1}+x_{2}+x_{3}}{3+1}");
+    test('writing latex', function () {
+      inner1.write('+ x_3');
+      inner2.write('+ 1');
+      assert.equal(inner1.latex(), 'x_{0}+x_{1}+x_{2}+x_{3}');
+      assert.equal(inner2.latex(), '3+1');
+      assert.equal(outer.latex(), '\\frac{x_{0}+x_{1}+x_{2}+x_{3}}{3+1}');
     });
 
-    test("optional inner field name", function () {
+    test('optional inner field name', function () {
       outer.latex(
-        "\\MathQuillMathField[mantissa]{}\\cdot\\MathQuillMathField[base]{}^{\\MathQuillMathField[exp]{}}"
+        '\\MathQuillMathField[mantissa]{}\\cdot\\MathQuillMathField[base]{}^{\\MathQuillMathField[exp]{}}'
       );
       assert.equal(outer.innerFields.length, 3);
 
@@ -371,15 +371,15 @@ suite("latex", function () {
       assert.equal(base, outer.innerFields[1]);
       assert.equal(exp, outer.innerFields[2]);
 
-      mantissa.latex("1.2345");
-      base.latex("10");
-      exp.latex("8");
-      assert.equal(outer.latex(), "1.2345\\cdot10^{8}");
+      mantissa.latex('1.2345');
+      base.latex('10');
+      exp.latex('8');
+      assert.equal(outer.latex(), '1.2345\\cdot10^{8}');
     });
 
-    test("make inner field static and then editable", function () {
+    test('make inner field static and then editable', function () {
       outer.latex(
-        "y=\\MathQuillMathField[m]{\\textcolor{blue}{m}}x+\\MathQuillMathField[b]{b}"
+        'y=\\MathQuillMathField[m]{\\textcolor{blue}{m}}x+\\MathQuillMathField[b]{b}'
       );
       assert.equal(outer.innerFields.length, 2);
       // assert.equal(outer.innerFields.m.__controller.container, false);
@@ -388,7 +388,7 @@ suite("latex", function () {
       assert.equal(outer.innerFields.m.__controller.editable, false);
       assert.equal(
         outer.innerFields.m.__controller.container.hasClass(
-          "mq-editable-field"
+          'mq-editable-field'
         ),
         false
       );
@@ -399,7 +399,7 @@ suite("latex", function () {
       assert.equal(outer.innerFields.m.__controller.editable, false);
       assert.equal(
         outer.innerFields.m.__controller.container.hasClass(
-          "mq-editable-field"
+          'mq-editable-field'
         ),
         false
       );
@@ -409,7 +409,7 @@ suite("latex", function () {
       assert.equal(outer.innerFields.m.__controller.editable, true);
       assert.equal(
         outer.innerFields.m.__controller.container.hasClass(
-          "mq-editable-field"
+          'mq-editable-field'
         ),
         true
       );
@@ -420,14 +420,14 @@ suite("latex", function () {
       assert.equal(outer.innerFields.m.__controller.editable, true);
       assert.equal(
         outer.innerFields.m.__controller.container.hasClass(
-          "mq-editable-field"
+          'mq-editable-field'
         ),
         true
       );
       assert.equal(outer.innerFields.b.__controller.editable, true);
     });
 
-    test("separate API object", function () {
+    test('separate API object', function () {
       var outer2 = MQ(outer.el());
       assert.equal(outer2.innerFields.length, 2);
       assert.equal(outer2.innerFields[0].id, inner1.id);
@@ -435,10 +435,10 @@ suite("latex", function () {
     });
   });
 
-  suite("error handling", function () {
+  suite('error handling', function () {
     var mq;
     setup(function () {
-      mq = MQ.MathField($("<span></span>").appendTo("#mock")[0]);
+      mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
     });
 
     function testCantParse(title /*, latex...*/) {
@@ -446,47 +446,47 @@ suite("latex", function () {
       test(title, function () {
         for (var i = 0; i < latex.length; i += 1) {
           mq.latex(latex[i]);
-          assert.equal(mq.latex(), "", "shouldn't parse '" + latex[i] + "'");
+          assert.equal(mq.latex(), '', "shouldn't parse '" + latex[i] + "'");
         }
       });
     }
 
-    testCantParse("missing blocks", "\\frac", "\\sqrt", "^", "_");
+    testCantParse('missing blocks', '\\frac', '\\sqrt', '^', '_');
     testCantParse(
-      "unmatched close brace",
-      "}",
-      " 1 + 2 } ",
-      "1 - {2 + 3} }",
-      "\\sqrt{ x }} + \\sqrt{y}"
+      'unmatched close brace',
+      '}',
+      ' 1 + 2 } ',
+      '1 - {2 + 3} }',
+      '\\sqrt{ x }} + \\sqrt{y}'
     );
     testCantParse(
-      "unmatched open brace",
-      "{",
-      "1 * { 2 + 3",
-      "\\frac{ \\sqrt x }{{ \\sqrt y}"
+      'unmatched open brace',
+      '{',
+      '1 * { 2 + 3',
+      '\\frac{ \\sqrt x }{{ \\sqrt y}'
     );
     testCantParse(
-      "unmatched \\left/\\right",
-      "\\left ( 1 + 2 )",
-      " [ 1, 2 \\right ]"
+      'unmatched \\left/\\right',
+      '\\left ( 1 + 2 )',
+      ' [ 1, 2 \\right ]'
     );
     testCantParse(
-      "langlerfish/ranglerfish (checking for confusion with langle/rangle)",
-      "\\left\\langlerfish 123\\right\\ranglerfish)"
+      'langlerfish/ranglerfish (checking for confusion with langle/rangle)',
+      '\\left\\langlerfish 123\\right\\ranglerfish)'
     );
   });
 
-  suite("selectable span", function () {
+  suite('selectable span', function () {
     setup(function () {
-      MQ.StaticMath($("<span>2&lt;x</span>").appendTo("#mock")[0]);
+      MQ.StaticMath($('<span>2&lt;x</span>').appendTo('#mock')[0]);
     });
 
     function selectableContent() {
-      return document.querySelector("#mock .mq-selectable").textContent;
+      return document.querySelector('#mock .mq-selectable').textContent;
     }
 
-    test("escapes < in textContent", function () {
-      assert.equal(selectableContent(), "$2<x$");
+    test('escapes < in textContent', function () {
+      assert.equal(selectableContent(), '$2<x$');
     });
   });
 });

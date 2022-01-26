@@ -32,15 +32,15 @@
     <script type="text/javascript">
       var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
-      var editableElt = document.getElementById("editable");
+      var editableElt = document.getElementById('editable');
       var mq = MQ.MathField(editableElt);
-      var reportElt = document.getElementById("report");
+      var reportElt = document.getElementById('report');
 
       function runOne(n) {
-        var rowElt = document.createElement("tr");
-        var td1 = document.createElement("td");
-        var td2 = document.createElement("td");
-        var td3 = document.createElement("td");
+        var rowElt = document.createElement('tr');
+        var td1 = document.createElement('td');
+        var td2 = document.createElement('td');
+        var td3 = document.createElement('td');
         rowElt.appendChild(td1);
         rowElt.appendChild(td2);
         rowElt.appendChild(td3);
@@ -48,7 +48,7 @@
         td1.textContent = n;
 
         var mark = performance.now();
-        mq.latex(Array(n + 1).join("1"));
+        mq.latex(Array(n + 1).join('1'));
         var insert = performance.now();
         td2.textContent = (insert - mark).toFixed(2);
         mark = insert;
@@ -70,8 +70,8 @@
       }
 
       document
-        .getElementById("run-button")
-        .addEventListener("click", function () {
+        .getElementById('run-button')
+        .addEventListener('click', function () {
           runNext();
         });
     </script>

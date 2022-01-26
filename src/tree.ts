@@ -146,7 +146,7 @@ class NodeBase {
   static getNodeOfElement(el: HTMLElement) {
     if (!el) return;
     if (!el.nodeType)
-      throw new Error("must pass an HTMLElement to NodeBase.getNodeOfElement");
+      throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement');
 
     var elTrackingNode = el as HTMLElementTrackingNode;
     return elTrackingNode.mqBlockNode || elTrackingNode.mqCmdNode;
@@ -216,7 +216,7 @@ class NodeBase {
   }
 
   toString() {
-    return "{{ MathQuill Node #" + this.id + " }}";
+    return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
   jQadd(jQ: $ | HTMLElement | ChildNode) {
@@ -232,18 +232,18 @@ class NodeBase {
     var jQ: $ = $(el || this.html());
 
     function jQadd(el: HTMLElement | ChildNode) {
-      if ("getAttribute" in el) {
-        var cmdId = el.getAttribute("mathquill-command-id");
+      if ('getAttribute' in el) {
+        var cmdId = el.getAttribute('mathquill-command-id');
         if (cmdId) {
-          el.removeAttribute("mathquill-command-id");
+          el.removeAttribute('mathquill-command-id');
           var cmdNode = NodeBase.TempByIdDict[cmdId];
           cmdNode.jQadd(el);
           NodeBase.linkElementByCmdNode(el, cmdNode);
         }
 
-        var blockId = el.getAttribute("mathquill-block-id");
+        var blockId = el.getAttribute('mathquill-block-id');
         if (blockId) {
-          el.removeAttribute("mathquill-block-id");
+          el.removeAttribute('mathquill-block-id');
           var blockNode = NodeBase.TempByIdDict[blockId];
           blockNode.jQadd(el);
           NodeBase.linkElementByBlockNode(el, blockNode);
@@ -307,7 +307,7 @@ class NodeBase {
     if (!dlms) return false;
     if (!this.parent || this.parent.ctrlSeq === undefined) return false;
     // Remove any leading \left or \right from the ctrl sequence before looking it up.
-    var key = this.parent.ctrlSeq.replace(/^\\(left|right)?/, "");
+    var key = this.parent.ctrlSeq.replace(/^\\(left|right)?/, '');
     return dlms.hasOwnProperty(key);
   }
 
@@ -379,7 +379,7 @@ class NodeBase {
     // but that check doesn't always work. This seems to be the only
     // check that always works. I'd rather live with this than try
     // to change the init order of things.
-    if (!this.parent.jQ.hasClass("mq-sub")) return false;
+    if (!this.parent.jQ.hasClass('mq-sub')) return false;
 
     return true;
   }
@@ -395,13 +395,13 @@ class NodeBase {
   }
   /** Render this node to an HTML string */
   html(): string {
-    return "";
+    return '';
   }
   text(): string {
-    return "";
+    return '';
   }
   latex(): string {
-    return "";
+    return '';
   }
   finalizeTree(_options: CursorOptions, _dir?: Direction) {}
   contactWeld(_cursor: Cursor, _dir?: Direction) {}
@@ -414,7 +414,7 @@ class NodeBase {
     return undefined as any;
   }
   mathspeak(_options?: MathspeakOptions) {
-    return "";
+    return '';
   }
   seek(_pageX: number, _cursor: Cursor) {}
   siblingDeleted(_options: CursorOptions, _dir: Direction) {}
@@ -426,9 +426,9 @@ class NodeBase {
 }
 
 function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-  pray("a parent is always present", parent);
+  pray('a parent is always present', parent);
   pray(
-    "leftward is properly set up",
+    'leftward is properly set up',
     (function () {
       // either it's empty and `rightward` is the left end child (possibly empty)
       if (!leftward) return parent.ends[L] === rightward;
@@ -439,7 +439,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
   );
 
   pray(
-    "rightward is properly set up",
+    'rightward is properly set up',
     (function () {
       // either it's empty and `leftward` is the right end child (possibly empty)
       if (!rightward) return parent.ends[R] === leftward;
@@ -476,16 +476,16 @@ class Fragment {
     if (dir === undefined) dir = L;
     prayDirection(dir);
 
-    pray("no half-empty fragments", !withDir === !oppDir);
+    pray('no half-empty fragments', !withDir === !oppDir);
 
     this.ends = {};
 
     if (!withDir || !oppDir) return;
 
-    pray("withDir is passed to Fragment", withDir instanceof MQNode);
-    pray("oppDir is passed to Fragment", oppDir instanceof MQNode);
+    pray('withDir is passed to Fragment', withDir instanceof MQNode);
+    pray('oppDir is passed to Fragment', oppDir instanceof MQNode);
     pray(
-      "withDir and oppDir have the same parent",
+      'withDir and oppDir have the same parent',
       withDir.parent === oppDir.parent
     );
 

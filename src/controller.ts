@@ -27,8 +27,8 @@ class ControllerBase {
     this.options = options;
 
     this.aria = new Aria(this.getControllerSelf());
-    this.ariaLabel = "Math Input";
-    this.ariaPostLabel = "";
+    this.ariaLabel = 'Math Input';
+    this.ariaPostLabel = '';
 
     root.controller = this.getControllerSelf();
 
@@ -66,12 +66,12 @@ class ControllerBase {
   }
   setAriaLabel(ariaLabel: string) {
     var oldAriaLabel = this.getAriaLabel();
-    if (ariaLabel && typeof ariaLabel === "string" && ariaLabel !== "") {
+    if (ariaLabel && typeof ariaLabel === 'string' && ariaLabel !== '') {
       this.ariaLabel = ariaLabel;
     } else if (this.editable) {
-      this.ariaLabel = "Math Input";
+      this.ariaLabel = 'Math Input';
     } else {
-      this.ariaLabel = "";
+      this.ariaLabel = '';
     }
     // If this field doesn't have focus, update its computed mathspeak value.
     // We check for focus because updating the aria-label attribute of a focused element will cause most screen readers to announce the new value (in our case, label along with the expression's mathspeak).
@@ -83,27 +83,27 @@ class ControllerBase {
     return this;
   }
   getAriaLabel() {
-    if (this.ariaLabel !== "Math Input") {
+    if (this.ariaLabel !== 'Math Input') {
       return this.ariaLabel;
     } else if (this.editable) {
-      return "Math Input";
+      return 'Math Input';
     } else {
-      return "";
+      return '';
     }
   }
   setAriaPostLabel(ariaPostLabel: string, timeout: number) {
     if (
       ariaPostLabel &&
-      typeof ariaPostLabel === "string" &&
-      ariaPostLabel !== ""
+      typeof ariaPostLabel === 'string' &&
+      ariaPostLabel !== ''
     ) {
-      if (ariaPostLabel !== this.ariaPostLabel && typeof timeout === "number") {
+      if (ariaPostLabel !== this.ariaPostLabel && typeof timeout === 'number') {
         if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
         this._ariaAlertTimeout = setTimeout(() => {
           if (this.containerHasFocus()) {
             // Voice the new label, but do not update content mathspeak to prevent double-speech.
             this.aria.alert(
-              this.root.mathspeak().trim() + " " + ariaPostLabel.trim()
+              this.root.mathspeak().trim() + ' ' + ariaPostLabel.trim()
             );
           } else {
             // This mathquill does not have focus, so update its mathspeak.
@@ -114,12 +114,12 @@ class ControllerBase {
       this.ariaPostLabel = ariaPostLabel;
     } else {
       if (this._ariaAlertTimeout) clearTimeout(this._ariaAlertTimeout);
-      this.ariaPostLabel = "";
+      this.ariaPostLabel = '';
     }
     return this;
   }
   getAriaPostLabel() {
-    return this.ariaPostLabel || "";
+    return this.ariaPostLabel || '';
   }
   containerHasFocus() {
     return (
@@ -132,13 +132,13 @@ class ControllerBase {
 
   getTextareaOrThrow() {
     var textarea = this.textarea;
-    if (!textarea) throw new Error("expected a textarea");
+    if (!textarea) throw new Error('expected a textarea');
     return textarea;
   }
 
   getTextareaSpanOrThrow() {
     var textareaSpan = this.textareaSpan;
-    if (!textareaSpan) throw new Error("expected a textareaSpan");
+    if (!textareaSpan) throw new Error('expected a textareaSpan');
     return textareaSpan;
   }
 

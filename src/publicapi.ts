@@ -7,16 +7,16 @@ var API: API = {};
 var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
 
 class OptionProcessors {
-  maxDepth: (n: number) => CursorOptions["maxDepth"];
+  maxDepth: (n: number) => CursorOptions['maxDepth'];
   leftRightIntoCmdGoes: (
-    s: "up" | "down"
-  ) => CursorOptions["leftRightIntoCmdGoes"];
-  autoCommands: (list: string) => CursorOptions["autoOperatorNames"];
-  autoOperatorNames: (list: string) => CursorOptions["autoOperatorNames"];
+    s: 'up' | 'down'
+  ) => CursorOptions['leftRightIntoCmdGoes'];
+  autoCommands: (list: string) => CursorOptions['autoOperatorNames'];
+  autoOperatorNames: (list: string) => CursorOptions['autoOperatorNames'];
   autoParenthesizedFunctions: (
     list: string
-  ) => CursorOptions["autoOperatorNames"];
-  quietEmptyDelimiters: (list: string) => CursorOptions["quietEmptyDelimiters"];
+  ) => CursorOptions['autoOperatorNames'];
+  quietEmptyDelimiters: (list: string) => CursorOptions['quietEmptyDelimiters'];
 }
 
 const optionProcessors = new OptionProcessors();
@@ -41,7 +41,7 @@ class Options {
   typingSlashWritesDivisionSymbol: boolean;
   typingPercentWritesPercentOf?: boolean;
   resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: "up" | "down";
+  leftRightIntoCmdGoes?: 'up' | 'down';
   enableDigitGrouping?: boolean;
   mouseEvents?: boolean;
   maxDepth?: number;
@@ -71,15 +71,15 @@ class Progenote {}
 var insistOnInterVer = function () {
   if (window.console)
     console.warn(
-      "You are using the MathQuill API without specifying an interface version, " +
-        "which will fail in v1.0.0. Easiest fix is to do the following before " +
-        "doing anything else:\n" +
-        "\n" +
-        "    MathQuill = MathQuill.getInterface(1);\n" +
-        "    // now MathQuill.MathField() works like it used to\n" +
-        "\n" +
+      'You are using the MathQuill API without specifying an interface version, ' +
+        'which will fail in v1.0.0. Easiest fix is to do the following before ' +
+        'doing anything else:\n' +
+        '\n' +
+        '    MathQuill = MathQuill.getInterface(1);\n' +
+        '    // now MathQuill.MathField() works like it used to\n' +
+        '\n' +
         'See also the "`dev` branch (2014–2015) → v0.10.0 Migration Guide" at\n' +
-        "  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide"
+        '  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide'
     );
 };
 // globally exported API object
@@ -88,22 +88,22 @@ function MathQuill(el: HTMLElement) {
   return MQ1(el);
 }
 MathQuill.prototype = Progenote.prototype;
-MathQuill.VERSION = "{VERSION}";
+MathQuill.VERSION = '{VERSION}';
 MathQuill.interfaceVersion = function (v: number) {
   // shim for #459-era interface versioning (ended with #495)
-  if (v !== 1) throw "Only interface version 1 supported. You specified: " + v;
+  if (v !== 1) throw 'Only interface version 1 supported. You specified: ' + v;
   insistOnInterVer = function () {
     if (window.console)
       console.warn(
-        "You called MathQuill.interfaceVersion(1); to specify the interface " +
-          "version, which will fail in v1.0.0. You can fix this easily by doing " +
-          "this before doing anything else:\n" +
-          "\n" +
-          "    MathQuill = MathQuill.getInterface(1);\n" +
-          "    // now MathQuill.MathField() works like it used to\n" +
-          "\n" +
+        'You called MathQuill.interfaceVersion(1); to specify the interface ' +
+          'version, which will fail in v1.0.0. You can fix this easily by doing ' +
+          'this before doing anything else:\n' +
+          '\n' +
+          '    MathQuill = MathQuill.getInterface(1);\n' +
+          '    // now MathQuill.MathField() works like it used to\n' +
+          '\n' +
           'See also the "`dev` branch (2014–2015) → v0.10.0 Migration Guide" at\n' +
-          "  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide"
+          '  https://github.com/mathquill/mathquill/wiki/%60dev%60-branch-(2014%E2%80%932015)-%E2%86%92-v0.10.0-Migration-Guide'
       );
   };
   insistOnInterVer();
@@ -116,11 +116,11 @@ var MIN = (getInterface.MIN = 1),
 function getInterface(v: number) {
   if (!(MIN <= v && v <= MAX))
     throw (
-      "Only interface versions between " +
+      'Only interface versions between ' +
       MIN +
-      " and " +
+      ' and ' +
       MAX +
-      " supported. You specified: " +
+      ' supported. You specified: ' +
       v
     );
 
@@ -137,7 +137,7 @@ function getInterface(v: number) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
     var blockNode = NodeBase.getNodeOfElement(
-      $(el).children(".mq-root-block")[0]
+      $(el).children('.mq-root-block')[0]
     ) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? new APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
@@ -170,7 +170,7 @@ function getInterface(v: number) {
     options: (data: EmbedOptionsData) => EmbedOptions
   ) {
     if (!/^[a-z][a-z0-9]*$/i.test(name)) {
-      throw "Embed name must start with letter and be only letters and digits";
+      throw 'Embed name must start with letter and be only letters and digits';
     }
     EMBEDS[name] = options;
   };
@@ -203,8 +203,8 @@ function getInterface(v: number) {
       this.revert = function () {
         return el
           .empty()
-          .unbind(".mathquill")
-          .removeClass("mq-editable-field mq-math-mode mq-text-mode")
+          .unbind('.mathquill')
+          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .append(contents);
       };
     }
@@ -233,10 +233,10 @@ function getInterface(v: number) {
     html() {
       return this.__controller.root.jQ
         .html()
-        .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, "")
-        .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, "")
-        .replace(/ mq-hasCursor|mq-hasCursor ?/, "")
-        .replace(/ class=(""|(?= |>))/g, "");
+        .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
+        .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
+        .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
+        .replace(/ class=(""|(?= |>))/g, '');
     }
     reflow() {
       this.__controller.root.postOrder(function (node) {
@@ -305,7 +305,7 @@ function getInterface(v: number) {
     }
     select() {
       var ctrlr = this.__controller;
-      ctrlr.notify("move").cursor.insAtRightEnd(ctrlr.root);
+      ctrlr.notify('move').cursor.insAtRightEnd(ctrlr.root);
       while (ctrlr.cursor[L]) ctrlr.selectLeft();
       return this;
     }
@@ -316,7 +316,7 @@ function getInterface(v: number) {
 
     moveToDirEnd(dir: Direction) {
       this.__controller
-        .notify("move")
+        .notify('move')
         .cursor.insAtDirEnd(dir, this.__controller.root);
       return this;
     }
@@ -328,7 +328,7 @@ function getInterface(v: number) {
     }
 
     keystroke(keysString: string, evt: KeyboardEvent) {
-      var keys = keysString.replace(/^\s+|\s+$/g, "").split(/\s+/);
+      var keys = keysString.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
         this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
       }
@@ -371,7 +371,7 @@ function getInterface(v: number) {
       if (ctrlr.blurred) this.focus();
       return this;
     }
-    ignoreNextMousedown(fn: CursorOptions["ignoreNextMousedown"]) {
+    ignoreNextMousedown(fn: CursorOptions['ignoreNextMousedown']) {
       this.__controller.cursor.options.ignoreNextMousedown = fn;
       return this;
     }
@@ -420,24 +420,24 @@ window.MathQuill = MathQuill;
 
 function RootBlockMixin(_: RootBlockMixinInput) {
   _.moveOutOf = function (dir: Direction) {
-    this.controller.handle("moveOutOf", dir);
+    this.controller.handle('moveOutOf', dir);
   };
   _.deleteOutOf = function (dir: Direction) {
-    this.controller.handle("deleteOutOf", dir);
+    this.controller.handle('deleteOutOf', dir);
   };
   _.selectOutOf = function (dir: Direction) {
-    this.controller.handle("selectOutOf", dir);
+    this.controller.handle('selectOutOf', dir);
   };
   _.upOutOf = function (dir: Direction) {
-    this.controller.handle("upOutOf", dir);
+    this.controller.handle('upOutOf', dir);
   };
   _.downOutOf = function (dir: Direction) {
-    this.controller.handle("downOutOf", dir);
+    this.controller.handle('downOutOf', dir);
   };
 
   _.reflow = function () {
-    this.controller.handle("reflow");
-    this.controller.handle("edited");
-    this.controller.handle("edit");
+    this.controller.handle('reflow');
+    this.controller.handle('edited');
+    this.controller.handle('edit');
   };
 }

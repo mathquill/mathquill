@@ -48,12 +48,12 @@ class Cursor extends Point {
     var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>'));
     //closured for setInterval
     this.blink = function () {
-      jQ.toggleClass("mq-blink");
+      jQ.toggleClass('mq-blink');
     };
   }
 
   show() {
-    this.jQ = this._jQ.removeClass("mq-blink");
+    this.jQ = this._jQ.removeClass('mq-blink');
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -98,7 +98,7 @@ class Cursor extends Point {
     prayDirection(dir);
     this.jQ.insDirOf(dir, el.jQ);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
-    this.parent.jQ.addClass("mq-hasCursor");
+    this.parent.jQ.addClass('mq-hasCursor');
     return this;
   }
   insLeftOf(el: MQNode) {
@@ -157,8 +157,8 @@ class Cursor extends Point {
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
     var self = this,
-      offset = self.jQ.removeClass("mq-cursor").offset();
-    self.jQ.addClass("mq-cursor");
+      offset = self.jQ.removeClass('mq-cursor').offset();
+    self.jQ.addClass('mq-cursor');
     return offset;
   }
   unwrapGramp() {
@@ -246,7 +246,7 @@ class Cursor extends Point {
         break;
       }
     }
-    pray("cursor and anticursor in the same tree", _lca);
+    pray('cursor and anticursor in the same tree', _lca);
     var lca = _lca as MQNode;
 
     // The cursor and the anticursor should be in the same tree, because the
@@ -380,8 +380,8 @@ class MQSelection extends Fragment {
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
   }
-  join(methodName: JoinMethod, separator: string = ""): string {
-    return this.fold("", function (fold, child) {
+  join(methodName: JoinMethod, separator: string = ''): string {
+    return this.fold('', function (fold, child) {
       return fold + separator + child[methodName]();
     });
   }

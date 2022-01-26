@@ -3,81 +3,81 @@
  **************************/
 var SVG_SYMBOLS = {
   sqrt: {
-    width: "",
+    width: '',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 32 54">' +
       '<path d="M0 33 L7 27 L12.5 47 L13 47 L30 0 L32 0 L13 54 L11 54 L4.5 31 L0 33" />' +
-      "</svg>",
+      '</svg>',
   },
-  "|": {
-    width: ".4em",
+  '|': {
+    width: '.4em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 10 54">' +
       '<path d="M4.4 0 L4.4 54 L5.6 54 L5.6 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "[": {
-    width: ".55em",
+  '[': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 11 24">' +
       '<path d="M8 0 L3 0 L3 24 L8 24 L8 23 L4 23 L4 1 L8 1" />' +
-      "</svg>",
+      '</svg>',
   },
-  "]": {
-    width: ".55em",
+  ']': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 11 24">' +
       '<path d="M3 0 L8 0 L8 24 L3 24 L3 23 L7 23 L7 1 L3 1" />' +
-      "</svg>",
+      '</svg>',
   },
-  "(": {
-    width: ".55em",
+  '(': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="3 0 106 186">' +
       '<path d="M85 0 A61 101 0 0 0 85 186 L75 186 A75 101 0 0 1 75 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  ")": {
-    width: ".55em",
+  ')': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="3 0 106 186">' +
       '<path d="M24 0 A61 101 0 0 1 24 186 L34 186 A75 101 0 0 0 34 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "{": {
-    width: ".7em",
+  '{': {
+    width: '.7em',
     html:
       '<svg preserveAspectRatio="none" viewBox="10 0 210 350">' +
       '<path d="M170 0 L170 6 A47 52 0 0 0 123 60 L123 127 A35 48 0 0 1 88 175 A35 48 0 0 1 123 223 L123 290 A47 52 0 0 0 170 344 L170 350 L160 350 A58 49 0 0 1 102 301 L103 220 A45 40 0 0 0 58 180 L58 170 A45 40 0 0 0 103 130 L103 49 A58 49 0 0 1 161 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "}": {
-    width: ".7em",
+  '}': {
+    width: '.7em',
     html:
       '<svg preserveAspectRatio="none" viewBox="10 0 210 350">' +
       '<path d="M60 0 L60 6 A47 52 0 0 1 107 60 L107 127 A35 48 0 0 0 142 175 A35 48 0 0 0 107 223 L107 290 A47 52 0 0 1 60 344 L60 350 L70 350 A58 49 0 0 0 128 301 L127 220 A45 40 0 0 1 172 180 L172 170 A45 40 0 0 1 127 130 L127 49 A58 49 0 0 0 70 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "&#8741;": {
-    width: ".7em",
+  '&#8741;': {
+    width: '.7em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 10 54">' +
       '<path d="M3.2 0 L3.2 54 L4 54 L4 0 M6.8 0 L6.8 54 L6 54 L6 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "&lang;": {
-    width: ".55em",
+  '&lang;': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 10 54">' +
       '<path d="M6.8 0 L3.2 27 L6.8 54 L7.8 54 L4.2 27 L7.8 0" />' +
-      "</svg>",
+      '</svg>',
   },
-  "&rang;": {
-    width: ".55em",
+  '&rang;': {
+    width: '.55em',
     html:
       '<svg preserveAspectRatio="none" viewBox="0 0 10 54">' +
       '<path d="M3.2 0 L6.8 27 L3.2 54 L2.2 54 L5.8 27 L2.2 0" />' +
-      "</svg>",
+      '</svg>',
   },
 };
 
@@ -91,11 +91,11 @@ class Style extends MathCommand {
     ariaLabel?: string,
     opts?: { shouldNotSpeakDelimiters: boolean }
   ) {
-    super(ctrlSeq, "<" + tagName + " " + attrs + ">&0</" + tagName + ">");
-    this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, "");
+    super(ctrlSeq, '<' + tagName + ' ' + attrs + '>&0</' + tagName + '>');
+    this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     this.mathspeakTemplate = [
-      "Start" + this.ariaLabel + ",",
-      "End" + this.ariaLabel,
+      'Start' + this.ariaLabel + ',',
+      'End' + this.ariaLabel,
     ];
     // In most cases, mathspeak should announce the start and end of style blocks.
     // There is one exception currently (mathrm).
@@ -105,8 +105,8 @@ class Style extends MathCommand {
     if (!this.shouldNotSpeakDelimiters || (opts && opts.ignoreShorthand)) {
       return super.mathspeak();
     }
-    return this.foldChildren("", function (speech, block) {
-      return speech + " " + block.mathspeak(opts);
+    return this.foldChildren('', function (speech, block) {
+      return speech + ' ' + block.mathspeak(opts);
     }).trim();
   }
 }
@@ -114,7 +114,7 @@ class Style extends MathCommand {
 //fonts
 LatexCmds.mathrm = class extends Style {
   constructor() {
-    super("\\mathrm", "span", 'class="mq-roman mq-font"', "Roman Font", {
+    super('\\mathrm', 'span', 'class="mq-roman mq-font"', 'Roman Font', {
       shouldNotSpeakDelimiters: true,
     });
   }
@@ -123,58 +123,58 @@ LatexCmds.mathrm = class extends Style {
   }
 };
 LatexCmds.mathit = () =>
-  new Style("\\mathit", "i", 'class="mq-font"', "Italic Font");
+  new Style('\\mathit', 'i', 'class="mq-font"', 'Italic Font');
 LatexCmds.mathbf = () =>
-  new Style("\\mathbf", "b", 'class="mq-font"', "Bold Font");
+  new Style('\\mathbf', 'b', 'class="mq-font"', 'Bold Font');
 LatexCmds.mathsf = () =>
-  new Style("\\mathsf", "span", 'class="mq-sans-serif mq-font"', "Serif Font");
+  new Style('\\mathsf', 'span', 'class="mq-sans-serif mq-font"', 'Serif Font');
 LatexCmds.mathtt = () =>
-  new Style("\\mathtt", "span", 'class="mq-monospace mq-font"', "Math Text");
+  new Style('\\mathtt', 'span', 'class="mq-monospace mq-font"', 'Math Text');
 //text-decoration
 LatexCmds.underline = () =>
   new Style(
-    "\\underline",
-    "span",
+    '\\underline',
+    'span',
     'class="mq-non-leaf mq-underline"',
-    "Underline"
+    'Underline'
   );
 LatexCmds.overline = LatexCmds.bar = () =>
   new Style(
-    "\\overline",
-    "span",
+    '\\overline',
+    'span',
     'class="mq-non-leaf mq-overline"',
-    "Overline"
+    'Overline'
   );
 LatexCmds.overrightarrow = () =>
   new Style(
-    "\\overrightarrow",
-    "span",
+    '\\overrightarrow',
+    'span',
     'class="mq-non-leaf mq-overarrow mq-arrow-right"',
-    "Over Right Arrow"
+    'Over Right Arrow'
   );
 LatexCmds.overleftarrow = () =>
   new Style(
-    "\\overleftarrow",
-    "span",
+    '\\overleftarrow',
+    'span',
     'class="mq-non-leaf mq-overarrow mq-arrow-left"',
-    "Over Left Arrow"
+    'Over Left Arrow'
   );
 LatexCmds.overleftrightarrow = () =>
   new Style(
-    "\\overleftrightarrow ",
-    "span",
+    '\\overleftrightarrow ',
+    'span',
     'class="mq-non-leaf mq-overarrow mq-arrow-leftright"',
-    "Over Left and Right Arrow"
+    'Over Left and Right Arrow'
   );
 LatexCmds.overarc = () =>
-  new Style("\\overarc", "span", 'class="mq-non-leaf mq-overarc"', "Over Arc");
+  new Style('\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
 LatexCmds.dot = () => {
   return new MathCommand(
-    "\\dot",
+    '\\dot',
     '<span class="mq-non-leaf"><span class="mq-dot-recurring-inner">' +
       '<span class="mq-dot-recurring">&#x2d9;</span>' +
       '<span class="mq-empty-box">&0</span>' +
-      "</span></span>"
+      '</span></span>'
   );
 };
 
@@ -192,15 +192,15 @@ LatexCmds.textcolor = class extends MathCommand {
     this.color = color;
     this.htmlTemplate =
       '<span class="mq-textcolor" style="color:' + color + '">&0</span>';
-    this.ariaLabel = color.replace(/^\\/, "");
+    this.ariaLabel = color.replace(/^\\/, '');
     this.mathspeakTemplate = [
-      "Start " + this.ariaLabel + ",",
-      "End " + this.ariaLabel,
+      'Start ' + this.ariaLabel + ',',
+      'End ' + this.ariaLabel,
     ];
   }
   latex() {
     var blocks0 = this.blocks![0];
-    return "\\textcolor{" + this.color + "}{" + blocks0.latex() + "}";
+    return '\\textcolor{' + this.color + '}{' + blocks0.latex() + '}';
   }
   parser() {
     var optWhitespace = Parser.optWhitespace;
@@ -208,9 +208,9 @@ LatexCmds.textcolor = class extends MathCommand {
     var regex = Parser.regex;
 
     return optWhitespace
-      .then(string("{"))
+      .then(string('{'))
       .then(regex(/^[#\w\s.,()%-]*/))
-      .skip(string("}"))
+      .skip(string('}'))
       .then((color) => {
         this.setColor(color);
         return super.parser();
@@ -225,30 +225,30 @@ LatexCmds.textcolor = class extends MathCommand {
 // Usage: \class{classname}{math}
 // Note regex that whitelists valid CSS classname characters:
 // https://github.com/mathquill/mathquill/pull/191#discussion_r4327442
-var Class = (LatexCmds["class"] = class extends MathCommand {
+var Class = (LatexCmds['class'] = class extends MathCommand {
   cls: string | undefined;
 
   parser() {
     var string = Parser.string,
       regex = Parser.regex;
     return Parser.optWhitespace
-      .then(string("{"))
+      .then(string('{'))
       .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
-      .skip(string("}"))
+      .skip(string('}'))
       .then((cls) => {
-        this.cls = cls || "";
+        this.cls = cls || '';
         this.htmlTemplate = '<span class="mq-class ' + cls + '">&0</span>';
-        this.ariaLabel = cls + " class";
+        this.ariaLabel = cls + ' class';
         this.mathspeakTemplate = [
-          "Start " + this.ariaLabel + ",",
-          "End " + this.ariaLabel,
+          'Start ' + this.ariaLabel + ',',
+          'End ' + this.ariaLabel,
         ];
         return super.parser();
       });
   }
   latex() {
     var blocks0 = this.blocks![0];
-    return "\\class{" + this.cls + "}{" + blocks0.latex() + "}";
+    return '\\class{' + this.cls + '}{' + blocks0.latex() + '}';
   }
   isStyleBlock() {
     return true;
@@ -263,12 +263,12 @@ var intRgx = /^[\+\-]?[\d]+$/;
 // Used in shortened mathspeak computations as a block's .text() method can be potentially expensive.
 //
 function getCtrlSeqsFromBlock(block: NodeRef): string {
-  if (!block) return "";
+  if (!block) return '';
 
   var children = block.children();
-  if (!children || !children.ends[L]) return "";
+  if (!children || !children.ends[L]) return '';
 
-  var chars = "";
+  var chars = '';
   for (
     var sibling: NodeRef | undefined = children.ends[L];
     sibling && sibling[R] !== undefined;
@@ -279,13 +279,13 @@ function getCtrlSeqsFromBlock(block: NodeRef): string {
   return chars;
 }
 
-Options.prototype.charsThatBreakOutOfSupSub = "";
+Options.prototype.charsThatBreakOutOfSupSub = '';
 
 class SupSub extends MathCommand {
-  ctrlSeq = "_{...}^{...}";
+  ctrlSeq = '_{...}^{...}';
   sub?: MathBlock;
   sup?: MathBlock;
-  supsub: "sup" | "sub";
+  supsub: 'sup' | 'sub';
 
   createLeftOf(cursor: Cursor) {
     if (
@@ -313,9 +313,9 @@ class SupSub extends MathCommand {
       if (thisDir instanceof SupSub) {
         // equiv. to 'sub sup'.split(' ').forEach(function(supsub) { ... });
         for (
-          var supsub: "sub" | "sup" | false = "sub";
+          var supsub: 'sub' | 'sup' | false = 'sub';
           supsub;
-          supsub = supsub === "sub" ? "sup" : false
+          supsub = supsub === 'sub' ? 'sup' : false
         ) {
           var src = this[supsub],
             dest = thisDir[supsub];
@@ -359,13 +359,13 @@ class SupSub extends MathCommand {
         cursor.options.autoSubscriptNumerals &&
         this === (this.parent as SupSub).sub
       ) {
-        if (ch === "_") return;
+        if (ch === '_') return;
         var cmd = this.chToCmd(ch, cursor.options);
         if (cmd instanceof MQSymbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
         cmd.createLeftOf(cursor.show());
         cursor.controller.aria
-          .queue("Baseline")
+          .queue('Baseline')
           .alert(cmd.mathspeak({ createdLeftOf: cursor }));
         return;
       }
@@ -376,12 +376,12 @@ class SupSub extends MathCommand {
         cursor.options.charsThatBreakOutOfSupSub.indexOf(ch) > -1
       ) {
         cursor.insRightOf(this.parent);
-        cursor.controller.aria.queue("Baseline");
+        cursor.controller.aria.queue('Baseline');
       }
       MathBlock.prototype.write.call(this, cursor, ch);
     };
   }
-  moveTowards(dir: Direction, cursor: Cursor, updown?: "up" | "down") {
+  moveTowards(dir: Direction, cursor: Cursor, updown?: 'up' | 'down') {
     if (cursor.options.autoSubscriptNumerals && !this.sup) {
       cursor.insDirOf(dir, this);
     } else super.moveTowards(dir, cursor, updown);
@@ -406,21 +406,21 @@ class SupSub extends MathCommand {
   latex() {
     function latex(prefix: string, block: NodeRef | undefined) {
       var l = block && block.latex();
-      return block ? prefix + "{" + (l || " ") + "}" : "";
+      return block ? prefix + '{' + (l || ' ') + '}' : '';
     }
-    return latex("_", this.sub) + latex("^", this.sup);
+    return latex('_', this.sub) + latex('^', this.sup);
   }
   text() {
     function text(prefix: string, block: NodeRef | undefined) {
-      var l = (block && block.text()) || "";
+      var l = (block && block.text()) || '';
       return block
-        ? prefix + (l.length === 1 ? l : "(" + (l || " ") + ")")
-        : "";
+        ? prefix + (l.length === 1 ? l : '(' + (l || ' ') + ')')
+        : '';
     }
-    return text("_", this.sub) + text("^", this.sup);
+    return text('_', this.sub) + text('^', this.sup);
   }
   addBlock(block: MathBlock) {
-    if (this.supsub === "sub") {
+    if (this.supsub === 'sub') {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
       block.jQ = $('<span class="mq-sup"/>')
@@ -432,7 +432,7 @@ class SupSub extends MathCommand {
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
       block.jQ = $('<span class="mq-sub"></span>')
         .append(block.jQ.children())
-        .appendTo(this.jQ.removeClass("mq-sup-only"));
+        .appendTo(this.jQ.removeClass('mq-sup-only'));
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
       this.jQ.append(
         '<span style="display:inline-block;width:0">&#8203;</span>'
@@ -443,9 +443,9 @@ class SupSub extends MathCommand {
     for (var i = 0; i < 2; i += 1)
       (function (
         cmd: SupSub,
-        supsub: "sup" | "sub",
-        oppositeSupsub: "sup" | "sub",
-        updown: "up" | "down"
+        supsub: 'sup' | 'sub',
+        oppositeSupsub: 'sup' | 'sub',
+        updown: 'up' | 'down'
       ) {
         const cmdSubSub = cmd[supsub]!;
         cmdSubSub.deleteOutOf = function (dir: Direction, cursor: Cursor) {
@@ -469,15 +469,15 @@ class SupSub extends MathCommand {
           const cmdOppositeSupsub = cmd[oppositeSupsub]!;
           cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
           delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
-          if (supsub === "sub")
-            $(cmd.jQ.addClass("mq-sup-only")[0].lastChild).remove();
+          if (supsub === 'sub')
+            $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
           this.remove();
         };
       })(
         this,
-        "sub sup".split(" ")[i] as "sup" | "sup",
-        "sup sub".split(" ")[i] as "sup" | "sup",
-        "down up".split(" ")[i] as "up" | "down"
+        'sub sup'.split(' ')[i] as 'sup' | 'sup',
+        'sup sub'.split(' ')[i] as 'sup' | 'sup',
+        'down up'.split(' ')[i] as 'up' | 'down'
       );
   }
 }
@@ -496,19 +496,19 @@ function insLeftOfMeUnlessAtEnd(this: MQNode, cursor: Cursor) {
 }
 
 class SubscriptCommand extends SupSub {
-  supsub = "sub" as const;
+  supsub = 'sub' as const;
 
   htmlTemplate =
     '<span class="mq-supsub mq-non-leaf">' +
     '<span class="mq-sub">&0</span>' +
     '<span style="display:inline-block;width:0">&#8203;</span>' +
-    "</span>";
+    '</span>';
 
-  textTemplate = ["_"];
+  textTemplate = ['_'];
 
-  mathspeakTemplate = ["Subscript,", ", Baseline"];
+  mathspeakTemplate = ['Subscript,', ', Baseline'];
 
-  ariaLabel = "subscript";
+  ariaLabel = 'subscript';
 
   finalizeTree() {
     this.downInto = this.sub = this.ends[L] as MathBlock;
@@ -520,15 +520,15 @@ LatexCmds.subscript = LatexCmds._ = SubscriptCommand;
 
 LatexCmds.superscript =
   LatexCmds.supscript =
-  LatexCmds["^"] =
+  LatexCmds['^'] =
     class SuperscriptCommand extends SupSub {
-      supsub = "sup" as const;
+      supsub = 'sup' as const;
 
       htmlTemplate =
         '<span class="mq-supsub mq-non-leaf mq-sup-only">' +
         '<span class="mq-sup">&0</span>' +
-        "</span>";
-      textTemplate = ["^(", ")"];
+        '</span>';
+      textTemplate = ['^(', ')'];
       mathspeak(opts?: MathspeakOptions) {
         // Simplify basic exponent speech for common whole numbers.
         var child = this.upInto;
@@ -540,38 +540,38 @@ LatexCmds.superscript =
           // If the superscript is a whole number, shorten the speech that is returned.
           if ((!opts || !opts.ignoreShorthand) && intRgx.test(innerText)) {
             // Simple cases
-            if (innerText === "0") {
-              return "to the 0 power";
-            } else if (innerText === "2") {
-              return "squared";
-            } else if (innerText === "3") {
-              return "cubed";
+            if (innerText === '0') {
+              return 'to the 0 power';
+            } else if (innerText === '2') {
+              return 'squared';
+            } else if (innerText === '3') {
+              return 'cubed';
             }
 
             // More complex cases.
-            var suffix = "";
+            var suffix = '';
             // Limit suffix addition to exponents < 1000.
             if (/^[+-]?\d{1,3}$/.test(innerText)) {
               if (/(11|12|13|4|5|6|7|8|9|0)$/.test(innerText)) {
-                suffix = "th";
+                suffix = 'th';
               } else if (/1$/.test(innerText)) {
-                suffix = "st";
+                suffix = 'st';
               } else if (/2$/.test(innerText)) {
-                suffix = "nd";
+                suffix = 'nd';
               } else if (/3$/.test(innerText)) {
-                suffix = "rd";
+                suffix = 'rd';
               }
             }
             var innerMathspeak =
-              typeof child === "object" ? child.mathspeak() : innerText;
-            return "to the " + innerMathspeak + suffix + " power";
+              typeof child === 'object' ? child.mathspeak() : innerText;
+            return 'to the ' + innerMathspeak + suffix + ' power';
           }
         }
         return super.mathspeak();
       }
 
-      ariaLabel = "superscript";
-      mathspeakTemplate = ["Superscript,", ", Baseline"];
+      ariaLabel = 'superscript';
+      mathspeakTemplate = ['Superscript,', ', Baseline'];
       finalizeTree() {
         this.upInto = this.sup = this.ends[R] as MathBlock;
         this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
@@ -583,15 +583,15 @@ class SummationNotation extends MathCommand {
   constructor(ch: string, html: string, ariaLabel?: string) {
     super();
 
-    this.ariaLabel = ariaLabel || ch.replace(/^\\/, "");
+    this.ariaLabel = ariaLabel || ch.replace(/^\\/, '');
     var htmlTemplate =
       '<span class="mq-large-operator mq-non-leaf">' +
       '<span class="mq-to"><span>&1</span></span>' +
-      "<big>" +
+      '<big>' +
       html +
-      "</big>" +
+      '</big>' +
       '<span class="mq-from"><span>&0</span></span>' +
-      "</span>";
+      '</span>';
     MQSymbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(
       this,
       ch,
@@ -601,33 +601,33 @@ class SummationNotation extends MathCommand {
   createLeftOf(cursor: Cursor) {
     super.createLeftOf(cursor);
     if (cursor.options.sumStartsWithNEquals) {
-      new Letter("n").createLeftOf(cursor);
+      new Letter('n').createLeftOf(cursor);
       new Equality().createLeftOf(cursor);
     }
   }
   latex() {
     function simplify(latex: string) {
-      return "{" + (latex || " ") + "}";
+      return '{' + (latex || ' ') + '}';
     }
     return (
       this.ctrlSeq +
-      "_" +
+      '_' +
       simplify((this.ends[L] as MQNode).latex()) +
-      "^" +
+      '^' +
       simplify((this.ends[R] as MQNode).latex())
     );
   }
   mathspeak() {
     return (
-      "Start " +
+      'Start ' +
       this.ariaLabel +
-      " from " +
+      ' from ' +
       (this.ends[L] as MQNode).mathspeak() +
-      " to " +
+      ' to ' +
       (this.ends[R] as MQNode).mathspeak() +
-      ", end " +
+      ', end ' +
       this.ariaLabel +
-      ", "
+      ', '
     );
   }
   parser() {
@@ -643,9 +643,9 @@ class SummationNotation extends MathCommand {
     }
 
     return optWhitespace
-      .then(string("_").or(string("^")))
+      .then(string('_').or(string('^')))
       .then(function (supOrSub) {
-        var child = blocks[supOrSub === "_" ? 0 : 1];
+        var child = blocks[supOrSub === '_' ? 0 : 1];
         return block.then(function (block) {
           block.children().adopt(child, child.ends[R], 0);
           return succeed(self);
@@ -658,8 +658,8 @@ class SummationNotation extends MathCommand {
     var endsL = this.ends[L] as MQNode;
     var endsR = this.ends[R] as MQNode;
 
-    endsL.ariaLabel = "lower bound";
-    endsR.ariaLabel = "upper bound";
+    endsL.ariaLabel = 'lower bound';
+    endsR.ariaLabel = 'upper bound';
     this.downInto = endsL;
     this.upInto = endsR;
     endsL.upOutOf = endsR;
@@ -667,36 +667,36 @@ class SummationNotation extends MathCommand {
   }
 }
 
-LatexCmds["∑"] =
+LatexCmds['∑'] =
   LatexCmds.sum =
   LatexCmds.summation =
-    () => new SummationNotation("\\sum ", "&sum;", "sum");
+    () => new SummationNotation('\\sum ', '&sum;', 'sum');
 
-LatexCmds["∏"] =
+LatexCmds['∏'] =
   LatexCmds.prod =
   LatexCmds.product =
-    () => new SummationNotation("\\prod ", "&prod;", "product");
+    () => new SummationNotation('\\prod ', '&prod;', 'product');
 
 LatexCmds.coprod = LatexCmds.coproduct = () =>
-  new SummationNotation("\\coprod ", "&#8720;", "co product");
+  new SummationNotation('\\coprod ', '&#8720;', 'co product');
 
-LatexCmds["∫"] =
-  LatexCmds["int"] =
+LatexCmds['∫'] =
+  LatexCmds['int'] =
   LatexCmds.integral =
     class extends SummationNotation {
       constructor() {
         var htmlTemplate =
           '<span class="mq-int mq-non-leaf">' +
-          "<big>&int;</big>" +
+          '<big>&int;</big>' +
           '<span class="mq-supsub mq-non-leaf">' +
           '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>' +
           '<span class="mq-sub">&0</span>' +
           '<span style="display:inline-block;width:0">&#8203</span>' +
-          "</span>" +
-          "</span>";
-        super("\\int ", "", "integral");
+          '</span>' +
+          '</span>';
+        super('\\int ', '', 'integral');
 
-        this.ariaLabel = "integral";
+        this.ariaLabel = 'integral';
         this.htmlTemplate = htmlTemplate;
       }
 
@@ -711,29 +711,29 @@ var Fraction =
   LatexCmds.cfrac =
   LatexCmds.fraction =
     class FracNode extends MathCommand {
-      ctrlSeq = "\\frac";
+      ctrlSeq = '\\frac';
       htmlTemplate =
         '<span class="mq-fraction mq-non-leaf">' +
         '<span class="mq-numerator">&0</span>' +
         '<span class="mq-denominator">&1</span>' +
         '<span style="display:inline-block;width:0">&#8203;</span>' +
-        "</span>";
-      textTemplate = ["(", ")/(", ")"];
+        '</span>';
+      textTemplate = ['(', ')/(', ')'];
       finalizeTree() {
         const endsL = this.ends[L] as MQNode;
         const endsR = this.ends[R] as MQNode;
         this.upInto = endsR.upOutOf = endsL;
         this.downInto = endsL.downOutOf = endsR;
-        endsL.ariaLabel = "numerator";
-        endsR.ariaLabel = "denominator";
+        endsL.ariaLabel = 'numerator';
+        endsR.ariaLabel = 'denominator';
         if (this.getFracDepth() > 1) {
           this.mathspeakTemplate = [
-            "StartNestedFraction,",
-            "NestedOver",
-            ", EndNestedFraction",
+            'StartNestedFraction,',
+            'NestedOver',
+            ', EndNestedFraction',
           ];
         } else {
-          this.mathspeakTemplate = ["StartFraction,", "Over", ", EndFraction"];
+          this.mathspeakTemplate = ['StartFraction,', 'Over', ', EndFraction'];
         }
       }
 
@@ -752,27 +752,27 @@ var Fraction =
           intRgx.test(numText) &&
           intRgx.test(denText)
         ) {
-          var isSingular = numText === "1" || numText === "-1";
-          var newDenSpeech = "";
-          if (denText === "2") {
-            newDenSpeech = isSingular ? "half" : "halves";
-          } else if (denText === "3") {
-            newDenSpeech = isSingular ? "third" : "thirds";
-          } else if (denText === "4") {
-            newDenSpeech = isSingular ? "quarter" : "quarters";
-          } else if (denText === "5") {
-            newDenSpeech = isSingular ? "fifth" : "fifths";
-          } else if (denText === "6") {
-            newDenSpeech = isSingular ? "sixth" : "sixths";
-          } else if (denText === "7") {
-            newDenSpeech = isSingular ? "seventh" : "sevenths";
-          } else if (denText === "8") {
-            newDenSpeech = isSingular ? "eighth" : "eighths";
-          } else if (denText === "9") {
-            newDenSpeech = isSingular ? "ninth" : "ninths";
+          var isSingular = numText === '1' || numText === '-1';
+          var newDenSpeech = '';
+          if (denText === '2') {
+            newDenSpeech = isSingular ? 'half' : 'halves';
+          } else if (denText === '3') {
+            newDenSpeech = isSingular ? 'third' : 'thirds';
+          } else if (denText === '4') {
+            newDenSpeech = isSingular ? 'quarter' : 'quarters';
+          } else if (denText === '5') {
+            newDenSpeech = isSingular ? 'fifth' : 'fifths';
+          } else if (denText === '6') {
+            newDenSpeech = isSingular ? 'sixth' : 'sixths';
+          } else if (denText === '7') {
+            newDenSpeech = isSingular ? 'seventh' : 'sevenths';
+          } else if (denText === '8') {
+            newDenSpeech = isSingular ? 'eighth' : 'eighths';
+          } else if (denText === '9') {
+            newDenSpeech = isSingular ? 'ninth' : 'ninths';
           }
-          if (newDenSpeech !== "") {
-            var output = "";
+          if (newDenSpeech !== '') {
+            var output = '';
             // Handle the case of an integer followed by a simplified fraction such as 1\frac{1}{2}.
             // Such combinations should be spoken aloud as "1 and 1 half."
             // Start at the left sibling of the fraction and continue leftward until something other than a digit or whitespace is found.
@@ -783,9 +783,9 @@ var Fraction =
               sibling = sibling[L]
             ) {
               // Ignore whitespace
-              if (sibling.ctrlSeq === "\\ ") {
+              if (sibling.ctrlSeq === '\\ ') {
                 continue;
-              } else if (intRgx.test(sibling.ctrlSeq || "")) {
+              } else if (intRgx.test(sibling.ctrlSeq || '')) {
                 precededByInteger = true;
               } else {
                 precededByInteger = false;
@@ -793,9 +793,9 @@ var Fraction =
               }
             }
             if (precededByInteger) {
-              output += "and ";
+              output += 'and ';
             }
-            output += (this.ends[L] as MQNode).mathspeak() + " " + newDenSpeech;
+            output += (this.ends[L] as MQNode).mathspeak() + ' ' + newDenSpeech;
             return output;
           }
         }
@@ -809,7 +809,7 @@ var Fraction =
           if (
             item instanceof MQNode &&
             item.ctrlSeq &&
-            item.ctrlSeq.toLowerCase().search("frac") >= 0
+            item.ctrlSeq.toLowerCase().search('frac') >= 0
           )
             level += 1;
           if (item && item.parent) return walkUp(item.parent, level);
@@ -821,7 +821,7 @@ var Fraction =
 
 var LiveFraction =
   (LatexCmds.over =
-  CharCmds["/"] =
+  CharCmds['/'] =
     class extends Fraction {
       createLeftOf(cursor: Cursor) {
         if (!this.replacedFragment) {
@@ -834,7 +834,7 @@ var LiveFraction =
                 leftward instanceof BinaryOperator ||
                 leftward instanceof (LatexCmds.text || noop) ||
                 leftward instanceof SummationNotation ||
-                leftward.ctrlSeq === "\\ " ||
+                leftward.ctrlSeq === '\\ ' ||
                 /^[,;:]$/.test(leftward.ctrlSeq as string)
               ) //lookbehind for operator
             )
@@ -868,29 +868,29 @@ var LiveFraction =
     });
 
 const AnsBuilder = () =>
-  new MQSymbol("\\operatorname{ans}", '<span class="mq-ans">ans</span>', "ans");
+  new MQSymbol('\\operatorname{ans}', '<span class="mq-ans">ans</span>', 'ans');
 LatexCmds.ans = AnsBuilder;
 
 const PercentOfBuilder = () =>
   new MQSymbol(
-    "\\%\\operatorname{of}",
+    '\\%\\operatorname{of}',
     '<span class="mq-nonSymbola mq-operator-name">% of </span>',
-    "percent of"
+    'percent of'
   );
 LatexCmds.percent = LatexCmds.percentof = PercentOfBuilder;
 
 class SquareRoot extends MathCommand {
-  ctrlSeq = "\\sqrt";
+  ctrlSeq = '\\sqrt';
   htmlTemplate =
     '<span class="mq-non-leaf mq-sqrt-container">' +
     '<span class="mq-scaled mq-sqrt-prefix">' +
     SVG_SYMBOLS.sqrt.html +
-    "</span>" +
+    '</span>' +
     '<span class="mq-non-leaf mq-sqrt-stem">&0</span>' +
-    "</span>";
-  textTemplate = ["sqrt(", ")"];
-  mathspeakTemplate = ["StartRoot,", ", EndRoot"];
-  ariaLabel = "root";
+    '</span>';
+  textTemplate = ['sqrt(', ')'];
+  mathspeakTemplate = ['StartRoot,', ', EndRoot'];
+  ariaLabel = 'root';
   parser() {
     return latexMathParser.optBlock
       .then(function (optBlock) {
@@ -908,13 +908,13 @@ class SquareRoot extends MathCommand {
 LatexCmds.sqrt = SquareRoot;
 
 LatexCmds.hat = class Hat extends MathCommand {
-  ctrlSeq = "\\hat";
+  ctrlSeq = '\\hat';
   htmlTemplate =
     '<span class="mq-non-leaf">' +
     '<span class="mq-hat-prefix">^</span>' +
     '<span class="mq-hat-stem">&0</span>' +
-    "</span>";
-  textTemplate = ["hat(", ")"];
+    '</span>';
+  textTemplate = ['hat(', ')'];
 };
 
 class NthRoot extends SquareRoot {
@@ -924,35 +924,35 @@ class NthRoot extends SquareRoot {
     '<span class="mq-scaled mq-sqrt-container">' +
     '<span class="mq-sqrt-prefix mq-scaled">' +
     SVG_SYMBOLS.sqrt.html +
-    "</span>" +
+    '</span>' +
     '<span class="mq-sqrt-stem mq-non-leaf">&1</span>' +
-    "</span>" +
-    "</span>";
-  textTemplate = ["sqrt[", "](", ")"];
+    '</span>' +
+    '</span>';
+  textTemplate = ['sqrt[', '](', ')'];
   latex() {
     return (
-      "\\sqrt[" +
+      '\\sqrt[' +
       (this.ends[L] as MQNode).latex() +
-      "]{" +
+      ']{' +
       (this.ends[R] as MQNode).latex() +
-      "}"
+      '}'
     );
   }
   mathspeak() {
     var indexMathspeak = (this.ends[L] as MQNode).mathspeak();
     var radicandMathspeak = (this.ends[R] as MQNode).mathspeak();
-    (this.ends[L] as MQNode).ariaLabel = "Index";
-    (this.ends[R] as MQNode).ariaLabel = "Radicand";
-    if (indexMathspeak === "3") {
+    (this.ends[L] as MQNode).ariaLabel = 'Index';
+    (this.ends[R] as MQNode).ariaLabel = 'Radicand';
+    if (indexMathspeak === '3') {
       // cube root
-      return "Start Cube Root, " + radicandMathspeak + ", End Cube Root";
+      return 'Start Cube Root, ' + radicandMathspeak + ', End Cube Root';
     } else {
       return (
-        "Root Index " +
+        'Root Index ' +
         indexMathspeak +
-        ", Start Root, " +
+        ', Start Root, ' +
         radicandMathspeak +
-        ", End Root"
+        ', End Root'
       );
     }
   }
@@ -962,7 +962,7 @@ LatexCmds.nthroot = NthRoot;
 LatexCmds.cbrt = class extends NthRoot {
   createLeftOf(cursor: Cursor) {
     super.createLeftOf(cursor);
-    new Digit("3").createLeftOf(cursor);
+    new Digit('3').createLeftOf(cursor);
     cursor.controller.moveRight();
   }
 };
@@ -973,14 +973,14 @@ class DiacriticAbove extends MathCommand {
       '<span class="mq-non-leaf">' +
       '<span class="mq-diacritic-above">' +
       symbol +
-      "</span>" +
+      '</span>' +
       '<span class="mq-diacritic-stem">&0</span>' +
-      "</span>";
+      '</span>';
     super(ctrlSeq, htmlTemplate, textTemplate);
   }
 }
-LatexCmds.vec = () => new DiacriticAbove("\\vec", "&rarr;", ["vec(", ")"]);
-LatexCmds.tilde = () => new DiacriticAbove("\\tilde", "~", ["tilde(", ")"]);
+LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
+LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 
 class DelimsNode extends MathCommand {
   delimjQs: $;
@@ -988,8 +988,8 @@ class DelimsNode extends MathCommand {
 
   jQadd(el: $) {
     super.jQadd(el);
-    this.delimjQs = this.jQ.children(":first").add(this.jQ.children(":last"));
-    this.contentjQ = this.jQ.children(":eq(1)");
+    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
+    this.contentjQ = this.jQ.children(':eq(1)');
     return this.jQ;
   }
 }
@@ -1010,7 +1010,7 @@ class Bracket extends DelimsNode {
     ctrlSeq: string,
     end: string
   ) {
-    super("\\left" + ctrlSeq, undefined, [open, close]);
+    super('\\left' + ctrlSeq, undefined, [open, close]);
     this.side = side;
     this.sides = {
       [L]: { ch: open, ctrlSeq: ctrlSeq },
@@ -1030,59 +1030,59 @@ class Bracket extends DelimsNode {
       '<span style="width:' +
       leftSymbol.width +
       '" class="mq-scaled mq-bracket-l mq-paren' +
-      (this.side === R ? " mq-ghost" : "") +
+      (this.side === R ? ' mq-ghost' : '') +
       '">' +
       leftSymbol.html +
-      "</span>" +
+      '</span>' +
       '<span style="margin-left:' +
       leftSymbol.width +
-      ";margin-right:" +
+      ';margin-right:' +
       rightSymbol.width +
       '" class="mq-bracket-middle mq-non-leaf">&0</span>' +
       '<span style="width:' +
       rightSymbol.width +
       '" class="mq-scaled mq-bracket-r mq-paren' +
-      (this.side === L ? " mq-ghost" : "") +
+      (this.side === L ? ' mq-ghost' : '') +
       '">' +
       rightSymbol.html +
-      "</span>" +
-      "</span>";
+      '</span>' +
+      '</span>';
     return super.html();
   }
   getSymbol(side: BracketSide) {
     var ch = this.sides[side || R].ch as keyof typeof SVG_SYMBOLS;
-    return SVG_SYMBOLS[ch] || { width: "0", html: "" };
+    return SVG_SYMBOLS[ch] || { width: '0', html: '' };
   }
   latex() {
     return (
-      "\\left" +
+      '\\left' +
       this.sides[L].ctrlSeq +
       (this.ends[L] as MQNode).latex() +
-      "\\right" +
+      '\\right' +
       this.sides[R].ctrlSeq
     );
   }
   mathspeak(opts?: MathspeakOptions) {
     var open = this.sides[L].ch,
       close = this.sides[R].ch;
-    if (open === "|" && close === "|") {
-      this.mathspeakTemplate = ["StartAbsoluteValue,", ", EndAbsoluteValue"];
-      this.ariaLabel = "absolute value";
+    if (open === '|' && close === '|') {
+      this.mathspeakTemplate = ['StartAbsoluteValue,', ', EndAbsoluteValue'];
+      this.ariaLabel = 'absolute value';
     } else if (opts && opts.createdLeftOf && this.side) {
-      var ch = "";
+      var ch = '';
       if (this.side === L) ch = this.textTemplate[0];
       else if (this.side === R) ch = this.textTemplate[1];
       return (
-        (this.side === L ? "left " : "right ") +
+        (this.side === L ? 'left ' : 'right ') +
         BRACKET_NAMES[ch as keyof typeof BRACKET_NAMES]
       );
     } else {
       this.mathspeakTemplate = [
-        "left " + BRACKET_NAMES[open as keyof typeof BRACKET_NAMES] + ",",
-        ", right " + BRACKET_NAMES[close as keyof typeof BRACKET_NAMES],
+        'left ' + BRACKET_NAMES[open as keyof typeof BRACKET_NAMES] + ',',
+        ', right ' + BRACKET_NAMES[close as keyof typeof BRACKET_NAMES],
       ];
       this.ariaLabel =
-        BRACKET_NAMES[open as keyof typeof BRACKET_NAMES] + " block";
+        BRACKET_NAMES[open as keyof typeof BRACKET_NAMES] + ' block';
     }
     return super.mathspeak();
   }
@@ -1100,7 +1100,7 @@ class Bracket extends DelimsNode {
         OPP_BRACKS[
           this.sides[this.side as Direction].ch as keyof typeof BRACKET_NAMES
         ] === node.sides[node.side].ch ||
-        { "(": "]", "[": ")" }[this.sides[L].ch] === node.sides[R].ch) &&
+        { '(': ']', '[': ')' }[this.sides[L].ch] === node.sides[R].ch) &&
       node
     );
   }
@@ -1109,7 +1109,7 @@ class Bracket extends DelimsNode {
     brack.sides[this.side as Direction] = this.sides[this.side as Direction]; // copy over my info (may be
     var $brack = brack.delimjQs
       .eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
-      .removeClass("mq-ghost");
+      .removeClass('mq-ghost');
     this.replaceBracket($brack, this.side);
   }
   createLeftOf(cursor: Cursor) {
@@ -1118,7 +1118,7 @@ class Bracket extends DelimsNode {
       // unless wrapping seln in brackets,
       // check if next to or inside an opposing one-sided bracket
       var opts = cursor.options;
-      if (this.sides[L].ch === "|") {
+      if (this.sides[L].ch === '|') {
         // check both sides if I'm a pipe
         brack =
           this.matchBrack(opts, R, cursor[R]) ||
@@ -1240,9 +1240,9 @@ class Bracket extends DelimsNode {
         // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = getOppBracketSide(this);
         var $brack = this.delimjQs
-          .removeClass("mq-ghost")
+          .removeClass('mq-ghost')
           .eq(side === L ? 0 : 1)
-          .addClass("mq-ghost");
+          .addClass('mq-ghost');
         this.replaceBracket($brack, side);
       }
       if (sib) {
@@ -1258,7 +1258,7 @@ class Bracket extends DelimsNode {
           )
           .jQ.insAtDirEnd(
             side,
-            (this.ends[L] as MQNode).jQ.removeClass("mq-empty")
+            (this.ends[L] as MQNode).jQ.removeClass('mq-empty')
           );
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
@@ -1271,12 +1271,12 @@ class Bracket extends DelimsNode {
   }
   replaceBracket($brack: $, side: BracketSide) {
     var symbol = this.getSymbol(side);
-    $brack.html(symbol.html).css("width", symbol.width);
+    $brack.html(symbol.html).css('width', symbol.width);
 
     if (side === L) {
-      $brack.next().css("margin-left", symbol.width);
+      $brack.next().css('margin-left', symbol.width);
     } else {
-      $brack.prev().css("margin-right", symbol.width);
+      $brack.prev().css('margin-right', symbol.width);
     }
   }
   deleteTowards(dir: Direction, cursor: Cursor) {
@@ -1292,7 +1292,7 @@ class Bracket extends DelimsNode {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function () {
-      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass("mq-ghost");
+      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
       this.side = 0;
     };
   }
@@ -1312,27 +1312,27 @@ function getOppBracketSide(bracket: Bracket) {
 }
 
 var OPP_BRACKS = {
-  "(": ")",
-  ")": "(",
-  "[": "]",
-  "]": "[",
-  "{": "}",
-  "}": "{",
-  "\\{": "\\}",
-  "\\}": "\\{",
-  "&lang;": "&rang;",
-  "&rang;": "&lang;",
-  "\\langle ": "\\rangle ",
-  "\\rangle ": "\\langle ",
-  "|": "|",
-  "\\lVert ": "\\rVert ",
-  "\\rVert ": "\\lVert ",
+  '(': ')',
+  ')': '(',
+  '[': ']',
+  ']': '[',
+  '{': '}',
+  '}': '{',
+  '\\{': '\\}',
+  '\\}': '\\{',
+  '&lang;': '&rang;',
+  '&rang;': '&lang;',
+  '\\langle ': '\\rangle ',
+  '\\rangle ': '\\langle ',
+  '|': '|',
+  '\\lVert ': '\\rVert ',
+  '\\rVert ': '\\lVert ',
 };
 
 var BRACKET_NAMES = {
-  "&lang;": "angle-bracket",
-  "&rang;": "angle-bracket",
-  "|": "pipe",
+  '&lang;': 'angle-bracket',
+  '&rang;': 'angle-bracket',
+  '|': 'pipe',
 };
 
 function bindCharBracketPair(
@@ -1349,18 +1349,18 @@ function bindCharBracketPair(
     close as keyof typeof BRACKET_NAMES
   ] = name;
 }
-bindCharBracketPair("(", "", "parenthesis");
-bindCharBracketPair("[", "", "bracket");
-bindCharBracketPair("{", "\\{", "brace");
+bindCharBracketPair('(', '', 'parenthesis');
+bindCharBracketPair('[', '', 'bracket');
+bindCharBracketPair('{', '\\{', 'brace');
 LatexCmds.langle = () =>
-  new Bracket(L, "&lang;", "&rang;", "\\langle ", "\\rangle ");
+  new Bracket(L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = () =>
-  new Bracket(R, "&lang;", "&rang;", "\\langle ", "\\rangle ");
-CharCmds["|"] = () => new Bracket(L, "|", "|", "|", "|");
+  new Bracket(R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+CharCmds['|'] = () => new Bracket(L, '|', '|', '|', '|');
 LatexCmds.lVert = () =>
-  new Bracket(L, "&#8741;", "&#8741;", "\\lVert ", "\\rVert ");
+  new Bracket(L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 LatexCmds.rVert = () =>
-  new Bracket(R, "&#8741;", "&#8741;", "\\lVert ", "\\rVert ");
+  new Bracket(R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 
 LatexCmds.left = class extends MathCommand {
   parser() {
@@ -1371,30 +1371,30 @@ LatexCmds.left = class extends MathCommand {
     return optWhitespace
       .then(regex(/^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z]))/))
       .then(function (ctrlSeq) {
-        var open = ctrlSeq.replace(/^\\/, "");
-        if (ctrlSeq == "\\langle") {
-          open = "&lang;";
-          ctrlSeq = ctrlSeq + " ";
+        var open = ctrlSeq.replace(/^\\/, '');
+        if (ctrlSeq == '\\langle') {
+          open = '&lang;';
+          ctrlSeq = ctrlSeq + ' ';
         }
-        if (ctrlSeq == "\\lVert") {
-          open = "&#8741;";
-          ctrlSeq = ctrlSeq + " ";
+        if (ctrlSeq == '\\lVert') {
+          open = '&#8741;';
+          ctrlSeq = ctrlSeq + ' ';
         }
         return latexMathParser.then(function (block) {
-          return string("\\right")
+          return string('\\right')
             .skip(optWhitespace)
             .then(
               regex(/^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z]))/)
             )
             .map(function (end) {
-              var close = end.replace(/^\\/, "");
-              if (end == "\\rangle") {
-                close = "&rang;";
-                end = end + " ";
+              var close = end.replace(/^\\/, '');
+              if (end == '\\rangle') {
+                close = '&rang;';
+                end = end + ' ';
               }
-              if (end == "\\rVert") {
-                close = "&#8741;";
-                end = end + " ";
+              if (end == '\\rVert') {
+                close = '&#8741;';
+                end = end + ' ';
               }
               var cmd = new Bracket(0, open, close, ctrlSeq, end);
               cmd.blocks = [block];
@@ -1408,40 +1408,40 @@ LatexCmds.left = class extends MathCommand {
 
 LatexCmds.right = class extends MathCommand {
   parser() {
-    return Parser.fail("unmatched \\right");
+    return Parser.fail('unmatched \\right');
   }
 };
 
-var leftBinomialSymbol = SVG_SYMBOLS["("];
-var rightBinomialSymbol = SVG_SYMBOLS[")"];
+var leftBinomialSymbol = SVG_SYMBOLS['('];
+var rightBinomialSymbol = SVG_SYMBOLS[')'];
 class Binomial extends DelimsNode {
-  ctrlSeq = "\\binom";
+  ctrlSeq = '\\binom';
   htmlTemplate =
     '<span class="mq-non-leaf mq-bracket-container">' +
     '<span style="width:' +
     leftBinomialSymbol.width +
     '" class="mq-paren mq-bracket-l mq-scaled">' +
     leftBinomialSymbol.html +
-    "</span>" +
+    '</span>' +
     '<span style="margin-left:' +
     leftBinomialSymbol.width +
-    "; margin-right:" +
+    '; margin-right:' +
     rightBinomialSymbol.width +
     ';" class="mq-non-leaf mq-bracket-middle">' +
     '<span class="mq-array mq-non-leaf">' +
-    "<span>&0</span>" +
-    "<span>&1</span>" +
-    "</span>" +
-    "</span>" +
+    '<span>&0</span>' +
+    '<span>&1</span>' +
+    '</span>' +
+    '</span>' +
     '<span style="width:' +
     rightBinomialSymbol.width +
     '" class="mq-paren mq-bracket-r mq-scaled">' +
     rightBinomialSymbol.html +
-    "</span>" +
-    "</span>";
-  textTemplate = ["choose(", ",", ")"];
-  mathspeakTemplate = ["StartBinomial,", "Choose", ", EndBinomial"];
-  ariaLabel = "binomial";
+    '</span>' +
+    '</span>';
+  textTemplate = ['choose(', ',', ')'];
+  mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
+  ariaLabel = 'binomial';
 }
 
 LatexCmds.binom = LatexCmds.binomial = Binomial;
@@ -1454,19 +1454,19 @@ LatexCmds.choose = class extends Binomial {
 
 class MathFieldNode extends MathCommand {
   name: string;
-  ctrlSeq = "\\MathQuillMathField";
+  ctrlSeq = '\\MathQuillMathField';
   htmlTemplate =
     '<span class="mq-editable-field">' +
     '<span class="mq-root-block">&0</span>' +
-    "</span>";
+    '</span>';
   parser() {
     var self = this,
       string = Parser.string,
       regex = Parser.regex,
       succeed = Parser.succeed;
-    return string("[")
+    return string('[')
       .then(regex(/^[a-z][a-z0-9]*/i))
-      .skip(string("]"))
+      .skip(string(']'))
       .map(function (name) {
         self.name = name;
       })
@@ -1479,7 +1479,7 @@ class MathFieldNode extends MathCommand {
       this.jQ,
       options
     );
-    ctrlr.KIND_OF_MQ = "MathField";
+    ctrlr.KIND_OF_MQ = 'MathField';
     ctrlr.editable = true;
     ctrlr.createTextarea();
     ctrlr.editablesTextareaEvents();
@@ -1511,10 +1511,10 @@ LatexCmds.editable = LatexCmds.MathQuillMathField = MathFieldNode; // backcompat
 class EmbedNode extends MQSymbol {
   setOptions(options: EmbedOptions) {
     function noop() {
-      return "";
+      return '';
     }
     this.text = options.text || noop;
-    this.htmlTemplate = options.htmlString || "";
+    this.htmlTemplate = options.htmlString || '';
     this.latex = options.latex || noop;
     return this;
   }
@@ -1523,15 +1523,15 @@ class EmbedNode extends MQSymbol {
       string = Parser.string,
       regex = Parser.regex,
       succeed = Parser.succeed;
-    return string("{")
+    return string('{')
       .then(regex(/^[a-z][a-z0-9]*/i))
-      .skip(string("}"))
+      .skip(string('}'))
       .then(function (name) {
         // the chars allowed in the optional data block are arbitrary other than
         // excluding curly braces and square brackets (which'd be too confusing)
-        return string("[")
+        return string('[')
           .then(regex(/^[-\w\s]*/))
-          .skip(string("]"))
+          .skip(string(']'))
           .or(succeed(undefined))
           .map(function (data) {
             return self.setOptions(EMBEDS[name](data));

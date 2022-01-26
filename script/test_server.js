@@ -1,19 +1,19 @@
 // requires
-var http = require("http");
-var path = require("path");
-var url = require("url");
-var fs = require("fs");
-var child_process = require("child_process");
+var http = require('http');
+var path = require('path');
+var url = require('url');
+var fs = require('fs');
+var child_process = require('child_process');
 
 // constants
 var PORT = +process.env.PORT || 9292;
-var HOST = process.env.HOST || "0.0.0.0";
+var HOST = process.env.HOST || '0.0.0.0';
 
 // main
 http.createServer(serveRequest).listen(PORT, HOST);
-console.log("listening on " + HOST + ":" + PORT);
+console.log('listening on ' + HOST + ':' + PORT);
 run_make_test();
-"src test Makefile package.json".split(" ").forEach(function (filename) {
+'src test Makefile package.json'.split(' ').forEach(function (filename) {
   recursivelyWatch(filename, run_make_test);
 });
 
@@ -24,27 +24,27 @@ function serveRequest(req, res) {
     var filepath = path.normalize(url.parse(req.url).pathname).slice(1);
     fs.readFile(filepath, function (err, data) {
       if (err) {
-        if (err.code === "ENOENT" || err.code === "EISDIR") {
+        if (err.code === 'ENOENT' || err.code === 'EISDIR') {
           res.statusCode = 404;
-          res.end("404 Not Found: /" + filepath + "\n");
+          res.end('404 Not Found: /' + filepath + '\n');
         } else {
           console.log(err);
           res.statusCode = 500;
-          res.end("500 Internal Server Error: " + err.code + "\n");
+          res.end('500 Internal Server Error: ' + err.code + '\n');
         }
       } else {
         var ext = filepath.match(/\.[^.]+$/);
-        if (ext) res.setHeader("Content-Type", "text/" + ext[0].slice(1));
+        if (ext) res.setHeader('Content-Type', 'text/' + ext[0].slice(1));
         res.end(data);
       }
 
       console.log(
-        "[%s] %s %s /%s - %s%sms",
+        '[%s] %s %s /%s - %s%sms',
         reqTime.toISOString(),
         res.statusCode,
         req.method,
         filepath,
-        data ? (data.length >> 10) + "kb, " : "",
+        data ? (data.length >> 10) + 'kb, ' : '',
         Date.now() - reqTime
       );
     });
@@ -86,18 +86,18 @@ function enqueueOrDo(cb) {
 function run_make_test() {
   if (q) return;
   q = [];
-  console.log("[%s]\nmake test", new Date().toISOString());
-  var make_test = child_process.exec("make test", { env: process.env });
+  console.log('[%s]\nmake test', new Date().toISOString());
+  var make_test = child_process.exec('make test', { env: process.env });
   make_test.stdout.pipe(process.stdout, { end: false });
   make_test.stderr.pipe(process.stderr, { end: false });
-  make_test.on("exit", function (code) {
+  make_test.on('exit', function (code) {
     if (code) {
-      console.error("Exit Code " + code);
+      console.error('Exit Code ' + code);
     } else {
       var serverAddress =
-        HOST === "0.0.0.0" ? "localhost:" + PORT : HOST + ":" + PORT;
-      console.log("\nMathQuill is now running on " + serverAddress);
-      console.log("Open http://" + serverAddress + "/test/demo.html\n");
+        HOST === '0.0.0.0' ? 'localhost:' + PORT : HOST + ':' + PORT;
+      console.log('\nMathQuill is now running on ' + serverAddress);
+      console.log('Open http://' + serverAddress + '/test/demo.html\n');
     }
     for (var i = 0; i < q.length; i += 1) q[i]();
     q = undefined;

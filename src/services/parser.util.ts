@@ -2,10 +2,10 @@ function parseError(stream: string, message: string): never {
   if (stream) {
     stream = "'" + stream + "'";
   } else {
-    stream = "EOF";
+    stream = 'EOF';
   }
 
-  throw "Parse Error: " + message + " at " + stream;
+  throw 'Parse Error: ' + message + ' at ' + stream;
 }
 
 type UnknownParserResult = any;
@@ -30,7 +30,7 @@ class Parser<T> {
   }
 
   parse(stream: string): T {
-    return this.skip(Parser.eof)._("" + stream, success, parseError);
+    return this.skip(Parser.eof)._('' + stream, success, parseError);
 
     function success(_stream: string, result: T) {
       return result;
@@ -39,7 +39,7 @@ class Parser<T> {
 
   // -*- primitive combinators -*- //
   or<Q>(alternative: Parser<Q>): Parser<T | Q> {
-    pray("or is passed a parser", alternative instanceof Parser);
+    pray('or is passed a parser', alternative instanceof Parser);
 
     var self = this;
 
@@ -60,7 +60,7 @@ class Parser<T> {
 
       function success(newStream: string, result: T) {
         var nextParser = next instanceof Parser ? next : next(result);
-        pray("a parser is returned", nextParser instanceof Parser);
+        pray('a parser is returned', nextParser instanceof Parser);
         return nextParser._(newStream, onSuccess, onFailure);
       }
     });
@@ -172,9 +172,9 @@ class Parser<T> {
   }
 
   static regex(re: RegExp): Parser<string> {
-    pray("regexp parser is anchored", re.toString().charAt(1) === "^");
+    pray('regexp parser is anchored', re.toString().charAt(1) === '^');
 
-    var expected = "expected " + re;
+    var expected = 'expected ' + re;
 
     return new Parser(function (stream, onSuccess, onFailure) {
       var match = re.exec(stream);
@@ -212,7 +212,7 @@ class Parser<T> {
     onSuccess,
     onFailure
   ) {
-    if (!stream) return onFailure(stream, "expected any character");
+    if (!stream) return onFailure(stream, 'expected any character');
 
     return onSuccess(stream.slice(1), stream.charAt(0));
   });
@@ -222,7 +222,7 @@ class Parser<T> {
     onSuccess,
     _onFailure
   ) {
-    return onSuccess("", stream);
+    return onSuccess('', stream);
   });
 
   static eof: Parser<string> = new Parser(function (
@@ -230,7 +230,7 @@ class Parser<T> {
     onSuccess,
     onFailure
   ) {
-    if (stream) return onFailure(stream, "expected EOF");
+    if (stream) return onFailure(stream, 'expected EOF');
 
     return onSuccess(stream, stream);
   });

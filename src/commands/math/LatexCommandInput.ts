@@ -2,8 +2,8 @@
  * Input box to type backslash commands
  ***************************************/
 
-CharCmds["\\"] = class LatexCommandInput extends MathCommand {
-  ctrlSeq = "\\";
+CharCmds['\\'] = class LatexCommandInput extends MathCommand {
+  ctrlSeq = '\\';
   _replacedFragment?: Fragment;
 
   replaces(replacedFragment: Fragment) {
@@ -14,20 +14,20 @@ CharCmds["\\"] = class LatexCommandInput extends MathCommand {
   }
   htmlTemplate =
     '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
-  textTemplate = ["\\"];
+  textTemplate = ['\\'];
   createBlocks() {
     super.createBlocks();
     const endsL = this.ends[L] as MQNode;
 
     endsL.focus = function () {
-      this.parent.jQ.addClass("mq-hasCursor");
-      if (this.isEmpty()) this.parent.jQ.removeClass("mq-empty");
+      this.parent.jQ.addClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.jQ.removeClass('mq-empty');
 
       return this;
     };
     endsL.blur = function () {
-      this.parent.jQ.removeClass("mq-hasCursor");
-      if (this.isEmpty()) this.parent.jQ.addClass("mq-empty");
+      this.parent.jQ.removeClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.jQ.addClass('mq-empty');
 
       return this;
     };
@@ -42,14 +42,14 @@ CharCmds["\\"] = class LatexCommandInput extends MathCommand {
         var cmd = (this.parent as LatexCommandInput).renderCommand(cursor);
         // TODO needs tests
         cursor.controller.aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
-        if (ch !== "\\" || !this.isEmpty()) cursor.parent.write(cursor, ch);
+        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
         else cursor.controller.aria.alert();
       }
     };
 
     var originalKeystroke = endsL.keystroke;
     endsL.keystroke = function (key, e, ctrlr) {
-      if (key === "Tab" || key === "Enter" || key === "Spacebar") {
+      if (key === 'Tab' || key === 'Enter' || key === 'Spacebar') {
         var cmd = (this.parent as LatexCommandInput).renderCommand(
           ctrlr.cursor
         );
@@ -68,9 +68,9 @@ CharCmds["\\"] = class LatexCommandInput extends MathCommand {
     if (this._replacedFragment) {
       var el = this.jQ[0];
       this.jQ = this._replacedFragment.jQ
-        .addClass("mq-blur")
+        .addClass('mq-blur')
         .bind(
-          "mousedown mousemove", //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function (e) {
             // TODO - overwritting e.target
             (e as any).target = el;
@@ -83,7 +83,7 @@ CharCmds["\\"] = class LatexCommandInput extends MathCommand {
     }
   }
   latex() {
-    return "\\" + (this.ends[L] as MQNode).latex() + " ";
+    return '\\' + (this.ends[L] as MQNode).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
     this.jQ = this.jQ.last();
@@ -95,7 +95,7 @@ CharCmds["\\"] = class LatexCommandInput extends MathCommand {
     }
 
     var latex = (this.ends[L] as MQNode).latex();
-    if (!latex) latex = " ";
+    if (!latex) latex = ' ';
     var cmd = LatexCmds[latex];
 
     if (cmd) {

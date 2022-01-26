@@ -18,7 +18,7 @@ var cancelSelectionOnEdit:
 
 (function () {
   ControllerBase.onNotify(function (cursor, e) {
-    if (e === "edit" || e === "replace") {
+    if (e === 'edit' || e === 'replace') {
       // this will be called any time ANY mathquill is edited. We only want
       // to cancel selection if the selection is happening within the mathquill
       // that dispatched the notify. Otherwise you won't be able to select any
@@ -34,9 +34,9 @@ class Controller_mouse extends Controller_latex {
   delegateMouseEvents() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
-    this.container.bind("mousedown.mathquill", function (_e: Event) {
+    this.container.bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;
-      var rootjQ = $(e.target).closest(".mq-root-block");
+      var rootjQ = $(e.target).closest('.mq-root-block');
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
         NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
       var ctrlr = root.controller,
@@ -61,7 +61,7 @@ class Controller_mouse extends Controller_latex {
         if (cursor.selection)
           cursor.controller.aria
             .clear()
-            .queue(cursor.selection.join("mathspeak") + " selected")
+            .queue(cursor.selection.join('mathspeak') + ' selected')
             .alert();
         target = undefined;
       }
@@ -70,12 +70,12 @@ class Controller_mouse extends Controller_latex {
 
       function unbindListeners(e: MouseEvent) {
         // delete the mouse handlers now that we're not dragging anymore
-        rootjQ.unbind("mousemove", mousemove);
+        rootjQ.unbind('mousemove', mousemove);
 
         const anyTarget = e.target as any; // TODO - why do we need to cast to any?
         $(anyTarget.ownerDocument)
-          .unbind("mousemove", docmousemove)
-          .unbind("mouseup", mouseup);
+          .unbind('mousemove', docmousemove)
+          .unbind('mouseup', mouseup);
         cancelSelectionOnEdit = undefined;
       }
 
@@ -131,7 +131,7 @@ class Controller_mouse extends Controller_latex {
   }
 
   seek($target: $, pageX: number, _pageY: number) {
-    var cursor = this.notify("select").cursor;
+    var cursor = this.notify('select').cursor;
     var node;
     var targetElm: HTMLElement | null = $target && $target[0];
 

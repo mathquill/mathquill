@@ -168,11 +168,11 @@ class MathCommand extends MathElement {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  moveTowards(dir: Direction, cursor: Cursor, updown?: "up" | "down") {
+  moveTowards(dir: Direction, cursor: Cursor, updown?: 'up' | 'down') {
     var updownInto: NodeRef | undefined;
-    if (updown === "up") {
+    if (updown === 'up') {
       updownInto = this.upInto;
-    } else if (updown === "down") {
+    } else if (updown === 'down') {
       updownInto = this.downInto;
     }
 
@@ -312,24 +312,24 @@ class MathCommand extends MathElement {
 
     var cmd = this;
     var blocks = cmd.blocks as MathBlock[];
-    var cmdId = " mathquill-command-id=" + cmd.id;
+    var cmdId = ' mathquill-command-id=' + cmd.id;
     var tokens = (cmd.htmlTemplate as string).match(
       /<[^<>]+>|[^<>]+/g
     ) as string[];
 
-    pray("no unmatched angle brackets", tokens.join("") === this.htmlTemplate);
+    pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
     // add cmdId and aria-hidden (for screen reader users) to all top-level tags
     // Note: with the RegExp search/replace approach, it's possible that an element which is both a command and block may contain redundant aria-hidden attributes.
     // In practice this doesn't appear to cause problems for screen readers.
     for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
       // top-level self-closing tags
-      if (token.slice(-2) === "/>") {
+      if (token.slice(-2) === '/>') {
         tokens[i] = token.slice(0, -2) + cmdId + ' aria-hidden="true"/>';
       }
       // top-level open tags
-      else if (token.charAt(0) === "<") {
-        pray("not an unmatched top-level close tag", token.charAt(1) !== "/");
+      else if (token.charAt(0) === '<') {
+        pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
 
         tokens[i] = token.slice(0, -1) + cmdId + ' aria-hidden="true">';
 
@@ -337,38 +337,38 @@ class MathCommand extends MathElement {
         var nesting = 1;
         do {
           (i += 1), (token = tokens[i]);
-          pray("no missing close tags", token);
+          pray('no missing close tags', token);
           // close tags
-          if (token.slice(0, 2) === "</") {
+          if (token.slice(0, 2) === '</') {
             nesting -= 1;
           }
           // non-self-closing open tags
-          else if (token.charAt(0) === "<" && token.slice(-2) !== "/>") {
+          else if (token.charAt(0) === '<' && token.slice(-2) !== '/>') {
             nesting += 1;
           }
         } while (nesting > 0);
       }
     }
     return tokens
-      .join("")
+      .join('')
       .replace(/>&(\d+)/g, function (_$0: string, $1: string) {
         var num1 = parseInt($1, 10);
         return (
-          " mathquill-block-id=" +
+          ' mathquill-block-id=' +
           blocks[num1].id +
           ' aria-hidden="true">' +
-          blocks[num1].join("html")
+          blocks[num1].join('html')
         );
       });
   }
 
   // methods to export a string representation of the math tree
   latex() {
-    return this.foldChildren(this.ctrlSeq || "", function (latex, child) {
-      return latex + "{" + (child.latex() || " ") + "}";
+    return this.foldChildren(this.ctrlSeq || '', function (latex, child) {
+      return latex + '{' + (child.latex() || ' ') + '}';
     });
   }
-  textTemplate = [""];
+  textTemplate = [''];
   text() {
     var cmd = this,
       i = 0;
@@ -377,28 +377,28 @@ class MathCommand extends MathElement {
       var child_text = child.text();
       if (
         text &&
-        cmd.textTemplate[i] === "(" &&
-        child_text[0] === "(" &&
-        child_text.slice(-1) === ")"
+        cmd.textTemplate[i] === '(' &&
+        child_text[0] === '(' &&
+        child_text.slice(-1) === ')'
       )
         return text + child_text.slice(1, -1) + cmd.textTemplate[i];
-      return text + child_text + (cmd.textTemplate[i] || "");
+      return text + child_text + (cmd.textTemplate[i] || '');
     });
   }
-  mathspeakTemplate = [""];
+  mathspeakTemplate = [''];
   mathspeak() {
     var cmd = this,
       i = 0;
     return cmd.foldChildren(
-      cmd.mathspeakTemplate[i] || "Start" + cmd.ctrlSeq + " ",
+      cmd.mathspeakTemplate[i] || 'Start' + cmd.ctrlSeq + ' ',
       function (speech, block) {
         i += 1;
         return (
           speech +
-          " " +
+          ' ' +
           block.mathspeak() +
-          " " +
-          (cmd.mathspeakTemplate[i] + " " || "End" + cmd.ctrlSeq + " ")
+          ' ' +
+          (cmd.mathspeakTemplate[i] + ' ' || 'End' + cmd.ctrlSeq + ' ')
         );
       }
     );
@@ -426,11 +426,11 @@ class MQSymbol extends MathCommand {
     mathspeak?: string
   ) {
     if (!text && !!ctrlSeq) {
-      text = ctrlSeq.replace(/^\\/, "");
+      text = ctrlSeq.replace(/^\\/, '');
     }
 
     this.mathspeakName = mathspeak || text;
-    super.setCtrlSeqHtmlAndText(ctrlSeq, html, [text || ""]);
+    super.setCtrlSeqHtmlAndText(ctrlSeq, html, [text || '']);
   }
 
   parser() {
@@ -464,13 +464,13 @@ class MQSymbol extends MathCommand {
   }
 
   latex() {
-    return this.ctrlSeq || "";
+    return this.ctrlSeq || '';
   }
   text() {
-    return this.textTemplate.join("");
+    return this.textTemplate.join('');
   }
   mathspeak(_opts?: MathspeakOptions) {
-    return this.mathspeakName || "";
+    return this.mathspeakName || '';
   }
   placeCursor() {}
   isEmpty() {
@@ -479,7 +479,7 @@ class MQSymbol extends MathCommand {
 }
 class VanillaSymbol extends MQSymbol {
   constructor(ch: string, html?: string, mathspeak?: string) {
-    super(ch, "<span>" + (html || ch) + "</span>", undefined, mathspeak);
+    super(ch, '<span>' + (html || ch) + '</span>', undefined, mathspeak);
   }
 }
 function bindVanillaSymbol(ch: string, html?: string, mathspeak?: string) {
@@ -497,14 +497,14 @@ class BinaryOperator extends MQSymbol {
     if (treatLikeSymbol) {
       super(
         ctrlSeq,
-        "<span>" + (html || ctrlSeq) + "</span>",
+        '<span>' + (html || ctrlSeq) + '</span>',
         undefined,
         mathspeak
       );
     } else {
       super(
         ctrlSeq,
-        '<span class="mq-binary-operator">' + html + "</span>",
+        '<span class="mq-binary-operator">' + html + '</span>',
         text,
         mathspeak
       );
@@ -529,73 +529,73 @@ class MathBlock extends MathElement {
   controller?: Controller;
 
   join(methodName: JoinMethod) {
-    return this.foldChildren("", function (fold, child) {
+    return this.foldChildren('', function (fold, child) {
       return fold + child[methodName]();
     });
   }
   html() {
-    return this.join("html");
+    return this.join('html');
   }
   latex() {
-    return this.join("latex");
+    return this.join('latex');
   }
   text() {
     var endsL = this.ends[L];
     var endsR = this.ends[R];
-    return endsL === endsR && endsL !== 0 ? endsL.text() : this.join("text");
+    return endsL === endsR && endsL !== 0 ? endsL.text() : this.join('text');
   }
   mathspeak() {
-    var tempOp = "";
-    var autoOps: CursorOptions["autoOperatorNames"] = {};
+    var tempOp = '';
+    var autoOps: CursorOptions['autoOperatorNames'] = {};
     if (this.controller) autoOps = this.controller.options.autoOperatorNames;
     return (
       this.foldChildren<string[]>([], function (speechArray, cmd) {
         if (cmd.isPartOfOperator) {
           tempOp += cmd.mathspeak();
         } else {
-          if (tempOp !== "") {
+          if (tempOp !== '') {
             if (autoOps._maxLength! > 0) {
               var x = autoOps[tempOp.toLowerCase()];
-              if (typeof x === "string") tempOp = x;
+              if (typeof x === 'string') tempOp = x;
             }
-            speechArray.push(tempOp + " ");
-            tempOp = "";
+            speechArray.push(tempOp + ' ');
+            tempOp = '';
           }
           var mathspeakText = cmd.mathspeak();
           var cmdText = cmd.ctrlSeq;
           if (
             isNaN(cmdText as any) && // TODO - revisit this to improve the isNumber() check
-            cmdText !== "." &&
+            cmdText !== '.' &&
             (!cmd.parent ||
               !cmd.parent.parent ||
               !cmd.parent.parent.isTextBlock())
           ) {
-            mathspeakText = " " + mathspeakText + " ";
+            mathspeakText = ' ' + mathspeakText + ' ';
           }
           speechArray.push(mathspeakText);
         }
         return speechArray;
       })
-        .join("")
-        .replace(/ +(?= )/g, "")
+        .join('')
+        .replace(/ +(?= )/g, '')
         // For Apple devices in particular, split out digits after a decimal point so they aren't read aloud as whole words.
         // Not doing so makes 123.456 potentially spoken as "one hundred twenty-three point four hundred fifty-six."
         // Instead, add spaces so it is spoken as "one hundred twenty-three point four five six."
         .replace(/(\.)([0-9]+)/g, function (_match, p1, p2) {
-          return p1 + p2.split("").join(" ").trim();
+          return p1 + p2.split('').join(' ').trim();
         })
     );
   }
 
-  ariaLabel = "block";
+  ariaLabel = 'block';
 
   keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
     if (
       ctrlr.options.spaceBehavesLikeTab &&
-      (key === "Spacebar" || key === "Shift-Spacebar")
+      (key === 'Spacebar' || key === 'Shift-Spacebar')
     ) {
       e.preventDefault();
-      ctrlr.escapeDir(key === "Shift-Spacebar" ? L : R, key, e);
+      ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
     return super.keystroke(key, e, ctrlr);
@@ -604,11 +604,11 @@ class MathBlock extends MathElement {
   // editability methods: called by the cursor for editing, cursor movements,
   // and selection of the MathQuill tree, these all take in a direction and
   // the cursor
-  moveOutOf(dir: Direction, cursor: Cursor, updown?: "up" | "down") {
+  moveOutOf(dir: Direction, cursor: Cursor, updown?: 'up' | 'down') {
     var updownInto: NodeRef | undefined;
-    if (updown === "up") {
+    if (updown === 'up') {
       updownInto = this.parent.upInto;
-    } else if (updown === "down") {
+    } else if (updown === 'down') {
       updownInto = this.parent.downInto;
     }
 
@@ -643,11 +643,11 @@ class MathBlock extends MathElement {
     // exclude f because it gets a dedicated command with more spacing
     if (ch.match(/^[a-eg-zA-Z]$/)) return new Letter(ch);
     else if (/^\d$/.test(ch)) return new Digit(ch);
-    else if (options && options.typingSlashWritesDivisionSymbol && ch === "/")
-      return (LatexCmds as LatexCmdsSingleCharBuilder)["÷"](ch);
-    else if (options && options.typingAsteriskWritesTimesSymbol && ch === "*")
-      return (LatexCmds as LatexCmdsSingleCharBuilder)["×"](ch);
-    else if (options && options.typingPercentWritesPercentOf && ch === "%")
+    else if (options && options.typingSlashWritesDivisionSymbol && ch === '/')
+      return (LatexCmds as LatexCmdsSingleCharBuilder)['÷'](ch);
+    else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
+      return (LatexCmds as LatexCmdsSingleCharBuilder)['×'](ch);
+    else if (options && options.typingPercentWritesPercentOf && ch === '%')
       return (LatexCmds as LatexCmdsSingleCharBuilder).percentof(ch);
     else if (
       (cons = (CharCmds as CharCmdsAny)[ch] || (LatexCmds as LatexCmdsAny)[ch])
@@ -665,8 +665,8 @@ class MathBlock extends MathElement {
     if (!cursor.isTooDeep()) {
       cmd.createLeftOf(cursor.show());
       // special-case the slash so that fractions are voiced while typing
-      if (ch === "/") {
-        cursor.controller.aria.alert("over");
+      if (ch === '/') {
+        cursor.controller.aria.alert('over');
       } else {
         cursor.controller.aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
       }
@@ -704,20 +704,20 @@ class MathBlock extends MathElement {
   }
 
   focus() {
-    this.jQ.addClass("mq-hasCursor");
-    this.jQ.removeClass("mq-empty");
+    this.jQ.addClass('mq-hasCursor');
+    this.jQ.removeClass('mq-empty');
 
     return this;
   }
   blur(cursor: Cursor) {
-    this.jQ.removeClass("mq-hasCursor");
+    this.jQ.removeClass('mq-hasCursor');
     if (this.isEmpty()) {
-      this.jQ.addClass("mq-empty");
+      this.jQ.addClass('mq-empty');
       if (
         cursor &&
         this.isQuietEmptyDelimiter(cursor.options.quietEmptyDelimiters)
       ) {
-        this.jQ.addClass("mq-quiet-delimiter");
+        this.jQ.addClass('mq-quiet-delimiter');
       }
     }
     return this;
@@ -731,7 +731,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
 
     __mathquillify(opts: CursorOptions, _interfaceVersion: number) {
       this.config(opts);
-      super.__mathquillify("mq-math-mode");
+      super.__mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
         this.__controller.delegateMouseEvents();
         this.__controller.staticMathTextareaEvents();
@@ -777,7 +777,7 @@ API.MathField = function (APIClasses: APIClasses) {
     __mathquillify(opts: CursorOptions, interfaceVersion: number) {
       this.config(opts);
       if (interfaceVersion > 1) this.__controller.root.reflow = noop;
-      super.__mathquillify("mq-editable-field mq-math-mode");
+      super.__mathquillify('mq-editable-field mq-math-mode');
       delete this.__controller.root.reflow;
       return this;
     }
@@ -790,13 +790,13 @@ API.InnerMathField = function (APIClasses: APIClasses) {
       this.__controller.editable = false;
       this.__controller.root.blur();
       this.__controller.unbindEditablesEvents();
-      this.__controller.container.removeClass("mq-editable-field");
+      this.__controller.container.removeClass('mq-editable-field');
     }
     makeEditable() {
       this.__controller.editable = true;
       this.__controller.editablesTextareaEvents();
       this.__controller.cursor.insAtRightEnd(this.__controller.root);
-      this.__controller.container.addClass("mq-editable-field");
+      this.__controller.container.addClass('mq-editable-field');
     }
   };
 };

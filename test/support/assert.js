@@ -3,7 +3,7 @@ window.assert = (function () {
     if (!opts) opts = {};
 
     $.extend(this, opts);
-    this.message = this.explanation + " " + this.message;
+    this.message = this.explanation + ' ' + this.message;
 
     Error.call(this, this.message);
   }
@@ -13,7 +13,7 @@ window.assert = (function () {
   AssertionError.prototype = new noop();
 
   function fail(opts) {
-    if (typeof opts === "string") opts = { message: opts };
+    if (typeof opts === 'string') opts = { message: opts };
 
     throw new AssertionError(opts);
   }
@@ -24,7 +24,7 @@ window.assert = (function () {
 
       fail({
         message: message,
-        explanation: "expected " + thing + " to be truthy",
+        explanation: 'expected ' + thing + ' to be truthy',
       });
     },
     equal: function (thing1, thing2, message) {
@@ -32,7 +32,7 @@ window.assert = (function () {
 
       fail({
         message: message,
-        explanation: "expected (" + thing1 + ") to equal (" + thing2 + ")",
+        explanation: 'expected (' + thing1 + ') to equal (' + thing2 + ')',
       });
     },
     throws: function (fn, message) {
@@ -48,11 +48,11 @@ window.assert = (function () {
 
       fail({
         message: message,
-        explanation: "expected " + fn + " to throw an error",
+        explanation: 'expected ' + fn + ' to throw an error',
       });
     },
     fail: function (message) {
-      fail({ message: message, explanation: "generic fail" });
+      fail({ message: message, explanation: 'generic fail' });
     },
   };
 })();
