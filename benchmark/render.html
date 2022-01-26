@@ -9,7 +9,10 @@
     <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/seedrandom/3.0.5/seedrandom.min.js"></script>
-    <script type="text/javascript" src="../test/support/jquery-1.5.2.js"></script>
+    <script
+      type="text/javascript"
+      src="../test/support/jquery-1.5.2.js"
+    ></script>
     <script type="text/javascript">
       window.onerror = function (err) {
         document.querySelector('html').style.background = 'red';
@@ -30,21 +33,29 @@
     <div id="body">
       <h1>MathQuill performance test page</h1>
       <p>
-        This page randomly generates one or more latex expressions and times how long it takes to mathquillify them.
-        Query parameters:
+        This page randomly generates one or more latex expressions and times how
+        long it takes to mathquillify them. Query parameters:
       </p>
       <ul>
-        <li>maxDepth: max depth of randomly generated latex expressions (default: 6)</li>
-        <li>maxLength: (approximate) max length of randomly generated latex expressions (default: 2048)</li>
+        <li>
+          maxDepth: max depth of randomly generated latex expressions (default:
+          6)
+        </li>
+        <li>
+          maxLength: (approximate) max length of randomly generated latex
+          expressions (default: 2048)
+        </li>
         <li>samples: the number of expressions to generate (default: 1)</li>
-        <li>seed: random seed (to generate same expressions across page loads)</li>
+        <li>
+          seed: random seed (to generate same expressions across page loads)
+        </li>
       </ul>
 
       <textarea></textarea>
       <button id="run-button">Run with custom latex</button>
       <div id="results"></div>
       <h3>All MQ render times:</h3>
-      <input id="all-results" type="text"></input>
+      <input id="all-results" type="text" />
     </div>
 
     <script type="text/javascript">
@@ -56,20 +67,24 @@
       }
       const MAX_DEPTH = params.get('maxDepth') || 6;
       const MAX_LENGTH = params.get('maxLength') || 2048;
-      const NUM_SAMPLES = params.has('samples') ? parseInt(params.get('samples')) : 1;
-      const random = new Math.seedrandom(params.get('seed'))
+      const NUM_SAMPLES = params.has('samples')
+        ? parseInt(params.get('samples'))
+        : 1;
+      const random = new Math.seedrandom(params.get('seed'));
 
       window.results = [];
       for (let i = 0; i < NUM_SAMPLES; i++) {
-        const latex = randomLatex()
+        const latex = randomLatex();
         run(latex);
       }
       printResults();
 
-      document.querySelector('#run-button').addEventListener('click', async () => {
-        run(document.querySelector("textarea").value);
-        printResults();
-      })
+      document
+        .querySelector('#run-button')
+        .addEventListener('click', async () => {
+          run(document.querySelector('textarea').value);
+          printResults();
+        });
 
       function run(latex) {
         const div = document.createElement('div');
@@ -84,8 +99,8 @@
             `;
         document.querySelector('#results').appendChild(div);
 
-        const mqElement = div.querySelector(".mathquill-math-field");
-        const htmlElement = div.querySelector(".html-only");
+        const mqElement = div.querySelector('.mathquill-math-field');
+        const htmlElement = div.querySelector('.html-only');
 
         mqElement.innerText = latex;
 
@@ -101,14 +116,20 @@
         // Force syncronous layout
         document.body.getBoundingClientRect();
         const htmlDuration = performance.now() - start;
-        results.push({latex, mqDuration, htmlDuration});
+        results.push({ latex, mqDuration, htmlDuration });
 
-        div.querySelector('.mq-result').innerText = `MQ: ${mqDuration.toFixed(2)} ms`;
-        div.querySelector('.html-result').innerText = `HTML: ${htmlDuration.toFixed(2)} ms`;
+        div.querySelector('.mq-result').innerText = `MQ: ${mqDuration.toFixed(
+          2
+        )} ms`;
+        div.querySelector(
+          '.html-result'
+        ).innerText = `HTML: ${htmlDuration.toFixed(2)} ms`;
       }
 
       function printResults() {
-        document.querySelector('#all-results').value = `[${results.map(r => r.mqDuration.toFixed(2)).join(',')}]`;
+        document.querySelector('#all-results').value = `[${results
+          .map((r) => r.mqDuration.toFixed(2))
+          .join(',')}]`;
       }
 
       function randomLatex(depth = MAX_DEPTH) {
@@ -123,7 +144,7 @@
           [(a, b) => `${a}^{${b}}`, 2],
           [(a, b) => `${a}_{${b}}`, 2],
           [(...args) => `\\left[${args.join(',')}\\right]`, -1],
-          [a => `\\left(${a}\\right)`, 1]
+          [(a) => `\\left(${a}\\right)`, 1],
         ];
 
         let [fn, arity] =
@@ -147,7 +168,6 @@
       function randomInteger(maxDigits) {
         return Math.floor(random() * Math.pow(10, maxDigits));
       }
-
     </script>
   </body>
 </html>
