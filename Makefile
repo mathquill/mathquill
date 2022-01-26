@@ -177,7 +177,7 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 benchmark: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
-	@echo "** now open benchmark/select.html in your browser. **"
+	@echo "** now open benchmark/{render,select}.html in your browser. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/tsc-emit-only > $@
