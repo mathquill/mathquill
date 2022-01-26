@@ -114,7 +114,6 @@ interface $ {
   parent(): $;
   children(selector?: string): $;
   stop(): $;
-  html(): string;
   html(t: string): $;
   text(str: string): $;
   text(): string;

@@ -231,8 +231,8 @@ function getInterface(v: number) {
       return this.__controller.exportLatex();
     }
     html() {
-      return this.__controller.root.jQ
-        .html()
+      return this.__controller.root.jQ[0].innerHTML
+        .replace(/ jQuery\d+="(?:\d+|null)"/g, '')
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
         .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
