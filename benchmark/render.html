@@ -24,9 +24,6 @@
       .test-case {
         margin-top: 1em;
       }
-      .test-case-render {
-        display: flex
-      }
     </style>
   </head>
   <body>
@@ -62,28 +59,25 @@
       const NUM_SAMPLES = params.has('samples') ? parseInt(params.get('samples')) : 1;
       const random = new Math.seedrandom(params.get('seed'))
 
-      document.addEventListener('DOMContentLoaded', async () => {
-        for (let i = 0; i < NUM_SAMPLES; i++) {
-          const latex = randomLatex()
-          await run(latex);
-        }
-        printResults();
-      })
+      window.results = [];
+      for (let i = 0; i < NUM_SAMPLES; i++) {
+        const latex = randomLatex()
+        run(latex);
+      }
+      printResults();
 
       document.querySelector('#run-button').addEventListener('click', async () => {
-        await run(document.querySelector("textarea").value);
+        run(document.querySelector("textarea").value);
         printResults();
       })
 
-      const results = [];
-
-      async function run(latex) {
+      function run(latex) {
         const div = document.createElement('div');
         div.classList.add('test-case');
         div.innerHTML = `
             <div class="test-case-render">
-              <div class="mathquill-math-field"></div>
-              <div class="html-only mq-math-mode"></div>
+              <div><span class="mathquill-math-field"></span></div>
+              <div><span class="html-only mq-math-mode"></span></div>
             </div>
             <div class="mq-result"></div>
             <div class="html-result"></div>
@@ -97,11 +91,15 @@
 
         let start = performance.now();
         MQ.MathField(mqElement);
+        // Force syncronous layout
+        document.body.getBoundingClientRect();
         const mqDuration = performance.now() - start;
 
         const html = mqElement.innerHTML;
         start = performance.now();
         htmlElement.innerHTML = html;
+        // Force syncronous layout
+        document.body.getBoundingClientRect();
         const htmlDuration = performance.now() - start;
         results.push({latex, mqDuration, htmlDuration});
 
@@ -147,7 +145,7 @@
       }
 
       function randomInteger(maxDigits) {
-        return Math.floor((random() * 10) ^ maxDigits);
+        return Math.floor(random() * Math.pow(10, maxDigits));
       }
 
     </script>
