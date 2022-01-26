@@ -51,6 +51,7 @@
     </div>
 
     <script type="text/javascript">
+      const MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
       const params = new URLSearchParams(window.location.search);
       if (!params.has('seed')) {
         params.append('seed', Math.random().toString(16).slice(2, 10));
@@ -61,9 +62,18 @@
       const NUM_SAMPLES = params.has('samples') ? parseInt(params.get('samples')) : 1;
       const random = new Math.seedrandom(params.get('seed'))
 
-      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+      document.addEventListener('DOMContentLoaded', async () => {
+        for (let i = 0; i < NUM_SAMPLES; i++) {
+          const latex = randomLatex()
+          await run(latex);
+        }
+        printResults();
+      })
 
-      const performance = window.performance || Date;
+      document.querySelector('#run-button').addEventListener('click', async () => {
+        await run(document.querySelector("textarea").value);
+        printResults();
+      })
 
       const results = [];
 
@@ -72,9 +82,12 @@
         div.classList.add('test-case');
         div.innerHTML = `
             <div class="test-case-render">
-              <div class="mathquill-math-field"></div><br>
+              <div class="mathquill-math-field"></div>
               <div class="html-only mq-math-mode"></div>
-            </div>`;
+            </div>
+            <div class="mq-result"></div>
+            <div class="html-result"></div>
+            `;
         document.querySelector('#results').appendChild(div);
 
         const mqElement = div.querySelector(".mathquill-math-field");
@@ -91,31 +104,14 @@
         htmlElement.innerHTML = html;
         const htmlDuration = performance.now() - start;
         results.push({latex, mqDuration, htmlDuration});
-        const mqResult = document.createElement('div');
-        mqResult.innerText = `MQ: ${mqDuration.toFixed(2)} ms`
-        div.appendChild(mqResult);
-        const htmlResult = document.createElement('div');
-        htmlResult.innerText = `HTML: ${htmlDuration.toFixed(2)} ms`;
-        div.appendChild(htmlResult)
-        return div;
+
+        div.querySelector('.mq-result').innerText = `MQ: ${mqDuration.toFixed(2)} ms`;
+        div.querySelector('.html-result').innerText = `HTML: ${htmlDuration.toFixed(2)} ms`;
       }
 
       function printResults() {
         document.querySelector('#all-results').value = `[${results.map(r => r.mqDuration.toFixed(2)).join(',')}]`;
       }
-
-      document.addEventListener('DOMContentLoaded', async () => {
-        for (let i = 0; i < NUM_SAMPLES; i++) {
-          const latex = randomLatex()
-          await run(latex);
-        }
-        printResults();
-      })
-
-      document.querySelector('#run-button').addEventListener('click', async () => {
-        await run(document.querySelector("textarea").value);
-        printResults();
-      })
 
       function randomLatex(depth = MAX_DEPTH) {
         if (depth <= 0) {
