@@ -161,12 +161,15 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 lint:
 	npx tsc --noEmit
 
-.PHONY: test server run-server
+.PHONY: test server benchmark
 server:
 	node script/test_server.js
 test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
+benchmark: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
+	@echo
+	@echo "** now open benchmark/select.html in your browser. **"
 
 $(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/tsc-emit-only > $@
