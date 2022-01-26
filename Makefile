@@ -102,7 +102,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 # -*- Build tasks -*-
 #
 
-.PHONY: all basic dev js uglify css font clean setup-gitconfig
+.PHONY: all basic dev js uglify css font clean setup-gitconfig prettify-all
 all: font css uglify
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
 unminified_basic: $(BASIC_JS) $(BASIC_CSS)
@@ -120,6 +120,8 @@ clean:
 # that tells git to include the additional configuration specified inside the .gitconfig file that's checked in here.
 setup-gitconfig:
 	@git config --local include.path ../.gitconfig
+prettify-all:
+	npx prettier --write '**/*.{ts,js,css,html}'
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii | ./script/tsc-emit-only > $@
