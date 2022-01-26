@@ -22,7 +22,7 @@
     "uglify-js": "2.x"
   },
   "lint-staged": {
-    "*.{ts,js,css,md}": "prettier --write"
+    "*.{ts,js,css,md,html}": "prettier --write"
   },
   "scripts": {
     "prepare": "husky install"
