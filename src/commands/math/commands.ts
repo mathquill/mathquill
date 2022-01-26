@@ -423,19 +423,21 @@ class SupSub extends MathCommand {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
-      block.jQ = $('<span class="mq-sup"/>')
+      block.jQ = $(h('span', { class: 'mq-sup' }))
         .append(block.jQ.children())
         .prependTo(this.jQ);
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
-      block.jQ = $('<span class="mq-sub"></span>')
+      block.jQ = $(h('span', { class: 'mq-sub' }))
         .append(block.jQ.children())
         .appendTo(this.jQ.removeClass('mq-sup-only'));
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
       this.jQ.append(
-        '<span style="display:inline-block;width:0">&#8203;</span>'
+        h('span', { style: 'display:inline-block;width:0' }, [
+          document.createTextNode('\u200B'),
+        ])
       );
     }
 

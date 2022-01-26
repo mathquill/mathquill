@@ -77,7 +77,6 @@ declare var validateAutoCommandsOption: any;
 type JQSelector =
   | $
   | HTMLElement
-  | string
   | null
   | Window
   | NodeListOf<ChildNode>

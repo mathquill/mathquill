@@ -45,7 +45,12 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>'));
+    var jQ =
+      (this.jQ =
+      this._jQ =
+        $(
+          h('span', { class: 'mq-cursor' }, [document.createTextNode('\u200B')])
+        ));
     //closured for setInterval
     this.blink = function () {
       jQ.toggleClass('mq-blink');
@@ -367,7 +372,7 @@ class MQSelection extends Fragment {
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
-    this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
+    this.jQ = this.jQ.wrapAll(h('span', { class: 'mq-selection' })).parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   }
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {

@@ -229,7 +229,7 @@ class NodeBase {
    */
   jQize(el?: $ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ: $ = $(el || this.html());
+    var jQ: $ = $(el || parseHTML(this.html()));
 
     function jQadd(el: HTMLElement | ChildNode) {
       if ('getAttribute' in el) {
