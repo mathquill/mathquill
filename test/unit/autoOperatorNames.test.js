@@ -5,7 +5,7 @@ suite('autoOperatorNames', function() {
   };
   var subscriptConfig = {
     autoCommands: 'sum int',
-    disableAutoOpsInSubscripts: true
+    disableAutoSubstitutionInSubscripts: true
   };
 
   setup(function() {

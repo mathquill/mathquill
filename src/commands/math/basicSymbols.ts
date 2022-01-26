@@ -322,8 +322,8 @@ class Letter extends Variable {
     this.letter = ch;
   };
   checkAutoCmds (cursor:Cursor) {
-    //exit early if in simple subscript and disableAutoOpsInSubscripts is set.
-    if (this.shouldIgnoreOpInParentSimpleSubscript(cursor.options)) {
+    //exit early if in simple subscript and disableAutoSubstitutionInSubscripts is set.
+    if (this.shouldIgnoreSubstitutionInSimpleSubscript(cursor.options)) {
       return;
     }
 
@@ -373,8 +373,8 @@ class Letter extends Variable {
       return
     }
 
-    //exit early if in simple subscript and disableAutoOpsInSubscripts is set.
-    if (this.shouldIgnoreOpInParentSimpleSubscript(cursor.options)) {
+    //exit early if in simple subscript and disableAutoSubstitutionInSubscripts is set.
+    if (this.shouldIgnoreSubstitutionInSimpleSubscript(cursor.options)) {
       return;
     }
 
@@ -426,8 +426,8 @@ class Letter extends Variable {
     var autoOps = opts.autoOperatorNames;
     if (autoOps._maxLength === 0) return;
 
-    //exit early if in simple subscript and disableAutoOpsInSubscripts is set.
-    if (this.shouldIgnoreOpInParentSimpleSubscript(opts)) {
+    //exit early if in simple subscript and disableAutoSubstitutionInSubscripts is set.
+    if (this.shouldIgnoreSubstitutionInSimpleSubscript(opts)) {
       return;
     }
 

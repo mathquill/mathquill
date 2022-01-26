@@ -53,7 +53,7 @@ class Options {
   autoCommands: AutoDict;
   autoParenthesizedFunctions: AutoDict;
   quietEmptyDelimiters: { [id:string]:any; };
-  disableAutoOpsInSubscripts?: boolean;
+  disableAutoSubstitutionInSubscripts?: boolean;
   handlers: HandlerOptions
 };
 class Progenote {}

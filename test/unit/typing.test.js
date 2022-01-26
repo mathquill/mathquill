@@ -1054,7 +1054,7 @@ suite('typing with auto-replaces', function() {
       autoParenthesizedFunctions: 'sin cos tan ln',
       autoOperatorNames: 'sin ln',
       autoCommands: 'sum int',
-      disableAutoOpsInSubscripts: true
+      disableAutoSubstitutionInSubscripts: true
     };
 
     setup(function() {
@@ -1162,7 +1162,7 @@ suite('typing with auto-replaces', function() {
     var subscriptConfig = {
       autoOperatorNames: 'sin pp',
       autoCommands: 'pi tau phi theta Gamma sum prod sqrt nthroot cbrt percent',
-      disableAutoOpsInSubscripts: true
+      disableAutoSubstitutionInSubscripts: true
     };
 
     setup(function() {
