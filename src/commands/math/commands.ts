@@ -287,6 +287,31 @@ class SupSub extends MathCommand {
   sup?: MathBlock;
   supsub: 'sup' | 'sub';
 
+  protected ends: Ends<MathBlock>;
+
+  setEnds(ends: Ends<MathBlock>) {
+    pray(
+      'SupSub ends must be MathBlocks',
+      ends[L] instanceof MathBlock && ends[R] instanceof MathBlock
+    );
+    this.ends = ends;
+  }
+
+  setEndsDisown(ends: Ends<NodeRef>) {
+    if (ends[L] instanceof MathBlock && ends[R] instanceof MathBlock) {
+      this.setEnds(ends as Ends<MathBlock>);
+    } else {
+      // Preserve invariant that math commands never have empty ends by
+      // setting ends to an empty block
+      const emptyBlock = new MathBlock();
+      this.setEnds({ [L]: emptyBlock, [R]: emptyBlock });
+    }
+  }
+
+  endRef(dir: Direction): MathBlock {
+    return this.ends[dir];
+  }
+
   createLeftOf(cursor: Cursor) {
     if (
       !this.replacedFragment &&
@@ -511,7 +536,7 @@ class SubscriptCommand extends SupSub {
   ariaLabel = 'subscript';
 
   finalizeTree() {
-    this.downInto = this.sub = this.endRef(L) as MathBlock;
+    this.downInto = this.sub = this.endRef(L);
     this.sub.upOutOf = insLeftOfMeUnlessAtEnd;
     super.finalizeTree();
   }
@@ -573,7 +598,7 @@ LatexCmds.superscript =
       ariaLabel = 'superscript';
       mathspeakTemplate = ['Superscript,', ', Baseline'];
       finalizeTree() {
-        this.upInto = this.sup = this.endRef(R) as MathBlock;
+        this.upInto = this.sup = this.endRef(R);
         this.sup.downOutOf = insLeftOfMeUnlessAtEnd;
         super.finalizeTree();
       }
