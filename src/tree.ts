@@ -81,7 +81,10 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-function eachNode(ends: Ends, yield_: (el: MQNode) => boolean | undefined) {
+function eachNode(
+  ends: Ends<NodeRef>,
+  yield_: (el: MQNode) => boolean | undefined
+) {
   var el = ends[L];
   if (!el) return;
 
@@ -100,7 +103,7 @@ function eachNode(ends: Ends, yield_: (el: MQNode) => boolean | undefined) {
 }
 
 function foldNodes<T>(
-  ends: Ends,
+  ends: Ends<NodeRef>,
   fold: T,
   yield_: (fold: T, el: MQNode) => T
 ): T {
@@ -127,15 +130,10 @@ type HTMLElementTrackingNode = {
   mqCmdNode?: NodeBase;
 };
 
-interface Ends {
-  [L]: NodeRef;
-  [R]: NodeRef;
-}
-
-interface DefiniteEnds {
-  [L]: MQNode;
-  [R]: MQNode;
-}
+type Ends<T> = {
+  readonly [L]: T;
+  readonly [R]: T;
+};
 
 /**
  * MathQuill virtual-DOM tree-node abstract base class
@@ -191,9 +189,9 @@ class NodeBase {
   parent: MQNode = 0 as any as MQNode;
 
   /** The (doubly-linked) list of this node's children. */
-  private ends: Readonly<Ends> = { [L]: 0, [R]: 0 };
+  private ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
 
-  setEnds(ends: Ends) {
+  setEnds(ends: Ends<NodeRef>) {
     this.ends = ends;
     pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
   }
@@ -478,7 +476,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  */
 class Fragment {
   /** The (doubly-linked) list of nodes contained in this fragment. */
-  readonly ends: Readonly<DefiniteEnds> | undefined;
+  readonly ends: Ends<MQNode> | undefined;
 
   jQ = defaultJQ;
   disowned: boolean = false;
