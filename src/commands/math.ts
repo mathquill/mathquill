@@ -99,17 +99,6 @@ class MathCommand extends MathElement {
     this.ends = ends;
   }
 
-  setEndsDisown(ends: Ends<NodeRef>) {
-    if (ends[L] && ends[R]) {
-      this.setEnds(ends as Ends<MQNode>);
-    } else {
-      // Preserve invariant that math commands never have empty ends by
-      // setting ends to an empty block
-      const emptyBlock = new MathBlock();
-      this.setEnds({ [L]: emptyBlock, [R]: emptyBlock });
-    }
-  }
-
   getEnd(dir: Direction): MQNode {
     return this.ends[dir];
   }

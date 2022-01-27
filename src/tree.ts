@@ -193,18 +193,19 @@ class NodeBase {
    *
    * NOTE child classes may specify a narrower type for ends e.g. to
    * enforce that children are not empty, or that they have a certain
-   * type.
+   * type. In those cases, this initializer may still run at
+   * construction time, but this is expected to be followed by a call
+   * to adopt that sets non-empty ends of the necessary types.
+   *
+   * Similarly, `Fragment::disown` may temporarily break non-empty
+   * invariants, which are expected to be restored by a subsequent call
+   * to `Fragment::adopt`.
    * */
   protected ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
 
   setEnds(ends: Ends<NodeRef>) {
     this.ends = ends;
     pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
-  }
-
-  /** Children may override this to preserve end type invariants */
-  setEndsDisown(ends: Ends<NodeRef>) {
-    this.setEnds(ends);
   }
 
   getEnd(dir: Direction) {
@@ -642,7 +643,19 @@ class Fragment {
       ends[R] = leftEnd[L];
     }
 
-    parent.setEndsDisown(ends);
+    if (ends[L] && ends[R]) {
+      parent.setEnds(ends);
+    } else {
+      // some child classes of MQNode try to enforce that their ends
+      // are never empty through the type system. However, disown may
+      // temporarily break this invariant in which case it's expected
+      // that adopt will later be called to fix the invariant.
+      //
+      // Cast away the protected status of the ends property and write
+      // to it directly to get around runtime assertions in setEnds that
+      // enforce non-emptyness.
+      (parent as any).ends = ends;
+    }
 
     return self;
   }

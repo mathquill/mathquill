@@ -297,17 +297,6 @@ class SupSub extends MathCommand {
     this.ends = ends;
   }
 
-  setEndsDisown(ends: Ends<MathBlock | 0>) {
-    if (ends[L] instanceof MathBlock && ends[R] instanceof MathBlock) {
-      this.setEnds(ends as Ends<MathBlock>);
-    } else {
-      // Preserve invariant that SupSub ends are always MathBlocks by
-      // setting ends to an empty MathBlock
-      const emptyBlock = new MathBlock();
-      this.setEnds({ [L]: emptyBlock, [R]: emptyBlock });
-    }
-  }
-
   getEnd(dir: Direction): MathBlock {
     return this.ends[dir];
   }
