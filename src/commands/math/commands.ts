@@ -301,8 +301,8 @@ class SupSub extends MathCommand {
     if (ends[L] instanceof MathBlock && ends[R] instanceof MathBlock) {
       this.setEnds(ends as Ends<MathBlock>);
     } else {
-      // Preserve invariant that math commands never have empty ends by
-      // setting ends to an empty block
+      // Preserve invariant that SupSub ends are always MathBlocks by
+      // setting ends to an empty MathBlock
       const emptyBlock = new MathBlock();
       this.setEnds({ [L]: emptyBlock, [R]: emptyBlock });
     }

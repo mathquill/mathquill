@@ -188,7 +188,13 @@ class NodeBase {
   // TODO - can this ever actually stay 0? if so we need to add null checks
   parent: MQNode = 0 as any as MQNode;
 
-  /** The (doubly-linked) list of this node's children. */
+  /**
+   * The (doubly-linked) list of this node's children.
+   *
+   * NOTE child classes may specify a narrower type for ends e.g. to
+   * enforce that children are not empty, or that they have a certain
+   * type.
+   * */
   protected ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
 
   setEnds(ends: Ends<NodeRef>) {
@@ -480,7 +486,12 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 class Fragment {
-  /** The (doubly-linked) list of nodes contained in this fragment. */
+  /**
+   * The (doubly-linked) list of nodes contained in this fragment.
+   *
+   * NOTE child classes may specify a narrower type for ends e.g. to
+   * enforce that the Fragment is not empty.
+   * */
   protected ends: Ends<NodeRef>;
 
   jQ = defaultJQ;
