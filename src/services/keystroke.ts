@@ -415,13 +415,13 @@ class Controller_keystroke extends Controller_focusBlur {
     var fragRemoved;
     if (dir === L) {
       fragRemoved = new Fragment(
-        (cursor.parent as MQNode).endRef(L) as MQNode,
-        cursor[L] as MQNode
+        (cursor.parent as MQNode).endRef(L),
+        cursor[L]
       );
     } else {
       fragRemoved = new Fragment(
-        cursor[R] as MQNode,
-        (cursor.parent as MQNode).endRef(R) as MQNode
+        cursor[R],
+        (cursor.parent as MQNode).endRef(R)
       );
     }
     cursor.controller.aria.queue(fragRemoved);

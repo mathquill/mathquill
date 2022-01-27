@@ -159,7 +159,7 @@ suite('tree', function () {
 
   suite('fragments', function () {
     test('an empty fragment', function () {
-      var empty = new Fragment();
+      var empty = new Fragment(0, 0);
       var count = 0;
 
       empty.each(function () {

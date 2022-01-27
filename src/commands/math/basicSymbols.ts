@@ -364,7 +364,7 @@ class Letter extends Variable {
           l = this;
           for (i = 1; l && i < str.length; i += 1, l = l[L]);
 
-          new Fragment(l as MQNode, this).remove();
+          new Fragment(l, this).remove();
           cursor[L] = (l as MQNode)[L];
 
           var cmd = LatexCmds[str];
@@ -467,18 +467,17 @@ class Letter extends Variable {
     var lR = l && l[R];
     var rL = r && r[L];
 
-    new Fragment(
-      lR || (this.parent.endRef(L) as MQNode),
-      rL || (this.parent.endRef(R) as MQNode)
-    ).each(function (el) {
-      if (el instanceof Letter) {
-        el.italicize(true).jQ.removeClass(
-          'mq-first mq-last mq-followed-by-supsub'
-        );
-        el.ctrlSeq = el.letter;
+    new Fragment(lR || this.parent.endRef(L), rL || this.parent.endRef(R)).each(
+      function (el) {
+        if (el instanceof Letter) {
+          el.italicize(true).jQ.removeClass(
+            'mq-first mq-last mq-followed-by-supsub'
+          );
+          el.ctrlSeq = el.letter;
+        }
+        return undefined;
       }
-      return undefined;
-    });
+    );
 
     let autoOpsLength = autoOps._maxLength || 0;
 

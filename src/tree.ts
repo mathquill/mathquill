@@ -339,7 +339,7 @@ class NodeBase {
   }
 
   children() {
-    return new Fragment(this.ends[L] as MQNode, this.ends[R] as MQNode);
+    return new Fragment(this.endRef(L), this.endRef(R));
   }
 
   eachChild(yield_: (el: MQNode) => boolean | undefined) {
@@ -488,7 +488,7 @@ class Fragment {
   jQ = defaultJQ;
   disowned: boolean = false;
 
-  constructor(withDir?: MQNode, oppDir?: MQNode, dir?: Direction) {
+  constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
     if (dir === undefined) dir = L;
     prayDirection(dir);
 

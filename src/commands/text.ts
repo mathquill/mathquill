@@ -64,7 +64,7 @@ class TextBlock extends MQNode {
       .then(regex(/^[^}]*/))
       .skip(string('}'))
       .map(function (text) {
-        if (text.length === 0) return new Fragment();
+        if (text.length === 0) return new Fragment(0, 0);
 
         new TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;

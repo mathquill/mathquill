@@ -1145,8 +1145,8 @@ class Bracket extends DelimsNode {
       if (brack === cursor.parent.parent && cursor[side as Direction]) {
         // move the stuff between
         new Fragment(
-          cursor[side as Direction] as MQNode,
-          cursor.parent.endRef(side as Direction) as MQNode,
+          cursor[side as Direction],
+          cursor.parent.endRef(side as Direction),
           -side as Direction
         ) // me and ghost outside
           .disown()
@@ -1170,8 +1170,8 @@ class Bracket extends DelimsNode {
         // elsewise, auto-expand so ghost is at far end
         brack.replaces(
           new Fragment(
-            cursor[-side as Direction] as MQNode,
-            cursor.parent.endRef(-side as Direction) as MQNode,
+            cursor[-side as Direction],
+            cursor.parent.endRef(-side as Direction),
             side as Direction
           )
         );
@@ -1251,7 +1251,7 @@ class Bracket extends DelimsNode {
       if (sib) {
         // auto-expand so ghost is at far end
         var origEnd = (this.endRef(L) as MQNode).endRef(side);
-        new Fragment(sib, farEnd as MQNode, -side as Direction)
+        new Fragment(sib, farEnd, -side as Direction)
           .disown()
           .withDirAdopt(
             -side as Direction,
