@@ -261,7 +261,7 @@ function getInterface(v: number) {
       return this;
     }
     blur() {
-      this.__controller.getTextareaOrThrow().blur();
+      this.__controller.getTextareaOrThrow()[0].blur();
       return this;
     }
     write(latex: string) {

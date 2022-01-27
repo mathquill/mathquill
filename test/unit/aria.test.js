@@ -114,6 +114,7 @@ suite('aria', function () {
   });
 
   test('testing aria-label for interactive and static math', function (done) {
+    mathField.focus();
     mathField.typedText('sqrt(x)');
     mathField.blur();
     setTimeout(function () {
