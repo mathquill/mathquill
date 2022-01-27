@@ -61,7 +61,7 @@ class Cursor extends Point {
       //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
         var selection = this.selection;
-        if (selection && (selection.ends[L] as MQNode)[L] === this[L])
+        if (selection && selection.ends && selection.ends[L][L] === this[L])
           this.jQ.insertBefore(selection.jQ);
         else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
       } else this.jQ.appendTo(this.parent.jQ);
@@ -305,7 +305,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.ends[dir] as MQNode;
+    var insEl = this.selection!.ends![dir];
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -327,19 +327,19 @@ class Cursor extends Point {
   }
   deleteSelection() {
     var selection = this.selection;
-    if (!selection) return;
+    if (!selection || !selection.ends) return;
 
-    this[L] = (selection.ends[L] as MQNode)[L];
-    this[R] = (selection.ends[R] as MQNode)[R];
+    this[L] = selection.ends[L][L];
+    this[R] = selection.ends[R][R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
   }
   replaceSelection() {
     var seln = this.selection;
-    if (seln) {
-      this[L] = (seln.ends[L] as MQNode)[L];
-      this[R] = (seln.ends[R] as MQNode)[R];
+    if (seln && seln.ends) {
+      this[L] = seln.ends[L][L];
+      this[R] = seln.ends[R][R];
       delete this.selection;
     }
     return seln;

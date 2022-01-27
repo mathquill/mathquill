@@ -30,12 +30,12 @@ class Controller_scrollHoriz extends Controller_mouse {
     var cursor = this.cursor,
       seln = cursor.selection;
     var rootRect = this.root.jQ[0].getBoundingClientRect();
-    if (!cursor.jQ[0] && !seln) {
+    if (!cursor.jQ[0] && !(seln && seln.ends)) {
       this.root.jQ.stop().animate({ scrollLeft: 0 }, 100, () => {
         this.setOverflowClasses();
       });
       return;
-    } else if (!seln) {
+    } else if (!(seln && seln.ends)) {
       var x = cursor.jQ[0].getBoundingClientRect().left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
       else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);

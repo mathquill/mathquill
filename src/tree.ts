@@ -127,10 +127,15 @@ type HTMLElementTrackingNode = {
   mqCmdNode?: NodeBase;
 };
 
-type Ends = {
+interface Ends {
   [L]: NodeRef;
   [R]: NodeRef;
-};
+}
+
+interface DefiniteEnds {
+  [L]: MQNode;
+  [R]: MQNode;
+}
 
 /**
  * MathQuill virtual-DOM tree-node abstract base class
@@ -464,10 +469,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  */
 class Fragment {
   /** The (doubly-linked) list of nodes contained in this fragment. */
-  ends: {
-    [L]?: MQNode;
-    [R]?: MQNode;
-  };
+  readonly ends: Readonly<DefiniteEnds> | undefined;
 
   jQ = defaultJQ;
   disowned: boolean = false;
@@ -478,7 +480,7 @@ class Fragment {
 
     pray('no half-empty fragments', !withDir === !oppDir);
 
-    this.ends = {};
+    this.ends = undefined;
 
     if (!withDir || !oppDir) return;
 
@@ -489,8 +491,13 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    this.ends[dir as Direction] = withDir;
-    this.ends[-dir as Direction] = oppDir;
+    const ends = {} as {
+      [L]: MQNode;
+      [R]: MQNode;
+    };
+    ends[dir] = withDir;
+    ends[-dir as Direction] = oppDir;
+    this.ends = ends;
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the
@@ -529,12 +536,10 @@ class Fragment {
 
     var self = this;
     this.disowned = false;
+    if (!self.ends) return this;
 
     var leftEnd = self.ends[L];
-    if (!leftEnd) return this;
-
     var rightEnd = self.ends[R];
-    if (!rightEnd) return this;
 
     if (leftward) {
       // NB: this is handled in the ::each() block
@@ -568,13 +573,13 @@ class Fragment {
    */
   disown() {
     var self = this;
-    var leftEnd = self.ends[L];
 
     // guard for empty and already-disowned fragments
-    if (!leftEnd || self.disowned) return self;
+    if (!self.ends || self.disowned) return self;
 
     this.disowned = true;
 
+    var leftEnd = self.ends[L];
     var rightEnd = self.ends[R];
     if (!rightEnd) return self;
     var parent = leftEnd.parent;
@@ -605,12 +610,14 @@ class Fragment {
   }
 
   each(yield_: (el: MQNode) => boolean | undefined) {
-    eachNode(this.ends as Ends, yield_); // TODO - the types of Ends are not compatible
+    if (!this.ends) return this;
+    eachNode(this.ends, yield_);
     return this;
   }
 
   fold<T>(fold: T, yield_: (fold: T, el: MQNode) => T) {
-    return foldNodes(this.ends as Ends, fold, yield_); // TODO - the types of Ends are not compatible
+    if (!this.ends) return fold;
+    return foldNodes(this.ends, fold, yield_);
   }
 }
 

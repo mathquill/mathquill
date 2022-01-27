@@ -266,7 +266,7 @@ function getCtrlSeqsFromBlock(block: NodeRef): string {
   if (!block) return '';
 
   var children = block.children();
-  if (!children || !children.ends[L]) return '';
+  if (!children.ends) return '';
 
   var chars = '';
   for (
@@ -325,7 +325,7 @@ class SupSub extends MathCommand {
             // ins src children at -dir end of dest
             src.jQ.children().insAtDirEnd(-dir as Direction, dest.jQ);
             var children = src.children().disown();
-            pt = new Point(dest, children.ends[R], dest.ends[L]);
+            pt = new Point(dest, children.ends![R], dest.ends[L]);
             if (dir === L) children.adopt(dest, dest.ends[R], 0);
             else children.adopt(dest, 0, dest.ends[L]);
           } else {
