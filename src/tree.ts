@@ -191,15 +191,10 @@ class NodeBase {
   parent: MQNode = 0 as any as MQNode;
 
   /** The (doubly-linked) list of this node's children. */
-  private ends: Ends = { [L]: 0, [R]: 0 };
+  private ends: Readonly<Ends> = { [L]: 0, [R]: 0 };
 
   setEnds(ends: Ends) {
     this.ends = ends;
-    pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
-  }
-
-  setEnd(dir: Direction, ref: NodeRef) {
-    this.ends[dir] = ref;
     pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
   }
 

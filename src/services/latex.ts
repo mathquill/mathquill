@@ -201,7 +201,9 @@ class Controller_latex extends Controller_keystroke {
 
       oldCharNodes[0][L] = oldMinusNode[L];
 
-      if (root.endRef(L) === oldMinusNode) root.setEnd(L, oldCharNodes[0]);
+      if (root.endRef(L) === oldMinusNode) {
+        root.setEnds({ [L]: oldCharNodes[0], [R]: root.endRef(R) });
+      }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
       oldMinusNode.jQ.remove();
@@ -216,7 +218,9 @@ class Controller_latex extends Controller_keystroke {
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
-      if (root.endRef(L) === oldCharNodes[0]) root.setEnd(L, newMinusNode);
+      if (root.endRef(L) === oldCharNodes[0]) {
+        root.setEnds({ [L]: newMinusNode, [R]: root.endRef(R) });
+      }
 
       newMinusNode.parent = root;
       newMinusNode[L] = oldCharNodes[0][L];
@@ -242,7 +246,7 @@ class Controller_latex extends Controller_keystroke {
     // remove the extra digits at the end
     if (oldDigits.length > newDigits.length) {
       charNode = oldCharNodes[newDigits.length - 1];
-      root.setEnd(R, charNode);
+      root.setEnds({ [L]: root.endRef(L), [R]: charNode });
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
@@ -270,7 +274,7 @@ class Controller_latex extends Controller_keystroke {
 
         const newNodeL = newNode[L] as MQNode;
         newNodeL[R] = newNode;
-        root.setEnd(R, newNode);
+        root.setEnds({ [L]: root.endRef(L), [R]: newNode });
       }
 
       root.jQ[0].appendChild(frag);
