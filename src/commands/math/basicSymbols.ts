@@ -364,7 +364,7 @@ class Letter extends Variable {
           l = this;
           for (i = 1; l && i < str.length; i += 1, l = l[L]);
 
-          new Fragment(l as MQNode, this).remove();
+          new Fragment(l, this).remove();
           cursor[L] = (l as MQNode)[L];
 
           var cmd = LatexCmds[str];
@@ -384,7 +384,7 @@ class Letter extends Variable {
 
   autoParenthesize(cursor: Cursor) {
     //exit early if already parenthesized
-    var right = cursor.parent.ends[R];
+    var right = cursor.parent.getEnd(R);
     if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
       return;
     }
@@ -467,25 +467,24 @@ class Letter extends Variable {
     var lR = l && l[R];
     var rL = r && r[L];
 
-    new Fragment(
-      lR || (this.parent.ends[L] as MQNode),
-      rL || (this.parent.ends[R] as MQNode)
-    ).each(function (el) {
-      if (el instanceof Letter) {
-        el.italicize(true).jQ.removeClass(
-          'mq-first mq-last mq-followed-by-supsub'
-        );
-        el.ctrlSeq = el.letter;
+    new Fragment(lR || this.parent.getEnd(L), rL || this.parent.getEnd(R)).each(
+      function (el) {
+        if (el instanceof Letter) {
+          el.italicize(true).jQ.removeClass(
+            'mq-first mq-last mq-followed-by-supsub'
+          );
+          el.ctrlSeq = el.letter;
+        }
+        return undefined;
       }
-      return undefined;
-    });
+    );
 
     let autoOpsLength = autoOps._maxLength || 0;
 
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
     outer: for (
-      var i = 0, first = (l as MQNode)[R] || this.parent.ends[L];
+      var i = 0, first = (l as MQNode)[R] || this.parent.getEnd(L);
       first && i < str.length;
       i += 1, first = (first as MQNode)[R]
     ) {
@@ -658,7 +657,7 @@ class OperatorName extends MQSymbol {
     var fn = this.ctrlSeq;
     var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
-      new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
+      new Letter(fn.charAt(i)).adopt(block, block.getEnd(R), 0);
     }
     return Parser.succeed(block.children());
   }
@@ -899,13 +898,13 @@ class LatexFragment extends MathCommand {
     block
       .children()
       .adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
-    cursor[L] = block.ends[R];
+    cursor[L] = block.getEnd(R);
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor.options, cursor);
-    var blockEndsR = block.ends[R];
+    var blockEndsR = block.getEnd(R);
     var blockEndsRR = blockEndsR && blockEndsR[R];
     if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
-    var blockEndsL = block.ends[L];
+    var blockEndsL = block.getEnd(L);
     var blockEndsLL = blockEndsL && blockEndsL[L];
     if (blockEndsLL) blockEndsLL.siblingCreated(cursor.options, R);
     cursor.parent.bubble(function (node) {

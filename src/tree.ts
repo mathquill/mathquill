@@ -22,17 +22,17 @@ $.fn.insAtDirEnd = function (dir: Direction, el: $) {
 /** A cursor-like location in an mq node tree. */
 class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */
-  [L]?: NodeRef;
+  [L]: NodeRef;
   /** The node to the right of this point (or 0 for the position after a last child) */
-  [R]?: NodeRef;
+  [R]: NodeRef;
   parent: MQNode;
 
-  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  constructor(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.init(parent, leftward, rightward);
   }
 
   // keeping init around only for tests
-  init(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  init(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
@@ -81,7 +81,10 @@ class Point {
   and NOT linked between the time we schedule the cleaning step and actually do it.
 */
 
-function eachNode(ends: Ends, yield_: (el: MQNode) => boolean | undefined) {
+function eachNode(
+  ends: Ends<NodeRef>,
+  yield_: (el: MQNode) => boolean | undefined
+) {
   var el = ends[L];
   if (!el) return;
 
@@ -100,7 +103,7 @@ function eachNode(ends: Ends, yield_: (el: MQNode) => boolean | undefined) {
 }
 
 function foldNodes<T>(
-  ends: Ends,
+  ends: Ends<NodeRef>,
   fold: T,
   yield_: (fold: T, el: MQNode) => T
 ): T {
@@ -127,9 +130,9 @@ type HTMLElementTrackingNode = {
   mqCmdNode?: NodeBase;
 };
 
-type Ends = {
-  [L]: NodeRef;
-  [R]: NodeRef;
+type Ends<T> = {
+  readonly [L]: T;
+  readonly [R]: T;
 };
 
 /**
@@ -185,8 +188,29 @@ class NodeBase {
   // TODO - can this ever actually stay 0? if so we need to add null checks
   parent: MQNode = 0 as any as MQNode;
 
-  /** The (doubly-linked) list of this node's children. */
-  ends: Ends = { [L]: 0, [R]: 0 };
+  /**
+   * The (doubly-linked) list of this node's children.
+   *
+   * NOTE child classes may specify a narrower type for ends e.g. to
+   * enforce that children are not empty, or that they have a certain
+   * type. In those cases, this initializer may still run at
+   * construction time, but this is expected to be followed by a call
+   * to adopt that sets non-empty ends of the necessary types.
+   *
+   * Similarly, `Fragment::disown` may temporarily break non-empty
+   * invariants, which are expected to be restored by a subsequent call
+   * to `Fragment::adopt`.
+   * */
+  protected ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
+
+  setEnds(ends: Ends<NodeRef>) {
+    this.ends = ends;
+    pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
+  }
+
+  getEnd(dir: Direction) {
+    return this.ends[dir];
+  }
 
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
@@ -320,7 +344,7 @@ class NodeBase {
   }
 
   children() {
-    return new Fragment(this.ends[L] as MQNode, this.ends[R] as MQNode);
+    return new Fragment(this.getEnd(L), this.getEnd(R));
   }
 
   eachChild(yield_: (el: MQNode) => boolean | undefined) {
@@ -335,8 +359,8 @@ class NodeBase {
   withDirAdopt(
     dir: Direction,
     parent: MQNode,
-    withDir: MQNode,
-    oppDir: MQNode
+    withDir: NodeRef,
+    oppDir: NodeRef
   ) {
     const self = this.getSelfNode();
     new Fragment(self, self).withDirAdopt(dir, parent, withDir, oppDir);
@@ -431,7 +455,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'leftward is properly set up',
     (function () {
       // either it's empty and `rightward` is the left end child (possibly empty)
-      if (!leftward) return parent.ends[L] === rightward;
+      if (!leftward) return parent.getEnd(L) === rightward;
 
       // or it's there and its [R] and .parent are properly set up
       return leftward[R] === rightward && leftward.parent === parent;
@@ -442,7 +466,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'rightward is properly set up',
     (function () {
       // either it's empty and `leftward` is the right end child (possibly empty)
-      if (!rightward) return parent.ends[R] === leftward;
+      if (!rightward) return parent.getEnd(R) === leftward;
 
       // or it's there and its [L] and .parent are properly set up
       return rightward[L] === leftward && rightward.parent === parent;
@@ -463,24 +487,27 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  * and have their 'parent' pointers set to the DocumentFragment).
  */
 class Fragment {
-  /** The (doubly-linked) list of nodes contained in this fragment. */
-  ends: {
-    [L]?: MQNode;
-    [R]?: MQNode;
-  };
+  /**
+   * The (doubly-linked) list of nodes contained in this fragment.
+   *
+   * NOTE child classes may specify a narrower type for ends e.g. to
+   * enforce that the Fragment is not empty.
+   * */
+  protected ends: Ends<NodeRef>;
 
   jQ = defaultJQ;
   disowned: boolean = false;
 
-  constructor(withDir?: MQNode, oppDir?: MQNode, dir?: Direction) {
+  constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
     if (dir === undefined) dir = L;
     prayDirection(dir);
 
     pray('no half-empty fragments', !withDir === !oppDir);
 
-    this.ends = {};
-
-    if (!withDir || !oppDir) return;
+    if (!withDir || !oppDir) {
+      this.setEnds({ [L]: 0, [R]: 0 });
+      return;
+    }
 
     pray('withDir is passed to Fragment', withDir instanceof MQNode);
     pray('oppDir is passed to Fragment', oppDir instanceof MQNode);
@@ -489,8 +516,10 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    this.ends[dir as Direction] = withDir;
-    this.ends[-dir as Direction] = oppDir;
+    this.setEnds({
+      [dir as Direction]: withDir,
+      [-dir as Direction]: oppDir,
+    } as Ends<NodeRef>);
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the
@@ -505,6 +534,19 @@ class Fragment {
     });
 
     this.jQ = this.jQ.add(accum);
+  }
+
+  /**
+   * Note, children may override this to enforce extra invariants,
+   * (e.g. that ends are always defined). Ends should only be set
+   * through this function.
+   */
+  setEnds(ends: Ends<NodeRef>) {
+    this.ends = ends;
+  }
+
+  getEnd(dir: Direction): NodeRef {
+    return this.ends ? this.ends[dir] : 0;
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
@@ -536,18 +578,22 @@ class Fragment {
     var rightEnd = self.ends[R];
     if (!rightEnd) return this;
 
+    var ends = { [L]: parent.getEnd(L), [R]: parent.getEnd(R) };
+
     if (leftward) {
       // NB: this is handled in the ::each() block
       // leftward[R] = leftEnd
     } else {
-      parent.ends[L] = leftEnd;
+      ends[L] = leftEnd;
     }
 
     if (rightward) {
       rightward[L] = rightEnd;
     } else {
-      parent.ends[R] = rightEnd;
+      ends[R] = rightEnd;
     }
+
+    parent.setEnds(ends);
 
     rightEnd[R] = rightward;
 
@@ -582,18 +628,33 @@ class Fragment {
     prayWellFormed(parent, leftEnd[L], leftEnd);
     prayWellFormed(parent, rightEnd, rightEnd[R]);
 
+    var ends = { [L]: parent.getEnd(L), [R]: parent.getEnd(R) };
     if (leftEnd[L]) {
       var leftLeftEnd = leftEnd[L] as MQNode;
       leftLeftEnd[R] = rightEnd[R];
     } else {
-      parent.ends[L] = rightEnd[R];
+      ends[L] = rightEnd[R];
     }
 
     if (rightEnd[R]) {
       var rightRightEnd = rightEnd[R] as MQNode;
       rightRightEnd[L] = leftEnd[L];
     } else {
-      parent.ends[R] = leftEnd[L];
+      ends[R] = leftEnd[L];
+    }
+
+    if (ends[L] && ends[R]) {
+      parent.setEnds(ends);
+    } else {
+      // some child classes of MQNode try to enforce that their ends
+      // are never empty through the type system. However, disown may
+      // temporarily break this invariant in which case it's expected
+      // that adopt will later be called to fix the invariant.
+      //
+      // Cast away the protected status of the ends property and write
+      // to it directly to get around runtime assertions in setEnds that
+      // enforce non-emptyness.
+      (parent as any).ends = ends;
     }
 
     return self;
@@ -605,12 +666,12 @@ class Fragment {
   }
 
   each(yield_: (el: MQNode) => boolean | undefined) {
-    eachNode(this.ends as Ends, yield_); // TODO - the types of Ends are not compatible
+    eachNode(this.ends, yield_);
     return this;
   }
 
   fold<T>(fold: T, yield_: (fold: T, el: MQNode) => T) {
-    return foldNodes(this.ends as Ends, fold, yield_); // TODO - the types of Ends are not compatible
+    return foldNodes(this.ends, fold, yield_);
   }
 }
 

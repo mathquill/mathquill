@@ -167,26 +167,16 @@ class MQNode extends NodeBase {
         break;
 
       case 'Ctrl-Alt-Left': // speak left-adjacent block
-        if (
-          cursor.parent.parent &&
-          cursor.parent.parent.ends &&
-          cursor.parent.parent.ends[L] &&
-          cursor.parent.parent.ends[L] instanceof MQNode
-        ) {
-          ctrlr.aria.queue(cursor.parent.parent.ends[L]);
+        if (cursor.parent.parent && cursor.parent.parent.getEnd(L)) {
+          ctrlr.aria.queue(cursor.parent.parent.getEnd(L));
         } else {
           ctrlr.aria.queue('nothing to the left');
         }
         break;
 
       case 'Ctrl-Alt-Right': // speak right-adjacent block
-        if (
-          cursor.parent.parent &&
-          cursor.parent.parent.ends &&
-          cursor.parent.parent.ends[R] &&
-          cursor.parent.parent.ends[R] instanceof MQNode
-        ) {
-          ctrlr.aria.queue(cursor.parent.parent.ends[R]);
+        if (cursor.parent.parent && cursor.parent.parent.getEnd(R)) {
+          ctrlr.aria.queue(cursor.parent.parent.getEnd(R));
         } else {
           ctrlr.aria.queue('nothing to the right');
         }
@@ -289,7 +279,7 @@ class Controller_keystroke extends Controller_focusBlur {
     var cursorDir = cursor[dir];
 
     if (cursor.selection) {
-      cursor.insDirOf(dir, cursor.selection.ends[dir] as MQNode);
+      cursor.insDirOf(dir, cursor.selection.getEnd(dir));
     } else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
 
@@ -425,13 +415,13 @@ class Controller_keystroke extends Controller_focusBlur {
     var fragRemoved;
     if (dir === L) {
       fragRemoved = new Fragment(
-        (cursor.parent as MQNode).ends[L] as MQNode,
-        cursor[L] as MQNode
+        (cursor.parent as MQNode).getEnd(L),
+        cursor[L]
       );
     } else {
       fragRemoved = new Fragment(
-        cursor[R] as MQNode,
-        (cursor.parent as MQNode).ends[R] as MQNode
+        cursor[R],
+        (cursor.parent as MQNode).getEnd(R)
       );
     }
     cursor.controller.aria.queue(fragRemoved);
@@ -497,7 +487,7 @@ class Controller_keystroke extends Controller_focusBlur {
       // and the anticursor is *inside* that node, not just on the other side"
       if (
         seln &&
-        seln.ends[dir] === node &&
+        seln.getEnd(dir) === node &&
         (cursor.anticursor as Anticursor)[-dir as Direction] !== node
       ) {
         node.unselectInto(dir, cursor);
