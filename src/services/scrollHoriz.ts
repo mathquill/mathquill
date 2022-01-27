@@ -44,7 +44,7 @@ class Controller_scrollHoriz extends Controller_mouse {
       var rect = seln.jQ[0].getBoundingClientRect();
       var overLeft = rect.left - (rootRect.left + 20);
       var overRight = rect.right - (rootRect.right - 20);
-      if (seln.endRef(L) === cursor[R]) {
+      if (seln.getEnd(L) === cursor[R]) {
         if (overLeft < 0) var scrollBy = overLeft;
         else if (overRight > 0) {
           if (rect.left - overRight < rootRect.left + 20)

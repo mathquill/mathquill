@@ -17,7 +17,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
   textTemplate = ['\\'];
   createBlocks() {
     super.createBlocks();
-    const endsL = this.endRef(L);
+    const endsL = this.getEnd(L);
 
     endsL.focus = function () {
       this.parent.jQ.addClass('mq-hasCursor');
@@ -83,7 +83,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     }
   }
   latex() {
-    return '\\' + this.endRef(L).latex() + ' ';
+    return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
     this.jQ = this.jQ.last();
@@ -94,7 +94,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       cursor.insAtRightEnd(this.parent);
     }
 
-    var latex = this.endRef(L).latex();
+    var latex = this.getEnd(L).latex();
     if (!latex) latex = ' ';
     var cmd = LatexCmds[latex];
 

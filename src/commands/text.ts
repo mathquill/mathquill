@@ -22,7 +22,7 @@ class TextBlock extends MQNode {
 
   jQadd(jQ: $) {
     super.jQadd(jQ);
-    const endsL = this.endRef(L);
+    const endsL = this.getEnd(L);
     if (endsL) {
       const child = this.jQ[0].firstChild;
       if (child) {
@@ -164,7 +164,7 @@ class TextBlock extends MQNode {
     else {
       // split apart
       var leftBlock = new TextBlock();
-      var leftPc = this.endRef(L);
+      var leftPc = this.getEnd(L);
       if (leftPc) {
         leftPc.disown().jQ.detach();
         leftPc.adopt(leftBlock, 0, 0);
@@ -493,7 +493,7 @@ class RootMathCommand extends MathCommand {
   htmlTemplate = '<span class="mq-math-mode">&0</span>';
   createBlocks() {
     super.createBlocks();
-    const endsL = this.endRef(L) as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
+    const endsL = this.getEnd(L) as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
     endsL.cursor = this.cursor;
     endsL.write = function (cursor: Cursor, ch: string) {
       if (ch !== '$') MathBlock.prototype.write.call(this, cursor, ch);
@@ -507,7 +507,7 @@ class RootMathCommand extends MathCommand {
     };
   }
   latex() {
-    return '$' + this.endRef(L).latex() + '$';
+    return '$' + this.getEnd(L).latex() + '$';
   }
 }
 

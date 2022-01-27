@@ -201,7 +201,7 @@ class NodeBase {
     this.setEnds(ends);
   }
 
-  endRef(dir: Direction) {
+  getEnd(dir: Direction) {
     return this.ends[dir];
   }
 
@@ -337,7 +337,7 @@ class NodeBase {
   }
 
   children() {
-    return new Fragment(this.endRef(L), this.endRef(R));
+    return new Fragment(this.getEnd(L), this.getEnd(R));
   }
 
   eachChild(yield_: (el: MQNode) => boolean | undefined) {
@@ -448,7 +448,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'leftward is properly set up',
     (function () {
       // either it's empty and `rightward` is the left end child (possibly empty)
-      if (!leftward) return parent.endRef(L) === rightward;
+      if (!leftward) return parent.getEnd(L) === rightward;
 
       // or it's there and its [R] and .parent are properly set up
       return leftward[R] === rightward && leftward.parent === parent;
@@ -459,7 +459,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'rightward is properly set up',
     (function () {
       // either it's empty and `leftward` is the right end child (possibly empty)
-      if (!rightward) return parent.endRef(R) === leftward;
+      if (!rightward) return parent.getEnd(R) === leftward;
 
       // or it's there and its [L] and .parent are properly set up
       return rightward[L] === leftward && rightward.parent === parent;
@@ -533,7 +533,7 @@ class Fragment {
     this.ends = ends;
   }
 
-  endRef(dir: Direction): NodeRef {
+  getEnd(dir: Direction): NodeRef {
     return this.ends ? this.ends[dir] : 0;
   }
 
@@ -566,7 +566,7 @@ class Fragment {
     var rightEnd = self.ends[R];
     if (!rightEnd) return this;
 
-    var ends = { [L]: parent.endRef(L), [R]: parent.endRef(R) };
+    var ends = { [L]: parent.getEnd(L), [R]: parent.getEnd(R) };
 
     if (leftward) {
       // NB: this is handled in the ::each() block
@@ -616,7 +616,7 @@ class Fragment {
     prayWellFormed(parent, leftEnd[L], leftEnd);
     prayWellFormed(parent, rightEnd, rightEnd[R]);
 
-    var ends = { [L]: parent.endRef(L), [R]: parent.endRef(R) };
+    var ends = { [L]: parent.getEnd(L), [R]: parent.getEnd(R) };
     if (leftEnd[L]) {
       var leftLeftEnd = leftEnd[L] as MQNode;
       leftLeftEnd[R] = rightEnd[R];

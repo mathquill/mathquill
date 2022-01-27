@@ -61,7 +61,7 @@ class Cursor extends Point {
       //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
         var selection = this.selection;
-        if (selection && selection.endRef(L)[L] === this[L])
+        if (selection && selection.getEnd(L)[L] === this[L])
           this.jQ.insertBefore(selection.jQ);
         else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
       } else this.jQ.appendTo(this.parent.jQ);
@@ -112,7 +112,7 @@ class Cursor extends Point {
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
-    this.withDirInsertAt(dir, el, 0, el.endRef(dir));
+    this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;
   }
@@ -179,7 +179,7 @@ class Cursor extends Point {
           return true;
         });
 
-      leftward = uncle.endRef(R);
+      leftward = uncle.getEnd(R);
       return true;
     });
 
@@ -192,7 +192,7 @@ class Cursor extends Point {
           var newParent = this.parent[R];
           if (newParent) {
             this.parent = newParent;
-            this[R] = newParent.endRef(L);
+            this[R] = newParent.getEnd(L);
           } else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -305,7 +305,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.endRef(dir);
+    var insEl = this.selection!.getEnd(dir);
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -314,7 +314,7 @@ class Cursor extends Point {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
-    this[L] = root.endRef(R);
+    this[L] = root.getEnd(R);
     this.parent = root;
   }
   clearSelection() {
@@ -329,8 +329,8 @@ class Cursor extends Point {
     var selection = this.selection;
     if (!selection) return;
 
-    this[L] = selection.endRef(L)[L];
-    this[R] = selection.endRef(R)[R];
+    this[L] = selection.getEnd(L)[L];
+    this[R] = selection.getEnd(R)[R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
@@ -338,8 +338,8 @@ class Cursor extends Point {
   replaceSelection() {
     var seln = this.selection;
     if (seln) {
-      this[L] = seln.endRef(L)[L];
-      this[R] = seln.endRef(R)[R];
+      this[L] = seln.getEnd(L)[L];
+      this[R] = seln.getEnd(R)[R];
       delete this.selection;
     }
     return seln;
@@ -378,7 +378,7 @@ class MQSelection extends Fragment {
     this.ends = ends;
   }
 
-  endRef(dir: Direction): MQNode {
+  getEnd(dir: Direction): MQNode {
     return this.ends[dir];
   }
 
