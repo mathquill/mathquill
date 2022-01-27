@@ -297,7 +297,7 @@ class SupSub extends MathCommand {
     this.ends = ends;
   }
 
-  setEndsDisown(ends: Ends<NodeRef>) {
+  setEndsDisown(ends: Ends<MathBlock | 0>) {
     if (ends[L] instanceof MathBlock && ends[R] instanceof MathBlock) {
       this.setEnds(ends as Ends<MathBlock>);
     } else {
