@@ -215,25 +215,25 @@ class MQNode extends NodeBase {
   }
 
   moveOutOf(_dir: Direction, _cursor: Cursor, _updown?: 'up' | 'down') {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::escapeDir, moveDir
   moveTowards(_dir: Direction, _cursor: Cursor, _updown?: 'up' | 'down') {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::moveDir
   deleteOutOf(_dir: Direction, _cursor: Cursor) {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::deleteDir
   deleteTowards(_dir: Direction, _cursor: Cursor) {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::deleteDir
   unselectInto(_dir: Direction, _cursor: Cursor) {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::selectDir
   selectOutOf(_dir: Direction, _cursor: Cursor) {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::selectDir
   selectTowards(_dir: Direction, _cursor: Cursor) {
-    pray('overridden or never called on this node');
+    pray('overridden or never called on this node', false);
   } // called by Controller::selectDir
 }
 
