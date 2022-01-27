@@ -457,8 +457,8 @@ class SupSub extends MathCommand {
               .withDirAdopt(
                 dir,
                 cursor.parent,
-                cursor[dir] as MQNode,
-                cursor[-dir as Direction] as NodeRef
+                cursor[dir],
+                cursor[-dir as Direction]
               )
               .jQ.insDirOf(-dir as Direction, cursor.jQ);
             cursor[-dir as Direction] = end;
@@ -1154,7 +1154,7 @@ class Bracket extends DelimsNode {
             -side as Direction,
             brack.parent,
             brack,
-            brack[side as Direction] as MQNode
+            brack[side as Direction]
           )
           .jQ.insDirOf(side as Direction, brack.jQ);
       }
@@ -1256,7 +1256,7 @@ class Bracket extends DelimsNode {
           .withDirAdopt(
             -side as Direction,
             this.endRef(L) as MQNode,
-            origEnd as MQNode,
+            origEnd,
             0
           )
           .jQ.insAtDirEnd(

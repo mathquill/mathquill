@@ -354,8 +354,8 @@ class NodeBase {
   withDirAdopt(
     dir: Direction,
     parent: MQNode,
-    withDir: MQNode,
-    oppDir: MQNode
+    withDir: NodeRef,
+    oppDir: NodeRef
   ) {
     const self = this.getSelfNode();
     new Fragment(self, self).withDirAdopt(dir, parent, withDir, oppDir);
