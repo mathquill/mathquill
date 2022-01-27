@@ -660,7 +660,7 @@ class OperatorName extends MQSymbol {
     for (var i = 0; i < fn.length; i += 1) {
       new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
     }
-    return Parser.succeed(block.children()) as ParserAny;
+    return Parser.succeed(block.children());
   }
 }
 for (var fn in AutoOpNames)
@@ -692,7 +692,7 @@ LatexCmds.operatorname = class extends MathCommand {
       }
       // In cases other than `ans`, just return the children directly
       return children;
-    }) as ParserAny;
+    });
   }
 };
 
@@ -758,7 +758,7 @@ LatexCmds['%'] = class extends NonSymbolaSymbol {
           return PercentOfBuilder();
         })
       )
-      .or(super.parser()) as ParserAny;
+      .or(super.parser());
   }
 };
 
@@ -918,7 +918,7 @@ class LatexFragment extends MathCommand {
   }
   parser() {
     var frag = latexMathParser.parse(this.latexStr).children();
-    return Parser.succeed(frag) as ParserAny;
+    return Parser.succeed(frag);
   }
 }
 
