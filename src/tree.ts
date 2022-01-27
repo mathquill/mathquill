@@ -390,7 +390,8 @@ class NodeBase {
   }
 
   // Overridden by child classes
-  parser(): Parser<MQNode> {
+  parser(): Parser<MQNode | Fragment> {
+    pray('Abstract parser() method is never called', false);
     return undefined as any;
   }
   /** Render this node to an HTML string */

@@ -51,7 +51,7 @@ var latexMathParser = (function () {
           .or(any)
       )
     )
-    .then(function (ctrlSeq): Parser<MQNode> {
+    .then(function (ctrlSeq) {
       // TODO - is Parser<MQNode> correct?
       var cmdKlass = (LatexCmds as LatexCmdsSingleChar)[ctrlSeq];
 

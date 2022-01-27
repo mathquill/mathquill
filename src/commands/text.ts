@@ -68,7 +68,7 @@ class TextBlock extends MQNode {
 
         new TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
-      }) as ParserAny;
+      });
   }
 
   textContents() {

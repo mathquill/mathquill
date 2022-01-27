@@ -114,7 +114,7 @@ class MathCommand extends MathElement {
     });
   }
 
-  parser(): Parser<MQNode> {
+  parser(): Parser<MQNode | Fragment> {
     var block = latexMathParser.block;
 
     return block.times(this.numBlocks()).map((blocks) => {
@@ -433,7 +433,7 @@ class MQSymbol extends MathCommand {
     super.setCtrlSeqHtmlAndText(ctrlSeq, html, [text || '']);
   }
 
-  parser() {
+  parser(): Parser<MQNode | Fragment> {
     return Parser.succeed(this);
   }
   numBlocks() {
