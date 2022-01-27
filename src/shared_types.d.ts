@@ -112,7 +112,6 @@ interface $ {
   stop(): $;
   html(t: string): $;
   text(str: string): $;
-  text(): string;
   next(): $;
   prev(): $;
   animate(
@@ -141,4 +140,5 @@ interface $ {
   get(): HTMLElement[];
   get(index: number): HTMLElement;
   contents(): $;
+  each(cb: (index: number, elt: HTMLElement) => void): $;
 }
