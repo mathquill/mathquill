@@ -392,7 +392,6 @@ class NodeBase {
   // Overridden by child classes
   parser(): Parser<MQNode | Fragment> {
     pray('Abstract parser() method is never called', false);
-    return undefined as any;
   }
   /** Render this node to an HTML string */
   html(): string {
@@ -412,7 +411,7 @@ class NodeBase {
   reflow() {}
   registerInnerField(_innerFields: InnerFields, _mathField: InnerMathField) {}
   chToCmd(_ch: string, _options?: CursorOptions): this {
-    return undefined as any;
+    pray('Abstract chToCmd() method is never called', false);
   }
   mathspeak(_options?: MathspeakOptions) {
     return '';
