@@ -337,7 +337,7 @@ class SupSub extends MathCommand {
           if (!dest) thisDir.addBlock(src.disown());
           else if (!src.isEmpty()) {
             // ins src children at -dir end of dest
-            src.jQ.children().insAtDirEnd(-dir as Direction, dest.jQ);
+            jQInsAtDirEnd(src.jQ.children(), -dir as Direction, dest.jQ);
             var children = src.children().disown();
             pt = new Point(dest, children.getEnd(R), dest.getEnd(L));
             if (dir === L) children.adopt(dest, dest.getEnd(R), 0);
@@ -466,15 +466,15 @@ class SupSub extends MathCommand {
           cursor.insDirOf(this[dir] ? (-dir as Direction) : dir, this.parent);
           if (!this.isEmpty()) {
             var end = this.getEnd(dir);
-            this.children()
+            var childJQ = this.children()
               .disown()
               .withDirAdopt(
                 dir,
                 cursor.parent,
                 cursor[dir],
                 cursor[-dir as Direction]
-              )
-              .jQ.insDirOf(-dir as Direction, cursor.jQ);
+              ).jQ;
+            jQInsDirOf(childJQ, -dir as Direction, cursor.jQ);
             cursor[-dir as Direction] = end;
           }
           cmd.supsub = oppositeSupsub;
@@ -1153,7 +1153,7 @@ class Bracket extends DelimsNode {
       this.closeOpposing(brack);
       if (brack === cursor.parent.parent && cursor[side as Direction]) {
         // move the stuff between
-        new Fragment(
+        var fragJQ = new Fragment(
           cursor[side as Direction],
           cursor.parent.getEnd(side as Direction),
           -side as Direction
@@ -1164,8 +1164,9 @@ class Bracket extends DelimsNode {
             brack.parent,
             brack,
             brack[side as Direction]
-          )
-          .jQ.insDirOf(side as Direction, brack.jQ);
+          ).jQ;
+
+        jQInsDirOf(fragJQ, side as Direction, brack.jQ);
       }
       brack.bubble(function (node) {
         node.reflow();
@@ -1258,10 +1259,11 @@ class Bracket extends DelimsNode {
       if (sib) {
         // auto-expand so ghost is at far end
         var origEnd = this.getEnd(L).getEnd(side);
-        new Fragment(sib, farEnd, -side as Direction)
+        var fragJQ = new Fragment(sib, farEnd, -side as Direction)
           .disown()
-          .withDirAdopt(-side as Direction, this.getEnd(L), origEnd, 0)
-          .jQ.insAtDirEnd(side, this.getEnd(L).jQ.removeClass('mq-empty'));
+          .withDirAdopt(-side as Direction, this.getEnd(L), origEnd, 0).jQ;
+
+        jQInsAtDirEnd(fragJQ, side, this.getEnd(L).jQ.removeClass('mq-empty'));
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens

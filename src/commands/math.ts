@@ -456,7 +456,7 @@ class MQSymbol extends MathCommand {
   createBlocks() {}
 
   moveTowards(dir: Direction, cursor: Cursor) {
-    cursor.jQ.insDirOf(dir, this.jQ);
+    jQInsDirOf(cursor.jQ, dir, this.jQ);
     cursor[-dir as Direction] = this;
     cursor[dir] = this[dir];
     cursor.controller.aria.queue(this);

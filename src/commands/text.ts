@@ -392,7 +392,7 @@ class TextPiece extends MQNode {
         var newPc = new TextPiece(ch).createDir(-dir as Direction, cursor);
         var selection = cursor.selection;
         if (selection) {
-          newPc.jQ.insDirOf(-dir as Direction, selection.jQ);
+          jQInsDirOf(newPc.jQ, -dir as Direction, selection.jQ);
         }
       }
 

@@ -85,10 +85,6 @@ type JQSelector =
 interface $ {
   (selector?: JQSelector): $;
   fn: any;
-  /** Insert this collection either just before or just after `jQ`, according to the direction specified by `dir`. */
-  insDirOf(dir: Direction, jQ: $): $;
-  /** Insert this collection into `jQ` either at the beginning or end of its children, according to the direction specified by `dir`. */
-  insAtDirEnd(dir: Direction, jQ: $): $;
   insertBefore(el: HTMLElement | $): $;
   insertAfter(el: HTMLElement | $): $;
   wrapAll(el: JQSelector): $;

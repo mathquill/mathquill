@@ -6,18 +6,23 @@
  * of the tree.
  ************************************************/
 
-/**
- * Tiny extension of jQuery adding directionalized DOM manipulation methods.
- */
 var $: $ = jQuery;
-$.fn.insDirOf = function (dir: Direction, el: $) {
+
+/**
+ * Helpers for directionalized DOM manipulation methods.
+ */
+
+/** Insert `child` collection either just before or just after `el`, according to the direction specified by `dir`. */
+function jQInsDirOf(child: $, dir: Direction, el: $) {
   return dir === L
-    ? this.insertBefore(el.first())
-    : this.insertAfter(el.last());
-};
-$.fn.insAtDirEnd = function (dir: Direction, el: $) {
-  return dir === L ? this.prependTo(el) : this.appendTo(el);
-};
+    ? child.insertBefore(el.first())
+    : child.insertAfter(el.last());
+}
+
+/** Insert `child` collection into `el` either at the beginning or end of its children, according to the direction specified by `dir`. */
+function jQInsAtDirEnd(child: $, dir: Direction, el: $) {
+  return dir === L ? child.prependTo(el) : child.appendTo(el);
+}
 
 /** A cursor-like location in an mq node tree. */
 class Point {
@@ -286,7 +291,7 @@ class NodeBase {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    node.jQ.insDirOf(dir, cursor.jQ);
+    jQInsDirOf(node.jQ, dir, cursor.jQ);
     cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   }
