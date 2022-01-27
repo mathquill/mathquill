@@ -61,7 +61,7 @@ class Cursor extends Point {
       //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
         var selection = this.selection;
-        if (selection && (selection.endRef(L) as MQNode)[L] === this[L])
+        if (selection && selection.endRef(L)[L] === this[L])
           this.jQ.insertBefore(selection.jQ);
         else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
       } else this.jQ.appendTo(this.parent.jQ);
@@ -305,7 +305,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.endRef(dir) as MQNode;
+    var insEl = this.selection!.endRef(dir);
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -329,8 +329,8 @@ class Cursor extends Point {
     var selection = this.selection;
     if (!selection) return;
 
-    this[L] = (selection.endRef(L) as MQNode)[L];
-    this[R] = (selection.endRef(R) as MQNode)[R];
+    this[L] = selection.endRef(L)[L];
+    this[R] = selection.endRef(R)[R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
@@ -338,8 +338,8 @@ class Cursor extends Point {
   replaceSelection() {
     var seln = this.selection;
     if (seln) {
-      this[L] = (seln.endRef(L) as MQNode)[L];
-      this[R] = (seln.endRef(R) as MQNode)[R];
+      this[L] = seln.endRef(L)[L];
+      this[R] = seln.endRef(R)[R];
       delete this.selection;
     }
     return seln;
@@ -364,12 +364,24 @@ class Cursor extends Point {
   selectionChanged() {}
 }
 class MQSelection extends Fragment {
+  protected ends: Ends<MQNode>;
+
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
     this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   }
+
+  setEnds(ends: Ends<MQNode>) {
+    pray('Selection ends are never empty', ends[L] && ends[R]);
+    this.ends = ends;
+  }
+
+  endRef(dir: Direction): MQNode {
+    return this.ends[dir];
+  }
+
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.jQ.replaceWith((this.jQ = this.jQ.children()));
     return super.adopt(parent, leftward, rightward);

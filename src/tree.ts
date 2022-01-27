@@ -493,7 +493,7 @@ class Fragment {
     pray('no half-empty fragments', !withDir === !oppDir);
 
     if (!withDir || !oppDir) {
-      this.ends = { [L]: 0, [R]: 0 };
+      this.setEnds({ [L]: 0, [R]: 0 });
       return;
     }
 
@@ -504,10 +504,10 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    this.ends = {
+    this.setEnds({
       [dir as Direction]: withDir,
       [-dir as Direction]: oppDir,
-    } as Ends<NodeRef>;
+    } as Ends<NodeRef>);
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the
@@ -522,6 +522,15 @@ class Fragment {
     });
 
     this.jQ = this.jQ.add(accum);
+  }
+
+  /**
+   * Note, children may override this to enforce extra invariants,
+   * (e.g. that ends are always defined). Ends should only be set
+   * through this function.
+   */
+  setEnds(ends: Ends<NodeRef>) {
+    this.ends = ends;
   }
 
   endRef(dir: Direction): NodeRef {

@@ -279,7 +279,7 @@ class Controller_keystroke extends Controller_focusBlur {
     var cursorDir = cursor[dir];
 
     if (cursor.selection) {
-      cursor.insDirOf(dir, cursor.selection.endRef(dir) as MQNode);
+      cursor.insDirOf(dir, cursor.selection.endRef(dir));
     } else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
 
