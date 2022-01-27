@@ -554,6 +554,8 @@ class Fragment {
       parent.ends[R] = rightEnd;
     }
 
+    pray('no half-empty node ends', !!parent.ends[L] === !!parent.ends[R]);
+
     rightEnd[R] = rightward;
 
     self.each(function (el: MQNode) {
@@ -600,6 +602,8 @@ class Fragment {
     } else {
       parent.ends[R] = leftEnd[L];
     }
+
+    pray('no half-empty node ends', !!parent.ends[L] === !!parent.ends[R]);
 
     return self;
   }

@@ -202,6 +202,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = oldMinusNode[L];
 
       if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
+      pray('no half-empty node ends', !!root.ends[L] === !!root.ends[R]);
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
       oldMinusNode.jQ.remove();
@@ -217,6 +218,7 @@ class Controller_latex extends Controller_keystroke {
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
       if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
+      pray('no half-empty node ends', !!root.ends[L] === !!root.ends[R]);
 
       newMinusNode.parent = root;
       newMinusNode[L] = oldCharNodes[0][L];
@@ -243,6 +245,7 @@ class Controller_latex extends Controller_keystroke {
     if (oldDigits.length > newDigits.length) {
       charNode = oldCharNodes[newDigits.length - 1];
       root.ends[R] = charNode;
+      pray('no half-empty node ends', !!root.ends[L] === !!root.ends[R]);
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
@@ -271,6 +274,7 @@ class Controller_latex extends Controller_keystroke {
         const newNodeL = newNode[L] as MQNode;
         newNodeL[R] = newNode;
         root.ends[R] = newNode;
+        pray('no half-empty node ends', !!root.ends[L] === !!root.ends[R]);
       }
 
       root.jQ[0].appendChild(frag);
