@@ -12,7 +12,7 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Anticursor extends Point {
   ancestors: Record<string | number, Anticursor | MQNode | undefined> = {};
-  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  constructor(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     super(parent, leftward, rightward);
   }
 
@@ -41,7 +41,7 @@ class Cursor extends Point {
     options: CursorOptions,
     controller: Controller
   ) {
-    super(initParent);
+    super(initParent, 0, 0);
     this.controller = controller;
     this.options = options;
 

@@ -22,17 +22,17 @@ $.fn.insAtDirEnd = function (dir: Direction, el: $) {
 /** A cursor-like location in an mq node tree. */
 class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */
-  [L]?: NodeRef;
+  [L]: NodeRef;
   /** The node to the right of this point (or 0 for the position after a last child) */
-  [R]?: NodeRef;
+  [R]: NodeRef;
   parent: MQNode;
 
-  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  constructor(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.init(parent, leftward, rightward);
   }
 
   // keeping init around only for tests
-  init(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  init(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.parent = parent;
     this[L] = leftward;
     this[R] = rightward;
