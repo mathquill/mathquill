@@ -126,8 +126,8 @@ interface $ {
   unbind(evt: string, cb?: Function, capture?: boolean): $;
   mousemove(cb: (evt: MouseEvent) => any): $;
   mouseup(cb: (evt: MouseEvent) => any): $;
-  focus(handler?: (eventObject: Event) => any): $;
-  blur(handler?: (eventObject: Event) => any): $;
+  focus(handler: (eventObject: Event) => any): $;
+  blur(handler: (eventObject: Event) => any): $;
   first(): $;
   last(): $;
   slice(start: number, end?: number): $;
