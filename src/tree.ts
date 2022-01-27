@@ -481,7 +481,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
  */
 class Fragment {
   /** The (doubly-linked) list of nodes contained in this fragment. */
-  readonly ends: Ends<MQNode> | undefined;
+  protected ends: Ends<NodeRef>;
 
   jQ = defaultJQ;
   disowned: boolean = false;
@@ -492,9 +492,10 @@ class Fragment {
 
     pray('no half-empty fragments', !withDir === !oppDir);
 
-    this.ends = undefined;
-
-    if (!withDir || !oppDir) return;
+    if (!withDir || !oppDir) {
+      this.ends = { [L]: 0, [R]: 0 };
+      return;
+    }
 
     pray('withDir is passed to Fragment', withDir instanceof MQNode);
     pray('oppDir is passed to Fragment', oppDir instanceof MQNode);
@@ -503,13 +504,10 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    const ends = {} as {
-      [L]: MQNode;
-      [R]: MQNode;
-    };
-    ends[dir] = withDir;
-    ends[-dir as Direction] = oppDir;
-    this.ends = ends;
+    this.ends = {
+      [dir as Direction]: withDir,
+      [-dir as Direction]: oppDir,
+    } as Ends<NodeRef>;
 
     // To build the jquery collection for a fragment, accumulate elements
     // into an array and then call jQ.add once on the result. jQ.add sorts the
@@ -552,10 +550,12 @@ class Fragment {
 
     var self = this;
     this.disowned = false;
-    if (!self.ends) return this;
 
     var leftEnd = self.ends[L];
+    if (!leftEnd) return this;
+
     var rightEnd = self.ends[R];
+    if (!rightEnd) return this;
 
     var ends = { [L]: parent.endRef(L), [R]: parent.endRef(R) };
 
@@ -593,13 +593,13 @@ class Fragment {
    */
   disown() {
     var self = this;
+    var leftEnd = self.ends[L];
 
     // guard for empty and already-disowned fragments
-    if (!self.ends || self.disowned) return self;
+    if (!leftEnd || self.disowned) return self;
 
     this.disowned = true;
 
-    var leftEnd = self.ends[L];
     var rightEnd = self.ends[R];
     if (!rightEnd) return self;
     var parent = leftEnd.parent;
@@ -633,13 +633,11 @@ class Fragment {
   }
 
   each(yield_: (el: MQNode) => boolean | undefined) {
-    if (!this.ends) return this;
     eachNode(this.ends, yield_);
     return this;
   }
 
   fold<T>(fold: T, yield_: (fold: T, el: MQNode) => T) {
-    if (!this.ends) return fold;
     return foldNodes(this.ends, fold, yield_);
   }
 }

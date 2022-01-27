@@ -278,8 +278,8 @@ class Controller_keystroke extends Controller_focusBlur {
       updown = cursor.options.leftRightIntoCmdGoes;
     var cursorDir = cursor[dir];
 
-    if (cursor.selection && cursor.selection.ends) {
-      cursor.insDirOf(dir, cursor.selection.ends[dir]);
+    if (cursor.selection) {
+      cursor.insDirOf(dir, cursor.selection.endRef(dir) as MQNode);
     } else if (cursorDir) cursorDir.moveTowards(dir, cursor, updown);
     else cursor.parent.moveOutOf(dir, cursor, updown);
 
@@ -487,8 +487,7 @@ class Controller_keystroke extends Controller_focusBlur {
       // and the anticursor is *inside* that node, not just on the other side"
       if (
         seln &&
-        seln.ends &&
-        seln.ends[dir] === node &&
+        seln.endRef(dir) === node &&
         (cursor.anticursor as Anticursor)[-dir as Direction] !== node
       ) {
         node.unselectInto(dir, cursor);

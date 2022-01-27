@@ -266,11 +266,11 @@ function getCtrlSeqsFromBlock(block: NodeRef): string {
   if (!block) return '';
 
   var children = block.children();
-  if (!children.ends) return '';
+  if (!children || !children.endRef(L)) return '';
 
   var chars = '';
   for (
-    var sibling: NodeRef | undefined = children.ends[L];
+    var sibling: NodeRef | undefined = children.endRef(L);
     sibling && sibling[R] !== undefined;
     sibling = sibling[R]
   ) {
