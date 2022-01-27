@@ -353,7 +353,7 @@ class SupSub extends MathCommand {
     }
   }
   finalizeTree() {
-    var endsL = this.endRef(L) as MQNode;
+    var endsL = this.endRef(L);
     endsL.write = function (cursor: Cursor, ch: string) {
       if (
         cursor.options.autoSubscriptNumerals &&
@@ -612,9 +612,9 @@ class SummationNotation extends MathCommand {
     return (
       this.ctrlSeq +
       '_' +
-      simplify((this.endRef(L) as MQNode).latex()) +
+      simplify(this.endRef(L).latex()) +
       '^' +
-      simplify((this.endRef(R) as MQNode).latex())
+      simplify(this.endRef(R).latex())
     );
   }
   mathspeak() {
@@ -622,9 +622,9 @@ class SummationNotation extends MathCommand {
       'Start ' +
       this.ariaLabel +
       ' from ' +
-      (this.endRef(L) as MQNode).mathspeak() +
+      this.endRef(L).mathspeak() +
       ' to ' +
-      (this.endRef(R) as MQNode).mathspeak() +
+      this.endRef(R).mathspeak() +
       ', end ' +
       this.ariaLabel +
       ', '
@@ -655,8 +655,8 @@ class SummationNotation extends MathCommand {
       .result(self);
   }
   finalizeTree() {
-    var endsL = this.endRef(L) as MQNode;
-    var endsR = this.endRef(R) as MQNode;
+    var endsL = this.endRef(L);
+    var endsR = this.endRef(R);
 
     endsL.ariaLabel = 'lower bound';
     endsR.ariaLabel = 'upper bound';
@@ -720,8 +720,8 @@ var Fraction =
         '</span>';
       textTemplate = ['(', ')/(', ')'];
       finalizeTree() {
-        const endsL = this.endRef(L) as MQNode;
-        const endsR = this.endRef(R) as MQNode;
+        const endsL = this.endRef(L);
+        const endsR = this.endRef(R);
         this.upInto = endsR.upOutOf = endsL;
         this.downInto = endsL.downOutOf = endsR;
         endsL.ariaLabel = 'numerator';
@@ -795,8 +795,7 @@ var Fraction =
             if (precededByInteger) {
               output += 'and ';
             }
-            output +=
-              (this.endRef(L) as MQNode).mathspeak() + ' ' + newDenSpeech;
+            output += this.endRef(L).mathspeak() + ' ' + newDenSpeech;
             return output;
           }
         }
@@ -932,18 +931,14 @@ class NthRoot extends SquareRoot {
   textTemplate = ['sqrt[', '](', ')'];
   latex() {
     return (
-      '\\sqrt[' +
-      (this.endRef(L) as MQNode).latex() +
-      ']{' +
-      (this.endRef(R) as MQNode).latex() +
-      '}'
+      '\\sqrt[' + this.endRef(L).latex() + ']{' + this.endRef(R).latex() + '}'
     );
   }
   mathspeak() {
-    var indexMathspeak = (this.endRef(L) as MQNode).mathspeak();
-    var radicandMathspeak = (this.endRef(R) as MQNode).mathspeak();
-    (this.endRef(L) as MQNode).ariaLabel = 'Index';
-    (this.endRef(R) as MQNode).ariaLabel = 'Radicand';
+    var indexMathspeak = this.endRef(L).mathspeak();
+    var radicandMathspeak = this.endRef(R).mathspeak();
+    this.endRef(L).ariaLabel = 'Index';
+    this.endRef(R).ariaLabel = 'Radicand';
     if (indexMathspeak === '3') {
       // cube root
       return 'Start Cube Root, ' + radicandMathspeak + ', End Cube Root';
@@ -1058,7 +1053,7 @@ class Bracket extends DelimsNode {
     return (
       '\\left' +
       this.sides[L].ctrlSeq +
-      (this.endRef(L) as MQNode).latex() +
+      this.endRef(L).latex() +
       '\\right' +
       this.sides[R].ctrlSeq
     );
@@ -1179,12 +1174,12 @@ class Bracket extends DelimsNode {
       }
       super.createLeftOf(cursor);
     }
-    if (side === L) cursor.insAtLeftEnd(brack.endRef(L) as MQNode);
+    if (side === L) cursor.insAtLeftEnd(brack.endRef(L));
     else cursor.insRightOf(brack);
   }
   placeCursor() {}
   unwrap() {
-    (this.endRef(L) as MQNode)
+    this.endRef(L)
       .children()
       .disown()
       .adopt(this.parent, this, this[R])
@@ -1209,14 +1204,12 @@ class Bracket extends DelimsNode {
       wasSolid = !this.side;
     this.side = -side as Direction;
     // if deleting like, outer close-brace of [(1+2)+3} where inner open-paren
-    if (
-      this.matchBrack(opts, side, (this.endRef(L) as MQNode).endRef(this.side))
-    ) {
+    if (this.matchBrack(opts, side, this.endRef(L).endRef(this.side))) {
       // is ghost,
       this.closeOpposing(
-        (this.endRef(L) as MQNode).endRef(this.side as Direction) as Bracket
+        this.endRef(L).endRef(this.side as Direction) as Bracket
       ); // then become [1+2)+3
-      var origEnd = (this.endRef(L) as MQNode).endRef(side);
+      var origEnd = this.endRef(L).endRef(side);
       this.unwrap();
       if (origEnd) origEnd.siblingCreated(cursor.options, side);
       if (sib) {
@@ -1250,26 +1243,18 @@ class Bracket extends DelimsNode {
       }
       if (sib) {
         // auto-expand so ghost is at far end
-        var origEnd = (this.endRef(L) as MQNode).endRef(side);
+        var origEnd = this.endRef(L).endRef(side);
         new Fragment(sib, farEnd, -side as Direction)
           .disown()
-          .withDirAdopt(
-            -side as Direction,
-            this.endRef(L) as MQNode,
-            origEnd,
-            0
-          )
-          .jQ.insAtDirEnd(
-            side,
-            (this.endRef(L) as MQNode).jQ.removeClass('mq-empty')
-          );
+          .withDirAdopt(-side as Direction, this.endRef(L), origEnd, 0)
+          .jQ.insAtDirEnd(side, this.endRef(L).jQ.removeClass('mq-empty'));
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens
       else
         outward
           ? cursor.insDirOf(side, this)
-          : cursor.insAtDirEnd(side, this.endRef(L) as MQNode);
+          : cursor.insAtDirEnd(side, this.endRef(L));
     }
   }
   replaceBracket($brack: $, side: BracketSide) {
@@ -1286,10 +1271,7 @@ class Bracket extends DelimsNode {
     this.deleteSide(-dir as Direction, false, cursor);
   }
   finalizeTree() {
-    (this.endRef(L) as MQNode).deleteOutOf = function (
-      dir: Direction,
-      cursor: Cursor
-    ) {
+    this.endRef(L).deleteOutOf = function (dir: Direction, cursor: Cursor) {
       (this.parent as Bracket).deleteSide(dir, true, cursor);
     };
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
@@ -1496,10 +1478,10 @@ class MathFieldNode extends MathCommand {
     innerFields.push(newField);
   }
   latex() {
-    return (this.endRef(L) as MQNode).latex();
+    return this.endRef(L).latex();
   }
   text() {
-    return (this.endRef(L) as MQNode).text();
+    return this.endRef(L).text();
   }
 }
 LatexCmds.editable = LatexCmds.MathQuillMathField = MathFieldNode; // backcompat with before cfd3620 on #233

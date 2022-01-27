@@ -507,7 +507,7 @@ class RootMathCommand extends MathCommand {
     };
   }
   latex() {
-    return '$' + (this.endRef(L) as MQNode).latex() + '$';
+    return '$' + this.endRef(L).latex() + '$';
   }
 }
 

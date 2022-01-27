@@ -189,11 +189,16 @@ class NodeBase {
   parent: MQNode = 0 as any as MQNode;
 
   /** The (doubly-linked) list of this node's children. */
-  private ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
+  protected ends: Ends<NodeRef> = { [L]: 0, [R]: 0 };
 
   setEnds(ends: Ends<NodeRef>) {
     this.ends = ends;
     pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
+  }
+
+  /** Children may override this to preserve end type invariants */
+  setEndsDisown(ends: Ends<NodeRef>) {
+    this.setEnds(ends);
   }
 
   endRef(dir: Direction) {
@@ -617,7 +622,7 @@ class Fragment {
       ends[R] = leftEnd[L];
     }
 
-    parent.setEnds(ends);
+    parent.setEndsDisown(ends);
 
     return self;
   }

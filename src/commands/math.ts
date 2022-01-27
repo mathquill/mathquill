@@ -83,6 +83,7 @@ class MathElement extends MQNode {
  */
 class MathCommand extends MathElement {
   replacedFragment: Fragment | undefined;
+  protected ends: Ends<MQNode>;
 
   constructor(
     ctrlSeq?: string,
@@ -91,6 +92,26 @@ class MathCommand extends MathElement {
   ) {
     super();
     this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
+  }
+
+  setEnds(ends: Ends<MQNode>) {
+    pray('MathCommand ends are never empty', ends[L] && ends[R]);
+    this.ends = ends;
+  }
+
+  setEndsDisown(ends: Ends<NodeRef>) {
+    if (ends[L] && ends[R]) {
+      this.setEnds(ends as Ends<MQNode>);
+    } else {
+      // Preserve invariant that math commands never have empty ends by
+      // setting ends to an empty block
+      const emptyBlock = new MathBlock();
+      this.setEnds({ [L]: emptyBlock, [R]: emptyBlock });
+    }
+  }
+
+  endRef(dir: Direction): MQNode {
+    return this.ends[dir];
   }
 
   setCtrlSeqHtmlAndText(
@@ -136,7 +157,7 @@ class MathCommand extends MathElement {
     cmd.createBlocks();
     super.createLeftOf(cursor);
     if (replacedFragment) {
-      const cmdEndsL = cmd.endRef(L) as MQNode;
+      const cmdEndsL = cmd.endRef(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
       replacedFragment.jQ.appendTo(cmdEndsL.jQ);
       cmd.placeCursor(cursor);
@@ -159,7 +180,7 @@ class MathCommand extends MathElement {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
     cursor.insAtRightEnd(
-      this.foldChildren(this.endRef(L) as MQNode, function (leftward, child) {
+      this.foldChildren(this.endRef(L), function (leftward, child) {
         return leftward.isEmpty() ? leftward : child;
       })
     );
@@ -176,7 +197,7 @@ class MathCommand extends MathElement {
       updownInto = this.downInto;
     }
 
-    const el = (updownInto || this.endRef(-dir as Direction)) as MQNode;
+    const el = updownInto || this.endRef(-dir as Direction);
     cursor.insAtDirEnd(-dir as Direction, el);
     cursor.controller.aria
       .queueDirEndOf(-dir as Direction)
