@@ -15,9 +15,12 @@ class TextBlock extends MQNode {
   anticursorPosition?: number;
 
   replaces(replacedText: Fragment | string) {
-    if (replacedText instanceof Fragment)
-      this.replacedText = replacedText.remove().jQ.text();
-    else if (typeof replacedText === 'string') this.replacedText = replacedText;
+    if (replacedText instanceof Fragment) {
+      var accum = '';
+      replacedText.remove().jQ.each((_n, elt) => (accum += elt.textContent));
+      this.replacedText = accum;
+    } else if (typeof replacedText === 'string')
+      this.replacedText = replacedText;
   }
 
   jQadd(jQ: $) {
