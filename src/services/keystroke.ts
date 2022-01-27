@@ -167,26 +167,16 @@ class MQNode extends NodeBase {
         break;
 
       case 'Ctrl-Alt-Left': // speak left-adjacent block
-        if (
-          cursor.parent.parent &&
-          cursor.parent.parent.ends &&
-          cursor.parent.parent.ends[L] &&
-          cursor.parent.parent.ends[L] instanceof MQNode
-        ) {
-          ctrlr.aria.queue(cursor.parent.parent.ends[L]);
+        if (cursor.parent.parent && cursor.parent.parent.endRef(L)) {
+          ctrlr.aria.queue(cursor.parent.parent.endRef(L));
         } else {
           ctrlr.aria.queue('nothing to the left');
         }
         break;
 
       case 'Ctrl-Alt-Right': // speak right-adjacent block
-        if (
-          cursor.parent.parent &&
-          cursor.parent.parent.ends &&
-          cursor.parent.parent.ends[R] &&
-          cursor.parent.parent.ends[R] instanceof MQNode
-        ) {
-          ctrlr.aria.queue(cursor.parent.parent.ends[R]);
+        if (cursor.parent.parent && cursor.parent.parent.endRef(R)) {
+          ctrlr.aria.queue(cursor.parent.parent.endRef(R));
         } else {
           ctrlr.aria.queue('nothing to the right');
         }
@@ -425,13 +415,13 @@ class Controller_keystroke extends Controller_focusBlur {
     var fragRemoved;
     if (dir === L) {
       fragRemoved = new Fragment(
-        (cursor.parent as MQNode).ends[L] as MQNode,
+        (cursor.parent as MQNode).endRef(L) as MQNode,
         cursor[L] as MQNode
       );
     } else {
       fragRemoved = new Fragment(
         cursor[R] as MQNode,
-        (cursor.parent as MQNode).ends[R] as MQNode
+        (cursor.parent as MQNode).endRef(R) as MQNode
       );
     }
     cursor.controller.aria.queue(fragRemoved);

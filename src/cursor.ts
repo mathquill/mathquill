@@ -112,7 +112,7 @@ class Cursor extends Point {
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
-    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
+    this.withDirInsertAt(dir, el, 0, el.endRef(dir));
     el.focus();
     return this;
   }
@@ -179,7 +179,7 @@ class Cursor extends Point {
           return true;
         });
 
-      leftward = uncle.ends[R];
+      leftward = uncle.endRef(R);
       return true;
     });
 
@@ -192,7 +192,7 @@ class Cursor extends Point {
           var newParent = this.parent[R];
           if (newParent) {
             this.parent = newParent;
-            this[R] = newParent.ends[L];
+            this[R] = newParent.endRef(L);
           } else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -305,7 +305,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.ends![dir];
+    var insEl = this.selection!.endRef(dir) as MQNode;
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -314,7 +314,7 @@ class Cursor extends Point {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
-    this[L] = root.ends[R];
+    this[L] = root.endRef(R);
     this.parent = root;
   }
   clearSelection() {

@@ -384,7 +384,7 @@ class Letter extends Variable {
 
   autoParenthesize(cursor: Cursor) {
     //exit early if already parenthesized
-    var right = cursor.parent.ends[R];
+    var right = cursor.parent.endRef(R);
     if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
       return;
     }
@@ -468,8 +468,8 @@ class Letter extends Variable {
     var rL = r && r[L];
 
     new Fragment(
-      lR || (this.parent.ends[L] as MQNode),
-      rL || (this.parent.ends[R] as MQNode)
+      lR || (this.parent.endRef(L) as MQNode),
+      rL || (this.parent.endRef(R) as MQNode)
     ).each(function (el) {
       if (el instanceof Letter) {
         el.italicize(true).jQ.removeClass(
@@ -485,7 +485,7 @@ class Letter extends Variable {
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
     outer: for (
-      var i = 0, first = (l as MQNode)[R] || this.parent.ends[L];
+      var i = 0, first = (l as MQNode)[R] || this.parent.endRef(L);
       first && i < str.length;
       i += 1, first = (first as MQNode)[R]
     ) {
@@ -658,7 +658,7 @@ class OperatorName extends MQSymbol {
     var fn = this.ctrlSeq;
     var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
-      new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
+      new Letter(fn.charAt(i)).adopt(block, block.endRef(R), 0);
     }
     return Parser.succeed(block.children()) as ParserAny;
   }
@@ -899,13 +899,13 @@ class LatexFragment extends MathCommand {
     block
       .children()
       .adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
-    cursor[L] = block.ends[R];
+    cursor[L] = block.endRef(R);
     block.jQize().insertBefore(cursor.jQ);
     block.finalizeInsert(cursor.options, cursor);
-    var blockEndsR = block.ends[R];
+    var blockEndsR = block.endRef(R);
     var blockEndsRR = blockEndsR && blockEndsR[R];
     if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
-    var blockEndsL = block.ends[L];
+    var blockEndsL = block.endRef(L);
     var blockEndsLL = blockEndsL && blockEndsL[L];
     if (blockEndsLL) blockEndsLL.siblingCreated(cursor.options, R);
     cursor.parent.bubble(function (node) {

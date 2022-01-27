@@ -191,7 +191,21 @@ class NodeBase {
   parent: MQNode = 0 as any as MQNode;
 
   /** The (doubly-linked) list of this node's children. */
-  ends: Ends = { [L]: 0, [R]: 0 };
+  private ends: Ends = { [L]: 0, [R]: 0 };
+
+  setEnds(ends: Ends) {
+    this.ends = ends;
+    pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
+  }
+
+  setEnd(dir: Direction, ref: NodeRef) {
+    this.ends[dir] = ref;
+    pray('No half-empty node ends', !!this.ends[L] === !!this.ends[R]);
+  }
+
+  endRef(dir: Direction) {
+    return this.ends[dir];
+  }
 
   jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
@@ -436,7 +450,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'leftward is properly set up',
     (function () {
       // either it's empty and `rightward` is the left end child (possibly empty)
-      if (!leftward) return parent.ends[L] === rightward;
+      if (!leftward) return parent.endRef(L) === rightward;
 
       // or it's there and its [R] and .parent are properly set up
       return leftward[R] === rightward && leftward.parent === parent;
@@ -447,7 +461,7 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     'rightward is properly set up',
     (function () {
       // either it's empty and `leftward` is the right end child (possibly empty)
-      if (!rightward) return parent.ends[R] === leftward;
+      if (!rightward) return parent.endRef(R) === leftward;
 
       // or it's there and its [L] and .parent are properly set up
       return rightward[L] === leftward && rightward.parent === parent;
@@ -514,6 +528,10 @@ class Fragment {
     this.jQ = this.jQ.add(accum);
   }
 
+  endRef(dir: Direction): NodeRef {
+    return this.ends ? this.ends[dir] : 0;
+  }
+
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
   withDirAdopt(
     dir: Direction,
@@ -541,20 +559,22 @@ class Fragment {
     var leftEnd = self.ends[L];
     var rightEnd = self.ends[R];
 
+    var ends = { [L]: parent.endRef(L), [R]: parent.endRef(R) };
+
     if (leftward) {
       // NB: this is handled in the ::each() block
       // leftward[R] = leftEnd
     } else {
-      parent.ends[L] = leftEnd;
+      ends[L] = leftEnd;
     }
 
     if (rightward) {
       rightward[L] = rightEnd;
     } else {
-      parent.ends[R] = rightEnd;
+      ends[R] = rightEnd;
     }
 
-    pray('no half-empty node ends', !!parent.ends[L] === !!parent.ends[R]);
+    parent.setEnds(ends);
 
     rightEnd[R] = rightward;
 
@@ -589,21 +609,22 @@ class Fragment {
     prayWellFormed(parent, leftEnd[L], leftEnd);
     prayWellFormed(parent, rightEnd, rightEnd[R]);
 
+    var ends = { [L]: parent.endRef(L), [R]: parent.endRef(R) };
     if (leftEnd[L]) {
       var leftLeftEnd = leftEnd[L] as MQNode;
       leftLeftEnd[R] = rightEnd[R];
     } else {
-      parent.ends[L] = rightEnd[R];
+      ends[L] = rightEnd[R];
     }
 
     if (rightEnd[R]) {
       var rightRightEnd = rightEnd[R] as MQNode;
       rightRightEnd[L] = leftEnd[L];
     } else {
-      parent.ends[R] = leftEnd[L];
+      ends[R] = leftEnd[L];
     }
 
-    pray('no half-empty node ends', !!parent.ends[L] === !!parent.ends[R]);
+    parent.setEnds(ends);
 
     return self;
   }

@@ -121,7 +121,7 @@ class MathCommand extends MathElement {
       this.blocks = blocks;
 
       for (var i = 0; i < blocks.length; i += 1) {
-        blocks[i].adopt(this, this.ends[R], 0);
+        blocks[i].adopt(this, this.endRef(R), 0);
       }
 
       return this;
@@ -136,7 +136,7 @@ class MathCommand extends MathElement {
     cmd.createBlocks();
     super.createLeftOf(cursor);
     if (replacedFragment) {
-      const cmdEndsL = cmd.ends[L] as MQNode;
+      const cmdEndsL = cmd.endRef(L) as MQNode;
       replacedFragment.adopt(cmdEndsL, 0, 0);
       replacedFragment.jQ.appendTo(cmdEndsL.jQ);
       cmd.placeCursor(cursor);
@@ -152,14 +152,14 @@ class MathCommand extends MathElement {
 
     for (var i = 0; i < numBlocks; i += 1) {
       var newBlock = (blocks[i] = new MathBlock());
-      newBlock.adopt(cmd, cmd.ends[R], 0);
+      newBlock.adopt(cmd, cmd.endRef(R), 0);
     }
   }
   placeCursor(cursor: Cursor) {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
     cursor.insAtRightEnd(
-      this.foldChildren(this.ends[L] as MQNode, function (leftward, child) {
+      this.foldChildren(this.endRef(L) as MQNode, function (leftward, child) {
         return leftward.isEmpty() ? leftward : child;
       })
     );
@@ -176,7 +176,7 @@ class MathCommand extends MathElement {
       updownInto = this.downInto;
     }
 
-    const el = (updownInto || this.ends[-dir as Direction]) as MQNode;
+    const el = (updownInto || this.endRef(-dir as Direction)) as MQNode;
     cursor.insAtDirEnd(-dir as Direction, el);
     cursor.controller.aria
       .queueDirEndOf(-dir as Direction)
@@ -540,8 +540,8 @@ class MathBlock extends MathElement {
     return this.join('latex');
   }
   text() {
-    var endsL = this.ends[L];
-    var endsR = this.ends[R];
+    var endsL = this.endRef(L);
+    var endsR = this.endRef(R);
     return endsL === endsR && endsL !== 0 ? endsL.text() : this.join('text');
   }
   mathspeak() {
@@ -628,12 +628,12 @@ class MathBlock extends MathElement {
     cursor.unwrapGramp();
   }
   seek(pageX: number, cursor: Cursor) {
-    var node = this.ends[R];
+    var node = this.endRef(R);
     if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
       return cursor.insAtRightEnd(this);
     }
 
-    var endsL = this.ends[L] as MQNode;
+    var endsL = this.endRef(L) as MQNode;
     if (pageX < endsL.jQ.offset().left) return cursor.insAtLeftEnd(this);
     while (pageX < node.jQ.offset().left) node = node[L] as MQNode;
     return node.seek(pageX, cursor);
@@ -688,10 +688,10 @@ class MathBlock extends MathElement {
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
       var jQ = block.jQize();
       jQ.insertBefore(cursor.jQ);
-      cursor[L] = block.ends[R];
+      cursor[L] = block.endRef(R);
       block.finalizeInsert(cursor.options, cursor);
-      var blockEndsR = block.ends[R];
-      var blockEndsL = block.ends[L];
+      var blockEndsR = block.endRef(R);
+      var blockEndsL = block.endRef(L);
       var blockEndsRR = (blockEndsR as MQNode)[R];
       var blockEndsLL = (blockEndsL as MQNode)[L];
       if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
