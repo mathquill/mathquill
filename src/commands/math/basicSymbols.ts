@@ -674,7 +674,7 @@ for (var fn in AutoOpNames)
 LatexCmds.operatorname = class extends MathCommand {
   createLeftOf() {}
   numBlocks() {
-    return 1;
+    return 1 as const;
   }
   parser() {
     return latexMathParser.block.map(function (b) {
@@ -707,7 +707,9 @@ LatexCmds.f = class extends Letter {
     super(letter);
 
     this.letter = letter;
-    this.htmlTemplate = h('var', { class: 'mq-f' }, [h.text('f')]);
+    this.domView = new DOMView(0, () =>
+      h('var', { class: 'mq-f' }, [h.text('f')])
+    );
   }
   italicize(bool: boolean) {
     this.jQ.html('f').toggleClass('mq-f', bool);

@@ -228,7 +228,9 @@ class NodeBase {
    */
   jQize(el?: $ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ: $ = $(el || this.html());
+    const e = el ?? this.html();
+
+    var jQ: $ = $(e instanceof DocumentFragment ? e.childNodes : e);
 
     function jQadd(el: HTMLElement | ChildNode) {
       if ('getAttribute' in el) {

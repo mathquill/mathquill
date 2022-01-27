@@ -113,7 +113,10 @@ class Style extends MathCommand {
     ariaLabel?: string,
     opts?: { shouldNotSpeakDelimiters: boolean }
   ) {
-    super(ctrlSeq, h(tagName, attrs, [h.block(0)]));
+    super(
+      ctrlSeq,
+      new DOMView(1, (blocks) => h.block(tagName, attrs, blocks[0]))
+    );
     this.ariaLabel = ariaLabel || ctrlSeq.replace(/^\\/, '');
     this.mathspeakTemplate = [
       'Start' + this.ariaLabel + ',',
@@ -203,12 +206,14 @@ LatexCmds.overarc = () =>
 LatexCmds.dot = () => {
   return new MathCommand(
     '\\dot',
-    h('span', { class: 'mq-non-leaf' }, [
-      h('span', { class: 'mq-dot-recurring-inner' }, [
-        h('span', { class: 'mq-dot-recurring' }, [h.text(U_DOT_ABOVE)]),
-        h('span', { class: 'mq-empty-box' }, [h.block(0)]),
-      ]),
-    ])
+    new DOMView(1, (blocks) =>
+      h('span', { class: 'mq-non-leaf' }, [
+        h('span', { class: 'mq-dot-recurring-inner' }, [
+          h('span', { class: 'mq-dot-recurring' }, [h.text(U_DOT_ABOVE)]),
+          h.block('span', { class: 'mq-empty-box' }, blocks[0]),
+        ]),
+      ])
+    )
   );
 };
 
@@ -224,10 +229,12 @@ LatexCmds.textcolor = class extends MathCommand {
 
   setColor(color: string) {
     this.color = color;
-    this.htmlTemplate = h(
-      'span',
-      { class: 'mq-textcolor', style: "color:' + color + '" },
-      [h.block(0)]
+    this.domView = new DOMView(1, (blocks) =>
+      h.block(
+        'span',
+        { class: 'mq-textcolor', style: "color:' + color + '" },
+        blocks[0]
+      )
     );
     this.ariaLabel = color.replace(/^\\/, '');
     this.mathspeakTemplate = [
@@ -270,13 +277,13 @@ var Class = (LatexCmds['class'] = class extends MathCommand {
       regex = Parser.regex;
     return Parser.optWhitespace
       .then(string('{'))
-      .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
+      .then(regex(/^[-\w\s\\\xblocks[0]-\xFF]*/))
       .skip(string('}'))
       .then((cls) => {
         this.cls = cls || '';
-        this.htmlTemplate = h('span', { class: "mq-class ' + cls + '" }, [
-          h.block(0),
-        ]);
+        this.domView = new DOMView(1, (blocks) =>
+          h.block('span', { class: "mq-class ' + cls + '" }, blocks[0])
+        );
         this.ariaLabel = cls + ' class';
         this.mathspeakTemplate = [
           'Start ' + this.ariaLabel + ',',
@@ -539,12 +546,14 @@ function insLeftOfMeUnlessAtEnd(this: MQNode, cursor: Cursor) {
 class SubscriptCommand extends SupSub {
   supsub = 'sub' as const;
 
-  htmlTemplate = h('span', { class: 'mq-supsub mq-non-leaf' }, [
-    h('span', { class: 'mq-sub' }, [h.block(0)]),
-    h('span', { style: 'display:inline-block;width:0' }, [
-      h.text(U_ZERO_WIDTH_SPACE),
-    ]),
-  ]);
+  domView = new DOMView(1, (blocks) =>
+    h('span', { class: 'mq-supsub mq-non-leaf' }, [
+      h.block('span', { class: 'mq-sub' }, blocks[0]),
+      h('span', { style: 'display:inline-block;width:0' }, [
+        h.text(U_ZERO_WIDTH_SPACE),
+      ]),
+    ])
+  );
 
   textTemplate = ['_'];
 
@@ -566,9 +575,11 @@ LatexCmds.superscript =
     class SuperscriptCommand extends SupSub {
       supsub = 'sup' as const;
 
-      htmlTemplate = h('span', { class: 'mq-supsub mq-non-leaf mq-sup-only' }, [
-        h('span', { class: 'mq-sup' }, [h.block(0)]),
-      ]);
+      domView = new DOMView(1, (blocks) =>
+        h('span', { class: 'mq-supsub mq-non-leaf mq-sup-only' }, [
+          h.block('span', { class: 'mq-sup' }, blocks[0]),
+        ])
+      );
 
       textTemplate = ['^(', ')'];
       mathspeak(opts?: MathspeakOptions) {
@@ -626,17 +637,15 @@ class SummationNotation extends MathCommand {
     super();
 
     this.ariaLabel = ariaLabel || ch.replace(/^\\/, '');
-    var htmlTemplate = h('span', { class: 'mq-large-operator mq-non-leaf' }, [
-      h('span', { class: 'mq-to' }, [h('span', {}, [h.block(1)])]),
-      h('big', {}, [h.text(symbol)]),
-      h('span', { class: 'mq-from' }, [h('span', {}, [h.block(0)])]),
-    ]);
-
-    MQSymbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(
-      this,
-      ch,
-      htmlTemplate
+    var domView = new DOMView(2, (blocks) =>
+      h('span', { class: 'mq-large-operator mq-non-leaf' }, [
+        h('span', { class: 'mq-to' }, [h.block('span', {}, blocks[1])]),
+        h('big', {}, [h.text(symbol)]),
+        h('span', { class: 'mq-from' }, [h.block('span', {}, blocks[0])]),
+      ])
     );
+
+    MQSymbol.prototype.setCtrlSeqHtmlTextAndMathspeak.call(this, ch, domView);
   }
   createLeftOf(cursor: Cursor) {
     super.createLeftOf(cursor);
@@ -728,18 +737,20 @@ LatexCmds['∫'] =
         super('\\int ', '', 'integral');
 
         this.ariaLabel = 'integral';
-        this.htmlTemplate = h('span', { class: 'mq-int mq-non-leaf' }, [
-          h('big', {}, [h.text(U_INTEGRAL)]),
-          h('span', { class: 'mq-supsub mq-non-leaf' }, [
-            h('span', { class: 'mq-sup' }, [
-              h('span', { class: 'mq-sup-inner' }, [h.block(1)]),
+        this.domView = new DOMView(2, (blocks) =>
+          h('span', { class: 'mq-int mq-non-leaf' }, [
+            h('big', {}, [h.text(U_INTEGRAL)]),
+            h('span', { class: 'mq-supsub mq-non-leaf' }, [
+              h('span', { class: 'mq-sup' }, [
+                h.block('span', { class: 'mq-sup-inner' }, blocks[1]),
+              ]),
             ]),
-          ]),
-          h('span', { class: 'mq-sub' }, [h.block(0)]),
-          h('span', { style: 'display:inline-block;width:0' }, [
-            h.text(U_ZERO_WIDTH_SPACE),
-          ]),
-        ]);
+            h.block('span', { class: 'mq-sub' }, blocks[0]),
+            h('span', { style: 'display:inline-block;width:0' }, [
+              h.text(U_ZERO_WIDTH_SPACE),
+            ]),
+          ])
+        );
       }
 
       createLeftOf(cursor: Cursor) {
@@ -754,13 +765,15 @@ var Fraction =
   LatexCmds.fraction =
     class FracNode extends MathCommand {
       ctrlSeq = '\\frac';
-      htmlTemplate = h('span', { class: 'mq-fraction mq-non-leaf' }, [
-        h('span', { class: 'mq-numerator' }, [h.block(0)]),
-        h('span', { class: 'mq-denominator' }, [h.block(1)]),
-        h('span', { style: 'display:inline-block;width:0' }, [
-          h.text(U_ZERO_WIDTH_SPACE),
-        ]),
-      ]);
+      domView = new DOMView(2, (blocks) =>
+        h('span', { class: 'mq-fraction mq-non-leaf' }, [
+          h.block('span', { class: 'mq-numerator' }, blocks[0]),
+          h.block('span', { class: 'mq-denominator' }, blocks[1]),
+          h('span', { style: 'display:inline-block;width:0' }, [
+            h.text(U_ZERO_WIDTH_SPACE),
+          ]),
+        ])
+      );
       textTemplate = ['(', ')/(', ')'];
       finalizeTree() {
         const endsL = this.ends[L] as MQNode;
@@ -928,10 +941,14 @@ LatexCmds.percent = LatexCmds.percentof = PercentOfBuilder;
 
 class SquareRoot extends MathCommand {
   ctrlSeq = '\\sqrt';
-  htmlTemplate = h('span', { class: 'mq-non-leaf mq-sqrt-container' }, [
-    h('span', { class: 'mq-scaled mq-sqrt-prefix' }, [SVG_SYMBOLS.sqrt.html()]),
-    h('span', { class: 'mq-non-leaf mq-sqrt-stem' }, [h.block(0)]),
-  ]);
+  domView = new DOMView(1, (blocks) =>
+    h('span', { class: 'mq-non-leaf mq-sqrt-container' }, [
+      h('span', { class: 'mq-scaled mq-sqrt-prefix' }, [
+        SVG_SYMBOLS.sqrt.html(),
+      ]),
+      h.block('span', { class: 'mq-non-leaf mq-sqrt-stem' }, blocks[0]),
+    ])
+  );
   textTemplate = ['sqrt(', ')'];
   mathspeakTemplate = ['StartRoot,', ', EndRoot'];
   ariaLabel = 'root';
@@ -953,24 +970,28 @@ LatexCmds.sqrt = SquareRoot;
 
 LatexCmds.hat = class Hat extends MathCommand {
   ctrlSeq = '\\hat';
-  htmlTemplate = h('span', { class: 'mq-non-leaf' }, [
-    h('span', { class: 'mq-hat-prefix' }, [h.text('^')]),
-    h('span', { class: 'mq-hat-stem' }, [h.block(0)]),
-  ]);
+  domView = new DOMView(1, (blocks) =>
+    h('span', { class: 'mq-non-leaf' }, [
+      h('span', { class: 'mq-hat-prefix' }, [h.text('^')]),
+      h.block('span', { class: 'mq-hat-stem' }, blocks[0]),
+    ])
+  );
 
   textTemplate = ['hat(', ')'];
 };
 
 class NthRoot extends SquareRoot {
-  htmlTemplate = h('span', { class: 'mq-nthroot-container mq-non-leaf' }, [
-    h('sup', { class: 'mq-nthroot mq-non-leaf' }, [h.block(0)]),
-    h('span', { class: 'mq-scaled mq-sqrt-container' }, [
-      h('span', { class: 'mq-sqrt-prefix mq-scaled' }, [
-        SVG_SYMBOLS.sqrt.html(),
+  domView = new DOMView(2, (blocks) =>
+    h('span', { class: 'mq-nthroot-container mq-non-leaf' }, [
+      h.block('sup', { class: 'mq-nthroot mq-non-leaf' }, blocks[0]),
+      h('span', { class: 'mq-scaled mq-sqrt-container' }, [
+        h('span', { class: 'mq-sqrt-prefix mq-scaled' }, [
+          SVG_SYMBOLS.sqrt.html(),
+        ]),
+        h.block('span', { class: 'mq-sqrt-stem mq-non-leaf' }, blocks[1]),
       ]),
-      h('span', { class: 'mq-sqrt-stem mq-non-leaf' }, [h.block(1)]),
-    ]),
-  ]);
+    ])
+  );
 
   textTemplate = ['sqrt[', '](', ')'];
   latex() {
@@ -1013,11 +1034,13 @@ LatexCmds.cbrt = class extends NthRoot {
 
 class DiacriticAbove extends MathCommand {
   constructor(ctrlSeq: string, symbol: string, textTemplate?: string[]) {
-    var htmlTemplate = h('span', { class: 'mq-non-leaf' }, [
-      h('span', { class: 'mq-diacritic-above' }, [h.text(symbol)]),
-      h('span', { class: 'mq-diacritic-stem' }, [h.block(0)]),
-    ]);
-    super(ctrlSeq, htmlTemplate, textTemplate);
+    var domView = new DOMView(1, (blocks) =>
+      h('span', { class: 'mq-non-leaf' }, [
+        h('span', { class: 'mq-diacritic-above' }, [h.text(symbol)]),
+        h.block('span', { class: 'mq-diacritic-stem' }, blocks[0]),
+      ])
+    );
+    super(ctrlSeq, domView, textTemplate);
   }
 }
 LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
@@ -1059,51 +1082,53 @@ class Bracket extends DelimsNode {
     };
   }
   numBlocks() {
-    return 1;
+    return 1 as const;
   }
   html() {
     var leftSymbol = this.getSymbol(L);
     var rightSymbol = this.getSymbol(R);
 
     // wait until now so that .side may
-    this.htmlTemplate = h(
-      // be set by createLeftOf or parser
-      'span',
-      { class: 'mq-non-leaf mq-bracket-container' },
-      [
-        h(
-          'span',
-          {
-            style: 'width:' + leftSymbol.width,
-            class:
-              'mq-scaled mq-bracket-l mq-paren' +
-              (this.side === R ? ' mq-ghost' : ''),
-          },
-          [leftSymbol.html()]
-        ),
-        h(
-          'span',
-          {
-            style:
-              'margin-left:' +
-              leftSymbol.width +
-              ';margin-right:' +
-              rightSymbol.width,
-            class: 'mq-bracket-middle mq-non-leaf',
-          },
-          [h.block(0)]
-        ),
-        h(
-          'span',
-          {
-            style: 'width:' + rightSymbol.width,
-            class:
-              'mq-scaled mq-bracket-r mq-paren' +
-              (this.side === L ? ' mq-ghost' : ''),
-          },
-          [rightSymbol.html()]
-        ),
-      ]
+    this.domView = new DOMView(1, (blocks) =>
+      h(
+        // be set by createLeftOf or parser
+        'span',
+        { class: 'mq-non-leaf mq-bracket-container' },
+        [
+          h(
+            'span',
+            {
+              style: 'width:' + leftSymbol.width,
+              class:
+                'mq-scaled mq-bracket-l mq-paren' +
+                (this.side === R ? ' mq-ghost' : ''),
+            },
+            [leftSymbol.html()]
+          ),
+          h.block(
+            'span',
+            {
+              style:
+                'margin-left:' +
+                leftSymbol.width +
+                ';margin-right:' +
+                rightSymbol.width,
+              class: 'mq-bracket-middle mq-non-leaf',
+            },
+            blocks[0]
+          ),
+          h(
+            'span',
+            {
+              style: 'width:' + rightSymbol.width,
+              class:
+                'mq-scaled mq-bracket-r mq-paren' +
+                (this.side === L ? ' mq-ghost' : ''),
+            },
+            [rightSymbol.html()]
+          ),
+        ]
+      )
     );
     return super.html();
   }
@@ -1474,41 +1499,43 @@ var leftBinomialSymbol = SVG_SYMBOLS['('];
 var rightBinomialSymbol = SVG_SYMBOLS[')'];
 class Binomial extends DelimsNode {
   ctrlSeq = '\\binom';
-  htmlTemplate = h('span', { class: 'mq-non-leaf mq-bracket-container' }, [
-    h(
-      'span',
-      {
-        style: 'width:' + leftBinomialSymbol.width,
-        class: 'mq-paren mq-bracket-l mq-scaled',
-      },
-      [leftBinomialSymbol.html()]
-    ),
-    h(
-      'span',
-      {
-        style:
-          'margin-left:' +
-          leftBinomialSymbol.width +
-          '; margin-right:' +
-          rightBinomialSymbol.width,
-        class: 'mq-non-leaf mq-bracket-middle',
-      },
-      [
-        h('span', { class: 'mq-array mq-non-leaf' }, [
-          h('span', {}, [h.block(0)]),
-          h('span', {}, [h.block(1)]),
-        ]),
-      ]
-    ),
-    h(
-      'span',
-      {
-        style: 'width:' + rightBinomialSymbol.width,
-        class: 'mq-paren mq-bracket-r mq-scaled',
-      },
-      [rightBinomialSymbol.html()]
-    ),
-  ]);
+  domView = new DOMView(2, (blocks) =>
+    h('span', { class: 'mq-non-leaf mq-bracket-container' }, [
+      h(
+        'span',
+        {
+          style: 'width:' + leftBinomialSymbol.width,
+          class: 'mq-paren mq-bracket-l mq-scaled',
+        },
+        [leftBinomialSymbol.html()]
+      ),
+      h(
+        'span',
+        {
+          style:
+            'margin-left:' +
+            leftBinomialSymbol.width +
+            '; margin-right:' +
+            rightBinomialSymbol.width,
+          class: 'mq-non-leaf mq-bracket-middle',
+        },
+        [
+          h('span', { class: 'mq-array mq-non-leaf' }, [
+            h.block('span', {}, blocks[0]),
+            h.block('span', {}, blocks[1]),
+          ]),
+        ]
+      ),
+      h(
+        'span',
+        {
+          style: 'width:' + rightBinomialSymbol.width,
+          class: 'mq-paren mq-bracket-r mq-scaled',
+        },
+        [rightBinomialSymbol.html()]
+      ),
+    ])
+  );
 
   textTemplate = ['choose(', ',', ')'];
   mathspeakTemplate = ['StartBinomial,', 'Choose', ', EndBinomial'];
@@ -1526,9 +1553,11 @@ LatexCmds.choose = class extends Binomial {
 class MathFieldNode extends MathCommand {
   name: string;
   ctrlSeq = '\\MathQuillMathField';
-  htmlTemplate = h('span', { class: 'mq-editable-field' }, [
-    h('span', { class: 'mq-root-block' }, [h.block(0)]),
-  ]);
+  domView = new DOMView(1, (blocks) =>
+    h('span', { class: 'mq-editable-field' }, [
+      h.block('span', { class: 'mq-root-block' }, blocks[0]),
+    ])
+  );
   parser() {
     var self = this,
       string = Parser.string,
@@ -1584,7 +1613,13 @@ class EmbedNode extends MQSymbol {
       return '';
     }
     this.text = options.text || noop;
-    this.htmlTemplate = parseHTML(options.htmlString || '')[0] as HTMLElement; // TODO: fix this
+    this.domView = new DOMView(
+      0,
+      () =>
+        parseHTML(
+          options.htmlString || ''
+        )[0] as HTMLElement /* TODO: fix this */
+    );
     this.latex = options.latex || noop;
     return this;
   }

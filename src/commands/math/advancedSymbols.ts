@@ -129,7 +129,7 @@ LatexCmds.nsupe =
 LatexCmds.mathbb = class extends MathCommand {
   createLeftOf(_cursor: Cursor) {}
   numBlocks() {
-    return 1;
+    return 1 as const;
   }
   parser() {
     var string = Parser.string;

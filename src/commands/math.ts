@@ -77,7 +77,12 @@ class MathElement extends MQNode {
   }
 }
 
-type HTMLTemplate = HTMLElement;
+class DOMView {
+  constructor(
+    public readonly childCount: number,
+    public readonly render: (blocks: MathBlock[]) => HTMLElement
+  ) {}
+}
 
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
@@ -85,24 +90,20 @@ type HTMLTemplate = HTMLElement;
  */
 class MathCommand extends MathElement {
   replacedFragment: Fragment | undefined;
-  protected htmlTemplate: HTMLTemplate | undefined;
+  protected domView: DOMView;
 
-  constructor(
-    ctrlSeq?: string,
-    htmlTemplate?: HTMLTemplate,
-    textTemplate?: string[]
-  ) {
+  constructor(ctrlSeq?: string, domView?: DOMView, textTemplate?: string[]) {
     super();
-    this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
+    this.setCtrlSeqHtmlAndText(ctrlSeq, domView, textTemplate);
   }
 
   setCtrlSeqHtmlAndText(
     ctrlSeq?: string,
-    htmlTemplate?: HTMLTemplate,
+    domView?: DOMView,
     textTemplate?: string[]
   ) {
     if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) this.htmlTemplate = htmlTemplate;
+    if (domView) this.domView = domView;
     if (textTemplate) this.textTemplate = textTemplate;
   }
 
@@ -275,12 +276,10 @@ class MathCommand extends MathElement {
   */
 
   numBlocks() {
-    return (
-      this.htmlTemplate?.querySelectorAll('[mq-block-placeholder]').length || 0
-    );
+    return this.domView.childCount;
   }
 
-  html() {
+  html(): HTMLElement {
     // Render the entire math subtree rooted at this command, as HTML.
     // Expects .createBlocks() to have been called already, since it uses the
     // .blocks array of child blocks.
@@ -316,28 +315,14 @@ class MathCommand extends MathElement {
     //   and token becomes undefined. This will not infinite loop, even in
     //   production without pray(), because it will then TypeError on .slice().
 
-    const blocks = this.blocks || [];
-    pray('htmlTemplate is defined', this.htmlTemplate);
-    const dom = this.htmlTemplate.cloneNode(true) as HTMLElement;
+    const blocks = this.blocks;
+    pray('domView is defined', this.domView);
+    const template = this.domView;
+    // pray('blocks is defined', blocks)
+    const dom = template.render(blocks || []);
     // add cmdId and aria-hidden (for screen reader users) to all top-level tags
     dom.setAttribute('aria-hidden', 'true');
     dom.setAttribute('mathquill-command-id', '' + this.id);
-
-    const placeholders = dom.querySelectorAll('[mq-block-placeholder]');
-    for (let i = 0; i < placeholders.length; i++) {
-      const placeholder = placeholders[i];
-      const index = parseInt(
-        placeholder.getAttribute('mq-block-placeholder') || ''
-      );
-      pray(
-        'block placeholder has a valid mq-block-placeholder attribute',
-        index >= 0 && index < blocks.length
-      );
-      const block = blocks[index];
-      placeholder.removeAttribute('mq-block-placeholder');
-      placeholder.setAttribute('mathquill-block-id', '' + block.id);
-      appendChildren(placeholder, block.html());
-    }
 
     return dom;
   }
@@ -396,12 +381,19 @@ class MQSymbol extends MathCommand {
     mathspeak?: string
   ) {
     super();
-    this.setCtrlSeqHtmlTextAndMathspeak(ctrlSeq, html, text, mathspeak);
+    this.setCtrlSeqHtmlTextAndMathspeak(
+      ctrlSeq,
+      html
+        ? new DOMView(0, () => html.cloneNode(true) as HTMLElement)
+        : undefined,
+      text,
+      mathspeak
+    );
   }
 
   setCtrlSeqHtmlTextAndMathspeak(
     ctrlSeq?: string,
-    html?: HTMLElement,
+    html?: DOMView,
     text?: string,
     mathspeak?: string
   ) {
@@ -418,7 +410,7 @@ class MQSymbol extends MathCommand {
   }
 
   numBlocks() {
-    return 0;
+    return 0 as const;
   }
 
   replaces(replacedFragment: Fragment) {

@@ -471,7 +471,9 @@ class RootMathCommand extends MathCommand {
     super('$');
     this.cursor = cursor;
   }
-  htmlTemplate = h('span', { class: 'mq-math-mode' }, [h.block(0)]);
+  domView = new DOMView(1, (blocks) =>
+    h.block('span', { class: 'mq-math-mode' }, blocks[0])
+  );
   createBlocks() {
     super.createBlocks();
     const endsL = this.ends[L] as RootMathCommand; // TODO - how do we know this is a RootMathCommand?

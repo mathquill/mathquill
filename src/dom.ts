@@ -19,18 +19,26 @@ interface HtmlBuilder {
   (
     type: TagName,
     attributes?: CreateElementAttributes,
-    children?: ChildNode[] | NodeListOf<ChildNode>
+    children?: (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
   ): HTMLElement;
 
   text(s: string): Text;
-  block(n: number): ChildNode;
+  /**
+   * Render an HTML node containing a child block. We use a specialized function for this because MathQuill expects
+   * each block's containing element to have a `mathquill-block-id` attribute set on it.
+   */
+  block(
+    type: TagName,
+    attributes: CreateElementAttributes | undefined,
+    block: MathBlock
+  ): HTMLElement;
   entityText(s: string): Text;
 }
 
 const h: HtmlBuilder = function h(
   type: TagName,
   attributes?: CreateElementAttributes,
-  children?: ChildNode[] | NodeListOf<ChildNode>
+  children?: (ChildNode | DocumentFragment)[]
 ): HTMLElement | SVGSVGElement {
   const el =
     type === 'svg'
@@ -48,7 +56,16 @@ const h: HtmlBuilder = function h(
 } as HtmlBuilder;
 
 h.text = (s: string) => document.createTextNode(s);
-h.block = (n: number) => h('span', { 'mq-block-placeholder': n });
+
+h.block = (
+  type: TagName,
+  attributes: CreateElementAttributes | undefined,
+  block: MathBlock
+) =>
+  h(type, { ...attributes, 'mathquill-block-id': block.id + '' }, [
+    block.html(),
+  ]);
+
 h.entityText = (s: string) => {
   // TODO: replace with h.text(U_BLAHBLAH) or maybe a named entity->unicode lookup
   const val = parseHTML(s);
@@ -61,7 +78,7 @@ h.entityText = (s: string) => {
 
 function appendChildren(
   parent: ParentNode,
-  children?: ChildNode | NodeListOf<ChildNode> | DocumentFragment | ChildNode[]
+  children?: ChildNode | DocumentFragment | (ChildNode | DocumentFragment)[]
 ) {
   if (!children) return;
 
