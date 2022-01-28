@@ -118,8 +118,6 @@ interface $ {
   mouseup(cb: (evt: MouseEvent) => any): $;
   focus(handler: (eventObject: Event) => any): $;
   blur(handler: (eventObject: Event) => any): $;
-  first(): $;
-  last(): $;
   slice(start: number, end?: number): $;
   scrollLeft(): number;
   scrollTop(): number;
@@ -128,5 +126,4 @@ interface $ {
   offset(): { left: number; top: number }; // TODO - this can be undefined. Either fix uses or wait until removing jquery
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
-  get(index: number): HTMLElement;
 }

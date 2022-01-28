@@ -83,6 +83,7 @@ class DOMFragment {
     return $(this.toArray() as HTMLElement[]);
   }
 
+  // TODO, make this take an element rather than a fragment
   insertBefore(sibling: DOMFragment) {
     if (!this.ends) return sibling;
     if (!sibling.ends) return this;
@@ -93,6 +94,7 @@ class DOMFragment {
     return new DOMFragment(this.ends[L], sibling.ends[R]);
   }
 
+  // TODO, make this take an element rathern than a fragment
   insertAfter(sibling: DOMFragment) {
     if (!this.ends) return sibling;
     if (!sibling.ends) return this;
@@ -185,6 +187,67 @@ class DOMFragment {
   children() {
     const el = this.one();
     return new DOMFragment(el.firstChild, el.lastChild);
+  }
+
+  /**
+   * Return the nth Element node of this collection, or undefined if
+   * there is no nth Element. Skips Nodes that are not Elements (e.g.
+   * Text and Comment nodes).
+   *
+   * Analogous to jQuery's array indexing syntax, or jQuery's .get()
+   * with positive arguments.
+   */
+  nthElement(n: number): HTMLElement | undefined {
+    if (!this.ends) return undefined;
+    let current: ChildNode | null = this.ends[L];
+    while (current) {
+      // Only count element nodes
+      if (current.nodeType === Node.ELEMENT_NODE) {
+        if (n <= 0) return current as HTMLElement;
+        n -= 1;
+      }
+      if (current === this.ends[R]) return undefined;
+      current = current.nextSibling;
+    }
+    return undefined;
+  }
+
+  /**
+   * Return the first Element node of this fragment, or undefined if
+   * the fragment is empty. Skips Nodes that are not Elements (e.g.
+   * Text and Comment nodes).
+   */
+  firstElement() {
+    return this.nthElement(0);
+  }
+
+  /**
+   * Return the first Element node of this fragment, or undefined if
+   * the fragment is empty. Skips Nodes that are not Elements (e.g.
+   * Text and Comment nodes).
+   */
+  lastElement(): HTMLElement | undefined {
+    if (!this.ends) return undefined;
+    let current: ChildNode | null = this.ends[R];
+    while (current) {
+      // Only count element nodes
+      if (current.nodeType === Node.ELEMENT_NODE) {
+        return current as HTMLElement;
+      }
+      if (current === this.ends[L]) return undefined;
+      current = current.previousSibling;
+    }
+    return undefined;
+  }
+
+  first() {
+    const el = this.firstElement();
+    return new DOMFragment(el, el);
+  }
+
+  last() {
+    const el = this.lastElement();
+    return new DOMFragment(el, el);
   }
 }
 
