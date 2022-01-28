@@ -1,6 +1,7 @@
 const urlParams = new URLSearchParams(window.location.search);
 
-type TagName = 'svg' | 'span' | 'textarea' | 'i' | 'b' | 'big' | 'sup' | 'var';
+type HTMLTagName = 'span' | 'textarea' | 'i' | 'b' | 'big' | 'sup' | 'var';
+type SVGTagName = 'svg' | 'path';
 
 interface CreateElementAttributes {
   class?: string;
@@ -17,10 +18,15 @@ function parseHTML(s: string) {
 
 interface HtmlBuilder {
   (
-    type: TagName,
+    type: HTMLTagName,
     attributes?: CreateElementAttributes,
     children?: (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
   ): HTMLElement;
+  (
+    type: SVGTagName,
+    attributes?: CreateElementAttributes,
+    children?: (ChildNode | DocumentFragment)[]
+  ): SVGElement;
 
   text(s: string): Text;
   /**
@@ -28,7 +34,7 @@ interface HtmlBuilder {
    * each block's containing element to have a `mathquill-block-id` attribute set on it.
    */
   block(
-    type: TagName,
+    type: HTMLTagName,
     attributes: CreateElementAttributes | undefined,
     block: MathBlock
   ): HTMLElement;
@@ -36,14 +42,19 @@ interface HtmlBuilder {
 }
 
 const h: HtmlBuilder = function h(
-  type: TagName,
+  type: HTMLTagName | SVGTagName,
   attributes?: CreateElementAttributes,
   children?: (ChildNode | DocumentFragment)[]
-): HTMLElement | SVGSVGElement {
-  const el =
-    type === 'svg'
-      ? document.createElementNS('http://www.w3.org/2000/svg', 'svg')
-      : document.createElement(type);
+): HTMLElement | SVGElement {
+  let el: HTMLElement | SVGElement;
+  switch (type) {
+    case 'svg':
+    case 'path':
+      el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      break;
+    default:
+      el = document.createElement(type);
+  }
   for (const key in attributes) {
     const value = attributes[key];
     if (value === undefined) continue;
@@ -58,7 +69,7 @@ const h: HtmlBuilder = function h(
 h.text = (s: string) => document.createTextNode(s);
 
 h.block = (
-  type: TagName,
+  type: HTMLTagName,
   attributes: CreateElementAttributes | undefined,
   block: MathBlock
 ) =>

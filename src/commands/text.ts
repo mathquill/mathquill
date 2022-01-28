@@ -413,7 +413,7 @@ LatexCmds.text =
 function makeTextBlock(
   latex: string,
   ariaLabel: string,
-  tagName: TagName,
+  tagName: HTMLTagName,
   attrs: { style?: string; class: string }
 ) {
   return class extends TextBlock {
