@@ -92,7 +92,6 @@ interface $ {
   hasClass(cls: string): boolean;
   append(el: JQSelector): $;
   prepend(el: JQSelector): $;
-  prependTo(el: JQSelector): $;
   replaceWith(el: JQSelector): $;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;

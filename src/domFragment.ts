@@ -108,6 +108,12 @@ class DOMFragment {
     el.appendChild(this.toDocumentFragment());
     return new DOMFragment(this.ends[L], this.ends[R]);
   }
+
+  prependTo(el: ChildNode) {
+    if (!this.ends) return this;
+    el.insertBefore(this.toDocumentFragment(), el.firstChild);
+    return new DOMFragment(this.ends[L], this.ends[R]);
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

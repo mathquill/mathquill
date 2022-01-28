@@ -437,9 +437,11 @@ class SupSub extends MathCommand {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
-      block.jQ = $('<span class="mq-sup"/>')
-        .append(block.jQ.children())
-        .prependTo(this.jQ);
+      block.jQ = jQToDOMFragment(
+        $('<span class="mq-sup"/>').append(block.jQ.children())
+      )
+        .prependTo(jQToDOMFragment(this.jQ).one())
+        .toJQ();
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;

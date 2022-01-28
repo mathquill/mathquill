@@ -21,10 +21,9 @@ function jQInsDirOf(child: $, dir: Direction, el: $) {
 
 /** Insert `child` collection into `el` either at the beginning or end of its children, according to the direction specified by `dir`. */
 function jQInsAtDirEnd(child: $, dir: Direction, el: $) {
-  pray('appending to exactly 1 element', el.length === 1);
   return dir === L
-    ? child.prependTo(el)
-    : jQToDOMFragment(child).appendTo(jQToDOMFragment(el).one());
+    ? jQToDOMFragment(child).prependTo(jQToDOMFragment(el).one()).toJQ()
+    : jQToDOMFragment(child).appendTo(jQToDOMFragment(el).one()).toJQ();
 }
 
 /** A cursor-like location in an mq node tree. */
