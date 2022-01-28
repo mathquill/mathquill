@@ -394,13 +394,18 @@ class MQSelection extends Fragment {
   }
 
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-    this.jQ.replaceWith((this.jQ = this.jQ.children()));
+    jQToDOMFragment(this.jQ).replaceWith(
+      jQToDOMFragment((this.jQ = this.jQ.children()))
+    );
     return super.adopt(parent, leftward, rightward);
   }
   clear() {
     // using the browser's native .childNodes property so that we
     // don't discard text nodes.
-    this.jQ.replaceWith(this.jQ[0].childNodes);
+    const childNodes = this.jQ[0].childNodes;
+    jQToDOMFragment(this.jQ).replaceWith(
+      DOMFragment.create(childNodes[0], childNodes[childNodes.length - 1])
+    );
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {

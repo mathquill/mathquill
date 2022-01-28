@@ -87,7 +87,7 @@ class DOMFragment {
     if (!this.ends) return sibling;
     if (!sibling.ends) return this;
 
-    var parent = sibling.ends[L].parentNode!;
+    const parent = sibling.ends[L].parentNode;
     pray('parent is defined', parent);
     parent.insertBefore(this.toDocumentFragment(), sibling.ends[L]);
     return new DOMFragment(this.ends[L], sibling.ends[R]);
@@ -97,7 +97,7 @@ class DOMFragment {
     if (!this.ends) return sibling;
     if (!sibling.ends) return this;
 
-    var parent = sibling.ends[L].parentNode!;
+    const parent = sibling.ends[L].parentNode;
     pray('parent is defined', parent);
     parent.insertBefore(this.toDocumentFragment(), sibling.ends[R].nextSibling);
     return new DOMFragment(sibling.ends[L], this.ends[R]);
@@ -150,12 +150,26 @@ class DOMFragment {
 
   wrapAll(el: ChildNode) {
     if (!this.ends) return this;
-    const parent = this.ends[L].parentNode!;
+    const parent = this.ends[L].parentNode;
     const next = this.ends[R].nextSibling;
     this.appendTo(el);
     if (parent) {
       parent.insertBefore(el, next);
     }
+    return this;
+  }
+
+  /**
+   * Replace the node represented by this fragment with the given
+   * fragment.
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
+  replaceWith(children: DOMFragment) {
+    const el = this.one();
+    const parent = el.parentNode;
+    pray('parent is defined', parent);
+    parent.replaceChild(children.toDocumentFragment(), el);
     return this;
   }
 }
