@@ -28,7 +28,12 @@ class DOMFragment {
   each(cb: (el: ChildNode) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
-    for (let node: ChildNode = this.ends[L]; node; node = node.nextSibling!) {
+    for (
+      let node: ChildNode = this.ends[L], next: ChildNode;
+      node;
+      node = next
+    ) {
+      next = node.nextSibling!;
       cb(node);
       if (node === stop) break;
     }
@@ -51,6 +56,12 @@ class DOMFragment {
     return accum;
   }
 
+  toDocumentFragment() {
+    const frag = document.createDocumentFragment();
+    this.each((el) => frag.appendChild(el));
+    return frag;
+  }
+
   toJQ(): $ {
     return $(this.toArray() as HTMLElement[]);
   }
@@ -61,13 +72,7 @@ class DOMFragment {
 
     var parent = sibling.ends[L].parentNode!;
     pray('parent is defined', parent);
-    let right = sibling.ends[L];
-    const arr = this.toArray();
-    for (let i = arr.length - 1; i >= 0; i--) {
-      const el = arr[i];
-      parent.insertBefore(el, right);
-      right = el;
-    }
+    parent.insertBefore(this.toDocumentFragment(), sibling.ends[L]);
     return new DOMFragment(this.ends[L], sibling.ends[R]);
   }
 
@@ -77,12 +82,7 @@ class DOMFragment {
 
     var parent = sibling.ends[L].parentNode!;
     pray('parent is defined', parent);
-    let left = sibling.ends[R];
-    const arr = this.toArray();
-    for (const el of arr) {
-      parent.insertBefore(el, left.nextSibling);
-      left = el;
-    }
+    parent.insertBefore(this.toDocumentFragment(), sibling.ends[R].nextSibling);
     return new DOMFragment(sibling.ends[L], this.ends[R]);
   }
 }
