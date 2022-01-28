@@ -118,7 +118,6 @@ interface $ {
   mouseup(cb: (evt: MouseEvent) => any): $;
   focus(handler: (eventObject: Event) => any): $;
   blur(handler: (eventObject: Event) => any): $;
-  slice(start: number, end?: number): $;
   scrollLeft(): number;
   scrollTop(): number;
   closest(selector: JQSelector): $;

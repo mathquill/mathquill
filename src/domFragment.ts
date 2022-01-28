@@ -255,6 +255,19 @@ class DOMFragment {
     const el = this.lastElement();
     return new DOMFragment(el, el);
   }
+
+  /**
+   * Return a new fragment beginning with the nth Element node of this
+   * fragment, and ending with the same end as this fragment, or an
+   * empty fragment if there is no nth node in this fragment. Skips
+   * Nodes that are not Elements (e.g. Text and Comment nodes).
+   */
+  slice(n: number) {
+    if (!this.ends) return this;
+    const el = this.nthElement(n);
+    if (!el) return new DOMFragment(undefined, undefined);
+    return new DOMFragment(el, this.ends[R]);
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

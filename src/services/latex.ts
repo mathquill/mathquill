@@ -343,7 +343,7 @@ class Controller_latex extends Controller_keystroke {
     var root = this.root,
       cursor = this.cursor;
 
-    jQToDOMFragment(root.jQ).children().toJQ().slice(1).remove();
+    jQToDOMFragment(root.jQ).children().slice(1).toJQ().remove();
     root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
