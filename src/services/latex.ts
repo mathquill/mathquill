@@ -324,7 +324,7 @@ class Controller_latex extends Controller_keystroke {
     if (block) {
       var html = block.join('html');
       jQ.html(html);
-      root.jQize(jQ.children());
+      root.jQize(jQToDOMFragment(jQ).children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
       jQ.empty();
@@ -343,7 +343,7 @@ class Controller_latex extends Controller_keystroke {
     var root = this.root,
       cursor = this.cursor;
 
-    root.jQ.children().slice(1).remove();
+    jQToDOMFragment(root.jQ).children().toJQ().slice(1).remove();
     root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);

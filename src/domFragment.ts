@@ -2,8 +2,8 @@ class DOMFragment {
   private ends: Ends<ChildNode> | undefined;
 
   static create(
-    first: ChildNode | undefined,
-    last: ChildNode | undefined
+    first: ChildNode | null | undefined,
+    last: ChildNode | null | undefined
   ): DOMFragment {
     pray('No half-empty DOMFragments', !!first === !!last);
     const out = new DOMFragment(first, last);
@@ -14,8 +14,8 @@ class DOMFragment {
   }
 
   private constructor(
-    first: ChildNode | undefined,
-    last: ChildNode | undefined
+    first: ChildNode | null | undefined,
+    last: ChildNode | null | undefined
   ) {
     if (!first || !last) return;
     this.ends = { [L]: first, [R]: last };
@@ -143,8 +143,8 @@ class DOMFragment {
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
     return new DOMFragment(
-      (parent || undefined) as ChildNode | undefined,
-      (parent || undefined) as ChildNode | undefined
+      parent as ChildNode | null,
+      parent as ChildNode | null
     );
   }
 
@@ -171,6 +171,20 @@ class DOMFragment {
     pray('parent is defined', parent);
     parent.replaceChild(children.toDocumentFragment(), el);
     return this;
+  }
+
+  /**
+   * Return the children (including text and comment nodes) of the node
+   * represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one element.
+   *
+   * Note, because this includes text and comment nodes, this is more
+   * like jQuery's .contents() than jQuery's .children()
+   */
+  children() {
+    const el = this.one();
+    return new DOMFragment(el.firstChild, el.lastChild);
   }
 }
 

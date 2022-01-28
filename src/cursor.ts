@@ -395,7 +395,7 @@ class MQSelection extends Fragment {
 
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     jQToDOMFragment(this.jQ).replaceWith(
-      jQToDOMFragment((this.jQ = this.jQ.children()))
+      jQToDOMFragment((this.jQ = jQToDOMFragment(this.jQ).children().toJQ()))
     );
     return super.adopt(parent, leftward, rightward);
   }

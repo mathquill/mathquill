@@ -195,7 +195,7 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = jQToDOMFragment(el.addClass(classNames).contents());
+      var contents = jQToDOMFragment(el.addClass(classNames)).children();
       // Note, purposely putting this in a fragment to detach the contents from the DOM;
       contents.toDocumentFragment();
 

@@ -337,7 +337,11 @@ class SupSub extends MathCommand {
           if (!dest) thisDir.addBlock(src.disown());
           else if (!src.isEmpty()) {
             // ins src children at -dir end of dest
-            jQInsAtDirEnd(src.jQ.children(), -dir as Direction, dest.jQ);
+            jQInsAtDirEnd(
+              jQToDOMFragment(src.jQ).children().toJQ(),
+              -dir as Direction,
+              dest.jQ
+            );
             var children = src.children().disown();
             pt = new Point(dest, children.getEnd(R), dest.getEnd(L));
             if (dir === L) children.adopt(dest, dest.getEnd(R), 0);
@@ -438,7 +442,7 @@ class SupSub extends MathCommand {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
       block.jQ = jQToDOMFragment($('<span class="mq-sup"/>'))
-        .append(jQToDOMFragment(block.jQ.children()))
+        .append(jQToDOMFragment(block.jQ).children())
         .prependTo(jQToDOMFragment(this.jQ).one())
         .toJQ();
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
@@ -446,7 +450,7 @@ class SupSub extends MathCommand {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
       block.jQ = jQToDOMFragment($('<span class="mq-sub"></span>'))
-        .append(jQToDOMFragment(block.jQ.children()))
+        .append(jQToDOMFragment(block.jQ).children())
         .appendTo(jQToDOMFragment(this.jQ.removeClass('mq-sup-only')).one())
         .toJQ();
       NodeBase.linkElementByBlockNode(block.jQ[0], block);

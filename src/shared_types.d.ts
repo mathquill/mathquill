@@ -99,7 +99,7 @@ interface $ {
   eq(num: number): $;
   add(el: JQSelector): $;
   val(val: string): $;
-  children(selector?: string): $;
+  children(selector: string): $;
   stop(): $;
   html(t: string): $;
   text(str: string): $;
@@ -128,7 +128,5 @@ interface $ {
   offset(): { left: number; top: number }; // TODO - this can be undefined. Either fix uses or wait until removing jquery
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
-  get(): HTMLElement[];
   get(index: number): HTMLElement;
-  contents(): $;
 }
