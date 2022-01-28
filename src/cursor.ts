@@ -67,7 +67,10 @@ class Cursor extends Point {
           jQToDOMFragment(this.jQ).insertBefore(
             jQToDOMFragment((this[R] as MQNode).jQ.first())
           );
-      } else this.jQ.appendTo(this.parent.jQ);
+      } else
+        jQToDOMFragment(this.jQ).appendTo(
+          jQToDOMFragment(this.parent.jQ).one()
+        );
       this.parent.focus();
     }
     this.intervalId = setInterval(this.blink, 500);

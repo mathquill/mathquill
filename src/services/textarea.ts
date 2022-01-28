@@ -21,7 +21,9 @@ class Controller extends Controller_scrollHoriz {
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    this.textarea = $(textarea).appendTo(textareaSpan);
+    this.textarea = jQToDOMFragment($(textarea))
+      .appendTo(jQToDOMFragment(textareaSpan).one())
+      .toJQ();
     this.aria.setContainer(this.textareaSpan);
 
     var ctrlr = this;

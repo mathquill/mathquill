@@ -196,7 +196,9 @@ function getInterface(v: number) {
       ctrlr.createTextarea();
 
       var contents = el.addClass(classNames).contents().detach();
-      root.jQ = $('<span class="mq-root-block"/>').appendTo(el);
+      root.jQ = jQToDOMFragment($('<span class="mq-root-block"/>'))
+        .appendTo(jQToDOMFragment(el).one())
+        .toJQ();
       NodeBase.linkElementByBlockId(root.jQ[0], root.id);
       this.latex(contents[0]?.textContent || '');
 

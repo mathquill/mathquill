@@ -148,7 +148,9 @@ class MathCommand extends MathElement {
     if (replacedFragment) {
       const cmdEndsL = cmd.getEnd(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
-      replacedFragment.jQ.appendTo(cmdEndsL.jQ);
+      jQToDOMFragment(replacedFragment.jQ).appendTo(
+        jQToDOMFragment(cmdEndsL.jQ).one()
+      );
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
