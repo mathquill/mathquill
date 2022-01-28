@@ -6,21 +6,11 @@ class DOMFragment {
     last: ChildNode | undefined
   ): DOMFragment {
     pray('No half-empty DOMFragments', !!first === !!last);
-    if (first && last) {
-      let reached = false;
-      for (
-        let node: ChildNode | null = first || null;
-        node;
-        node = node.nextSibling
-      ) {
-        if (node === last) {
-          reached = true;
-          break;
-        }
-      }
-      pray('last is a forward sibling of first', reached);
-    }
-    return new DOMFragment(first, last);
+    const out = new DOMFragment(first, last);
+    let maybeLast: ChildNode | undefined;
+    out.each((el) => (maybeLast = el));
+    pray('last is a forward sibling of first', maybeLast === last);
+    return out;
   }
 
   private constructor(
@@ -37,13 +27,10 @@ class DOMFragment {
 
   each(cb: (el: ChildNode) => void): DOMFragment {
     if (!this.ends) return this;
-    for (
-      let node: ChildNode | null = this.ends[L];
-      node;
-      node = node.nextSibling!
-    ) {
+    const stop = this.ends[R];
+    for (let node: ChildNode = this.ends[L]; node; node = node.nextSibling!) {
       cb(node);
-      if (node === this.ends[R]) break;
+      if (node === stop) break;
     }
     return this;
   }
@@ -56,6 +43,16 @@ class DOMFragment {
 
   text() {
     return this.fold('', (fold, el) => fold + (el.textContent || ''));
+  }
+
+  toArray() {
+    const accum: ChildNode[] = [];
+    this.each((el) => accum.push(el));
+    return accum;
+  }
+
+  toJQ(): $ {
+    return $(this.toArray() as HTMLElement[]);
   }
 }
 
