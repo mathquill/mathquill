@@ -96,7 +96,6 @@ interface $ {
   detach(): $;
   select(): $;
   width(): number;
-  eq(num: number): $;
   add(el: JQSelector): $;
   val(val: string): $;
   children(selector: string): $;

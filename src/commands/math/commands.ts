@@ -1001,12 +1001,15 @@ LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
 LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 
 class DelimsNode extends MathCommand {
-  delimjQs: $;
+  delimjQs: Ends<$>;
   contentjQ: $;
 
   jQadd(el: $) {
     super.jQadd(el);
-    this.delimjQs = this.jQ.children(':first').add(this.jQ.children(':last'));
+    this.delimjQs = {
+      [L]: this.jQ.children(':first'),
+      [R]: this.jQ.children(':last'),
+    };
     this.contentjQ = this.jQ.children(':eq(1)');
     return this.jQ;
   }
@@ -1125,8 +1128,7 @@ class Bracket extends DelimsNode {
   closeOpposing(brack: Bracket) {
     brack.side = 0;
     brack.sides[this.side as Direction] = this.sides[this.side as Direction]; // copy over my info (may be
-    var $brack = brack.delimjQs
-      .eq(this.side === L ? 0 : 1) // mismatched, like [a, b))
+    var $brack = brack.delimjQs[this.side === L ? L : R] // mismatched, like [a, b))
       .removeClass('mq-ghost');
     this.replaceBracket($brack, this.side);
   }
@@ -1256,10 +1258,9 @@ class Bracket extends DelimsNode {
       } else {
         // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = getOppBracketSide(this);
-        var $brack = this.delimjQs
-          .removeClass('mq-ghost')
-          .eq(side === L ? 0 : 1)
-          .addClass('mq-ghost');
+        this.delimjQs[L].removeClass('mq-ghost');
+        this.delimjQs[R].removeClass('mq-ghost');
+        var $brack = this.delimjQs[side].addClass('mq-ghost');
         this.replaceBracket($brack, side);
       }
       if (sib) {
@@ -1299,7 +1300,7 @@ class Bracket extends DelimsNode {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function () {
-      this.delimjQs.eq(this.side === L ? 1 : 0).removeClass('mq-ghost');
+      this.delimjQs[this.side === L ? R : L].removeClass('mq-ghost');
       this.side = 0;
     };
   }

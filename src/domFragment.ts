@@ -257,6 +257,17 @@ class DOMFragment {
   }
 
   /**
+   * Return a new fragment holding the nth Element node of this
+   * fragment, or an empty fragment if there is no nth node of this
+   * fragment. Skips Nodes that are not Elements (e.g. Text and Comment
+   * nodes).
+   */
+  eq(n: number) {
+    const el = this.nthElement(n);
+    return new DOMFragment(el, el);
+  }
+
+  /**
    * Return a new fragment beginning with the nth Element node of this
    * fragment, and ending with the same end as this fragment, or an
    * empty fragment if there is no nth node in this fragment. Skips
