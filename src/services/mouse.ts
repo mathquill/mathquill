@@ -110,7 +110,8 @@ class Controller_mouse extends Controller_latex {
       };
 
       if (ctrlr.blurred) {
-        if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
+        if (!ctrlr.editable)
+          jQToDOMFragment(rootjQ).prepend(jQToDOMFragment(textareaSpan));
         textarea[0].focus();
         // focus call may bubble to clients, who may then write to
         // mathquill, triggering cancelSelectionOnEdit. If that happens, we

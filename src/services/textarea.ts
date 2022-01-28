@@ -64,13 +64,17 @@ class Controller extends Controller_scrollHoriz {
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    this.container.prepend(
-      jQuery('<span aria-hidden="true" class="mq-selectable">').text(
-        '$' + ctrlr.exportLatex() + '$'
+    jQToDOMFragment(this.container).prepend(
+      jQToDOMFragment(
+        jQuery('<span aria-hidden="true" class="mq-selectable">').text(
+          '$' + ctrlr.exportLatex() + '$'
+        )
       )
     );
     this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
-    this.container.prepend(this.mathspeakSpan);
+    jQToDOMFragment(this.container).prepend(
+      jQToDOMFragment(this.mathspeakSpan)
+    );
     ctrlr.blurred = true;
     textarea.bind('cut paste', false);
     if (ctrlr.options.disableCopyPaste) {
@@ -111,7 +115,7 @@ class Controller extends Controller_scrollHoriz {
     this.selectFn = function (text: string) {
       keyboardEventsShim.select(text);
     };
-    this.container.prepend(textareaSpan);
+    jQToDOMFragment(this.container).prepend(jQToDOMFragment(textareaSpan));
     this.focusBlurEvents();
     this.updateMathspeak();
   }

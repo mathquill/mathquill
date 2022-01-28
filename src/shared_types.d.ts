@@ -90,8 +90,6 @@ interface $ {
   toggleClass(cls: string, bool?: boolean): $;
   addClass(cls: string): $;
   hasClass(cls: string): boolean;
-  append(el: JQSelector): $;
-  prepend(el: JQSelector): $;
   replaceWith(el: JQSelector): $;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;

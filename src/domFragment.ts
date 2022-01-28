@@ -103,16 +103,40 @@ class DOMFragment {
     return new DOMFragment(sibling.ends[L], this.ends[R]);
   }
 
+  /**
+   * Append children to the node represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
+  append(children: DOMFragment) {
+    if (!children.ends) return this;
+    const el = this.one();
+    el.appendChild(children.toDocumentFragment());
+    return this;
+  }
+
+  /**
+   * Prepend children to the node represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
+  prepend(children: DOMFragment) {
+    if (!children.ends) return this;
+    const el = this.one();
+    el.insertBefore(children.toDocumentFragment(), el.firstChild);
+    return this;
+  }
+
   appendTo(el: ChildNode) {
     if (!this.ends) return this;
     el.appendChild(this.toDocumentFragment());
-    return new DOMFragment(this.ends[L], this.ends[R]);
+    return this;
   }
 
   prependTo(el: ChildNode) {
     if (!this.ends) return this;
     el.insertBefore(this.toDocumentFragment(), el.firstChild);
-    return new DOMFragment(this.ends[L], this.ends[R]);
+    return this;
   }
 }
 

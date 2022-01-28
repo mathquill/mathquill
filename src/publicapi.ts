@@ -195,19 +195,25 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = el.addClass(classNames).contents().detach();
+      var contents = jQToDOMFragment(el.addClass(classNames).contents());
+      // Note, purposely putting this in a fragment to detach the contents from the DOM;
+      contents.toDocumentFragment();
+
       root.jQ = jQToDOMFragment($('<span class="mq-root-block"/>'))
         .appendTo(jQToDOMFragment(el).one())
         .toJQ();
       NodeBase.linkElementByBlockId(root.jQ[0], root.id);
-      this.latex(contents[0]?.textContent || '');
+      this.latex(contents.text());
 
       this.revert = function () {
-        return el
-          .empty()
-          .unbind('.mathquill')
-          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
-          .append(contents);
+        return jQToDOMFragment(
+          el
+            .empty()
+            .unbind('.mathquill')
+            .removeClass('mq-editable-field mq-math-mode mq-text-mode')
+        )
+          .append(contents)
+          .toJQ();
       };
     }
     config(opts: CursorOptions) {
