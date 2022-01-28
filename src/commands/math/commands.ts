@@ -1194,11 +1194,9 @@ class Bracket extends DelimsNode {
   }
   placeCursor() {}
   unwrap() {
-    this.getEnd(L)
-      .children()
-      .disown()
-      .adopt(this.parent, this, this[R])
-      .jQ.insertAfter(this.jQ);
+    jQToDOMFragment(
+      this.getEnd(L).children().disown().adopt(this.parent, this, this[R]).jQ
+    ).insertAfter(jQToDOMFragment(this.jQ));
     this.remove();
   }
   deleteSide(side: Direction, outward: boolean, cursor: Cursor) {

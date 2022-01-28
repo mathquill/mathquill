@@ -54,6 +54,37 @@ class DOMFragment {
   toJQ(): $ {
     return $(this.toArray() as HTMLElement[]);
   }
+
+  insertBefore(sibling: DOMFragment) {
+    if (!this.ends) return sibling;
+    if (!sibling.ends) return this;
+
+    var parent = sibling.ends[L].parentNode!;
+    pray('parent is defined', parent);
+    let right = sibling.ends[L];
+    const arr = this.toArray();
+    for (let i = arr.length - 1; i >= 0; i--) {
+      const el = arr[i];
+      parent.insertBefore(el, right);
+      right = el;
+    }
+    return new DOMFragment(this.ends[L], sibling.ends[R]);
+  }
+
+  insertAfter(sibling: DOMFragment) {
+    if (!this.ends) return sibling;
+    if (!sibling.ends) return this;
+
+    var parent = sibling.ends[L].parentNode!;
+    pray('parent is defined', parent);
+    let left = sibling.ends[R];
+    const arr = this.toArray();
+    for (const el of arr) {
+      parent.insertBefore(el, left.nextSibling);
+      left = el;
+    }
+    return new DOMFragment(sibling.ends[L], this.ends[R]);
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

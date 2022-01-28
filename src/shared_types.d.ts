@@ -85,8 +85,6 @@ type JQSelector =
 interface $ {
   (selector?: JQSelector): $;
   fn: any;
-  insertBefore(el: HTMLElement | $): $;
-  insertAfter(el: HTMLElement | $): $;
   wrapAll(el: JQSelector): $;
   removeClass(cls: string): $;
   toggleClass(cls: string, bool?: boolean): $;
