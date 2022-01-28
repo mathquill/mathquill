@@ -25,6 +25,14 @@ class DOMFragment {
     this.ends === undefined;
   }
 
+  one(): ChildNode {
+    pray(
+      'Fragment has a single node',
+      this.ends && this.ends[L] === this.ends[R]
+    );
+    return this.ends[L] as ChildNode;
+  }
+
   each(cb: (el: ChildNode) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
@@ -84,6 +92,12 @@ class DOMFragment {
     pray('parent is defined', parent);
     parent.insertBefore(this.toDocumentFragment(), sibling.ends[R].nextSibling);
     return new DOMFragment(sibling.ends[L], this.ends[R]);
+  }
+
+  appendTo(el: ChildNode) {
+    if (!this.ends) return this;
+    el.appendChild(this.toDocumentFragment());
+    return new DOMFragment(el.firstChild || undefined, this.ends[R]);
   }
 }
 
