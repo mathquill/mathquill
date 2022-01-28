@@ -17,7 +17,7 @@ class TextBlock extends MQNode {
   replaces(replacedText: Fragment | string) {
     if (replacedText instanceof Fragment) {
       var accum = '';
-      replacedText.remove().jQ.each((_n, elt) => (accum += elt.textContent));
+      jQToDOMFragment(replacedText.remove().jQ).text();
       this.replacedText = accum;
     } else if (typeof replacedText === 'string')
       this.replacedText = replacedText;

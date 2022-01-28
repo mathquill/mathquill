@@ -140,5 +140,4 @@ interface $ {
   get(): HTMLElement[];
   get(index: number): HTMLElement;
   contents(): $;
-  each(cb: (index: number, elt: HTMLElement) => void): $;
 }
