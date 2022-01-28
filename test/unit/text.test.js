@@ -46,9 +46,9 @@ suite('text', function () {
   }
 
   test('changes the text nodes as the cursor moves around', function () {
-    var block = fromLatex('\\text{abc}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{abc}');
+    var ctrlr = mq.__controller;
+    var cursor = ctrlr.cursor;
 
     ctrlr.moveLeft();
     assertSplit(cursor.jQ, 'abc', null);
@@ -73,15 +73,14 @@ suite('text', function () {
   });
 
   test('does not change latex as the cursor moves around', function () {
-    var block = fromLatex('\\text{x}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{x}');
+    var ctrlr = mq.__controller;
 
     ctrlr.moveLeft();
     ctrlr.moveLeft();
     ctrlr.moveLeft();
 
-    assert.equal(block.latex(), '\\text{x}');
+    assert.equal(mq.latex(), '\\text{x}');
   });
 
   suite('typing', function () {
