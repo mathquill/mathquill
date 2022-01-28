@@ -236,11 +236,21 @@ class DOMFragment {
     return undefined;
   }
 
+  /**
+   * Return a new fragment holding the first Element node of this
+   * fragment, or an empty fragment if this fragment is empty. Skips
+   * Nodes that are not Elements (e.g. Text and Comment nodes).
+   */
   first() {
     const el = this.firstElement();
     return new DOMFragment(el, el);
   }
 
+  /**
+   * Return a new fragment holding the last Element node of this
+   * fragment, or an empty fragment if this fragment is empty. Skips
+   * Nodes that are not Elements (e.g. Text and Comment nodes).
+   */
   last() {
     const el = this.lastElement();
     return new DOMFragment(el, el);
