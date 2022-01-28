@@ -88,7 +88,7 @@ class Point {
 
 function eachNode(
   ends: Ends<NodeRef>,
-  yield_: (el: MQNode) => boolean | undefined
+  yield_: (el: MQNode) => boolean | undefined | void
 ) {
   var el = ends[L];
   if (!el) return;
@@ -521,24 +521,25 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    this.setEnds({
+    const ends = {
       [dir as Direction]: withDir,
       [-dir as Direction]: oppDir,
-    } as Ends<NodeRef>);
+    } as Ends<MQNode>;
 
-    // To build the jquery collection for a fragment, accumulate elements
-    // into an array and then call jQ.add once on the result. jQ.add sorts the
-    // collection according to document order each time it is called, so
-    // building a collection by folding jQ.add directly takes more than
-    // quadratic time in the number of elements.
-    //
-    // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
-    var accum = this.fold([], function (accum: HTMLElement[], el: MQNode) {
-      accum.push.apply(accum, el.jQ.get());
-      return accum;
+    this.setEnds(ends);
+
+    let maybeRightEnd = 0 as NodeRef;
+    this.each((el) => {
+      maybeRightEnd = el;
     });
+    pray(
+      'following direction siblings from start reaches end',
+      maybeRightEnd === ends[R]
+    );
 
-    this.jQ = this.jQ.add(accum);
+    let leftJQ = ends[L].jQ;
+    let rightJQ = ends[R].jQ;
+    this.jQ = DOMFragment.create(leftJQ[0], rightJQ[rightJQ.length - 1]).toJQ();
   }
 
   /**
@@ -670,7 +671,7 @@ class Fragment {
     return this.disown();
   }
 
-  each(yield_: (el: MQNode) => boolean | undefined) {
+  each(yield_: (el: MQNode) => boolean | undefined | void) {
     eachNode(this.ends, yield_);
     return this;
   }
