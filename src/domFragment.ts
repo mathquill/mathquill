@@ -138,6 +138,26 @@ class DOMFragment {
     el.insertBefore(this.toDocumentFragment(), el.firstChild);
     return this;
   }
+
+  parent() {
+    if (!this.ends) return this;
+    const parent = this.ends[L].parentNode;
+    return new DOMFragment(
+      (parent || undefined) as ChildNode | undefined,
+      (parent || undefined) as ChildNode | undefined
+    );
+  }
+
+  wrapAll(el: ChildNode) {
+    if (!this.ends) return this;
+    const parent = this.ends[L].parentNode!;
+    const next = this.ends[R].nextSibling;
+    this.appendTo(el);
+    if (parent) {
+      parent.insertBefore(el, next);
+    }
+    return this;
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

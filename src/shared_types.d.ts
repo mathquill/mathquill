@@ -85,7 +85,6 @@ type JQSelector =
 interface $ {
   (selector?: JQSelector): $;
   fn: any;
-  wrapAll(el: JQSelector): $;
   removeClass(cls: string): $;
   toggleClass(cls: string, bool?: boolean): $;
   addClass(cls: string): $;
@@ -101,7 +100,6 @@ interface $ {
   eq(num: number): $;
   add(el: JQSelector): $;
   val(val: string): $;
-  parent(): $;
   children(selector?: string): $;
   stop(): $;
   html(t: string): $;

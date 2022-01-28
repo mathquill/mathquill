@@ -377,7 +377,10 @@ class MQSelection extends Fragment {
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
-    this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
+    this.jQ = jQToDOMFragment(this.jQ)
+      .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
+      .parent()
+      .toJQ();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   }
 
