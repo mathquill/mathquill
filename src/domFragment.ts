@@ -41,6 +41,15 @@ class DOMFragment {
       node;
       node = next
     ) {
+      // Note, this loop is organized in a slightly tricky way in order
+      // cache "next" before calling the callback. This is done because
+      // the callback could mutate node.nextSibling (e.g. by moving the
+      // node to a documentFragment, like toDocumentFragment does).
+      //
+      // It's still possible to break this iteration by messing with
+      // forward siblings of node in the callback, although it's
+      // probably rare to want to do that. Perhaps this means "each" is
+      // too dangerous to have as a public method.
       next = node.nextSibling!;
       cb(node);
       if (node === stop) break;
