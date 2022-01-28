@@ -321,8 +321,8 @@ class MathCommand extends MathElement {
     // pray('blocks is defined', blocks)
     const dom = template.render(blocks || []);
     // add cmdId and aria-hidden (for screen reader users) to all top-level tags
-    dom.setAttribute('aria-hidden', 'true');
     dom.setAttribute('mathquill-command-id', '' + this.id);
+    dom.setAttribute('aria-hidden', 'true');
 
     return dom;
   }

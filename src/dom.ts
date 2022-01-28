@@ -1,6 +1,14 @@
 const urlParams = new URLSearchParams(window.location.search);
 
-type HTMLTagName = 'span' | 'textarea' | 'i' | 'b' | 'big' | 'sup' | 'var';
+type HTMLTagName =
+  | 'span'
+  | 'textarea'
+  | 'i'
+  | 'b'
+  | 'big'
+  | 'sup'
+  | 'var'
+  | 'br';
 type SVGTagName = 'svg' | 'path';
 
 interface CreateElementAttributes {
@@ -73,9 +81,11 @@ h.block = (
   attributes: CreateElementAttributes | undefined,
   block: MathBlock
 ) =>
-  h(type, { ...attributes, 'mathquill-block-id': block.id + '' }, [
-    block.html(),
-  ]);
+  h(
+    type,
+    { ...attributes, 'mathquill-block-id': block.id + '', 'aria-hidden': true },
+    [block.html()]
+  );
 
 h.entityText = (s: string) => {
   // TODO: replace with h.text(U_BLAHBLAH) or maybe a named entity->unicode lookup

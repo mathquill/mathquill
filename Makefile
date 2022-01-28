@@ -66,7 +66,7 @@ CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 FONT_SOURCE = $(SRC_DIR)/fonts
 FONT_TARGET = $(BUILD_DIR)/fonts
 
-UNIT_TESTS = ./test/unit/*.test.js
+UNIT_TESTS = ./test/unit/*.test.js ./test/unit/*.test.ts
 
 # outputs
 VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
