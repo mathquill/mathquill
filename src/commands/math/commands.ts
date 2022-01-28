@@ -265,12 +265,12 @@ var Class = (LatexCmds['class'] = class extends MathCommand {
       regex = Parser.regex;
     return Parser.optWhitespace
       .then(string('{'))
-      .then(regex(/^[-\w\s\\\xblocks[0]-\xFF]*/))
+      .then(regex(/^[-\w\s\\\xA0-\xFF]*/))
       .skip(string('}'))
       .then((cls) => {
         this.cls = cls || '';
         this.domView = new DOMView(1, (blocks) =>
-          h.block('span', { class: "mq-class ' + cls + '" }, blocks[0])
+          h.block('span', { class: `mq-class ${cls}` }, blocks[0])
         );
         this.ariaLabel = cls + ' class';
         this.mathspeakTemplate = [
