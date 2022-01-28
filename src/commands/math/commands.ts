@@ -1204,7 +1204,7 @@ class Bracket extends DelimsNode {
   unwrap() {
     jQToDOMFragment(
       this.getEnd(L).children().disown().adopt(this.parent, this, this[R]).jQ
-    ).insertAfter(jQToDOMFragment(this.jQ));
+    ).insertAfter(jQToDOMFragment(this.jQ).one());
     this.remove();
   }
   deleteSide(side: Direction, outward: boolean, cursor: Cursor) {

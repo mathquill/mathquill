@@ -78,7 +78,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
           }
         )
       )
-        .insertBefore(jQToDOMFragment(this.jQ))
+        .insertBefore(jQToDOMFragment(this.jQ).one())
         .toJQ()
         .add(this.jQ);
     }

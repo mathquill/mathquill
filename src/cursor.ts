@@ -62,10 +62,14 @@ class Cursor extends Point {
       if (this[R]) {
         var selection = this.selection;
         if (selection && selection.getEnd(L)[L] === this[L])
-          jQToDOMFragment(this.jQ).insertBefore(jQToDOMFragment(selection.jQ));
+          jQToDOMFragment(this.jQ).insertBefore(
+            jQToDOMFragment(selection.jQ).one()
+          );
         else
           jQToDOMFragment(this.jQ).insertBefore(
-            jQToDOMFragment((this[R] as MQNode).jQ).first()
+            jQToDOMFragment((this[R] as MQNode).jQ)
+              .first()
+              .one()
           );
       } else
         jQToDOMFragment(this.jQ).appendTo(
@@ -182,7 +186,7 @@ class Cursor extends Point {
         .adopt(greatgramp, leftward, rightward)
         .each(function (cousin) {
           jQToDOMFragment(cousin.jQ).insertBefore(
-            jQToDOMFragment(gramp.jQ).first()
+            jQToDOMFragment(gramp.jQ).first().one()
           );
           return true;
         });

@@ -15,8 +15,12 @@ var $: $ = jQuery;
 /** Insert `child` collection either just before or just after `el`, according to the direction specified by `dir`. */
 function jQInsDirOf(child: $, dir: Direction, el: $) {
   return dir === L
-    ? jQToDOMFragment(child).insertBefore(jQToDOMFragment(el).first()).toJQ()
-    : jQToDOMFragment(child).insertAfter(jQToDOMFragment(el).last()).toJQ();
+    ? jQToDOMFragment(child)
+        .insertBefore(jQToDOMFragment(el).first().one())
+        .toJQ()
+    : jQToDOMFragment(child)
+        .insertAfter(jQToDOMFragment(el).last().one())
+        .toJQ();
 }
 
 /** Insert `child` collection into `el` either at the beginning or end of its children, according to the direction specified by `dir`. */

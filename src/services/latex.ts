@@ -229,7 +229,7 @@ class Controller_latex extends Controller_keystroke {
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
       jQToDOMFragment(newMinusNode.jQ).insertBefore(
-        jQToDOMFragment(oldCharNodes[0].jQ)
+        jQToDOMFragment(oldCharNodes[0].jQ).one()
       );
     }
 

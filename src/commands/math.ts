@@ -699,7 +699,7 @@ class MathBlock extends MathElement {
         .children()
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
       var jQ = block.jQize();
-      jQToDOMFragment(jQ).insertBefore(jQToDOMFragment(cursor.jQ));
+      jQToDOMFragment(jQ).insertBefore(jQToDOMFragment(cursor.jQ).one());
       cursor[L] = block.getEnd(R);
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.getEnd(R);

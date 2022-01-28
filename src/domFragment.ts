@@ -83,26 +83,22 @@ class DOMFragment {
     return $(this.toArray() as HTMLElement[]);
   }
 
-  // TODO, make this take an element rather than a fragment
-  insertBefore(sibling: DOMFragment) {
-    if (!this.ends) return sibling;
-    if (!sibling.ends) return this;
+  insertBefore(el: ChildNode) {
+    if (!this.ends) return this;
 
-    const parent = sibling.ends[L].parentNode;
+    const parent = el.parentNode;
     pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), sibling.ends[L]);
-    return new DOMFragment(this.ends[L], sibling.ends[R]);
+    parent.insertBefore(this.toDocumentFragment(), el);
+    return this;
   }
 
-  // TODO, make this take an element rathern than a fragment
-  insertAfter(sibling: DOMFragment) {
-    if (!this.ends) return sibling;
-    if (!sibling.ends) return this;
+  insertAfter(el: ChildNode) {
+    if (!this.ends) return this;
 
-    const parent = sibling.ends[L].parentNode;
+    const parent = el.parentNode;
     pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), sibling.ends[R].nextSibling);
-    return new DOMFragment(sibling.ends[L], this.ends[R]);
+    parent.insertBefore(this.toDocumentFragment(), el.nextSibling);
+    return this;
   }
 
   /**
