@@ -69,7 +69,11 @@ const h: HtmlBuilder = function h(
     el.setAttribute(key, typeof value === 'string' ? value : String(value));
   }
 
-  appendChildren(el, children);
+  if (children) {
+    for (let i = 0; i < children.length; i++) {
+      el.appendChild(children[i]);
+    }
+  }
 
   return el;
 } as HtmlBuilder;
@@ -96,23 +100,6 @@ h.entityText = (s: string) => {
   );
   return val[0] as Text;
 };
-
-function appendChildren(
-  parent: ParentNode,
-  children?: ChildNode | DocumentFragment | (ChildNode | DocumentFragment)[]
-) {
-  if (!children) return;
-
-  if (children instanceof Node) {
-    parent.appendChild(children);
-    return;
-  }
-  const list =
-    children instanceof DocumentFragment ? children.childNodes : children;
-  for (let i = 0; i < list.length; i++) {
-    parent.appendChild(list[i]);
-  }
-}
 
 function closest(el: unknown | null, s: string) {
   if (typeof (el as any)?.closest === 'function') {

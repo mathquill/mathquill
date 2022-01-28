@@ -248,82 +248,23 @@ class MathCommand extends MathElement {
     return undefined;
   }
 
-  // methods involved in creating and cross-linking with HTML DOM nodes
-  /*
-    They all expect an .htmlTemplate like
-      '<span>&0</span>'
-    or
-      '<span><span>&0</span><span>&1</span></span>'
-
-    See html.test.js for more examples.
-
-    Requirements:
-    - For each block of the command, there must be exactly one "block content
-      marker" of the form '&<number>' where <number> is the 0-based index of the
-      block. (Like the LaTeX \newcommand syntax, but with a 0-based rather than
-      1-based index, because JavaScript because C because Dijkstra.)
-    - The block content marker must be the sole contents of the containing
-      element, there can't even be surrounding whitespace, or else we can't
-      guarantee sticking to within the bounds of the block content marker when
-      mucking with the HTML DOM.
-    - The HTML not only must be well-formed HTML (of course), but also must
-      conform to the XHTML requirements on tags, specifically all tags must
-      either be self-closing (like '<br/>') or come in matching pairs.
-      Close tags are never optional.
-
-    Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
-    your HTML template would have to have '&amp;123'.
-  */
-
   numBlocks() {
     return this.domView.childCount;
   }
 
+  /**
+   * Render the entire math subtree rooted at this command to a DOM node. Assumes `this.domView` is defined.
+   *
+   * See dom.test.js for example templates and intended outputs.
+   */
   html(): HTMLElement {
-    // Render the entire math subtree rooted at this command, as HTML.
-    // Expects .createBlocks() to have been called already, since it uses the
-    // .blocks array of child blocks.
-    //
-    // See html.test.js for example templates and intended outputs.
-    //
-    // Given an .htmlTemplate as described above,
-    // - insert the mathquill-command-id attribute into all top-level tags,
-    //   which will be used to set this.jQ in .jQize().
-    //   This is straightforward:
-    //     * tokenize into tags and non-tags
-    //     * loop through top-level tokens:
-    //         * add #cmdId attribute macro to top-level self-closing tags
-    //         * else add #cmdId attribute macro to top-level open tags
-    //             * skip the matching top-level close tag and all tag pairs
-    //               in between
-    // - for each block content marker,
-    //     + replace it with the contents of the corresponding block,
-    //       rendered as HTML
-    //     + insert the mathquill-block-id attribute into the containing tag
-    //   This is even easier, a quick regex replace, since block tags cannot
-    //   contain anything besides the block content marker.
-    //
-    // Two notes:
-    // - The outermost loop through top-level tokens should never encounter any
-    //   top-level close tags, because we should have first encountered a
-    //   matching top-level open tag, all inner tags should have appeared in
-    //   matching pairs and been skipped, and then we should have skipped the
-    //   close tag in question.
-    // - All open tags should have matching close tags, which means our inner
-    //   loop should always encounter a close tag and drop nesting to 0. If
-    //   a close tag is missing, the loop will continue until i >= tokens.length
-    //   and token becomes undefined. This will not infinite loop, even in
-    //   production without pray(), because it will then TypeError on .slice().
-
     const blocks = this.blocks;
     pray('domView is defined', this.domView);
     const template = this.domView;
-    // pray('blocks is defined', blocks)
     const dom = template.render(blocks || []);
-    // add cmdId and aria-hidden (for screen reader users) to all top-level tags
+    // Add mathquill-command-id and aria-hidden (for screen reader users) to the top-level tag.
     dom.setAttribute('mathquill-command-id', '' + this.id);
     dom.setAttribute('aria-hidden', 'true');
-
     return dom;
   }
 
@@ -525,7 +466,7 @@ class MathBlock extends MathElement {
     const fragment = document.createDocumentFragment();
     this.eachChild((el) => {
       const childHtml = el.html();
-      appendChildren(fragment, childHtml);
+      fragment.appendChild(childHtml);
       return undefined;
     });
     return fragment;
