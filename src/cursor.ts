@@ -404,12 +404,11 @@ class MQSelection extends Fragment {
     return super.adopt(parent, leftward, rightward);
   }
   clear() {
-    // using the browser's native .childNodes property so that we
-    // don't discard text nodes.
-    const childNodes = this.jQ[0].childNodes;
-    jQToDOMFragment(this.jQ).replaceWith(
-      DOMFragment.create(childNodes[0], childNodes[childNodes.length - 1])
-    );
+    // NOTE it's important here that DOMFragment::children includes all
+    // child nodes (including Text nodes), and not just Element nodes.
+    // This makes it more similar to the native DOM childNodes property
+    // and jQuery's .collection() method than jQuery's .children() method
+    jQToDOMFragment(this.jQ).replaceWith(jQToDOMFragment(this.jQ).children());
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {
