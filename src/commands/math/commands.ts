@@ -337,9 +337,10 @@ class SupSub extends MathCommand {
           if (!dest) thisDir.addBlock(src.disown());
           else if (!src.isEmpty()) {
             // ins src children at -dir end of dest
-            jQToDOMFragment(src.jQ)
+            src
+              .domFrag()
               .children()
-              .insAtDirEnd(-dir as Direction, jQToDOMFragment(dest.jQ).one());
+              .insAtDirEnd(-dir as Direction, dest.domFrag().one());
             var children = src.children().disown();
             pt = new Point(dest, children.getEnd(R), dest.getEnd(L));
             if (dir === L) children.adopt(dest, dest.getEnd(R), 0);
@@ -440,19 +441,20 @@ class SupSub extends MathCommand {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
       block.jQ = jQToDOMFragment($('<span class="mq-sup"/>'))
-        .append(jQToDOMFragment(block.jQ).children())
-        .prependTo(jQToDOMFragment(this.jQ).one())
+        .append(block.domFrag().children())
+        .prependTo(this.domFrag().one())
         .toJQ();
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
+      this.jQ.removeClass('mq-sup-only');
       block.jQ = jQToDOMFragment($('<span class="mq-sub"></span>'))
-        .append(jQToDOMFragment(block.jQ).children())
-        .appendTo(jQToDOMFragment(this.jQ.removeClass('mq-sup-only')).one())
+        .append(block.domFrag().children())
+        .appendTo(this.domFrag().one())
         .toJQ();
       NodeBase.linkElementByBlockNode(block.jQ[0], block);
-      jQToDOMFragment(this.jQ).append(
+      this.domFrag().append(
         jQToDOMFragment(
           $('<span style="display:inline-block;width:0">&#8203;</span>')
         )
@@ -472,18 +474,16 @@ class SupSub extends MathCommand {
           cursor.insDirOf(this[dir] ? (-dir as Direction) : dir, this.parent);
           if (!this.isEmpty()) {
             var end = this.getEnd(dir);
-            var childJQ = this.children()
+            this.children()
               .disown()
               .withDirAdopt(
                 dir,
                 cursor.parent,
                 cursor[dir],
                 cursor[-dir as Direction]
-              ).jQ;
-            jQToDOMFragment(childJQ).insDirOf(
-              -dir as Direction,
-              jQToDOMFragment(cursor.jQ)
-            );
+              )
+              .domFrag()
+              .insDirOf(-dir as Direction, cursor.domFrag());
             cursor[-dir as Direction] = end;
           }
           cmd.supsub = oppositeSupsub;
@@ -492,11 +492,10 @@ class SupSub extends MathCommand {
           const cmdOppositeSupsub = cmd[oppositeSupsub]!;
           cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
           delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
-          if (supsub === 'sub')
-            jQToDOMFragment(cmd.jQ.addClass('mq-sup-only'))
-              .children()
-              .last()
-              .remove();
+          if (supsub === 'sub') {
+            cmd.jQ.addClass('mq-sup-only');
+            cmd.domFrag().children().last().remove();
+          }
           this.remove();
         };
       })(
@@ -1010,7 +1009,7 @@ class DelimsNode extends MathCommand {
 
   jQadd(el: $) {
     super.jQadd(el);
-    const children = jQToDOMFragment(this.jQ).children();
+    const children = this.domFrag().children();
     this.delimjQs = {
       [L]: children.first().toJQ(),
       [R]: children.last().toJQ(),
@@ -1168,7 +1167,7 @@ class Bracket extends DelimsNode {
       this.closeOpposing(brack);
       if (brack === cursor.parent.parent && cursor[side as Direction]) {
         // move the stuff between
-        var fragJQ = new Fragment(
+        new Fragment(
           cursor[side as Direction],
           cursor.parent.getEnd(side as Direction),
           -side as Direction
@@ -1179,12 +1178,9 @@ class Bracket extends DelimsNode {
             brack.parent,
             brack,
             brack[side as Direction]
-          ).jQ;
-
-        jQToDOMFragment(fragJQ).insDirOf(
-          side as Direction,
-          jQToDOMFragment(brack.jQ)
-        );
+          )
+          .domFrag()
+          .insDirOf(side as Direction, brack.domFrag());
       }
       brack.bubble(function (node) {
         node.reflow();
@@ -1212,9 +1208,12 @@ class Bracket extends DelimsNode {
   }
   placeCursor() {}
   unwrap() {
-    jQToDOMFragment(
-      this.getEnd(L).children().disown().adopt(this.parent, this, this[R]).jQ
-    ).insertAfter(jQToDOMFragment(this.jQ).one());
+    this.getEnd(L)
+      .children()
+      .disown()
+      .adopt(this.parent, this, this[R])
+      .domFrag()
+      .insertAfter(this.domFrag().one());
     this.remove();
   }
   deleteSide(side: Direction, outward: boolean, cursor: Cursor) {
@@ -1273,15 +1272,14 @@ class Bracket extends DelimsNode {
       }
       if (sib) {
         // auto-expand so ghost is at far end
-        var origEnd = this.getEnd(L).getEnd(side);
-        var fragJQ = new Fragment(sib, farEnd, -side as Direction)
+        const leftEnd = this.getEnd(L);
+        var origEnd = leftEnd.getEnd(side);
+        leftEnd.jQ.removeClass('mq-empty');
+        new Fragment(sib, farEnd, -side as Direction)
           .disown()
-          .withDirAdopt(-side as Direction, this.getEnd(L), origEnd, 0).jQ;
-
-        jQToDOMFragment(fragJQ).insAtDirEnd(
-          side,
-          jQToDOMFragment(this.getEnd(L).jQ.removeClass('mq-empty')).one()
-        );
+          .withDirAdopt(-side as Direction, leftEnd, origEnd, 0)
+          .domFrag()
+          .insAtDirEnd(side, leftEnd.domFrag().one());
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens

@@ -899,9 +899,8 @@ class LatexFragment extends MathCommand {
       .children()
       .adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
     cursor[L] = block.getEnd(R);
-    jQToDOMFragment(block.jQize()).insertBefore(
-      jQToDOMFragment(cursor.jQ).one()
-    );
+    block.jQize();
+    block.domFrag().insertBefore(cursor.domFrag().one());
     block.finalizeInsert(cursor.options, cursor);
     var blockEndsR = block.getEnd(R);
     var blockEndsRR = blockEndsR && blockEndsR[R];

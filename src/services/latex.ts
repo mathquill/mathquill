@@ -206,7 +206,7 @@ class Controller_latex extends Controller_keystroke {
       }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
-      jQToDOMFragment(oldMinusNode.jQ).remove();
+      oldMinusNode.domFrag().remove();
     }
 
     // add a minus sign
@@ -228,9 +228,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = newMinusNode;
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
-      jQToDOMFragment(newMinusNode.jQ).insertBefore(
-        jQToDOMFragment(oldCharNodes[0].jQ).one()
-      );
+      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag().one());
     }
 
     // update the text of the current nodes
@@ -252,7 +250,7 @@ class Controller_latex extends Controller_keystroke {
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
-        jQToDOMFragment(oldCharNodes[i].jQ).remove();
+        oldCharNodes[i].domFrag().remove();
       }
     }
 
@@ -343,7 +341,7 @@ class Controller_latex extends Controller_keystroke {
     var root = this.root,
       cursor = this.cursor;
 
-    jQToDOMFragment(root.jQ).children().slice(1).remove();
+    root.domFrag().children().slice(1).remove();
     root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
@@ -385,7 +383,8 @@ class Controller_latex extends Controller_keystroke {
         commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      jQToDOMFragment(root.jQize()).appendTo(jQToDOMFragment(root.jQ).one());
+      root.jQize();
+      root.domFrag().appendTo(root.domFrag().one());
 
       root.finalizeInsert(cursor.options, cursor);
     }

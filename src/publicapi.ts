@@ -186,6 +186,9 @@ function getInterface(v: number) {
     __options: CursorOptions;
     id: number;
     data: ControllerData;
+    // TODO this public API method returns a jQuery collection. To
+    // completely remove the jQuery dependency, we'll have to make a
+    // breaking change to the return value of revert
     revert?: () => $;
 
     constructor(ctrlr: Controller) {
@@ -290,7 +293,7 @@ function getInterface(v: number) {
         cursor = this.__controller.cursor;
 
       root.setEnds({ [L]: 0, [R]: 0 });
-      jQToDOMFragment(root.jQ).empty();
+      root.domFrag().empty();
       delete cursor.selection;
       cursor.insAtRightEnd(root);
       return this;

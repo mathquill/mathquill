@@ -17,7 +17,7 @@ class TextBlock extends MQNode {
   replaces(replacedText: Fragment | string) {
     if (replacedText instanceof Fragment) {
       var accum = '';
-      jQToDOMFragment(replacedText.remove().jQ).text();
+      replacedText.remove().domFrag().text();
       this.replacedText = accum;
     } else if (typeof replacedText === 'string')
       this.replacedText = replacedText;
@@ -169,7 +169,7 @@ class TextBlock extends MQNode {
       var leftBlock = new TextBlock();
       var leftPc = this.getEnd(L);
       if (leftPc) {
-        jQToDOMFragment(leftPc.disown().jQ).detach();
+        leftPc.disown().domFrag().detach();
         leftPc.adopt(leftBlock, 0, 0);
       }
 
@@ -371,7 +371,6 @@ class TextPiece extends MQNode {
       cursor.controller.aria.queue(deletedChar);
     } else {
       this.remove();
-      jQToDOMFragment(this.jQ).remove();
       cursor[dir] = this[dir];
       cursor.controller.aria.queue(this.textStr);
     }
@@ -395,10 +394,7 @@ class TextPiece extends MQNode {
         var newPc = new TextPiece(ch).createDir(-dir as Direction, cursor);
         var selection = cursor.selection;
         if (selection) {
-          jQToDOMFragment(newPc.jQ).insDirOf(
-            -dir as Direction,
-            jQToDOMFragment(selection.jQ)
-          );
+          newPc.domFrag().insDirOf(-dir as Direction, selection.domFrag());
         }
       }
 

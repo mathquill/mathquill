@@ -52,6 +52,10 @@ class Cursor extends Point {
     };
   }
 
+  domFrag(): DOMFragment {
+    return jQToDOMFragment(this.jQ);
+  }
+
   show() {
     this.jQ = this._jQ.removeClass('mq-blink');
     if (this.intervalId)
@@ -62,19 +66,12 @@ class Cursor extends Point {
       if (this[R]) {
         var selection = this.selection;
         if (selection && selection.getEnd(L)[L] === this[L])
-          jQToDOMFragment(this.jQ).insertBefore(
-            jQToDOMFragment(selection.jQ).one()
-          );
+          this.domFrag().insertBefore(selection.domFrag().one());
         else
-          jQToDOMFragment(this.jQ).insertBefore(
-            jQToDOMFragment((this[R] as MQNode).jQ)
-              .first()
-              .one()
+          this.domFrag().insertBefore(
+            (this[R] as MQNode).domFrag().first().one()
           );
-      } else
-        jQToDOMFragment(this.jQ).appendTo(
-          jQToDOMFragment(this.parent.jQ).one()
-        );
+      } else this.domFrag().appendTo(this.parent.domFrag().one());
       this.parent.focus();
     }
     this.intervalId = setInterval(this.blink, 500);
@@ -83,7 +80,7 @@ class Cursor extends Point {
   hide() {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
-    jQToDOMFragment(this.jQ).detach();
+    this.domFrag().detach();
     this.jQ = $();
     return this;
   }
@@ -106,7 +103,7 @@ class Cursor extends Point {
   /** Place the cursor before or after `el`, according the side specified by `dir`. */
   insDirOf(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    jQToDOMFragment(this.jQ).insDirOf(dir, jQToDOMFragment(el.jQ));
+    this.domFrag().insDirOf(dir, el.domFrag());
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
     return this;
@@ -121,7 +118,7 @@ class Cursor extends Point {
   /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    jQToDOMFragment(this.jQ).insAtDirEnd(dir, jQToDOMFragment(el.jQ).one());
+    this.domFrag().insAtDirEnd(dir, el.domFrag().one());
     this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;
@@ -185,9 +182,7 @@ class Cursor extends Point {
         .children()
         .adopt(greatgramp, leftward, rightward)
         .each(function (cousin) {
-          jQToDOMFragment(cousin.jQ).insertBefore(
-            jQToDOMFragment(gramp.jQ).first().one()
-          );
+          cousin.domFrag().insertBefore(gramp.domFrag().first().one());
           return true;
         });
 
@@ -218,7 +213,7 @@ class Cursor extends Point {
     if (thisR) this.insLeftOf(thisR);
     else this.insAtRightEnd(greatgramp);
 
-    jQToDOMFragment(gramp.jQ).remove();
+    gramp.domFrag().remove();
 
     var grampL = gramp[L];
     var grampR = gramp[R];
@@ -381,11 +376,10 @@ class MQSelection extends Fragment {
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
-    this.jQ = jQToDOMFragment(this.jQ)
+    this.jQ = this.domFrag()
       .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
       .parent()
       .toJQ();
-    //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   }
 
   setEnds(ends: Ends<MQNode>) {
@@ -398,9 +392,10 @@ class MQSelection extends Fragment {
   }
 
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-    jQToDOMFragment(this.jQ).replaceWith(
-      jQToDOMFragment((this.jQ = jQToDOMFragment(this.jQ).children().toJQ()))
-    );
+    const childFrag = this.domFrag().children();
+    this.domFrag().replaceWith(childFrag);
+    this.jQ = childFrag.toJQ();
+
     return super.adopt(parent, leftward, rightward);
   }
   clear() {
@@ -408,7 +403,9 @@ class MQSelection extends Fragment {
     // child nodes (including Text nodes), and not just Element nodes.
     // This makes it more similar to the native DOM childNodes property
     // and jQuery's .collection() method than jQuery's .children() method
-    jQToDOMFragment(this.jQ).replaceWith(jQToDOMFragment(this.jQ).children());
+    //
+    // TODO, why doesn't this assign to this.jQ?
+    this.domFrag().replaceWith(this.domFrag().children());
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {

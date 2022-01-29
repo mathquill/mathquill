@@ -148,9 +148,7 @@ class MathCommand extends MathElement {
     if (replacedFragment) {
       const cmdEndsL = cmd.getEnd(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
-      jQToDOMFragment(replacedFragment.jQ).appendTo(
-        jQToDOMFragment(cmdEndsL.jQ).one()
-      );
+      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().one());
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
@@ -458,7 +456,7 @@ class MQSymbol extends MathCommand {
   createBlocks() {}
 
   moveTowards(dir: Direction, cursor: Cursor) {
-    jQToDOMFragment(cursor.jQ).insDirOf(dir, jQToDOMFragment(this.jQ));
+    cursor.domFrag().insDirOf(dir, this.domFrag());
     cursor[-dir as Direction] = this;
     cursor[dir] = this[dir];
     cursor.controller.aria.queue(this);
@@ -699,7 +697,7 @@ class MathBlock extends MathElement {
         .children()
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
       var jQ = block.jQize();
-      jQToDOMFragment(jQ).insertBefore(jQToDOMFragment(cursor.jQ).one());
+      jQToDOMFragment(jQ).insertBefore(cursor.domFrag().one());
       cursor[L] = block.getEnd(R);
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.getEnd(R);

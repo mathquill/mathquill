@@ -232,6 +232,10 @@ class NodeBase {
     return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
+  domFrag(): DOMFragment {
+    return jQToDOMFragment(this.jQ);
+  }
+
   jQadd(jQ: $ | HTMLElement | ChildNode) {
     return (this.jQ = this.jQ.add(jQ));
   }
@@ -275,7 +279,7 @@ class NodeBase {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    jQToDOMFragment(node.jQ).insDirOf(dir, jQToDOMFragment(cursor.jQ));
+    node.domFrag().insDirOf(dir, cursor.domFrag());
     cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   }
@@ -374,7 +378,7 @@ class NodeBase {
   }
 
   remove() {
-    jQToDOMFragment(this.jQ).remove();
+    this.domFrag().remove();
     return this.disown();
   }
 
@@ -521,9 +525,7 @@ class Fragment {
       maybeRightEnd === ends[R]
     );
 
-    this.jQ = jQToDOMFragment(ends[L].jQ)
-      .join(jQToDOMFragment(ends[R].jQ))
-      .toJQ();
+    this.jQ = ends[L].domFrag().join(ends[R].domFrag()).toJQ();
   }
 
   /**
@@ -537,6 +539,10 @@ class Fragment {
 
   getEnd(dir: Direction): NodeRef {
     return this.ends ? this.ends[dir] : 0;
+  }
+
+  domFrag(): DOMFragment {
+    return jQToDOMFragment(this.jQ);
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
@@ -651,7 +657,7 @@ class Fragment {
   }
 
   remove() {
-    jQToDOMFragment(this.jQ).remove();
+    this.domFrag().remove();
     return this.disown();
   }
 

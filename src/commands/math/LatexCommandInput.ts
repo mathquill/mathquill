@@ -67,18 +67,18 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
 
     if (this._replacedFragment) {
       var el = this.jQ[0];
-      this.jQ = jQToDOMFragment(
-        this._replacedFragment.jQ.addClass('mq-blur').bind(
-          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
-          function (e) {
-            // TODO - overwritting e.target
-            (e as any).target = el;
-            $(el).trigger(e);
-            return false;
-          }
-        )
-      )
-        .insertBefore(jQToDOMFragment(this.jQ).one())
+      this._replacedFragment.jQ.addClass('mq-blur').bind(
+        'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+        function (e) {
+          // TODO - overwritting e.target
+          (e as any).target = el;
+          $(el).trigger(e);
+          return false;
+        }
+      );
+      this.jQ = this._replacedFragment
+        .domFrag()
+        .insertBefore(this.domFrag().one())
         .toJQ()
         .add(this.jQ);
     }
@@ -87,7 +87,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.jQ = jQToDOMFragment(this.jQ).last().toJQ();
+    this.jQ = this.domFrag().last().toJQ();
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);
