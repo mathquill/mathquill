@@ -21,8 +21,8 @@ class DOMFragment {
     this.ends = { [L]: first, [R]: last };
   }
 
-  isEmpty() {
-    this.ends === undefined;
+  isEmpty(): boolean {
+    return this.ends === undefined;
   }
 
   one(): ChildNode {
