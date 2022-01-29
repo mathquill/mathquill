@@ -238,7 +238,7 @@ class Controller_latex extends Controller_keystroke {
       charNode = oldCharNodes[i];
       if (charNode.ctrlSeq !== newText) {
         charNode.ctrlSeq = newText;
-        charNode.getJQ()[0].textContent = newText;
+        charNode.domFrag().one().textContent = newText;
         charNode.mathspeakName = newText;
       }
     }
@@ -277,7 +277,7 @@ class Controller_latex extends Controller_keystroke {
         root.setEnds({ [L]: root.getEnd(L), [R]: newNode });
       }
 
-      root.getJQ()[0].appendChild(frag);
+      root.domFrag().oneElement().appendChild(frag);
     }
 
     var currentLatex = this.exportLatex();
@@ -317,15 +317,13 @@ class Controller_latex extends Controller_keystroke {
       block.children().adopt(root, 0, 0);
     }
 
-    var jQ = root.getJQ();
-
     if (block) {
       var html = block.join('html');
-      jQ.html(html);
-      root.jQize(jQToDOMFragment(jQ).children().toJQ());
+      root.getJQ().html(html);
+      root.jQize(root.domFrag().children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
-      jQToDOMFragment(jQ).empty();
+      root.domFrag().empty();
     }
     this.updateMathspeak();
     delete cursor.selection;

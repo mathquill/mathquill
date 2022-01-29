@@ -66,7 +66,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
-      var el = this.getJQ()[0];
+      var el = this.domFrag().one();
       this._replacedFragment
         .getJQ()
         .addClass('mq-blur')

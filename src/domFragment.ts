@@ -43,9 +43,9 @@ class DOMFragment {
   }
 
   /**
-   * Return the single DOM Node represented by this Fragment.
+   * Return the single DOM Node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one node.
    */
   one(): ChildNode {
     pray(
@@ -53,6 +53,18 @@ class DOMFragment {
       this.ends && this.ends[L] === this.ends[R]
     );
     return this.ends[L] as ChildNode;
+  }
+
+  /**
+   * Return the single DOM Element represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one node, and that node
+   * is an Element node.
+   */
+  oneElement(): HTMLElement {
+    const el = this.one();
+    pray('Node is an Element', el.nodeType === Node.ELEMENT_NODE);
+    return el as HTMLElement;
   }
 
   eachNode(cb: (el: ChildNode) => void): DOMFragment {

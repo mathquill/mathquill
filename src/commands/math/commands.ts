@@ -445,7 +445,7 @@ class SupSub extends MathCommand {
           .append(block.domFrag().children())
           .prependTo(this.domFrag().one())
       );
-      NodeBase.linkElementByBlockNode(block.getJQ()[0], block);
+      NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
@@ -455,7 +455,7 @@ class SupSub extends MathCommand {
           .append(block.domFrag().children())
           .appendTo(this.domFrag().one())
       );
-      NodeBase.linkElementByBlockNode(block.getJQ()[0], block);
+      NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
       this.domFrag().append(
         jQToDOMFragment(
           $('<span style="display:inline-block;width:0">&#8203;</span>')

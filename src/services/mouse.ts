@@ -32,13 +32,13 @@ var cancelSelectionOnEdit:
 
 class Controller_mouse extends Controller_latex {
   delegateMouseEvents() {
-    var ultimateRootjQ = this.root.getJQ();
+    var ultimateRootElement = this.root.domFrag().oneElement();
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;
       var rootjQ = $(e.target).closest('.mq-root-block');
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
-        NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
+        NodeBase.getNodeOfElement(ultimateRootElement)) as ControllerRoot;
       var ctrlr = root.controller,
         cursor = ctrlr.cursor,
         blink = cursor.blink;

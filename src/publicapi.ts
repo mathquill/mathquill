@@ -213,7 +213,7 @@ function getInterface(v: number) {
           jQToDOMFragment(el).one()
         )
       );
-      NodeBase.linkElementByBlockId(root.getJQ()[0], root.id);
+      NodeBase.linkElementByBlockId(root.domFrag().oneElement(), root.id);
       this.latex(contents.text());
 
       this.revert = function () {
@@ -251,7 +251,8 @@ function getInterface(v: number) {
     }
     html() {
       return this.__controller.root
-        .getJQ()[0]
+        .domFrag()
+        .oneElement()
         .innerHTML.replace(/ jQuery\d+="(?:\d+|null)"/g, '') // TODO remove when jQuery is completely gone
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
@@ -384,7 +385,8 @@ function getInterface(v: number) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller,
         root = ctrlr.root;
-      if (!jQuery.contains(root.getJQ()[0], target)) target = root.getJQ()[0];
+      if (!jQuery.contains(root.domFrag().oneElement(), target))
+        target = root.domFrag().oneElement();
       ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
       if (ctrlr.blurred) this.focus();
       return this;
