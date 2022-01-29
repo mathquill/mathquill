@@ -1285,9 +1285,9 @@ class Bracket extends DelimsNode {
     $brack.html(symbol.html).css('width', symbol.width);
 
     if (side === L) {
-      $brack.next().css('margin-left', symbol.width);
+      jQToDOMFragment($brack).next().toJQ().css('margin-left', symbol.width);
     } else {
-      $brack.prev().css('margin-right', symbol.width);
+      jQToDOMFragment($brack).prev().toJQ().css('margin-right', symbol.width);
     }
   }
   deleteTowards(dir: Direction, cursor: Cursor) {

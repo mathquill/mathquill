@@ -279,6 +279,42 @@ class DOMFragment {
     if (!el) return new DOMFragment(undefined, undefined);
     return new DOMFragment(el, this.ends[R]);
   }
+
+  /**
+   * Return a new fragment containing the next Element after the Node
+   * represented by this fragment, or an empty fragment if there is no
+   * next Element. Skips Nodes that are not Elements (e.g. Text and
+   * Comment nodes).
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
+  next() {
+    let current: ChildNode | null = this.one();
+    while (current) {
+      current = current.nextSibling;
+      if (current && current.nodeType === Node.ELEMENT_NODE)
+        return new DOMFragment(current, current);
+    }
+    return new DOMFragment(undefined, undefined);
+  }
+
+  /**
+   * Return a new fragment containing the previousElement after the Node
+   * represented by this fragment, or an empty fragment if there is no
+   * previous Element. Skips Nodes that are not Elements (e.g. Text and
+   * Comment nodes).
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
+  prev() {
+    let current: ChildNode | null = this.one();
+    while (current) {
+      current = current.previousSibling;
+      if (current && current.nodeType === Node.ELEMENT_NODE)
+        return new DOMFragment(current, current);
+    }
+    return new DOMFragment(undefined, undefined);
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

@@ -102,8 +102,6 @@ interface $ {
   stop(): $;
   html(t: string): $;
   text(str: string): $;
-  next(): $;
-  prev(): $;
   animate(
     properties: Object,
     duration?: string | number,
