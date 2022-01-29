@@ -417,8 +417,6 @@ class MQSelection extends Fragment {
     // child nodes (including Text nodes), and not just Element nodes.
     // This makes it more similar to the native DOM childNodes property
     // and jQuery's .collection() method than jQuery's .children() method
-    //
-    // TODO, why doesn't this assign to this.jQ?
     this.domFrag().replaceWith(this.domFrag().children());
     return this;
   }
