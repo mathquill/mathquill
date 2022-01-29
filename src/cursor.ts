@@ -83,7 +83,7 @@ class Cursor extends Point {
   hide() {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
-    this.jQ.detach();
+    jQToDOMFragment(this.jQ).detach();
     this.jQ = $();
     return this;
   }
@@ -218,7 +218,7 @@ class Cursor extends Point {
     if (thisR) this.insLeftOf(thisR);
     else this.insAtRightEnd(greatgramp);
 
-    gramp.jQ.remove();
+    jQToDOMFragment(gramp.jQ).remove();
 
     var grampL = gramp[L];
     var grampR = gramp[R];

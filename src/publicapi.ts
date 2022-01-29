@@ -201,9 +201,9 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = jQToDOMFragment(el.addClass(classNames)).children();
-      // Note, purposely putting this in a fragment to detach the contents from the DOM;
-      contents.toDocumentFragment();
+      var contents = jQToDOMFragment(el.addClass(classNames))
+        .children()
+        .detach();
 
       root.jQ = jQToDOMFragment($('<span class="mq-root-block"/>'))
         .appendTo(jQToDOMFragment(el).one())
@@ -214,10 +214,10 @@ function getInterface(v: number) {
       this.revert = function () {
         return jQToDOMFragment(
           el
-            .empty()
             .unbind('.mathquill')
             .removeClass('mq-editable-field mq-math-mode mq-text-mode')
         )
+          .empty()
           .append(contents)
           .toJQ();
       };
@@ -290,7 +290,7 @@ function getInterface(v: number) {
         cursor = this.__controller.cursor;
 
       root.setEnds({ [L]: 0, [R]: 0 });
-      root.jQ.empty();
+      jQToDOMFragment(root.jQ).empty();
       delete cursor.selection;
       cursor.insAtRightEnd(root);
       return this;

@@ -169,7 +169,7 @@ class TextBlock extends MQNode {
       var leftBlock = new TextBlock();
       var leftPc = this.getEnd(L);
       if (leftPc) {
-        leftPc.disown().jQ.detach();
+        jQToDOMFragment(leftPc.disown().jQ).detach();
         leftPc.adopt(leftBlock, 0, 0);
       }
 
@@ -371,7 +371,7 @@ class TextPiece extends MQNode {
       cursor.controller.aria.queue(deletedChar);
     } else {
       this.remove();
-      this.jQ.remove();
+      jQToDOMFragment(this.jQ).remove();
       cursor[dir] = this[dir];
       cursor.controller.aria.queue(this.textStr);
     }

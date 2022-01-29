@@ -206,7 +206,7 @@ class Controller_latex extends Controller_keystroke {
       }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
-      oldMinusNode.jQ.remove();
+      jQToDOMFragment(oldMinusNode.jQ).remove();
     }
 
     // add a minus sign
@@ -252,7 +252,7 @@ class Controller_latex extends Controller_keystroke {
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
-        oldCharNodes[i].jQ.remove();
+        jQToDOMFragment(oldCharNodes[i].jQ).remove();
       }
     }
 
@@ -327,7 +327,7 @@ class Controller_latex extends Controller_keystroke {
       root.jQize(jQToDOMFragment(jQ).children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
-      jQ.empty();
+      jQToDOMFragment(jQ).empty();
     }
     this.updateMathspeak();
     delete cursor.selection;
@@ -343,7 +343,7 @@ class Controller_latex extends Controller_keystroke {
     var root = this.root,
       cursor = this.cursor;
 
-    jQToDOMFragment(root.jQ).children().slice(1).toJQ().remove();
+    jQToDOMFragment(root.jQ).children().slice(1).remove();
     root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);

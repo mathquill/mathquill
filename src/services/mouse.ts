@@ -84,7 +84,7 @@ class Controller_mouse extends Controller_latex {
           cursor.show();
           cursor.controller.aria.queue(cursor.parent).alert();
         } else {
-          textareaSpan.detach();
+          jQToDOMFragment(textareaSpan).detach();
         }
       }
 

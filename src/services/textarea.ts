@@ -93,7 +93,7 @@ class Controller extends Controller_scrollHoriz {
         setTimeout(detach); //detaching during blur explodes in WebKit
       });
     function detach() {
-      textareaSpan.detach();
+      jQToDOMFragment(textareaSpan).detach();
       ctrlr.blurred = true;
     }
 
@@ -128,7 +128,7 @@ class Controller extends Controller_scrollHoriz {
       textarea.val(text);
       if (text) textarea.select();
     };
-    textareaSpan.remove();
+    jQToDOMFragment(textareaSpan).remove();
 
     this.unbindFocusBlurEvents();
 

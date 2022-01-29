@@ -92,8 +92,6 @@ interface $ {
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;
   trigger(e: Event): $;
-  remove(): $;
-  detach(): $;
   select(): $;
   width(): number;
   add(el: JQSelector): $;
@@ -106,7 +104,6 @@ interface $ {
     duration?: string | number,
     complete?: Function
   ): $;
-  empty(): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): void;
   unbind(evt: string, cb?: Function, capture?: boolean): $;

@@ -396,7 +396,7 @@ class NodeBase {
   }
 
   remove() {
-    this.jQ.remove();
+    jQToDOMFragment(this.jQ).remove();
     return this.disown();
   }
 
@@ -673,7 +673,7 @@ class Fragment {
   }
 
   remove() {
-    this.jQ.remove();
+    jQToDOMFragment(this.jQ).remove();
     return this.disown();
   }
 

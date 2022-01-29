@@ -320,6 +320,51 @@ class DOMFragment {
     }
     return new DOMFragment(undefined, undefined);
   }
+
+  /**
+   * Remove all children of every Element Node in the fragment. Skips
+   * Nodes that are not Elements (e.g. Text and Comment nodes).
+   */
+  empty() {
+    // TODO the corresponding jQuery methods clean up some internal
+    // references before removing elements from the DOM. That won't
+    // matter once jQuery is totally gone, but until then, this may
+    // introduce memory leaks
+    this.eachElement((el) => {
+      el.textContent = '';
+    });
+    return this;
+  }
+
+  /**
+   * Remove every node in the fragment from the DOM.
+   */
+  remove() {
+    // TODO the corresponding jQuery methods clean up some internal
+    // references before removing elements from the DOM. That won't
+    // matter once jQuery is totally gone, but until then, this may
+    // introduce memory leaks
+
+    // Note, removing the elements by moving them to a document fragment
+    // because this way their sibling references stay intact. This is
+    // important if we want to reattach them somewhere else later
+    this.toDocumentFragment();
+    return this;
+  }
+
+  /**
+   * Remove every node in the fragment from the DOM. Alias of remove.
+   *
+   * Note: jQuery makes a distinction between detach() and remove().
+   * remove() cleans up internal references, and detach() does not.
+   */
+  detach() {
+    // In jQuery, detach() is similar to remove() but it does not clean
+    // up internal references. Here they're aliases, but I'm leaving
+    // this as a separate method for the moment to keep track of where
+    // mathquill did one vs the other.
+    return this.remove();
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

@@ -492,7 +492,10 @@ class SupSub extends MathCommand {
           cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
           delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
           if (supsub === 'sub')
-            $(cmd.jQ.addClass('mq-sup-only')[0].lastChild).remove();
+            jQToDOMFragment(cmd.jQ.addClass('mq-sup-only'))
+              .children()
+              .last()
+              .remove();
           this.remove();
         };
       })(
