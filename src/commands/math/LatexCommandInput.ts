@@ -79,12 +79,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
             return false;
           }
         );
-      this.setJQ(
-        this._replacedFragment
-          .domFrag()
-          .insertBefore(this.domFrag().one())
-          .toJQ()
-          .add(this.getJQ())
+      this.setDOMFrag(
+        jQToDOMFragment(
+          this._replacedFragment
+            .domFrag()
+            .insertBefore(this.domFrag().one())
+            .toJQ()
+            .add(this.getJQ())
+        )
       );
     }
   }
@@ -92,7 +94,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.setJQ(this.domFrag().last().toJQ());
+    this.setDOMFrag(this.domFrag().last());
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);

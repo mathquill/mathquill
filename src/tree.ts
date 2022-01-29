@@ -236,9 +236,9 @@ class NodeBase {
     return this.domFrag().toJQ();
   }
 
-  setJQ(jQ: $) {
-    this._domFrag = jQToDOMFragment(jQ);
-    return this.getJQ();
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
   }
 
   domFrag(): DOMFragment {
@@ -246,7 +246,7 @@ class NodeBase {
   }
 
   jQadd(jQ: $ | HTMLElement | ChildNode) {
-    return this.setJQ(this.getJQ().add(jQ));
+    return this.setDOMFrag(jQToDOMFragment(this.getJQ().add(jQ))).getJQ();
   }
   /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
    *
@@ -534,7 +534,7 @@ class Fragment {
       maybeRightEnd === ends[R]
     );
 
-    this.setJQ(ends[L].domFrag().join(ends[R].domFrag()).toJQ());
+    this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));
   }
 
   /**
@@ -554,9 +554,9 @@ class Fragment {
     return this.domFrag().toJQ();
   }
 
-  setJQ(jQ: $) {
-    this._domFrag = jQToDOMFragment(jQ);
-    return this.getJQ();
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
   }
 
   domFrag(): DOMFragment {

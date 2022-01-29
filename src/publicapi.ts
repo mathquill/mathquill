@@ -208,10 +208,10 @@ function getInterface(v: number) {
         .children()
         .detach();
 
-      root.setJQ(
-        jQToDOMFragment($('<span class="mq-root-block"/>'))
-          .appendTo(jQToDOMFragment(el).one())
-          .toJQ()
+      root.setDOMFrag(
+        jQToDOMFragment($('<span class="mq-root-block"/>')).appendTo(
+          jQToDOMFragment(el).one()
+        )
       );
       NodeBase.linkElementByBlockId(root.getJQ()[0], root.id);
       this.latex(contents.text());

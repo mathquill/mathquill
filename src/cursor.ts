@@ -47,10 +47,11 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    var jQ = this.setJQ($(this.cursorElement));
+    this.setDOMFrag(DOMFragment.create(this.cursorElement));
+
     //closured for setInterval
-    this.blink = function () {
-      jQ.toggleClass('mq-blink');
+    this.blink = () => {
+      $(this.cursorElement).toggleClass('mq-blink');
     };
   }
 
@@ -58,9 +59,9 @@ class Cursor extends Point {
     return this.domFrag().toJQ();
   }
 
-  setJQ(jQ: $) {
-    this._domFrag = jQToDOMFragment(jQ);
-    return this.getJQ();
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
   }
 
   domFrag(): DOMFragment {
@@ -68,7 +69,8 @@ class Cursor extends Point {
   }
 
   show() {
-    this.setJQ($(this.cursorElement).removeClass('mq-blink'));
+    $(this.cursorElement).removeClass('mq-blink');
+    this.setDOMFrag(DOMFragment.create(this.cursorElement));
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -92,7 +94,7 @@ class Cursor extends Point {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
     this.domFrag().detach();
-    this.setJQ($());
+    this.setDOMFrag(DOMFragment.create());
     return this;
   }
 
@@ -387,11 +389,10 @@ class MQSelection extends Fragment {
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
-    this.setJQ(
+    this.setDOMFrag(
       this.domFrag()
         .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
         .parent()
-        .toJQ()
     );
   }
 
@@ -407,7 +408,7 @@ class MQSelection extends Fragment {
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     const childFrag = this.domFrag().children();
     this.domFrag().replaceWith(childFrag);
-    this.setJQ(childFrag.toJQ());
+    this.setDOMFrag(childFrag);
 
     return super.adopt(parent, leftward, rightward);
   }
