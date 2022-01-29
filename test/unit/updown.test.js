@@ -301,11 +301,11 @@ suite('up/down', function () {
     mq.keystroke('Up');
     mq.keystroke('Up');
     assert.equal(cursor.parent.latex(), '1', 'cursor up goes to upper limit');
-    var upperRect = cursor.parent.jQ[0].getBoundingClientRect();
+    var upperRect = cursor.parent.getJQ()[0].getBoundingClientRect();
 
     mq.keystroke('Down');
     assert.equal(cursor.parent.latex(), '0', 'cursor down goes to lower limit');
-    var lowerRect = cursor.parent.jQ[0].getBoundingClientRect();
+    var lowerRect = cursor.parent.getJQ()[0].getBoundingClientRect();
 
     mq.keystroke('Up');
     assert.equal(cursor.parent.latex(), '1', 'cursor up goes to upper limit');

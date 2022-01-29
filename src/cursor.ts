@@ -30,8 +30,10 @@ class Cursor extends Point {
    */
   upDownCache: Record<number | string, Point | undefined> = {};
   blink: () => void;
-  private _jQ: $;
-  private jQ: $;
+  private readonly cursorElement: HTMLElement = $(
+    '<span class="mq-cursor">&#8203;</span>'
+  )[0];
+  private _domFrag = DOMFragment.create();
   selection: MQSelection | undefined;
   intervalId: number;
   anticursor: Anticursor | undefined;
@@ -45,9 +47,7 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    var jQ = this.setJQ(
-      this.set_JQ($('<span class="mq-cursor">&#8203;</span>'))
-    );
+    var jQ = this.setJQ($(this.cursorElement));
     //closured for setInterval
     this.blink = function () {
       jQ.toggleClass('mq-blink');
@@ -55,29 +55,20 @@ class Cursor extends Point {
   }
 
   getJQ(): $ {
-    return this.jQ;
+    return this.domFrag().toJQ();
   }
 
   setJQ(jQ: $) {
-    this.jQ = jQ;
-    return this.jQ;
-  }
-
-  get_JQ(): $ {
-    return this._jQ;
-  }
-
-  set_JQ(jQ: $) {
-    this._jQ = jQ;
-    return this._jQ;
+    this._domFrag = jQToDOMFragment(jQ);
+    return this.getJQ();
   }
 
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.getJQ());
+    return this._domFrag;
   }
 
   show() {
-    this.setJQ(this.get_JQ().removeClass('mq-blink'));
+    this.setJQ($(this.cursorElement).removeClass('mq-blink'));
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);

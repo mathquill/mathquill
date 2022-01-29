@@ -201,7 +201,7 @@ class NodeBase {
     return this.ends[dir];
   }
 
-  private jQ = defaultJQ;
+  private _domFrag = DOMFragment.create();
   id = NodeBase.uniqueNodeId();
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
@@ -233,16 +233,16 @@ class NodeBase {
   }
 
   getJQ(): $ {
-    return this.jQ;
+    return this.domFrag().toJQ();
   }
 
   setJQ(jQ: $) {
-    this.jQ = jQ;
-    return this.jQ;
+    this._domFrag = jQToDOMFragment(jQ);
+    return this.getJQ();
   }
 
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.getJQ());
+    return this._domFrag;
   }
 
   jQadd(jQ: $ | HTMLElement | ChildNode) {
@@ -497,7 +497,7 @@ class Fragment {
    * */
   protected ends: Ends<NodeRef>;
 
-  private jQ = defaultJQ;
+  private _domFrag = DOMFragment.create();
   disowned: boolean = false;
 
   constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
@@ -551,16 +551,16 @@ class Fragment {
   }
 
   getJQ(): $ {
-    return this.jQ;
+    return this.domFrag().toJQ();
   }
 
   setJQ(jQ: $) {
-    this.jQ = jQ;
-    return this.jQ;
+    this._domFrag = jQToDOMFragment(jQ);
+    return this.getJQ();
   }
 
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.getJQ());
+    return this._domFrag;
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
