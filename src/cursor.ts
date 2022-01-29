@@ -30,8 +30,8 @@ class Cursor extends Point {
    */
   upDownCache: Record<number | string, Point | undefined> = {};
   blink: () => void;
-  _jQ: $;
-  jQ: $;
+  private _jQ: $;
+  private jQ: $;
   selection: MQSelection | undefined;
   intervalId: number;
   anticursor: Anticursor | undefined;
@@ -45,19 +45,39 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>'));
+    var jQ = this.setJQ(
+      this.set_JQ($('<span class="mq-cursor">&#8203;</span>'))
+    );
     //closured for setInterval
     this.blink = function () {
       jQ.toggleClass('mq-blink');
     };
   }
 
+  getJQ(): $ {
+    return this.jQ;
+  }
+
+  setJQ(jQ: $) {
+    this.jQ = jQ;
+    return this.jQ;
+  }
+
+  get_JQ(): $ {
+    return this._jQ;
+  }
+
+  set_JQ(jQ: $) {
+    this._jQ = jQ;
+    return this._jQ;
+  }
+
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.jQ);
+    return jQToDOMFragment(this.getJQ());
   }
 
   show() {
-    this.jQ = this._jQ.removeClass('mq-blink');
+    this.setJQ(this.get_JQ().removeClass('mq-blink'));
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -81,7 +101,7 @@ class Cursor extends Point {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
     this.domFrag().detach();
-    this.jQ = $();
+    this.setJQ($());
     return this;
   }
 
@@ -105,7 +125,7 @@ class Cursor extends Point {
     prayDirection(dir);
     this.domFrag().insDirOf(dir, el.domFrag());
     this.withDirInsertAt(dir, el.parent, el[dir], el);
-    this.parent.jQ.addClass('mq-hasCursor');
+    this.parent.getJQ().addClass('mq-hasCursor');
     return this;
   }
   insLeftOf(el: MQNode) {
@@ -164,8 +184,8 @@ class Cursor extends Point {
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
     var self = this,
-      offset = self.jQ.removeClass('mq-cursor').offset();
-    self.jQ.addClass('mq-cursor');
+      offset = self.getJQ().removeClass('mq-cursor').offset();
+    self.getJQ().addClass('mq-cursor');
     return offset;
   }
   unwrapGramp() {
@@ -376,10 +396,12 @@ class MQSelection extends Fragment {
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
-    this.jQ = this.domFrag()
-      .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
-      .parent()
-      .toJQ();
+    this.setJQ(
+      this.domFrag()
+        .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
+        .parent()
+        .toJQ()
+    );
   }
 
   setEnds(ends: Ends<MQNode>) {
@@ -394,7 +416,7 @@ class MQSelection extends Fragment {
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     const childFrag = this.domFrag().children();
     this.domFrag().replaceWith(childFrag);
-    this.jQ = childFrag.toJQ();
+    this.setJQ(childFrag.toJQ());
 
     return super.adopt(parent, leftward, rightward);
   }

@@ -20,14 +20,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     const endsL = this.getEnd(L);
 
     endsL.focus = function () {
-      this.parent.jQ.addClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.jQ.removeClass('mq-empty');
+      this.parent.getJQ().addClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.getJQ().removeClass('mq-empty');
 
       return this;
     };
     endsL.blur = function () {
-      this.parent.jQ.removeClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.jQ.addClass('mq-empty');
+      this.parent.getJQ().removeClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.getJQ().addClass('mq-empty');
 
       return this;
     };
@@ -66,28 +66,33 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
-      var el = this.jQ[0];
-      this._replacedFragment.jQ.addClass('mq-blur').bind(
-        'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
-        function (e) {
-          // TODO - overwritting e.target
-          (e as any).target = el;
-          $(el).trigger(e);
-          return false;
-        }
+      var el = this.getJQ()[0];
+      this._replacedFragment
+        .getJQ()
+        .addClass('mq-blur')
+        .bind(
+          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+          function (e) {
+            // TODO - overwritting e.target
+            (e as any).target = el;
+            $(el).trigger(e);
+            return false;
+          }
+        );
+      this.setJQ(
+        this._replacedFragment
+          .domFrag()
+          .insertBefore(this.domFrag().one())
+          .toJQ()
+          .add(this.getJQ())
       );
-      this.jQ = this._replacedFragment
-        .domFrag()
-        .insertBefore(this.domFrag().one())
-        .toJQ()
-        .add(this.jQ);
     }
   }
   latex() {
     return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.jQ = this.domFrag().last().toJQ();
+    this.setJQ(this.domFrag().last().toJQ());
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);

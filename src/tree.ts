@@ -201,7 +201,7 @@ class NodeBase {
     return this.ends[dir];
   }
 
-  jQ = defaultJQ;
+  private jQ = defaultJQ;
   id = NodeBase.uniqueNodeId();
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
@@ -232,12 +232,21 @@ class NodeBase {
     return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
+  getJQ(): $ {
+    return this.jQ;
+  }
+
+  setJQ(jQ: $) {
+    this.jQ = jQ;
+    return this.jQ;
+  }
+
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.jQ);
+    return jQToDOMFragment(this.getJQ());
   }
 
   jQadd(jQ: $ | HTMLElement | ChildNode) {
-    return (this.jQ = this.jQ.add(jQ));
+    return this.setJQ(this.getJQ().add(jQ));
   }
   /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
    *
@@ -396,7 +405,7 @@ class NodeBase {
     // but that check doesn't always work. This seems to be the only
     // check that always works. I'd rather live with this than try
     // to change the init order of things.
-    if (!this.parent.jQ.hasClass('mq-sub')) return false;
+    if (!this.parent.getJQ().hasClass('mq-sub')) return false;
 
     return true;
   }
@@ -488,7 +497,7 @@ class Fragment {
    * */
   protected ends: Ends<NodeRef>;
 
-  jQ = defaultJQ;
+  private jQ = defaultJQ;
   disowned: boolean = false;
 
   constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
@@ -525,7 +534,7 @@ class Fragment {
       maybeRightEnd === ends[R]
     );
 
-    this.jQ = ends[L].domFrag().join(ends[R].domFrag()).toJQ();
+    this.setJQ(ends[L].domFrag().join(ends[R].domFrag()).toJQ());
   }
 
   /**
@@ -541,8 +550,17 @@ class Fragment {
     return this.ends ? this.ends[dir] : 0;
   }
 
+  getJQ(): $ {
+    return this.jQ;
+  }
+
+  setJQ(jQ: $) {
+    this.jQ = jQ;
+    return this.jQ;
+  }
+
   domFrag(): DOMFragment {
-    return jQToDOMFragment(this.jQ);
+    return jQToDOMFragment(this.getJQ());
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)

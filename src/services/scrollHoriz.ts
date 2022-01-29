@@ -5,7 +5,7 @@
 
 class Controller_scrollHoriz extends Controller_mouse {
   setOverflowClasses() {
-    var root = this.root.jQ[0];
+    var root = this.root.getJQ()[0];
     var shouldHaveOverflowRight = false;
     var shouldHaveOverflowLeft = false;
     if (!this.blurred) {
@@ -29,19 +29,22 @@ class Controller_scrollHoriz extends Controller_mouse {
   scrollHoriz() {
     var cursor = this.cursor,
       seln = cursor.selection;
-    var rootRect = this.root.jQ[0].getBoundingClientRect();
-    if (!cursor.jQ[0] && !seln) {
-      this.root.jQ.stop().animate({ scrollLeft: 0 }, 100, () => {
-        this.setOverflowClasses();
-      });
+    var rootRect = this.root.getJQ()[0].getBoundingClientRect();
+    if (!cursor.getJQ()[0] && !seln) {
+      this.root
+        .getJQ()
+        .stop()
+        .animate({ scrollLeft: 0 }, 100, () => {
+          this.setOverflowClasses();
+        });
       return;
     } else if (!seln) {
-      var x = cursor.jQ[0].getBoundingClientRect().left;
+      var x = cursor.getJQ()[0].getBoundingClientRect().left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
       else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
       else return;
     } else {
-      var rect = seln.jQ[0].getBoundingClientRect();
+      var rect = seln.getJQ()[0].getBoundingClientRect();
       var overLeft = rect.left - (rootRect.left + 20);
       var overRight = rect.right - (rootRect.right - 20);
       if (seln.getEnd(L) === cursor[R]) {
@@ -61,12 +64,15 @@ class Controller_scrollHoriz extends Controller_mouse {
       }
     }
 
-    var root = this.root.jQ[0];
+    var root = this.root.getJQ()[0];
     if (scrollBy < 0 && root.scrollLeft === 0) return;
     if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width)
       return;
-    this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, () => {
-      this.setOverflowClasses();
-    });
+    this.root
+      .getJQ()
+      .stop()
+      .animate({ scrollLeft: '+=' + scrollBy }, 100, () => {
+        this.setOverflowClasses();
+      });
   }
 }

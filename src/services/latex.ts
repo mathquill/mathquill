@@ -214,7 +214,7 @@ class Controller_latex extends Controller_keystroke {
       var newMinusNode = new PlusMinus('-');
       var minusSpan = document.createElement('span');
       minusSpan.textContent = '-';
-      newMinusNode.jQ = $(minusSpan);
+      newMinusNode.setJQ($(minusSpan));
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
@@ -238,7 +238,7 @@ class Controller_latex extends Controller_keystroke {
       charNode = oldCharNodes[i];
       if (charNode.ctrlSeq !== newText) {
         charNode.ctrlSeq = newText;
-        charNode.jQ[0].textContent = newText;
+        charNode.getJQ()[0].textContent = newText;
         charNode.mathspeakName = newText;
       }
     }
@@ -265,7 +265,7 @@ class Controller_latex extends Controller_keystroke {
 
         var newNode = new Digit(newDigits[i]);
         newNode.parent = root;
-        newNode.jQ = $(span);
+        newNode.setJQ($(span));
         frag.appendChild(span);
 
         // splice this node in
@@ -277,7 +277,7 @@ class Controller_latex extends Controller_keystroke {
         root.setEnds({ [L]: root.getEnd(L), [R]: newNode });
       }
 
-      root.jQ[0].appendChild(frag);
+      root.getJQ()[0].appendChild(frag);
     }
 
     var currentLatex = this.exportLatex();
@@ -317,7 +317,7 @@ class Controller_latex extends Controller_keystroke {
       block.children().adopt(root, 0, 0);
     }
 
-    var jQ = root.jQ;
+    var jQ = root.getJQ();
 
     if (block) {
       var html = block.join('html');

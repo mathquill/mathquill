@@ -208,10 +208,12 @@ function getInterface(v: number) {
         .children()
         .detach();
 
-      root.jQ = jQToDOMFragment($('<span class="mq-root-block"/>'))
-        .appendTo(jQToDOMFragment(el).one())
-        .toJQ();
-      NodeBase.linkElementByBlockId(root.jQ[0], root.id);
+      root.setJQ(
+        jQToDOMFragment($('<span class="mq-root-block"/>'))
+          .appendTo(jQToDOMFragment(el).one())
+          .toJQ()
+      );
+      NodeBase.linkElementByBlockId(root.getJQ()[0], root.id);
       this.latex(contents.text());
 
       this.revert = function () {
@@ -248,8 +250,9 @@ function getInterface(v: number) {
       return this.__controller.exportLatex();
     }
     html() {
-      return this.__controller.root.jQ[0].innerHTML
-        .replace(/ jQuery\d+="(?:\d+|null)"/g, '') // TODO remove when jQuery is completely gone
+      return this.__controller.root
+        .getJQ()[0]
+        .innerHTML.replace(/ jQuery\d+="(?:\d+|null)"/g, '') // TODO remove when jQuery is completely gone
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
         .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
@@ -381,7 +384,7 @@ function getInterface(v: number) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller,
         root = ctrlr.root;
-      if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
+      if (!jQuery.contains(root.getJQ()[0], target)) target = root.getJQ()[0];
       ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
       if (ctrlr.blurred) this.focus();
       return this;

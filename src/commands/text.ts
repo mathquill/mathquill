@@ -25,12 +25,12 @@ class TextBlock extends MQNode {
     super.jQadd(jQ);
     const endsL = this.getEnd(L);
     if (endsL) {
-      const child = this.jQ[0].firstChild;
+      const child = this.getJQ()[0].firstChild;
       if (child) {
         endsL.jQadd(child);
       }
     }
-    return this.jQ;
+    return this.getJQ();
   }
 
   createLeftOf(cursor: Cursor) {
@@ -197,9 +197,9 @@ class TextBlock extends MQNode {
     if (!textPc) return;
 
     // insert cursor at approx position in DOMTextNode
-    var avgChWidth = this.jQ.width() / this.text.length;
+    var avgChWidth = this.getJQ().width() / this.text.length;
     var approxPosition = Math.round(
-      (pageX - this.jQ.offset().left) / avgChWidth
+      (pageX - this.getJQ().offset().left) / avgChWidth
     );
     if (approxPosition <= 0) cursor.insAtLeftEnd(this);
     else if (approxPosition >= textPc.textStr.length)
@@ -267,9 +267,9 @@ class TextBlock extends MQNode {
 }
 
 function TextBlockFuseChildren(self: TextBlock) {
-  self.jQ[0].normalize();
+  self.getJQ()[0].normalize();
 
-  var textPcDom = self.jQ[0].firstChild as Text;
+  var textPcDom = self.getJQ()[0].firstChild as Text;
   if (!textPcDom) return;
   pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
   // nodeType === 3 has meant a Text node since ancient times:
@@ -300,8 +300,7 @@ class TextPiece extends MQNode {
   }
   jQadd(dom: Text) {
     this.dom = dom;
-    this.jQ = $(dom);
-    return this.jQ;
+    return this.setJQ($(dom));
   }
   jQize() {
     return this.jQadd(document.createTextNode(this.textStr));

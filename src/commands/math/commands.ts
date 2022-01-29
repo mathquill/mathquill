@@ -440,20 +440,24 @@ class SupSub extends MathCommand {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
-      block.jQ = jQToDOMFragment($('<span class="mq-sup"/>'))
-        .append(block.domFrag().children())
-        .prependTo(this.domFrag().one())
-        .toJQ();
-      NodeBase.linkElementByBlockNode(block.jQ[0], block);
+      block.setJQ(
+        jQToDOMFragment($('<span class="mq-sup"/>'))
+          .append(block.domFrag().children())
+          .prependTo(this.domFrag().one())
+          .toJQ()
+      );
+      NodeBase.linkElementByBlockNode(block.getJQ()[0], block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
-      this.jQ.removeClass('mq-sup-only');
-      block.jQ = jQToDOMFragment($('<span class="mq-sub"></span>'))
-        .append(block.domFrag().children())
-        .appendTo(this.domFrag().one())
-        .toJQ();
-      NodeBase.linkElementByBlockNode(block.jQ[0], block);
+      this.getJQ().removeClass('mq-sup-only');
+      block.setJQ(
+        jQToDOMFragment($('<span class="mq-sub"></span>'))
+          .append(block.domFrag().children())
+          .appendTo(this.domFrag().one())
+          .toJQ()
+      );
+      NodeBase.linkElementByBlockNode(block.getJQ()[0], block);
       this.domFrag().append(
         jQToDOMFragment(
           $('<span style="display:inline-block;width:0">&#8203;</span>')
@@ -493,7 +497,7 @@ class SupSub extends MathCommand {
           cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
           delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
           if (supsub === 'sub') {
-            cmd.jQ.addClass('mq-sup-only');
+            cmd.getJQ().addClass('mq-sup-only');
             cmd.domFrag().children().last().remove();
           }
           this.remove();
@@ -1015,7 +1019,7 @@ class DelimsNode extends MathCommand {
       [R]: children.last().toJQ(),
     };
     this.contentjQ = children.eq(1).toJQ();
-    return this.jQ;
+    return this.getJQ();
   }
 }
 
@@ -1274,7 +1278,7 @@ class Bracket extends DelimsNode {
         // auto-expand so ghost is at far end
         const leftEnd = this.getEnd(L);
         var origEnd = leftEnd.getEnd(side);
-        leftEnd.jQ.removeClass('mq-empty');
+        leftEnd.getJQ().removeClass('mq-empty');
         new Fragment(sib, farEnd, -side as Direction)
           .disown()
           .withDirAdopt(-side as Direction, leftEnd, origEnd, 0)
@@ -1493,7 +1497,7 @@ class MathFieldNode extends MathCommand {
   finalizeTree(options: CursorOptions) {
     var ctrlr = new Controller(
       this.getEnd(L) as ControllerRoot,
-      this.jQ,
+      this.getJQ(),
       options
     );
     ctrlr.KIND_OF_MQ = 'MathField';

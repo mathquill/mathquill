@@ -32,7 +32,7 @@ var cancelSelectionOnEdit:
 
 class Controller_mouse extends Controller_latex {
   delegateMouseEvents() {
-    var ultimateRootjQ = this.root.jQ;
+    var ultimateRootjQ = this.root.getJQ();
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;

@@ -155,10 +155,10 @@ class DigitGroupingChar extends MQSymbol {
     if (this._groupingClass === cls) return;
 
     // remove existing class
-    if (this._groupingClass) this.jQ.removeClass(this._groupingClass);
+    if (this._groupingClass) this.getJQ().removeClass(this._groupingClass);
 
     // add new class
-    if (cls) this.jQ.addClass(cls);
+    if (cls) this.getJQ().addClass(cls);
 
     // cache the groupingClass
     this._groupingClass = cls;
@@ -427,7 +427,7 @@ class Letter extends Variable {
   italicize(bool: boolean) {
     this.isItalic = bool;
     this.isPartOfOperator = !bool;
-    this.jQ.toggleClass('mq-operator-name', !bool);
+    this.getJQ().toggleClass('mq-operator-name', !bool);
     return this;
   }
   finalizeTree(opts: CursorOptions, dir: Direction) {
@@ -470,9 +470,9 @@ class Letter extends Variable {
     new Fragment(lR || this.parent.getEnd(L), rL || this.parent.getEnd(R)).each(
       function (el) {
         if (el instanceof Letter) {
-          el.italicize(true).jQ.removeClass(
-            'mq-first mq-last mq-followed-by-supsub'
-          );
+          el.italicize(true)
+            .getJQ()
+            .removeClass('mq-first mq-last mq-followed-by-supsub');
           el.ctrlSeq = el.letter;
         }
         return undefined;
@@ -513,10 +513,11 @@ class Letter extends Variable {
             const lastL = last[L];
             const lastLL = lastL && lastL[L];
             const lastLLL = (lastLL && lastLL[L]) as MQNode;
-            lastLLL.jQ.addClass('mq-last');
+            lastLLL.getJQ().addClass('mq-last');
           }
 
-          if (!this.shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
+          if (!this.shouldOmitPadding(first[L]))
+            first.getJQ().addClass('mq-first');
           if (!this.shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
               var supsub = last[R] as MQNode; // XXX monkey-patching, but what's the right thing here?
@@ -526,14 +527,18 @@ class Letter extends Variable {
                 (supsub.siblingCreated =
                 supsub.siblingDeleted =
                   function () {
-                    supsub.jQ.toggleClass(
-                      'mq-after-operator-name',
-                      !(supsub[R] instanceof Bracket)
-                    );
+                    supsub
+                      .getJQ()
+                      .toggleClass(
+                        'mq-after-operator-name',
+                        !(supsub[R] instanceof Bracket)
+                      );
                   });
               respace();
             } else {
-              last.jQ.toggleClass('mq-last', !(last[R] instanceof Bracket));
+              last
+                .getJQ()
+                .toggleClass('mq-last', !(last[R] instanceof Bracket));
             }
           }
 
@@ -705,7 +710,7 @@ LatexCmds.f = class extends Letter {
     this.htmlTemplate = '<var class="mq-f">f</var>';
   }
   italicize(bool: boolean) {
-    this.jQ.html('f').toggleClass('mq-f', bool);
+    this.getJQ().html('f').toggleClass('mq-f', bool);
     return super.italicize(bool);
   }
 };
@@ -1035,7 +1040,9 @@ var PlusMinus = class extends BinaryOperator {
 
   sharedSiblingMethod(_opts?: CursorOptions, dir?: Direction) {
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ[0].className = isBinaryOperator(this) ? 'mq-binary-operator' : '';
+    this.getJQ()[0].className = isBinaryOperator(this)
+      ? 'mq-binary-operator'
+      : '';
 
     return this;
   }
@@ -1119,7 +1126,7 @@ class Inequality extends BinaryOperator {
     this.strict = strict;
     var strictness: '' | 'Strict' = strict ? 'Strict' : '';
     this.ctrlSeq = this.data[`ctrlSeq${strictness}`];
-    this.jQ.html(this.data[`html${strictness}`]);
+    this.getJQ().html(this.data[`html${strictness}`]);
     this.textTemplate = [this.data[`text${strictness}`]];
     this.mathspeakName = this.data[`mathspeak${strictness}`];
   }
