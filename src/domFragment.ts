@@ -57,6 +57,13 @@ class DOMFragment {
     return this;
   }
 
+  eachElement(cb: (el: HTMLElement) => void): DOMFragment {
+    this.each((el) => {
+      if (el.nodeType === Node.ELEMENT_NODE) cb(el as HTMLElement);
+    });
+    return this;
+  }
+
   fold<T>(fold: T, cb: (fold: T, el: ChildNode) => T): T {
     if (!this.ends) return fold;
     this.each((el) => (fold = cb(fold, el)));
@@ -67,9 +74,9 @@ class DOMFragment {
     return this.fold('', (fold, el) => fold + (el.textContent || ''));
   }
 
-  toArray() {
+  toElementArray() {
     const accum: ChildNode[] = [];
-    this.each((el) => accum.push(el));
+    this.eachElement((el) => accum.push(el));
     return accum;
   }
 
@@ -80,7 +87,7 @@ class DOMFragment {
   }
 
   toJQ(): $ {
-    return $(this.toArray() as HTMLElement[]);
+    return $(this.toElementArray() as HTMLElement[]);
   }
 
   insertBefore(el: ChildNode) {
