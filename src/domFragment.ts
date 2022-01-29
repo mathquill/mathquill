@@ -2,8 +2,8 @@ class DOMFragment {
   private ends: Ends<ChildNode> | undefined;
 
   static create(
-    first?: ChildNode | null | undefined,
-    last?: ChildNode | null | undefined
+    first?: ChildNode | undefined,
+    last?: ChildNode | undefined
   ): DOMFragment {
     if (arguments.length === 1) last = first;
     pray('No half-empty DOMFragments', !!first === !!last);
@@ -15,8 +15,8 @@ class DOMFragment {
   }
 
   private constructor(
-    first?: ChildNode | null | undefined,
-    last?: ChildNode | null | undefined
+    first?: ChildNode | undefined,
+    last?: ChildNode | undefined
   ) {
     if (arguments.length === 1) last = first;
     if (!first || !last) return;
@@ -147,10 +147,8 @@ class DOMFragment {
   parent() {
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
-    return new DOMFragment(
-      parent as ChildNode | null,
-      parent as ChildNode | null
-    );
+    if (!parent) return new DOMFragment();
+    return new DOMFragment(parent as unknown as ChildNode);
   }
 
   wrapAll(el: ChildNode) {
@@ -189,7 +187,9 @@ class DOMFragment {
    */
   children() {
     const el = this.one();
-    return new DOMFragment(el.firstChild, el.lastChild);
+    const first = el.firstChild;
+    const last = el.lastChild;
+    return first && last ? new DOMFragment(first, last) : new DOMFragment();
   }
 
   /**
