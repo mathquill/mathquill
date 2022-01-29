@@ -137,7 +137,7 @@ function getInterface(v: number) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
     let blockElement;
-    const childArray = DOMFragment.create(el, el).children().toElementArray();
+    const childArray = DOMFragment.create(el).children().toElementArray();
     for (const child of childArray) {
       if (child.classList.contains('mq-root-block')) {
         blockElement = child;

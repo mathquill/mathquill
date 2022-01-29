@@ -2,9 +2,10 @@ class DOMFragment {
   private ends: Ends<ChildNode> | undefined;
 
   static create(
-    first: ChildNode | null | undefined,
-    last: ChildNode | null | undefined
+    first?: ChildNode | null | undefined,
+    last?: ChildNode | null | undefined
   ): DOMFragment {
+    if (arguments.length === 1) last = first;
     pray('No half-empty DOMFragments', !!first === !!last);
     const out = new DOMFragment(first, last);
     let maybeLast: ChildNode | undefined;
@@ -14,9 +15,10 @@ class DOMFragment {
   }
 
   private constructor(
-    first: ChildNode | null | undefined,
-    last: ChildNode | null | undefined
+    first?: ChildNode | null | undefined,
+    last?: ChildNode | null | undefined
   ) {
+    if (arguments.length === 1) last = first;
     if (!first || !last) return;
     this.ends = { [L]: first, [R]: last };
   }
@@ -390,15 +392,15 @@ class DOMFragment {
 }
 
 function jQToDOMFragment(jQ: $) {
-  if (jQ.length === 0) return DOMFragment.create(undefined, undefined);
-  if (jQ.length === 1) return DOMFragment.create(jQ[0], jQ[0]);
+  if (jQ.length === 0) return DOMFragment.create();
+  if (jQ.length === 1) return DOMFragment.create(jQ[0]);
 
   for (let i = 0; i < jQ.length - 1; i++) {
     const el = jQ[i];
     const nextEl = jQ[i + 1];
     pray(
       'jQToDOMFragment expects jQ to be a collection of siblings',
-      DOMFragment.create(el, el).next().one() === nextEl
+      DOMFragment.create(el).next().one() === nextEl
     );
   }
 
