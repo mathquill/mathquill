@@ -98,7 +98,6 @@ interface $ {
   width(): number;
   add(el: JQSelector): $;
   val(val: string): $;
-  children(selector: string): $;
   stop(): $;
   html(t: string): $;
   text(str: string): $;

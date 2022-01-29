@@ -1006,11 +1006,12 @@ class DelimsNode extends MathCommand {
 
   jQadd(el: $) {
     super.jQadd(el);
+    const children = jQToDOMFragment(this.jQ).children();
     this.delimjQs = {
-      [L]: this.jQ.children(':first'),
-      [R]: this.jQ.children(':last'),
+      [L]: children.first().toJQ(),
+      [R]: children.last().toJQ(),
     };
-    this.contentjQ = this.jQ.children(':eq(1)');
+    this.contentjQ = children.eq(1).toJQ();
     return this.jQ;
   }
 }

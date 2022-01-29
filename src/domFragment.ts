@@ -73,7 +73,7 @@ class DOMFragment {
   }
 
   toElementArray() {
-    const accum: ChildNode[] = [];
+    const accum: HTMLElement[] = [];
     this.eachElement((el) => accum.push(el));
     return accum;
   }

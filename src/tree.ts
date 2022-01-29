@@ -157,7 +157,7 @@ class NodeBase {
     return (NodeBase.idCounter += 1);
   }
 
-  static getNodeOfElement(el: HTMLElement) {
+  static getNodeOfElement(el: HTMLElement | undefined) {
     if (!el) return;
     if (!el.nodeType)
       throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement');

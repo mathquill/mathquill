@@ -136,9 +136,15 @@ function getInterface(v: number) {
   var MQ: MQ = function (el: HTMLElement) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockNode = NodeBase.getNodeOfElement(
-      $(el).children('.mq-root-block')[0]
-    ) as MathBlock; // TODO - assumng it's a MathBlock
+    let blockElement;
+    const childArray = DOMFragment.create(el, el).children().toElementArray();
+    for (const child of childArray) {
+      if (child.classList.contains('mq-root-block')) {
+        blockElement = child;
+        break;
+      }
+    }
+    var blockNode = NodeBase.getNodeOfElement(blockElement) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? new APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
