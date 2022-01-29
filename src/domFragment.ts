@@ -269,8 +269,7 @@ class DOMFragment {
    * Nodes that are not Elements (e.g. Text and Comment nodes).
    */
   first() {
-    const el = this.firstElement();
-    return new DOMFragment(el, el);
+    return new DOMFragment(this.firstElement());
   }
 
   /**
@@ -279,8 +278,7 @@ class DOMFragment {
    * Nodes that are not Elements (e.g. Text and Comment nodes).
    */
   last() {
-    const el = this.lastElement();
-    return new DOMFragment(el, el);
+    return new DOMFragment(this.lastElement());
   }
 
   /**
@@ -290,8 +288,7 @@ class DOMFragment {
    * nodes).
    */
   eq(n: number) {
-    const el = this.nthElement(n);
-    return new DOMFragment(el, el);
+    return new DOMFragment(this.nthElement(n));
   }
 
   /**
@@ -303,7 +300,7 @@ class DOMFragment {
   slice(n: number) {
     if (!this.ends) return this;
     const el = this.nthElement(n);
-    if (!el) return new DOMFragment(undefined, undefined);
+    if (!el) return new DOMFragment();
     return new DOMFragment(el, this.ends[R]);
   }
 
@@ -320,9 +317,9 @@ class DOMFragment {
     while (current) {
       current = current.nextSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
-        return new DOMFragment(current, current);
+        return new DOMFragment(current);
     }
-    return new DOMFragment(undefined, undefined);
+    return new DOMFragment();
   }
 
   /**
@@ -338,9 +335,9 @@ class DOMFragment {
     while (current) {
       current = current.previousSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
-        return new DOMFragment(current, current);
+        return new DOMFragment(current);
     }
-    return new DOMFragment(undefined, undefined);
+    return new DOMFragment();
   }
 
   /**
