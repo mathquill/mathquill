@@ -337,11 +337,9 @@ class SupSub extends MathCommand {
           if (!dest) thisDir.addBlock(src.disown());
           else if (!src.isEmpty()) {
             // ins src children at -dir end of dest
-            jQInsAtDirEnd(
-              jQToDOMFragment(src.jQ).children().toJQ(),
-              -dir as Direction,
-              dest.jQ
-            );
+            jQToDOMFragment(src.jQ)
+              .children()
+              .insAtDirEnd(-dir as Direction, jQToDOMFragment(dest.jQ).one());
             var children = src.children().disown();
             pt = new Point(dest, children.getEnd(R), dest.getEnd(L));
             if (dir === L) children.adopt(dest, dest.getEnd(R), 0);
@@ -482,7 +480,10 @@ class SupSub extends MathCommand {
                 cursor[dir],
                 cursor[-dir as Direction]
               ).jQ;
-            jQInsDirOf(childJQ, -dir as Direction, cursor.jQ);
+            jQToDOMFragment(childJQ).insDirOf(
+              -dir as Direction,
+              jQToDOMFragment(cursor.jQ)
+            );
             cursor[-dir as Direction] = end;
           }
           cmd.supsub = oppositeSupsub;
@@ -1180,7 +1181,10 @@ class Bracket extends DelimsNode {
             brack[side as Direction]
           ).jQ;
 
-        jQInsDirOf(fragJQ, side as Direction, brack.jQ);
+        jQToDOMFragment(fragJQ).insDirOf(
+          side as Direction,
+          jQToDOMFragment(brack.jQ)
+        );
       }
       brack.bubble(function (node) {
         node.reflow();
@@ -1274,7 +1278,10 @@ class Bracket extends DelimsNode {
           .disown()
           .withDirAdopt(-side as Direction, this.getEnd(L), origEnd, 0).jQ;
 
-        jQInsAtDirEnd(fragJQ, side, this.getEnd(L).jQ.removeClass('mq-empty'));
+        jQToDOMFragment(fragJQ).insAtDirEnd(
+          side,
+          jQToDOMFragment(this.getEnd(L).jQ.removeClass('mq-empty')).one()
+        );
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens

@@ -106,7 +106,7 @@ class Cursor extends Point {
   /** Place the cursor before or after `el`, according the side specified by `dir`. */
   insDirOf(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    jQInsDirOf(this.jQ, dir, el.jQ);
+    jQToDOMFragment(this.jQ).insDirOf(dir, jQToDOMFragment(el.jQ));
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
     return this;
@@ -121,7 +121,7 @@ class Cursor extends Point {
   /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    jQInsAtDirEnd(this.jQ, dir, el.jQ);
+    jQToDOMFragment(this.jQ).insAtDirEnd(dir, jQToDOMFragment(el.jQ).one());
     this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;

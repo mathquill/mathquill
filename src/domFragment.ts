@@ -365,6 +365,28 @@ class DOMFragment {
     // mathquill did one vs the other.
     return this.remove();
   }
+
+  /**
+   * Insert this fragment either just before or just after `sibling`
+   * fragment according to the direction specified by `dir`.
+   *
+   * Asserts `sibling` is not empty.
+   */
+  insDirOf(dir: Direction, sibling: DOMFragment): DOMFragment {
+    if (!this.ends) return this;
+
+    pray('new sibling is not empty', sibling.ends);
+    const el = sibling.ends[dir];
+    return dir === L ? this.insertBefore(el) : this.insertAfter(el);
+  }
+
+  /**
+   * Insert this fragment into `el` either at the beginning or end of
+   * its children, according to the direction specified by `dir`.
+   */
+  insAtDirEnd(dir: Direction, el: ChildNode): DOMFragment {
+    return dir === L ? this.prependTo(el) : this.appendTo(el);
+  }
 }
 
 function jQToDOMFragment(jQ: $) {

@@ -8,28 +8,6 @@
 
 var $: $ = jQuery;
 
-/**
- * Helpers for directionalized DOM manipulation methods.
- */
-
-/** Insert `child` collection either just before or just after `el`, according to the direction specified by `dir`. */
-function jQInsDirOf(child: $, dir: Direction, el: $) {
-  return dir === L
-    ? jQToDOMFragment(child)
-        .insertBefore(jQToDOMFragment(el).first().one())
-        .toJQ()
-    : jQToDOMFragment(child)
-        .insertAfter(jQToDOMFragment(el).last().one())
-        .toJQ();
-}
-
-/** Insert `child` collection into `el` either at the beginning or end of its children, according to the direction specified by `dir`. */
-function jQInsAtDirEnd(child: $, dir: Direction, el: $) {
-  return dir === L
-    ? jQToDOMFragment(child).prependTo(jQToDOMFragment(el).one()).toJQ()
-    : jQToDOMFragment(child).appendTo(jQToDOMFragment(el).one()).toJQ();
-}
-
 /** A cursor-like location in an mq node tree. */
 class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */
@@ -297,7 +275,7 @@ class NodeBase {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    jQInsDirOf(node.jQ, dir, cursor.jQ);
+    jQToDOMFragment(node.jQ).insDirOf(dir, jQToDOMFragment(cursor.jQ));
     cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   }
