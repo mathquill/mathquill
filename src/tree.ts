@@ -521,9 +521,9 @@ class Fragment {
       maybeRightEnd === ends[R]
     );
 
-    let leftJQ = ends[L].jQ;
-    let rightJQ = ends[R].jQ;
-    this.jQ = DOMFragment.create(leftJQ[0], rightJQ[rightJQ.length - 1]).toJQ();
+    this.jQ = jQToDOMFragment(ends[L].jQ)
+      .join(jQToDOMFragment(ends[R].jQ))
+      .toJQ();
   }
 
   /**

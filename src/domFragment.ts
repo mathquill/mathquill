@@ -27,6 +27,26 @@ class DOMFragment {
     return this.ends === undefined;
   }
 
+  /**
+   * Return a new `DOMFragment` spanning this fragment and `sibling`
+   * fragment. Does not perform any DOM operations.
+   *
+   * Asserts that `sibling` is either empty or a forward sibling of
+   * `this`.
+   */
+  join(sibling: DOMFragment) {
+    if (!this.ends) return sibling;
+    if (!sibling.ends) return this;
+    // Note, purposely using factory here instead of private contructor
+    // to verify that sibling is in fact a sibling of this
+    return DOMFragment.create(this.ends[L], sibling.ends[R]);
+  }
+
+  /**
+   * Return the single DOM Node represented by this Fragment.
+   *
+   * Asserts that this fragment contains exactly one element.
+   */
   one(): ChildNode {
     pray(
       'Fragment has a single node',
