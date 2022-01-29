@@ -249,11 +249,6 @@ class NodeBase {
     return this.setDOMFrag(this.domFrag().join(sibling));
   }
 
-  jQadd(jQ: $ | HTMLElement | ChildNode) {
-    const frag =
-      jQ instanceof Node ? DOMFragment.create(jQ) : jQToDOMFragment(jQ);
-    return this.joinFrag(frag).getJQ();
-  }
   /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
    *
    * TODO: The only part of this method that depends on `this` is generating the DOM, so maybe pull out the rest into
@@ -269,7 +264,7 @@ class NodeBase {
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
           var cmdNode = NodeBase.TempByIdDict[cmdId];
-          cmdNode.jQadd(el);
+          cmdNode.joinFrag(DOMFragment.create(el));
           NodeBase.linkElementByCmdNode(el, cmdNode);
         }
 
@@ -277,7 +272,7 @@ class NodeBase {
         if (blockId) {
           el.removeAttribute('mathquill-block-id');
           var blockNode = NodeBase.TempByIdDict[blockId];
-          blockNode.jQadd(el);
+          blockNode.joinFrag(DOMFragment.create(el));
           NodeBase.linkElementByBlockNode(el, blockNode);
         }
       }
