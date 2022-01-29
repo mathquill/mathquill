@@ -93,7 +93,6 @@ interface $ {
   trigger(e: Event): $;
   select(): $;
   width(): number;
-  add(el: JQSelector): $;
   val(val: string): $;
   stop(): $;
   html(t: string): $;

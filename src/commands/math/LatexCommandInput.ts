@@ -80,13 +80,10 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
           }
         );
       this.setDOMFrag(
-        jQToDOMFragment(
-          this._replacedFragment
-            .domFrag()
-            .insertBefore(this.domFrag().one())
-            .toJQ()
-            .add(this.getJQ())
-        )
+        this._replacedFragment
+          .domFrag()
+          .insertBefore(this.domFrag().one())
+          .join(this.domFrag())
       );
     }
   }
