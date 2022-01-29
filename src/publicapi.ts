@@ -249,7 +249,7 @@ function getInterface(v: number) {
     }
     html() {
       return this.__controller.root.jQ[0].innerHTML
-        .replace(/ jQuery\d+="(?:\d+|null)"/g, '')
+        .replace(/ jQuery\d+="(?:\d+|null)"/g, '') // TODO remove when jQuery is completely gone
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
         .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
