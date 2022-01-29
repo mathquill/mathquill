@@ -1006,18 +1006,16 @@ LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
 LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 
 class DelimsNode extends MathCommand {
-  delimjQs: Ends<$>;
-  contentjQ: $;
+  delimFrags: Ends<DOMFragment>;
 
   setDOMFrag(frag: DOMFragment) {
     super.setDOMFrag(frag);
     const children = this.domFrag().children();
     if (!children.isEmpty()) {
-      this.delimjQs = {
-        [L]: children.first().toJQ(),
-        [R]: children.last().toJQ(),
+      this.delimFrags = {
+        [L]: children.first(),
+        [R]: children.last(),
       };
-      this.contentjQ = children.eq(1).toJQ();
     }
     return this;
   }
@@ -1136,7 +1134,8 @@ class Bracket extends DelimsNode {
   closeOpposing(brack: Bracket) {
     brack.side = 0;
     brack.sides[this.side as Direction] = this.sides[this.side as Direction]; // copy over my info (may be
-    var $brack = brack.delimjQs[this.side === L ? L : R] // mismatched, like [a, b))
+    var $brack = brack.delimFrags[this.side === L ? L : R] // mismatched, like [a, b))
+      .toJQ()
       .removeClass('mq-ghost');
     this.replaceBracket($brack, this.side);
   }
@@ -1269,9 +1268,9 @@ class Bracket extends DelimsNode {
       } else {
         // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = getOppBracketSide(this);
-        this.delimjQs[L].removeClass('mq-ghost');
-        this.delimjQs[R].removeClass('mq-ghost');
-        var $brack = this.delimjQs[side].addClass('mq-ghost');
+        this.delimFrags[L].toJQ().removeClass('mq-ghost');
+        this.delimFrags[R].toJQ().removeClass('mq-ghost');
+        var $brack = this.delimFrags[side].toJQ().addClass('mq-ghost');
         this.replaceBracket($brack, side);
       }
       if (sib) {
@@ -1313,7 +1312,7 @@ class Bracket extends DelimsNode {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function () {
-      this.delimjQs[this.side === L ? R : L].removeClass('mq-ghost');
+      this.delimFrags[this.side === L ? R : L].toJQ().removeClass('mq-ghost');
       this.side = 0;
     };
   }
