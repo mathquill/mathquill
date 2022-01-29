@@ -307,10 +307,6 @@ class TextPiece extends MQNode {
     }
     return this;
   }
-  jQadd(dom: Text) {
-    pray('jQAdd is not called twice', !this.dom);
-    return this.setDOMFrag(jQToDOMFragment($(dom))).getJQ();
-  }
   jQize() {
     return this.jQadd(document.createTextNode(this.textStr));
   }
