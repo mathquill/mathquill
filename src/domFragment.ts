@@ -64,14 +64,12 @@ class DOMFragment {
     return this;
   }
 
-  fold<T>(fold: T, cb: (fold: T, el: ChildNode) => T): T {
-    if (!this.ends) return fold;
-    this.each((el) => (fold = cb(fold, el)));
-    return fold;
-  }
-
   text() {
-    return this.fold('', (fold, el) => fold + (el.textContent || ''));
+    let accum = '';
+    this.each((node) => {
+      accum += node.textContent || '';
+    });
+    return accum;
   }
 
   toElementArray() {
