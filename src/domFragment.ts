@@ -390,5 +390,17 @@ class DOMFragment {
 }
 
 function jQToDOMFragment(jQ: $) {
+  if (jQ.length === 0) return DOMFragment.create(undefined, undefined);
+  if (jQ.length === 1) return DOMFragment.create(jQ[0], jQ[0]);
+
+  for (let i = 0; i < jQ.length - 1; i++) {
+    const el = jQ[i];
+    const nextEl = jQ[i + 1];
+    pray(
+      'jQToDOMFragment expects jQ to be a collection of siblings',
+      DOMFragment.create(el, el).next().one() === nextEl
+    );
+  }
+
   return DOMFragment.create(jQ[0], jQ[jQ.length - 1]);
 }
