@@ -1009,15 +1009,17 @@ class DelimsNode extends MathCommand {
   delimjQs: Ends<$>;
   contentjQ: $;
 
-  jQadd(el: $) {
-    super.jQadd(el);
+  setDOMFrag(frag: DOMFragment) {
+    super.setDOMFrag(frag);
     const children = this.domFrag().children();
-    this.delimjQs = {
-      [L]: children.first().toJQ(),
-      [R]: children.last().toJQ(),
-    };
-    this.contentjQ = children.eq(1).toJQ();
-    return this.getJQ();
+    if (!children.isEmpty()) {
+      this.delimjQs = {
+        [L]: children.first().toJQ(),
+        [R]: children.last().toJQ(),
+      };
+      this.contentjQ = children.eq(1).toJQ();
+    }
+    return this;
   }
 }
 

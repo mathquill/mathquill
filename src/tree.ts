@@ -245,8 +245,14 @@ class NodeBase {
     return this._domFrag;
   }
 
+  joinFrag(sibling: DOMFragment) {
+    return this.setDOMFrag(this.domFrag().join(sibling));
+  }
+
   jQadd(jQ: $ | HTMLElement | ChildNode) {
-    return this.setDOMFrag(jQToDOMFragment(this.getJQ().add(jQ))).getJQ();
+    const frag =
+      jQ instanceof Node ? DOMFragment.create(jQ) : jQToDOMFragment(jQ);
+    return this.joinFrag(frag).getJQ();
   }
   /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
    *

@@ -21,16 +21,16 @@ class TextBlock extends MQNode {
       this.replacedText = replacedText;
   }
 
-  jQadd(jQ: $) {
-    super.jQadd(jQ);
+  setDOMFrag(frag: DOMFragment) {
+    super.setDOMFrag(frag);
     const endsL = this.getEnd(L);
     if (endsL) {
       const child = this.getJQ()[0].firstChild;
       if (child) {
-        endsL.jQadd(child);
+        endsL.setDOMFrag(DOMFragment.create(child));
       }
     }
-    return this.getJQ();
+    return this;
   }
 
   createLeftOf(cursor: Cursor) {
@@ -298,8 +298,17 @@ class TextPiece extends MQNode {
     super();
     this.textStr = text;
   }
+  setDOMFrag(frag: DOMFragment) {
+    super.setDOMFrag(frag);
+    if (!frag.isEmpty()) {
+      const text = frag.one();
+      pray('TextPiece DOM must be a single Text node', text instanceof Text);
+      this.dom = text;
+    }
+    return this;
+  }
   jQadd(dom: Text) {
-    this.dom = dom;
+    pray('jQAdd is not called twice', !this.dom);
     return this.setDOMFrag(jQToDOMFragment($(dom))).getJQ();
   }
   jQize() {
