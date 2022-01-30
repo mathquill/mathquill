@@ -196,9 +196,9 @@ class TextBlock extends MQNode {
 
     // insert cursor at approx position in DOMTextNode
     var avgChWidth = this.getJQ().width() / this.text.length;
-    var approxPosition = Math.round(
-      (pageX - this.getJQ().offset().left) / avgChWidth
-    );
+    const left =
+      getBoundingClientRect(this.domFrag().oneElement()).left + getScrollX();
+    var approxPosition = Math.round((pageX - left) / avgChWidth);
     if (approxPosition <= 0) cursor.insAtLeftEnd(this);
     else if (approxPosition >= textPc.textStr.length)
       cursor.insAtRightEnd(this);

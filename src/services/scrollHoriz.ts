@@ -9,7 +9,7 @@ class Controller_scrollHoriz extends Controller_mouse {
     var shouldHaveOverflowRight = false;
     var shouldHaveOverflowLeft = false;
     if (!this.blurred) {
-      var width = root.getBoundingClientRect().width;
+      var width = getBoundingClientRect(root).width;
       var scrollWidth = root.scrollWidth;
       var scroll = root.scrollLeft;
       shouldHaveOverflowRight = scrollWidth > width + scroll;
@@ -29,7 +29,7 @@ class Controller_scrollHoriz extends Controller_mouse {
   scrollHoriz() {
     var cursor = this.cursor,
       seln = cursor.selection;
-    var rootRect = this.root.domFrag().oneElement().getBoundingClientRect();
+    var rootRect = getBoundingClientRect(this.root.domFrag().oneElement());
     if (cursor.domFrag().isEmpty() && !seln) {
       this.root
         .getJQ()
@@ -39,12 +39,12 @@ class Controller_scrollHoriz extends Controller_mouse {
         });
       return;
     } else if (!seln) {
-      var x = cursor.domFrag().oneElement().getBoundingClientRect().left;
+      var x = getBoundingClientRect(cursor.domFrag().oneElement()).left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
       else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
       else return;
     } else {
-      var rect = seln.domFrag().oneElement().getBoundingClientRect();
+      var rect = getBoundingClientRect(seln.domFrag().oneElement());
       var overLeft = rect.left - (rootRect.left + 20);
       var overRight = rect.right - (rootRect.right - 20);
       if (seln.getEnd(L) === cursor[R]) {

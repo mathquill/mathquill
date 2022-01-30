@@ -87,7 +87,6 @@ interface $ {
   css(prop: string, val: string | number | null): $;
   trigger(e: Event): $;
   select(): $;
-  width(): number;
   val(val: string): $;
   stop(): $;
   html(t: string): $;
@@ -98,7 +97,6 @@ interface $ {
     complete?: Function
   ): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): $;
-  bind(evt: string, cb: boolean | ((evt: Event) => any)): void;
   unbind(evt: string, cb?: Function, capture?: boolean): $;
   mousemove(cb: (evt: MouseEvent) => any): $;
   mouseup(cb: (evt: MouseEvent) => any): $;
@@ -107,8 +105,8 @@ interface $ {
   scrollLeft(): number;
   scrollTop(): number;
   closest(selector: JQSelector): $;
+  width(): number;
   outerWidth(): number;
-  offset(): { left: number; top: number }; // TODO - this can be undefined. Either fix uses or wait until removing jquery
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
 }
