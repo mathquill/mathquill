@@ -483,7 +483,7 @@ class SupSub extends MathCommand {
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
-      this.getJQ().removeClass('mq-sup-only');
+      this.domFrag().removeClass('mq-sup-only');
       block.setDOMFrag(
         domFrag(h('span', { class: 'mq-sub' }))
           .append(block.domFrag().children())
@@ -531,8 +531,7 @@ class SupSub extends MathCommand {
           cmdOppositeSupsub[`${updown}OutOf`] = insLeftOfMeUnlessAtEnd;
           delete (cmdOppositeSupsub as any).deleteOutOf; // TODO - refactor so this method can be optional
           if (supsub === 'sub') {
-            cmd.getJQ().addClass('mq-sup-only');
-            cmd.domFrag().children().last().remove();
+            cmd.domFrag().addClass('mq-sup-only').children().last().remove();
           }
           this.remove();
         };
@@ -1206,8 +1205,8 @@ class Bracket extends DelimsNode {
     brack.side = 0;
     brack.sides[this.side as Direction] = this.sides[this.side as Direction]; // copy over my info (may be
     var $brack = brack.delimFrags[this.side === L ? L : R] // mismatched, like [a, b))
-      .toJQ()
-      .removeClass('mq-ghost');
+      .removeClass('mq-ghost')
+      .toJQ();
     this.replaceBracket($brack, this.side);
   }
   createLeftOf(cursor: Cursor) {
@@ -1339,16 +1338,16 @@ class Bracket extends DelimsNode {
       } else {
         // else deleting just one of a pair of brackets, become one-sided
         this.sides[side] = getOppBracketSide(this);
-        this.delimFrags[L].toJQ().removeClass('mq-ghost');
-        this.delimFrags[R].toJQ().removeClass('mq-ghost');
-        var $brack = this.delimFrags[side].toJQ().addClass('mq-ghost');
+        this.delimFrags[L].removeClass('mq-ghost');
+        this.delimFrags[R].removeClass('mq-ghost');
+        var $brack = this.delimFrags[side].addClass('mq-ghost').toJQ();
         this.replaceBracket($brack, side);
       }
       if (sib) {
         // auto-expand so ghost is at far end
         const leftEnd = this.getEnd(L);
         var origEnd = leftEnd.getEnd(side);
-        leftEnd.getJQ().removeClass('mq-empty');
+        leftEnd.domFrag().removeClass('mq-empty');
         new Fragment(sib, farEnd, -side as Direction)
           .disown()
           .withDirAdopt(-side as Direction, leftEnd, origEnd, 0)
@@ -1384,7 +1383,7 @@ class Bracket extends DelimsNode {
     // FIXME HACK: after initial creation/insertion, finalizeTree would only be
     // called if the paren is selected and replaced, e.g. by LiveFraction
     this.finalizeTree = this.intentionalBlur = function () {
-      this.delimFrags[this.side === L ? R : L].toJQ().removeClass('mq-ghost');
+      this.delimFrags[this.side === L ? R : L].removeClass('mq-ghost');
       this.side = 0;
     };
   }

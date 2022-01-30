@@ -53,7 +53,7 @@ class Cursor extends Point {
 
     //closured for setInterval
     this.blink = () => {
-      $(this.cursorElement).toggleClass('mq-blink');
+      domFrag(this.cursorElement).toggleClass('mq-blink');
     };
   }
 
@@ -71,7 +71,7 @@ class Cursor extends Point {
   }
 
   show() {
-    $(this.cursorElement).removeClass('mq-blink');
+    domFrag(this.cursorElement).removeClass('mq-blink');
     this.setDOMFrag(domFrag(this.cursorElement));
     if (this.intervalId)
       //already was shown, just restart interval
@@ -118,7 +118,7 @@ class Cursor extends Point {
     prayDirection(dir);
     this.domFrag().insDirOf(dir, el.domFrag());
     this.withDirInsertAt(dir, el.parent, el[dir], el);
-    this.parent.getJQ().addClass('mq-hasCursor');
+    this.parent.domFrag().addClass('mq-hasCursor');
     return this;
   }
   insLeftOf(el: MQNode) {
@@ -177,8 +177,8 @@ class Cursor extends Point {
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
     var self = this,
-      offset = self.getJQ().removeClass('mq-cursor').offset();
-    self.getJQ().addClass('mq-cursor');
+      offset = self.domFrag().removeClass('mq-cursor').toJQ().offset();
+    self.domFrag().addClass('mq-cursor');
     return offset;
   }
   unwrapGramp() {

@@ -83,9 +83,6 @@ type JQSelector =
   | EventTarget;
 interface $ {
   (selector?: JQSelector): $;
-  removeClass(cls: string): $;
-  toggleClass(cls: string, bool?: boolean): $;
-  addClass(cls: string): $;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;
   trigger(e: Event): $;

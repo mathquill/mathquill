@@ -22,14 +22,12 @@ class Controller_focusBlur extends Controller_exportText {
 
   disableGroupingForSeconds(seconds: number) {
     clearTimeout(this.__disableGroupingTimeout);
-    var jQ = this.root.getJQ();
-
     if (seconds === 0) {
-      jQ.removeClass('mq-suppress-grouping');
+      this.root.domFrag().removeClass('mq-suppress-grouping');
     } else {
-      jQ.addClass('mq-suppress-grouping');
-      this.__disableGroupingTimeout = setTimeout(function () {
-        jQ.removeClass('mq-suppress-grouping');
+      this.root.domFrag().addClass('mq-suppress-grouping');
+      this.__disableGroupingTimeout = setTimeout(() => {
+        this.root.domFrag().removeClass('mq-suppress-grouping');
       }, seconds * 1000);
     }
   }
@@ -45,10 +43,10 @@ class Controller_focusBlur extends Controller_exportText {
         ctrlr.updateMathspeak();
         ctrlr.blurred = false;
         clearTimeout(blurTimeout);
-        ctrlr.container.addClass('mq-focused');
+        jQToDOMFragment(ctrlr.container).addClass('mq-focused');
         if (!cursor.parent) cursor.insAtRightEnd(root);
         if (cursor.selection) {
-          cursor.selection.getJQ().removeClass('mq-blur');
+          cursor.selection.domFrag().removeClass('mq-blur');
           ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
         } else {
           cursor.show();
@@ -77,14 +75,14 @@ class Controller_focusBlur extends Controller_exportText {
     function windowBlur() {
       // blur event also fired on window, just switching
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
-      if (cursor.selection) cursor.selection.getJQ().addClass('mq-blur');
+      if (cursor.selection) cursor.selection.domFrag().addClass('mq-blur');
       blur();
       ctrlr.updateMathspeak();
     }
     function blur() {
       // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(cursor); // synchronous with/in the same frame as
-      ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
+      jQToDOMFragment(ctrlr.container).removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
 
       if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {

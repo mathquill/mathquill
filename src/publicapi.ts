@@ -204,7 +204,8 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = jQToDOMFragment(el.addClass(classNames))
+      var contents = jQToDOMFragment(el)
+        .addClass(classNames)
         .children()
         .detach();
 
@@ -217,11 +218,8 @@ function getInterface(v: number) {
       this.latex(contents.text());
 
       this.revert = function () {
-        return jQToDOMFragment(
-          el
-            .unbind('.mathquill')
-            .removeClass('mq-editable-field mq-math-mode mq-text-mode')
-        )
+        return jQToDOMFragment(el.unbind('.mathquill'))
+          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents)
           .toJQ();
