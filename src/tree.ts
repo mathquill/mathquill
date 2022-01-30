@@ -201,7 +201,7 @@ class NodeBase {
     return this.ends[dir];
   }
 
-  private _domFrag = DOMFragment.create();
+  private _domFrag = domFrag();
   id = NodeBase.uniqueNodeId();
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
@@ -264,7 +264,7 @@ class NodeBase {
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
           var cmdNode = NodeBase.TempByIdDict[cmdId];
-          cmdNode.joinFrag(DOMFragment.create(el));
+          cmdNode.joinFrag(domFrag(el));
           NodeBase.linkElementByCmdNode(el, cmdNode);
         }
 
@@ -272,7 +272,7 @@ class NodeBase {
         if (blockId) {
           el.removeAttribute('mathquill-block-id');
           var blockNode = NodeBase.TempByIdDict[blockId];
-          blockNode.joinFrag(DOMFragment.create(el));
+          blockNode.joinFrag(domFrag(el));
           NodeBase.linkElementByBlockNode(el, blockNode);
         }
       }
@@ -498,7 +498,7 @@ class Fragment {
    * */
   protected ends: Ends<NodeRef>;
 
-  private _domFrag = DOMFragment.create();
+  private _domFrag = domFrag();
   disowned: boolean = false;
 
   constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {

@@ -1,6 +1,34 @@
+/**
+ * A `DOMFragment` represents a contiguous span of sibling DOM Nodes,
+ * which may include both Element nodes and other nodes like Text and
+ * Comment nodes. A `DOMFragment` may represent zero or more nodes.
+ *
+ * `DOMFragments` are created using the `DOMFragment.create` factory
+ * function, which is also aliased as `domFrag` for convenience.
+ *
+ * A `DOMFragment` simply holds references to nodes. It doesn't move or
+ * mutate them in the way that the native `DocumentFragment` does.
+ *
+ * Internally, `DOMFragment` holds immutable references to the left and
+ * right end nodes (if the fragment is not empty). The other nodes are
+ * represented implicitly through the sibling pointers of the DOM nodes
+ * themselves. This means that it is possible to invalidate a
+ * `DOMFragment` by mutating the siblings of any of the nodes that it
+ * represents, for example by removing one of the nodes from the DOM, or
+ * by moving one of the nodes without also moving all of the others.
+ */
 class DOMFragment {
   private ends: Ends<ChildNode> | undefined;
 
+  /**
+   * Returns a `DOMFragment` representing the contiguous span of sibling
+   * DOM nodes betewen `first` and `last`. If only one element is
+   * passed, creates a `DOMFragment` representing that single element.
+   * If no elements are passed, creates and empty `DOMFragment`.
+   *
+   * If two elements are passed, asserts that the second element is a
+   * forward sibling of the first element.
+   */
   static create(
     first?: ChildNode | undefined,
     last?: ChildNode | undefined
@@ -14,10 +42,13 @@ class DOMFragment {
     return out;
   }
 
-  private constructor(
-    first?: ChildNode | undefined,
-    last?: ChildNode | undefined
-  ) {
+  /**
+   * Constructor is private to enforce that the invariant checks in
+   * `create` are applied to outside callers. Internal methods are
+   * allowed to use this constructor when they can guarantee they're
+   * passing sibling nodes (such as children of a parent node).
+   */
+  private constructor(first?: ChildNode, last?: ChildNode) {
     if (arguments.length === 1) last = first;
     if (!first || !last) return;
     this.ends = { [L]: first, [R]: last };
@@ -71,7 +102,7 @@ class DOMFragment {
    * Return the single DOM Text node represented by this fragment.
    *
    * Asserts that this fragment contains exactly one node, and that node
-   * is a Text node
+   * is a Text node.
    */
   oneText(): Text {
     const el = this.one();
@@ -79,6 +110,11 @@ class DOMFragment {
     return el as Text;
   }
 
+  /**
+   * Calls callback sequentially with each node in this fragment.
+   * Includes nodes that are not Elements, such as Text and Comment
+   * nodes.
+   */
   eachNode(cb: (el: ChildNode) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
@@ -103,6 +139,11 @@ class DOMFragment {
     return this;
   }
 
+  /**
+   * Calls callback sequentially with each Element node in this
+   * fragment. Skips nodes that are not Elements, such as Text and
+   * Comment nodes.
+   */
   eachElement(cb: (el: HTMLElement) => void): DOMFragment {
     this.eachNode((el) => {
       if (el.nodeType === Node.ELEMENT_NODE) cb(el as HTMLElement);
@@ -110,6 +151,10 @@ class DOMFragment {
     return this;
   }
 
+  /**
+   * Returns the concatenated text content of all of the nodes in the
+   * fragment.
+   */
   text() {
     let accum = '';
     this.eachNode((node) => {
@@ -118,22 +163,43 @@ class DOMFragment {
     return accum;
   }
 
+  /**
+   * Returns an array of all the Element nodes in this fragment. The
+   * result does not include nodes that are not Elements, such as Text
+   * and Comment nodes.
+   */
   toElementArray() {
     const accum: HTMLElement[] = [];
     this.eachElement((el) => accum.push(el));
     return accum;
   }
 
+  /**
+   * Returns a jQuery collection containing all of the Element nodes in
+   * this fragment. The result does not include nodes that are not
+   * Elements, such as Text and Comment nodes.
+   */
+  toJQ(): $ {
+    return $(this.toElementArray());
+  }
+
+  /**
+   * Moves all of the nodes in this fragment into a new DocumentFragment
+   * and returns it. This includes Nodes that are not Elements such as
+   * Text and Comment nodes.
+   */
   toDocumentFragment() {
     const frag = document.createDocumentFragment();
     this.eachNode((el) => frag.appendChild(el));
     return frag;
   }
 
-  toJQ(): $ {
-    return $(this.toElementArray() as HTMLElement[]);
-  }
-
+  /**
+   * Insert all the nodes in this fragment into the DOM directly before
+   * `el`.
+   *
+   * Asserts that `el` has a parentNode.
+   */
   insertBefore(el: ChildNode) {
     if (!this.ends) return this;
 
@@ -143,6 +209,12 @@ class DOMFragment {
     return this;
   }
 
+  /**
+   * Insert all the nodes in this fragment into the DOM directly after
+   * `el`.
+   *
+   * Asserts that `el` has a parentNode.
+   */
   insertAfter(el: ChildNode) {
     if (!this.ends) return this;
 
@@ -176,18 +248,29 @@ class DOMFragment {
     return this;
   }
 
+  /**
+   * Append all the nodes in this fragment to the children of `el`.
+   */
   appendTo(el: ChildNode) {
     if (!this.ends) return this;
     el.appendChild(this.toDocumentFragment());
     return this;
   }
 
+  /**
+   * Prepend all the nodes in this fragment to the children of `el`.
+   */
   prependTo(el: ChildNode) {
     if (!this.ends) return this;
     el.insertBefore(this.toDocumentFragment(), el.firstChild);
     return this;
   }
 
+  /**
+   * Return a fragment containing the parent node of the nodes in this
+   * fragment. Returns an empty fragment if this fragment is empty or
+   * does not have a parent node.
+   */
   parent() {
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
@@ -195,7 +278,12 @@ class DOMFragment {
     return new DOMFragment(parent as unknown as ChildNode);
   }
 
+  /**
+   * Replace all of the nodes in this fragment with `el` in the DOM and
+   * then replace the children of `el` with the nodes in this fragment.
+   */
   wrapAll(el: ChildNode) {
+    el.textContent = ''; // First empty the wrapping element
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
     const next = this.ends[R].nextSibling;
@@ -432,18 +520,20 @@ class DOMFragment {
   }
 }
 
+const domFrag = DOMFragment.create;
+
 function jQToDOMFragment(jQ: $) {
-  if (jQ.length === 0) return DOMFragment.create();
-  if (jQ.length === 1) return DOMFragment.create(jQ[0]);
+  if (jQ.length === 0) return domFrag();
+  if (jQ.length === 1) return domFrag(jQ[0]);
 
   for (let i = 0; i < jQ.length - 1; i++) {
     const el = jQ[i];
     const nextEl = jQ[i + 1];
     pray(
       'jQToDOMFragment expects jQ to be a collection of siblings',
-      DOMFragment.create(el).next().one() === nextEl
+      domFrag(el).next().one() === nextEl
     );
   }
 
-  return DOMFragment.create(jQ[0], jQ[jQ.length - 1]);
+  return domFrag(jQ[0], jQ[jQ.length - 1]);
 }

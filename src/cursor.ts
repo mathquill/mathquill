@@ -33,7 +33,7 @@ class Cursor extends Point {
   private readonly cursorElement: HTMLElement = $(
     '<span class="mq-cursor">&#8203;</span>'
   )[0];
-  private _domFrag = DOMFragment.create();
+  private _domFrag = domFrag();
   selection: MQSelection | undefined;
   intervalId: number;
   anticursor: Anticursor | undefined;
@@ -47,7 +47,7 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    this.setDOMFrag(DOMFragment.create(this.cursorElement));
+    this.setDOMFrag(domFrag(this.cursorElement));
 
     //closured for setInterval
     this.blink = () => {
@@ -70,7 +70,7 @@ class Cursor extends Point {
 
   show() {
     $(this.cursorElement).removeClass('mq-blink');
-    this.setDOMFrag(DOMFragment.create(this.cursorElement));
+    this.setDOMFrag(domFrag(this.cursorElement));
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);
@@ -94,7 +94,7 @@ class Cursor extends Point {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
     this.domFrag().detach();
-    this.setDOMFrag(DOMFragment.create());
+    this.setDOMFrag(domFrag());
     return this;
   }
 
