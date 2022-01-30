@@ -357,8 +357,8 @@ function getInterface(v: number) {
       return this;
     }
     dropEmbedded(pageX: number, pageY: number, options: EmbedOptions) {
-      var clientX = pageX - $(window).scrollLeft();
-      var clientY = pageY - $(window).scrollTop();
+      var clientX = pageX - getScrollX();
+      var clientY = pageY - getScrollY();
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);

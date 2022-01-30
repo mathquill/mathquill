@@ -102,8 +102,6 @@ interface $ {
   mouseup(cb: (evt: MouseEvent) => any): $;
   focus(handler: (eventObject: Event) => any): $;
   blur(handler: (eventObject: Event) => any): $;
-  scrollLeft(): number;
-  scrollTop(): number;
   closest(selector: JQSelector): $;
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
