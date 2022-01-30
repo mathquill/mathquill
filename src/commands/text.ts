@@ -293,20 +293,10 @@ function TextBlockFuseChildren(self: TextBlock) {
  */
 class TextPiece extends MQNode {
   textStr: string;
-  dom: Text;
 
   constructor(text: string) {
     super();
     this.textStr = text;
-  }
-  setDOMFrag(frag: DOMFragment) {
-    super.setDOMFrag(frag);
-    if (!frag.isEmpty()) {
-      const text = frag.one();
-      pray('TextPiece DOM must be a single Text node', text instanceof Text);
-      this.dom = text;
-    }
-    return this;
   }
   jQize() {
     return this.setDOMFrag(
@@ -315,11 +305,11 @@ class TextPiece extends MQNode {
   }
   appendText(text: string) {
     this.textStr += text;
-    this.dom.appendData(text);
+    this.domFrag().oneText().appendData(text);
   }
   prependText(text: string) {
     this.textStr = text + this.textStr;
-    this.dom.insertData(0, text);
+    this.domFrag().oneText().insertData(0, text);
   }
   insTextAtDirEnd(text: string, dir: Direction) {
     prayDirection(dir);
@@ -332,7 +322,7 @@ class TextPiece extends MQNode {
       this,
       this[R]
     );
-    newPc.setDOMFrag(DOMFragment.create(this.dom.splitText(i)));
+    newPc.setDOMFrag(DOMFragment.create(this.domFrag().oneText().splitText(i)));
     this.textStr = this.textStr.slice(0, i);
     return newPc;
   }
@@ -363,13 +353,15 @@ class TextPiece extends MQNode {
     if (this.textStr.length > 1) {
       var deletedChar;
       if (dir === R) {
-        this.dom.deleteData(0, 1);
+        this.domFrag().oneText().deleteData(0, 1);
         deletedChar = this.textStr[0];
         this.textStr = this.textStr.slice(1);
       } else {
         // note that the order of these 2 lines is annoyingly important
         // (the second line mutates this.textStr.length)
-        this.dom.deleteData(-1 + this.textStr.length, 1);
+        this.domFrag()
+          .oneText()
+          .deleteData(-1 + this.textStr.length, 1);
         deletedChar = this.textStr[this.textStr.length - 1];
         this.textStr = this.textStr.slice(0, -1);
       }

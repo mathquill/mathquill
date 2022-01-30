@@ -67,6 +67,18 @@ class DOMFragment {
     return el as HTMLElement;
   }
 
+  /**
+   * Return the single DOM Text node represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one node, and that node
+   * is a Text node
+   */
+  oneText(): Text {
+    const el = this.one();
+    pray('Node is Text', el.nodeType === Node.TEXT_NODE);
+    return el as Text;
+  }
+
   eachNode(cb: (el: ChildNode) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
