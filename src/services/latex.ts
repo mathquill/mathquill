@@ -381,8 +381,7 @@ class Controller_latex extends Controller_keystroke {
         commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      root.jQize();
-      root.domFrag().appendTo(root.domFrag().one());
+      jQToDOMFragment(root.jQize()).appendTo(root.domFrag().one());
 
       root.finalizeInsert(cursor.options, cursor);
     }
