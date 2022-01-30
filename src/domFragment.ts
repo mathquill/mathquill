@@ -68,9 +68,22 @@ class DOMFragment {
   join(sibling: DOMFragment) {
     if (!this.ends) return sibling;
     if (!sibling.ends) return this;
+
+    // Check if sibling is actually a sibling of this span
+    let found = false;
+    let current: ChildNode | null = this.ends[R];
+    while (current) {
+      if (current === sibling.ends[L]) {
+        found = true;
+        break;
+      }
+      current = current.nextSibling;
+    }
+    pray('sibling must be a forward DOM sibling of this fragment', found);
+
     // Note, purposely using factory here instead of private contructor
     // to verify that sibling is in fact a sibling of this
-    return DOMFragment.create(this.ends[L], sibling.ends[R]);
+    return new DOMFragment(this.ends[L], sibling.ends[R]);
   }
 
   /**
