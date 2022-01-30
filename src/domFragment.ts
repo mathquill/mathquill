@@ -361,6 +361,28 @@ class DOMFragment {
   }
 
   /**
+   * Return the first Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  firstNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[L];
+  }
+
+  /**
+   * Return the last Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  lastNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[L];
+  }
+
+  /**
    * Return the first Element node of this fragment, or undefined if
    * the fragment is empty. Skips Nodes that are not Elements (e.g.
    * Text and Comment nodes).

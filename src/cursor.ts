@@ -76,14 +76,12 @@ class Cursor extends Point {
       clearInterval(this.intervalId);
     else {
       //was hidden and detached, insert this.jQ back into HTML DOM
-      if (this[R]) {
+      const right = this[R];
+      if (right) {
         var selection = this.selection;
         if (selection && selection.getEnd(L)[L] === this[L])
           this.domFrag().insertBefore(selection.domFrag().one());
-        else
-          this.domFrag().insertBefore(
-            (this[R] as MQNode).domFrag().first().one()
-          );
+        else this.domFrag().insertBefore(right.domFrag().firstNode());
       } else this.domFrag().appendTo(this.parent.domFrag().one());
       this.parent.focus();
     }
@@ -195,7 +193,7 @@ class Cursor extends Point {
         .children()
         .adopt(greatgramp, leftward, rightward)
         .each(function (cousin) {
-          cousin.domFrag().insertBefore(gramp.domFrag().first().one());
+          cousin.domFrag().insertBefore(gramp.domFrag().firstNode());
           return true;
         });
 
