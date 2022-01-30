@@ -106,7 +106,6 @@ interface $ {
   scrollTop(): number;
   closest(selector: JQSelector): $;
   width(): number;
-  outerWidth(): number;
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
 }

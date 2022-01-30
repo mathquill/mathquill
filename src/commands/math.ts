@@ -214,9 +214,9 @@ class MathCommand extends MathElement {
   }
   seek(pageX: number, cursor: Cursor) {
     function getBounds(node: MQNode) {
-      const l =
-        getBoundingClientRect(node.domFrag().oneElement()).left + getScrollX();
-      var r: number = l + node.getJQ().outerWidth();
+      const el = node.domFrag().oneElement();
+      const l = getBoundingClientRect(el).left + getScrollX();
+      var r: number = l + el.offsetWidth;
       return {
         [L]: l,
         [R]: r,
@@ -388,9 +388,9 @@ class MQSymbol extends MathCommand {
   }
   seek(pageX: number, cursor: Cursor) {
     // insert at whichever side the click was closer to
-    const left =
-      getBoundingClientRect(this.domFrag().oneElement()).left + getScrollX();
-    if (pageX - left < this.getJQ().outerWidth() / 2) cursor.insLeftOf(this);
+    const el = this.domFrag().oneElement();
+    const left = getBoundingClientRect(el).left + getScrollX();
+    if (pageX - left < el.offsetWidth / 2) cursor.insLeftOf(this);
     else cursor.insRightOf(this);
 
     return cursor;
@@ -584,9 +584,9 @@ class MathBlock extends MathElement {
   seek(pageX: number, cursor: Cursor) {
     var node = this.getEnd(R);
     if (!node) return cursor.insAtRightEnd(this);
-    const left =
-      getBoundingClientRect(node.domFrag().oneElement()).left + getScrollX();
-    if (left + node.getJQ().outerWidth() < pageX) {
+    const el = node.domFrag().oneElement();
+    const left = getBoundingClientRect(el).left + getScrollX();
+    if (left + el.offsetWidth < pageX) {
       return cursor.insAtRightEnd(this);
     }
 
