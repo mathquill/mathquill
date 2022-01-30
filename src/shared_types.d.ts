@@ -86,7 +86,6 @@ interface $ {
   removeClass(cls: string): $;
   toggleClass(cls: string, bool?: boolean): $;
   addClass(cls: string): $;
-  hasClass(cls: string): boolean;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;
   trigger(e: Event): $;

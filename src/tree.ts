@@ -407,7 +407,7 @@ class NodeBase {
     // but that check doesn't always work. This seems to be the only
     // check that always works. I'd rather live with this than try
     // to change the init order of things.
-    if (!this.parent.getJQ().hasClass('mq-sub')) return false;
+    if (!this.parent.domFrag().hasClass('mq-sub')) return false;
 
     return true;
   }

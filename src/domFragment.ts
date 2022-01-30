@@ -552,6 +552,18 @@ class DOMFragment {
   insAtDirEnd(dir: Direction, el: ChildNode): DOMFragment {
     return dir === L ? this.prependTo(el) : this.appendTo(el);
   }
+
+  /**
+   * Return true if any element in this fragment has class `className`
+   * and false otherwise.
+   */
+  hasClass(className: string): boolean {
+    let out = false;
+    this.eachElement((el) => {
+      if (el.classList.contains(className)) out = true;
+    });
+    return out;
+  }
 }
 
 const domFrag = DOMFragment.create;
