@@ -153,7 +153,7 @@ $(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 
 $(NODE_MODULES_INSTALLED): package.json
 	test -e $(NODE_MODULES_INSTALLED) || rm -rf ./node_modules/ # robust against previous botched npm install
-	NODE_ENV=development npm install
+	NODE_ENV=development npm ci
 	touch $(NODE_MODULES_INSTALLED)
 
 $(BUILD_DIR_EXISTS):

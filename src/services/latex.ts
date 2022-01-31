@@ -16,7 +16,7 @@ var latexMathParser = (function () {
     var firstBlock = blocks[0] || new MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
+      blocks[i].children().adopt(firstBlock, firstBlock.getEnd(R), 0);
     }
 
     return firstBlock;
@@ -51,7 +51,7 @@ var latexMathParser = (function () {
           .or(any)
       )
     )
-    .then(function (ctrlSeq): Parser<MQNode> {
+    .then(function (ctrlSeq) {
       // TODO - is Parser<MQNode> correct?
       var cmdKlass = (LatexCmds as LatexCmdsSingleChar)[ctrlSeq];
 
@@ -134,7 +134,7 @@ class Controller_latex extends Controller_keystroke {
   renderLatexMathEfficiently(latex: string) {
     var root = this.root;
     var oldLatex = this.exportLatex();
-    if (root.ends[L] && root.ends[R] && oldLatex === latex) {
+    if (root.getEnd(L) && root.getEnd(R) && oldLatex === latex) {
       return true;
     }
     var oldClassification;
@@ -166,7 +166,7 @@ class Controller_latex extends Controller_keystroke {
     }
 
     // start at the very end
-    var charNode = this.root.ends[R];
+    var charNode = this.root.getEnd(R);
     var oldCharNodes = [];
     for (var i = oldDigits.length - 1; i >= 0; i--) {
       // the tree does not match what we expect
@@ -201,7 +201,9 @@ class Controller_latex extends Controller_keystroke {
 
       oldCharNodes[0][L] = oldMinusNode[L];
 
-      if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
+      if (root.getEnd(L) === oldMinusNode) {
+        root.setEnds({ [L]: oldCharNodes[0], [R]: root.getEnd(R) });
+      }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
       oldMinusNode.jQ.remove();
@@ -216,7 +218,9 @@ class Controller_latex extends Controller_keystroke {
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
-      if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
+      if (root.getEnd(L) === oldCharNodes[0]) {
+        root.setEnds({ [L]: newMinusNode, [R]: root.getEnd(R) });
+      }
 
       newMinusNode.parent = root;
       newMinusNode[L] = oldCharNodes[0][L];
@@ -242,7 +246,7 @@ class Controller_latex extends Controller_keystroke {
     // remove the extra digits at the end
     if (oldDigits.length > newDigits.length) {
       charNode = oldCharNodes[newDigits.length - 1];
-      root.ends[R] = charNode;
+      root.setEnds({ [L]: root.getEnd(L), [R]: charNode });
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
@@ -265,12 +269,12 @@ class Controller_latex extends Controller_keystroke {
         frag.appendChild(span);
 
         // splice this node in
-        newNode[L] = root.ends[R];
+        newNode[L] = root.getEnd(R);
         newNode[R] = 0;
 
         const newNodeL = newNode[L] as MQNode;
         newNodeL[R] = newNode;
-        root.ends[R] = newNode;
+        root.setEnds({ [L]: root.getEnd(L), [R]: newNode });
       }
 
       root.jQ[0].appendChild(frag);
@@ -289,7 +293,7 @@ class Controller_latex extends Controller_keystroke {
 
     this.cursor.resetToEnd(this);
 
-    var rightMost = root.ends[R];
+    var rightMost = root.getEnd(R);
     if (rightMost) {
       rightMost.fixDigitGrouping(this.cursor.options);
     }
@@ -307,7 +311,7 @@ class Controller_latex extends Controller_keystroke {
       .or(all.result<false>(false))
       .parse(latex);
 
-    root.ends[L] = root.ends[R] = 0;
+    root.setEnds({ [L]: 0, [R]: 0 });
 
     if (block) {
       block.children().adopt(root, 0, 0);
@@ -338,7 +342,7 @@ class Controller_latex extends Controller_keystroke {
       cursor = this.cursor;
 
     root.jQ.children().slice(1).remove();
-    root.ends[L] = root.ends[R] = 0;
+    root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
@@ -359,7 +363,7 @@ class Controller_latex extends Controller_keystroke {
         var rootMathCommand = new RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
+        var rootMathBlock = rootMathCommand.getEnd(L);
         block.children().adopt(rootMathBlock as MQNode, 0, 0);
 
         return rootMathCommand;
@@ -376,7 +380,7 @@ class Controller_latex extends Controller_keystroke {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(root, root.ends[R], 0);
+        commands[i].adopt(root, root.getEnd(R), 0);
       }
 
       root.jQize().appendTo(root.jQ);

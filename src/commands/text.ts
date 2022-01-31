@@ -22,7 +22,7 @@ class TextBlock extends MQNode {
 
   jQadd(jQ: $) {
     super.jQadd(jQ);
-    const endsL = this.ends[L];
+    const endsL = this.getEnd(L);
     if (endsL) {
       const child = this.jQ[0].firstChild;
       if (child) {
@@ -64,11 +64,11 @@ class TextBlock extends MQNode {
       .then(regex(/^[^}]*/))
       .skip(string('}'))
       .map(function (text) {
-        if (text.length === 0) return new Fragment();
+        if (text.length === 0) return new Fragment(0, 0);
 
         new TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
-      }) as ParserAny;
+      });
   }
 
   textContents() {
@@ -162,7 +162,7 @@ class TextBlock extends MQNode {
     else {
       // split apart
       var leftBlock = new TextBlock();
-      var leftPc = this.ends[L];
+      var leftPc = this.getEnd(L);
       if (leftPc) {
         leftPc.disown().jQ.detach();
         leftPc.adopt(leftBlock, 0, 0);
@@ -476,7 +476,7 @@ class RootMathCommand extends MathCommand {
   );
   createBlocks() {
     super.createBlocks();
-    const endsL = this.ends[L] as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
+    const endsL = this.getEnd(L) as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
     endsL.cursor = this.cursor;
     endsL.write = function (cursor: Cursor, ch: string) {
       if (ch !== '$') MathBlock.prototype.write.call(this, cursor, ch);
@@ -490,7 +490,7 @@ class RootMathCommand extends MathCommand {
     };
   }
   latex() {
-    return '$' + (this.ends[L] as MQNode).latex() + '$';
+    return '$' + this.getEnd(L).latex() + '$';
   }
 }
 

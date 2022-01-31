@@ -275,7 +275,7 @@ function getInterface(v: number) {
       var root = this.__controller.root,
         cursor = this.__controller.cursor;
 
-      root.ends[L] = root.ends[R] = 0;
+      root.setEnds({ [L]: 0, [R]: 0 });
       root.jQ.empty();
       delete cursor.selection;
       cursor.insAtRightEnd(root);

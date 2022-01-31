@@ -46,7 +46,6 @@ type JQ_KeyboardEvent = KeyboardEvent & {
 type RootBlockMixinInput = any;
 type BracketSide = L | R | 0;
 
-type ParserAny = any;
 type InnerMathField = any;
 type InnerFields = any;
 type EmbedOptionsData = any;

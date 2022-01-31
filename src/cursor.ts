@@ -12,7 +12,7 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Anticursor extends Point {
   ancestors: Record<string | number, Anticursor | MQNode | undefined> = {};
-  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+  constructor(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     super(parent, leftward, rightward);
   }
 
@@ -41,7 +41,7 @@ class Cursor extends Point {
     options: CursorOptions,
     controller: Controller
   ) {
-    super(initParent);
+    super(initParent, 0, 0);
     this.controller = controller;
     this.options = options;
 
@@ -65,7 +65,7 @@ class Cursor extends Point {
       //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
         var selection = this.selection;
-        if (selection && (selection.ends[L] as MQNode)[L] === this[L])
+        if (selection && selection.getEnd(L)[L] === this[L])
           this.jQ.insertBefore(selection.jQ);
         else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
       } else this.jQ.appendTo(this.parent.jQ);
@@ -116,7 +116,7 @@ class Cursor extends Point {
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
-    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
+    this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;
   }
@@ -183,7 +183,7 @@ class Cursor extends Point {
           return true;
         });
 
-      leftward = uncle.ends[R];
+      leftward = uncle.getEnd(R);
       return true;
     });
 
@@ -196,7 +196,7 @@ class Cursor extends Point {
           var newParent = this.parent[R];
           if (newParent) {
             this.parent = newParent;
-            this[R] = newParent.ends[L];
+            this[R] = newParent.getEnd(L);
           } else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -309,7 +309,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.ends[dir] as MQNode;
+    var insEl = this.selection!.getEnd(dir);
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -318,7 +318,7 @@ class Cursor extends Point {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
-    this[L] = root.ends[R];
+    this[L] = root.getEnd(R);
     this.parent = root;
   }
   clearSelection() {
@@ -333,8 +333,8 @@ class Cursor extends Point {
     var selection = this.selection;
     if (!selection) return;
 
-    this[L] = (selection.ends[L] as MQNode)[L];
-    this[R] = (selection.ends[R] as MQNode)[R];
+    this[L] = selection.getEnd(L)[L];
+    this[R] = selection.getEnd(R)[R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
@@ -342,8 +342,8 @@ class Cursor extends Point {
   replaceSelection() {
     var seln = this.selection;
     if (seln) {
-      this[L] = (seln.ends[L] as MQNode)[L];
-      this[R] = (seln.ends[R] as MQNode)[R];
+      this[L] = seln.getEnd(L)[L];
+      this[R] = seln.getEnd(R)[R];
       delete this.selection;
     }
     return seln;
@@ -368,12 +368,24 @@ class Cursor extends Point {
   selectionChanged() {}
 }
 class MQSelection extends Fragment {
+  protected ends: Ends<MQNode>;
+
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
     this.jQ = this.jQ.wrapAll(h('span', { class: 'mq-selection' })).parent();
     //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
   }
+
+  setEnds(ends: Ends<MQNode>) {
+    pray('Selection ends are never empty', ends[L] && ends[R]);
+    this.ends = ends;
+  }
+
+  getEnd(dir: Direction): MQNode {
+    return this.ends[dir];
+  }
+
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
     this.jQ.replaceWith((this.jQ = this.jQ.children()));
     return super.adopt(parent, leftward, rightward);
