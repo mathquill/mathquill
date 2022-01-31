@@ -43,7 +43,7 @@ class Controller_focusBlur extends Controller_exportText {
         ctrlr.updateMathspeak();
         ctrlr.blurred = false;
         clearTimeout(blurTimeout);
-        jQToDOMFragment(ctrlr.container).addClass('mq-focused');
+        ctrlr.container.addClass('mq-focused');
         if (!cursor.parent) cursor.insAtRightEnd(root);
         if (cursor.selection) {
           cursor.selection.domFrag().removeClass('mq-blur');
@@ -82,7 +82,7 @@ class Controller_focusBlur extends Controller_exportText {
     function blur() {
       // not directly in the textarea blur handler so as to be
       cursor.hide().parent.blur(cursor); // synchronous with/in the same frame as
-      jQToDOMFragment(ctrlr.container).removeClass('mq-focused'); // clearing/blurring selection
+      ctrlr.container.removeClass('mq-focused'); // clearing/blurring selection
       $(window).unbind('blur', windowBlur);
 
       if (ctrlr.options && ctrlr.options.resetCursorOnBlur) {

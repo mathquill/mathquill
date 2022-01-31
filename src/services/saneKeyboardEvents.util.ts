@@ -94,7 +94,7 @@ var saneKeyboardEvents = (function () {
     var keypress: KeyboardEvent | null = null;
 
     var textarea = $(el);
-    var target = $(controller.container || textarea);
+    var target = controller.container?.toJQ() || $(textarea);
 
     // checkTextareaFor() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,

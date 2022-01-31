@@ -270,25 +270,22 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = jQToDOMFragment(el)
-        .addClass(classNames)
-        .children()
-        .detach();
+      var contents = el.addClass(classNames).children().detach();
 
       root.setDOMFrag(
         domFrag(
-          h('span', { class: 'mq-root-block', 'aria-hidden': 'true' })
-        ).appendTo(jQToDOMFragment(el).oneElement())
+          h('span', { class: 'mq-root-block', 'aria-hidden': true })
+        ).appendTo(el.oneElement())
       );
       NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());
 
       this.revert = function () {
-        const frag = jQToDOMFragment(el.unbind('.mathquill'))
-          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
+        el.toJQ().unbind('.mathquill');
+        el.removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
-        return v < 2 ? frag.toJQ() : frag.oneElement();
+        return v < 2 ? el.toJQ() : el.oneElement();
       };
     }
     config(opts: ConfigOptionsV1 | ConfigOptionsV2) {
@@ -296,7 +293,7 @@ function getInterface(v: number) {
       return this;
     }
     el() {
-      return this.__controller.container[0];
+      return this.__controller.container.oneElement();
     }
     text() {
       return this.__controller.exportText();
@@ -484,7 +481,7 @@ function getInterface(v: number) {
         if (mq instanceof APIClass || !el || !el.nodeType) return mq;
         var ctrlr = new Controller(
           new APIClass.RootBlock() as ControllerRoot,
-          $(el),
+          DOMFragment.create(el),
           new BaseOptions(v)
         );
         ctrlr.KIND_OF_MQ = kind;

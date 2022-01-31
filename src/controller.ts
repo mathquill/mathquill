@@ -5,7 +5,7 @@ class ControllerBase {
   id: number;
   data: ControllerData;
   root: ControllerRoot;
-  container: $;
+  readonly container: DOMFragment; // TODO: represent as a single element
   options: CursorOptions;
   aria: Aria;
   ariaLabel: string;
@@ -18,7 +18,11 @@ class ControllerBase {
   textareaSpan: $ | undefined;
   mathspeakSpan: $ | undefined;
 
-  constructor(root: ControllerRoot, container: $, options: CursorOptions) {
+  constructor(
+    root: ControllerRoot,
+    container: DOMFragment,
+    options: CursorOptions
+  ) {
     this.id = root.id;
     this.data = {};
 
@@ -125,8 +129,7 @@ class ControllerBase {
     return (
       document.activeElement &&
       this.container &&
-      this.container[0] &&
-      this.container[0].contains(document.activeElement)
+      this.container.firstElement()?.contains(document.activeElement)
     );
   }
 

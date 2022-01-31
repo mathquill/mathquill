@@ -751,17 +751,13 @@ API.InnerMathField = function (APIClasses: APIClasses) {
       this.__controller.editable = false;
       this.__controller.root.blur();
       this.__controller.unbindEditablesEvents();
-      jQToDOMFragment(this.__controller.container).removeClass(
-        'mq-editable-field'
-      );
+      this.__controller.container.removeClass('mq-editable-field');
     }
     makeEditable() {
       this.__controller.editable = true;
       this.__controller.editablesTextareaEvents();
       this.__controller.cursor.insAtRightEnd(this.__controller.root);
-      jQToDOMFragment(this.__controller.container).addClass(
-        'mq-editable-field'
-      );
+      this.__controller.container.addClass('mq-editable-field');
     }
   };
 };

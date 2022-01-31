@@ -1587,7 +1587,7 @@ class MathFieldNode extends MathCommand {
   finalizeTree(options: CursorOptions) {
     var ctrlr = new Controller(
       this.getEnd(L) as ControllerRoot,
-      this.getJQ(),
+      this.domFrag(),
       options
     );
     ctrlr.KIND_OF_MQ = 'MathField';

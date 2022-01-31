@@ -34,7 +34,7 @@ class Controller_mouse extends Controller_latex {
   delegateMouseEvents() {
     var ultimateRootElement = this.root.domFrag().oneElement();
     //drag-to-select event handling
-    this.container.bind('mousedown.mathquill', function (_e: Event) {
+    this.container.toJQ().bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;
       var rootjQ = $(closest(e.target as HTMLElement | null, '.mq-root-block'));
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
