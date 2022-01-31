@@ -136,9 +136,15 @@ function getInterface(v: number) {
   var MQ: MQ = function (el: HTMLElement) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockNode = NodeBase.getNodeOfElement(
-      $(el).children('.mq-root-block')[0]
-    ) as MathBlock; // TODO - assumng it's a MathBlock
+    let blockElement;
+    const childArray = domFrag(el).children().toElementArray();
+    for (const child of childArray) {
+      if (child.classList.contains('mq-root-block')) {
+        blockElement = child;
+        break;
+      }
+    }
+    var blockNode = NodeBase.getNodeOfElement(blockElement) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? new APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
@@ -180,6 +186,9 @@ function getInterface(v: number) {
     __options: CursorOptions;
     id: number;
     data: ControllerData;
+    // TODO this public API method returns a jQuery collection. To
+    // completely remove the jQuery dependency, we'll have to make a
+    // breaking change to the return value of revert
     revert?: () => $;
 
     constructor(ctrlr: Controller) {
@@ -195,17 +204,27 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = el.addClass(classNames).contents().detach();
-      root.jQ = $(h('span', { class: 'mq-root-block' })).appendTo(el);
-      NodeBase.linkElementByBlockId(root.jQ[0], root.id);
+      var contents = jQToDOMFragment(el.addClass(classNames))
+        .children()
+        .detach();
+
+      root.setDOMFrag(
+        domFrag(h('span', { class: 'mq-root-block' })).appendTo(
+          jQToDOMFragment(el).one()
+        )
+      );
+      NodeBase.linkElementByBlockId(root.domFrag().oneElement(), root.id);
       this.latex(contents.text());
 
       this.revert = function () {
-        return el
+        return jQToDOMFragment(
+          el
+            .unbind('.mathquill')
+            .removeClass('mq-editable-field mq-math-mode mq-text-mode')
+        )
           .empty()
-          .unbind('.mathquill')
-          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
-          .append(contents);
+          .append(contents)
+          .toJQ();
       };
     }
     config(opts: CursorOptions) {
@@ -231,8 +250,10 @@ function getInterface(v: number) {
       return this.__controller.exportLatex();
     }
     html() {
-      return this.__controller.root.jQ
-        .html()
+      return this.__controller.root
+        .domFrag()
+        .oneElement()
+        .innerHTML.replace(/ jQuery\d+="(?:\d+|null)"/g, '') // TODO remove when jQuery is completely gone
         .replace(/ mathquill-(?:command|block)-id="?\d+"?/g, '')
         .replace(/<span class="?mq-cursor( mq-blink)?"?>.?<\/span>/i, '')
         .replace(/ mq-hasCursor|mq-hasCursor ?/, '')
@@ -261,7 +282,7 @@ function getInterface(v: number) {
       return this;
     }
     blur() {
-      this.__controller.getTextareaOrThrow().blur();
+      this.__controller.getTextareaOrThrow()[0].blur();
       return this;
     }
     write(latex: string) {
@@ -276,7 +297,7 @@ function getInterface(v: number) {
         cursor = this.__controller.cursor;
 
       root.setEnds({ [L]: 0, [R]: 0 });
-      root.jQ.empty();
+      root.domFrag().empty();
       delete cursor.selection;
       cursor.insAtRightEnd(root);
       return this;
@@ -364,7 +385,8 @@ function getInterface(v: number) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller,
         root = ctrlr.root;
-      if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
+      if (!jQuery.contains(root.domFrag().oneElement(), target))
+        target = root.domFrag().oneElement();
       ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
       if (ctrlr.blurred) this.focus();
       return this;

@@ -32,13 +32,13 @@ var cancelSelectionOnEdit:
 
 class Controller_mouse extends Controller_latex {
   delegateMouseEvents() {
-    var ultimateRootjQ = this.root.jQ;
+    var ultimateRootElement = this.root.domFrag().oneElement();
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function (_e: Event) {
       var e = _e as MouseEvent;
       var rootjQ = $(closest(e.target as HTMLElement | null, '.mq-root-block'));
       var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
-        NodeBase.getNodeOfElement(ultimateRootjQ[0])) as ControllerRoot;
+        NodeBase.getNodeOfElement(ultimateRootElement)) as ControllerRoot;
       var ctrlr = root.controller,
         cursor = ctrlr.cursor,
         blink = cursor.blink;
@@ -84,7 +84,7 @@ class Controller_mouse extends Controller_latex {
           cursor.show();
           cursor.controller.aria.queue(cursor.parent).alert();
         } else {
-          textareaSpan.detach();
+          jQToDOMFragment(textareaSpan).detach();
         }
       }
 
@@ -110,7 +110,8 @@ class Controller_mouse extends Controller_latex {
       };
 
       if (ctrlr.blurred) {
-        if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
+        if (!ctrlr.editable)
+          jQToDOMFragment(rootjQ).prepend(jQToDOMFragment(textareaSpan));
         textarea[0].focus();
         // focus call may bubble to clients, who may then write to
         // mathquill, triggering cancelSelectionOnEdit. If that happens, we

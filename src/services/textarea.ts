@@ -24,7 +24,9 @@ class Controller extends Controller_scrollHoriz {
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    this.textarea = $(textarea).appendTo(textareaSpan);
+    this.textarea = jQToDOMFragment($(textarea))
+      .appendTo(jQToDOMFragment(textareaSpan).one())
+      .toJQ();
     this.aria.setContainer(this.textareaSpan);
 
     var ctrlr = this;
@@ -65,13 +67,17 @@ class Controller extends Controller_scrollHoriz {
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    this.container.prepend(
-      jQuery('<span aria-hidden="true" class="mq-selectable">').text(
-        '$' + ctrlr.exportLatex() + '$'
+    jQToDOMFragment(this.container).prepend(
+      jQToDOMFragment(
+        jQuery('<span aria-hidden="true" class="mq-selectable">').text(
+          '$' + ctrlr.exportLatex() + '$'
+        )
       )
     );
     this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
-    this.container.prepend(this.mathspeakSpan);
+    jQToDOMFragment(this.container).prepend(
+      jQToDOMFragment(this.mathspeakSpan)
+    );
     ctrlr.blurred = true;
     textarea.bind('cut paste', false);
     if (ctrlr.options.disableCopyPaste) {
@@ -90,7 +96,7 @@ class Controller extends Controller_scrollHoriz {
         setTimeout(detach); //detaching during blur explodes in WebKit
       });
     function detach() {
-      textareaSpan.detach();
+      jQToDOMFragment(textareaSpan).detach();
       ctrlr.blurred = true;
     }
 
@@ -112,7 +118,7 @@ class Controller extends Controller_scrollHoriz {
     this.selectFn = function (text: string) {
       keyboardEventsShim.select(text);
     };
-    this.container.prepend(textareaSpan);
+    jQToDOMFragment(this.container).prepend(jQToDOMFragment(textareaSpan));
     this.focusBlurEvents();
     this.updateMathspeak();
   }
@@ -125,7 +131,7 @@ class Controller extends Controller_scrollHoriz {
       textarea.val(text);
       if (text) textarea.select();
     };
-    textareaSpan.remove();
+    jQToDOMFragment(textareaSpan).remove();
 
     this.unbindFocusBlurEvents();
 

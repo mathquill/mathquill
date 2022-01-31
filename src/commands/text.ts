@@ -15,21 +15,22 @@ class TextBlock extends MQNode {
   anticursorPosition?: number;
 
   replaces(replacedText: Fragment | string) {
-    if (replacedText instanceof Fragment)
-      this.replacedText = replacedText.remove().jQ.text();
-    else if (typeof replacedText === 'string') this.replacedText = replacedText;
+    if (replacedText instanceof Fragment) {
+      this.replacedText = replacedText.remove().domFrag().text();
+    } else if (typeof replacedText === 'string')
+      this.replacedText = replacedText;
   }
 
-  jQadd(jQ: $) {
-    super.jQadd(jQ);
+  setDOMFrag(frag: DOMFragment) {
+    super.setDOMFrag(frag);
     const endsL = this.getEnd(L);
     if (endsL) {
-      const child = this.jQ[0].firstChild;
-      if (child) {
-        endsL.jQadd(child);
+      const children = this.domFrag().children();
+      if (!children.isEmpty()) {
+        endsL.setDOMFrag(domFrag(children.one()));
       }
     }
-    return this.jQ;
+    return this;
   }
 
   createLeftOf(cursor: Cursor) {
@@ -164,7 +165,7 @@ class TextBlock extends MQNode {
       var leftBlock = new TextBlock();
       var leftPc = this.getEnd(L);
       if (leftPc) {
-        leftPc.disown().jQ.detach();
+        leftPc.disown().domFrag().detach();
         leftPc.adopt(leftBlock, 0, 0);
       }
 
@@ -194,9 +195,9 @@ class TextBlock extends MQNode {
     if (!textPc) return;
 
     // insert cursor at approx position in DOMTextNode
-    var avgChWidth = this.jQ.width() / this.text.length;
+    var avgChWidth = this.getJQ().width() / this.text.length;
     var approxPosition = Math.round(
-      (pageX - this.jQ.offset().left) / avgChWidth
+      (pageX - this.getJQ().offset().left) / avgChWidth
     );
     if (approxPosition <= 0) cursor.insAtLeftEnd(this);
     else if (approxPosition >= textPc.textStr.length)
@@ -264,16 +265,17 @@ class TextBlock extends MQNode {
 }
 
 function TextBlockFuseChildren(self: TextBlock) {
-  self.jQ[0].normalize();
+  self.domFrag().one().normalize();
 
-  var textPcDom = self.jQ[0].firstChild as Text;
-  if (!textPcDom) return;
+  const children = self.domFrag().children();
+  if (children.isEmpty()) return;
+  const textPcDom = children.one() as Text;
   pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
   // nodeType === 3 has meant a Text node since ancient times:
   //   http://reference.sitepoint.com/javascript/Node/nodeType
 
   var textPc = new TextPiece(textPcDom.data);
-  textPc.jQadd(textPcDom);
+  textPc.setDOMFrag(domFrag(textPcDom));
 
   self.children().disown();
   textPc.adopt(self, 0, 0);
@@ -289,27 +291,23 @@ function TextBlockFuseChildren(self: TextBlock) {
  */
 class TextPiece extends MQNode {
   textStr: string;
-  dom: Text;
 
   constructor(text: string) {
     super();
     this.textStr = text;
   }
-  jQadd(dom: Text) {
-    this.dom = dom;
-    this.jQ = $(dom);
-    return this.jQ;
-  }
   jQize() {
-    return this.jQadd(document.createTextNode(this.textStr));
+    return this.setDOMFrag(
+      domFrag(document.createTextNode(this.textStr))
+    ).getJQ();
   }
   appendText(text: string) {
     this.textStr += text;
-    this.dom.appendData(text);
+    this.domFrag().oneText().appendData(text);
   }
   prependText(text: string) {
     this.textStr = text + this.textStr;
-    this.dom.insertData(0, text);
+    this.domFrag().oneText().insertData(0, text);
   }
   insTextAtDirEnd(text: string, dir: Direction) {
     prayDirection(dir);
@@ -322,7 +320,7 @@ class TextPiece extends MQNode {
       this,
       this[R]
     );
-    newPc.jQadd(this.dom.splitText(i));
+    newPc.setDOMFrag(domFrag(this.domFrag().oneText().splitText(i)));
     this.textStr = this.textStr.slice(0, i);
     return newPc;
   }
@@ -353,20 +351,21 @@ class TextPiece extends MQNode {
     if (this.textStr.length > 1) {
       var deletedChar;
       if (dir === R) {
-        this.dom.deleteData(0, 1);
+        this.domFrag().oneText().deleteData(0, 1);
         deletedChar = this.textStr[0];
         this.textStr = this.textStr.slice(1);
       } else {
         // note that the order of these 2 lines is annoyingly important
         // (the second line mutates this.textStr.length)
-        this.dom.deleteData(-1 + this.textStr.length, 1);
+        this.domFrag()
+          .oneText()
+          .deleteData(-1 + this.textStr.length, 1);
         deletedChar = this.textStr[this.textStr.length - 1];
         this.textStr = this.textStr.slice(0, -1);
       }
       cursor.controller.aria.queue(deletedChar);
     } else {
       this.remove();
-      this.jQ.remove();
       cursor[dir] = this[dir];
       cursor.controller.aria.queue(this.textStr);
     }
@@ -390,7 +389,7 @@ class TextPiece extends MQNode {
         var newPc = new TextPiece(ch).createDir(-dir as Direction, cursor);
         var selection = cursor.selection;
         if (selection) {
-          newPc.jQ.insDirOf(-dir as Direction, selection.jQ);
+          newPc.domFrag().insDirOf(-dir as Direction, selection.domFrag());
         }
       }
 

@@ -6,18 +6,7 @@
  * of the tree.
  ************************************************/
 
-/**
- * Tiny extension of jQuery adding directionalized DOM manipulation methods.
- */
 var $: $ = jQuery;
-$.fn.insDirOf = function (dir: Direction, el: $) {
-  return dir === L
-    ? this.insertBefore(el.first())
-    : this.insertAfter(el.last());
-};
-$.fn.insAtDirEnd = function (dir: Direction, el: $) {
-  return dir === L ? this.prependTo(el) : this.appendTo(el);
-};
 
 /** A cursor-like location in an mq node tree. */
 class Point {
@@ -83,7 +72,7 @@ class Point {
 
 function eachNode(
   ends: Ends<NodeRef>,
-  yield_: (el: MQNode) => boolean | undefined
+  yield_: (el: MQNode) => boolean | undefined | void
 ) {
   var el = ends[L];
   if (!el) return;
@@ -146,7 +135,7 @@ class NodeBase {
     return (NodeBase.idCounter += 1);
   }
 
-  static getNodeOfElement(el: HTMLElement) {
+  static getNodeOfElement(el: HTMLElement | undefined) {
     if (!el) return;
     if (!el.nodeType)
       throw new Error('must pass an HTMLElement to NodeBase.getNodeOfElement');
@@ -212,7 +201,7 @@ class NodeBase {
     return this.ends[dir];
   }
 
-  jQ = defaultJQ;
+  private _domFrag = domFrag();
   id = NodeBase.uniqueNodeId();
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
@@ -242,9 +231,23 @@ class NodeBase {
     return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
-  jQadd(jQ: $ | HTMLElement | ChildNode) {
-    return (this.jQ = this.jQ.add(jQ));
+  getJQ(): $ {
+    return this.domFrag().toJQ();
   }
+
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
+  }
+
+  domFrag(): DOMFragment {
+    return this._domFrag;
+  }
+
+  joinFrag(sibling: DOMFragment) {
+    return this.setDOMFrag(this.domFrag().join(sibling));
+  }
+
   /** Generate a DOM representation of this node and attach references to the corresponding MQ nodes to each DOM node.
    *
    * TODO: The only part of this method that depends on `this` is generating the DOM, so maybe pull out the rest into
@@ -262,7 +265,7 @@ class NodeBase {
         if (cmdId) {
           el.removeAttribute('mathquill-command-id');
           var cmdNode = NodeBase.TempByIdDict[cmdId];
-          cmdNode.jQadd(el);
+          cmdNode.joinFrag(domFrag(el));
           NodeBase.linkElementByCmdNode(el, cmdNode);
         }
 
@@ -270,7 +273,7 @@ class NodeBase {
         if (blockId) {
           el.removeAttribute('mathquill-block-id');
           var blockNode = NodeBase.TempByIdDict[blockId];
-          blockNode.jQadd(el);
+          blockNode.joinFrag(domFrag(el));
           NodeBase.linkElementByBlockNode(el, blockNode);
         }
       }
@@ -287,7 +290,7 @@ class NodeBase {
     prayDirection(dir);
     var node = this;
     node.jQize();
-    node.jQ.insDirOf(dir, cursor.jQ);
+    node.domFrag().insDirOf(dir, cursor.domFrag());
     cursor[dir] = node.adopt(cursor.parent, cursor[L]!, cursor[R]!); // TODO - assuming not undefined, could be 0
     return node;
   }
@@ -386,7 +389,7 @@ class NodeBase {
   }
 
   remove() {
-    this.jQ.remove();
+    this.domFrag().remove();
     return this.disown();
   }
 
@@ -404,7 +407,7 @@ class NodeBase {
     // but that check doesn't always work. This seems to be the only
     // check that always works. I'd rather live with this than try
     // to change the init order of things.
-    if (!this.parent.jQ.hasClass('mq-sub')) return false;
+    if (!this.parent.getJQ().hasClass('mq-sub')) return false;
 
     return true;
   }
@@ -496,7 +499,7 @@ class Fragment {
    * */
   protected ends: Ends<NodeRef>;
 
-  jQ = defaultJQ;
+  private _domFrag = domFrag();
   disowned: boolean = false;
 
   constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
@@ -517,24 +520,23 @@ class Fragment {
       withDir.parent === oppDir.parent
     );
 
-    this.setEnds({
+    const ends = {
       [dir as Direction]: withDir,
       [-dir as Direction]: oppDir,
-    } as Ends<NodeRef>);
+    } as Ends<MQNode>;
 
-    // To build the jquery collection for a fragment, accumulate elements
-    // into an array and then call jQ.add once on the result. jQ.add sorts the
-    // collection according to document order each time it is called, so
-    // building a collection by folding jQ.add directly takes more than
-    // quadratic time in the number of elements.
-    //
-    // https://github.com/jquery/jquery/blob/2.1.4/src/traversing.js#L112
-    var accum = this.fold([], function (accum: HTMLElement[], el: MQNode) {
-      accum.push.apply(accum, el.jQ.get());
-      return accum;
+    this.setEnds(ends);
+
+    let maybeRightEnd = 0 as NodeRef;
+    this.each((el) => {
+      maybeRightEnd = el;
     });
+    pray(
+      'following direction siblings from start reaches end',
+      maybeRightEnd === ends[R]
+    );
 
-    this.jQ = this.jQ.add(accum);
+    this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));
   }
 
   /**
@@ -548,6 +550,19 @@ class Fragment {
 
   getEnd(dir: Direction): NodeRef {
     return this.ends ? this.ends[dir] : 0;
+  }
+
+  getJQ(): $ {
+    return this.domFrag().toJQ();
+  }
+
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
+  }
+
+  domFrag(): DOMFragment {
+    return this._domFrag;
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
@@ -662,11 +677,11 @@ class Fragment {
   }
 
   remove() {
-    this.jQ.remove();
+    this.domFrag().remove();
     return this.disown();
   }
 
-  each(yield_: (el: MQNode) => boolean | undefined) {
+  each(yield_: (el: MQNode) => boolean | undefined | void) {
     eachNode(this.ends, yield_);
     return this;
   }

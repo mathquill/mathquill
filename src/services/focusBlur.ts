@@ -22,7 +22,7 @@ class Controller_focusBlur extends Controller_exportText {
 
   disableGroupingForSeconds(seconds: number) {
     clearTimeout(this.__disableGroupingTimeout);
-    var jQ = this.root.jQ;
+    var jQ = this.root.getJQ();
 
     if (seconds === 0) {
       jQ.removeClass('mq-suppress-grouping');
@@ -48,7 +48,7 @@ class Controller_focusBlur extends Controller_exportText {
         ctrlr.container.addClass('mq-focused');
         if (!cursor.parent) cursor.insAtRightEnd(root);
         if (cursor.selection) {
-          cursor.selection.jQ.removeClass('mq-blur');
+          cursor.selection.getJQ().removeClass('mq-blur');
           ctrlr.selectionChanged(); //re-select textarea contents after tabbing away and back
         } else {
           cursor.show();
@@ -77,7 +77,7 @@ class Controller_focusBlur extends Controller_exportText {
     function windowBlur() {
       // blur event also fired on window, just switching
       clearTimeout(blurTimeout); // tabs/windows, not intentional blur
-      if (cursor.selection) cursor.selection.jQ.addClass('mq-blur');
+      if (cursor.selection) cursor.selection.getJQ().addClass('mq-blur');
       blur();
       ctrlr.updateMathspeak();
     }

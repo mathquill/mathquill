@@ -152,7 +152,7 @@ class MathCommand extends MathElement {
     if (replacedFragment) {
       const cmdEndsL = cmd.getEnd(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
-      replacedFragment.jQ.appendTo(cmdEndsL.jQ);
+      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().one());
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
@@ -214,8 +214,8 @@ class MathCommand extends MathElement {
   }
   seek(pageX: number, cursor: Cursor) {
     function getBounds(node: MQNode) {
-      var l: number = node.jQ.offset().left;
-      var r: number = l + node.jQ.outerWidth();
+      var l: number = node.getJQ().offset().left;
+      var r: number = l + node.getJQ().outerWidth();
       return {
         [L]: l,
         [R]: r,
@@ -377,7 +377,7 @@ class MQSymbol extends MathCommand {
   createBlocks() {}
 
   moveTowards(dir: Direction, cursor: Cursor) {
-    cursor.jQ.insDirOf(dir, this.jQ);
+    cursor.domFrag().insDirOf(dir, this.domFrag());
     cursor[-dir as Direction] = this;
     cursor[dir] = this[dir];
     cursor.controller.aria.queue(this);
@@ -387,7 +387,7 @@ class MQSymbol extends MathCommand {
   }
   seek(pageX: number, cursor: Cursor) {
     // insert at whichever side the click was closer to
-    if (pageX - this.jQ.offset().left < this.jQ.outerWidth() / 2)
+    if (pageX - this.getJQ().offset().left < this.getJQ().outerWidth() / 2)
       cursor.insLeftOf(this);
     else cursor.insRightOf(this);
 
@@ -581,13 +581,16 @@ class MathBlock extends MathElement {
   }
   seek(pageX: number, cursor: Cursor) {
     var node = this.getEnd(R);
-    if (!node || node.jQ.offset().left + node.jQ.outerWidth() < pageX) {
+    if (
+      !node ||
+      node.getJQ().offset().left + node.getJQ().outerWidth() < pageX
+    ) {
       return cursor.insAtRightEnd(this);
     }
 
     var endsL = this.getEnd(L) as MQNode;
-    if (pageX < endsL.jQ.offset().left) return cursor.insAtLeftEnd(this);
-    while (pageX < node.jQ.offset().left) node = node[L] as MQNode;
+    if (pageX < endsL.getJQ().offset().left) return cursor.insAtLeftEnd(this);
+    while (pageX < node.getJQ().offset().left) node = node[L] as MQNode;
     return node.seek(pageX, cursor);
   }
   chToCmd(ch: string, options: CursorOptions) {
@@ -639,7 +642,7 @@ class MathBlock extends MathElement {
         .children()
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
       var jQ = block.jQize();
-      jQ.insertBefore(cursor.jQ);
+      jQToDOMFragment(jQ).insertBefore(cursor.domFrag().one());
       cursor[L] = block.getEnd(R);
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.getEnd(R);
@@ -656,20 +659,20 @@ class MathBlock extends MathElement {
   }
 
   focus() {
-    this.jQ.addClass('mq-hasCursor');
-    this.jQ.removeClass('mq-empty');
+    this.getJQ().addClass('mq-hasCursor');
+    this.getJQ().removeClass('mq-empty');
 
     return this;
   }
   blur(cursor: Cursor) {
-    this.jQ.removeClass('mq-hasCursor');
+    this.getJQ().removeClass('mq-hasCursor');
     if (this.isEmpty()) {
-      this.jQ.addClass('mq-empty');
+      this.getJQ().addClass('mq-empty');
       if (
         cursor &&
         this.isQuietEmptyDelimiter(cursor.options.quietEmptyDelimiters)
       ) {
-        this.jQ.addClass('mq-quiet-delimiter');
+        this.getJQ().addClass('mq-quiet-delimiter');
       }
     }
     return this;

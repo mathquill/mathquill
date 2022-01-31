@@ -83,58 +83,31 @@ type JQSelector =
   | EventTarget;
 interface $ {
   (selector?: JQSelector): $;
-  fn: any;
-  /** Insert this collection either just before or just after `jQ`, according to the direction specified by `dir`. */
-  insDirOf(dir: Direction, jQ: $): $;
-  /** Insert this collection into `jQ` either at the beginning or end of its children, according to the direction specified by `dir`. */
-  insAtDirEnd(dir: Direction, jQ: $): $;
-  insertBefore(el: HTMLElement | $): $;
-  insertAfter(el: HTMLElement | $): $;
-  wrapAll(el: JQSelector): $;
   removeClass(cls: string): $;
   toggleClass(cls: string, bool?: boolean): $;
   addClass(cls: string): $;
   hasClass(cls: string): boolean;
-  appendTo(el: JQSelector): $;
-  append(el: JQSelector): $;
-  prepend(el: JQSelector): $;
-  prependTo(el: JQSelector): $;
-  replaceWith(el: JQSelector): $;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;
   trigger(e: Event): $;
-  remove(): $;
-  detach(): $;
   select(): $;
   width(): number;
-  eq(num: number): $;
-  add(el: JQSelector): $;
   val(val: string): $;
-  parent(): $;
-  children(selector?: string): $;
   stop(): $;
-  html(): string;
   html(t: string): $;
   text(str: string): $;
-  text(): string;
-  next(): $;
-  prev(): $;
   animate(
     properties: Object,
     duration?: string | number,
     complete?: Function
   ): $;
-  empty(): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): void;
   unbind(evt: string, cb?: Function, capture?: boolean): $;
   mousemove(cb: (evt: MouseEvent) => any): $;
   mouseup(cb: (evt: MouseEvent) => any): $;
-  focus(handler?: (eventObject: Event) => any): $;
-  blur(handler?: (eventObject: Event) => any): $;
-  first(): $;
-  last(): $;
-  slice(start: number, end?: number): $;
+  focus(handler: (eventObject: Event) => any): $;
+  blur(handler: (eventObject: Event) => any): $;
   scrollLeft(): number;
   scrollTop(): number;
   closest(selector: JQSelector): $;
@@ -142,7 +115,4 @@ interface $ {
   offset(): { left: number; top: number }; // TODO - this can be undefined. Either fix uses or wait until removing jquery
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
-  get(): HTMLElement[];
-  get(index: number): HTMLElement;
-  contents(): $;
 }

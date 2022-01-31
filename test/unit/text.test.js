@@ -53,42 +53,41 @@ suite('text', function () {
   }
 
   test('changes the text nodes as the cursor moves around', function () {
-    var block = fromLatex('\\text{abc}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{abc}');
+    var ctrlr = mq.__controller;
+    var cursor = ctrlr.cursor;
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'abc', null);
+    assertSplit(cursor.getJQ(), 'abc', null);
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'ab', 'c');
+    assertSplit(cursor.getJQ(), 'ab', 'c');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'a', 'bc');
+    assertSplit(cursor.getJQ(), 'a', 'bc');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, null, 'abc');
+    assertSplit(cursor.getJQ(), null, 'abc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'a', 'bc');
+    assertSplit(cursor.getJQ(), 'a', 'bc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'ab', 'c');
+    assertSplit(cursor.getJQ(), 'ab', 'c');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'abc', null);
+    assertSplit(cursor.getJQ(), 'abc', null);
   });
 
   test('does not change latex as the cursor moves around', function () {
-    var block = fromLatex('\\text{x}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{x}');
+    var ctrlr = mq.__controller;
 
     ctrlr.moveLeft();
     ctrlr.moveLeft();
     ctrlr.moveLeft();
 
-    assert.equal(block.latex(), '\\text{x}');
+    assert.equal(mq.latex(), '\\text{x}');
   });
 
   suite('typing', function () {
@@ -100,15 +99,15 @@ suite('text', function () {
       assertLatex('\\text{x}');
 
       mq.keystroke('Left');
-      assertSplit(cursor.jQ, 'x');
+      assertSplit(cursor.getJQ(), 'x');
       assertLatex('\\text{x}');
 
       mq.keystroke('Backspace');
-      assertSplit(cursor.jQ);
+      assertSplit(cursor.getJQ());
       assertLatex('');
 
       mq.keystroke('Right');
-      assertSplit(cursor.jQ);
+      assertSplit(cursor.getJQ());
       assert.equal(cursor[L], 0);
       assertLatex('');
     });
@@ -121,7 +120,7 @@ suite('text', function () {
       assertLatex('\\text{asdf}');
 
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.getJQ(), 'as', 'df');
       assertLatex('\\text{asdf}');
 
       mq.typedText('$');
@@ -136,11 +135,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.getJQ(), 'as', 'df');
 
       controller.paste('foo');
 
-      assertSplit(cursor.jQ, 'asfoo', 'df');
+      assertSplit(cursor.getJQ(), 'asfoo', 'df');
       assertLatex('\\text{asfoodf}');
       prayWellFormedPoint(cursor);
     });
@@ -151,11 +150,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.getJQ(), 'as', 'df');
 
       controller.paste('$foo');
 
-      assertSplit(cursor.jQ, 'as$foo', 'df');
+      assertSplit(cursor.getJQ(), 'as$foo', 'df');
       assertLatex('\\text{as$foodf}');
       prayWellFormedPoint(cursor);
     });
@@ -166,11 +165,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.getJQ(), 'as', 'df');
 
       controller.paste('\\pi');
 
-      assertSplit(cursor.jQ, 'as\\pi', 'df');
+      assertSplit(cursor.getJQ(), 'as\\pi', 'df');
       assertLatex('\\text{as\\backslash pidf}');
       prayWellFormedPoint(cursor);
     });
@@ -181,11 +180,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.getJQ(), 'as', 'df');
 
       controller.paste('{');
 
-      assertSplit(cursor.jQ, 'as{', 'df');
+      assertSplit(cursor.getJQ(), 'as{', 'df');
       assertLatex('\\text{as\\{df}');
       prayWellFormedPoint(cursor);
     });
