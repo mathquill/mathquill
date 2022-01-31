@@ -3,10 +3,13 @@
  * (as owned by the Controller)
  ********************************************/
 Options.prototype.substituteTextarea = function () {
-  return $(
-    '<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-      'spellcheck=false x-palm-disable-ste-all=true/>'
-  )[0];
+  return h('textarea', {
+    autocapitalize: 'off',
+    autocomplete: 'off',
+    autocorrect: 'off',
+    spellcheck: false,
+    'x-palm-disable-ste-all': true,
+  });
 };
 Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
 
@@ -15,7 +18,7 @@ class Controller extends Controller_scrollHoriz {
 
   createTextarea() {
     var textareaSpan = (this.textareaSpan = $(
-        '<span class="mq-textarea"></span>'
+        h('span', { class: 'mq-textarea' })
       )),
       textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
@@ -71,7 +74,7 @@ class Controller extends Controller_scrollHoriz {
         )
       )
     );
-    this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
+    this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
     jQToDOMFragment(this.container).prepend(
       jQToDOMFragment(this.mathspeakSpan)
     );

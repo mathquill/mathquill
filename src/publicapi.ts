@@ -209,7 +209,7 @@ function getInterface(v: number) {
         .detach();
 
       root.setDOMFrag(
-        jQToDOMFragment($('<span class="mq-root-block"/>')).appendTo(
+        domFrag(h('span', { class: 'mq-root-block' })).appendTo(
           jQToDOMFragment(el).one()
         )
       );

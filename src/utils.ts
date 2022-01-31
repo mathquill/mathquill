@@ -27,7 +27,7 @@ function noop() {}
  * with the same name, and only call this function by
  * name.
  */
-function pray(message: string, cond: any): asserts cond {
+function pray(message: string, cond?: any): asserts cond {
   if (!cond) throw new Error('prayer failed: ' + message);
 }
 

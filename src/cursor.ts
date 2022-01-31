@@ -30,9 +30,11 @@ class Cursor extends Point {
    */
   upDownCache: Record<number | string, Point | undefined> = {};
   blink: () => void;
-  private readonly cursorElement: HTMLElement = $(
-    '<span class="mq-cursor">&#8203;</span>'
-  )[0];
+  private readonly cursorElement: HTMLElement = h(
+    'span',
+    { class: 'mq-cursor' },
+    [h.text(U_ZERO_WIDTH_SPACE)]
+  );
   private _domFrag = domFrag();
   selection: MQSelection | undefined;
   intervalId: number;
@@ -389,7 +391,7 @@ class MQSelection extends Fragment {
 
     this.setDOMFrag(
       this.domFrag()
-        .wrapAll(jQToDOMFragment($('<span class="mq-selection"></span>')).one())
+        .wrapAll(h('span', { class: 'mq-selection' }))
         .parent()
     );
   }

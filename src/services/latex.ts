@@ -318,9 +318,10 @@ class Controller_latex extends Controller_keystroke {
     }
 
     if (block) {
-      var html = block.join('html');
-      root.getJQ().html(html);
-      root.jQize(root.domFrag().children().toJQ());
+      const frag = root.domFrag();
+      frag.children().remove();
+      frag.one().appendChild(block.html());
+      root.jQize(frag.children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
       root.domFrag().empty();
