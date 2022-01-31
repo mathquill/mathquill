@@ -290,8 +290,9 @@ class DOMFragment {
   }
 
   /**
-   * Replace all of the nodes in this fragment with `el` in the DOM and
-   * then replace the children of `el` with the nodes in this fragment.
+   * Replace the children of `el` with the contents of this fragment,
+   * and place `el` into the DOM at the previous location of this
+   * fragment.
    */
   wrapAll(el: ChildNode) {
     el.textContent = ''; // First empty the wrapping element
