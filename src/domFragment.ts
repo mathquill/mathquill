@@ -552,6 +552,65 @@ class DOMFragment {
   insAtDirEnd(dir: Direction, el: ChildNode): DOMFragment {
     return dir === L ? this.prependTo(el) : this.appendTo(el);
   }
+
+  /**
+   * Return true if any element in this fragment has class `className`
+   * and false otherwise.
+   */
+  hasClass(className: string): boolean {
+    let out = false;
+    this.eachElement((el) => {
+      if (el.classList.contains(className)) out = true;
+    });
+    return out;
+  }
+
+  /**
+   * Add each class in space separated list of classes given by
+   * `classNames` to each element in this fragment.
+   */
+  addClass(classNames: string) {
+    for (const className of classNames.split(/\s+/)) {
+      if (!className) continue;
+      this.eachElement((el) => {
+        el.classList.add(className);
+      });
+    }
+    return this;
+  }
+
+  /**
+   * Remove each class in space separated list of classes given by
+   * `classNames` from each element in this fragment.
+   */
+  removeClass(classNames: string) {
+    for (const className of classNames.split(/\s+/)) {
+      if (!className) continue;
+      this.eachElement((el) => {
+        el.classList.remove(className);
+      });
+    }
+    return this;
+  }
+
+  /**
+   * Toggle each class in space separated list of classes given by
+   * `classNames` on each element in this fragment.
+   *
+   * If second arg `on` is given as `true`, always toggle classes on.
+   * If second arg `on` is passed as `false`, always toggle classes off.
+   */
+  toggleClass(classNames: string, on?: boolean) {
+    if (on === true) return this.addClass(classNames);
+    if (on === false) return this.removeClass(classNames);
+    for (const className of classNames.split(/s+/)) {
+      if (!className) continue;
+      this.eachElement((el) => {
+        el.classList.toggle(className);
+      });
+    }
+    return this;
+  }
 }
 
 const domFrag = DOMFragment.create;

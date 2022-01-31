@@ -659,20 +659,20 @@ class MathBlock extends MathElement {
   }
 
   focus() {
-    this.getJQ().addClass('mq-hasCursor');
-    this.getJQ().removeClass('mq-empty');
+    this.domFrag().addClass('mq-hasCursor');
+    this.domFrag().removeClass('mq-empty');
 
     return this;
   }
   blur(cursor: Cursor) {
-    this.getJQ().removeClass('mq-hasCursor');
+    this.domFrag().removeClass('mq-hasCursor');
     if (this.isEmpty()) {
-      this.getJQ().addClass('mq-empty');
+      this.domFrag().addClass('mq-empty');
       if (
         cursor &&
         this.isQuietEmptyDelimiter(cursor.options.quietEmptyDelimiters)
       ) {
-        this.getJQ().addClass('mq-quiet-delimiter');
+        this.domFrag().addClass('mq-quiet-delimiter');
       }
     }
     return this;

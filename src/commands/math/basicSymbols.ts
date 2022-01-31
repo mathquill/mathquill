@@ -155,10 +155,10 @@ class DigitGroupingChar extends MQSymbol {
     if (this._groupingClass === cls) return;
 
     // remove existing class
-    if (this._groupingClass) this.getJQ().removeClass(this._groupingClass);
+    if (this._groupingClass) this.domFrag().removeClass(this._groupingClass);
 
     // add new class
-    if (cls) this.getJQ().addClass(cls);
+    if (cls) this.domFrag().addClass(cls);
 
     // cache the groupingClass
     this._groupingClass = cls;
@@ -431,7 +431,7 @@ class Letter extends Variable {
   italicize(bool: boolean) {
     this.isItalic = bool;
     this.isPartOfOperator = !bool;
-    this.getJQ().toggleClass('mq-operator-name', !bool);
+    this.domFrag().toggleClass('mq-operator-name', !bool);
     return this;
   }
   finalizeTree(opts: CursorOptions, dir: Direction) {
@@ -475,7 +475,7 @@ class Letter extends Variable {
       function (el) {
         if (el instanceof Letter) {
           el.italicize(true)
-            .getJQ()
+            .domFrag()
             .removeClass('mq-first mq-last mq-followed-by-supsub');
           el.ctrlSeq = el.letter;
         }
@@ -517,11 +517,11 @@ class Letter extends Variable {
             const lastL = last[L];
             const lastLL = lastL && lastL[L];
             const lastLLL = (lastLL && lastLL[L]) as MQNode;
-            lastLLL.getJQ().addClass('mq-last');
+            lastLLL.domFrag().addClass('mq-last');
           }
 
           if (!this.shouldOmitPadding(first[L]))
-            first.getJQ().addClass('mq-first');
+            first.domFrag().addClass('mq-first');
           if (!this.shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
               var supsub = last[R] as MQNode; // XXX monkey-patching, but what's the right thing here?
@@ -532,7 +532,7 @@ class Letter extends Variable {
                 supsub.siblingDeleted =
                   function () {
                     supsub
-                      .getJQ()
+                      .domFrag()
                       .toggleClass(
                         'mq-after-operator-name',
                         !(supsub[R] instanceof Bracket)
@@ -541,7 +541,7 @@ class Letter extends Variable {
               respace();
             } else {
               last
-                .getJQ()
+                .domFrag()
                 .toggleClass('mq-last', !(last[R] instanceof Bracket));
             }
           }
@@ -716,7 +716,10 @@ LatexCmds.f = class extends Letter {
     );
   }
   italicize(bool: boolean) {
-    this.getJQ().html('f').toggleClass('mq-f', bool);
+    // Why is this necesssary? Does someone replace the `f` at some
+    // point?
+    this.getJQ().html('f');
+    this.domFrag().toggleClass('mq-f', bool);
     return super.italicize(bool);
   }
 };

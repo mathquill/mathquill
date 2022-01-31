@@ -24,14 +24,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     const endsL = this.getEnd(L);
 
     endsL.focus = function () {
-      this.parent.getJQ().addClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.getJQ().removeClass('mq-empty');
+      this.parent.domFrag().addClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.domFrag().removeClass('mq-empty');
 
       return this;
     };
     endsL.blur = function () {
-      this.parent.getJQ().removeClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.getJQ().addClass('mq-empty');
+      this.parent.domFrag().removeClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.domFrag().addClass('mq-empty');
 
       return this;
     };
@@ -72,8 +72,9 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     if (this._replacedFragment) {
       var el = this.domFrag().one();
       this._replacedFragment
-        .getJQ()
+        .domFrag()
         .addClass('mq-blur')
+        .toJQ()
         .bind(
           'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
           function (e) {
