@@ -81,8 +81,6 @@ class DOMFragment {
     }
     pray('sibling must be a forward DOM sibling of this fragment', found);
 
-    // Note, purposely using factory here instead of private contructor
-    // to verify that sibling is in fact a sibling of this
     return new DOMFragment(this.ends[L], sibling.ends[R]);
   }
 
