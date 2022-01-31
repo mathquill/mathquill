@@ -725,18 +725,6 @@ LatexCmds['∫'] =
         super('\\int ', '', 'integral');
 
         this.ariaLabel = 'integral';
-        /*
-<span class="mq-int mq-non-leaf">
-    <big>&int;</big>
-    <span class="mq-supsub mq-non-leaf">
-        <span class="mq-sup">
-            <span class="mq-sup-inner">&1</span>
-        </span>
-        <span class="mq-sub">&0</span>
-        <span style="display:inline-block;width:0">&#8203</span>
-    </span>
-</span>
- */
         this.domView = new DOMView(2, (blocks) =>
           h('span', { class: 'mq-int mq-non-leaf' }, [
             h('big', {}, [h.text(U_INTEGRAL)]),
