@@ -316,8 +316,8 @@ class Controller_latex extends Controller_keystroke {
     var jQ = root.jQ;
 
     if (block) {
-      var html = block.join('html');
-      jQ.html(html);
+      var html = block.html();
+      jQ.html('').append(html);
       root.jQize(jQ.children());
       root.finalizeInsert(cursor.options, cursor);
     } else {

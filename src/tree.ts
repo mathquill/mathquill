@@ -193,7 +193,6 @@ class NodeBase {
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
   textTemplate: string[] | undefined;
-  htmlTemplate: string | undefined;
   mathspeakName: string | undefined;
   sides:
     | {
@@ -229,7 +228,9 @@ class NodeBase {
    */
   jQize(el?: $ | HTMLElement) {
     // jQuery-ifies this.html() and links up the .jQ of all corresponding Nodes
-    var jQ: $ = $(el || this.html());
+    const e = el ?? this.html();
+
+    var jQ: $ = $(e instanceof DocumentFragment ? e.childNodes : e);
 
     function jQadd(el: HTMLElement | ChildNode) {
       if ('getAttribute' in el) {
@@ -393,9 +394,9 @@ class NodeBase {
   parser(): Parser<MQNode> {
     return undefined as any;
   }
-  /** Render this node to an HTML string */
-  html(): string {
-    return '';
+  /** Render this node to DOM */
+  html(): Element | DocumentFragment {
+    throw new Error('html() unimplemented in NodeBase');
   }
   text(): string {
     return '';

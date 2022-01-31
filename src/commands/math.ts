@@ -77,29 +77,33 @@ class MathElement extends MQNode {
   }
 }
 
+class DOMView {
+  constructor(
+    public readonly childCount: number,
+    public readonly render: (blocks: MathBlock[]) => Element | DocumentFragment
+  ) {}
+}
+
 /**
  * Commands and operators, like subscripts, exponents, or fractions.
  * Descendant commands are organized into blocks.
  */
 class MathCommand extends MathElement {
   replacedFragment: Fragment | undefined;
+  protected domView: DOMView;
 
-  constructor(
-    ctrlSeq?: string,
-    htmlTemplate?: string,
-    textTemplate?: string[]
-  ) {
+  constructor(ctrlSeq?: string, domView?: DOMView, textTemplate?: string[]) {
     super();
-    this.setCtrlSeqHtmlAndText(ctrlSeq, htmlTemplate, textTemplate);
+    this.setCtrlSeqHtmlAndText(ctrlSeq, domView, textTemplate);
   }
 
   setCtrlSeqHtmlAndText(
     ctrlSeq?: string,
-    htmlTemplate?: string,
+    domView?: DOMView,
     textTemplate?: string[]
   ) {
     if (!this.ctrlSeq) this.ctrlSeq = ctrlSeq;
-    if (htmlTemplate) this.htmlTemplate = htmlTemplate;
+    if (domView) this.domView = domView;
     if (textTemplate) this.textTemplate = textTemplate;
   }
 
@@ -244,122 +248,31 @@ class MathCommand extends MathElement {
     return undefined;
   }
 
-  // methods involved in creating and cross-linking with HTML DOM nodes
-  /*
-    They all expect an .htmlTemplate like
-      '<span>&0</span>'
-    or
-      '<span><span>&0</span><span>&1</span></span>'
-
-    See html.test.js for more examples.
-
-    Requirements:
-    - For each block of the command, there must be exactly one "block content
-      marker" of the form '&<number>' where <number> is the 0-based index of the
-      block. (Like the LaTeX \newcommand syntax, but with a 0-based rather than
-      1-based index, because JavaScript because C because Dijkstra.)
-    - The block content marker must be the sole contents of the containing
-      element, there can't even be surrounding whitespace, or else we can't
-      guarantee sticking to within the bounds of the block content marker when
-      mucking with the HTML DOM.
-    - The HTML not only must be well-formed HTML (of course), but also must
-      conform to the XHTML requirements on tags, specifically all tags must
-      either be self-closing (like '<br/>') or come in matching pairs.
-      Close tags are never optional.
-
-    Note that &<number> isn't well-formed HTML; if you wanted a literal '&123',
-    your HTML template would have to have '&amp;123'.
-  */
   numBlocks() {
-    var matches = (this.htmlTemplate as string).match(/&\d+/g);
-    return matches ? matches.length : 0;
+    return this.domView.childCount;
   }
-  html() {
-    // Render the entire math subtree rooted at this command, as HTML.
-    // Expects .createBlocks() to have been called already, since it uses the
-    // .blocks array of child blocks.
-    //
-    // See html.test.js for example templates and intended outputs.
-    //
-    // Given an .htmlTemplate as described above,
-    // - insert the mathquill-command-id attribute into all top-level tags,
-    //   which will be used to set this.jQ in .jQize().
-    //   This is straightforward:
-    //     * tokenize into tags and non-tags
-    //     * loop through top-level tokens:
-    //         * add #cmdId attribute macro to top-level self-closing tags
-    //         * else add #cmdId attribute macro to top-level open tags
-    //             * skip the matching top-level close tag and all tag pairs
-    //               in between
-    // - for each block content marker,
-    //     + replace it with the contents of the corresponding block,
-    //       rendered as HTML
-    //     + insert the mathquill-block-id attribute into the containing tag
-    //   This is even easier, a quick regex replace, since block tags cannot
-    //   contain anything besides the block content marker.
-    //
-    // Two notes:
-    // - The outermost loop through top-level tokens should never encounter any
-    //   top-level close tags, because we should have first encountered a
-    //   matching top-level open tag, all inner tags should have appeared in
-    //   matching pairs and been skipped, and then we should have skipped the
-    //   close tag in question.
-    // - All open tags should have matching close tags, which means our inner
-    //   loop should always encounter a close tag and drop nesting to 0. If
-    //   a close tag is missing, the loop will continue until i >= tokens.length
-    //   and token becomes undefined. This will not infinite loop, even in
-    //   production without pray(), because it will then TypeError on .slice().
 
-    var cmd = this;
-    var blocks = cmd.blocks as MathBlock[];
-    var cmdId = ' mathquill-command-id=' + cmd.id;
-    var tokens = (cmd.htmlTemplate as string).match(
-      /<[^<>]+>|[^<>]+/g
-    ) as string[];
-
-    pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
-
-    // add cmdId and aria-hidden (for screen reader users) to all top-level tags
-    // Note: with the RegExp search/replace approach, it's possible that an element which is both a command and block may contain redundant aria-hidden attributes.
-    // In practice this doesn't appear to cause problems for screen readers.
-    for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
-      // top-level self-closing tags
-      if (token.slice(-2) === '/>') {
-        tokens[i] = token.slice(0, -2) + cmdId + ' aria-hidden="true"/>';
+  /**
+   * Render the entire math subtree rooted at this command to a DOM node. Assumes `this.domView` is defined.
+   *
+   * See dom.test.js for example templates and intended outputs.
+   */
+  html(): Element | DocumentFragment {
+    const blocks = this.blocks;
+    pray('domView is defined', this.domView);
+    const template = this.domView;
+    const dom = template.render(blocks || []);
+    // Add mathquill-command-id and aria-hidden (for screen reader users) to all top-level elements
+    let node: ChildNode | null =
+      dom instanceof DocumentFragment ? dom.childNodes[0] : dom;
+    while (node) {
+      if (node instanceof Element) {
+        node.setAttribute('mathquill-command-id', '' + this.id);
+        node.setAttribute('aria-hidden', 'true');
       }
-      // top-level open tags
-      else if (token.charAt(0) === '<') {
-        pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
-
-        tokens[i] = token.slice(0, -1) + cmdId + ' aria-hidden="true">';
-
-        // skip matching top-level close tag and all tag pairs in between
-        var nesting = 1;
-        do {
-          (i += 1), (token = tokens[i]);
-          pray('no missing close tags', token);
-          // close tags
-          if (token.slice(0, 2) === '</') {
-            nesting -= 1;
-          }
-          // non-self-closing open tags
-          else if (token.charAt(0) === '<' && token.slice(-2) !== '/>') {
-            nesting += 1;
-          }
-        } while (nesting > 0);
-      }
+      node = node.nextSibling;
     }
-    return tokens
-      .join('')
-      .replace(/>&(\d+)/g, function (_$0: string, $1: string) {
-        var num1 = parseInt($1, 10);
-        return (
-          ' mathquill-block-id=' +
-          blocks[num1].id +
-          ' aria-hidden="true">' +
-          blocks[num1].join('html')
-        );
-      });
+    return dom;
   }
 
   // methods to export a string representation of the math tree
@@ -411,17 +324,24 @@ class MathCommand extends MathElement {
 class MQSymbol extends MathCommand {
   constructor(
     ctrlSeq?: string,
-    html?: string,
+    html?: HTMLElement,
     text?: string,
     mathspeak?: string
   ) {
     super();
-    this.setCtrlSeqHtmlTextAndMathspeak(ctrlSeq, html, text, mathspeak);
+    this.setCtrlSeqHtmlTextAndMathspeak(
+      ctrlSeq,
+      html
+        ? new DOMView(0, () => html.cloneNode(true) as HTMLElement)
+        : undefined,
+      text,
+      mathspeak
+    );
   }
 
   setCtrlSeqHtmlTextAndMathspeak(
     ctrlSeq?: string,
-    html?: string,
+    html?: DOMView,
     text?: string,
     mathspeak?: string
   ) {
@@ -436,8 +356,9 @@ class MQSymbol extends MathCommand {
   parser() {
     return Parser.succeed(this);
   }
+
   numBlocks() {
-    return 0;
+    return 0 as const;
   }
 
   replaces(replacedFragment: Fragment) {
@@ -478,18 +399,27 @@ class MQSymbol extends MathCommand {
   }
 }
 class VanillaSymbol extends MQSymbol {
-  constructor(ch: string, html?: string, mathspeak?: string) {
-    super(ch, '<span>' + (html || ch) + '</span>', undefined, mathspeak);
+  constructor(ch: string, html?: ChildNode, mathspeak?: string) {
+    super(ch, h('span', {}, [html || h.text(ch)]), undefined, mathspeak);
   }
 }
-function bindVanillaSymbol(ch: string, html?: string, mathspeak?: string) {
-  return () => new VanillaSymbol(ch, html, mathspeak);
+function bindVanillaSymbol(
+  ch: string,
+  htmlEntity?: string,
+  mathspeak?: string
+) {
+  return () =>
+    new VanillaSymbol(
+      ch,
+      htmlEntity ? h.entityText(htmlEntity) : undefined,
+      mathspeak
+    );
 }
 
 class BinaryOperator extends MQSymbol {
   constructor(
     ctrlSeq?: string,
-    html?: string,
+    html?: ChildNode,
     text?: string,
     mathspeak?: string,
     treatLikeSymbol?: boolean
@@ -497,14 +427,14 @@ class BinaryOperator extends MQSymbol {
     if (treatLikeSymbol) {
       super(
         ctrlSeq,
-        '<span>' + (html || ctrlSeq) + '</span>',
+        h('span', {}, [html || h.text(ctrlSeq || '')]),
         undefined,
         mathspeak
       );
     } else {
       super(
         ctrlSeq,
-        '<span class="mq-binary-operator">' + html + '</span>',
+        h('span', { class: 'mq-binary-operator' }, html ? [html] : []),
         text,
         mathspeak
       );
@@ -513,11 +443,17 @@ class BinaryOperator extends MQSymbol {
 }
 function bindBinaryOperator(
   ctrlSeq?: string,
-  html?: string,
+  htmlEntity?: string,
   text?: string,
   mathspeak?: string
 ) {
-  return () => new BinaryOperator(ctrlSeq, html, text, mathspeak);
+  return () =>
+    new BinaryOperator(
+      ctrlSeq,
+      htmlEntity ? h.entityText(htmlEntity) : undefined,
+      text,
+      mathspeak
+    );
 }
 
 /**
@@ -534,7 +470,13 @@ class MathBlock extends MathElement {
     });
   }
   html() {
-    return this.join('html');
+    const fragment = document.createDocumentFragment();
+    this.eachChild((el) => {
+      const childHtml = el.html();
+      fragment.appendChild(childHtml);
+      return undefined;
+    });
+    return fragment;
   }
   latex() {
     return this.join('latex');
