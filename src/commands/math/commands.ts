@@ -1601,13 +1601,7 @@ class EmbedNode extends MQSymbol {
       return '';
     }
     this.text = options.text || noop;
-    this.domView = new DOMView(
-      0,
-      () =>
-        parseHTML(
-          options.htmlString || ''
-        )[0] as HTMLElement /* TODO: fix this */
-    );
+    this.domView = new DOMView(0, () => parseHTML(options.htmlString || ''));
     this.latex = options.latex || noop;
     return this;
   }

@@ -80,7 +80,7 @@ class MathElement extends MQNode {
 class DOMView {
   constructor(
     public readonly childCount: number,
-    public readonly render: (blocks: MathBlock[]) => HTMLElement
+    public readonly render: (blocks: MathBlock[]) => Element | DocumentFragment
   ) {}
 }
 
@@ -257,14 +257,21 @@ class MathCommand extends MathElement {
    *
    * See dom.test.js for example templates and intended outputs.
    */
-  html(): HTMLElement {
+  html(): Element | DocumentFragment {
     const blocks = this.blocks;
     pray('domView is defined', this.domView);
     const template = this.domView;
     const dom = template.render(blocks || []);
-    // Add mathquill-command-id and aria-hidden (for screen reader users) to the top-level tag.
-    dom.setAttribute('mathquill-command-id', '' + this.id);
-    dom.setAttribute('aria-hidden', 'true');
+    // Add mathquill-command-id and aria-hidden (for screen reader users) to all top-level elements
+    let node: ChildNode | null =
+      dom instanceof DocumentFragment ? dom.childNodes[0] : dom;
+    while (node) {
+      if (node instanceof Element) {
+        node.setAttribute('mathquill-command-id', '' + this.id);
+        node.setAttribute('aria-hidden', 'true');
+      }
+      node = node.nextSibling;
+    }
     return dom;
   }
 

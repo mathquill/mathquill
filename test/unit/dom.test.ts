@@ -25,19 +25,19 @@ suite('HTML', function () {
   }
 
   function assertDOMEqual(
-    actual: HTMLElement,
+    actual: Element | DocumentFragment,
     expected: string,
     message: string
   ) {
-    const expectedNode = parseHTML(expected)[0] as HTMLElement;
+    const expectedNode = parseHTML(expected);
     if (actual.isEqualNode(expectedNode)) return;
+
+    const d = document.createElement('div');
+    d.appendChild(actual);
+    const actualString = d.innerHTML;
+
     assert.fail(
-      message +
-        ' expected (' +
-        actual.outerHTML +
-        ') to equal (' +
-        expected +
-        ')'
+      message + ' expected (' + actualString + ') to equal (' + expected + ')'
     );
   }
 
@@ -74,6 +74,54 @@ suite('HTML', function () {
       renderHtml(new DOMView(0, () => h('br'))),
       '<br mathquill-command-id=1 aria-hidden="true"/>',
       'self-closing tag'
+    );
+  });
+
+  test('templates returning a fragment', function () {
+    assertDOMEqual(
+      renderHtml(
+        new DOMView(2, (blocks) => {
+          const frag = document.createDocumentFragment();
+          frag.appendChild(h('span', {}, [h.block('span', {}, blocks[0])]));
+          frag.appendChild(h('span', {}, [h.block('span', {}, blocks[1])]));
+          return frag;
+        })
+      ),
+      '<span mathquill-command-id=1 aria-hidden="true">' +
+        '<span mathquill-block-id=2 aria-hidden="true">Block:0</span>' +
+        '</span>' +
+        '<span mathquill-command-id=1 aria-hidden="true">' +
+        '<span mathquill-block-id=3 aria-hidden="true">Block:1</span>' +
+        '</span>',
+      'two cmd spans'
+    );
+
+    assertDOMEqual(
+      renderHtml(
+        new DOMView(2, (blocks) => {
+          const frag = document.createDocumentFragment();
+          frag.appendChild(h('span'));
+          frag.appendChild(h('span'));
+          frag.appendChild(
+            h('span', {}, [
+              h('span', {}, [h('span')]),
+              h.block('span', {}, blocks[1]),
+              h('span'),
+            ])
+          );
+          frag.appendChild(h.block('span', {}, blocks[0]));
+          return frag;
+        })
+      ),
+      '<span mathquill-command-id=1 aria-hidden="true"></span>' +
+        '<span mathquill-command-id=1 aria-hidden="true"></span>' +
+        '<span mathquill-command-id=1 aria-hidden="true">' +
+        '<span><span></span></span>' +
+        '<span mathquill-block-id=3 aria-hidden="true">Block:1</span>' +
+        '<span></span>' +
+        '</span>' +
+        '<span mathquill-command-id=1 aria-hidden="true" mathquill-block-id=2>Block:0</span>',
+      'multiple nested cmd and block spans'
     );
   });
 });

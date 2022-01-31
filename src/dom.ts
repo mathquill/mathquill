@@ -21,7 +21,12 @@ function parseHTML(s: string) {
   // https://youmightnotneedjquery.com/#parse_html
   const tmp = document.implementation.createHTMLDocument('');
   tmp.body.innerHTML = s;
-  return tmp.body.childNodes;
+  if (tmp.body.children.length === 1) return tmp.body.children[0];
+  const frag = document.createDocumentFragment();
+  while (tmp.body.firstChild) {
+    frag.appendChild(tmp.body.firstChild);
+  }
+  return frag;
 }
 
 interface HtmlBuilder {
@@ -96,9 +101,11 @@ h.entityText = (s: string) => {
   const val = parseHTML(s);
   pray(
     'entity parses to a single text node',
-    val.length === 1 && val[0] instanceof Text
+    val instanceof DocumentFragment &&
+      val.childNodes.length === 1 &&
+      val.childNodes[0] instanceof Text
   );
-  return val[0] as Text;
+  return val.childNodes[0] as Text;
 };
 
 function closest(el: unknown | null, s: string) {

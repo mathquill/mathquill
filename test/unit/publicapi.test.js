@@ -1181,7 +1181,8 @@ suite('Public API', function () {
       calls += 1;
       data = data_;
       return {
-        htmlString: '<span class="embedded-html"></span>',
+        htmlString:
+          '<span class="embedded-html"></span><span class="embedded-html-2"></span>',
         text: function () {
           return 'embedded text';
         },
@@ -1197,6 +1198,7 @@ suite('Public API', function () {
     assert.equal(data, undefined);
 
     assert.ok(jQuery('.embedded-html').length);
+    assert.ok(jQuery('.embedded-html-2').length);
     assert.equal(mq.text(), 'sqrt(embedded text)');
     assert.equal(mq.latex(), '\\sqrt{embedded latex}');
 
@@ -1205,6 +1207,7 @@ suite('Public API', function () {
     assert.equal(data, 'data');
 
     assert.ok(jQuery('.embedded-html').length);
+    assert.ok(jQuery('.embedded-html-2').length);
     assert.equal(mq.text(), 'sqrt(embedded text)');
     assert.equal(mq.latex(), '\\sqrt{embedded latex}');
   });

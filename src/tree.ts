@@ -394,8 +394,8 @@ class NodeBase {
   parser(): Parser<MQNode> {
     return undefined as any;
   }
-  /** Render this node to an HTML string */
-  html(): HTMLElement | DocumentFragment {
+  /** Render this node to DOM */
+  html(): Element | DocumentFragment {
     throw new Error('html() unimplemented in NodeBase');
   }
   text(): string {
