@@ -444,7 +444,7 @@ class NodeBase {
   mathspeak(_options?: MathspeakOptions) {
     return '';
   }
-  seek(_pageX: number, _cursor: Cursor) {}
+  seek(_clientX: number, _cursor: Cursor) {}
   siblingDeleted(_options: CursorOptions, _dir: Direction) {}
   siblingCreated(_options: CursorOptions, _dir: Direction) {}
   finalizeInsert(_options: CursorOptions, _cursor: Cursor) {}

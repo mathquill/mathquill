@@ -361,7 +361,7 @@ function getInterface(v: number) {
       var clientY = pageY - getScrollY();
 
       var el = document.elementFromPoint(clientX, clientY);
-      this.__controller.seek($(el), pageX, pageY);
+      this.__controller.seek($(el), clientX, clientY);
       var cmd = new EmbedNode().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     }
@@ -385,7 +385,7 @@ function getInterface(v: number) {
         root = ctrlr.root;
       if (!jQuery.contains(root.domFrag().oneElement(), target))
         target = root.domFrag().oneElement();
-      ctrlr.seek($(target), clientX + getScrollX(), clientY + getScrollY());
+      ctrlr.seek($(target), clientX, clientY);
       if (ctrlr.blurred) this.focus();
       return this;
     }

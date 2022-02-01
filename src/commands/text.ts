@@ -189,7 +189,7 @@ class TextBlock extends MQNode {
     });
   }
 
-  seek(pageX: number, cursor: Cursor) {
+  seek(clientX: number, cursor: Cursor) {
     cursor.hide();
     var textPc = TextBlockFuseChildren(this);
     if (!textPc) return;
@@ -202,9 +202,7 @@ class TextBlock extends MQNode {
     if (rects.length === 1) {
       const { width, left } = rects[0];
       var avgChWidth = width / this.textContents().length;
-      var approxPosition = Math.round(
-        (pageX - (left + getScrollX())) / avgChWidth
-      );
+      var approxPosition = Math.round((clientX - left) / avgChWidth);
       if (approxPosition <= 0) {
         cursor.insAtLeftEnd(this);
       } else if (approxPosition >= textPc.textStr.length) {
@@ -216,15 +214,16 @@ class TextBlock extends MQNode {
       cursor.insAtLeftEnd(this);
     }
 
-    // move towards mousedown (pageX)
-    var displ = pageX - cursor.show().offset().left; // displacement
+    // move towards mousedown (clientX)
+    var displ =
+      clientX - cursor.show().getBoundingClientRectWithoutMargin().left; // displacement
     var dir = displ && displ < 0 ? L : R;
     var prevDispl = dir as number;
     // displ * prevDispl > 0 iff displacement direction === previous direction
     while (cursor[dir] && displ * prevDispl > 0) {
       (cursor[dir] as MQNode).moveTowards(dir, cursor);
       prevDispl = displ;
-      displ = pageX - cursor.offset().left;
+      displ = clientX - cursor.getBoundingClientRectWithoutMargin().left;
     }
     if (dir * displ < -dir * prevDispl)
       (cursor[-dir as Direction] as MQNode).moveTowards(
