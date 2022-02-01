@@ -152,7 +152,7 @@ class MathCommand extends MathElement {
     if (replacedFragment) {
       const cmdEndsL = cmd.getEnd(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
-      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().one());
+      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().oneElement());
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
@@ -652,7 +652,7 @@ class MathBlock extends MathElement {
         .children()
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
       var jQ = block.jQize();
-      jQToDOMFragment(jQ).insertBefore(cursor.domFrag().one());
+      jQToDOMFragment(jQ).insertBefore(cursor.domFrag());
       cursor[L] = block.getEnd(R);
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.getEnd(R);

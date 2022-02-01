@@ -211,7 +211,7 @@ function getInterface(v: number) {
 
       root.setDOMFrag(
         domFrag(h('span', { class: 'mq-root-block' })).appendTo(
-          jQToDOMFragment(el).one()
+          jQToDOMFragment(el).oneElement()
         )
       );
       NodeBase.linkElementByBlockId(root.domFrag().oneElement(), root.id);

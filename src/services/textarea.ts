@@ -25,7 +25,7 @@ class Controller extends Controller_scrollHoriz {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
     this.textarea = jQToDOMFragment($(textarea))
-      .appendTo(jQToDOMFragment(textareaSpan).one())
+      .appendTo(jQToDOMFragment(textareaSpan).oneElement())
       .toJQ();
     this.aria.setContainer(this.textareaSpan);
 

@@ -228,7 +228,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = newMinusNode;
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
-      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag().one());
+      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag());
     }
 
     // update the text of the current nodes
@@ -238,7 +238,7 @@ class Controller_latex extends Controller_keystroke {
       charNode = oldCharNodes[i];
       if (charNode.ctrlSeq !== newText) {
         charNode.ctrlSeq = newText;
-        charNode.domFrag().one().textContent = newText;
+        charNode.domFrag().oneElement().textContent = newText;
         charNode.mathspeakName = newText;
       }
     }
@@ -320,7 +320,7 @@ class Controller_latex extends Controller_keystroke {
     if (block) {
       const frag = root.domFrag();
       frag.children().remove();
-      frag.one().appendChild(block.html());
+      frag.oneElement().appendChild(block.html());
       root.jQize(frag.children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
@@ -382,7 +382,7 @@ class Controller_latex extends Controller_keystroke {
         commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      jQToDOMFragment(root.jQize()).appendTo(root.domFrag().one());
+      jQToDOMFragment(root.jQize()).appendTo(root.domFrag().oneElement());
 
       root.finalizeInsert(cursor.options, cursor);
     }

@@ -87,9 +87,9 @@ class DOMFragment {
   /**
    * Return the single DOM Node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node.
+   * Asserts that this fragment contains exactly one Node.
    */
-  one(): ChildNode {
+  oneNode(): ChildNode {
     pray(
       'Fragment has a single node',
       this.ends && this.ends[L] === this.ends[R]
@@ -100,11 +100,11 @@ class DOMFragment {
   /**
    * Return the single DOM Element represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node, and that node
+   * Asserts that this fragment contains exactly one Node, and that node
    * is an Element node.
    */
   oneElement(): HTMLElement {
-    const el = this.one();
+    const el = this.oneNode();
     pray('Node is an Element', el.nodeType === Node.ELEMENT_NODE);
     return el as HTMLElement;
   }
@@ -112,11 +112,11 @@ class DOMFragment {
   /**
    * Return the single DOM Text node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node, and that node
+   * Asserts that this fragment contains exactly one Node, and that node
    * is a Text node.
    */
   oneText(): Text {
-    const el = this.one();
+    const el = this.oneNode();
     pray('Node is Text', el.nodeType === Node.TEXT_NODE);
     return el as Text;
   }
@@ -207,42 +207,56 @@ class DOMFragment {
 
   /**
    * Insert all the nodes in this fragment into the DOM directly before
-   * `el`.
+   * the first node of `sibling` fragment. If `sibling` is empty or does
+   * not have a parent node, detaches this fragment from the document.
    *
-   * Asserts that `el` has a parentNode.
+   * Note that this behavior differs from jQuery if `sibling` is a
+   * collection with multiple nodes. In that case, jQuery inserts this
+   * collection before the first node in `sibling`, and then inserts a
+   * clone of this collection before each additional node in the
+   * `sibling` collection. DOMFragment only ever inserts this collection
+   * before the first node of the sibling fragment, and never inserts
+   * additional clones.
    */
-  insertBefore(el: ChildNode) {
+  insertBefore(sibling: DOMFragment) {
     if (!this.ends) return this;
+    const el = sibling.ends?.[L];
+    if (!el || !el.parentNode) return this.detach();
 
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), el);
+    el.parentNode.insertBefore(this.toDocumentFragment(), el);
     return this;
   }
 
   /**
    * Insert all the nodes in this fragment into the DOM directly after
-   * `el`.
+   * the last node of `sibling` fragment. If `sibling` is empty or does
+   * not have a parent node, detaches this fragment from the document.
    *
-   * Asserts that `el` has a parentNode.
+   * Note that this behavior differs from jQuery if `sibling` is a
+   * collection with multiple nodes. In that case, jQuery inserts this
+   * collection before the first node in `sibling`, and then inserts a
+   * clone of this collection before each additional node in the
+   * `sibling` collection. DOMFragment only ever inserts this collection
+   * before the first node of the sibling fragment, and never inserts
+   * additional clones.
    */
-  insertAfter(el: ChildNode) {
+  insertAfter(sibling: DOMFragment) {
     if (!this.ends) return this;
+    const el = sibling.ends?.[R];
+    if (!el || !el.parentNode) return this.detach();
 
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), el.nextSibling);
+    el.parentNode.insertBefore(this.toDocumentFragment(), el.nextSibling);
     return this;
   }
 
   /**
    * Append children to the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Element.
    */
   append(children: DOMFragment) {
     if (!children.ends) return this;
-    const el = this.one();
+    const el = this.oneElement();
     el.appendChild(children.toDocumentFragment());
     return this;
   }
@@ -250,11 +264,11 @@ class DOMFragment {
   /**
    * Prepend children to the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Element.
    */
   prepend(children: DOMFragment) {
     if (!children.ends) return this;
-    const el = this.one();
+    const el = this.oneElement();
     el.insertBefore(children.toDocumentFragment(), el.firstChild);
     return this;
   }
@@ -262,7 +276,7 @@ class DOMFragment {
   /**
    * Append all the nodes in this fragment to the children of `el`.
    */
-  appendTo(el: ChildNode) {
+  appendTo(el: HTMLElement) {
     if (!this.ends) return this;
     el.appendChild(this.toDocumentFragment());
     return this;
@@ -271,7 +285,7 @@ class DOMFragment {
   /**
    * Prepend all the nodes in this fragment to the children of `el`.
    */
-  prependTo(el: ChildNode) {
+  prependTo(el: HTMLElement) {
     if (!this.ends) return this;
     el.insertBefore(this.toDocumentFragment(), el.firstChild);
     return this;
@@ -294,7 +308,7 @@ class DOMFragment {
    * and place `el` into the DOM at the previous location of this
    * fragment.
    */
-  wrapAll(el: ChildNode) {
+  wrapAll(el: HTMLElement) {
     el.textContent = ''; // First empty the wrapping element
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
@@ -307,30 +321,46 @@ class DOMFragment {
   }
 
   /**
-   * Replace the node represented by this fragment with the given
-   * fragment.
+   * Replace this fragment with the fragment given by `children`. If
+   * this fragment is empty or does not have a parent node, detaches
+   * `children` from the document.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Note that this behavior differs from jQuery if this is a collection
+   * with multiple nodes. In that case, jQuery replaces the first
+   * element of this collection with `children`, and then replaces each
+   * additional element in this collection with a clone of `children`.
+   * DOMFragment replaces this entire fragment with `children` and never
+   * makes additional clones of `children`.
    */
   replaceWith(children: DOMFragment) {
-    const el = this.one();
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.replaceChild(children.toDocumentFragment(), el);
+    const rightEnd = this.ends?.[R];
+
+    // Note: important to cache parent and nextSibling (if they exist)
+    // before detaching this fragment from the document (which will
+    // its parent and sibling references)
+    const parent = rightEnd?.parentNode;
+    const nextSibling = rightEnd?.nextSibling;
+    this.detach();
+    // Note, this purposely detaches children from the document, even if
+    // they can't be reinserted because this fragment is empty or has no
+    // parent
+    const childDocumentFragment = children.toDocumentFragment();
+    if (!rightEnd || !parent) return this;
+    parent.insertBefore(childDocumentFragment, nextSibling || null);
     return this;
   }
 
   /**
-   * Return the children (including text and comment nodes) of the node
-   * represented by this fragment.
+   * Return a fragment representing the children (including Text and
+   * Comment nodes) of the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    *
    * Note, because this includes text and comment nodes, this is more
    * like jQuery's .contents() than jQuery's .children()
    */
   children() {
-    const el = this.one();
+    const el = this.oneNode();
     const first = el.firstChild;
     const last = el.lastChild;
     return first && last ? new DOMFragment(first, last) : new DOMFragment();
@@ -456,10 +486,10 @@ class DOMFragment {
    * next Element. Skips Nodes that are not Elements (e.g. Text and
    * Comment nodes).
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    */
   next() {
-    let current: ChildNode | null = this.one();
+    let current: ChildNode | null = this.oneNode();
     while (current) {
       current = current.nextSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -474,10 +504,10 @@ class DOMFragment {
    * previous Element. Skips Nodes that are not Elements (e.g. Text and
    * Comment nodes).
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    */
   prev() {
-    let current: ChildNode | null = this.one();
+    let current: ChildNode | null = this.oneNode();
     while (current) {
       current = current.previousSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -503,6 +533,11 @@ class DOMFragment {
 
   /**
    * Remove every node in the fragment from the DOM.
+   *
+   * Implemented by moving every node in the fragment into a new
+   * document fragment in order to preserve the sibling relationships
+   * of the removed element. If you want to get access to this document
+   * fragment, use `.toDocumentFragment()` instead.
    */
   remove() {
     // TODO the corresponding jQuery methods clean up some internal
@@ -520,6 +555,11 @@ class DOMFragment {
   /**
    * Remove every node in the fragment from the DOM. Alias of remove.
    *
+   * Implemented by moving every node in the fragment into a new
+   * document fragment in order to preserve the sibling relationships
+   * of the removed element. If you want to get access to this document
+   * fragment, use `.toDocumentFragment()` instead.
+   *
    * Note: jQuery makes a distinction between detach() and remove().
    * remove() cleans up internal references, and detach() does not.
    */
@@ -533,23 +573,19 @@ class DOMFragment {
 
   /**
    * Insert this fragment either just before or just after `sibling`
-   * fragment according to the direction specified by `dir`.
-   *
-   * Asserts `sibling` is not empty.
+   * fragment according to the direction specified by `dir`. If
+   * `sibling` is empty or does not have a parent node, detaches this
+   * fragment from the document.
    */
   insDirOf(dir: Direction, sibling: DOMFragment): DOMFragment {
-    if (!this.ends) return this;
-
-    pray('new sibling is not empty', sibling.ends);
-    const el = sibling.ends[dir];
-    return dir === L ? this.insertBefore(el) : this.insertAfter(el);
+    return dir === L ? this.insertBefore(sibling) : this.insertAfter(sibling);
   }
 
   /**
    * Insert this fragment into `el` either at the beginning or end of
    * its children, according to the direction specified by `dir`.
    */
-  insAtDirEnd(dir: Direction, el: ChildNode): DOMFragment {
+  insAtDirEnd(dir: Direction, el: HTMLElement): DOMFragment {
     return dir === L ? this.prependTo(el) : this.appendTo(el);
   }
 
@@ -623,8 +659,8 @@ function jQToDOMFragment(jQ: $) {
     const el = jQ[i];
     const nextEl = jQ[i + 1];
     pray(
-      'jQToDOMFragment expects jQ to be a collection of siblings',
-      domFrag(el).next().one() === nextEl
+      'jQToDOMFragment expects jQ to be a collection of sibling Elements',
+      domFrag(el).next().oneElement() === nextEl
     );
   }
 
