@@ -57,7 +57,7 @@ class Controller_mouse extends Controller_latex {
       }
       function docmousemove(e: MouseEvent) {
         if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target!, e.pageX, e.pageY).cursor.select();
+        ctrlr.seek(target!, e.clientX, e.clientY).cursor.select();
         if (cursor.selection)
           cursor.controller.aria
             .clear()
@@ -121,7 +121,7 @@ class Controller_mouse extends Controller_latex {
       }
 
       cursor.blink = noop;
-      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      ctrlr.seek($(e.target), e.clientX, e.clientY).cursor.startSelection();
 
       rootjQ.mousemove(mousemove);
       const anyTarget = e.target as any; // TODO - why do we need to cast to any?
@@ -131,7 +131,7 @@ class Controller_mouse extends Controller_latex {
     });
   }
 
-  seek($target: $, pageX: number, _pageY: number) {
+  seek($target: $, clientX: number, _clientY: number) {
     var cursor = this.notify('select').cursor;
     var node;
     var targetElm: HTMLElement | null = $target && $target[0];
@@ -158,7 +158,7 @@ class Controller_mouse extends Controller_latex {
     // seek from root, which is less accurate (e.g. fraction)
     cursor.clearSelection().show();
 
-    node.seek(pageX, cursor);
+    node.seek(clientX, cursor);
     this.scrollHoriz(); // before .selectFrom when mouse-selecting, so
     // always hits no-selection case in scrollHoriz and scrolls slower
     return this;

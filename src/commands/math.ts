@@ -212,10 +212,10 @@ class MathCommand extends MathElement {
     const ancestor = antiCursor.ancestors[this.id] as MQNode;
     cursor.insAtDirEnd(-dir as Direction, ancestor);
   }
-  seek(pageX: number, cursor: Cursor) {
+  seek(clientX: number, cursor: Cursor) {
     function getBounds(node: MQNode) {
       const el = node.domFrag().oneElement();
-      const l = getBoundingClientRect(el).left + getScrollX();
+      const l = getBoundingClientRect(el).left;
       var r: number = l + el.offsetWidth;
       return {
         [L]: l,
@@ -226,32 +226,32 @@ class MathCommand extends MathElement {
     var cmd = this;
     var cmdBounds = getBounds(cmd);
 
-    if (pageX < cmdBounds[L]) return cursor.insLeftOf(cmd);
-    if (pageX > cmdBounds[R]) return cursor.insRightOf(cmd);
+    if (clientX < cmdBounds[L]) return cursor.insLeftOf(cmd);
+    if (clientX > cmdBounds[R]) return cursor.insRightOf(cmd);
 
     var leftLeftBound = cmdBounds[L];
     cmd.eachChild(function (block) {
       var blockBounds = getBounds(block);
-      if (pageX < blockBounds[L]) {
+      if (clientX < blockBounds[L]) {
         // closer to this block's left bound, or the bound left of that?
-        if (pageX - leftLeftBound < blockBounds[L] - pageX) {
+        if (clientX - leftLeftBound < blockBounds[L] - clientX) {
           if (block[L]) cursor.insAtRightEnd(block[L] as MQNode);
           else cursor.insLeftOf(cmd);
         } else cursor.insAtLeftEnd(block);
         return false;
-      } else if (pageX > blockBounds[R]) {
+      } else if (clientX > blockBounds[R]) {
         if (block[R]) leftLeftBound = blockBounds[R];
         // continue to next block
         else {
           // last (rightmost) block
           // closer to this block's right bound, or the cmd's right bound?
-          if (cmdBounds[R] - pageX < pageX - blockBounds[R]) {
+          if (cmdBounds[R] - clientX < clientX - blockBounds[R]) {
             cursor.insRightOf(cmd);
           } else cursor.insAtRightEnd(block);
         }
         return undefined;
       } else {
-        block.seek(pageX, cursor);
+        block.seek(clientX, cursor);
         return false;
       }
     });
@@ -386,11 +386,11 @@ class MQSymbol extends MathCommand {
   deleteTowards(dir: Direction, cursor: Cursor) {
     cursor[dir] = this.remove()[dir];
   }
-  seek(pageX: number, cursor: Cursor) {
+  seek(clientX: number, cursor: Cursor) {
     // insert at whichever side the click was closer to
     const el = this.domFrag().oneElement();
-    const left = getBoundingClientRect(el).left + getScrollX();
-    if (pageX - left < el.offsetWidth / 2) cursor.insLeftOf(this);
+    const left = getBoundingClientRect(el).left;
+    if (clientX - left < el.offsetWidth / 2) cursor.insLeftOf(this);
     else cursor.insRightOf(this);
 
     return cursor;
@@ -581,27 +581,21 @@ class MathBlock extends MathElement {
   deleteOutOf(_dir: Direction, cursor: Cursor) {
     cursor.unwrapGramp();
   }
-  seek(pageX: number, cursor: Cursor) {
+  seek(clientX: number, cursor: Cursor) {
     var node = this.getEnd(R);
     if (!node) return cursor.insAtRightEnd(this);
     const el = node.domFrag().oneElement();
-    const left = getBoundingClientRect(el).left + getScrollX();
-    if (left + el.offsetWidth < pageX) {
+    const left = getBoundingClientRect(el).left;
+    if (left + el.offsetWidth < clientX) {
       return cursor.insAtRightEnd(this);
     }
 
     var endsL = this.getEnd(L) as MQNode;
-    if (
-      pageX <
-      getBoundingClientRect(endsL.domFrag().oneElement()).left + getScrollX()
-    )
+    if (clientX < getBoundingClientRect(endsL.domFrag().oneElement()).left)
       return cursor.insAtLeftEnd(this);
-    while (
-      pageX <
-      getBoundingClientRect(node.domFrag().oneElement()).left + getScrollX()
-    )
+    while (clientX < getBoundingClientRect(node.domFrag().oneElement()).left)
       node = node[L] as MQNode;
-    return node.seek(pageX, cursor);
+    return node.seek(clientX, cursor);
   }
   chToCmd(ch: string, options: CursorOptions) {
     var cons;

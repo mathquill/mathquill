@@ -163,12 +163,12 @@ class Cursor extends Point {
         self.insAtRightEnd(cached.parent);
       }
     } else {
-      var pageX = self.offset().left;
-      to.seek(pageX, self);
+      var clientX = self.getBoundingClientRectWithoutMargin().left;
+      to.seek(clientX, self);
     }
     self.controller.aria.queue(to, true);
   }
-  offset() {
+  getBoundingClientRectWithoutMargin() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -181,8 +181,8 @@ class Cursor extends Point {
     const { left, right } = getBoundingClientRect(frag.oneElement());
     frag.addClass('mq-cursor');
     return {
-      left: left + getScrollX(),
-      right: right + getScrollY(),
+      left,
+      right,
     };
   }
   unwrapGramp() {
