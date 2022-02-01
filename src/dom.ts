@@ -63,7 +63,7 @@ const h: HtmlBuilder = function h(
   switch (type) {
     case 'svg':
     case 'path':
-      el = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+      el = document.createElementNS('http://www.w3.org/2000/svg', type);
       break;
     default:
       el = document.createElement(type);
