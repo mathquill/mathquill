@@ -176,10 +176,14 @@ class Cursor extends Point {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var self = this,
-      offset = self.domFrag().removeClass('mq-cursor').toJQ().offset();
-    self.domFrag().addClass('mq-cursor');
-    return offset;
+    const frag = this.domFrag();
+    frag.removeClass('mq-cursor');
+    const { left, right } = getBoundingClientRect(frag.oneElement());
+    frag.addClass('mq-cursor');
+    return {
+      left: left + getScrollX(),
+      right: right + getScrollY(),
+    };
   }
   unwrapGramp() {
     var gramp = this.parent.parent;

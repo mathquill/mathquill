@@ -195,14 +195,26 @@ class TextBlock extends MQNode {
     if (!textPc) return;
 
     // insert cursor at approx position in DOMTextNode
-    var avgChWidth = this.getJQ().width() / this.text.length;
-    var approxPosition = Math.round(
-      (pageX - this.getJQ().offset().left) / avgChWidth
-    );
-    if (approxPosition <= 0) cursor.insAtLeftEnd(this);
-    else if (approxPosition >= textPc.textStr.length)
-      cursor.insAtRightEnd(this);
-    else cursor.insLeftOf(textPc.splitRight(approxPosition));
+    const textNode = this.domFrag().children().oneText();
+    const range = document.createRange();
+    range.selectNodeContents(textNode);
+    var rects = range.getClientRects();
+    if (rects.length === 1) {
+      const { width, left } = rects[0];
+      var avgChWidth = width / this.textContents().length;
+      var approxPosition = Math.round(
+        (pageX - (left + getScrollX())) / avgChWidth
+      );
+      if (approxPosition <= 0) {
+        cursor.insAtLeftEnd(this);
+      } else if (approxPosition >= textPc.textStr.length) {
+        cursor.insAtRightEnd(this);
+      } else {
+        cursor.insLeftOf(textPc.splitRight(approxPosition));
+      }
+    } else {
+      cursor.insAtLeftEnd(this);
+    }
 
     // move towards mousedown (pageX)
     var displ = pageX - cursor.show().offset().left; // displacement

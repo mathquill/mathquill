@@ -357,8 +357,8 @@ function getInterface(v: number) {
       return this;
     }
     dropEmbedded(pageX: number, pageY: number, options: EmbedOptions) {
-      var clientX = pageX - $(window).scrollLeft();
-      var clientY = pageY - $(window).scrollTop();
+      var clientX = pageX - getScrollX();
+      var clientY = pageY - getScrollY();
 
       var el = document.elementFromPoint(clientX, clientY);
       this.__controller.seek($(el), pageX, pageY);
@@ -385,7 +385,7 @@ function getInterface(v: number) {
         root = ctrlr.root;
       if (!jQuery.contains(root.domFrag().oneElement(), target))
         target = root.domFrag().oneElement();
-      ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);
+      ctrlr.seek($(target), clientX + getScrollX(), clientY + getScrollY());
       if (ctrlr.blurred) this.focus();
       return this;
     }
