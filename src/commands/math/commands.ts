@@ -374,7 +374,7 @@ class SupSub extends MathCommand {
             src
               .domFrag()
               .children()
-              .insAtDirEnd(-dir as Direction, dest.domFrag().one());
+              .insAtDirEnd(-dir as Direction, dest.domFrag().oneElement());
             var children = src.children().disown();
             pt = new Point(dest, children.getEnd(R), dest.getEnd(L));
             if (dir === L) children.adopt(dest, dest.getEnd(R), 0);
@@ -477,7 +477,7 @@ class SupSub extends MathCommand {
       block.setDOMFrag(
         domFrag(h('span', { class: 'mq-sup' }))
           .append(block.domFrag().children())
-          .prependTo(this.domFrag().one())
+          .prependTo(this.domFrag().oneElement())
       );
       NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
     } else {
@@ -487,7 +487,7 @@ class SupSub extends MathCommand {
       block.setDOMFrag(
         domFrag(h('span', { class: 'mq-sub' }))
           .append(block.domFrag().children())
-          .appendTo(this.domFrag().one())
+          .appendTo(this.domFrag().oneElement())
       );
       NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
       this.domFrag().append(
@@ -1352,7 +1352,7 @@ class Bracket extends DelimsNode {
           .disown()
           .withDirAdopt(-side as Direction, leftEnd, origEnd, 0)
           .domFrag()
-          .insAtDirEnd(side, leftEnd.domFrag().one());
+          .insAtDirEnd(side, leftEnd.domFrag().oneElement());
         if (origEnd) origEnd.siblingCreated(cursor.options, side);
         cursor.insDirOf(-side as Direction, sib);
       } // didn't auto-expand, cursor goes just outside or just inside parens

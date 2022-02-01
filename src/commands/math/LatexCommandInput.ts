@@ -71,7 +71,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
 
     if (this._replacedFragment) {
       const frag = this.domFrag();
-      const el = frag.one();
+      const el = frag.oneElement();
       this._replacedFragment
         .domFrag()
         .addClass('mq-blur')

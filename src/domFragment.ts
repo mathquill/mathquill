@@ -87,9 +87,9 @@ class DOMFragment {
   /**
    * Return the single DOM Node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node.
+   * Asserts that this fragment contains exactly one Node.
    */
-  one(): ChildNode {
+  oneNode(): ChildNode {
     pray(
       'Fragment has a single node',
       this.ends && this.ends[L] === this.ends[R]
@@ -100,11 +100,11 @@ class DOMFragment {
   /**
    * Return the single DOM Element represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node, and that node
+   * Asserts that this fragment contains exactly one Node, and that node
    * is an Element node.
    */
   oneElement(): HTMLElement {
-    const el = this.one();
+    const el = this.oneNode();
     pray('Node is an Element', el.nodeType === Node.ELEMENT_NODE);
     return el as HTMLElement;
   }
@@ -112,11 +112,11 @@ class DOMFragment {
   /**
    * Return the single DOM Text node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one node, and that node
+   * Asserts that this fragment contains exactly one Node, and that node
    * is a Text node.
    */
   oneText(): Text {
-    const el = this.one();
+    const el = this.oneNode();
     pray('Node is Text', el.nodeType === Node.TEXT_NODE);
     return el as Text;
   }
@@ -252,11 +252,11 @@ class DOMFragment {
   /**
    * Append children to the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Element.
    */
   append(children: DOMFragment) {
     if (!children.ends) return this;
-    const el = this.one();
+    const el = this.oneElement();
     el.appendChild(children.toDocumentFragment());
     return this;
   }
@@ -264,11 +264,11 @@ class DOMFragment {
   /**
    * Prepend children to the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Element.
    */
   prepend(children: DOMFragment) {
     if (!children.ends) return this;
-    const el = this.one();
+    const el = this.oneElement();
     el.insertBefore(children.toDocumentFragment(), el.firstChild);
     return this;
   }
@@ -276,7 +276,7 @@ class DOMFragment {
   /**
    * Append all the nodes in this fragment to the children of `el`.
    */
-  appendTo(el: ChildNode) {
+  appendTo(el: HTMLElement) {
     if (!this.ends) return this;
     el.appendChild(this.toDocumentFragment());
     return this;
@@ -285,7 +285,7 @@ class DOMFragment {
   /**
    * Prepend all the nodes in this fragment to the children of `el`.
    */
-  prependTo(el: ChildNode) {
+  prependTo(el: HTMLElement) {
     if (!this.ends) return this;
     el.insertBefore(this.toDocumentFragment(), el.firstChild);
     return this;
@@ -308,7 +308,7 @@ class DOMFragment {
    * and place `el` into the DOM at the previous location of this
    * fragment.
    */
-  wrapAll(el: ChildNode) {
+  wrapAll(el: HTMLElement) {
     el.textContent = ''; // First empty the wrapping element
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
@@ -327,7 +327,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one element.
    */
   replaceWith(children: DOMFragment) {
-    const el = this.one();
+    const el = this.oneNode();
     const parent = el.parentNode;
     pray('parent is defined', parent);
     parent.replaceChild(children.toDocumentFragment(), el);
@@ -335,16 +335,16 @@ class DOMFragment {
   }
 
   /**
-   * Return the children (including text and comment nodes) of the node
-   * represented by this fragment.
+   * Return a fragment representing the children (including Text and
+   * Comment nodes) of the node represented by this fragment.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    *
    * Note, because this includes text and comment nodes, this is more
    * like jQuery's .contents() than jQuery's .children()
    */
   children() {
-    const el = this.one();
+    const el = this.oneNode();
     const first = el.firstChild;
     const last = el.lastChild;
     return first && last ? new DOMFragment(first, last) : new DOMFragment();
@@ -470,10 +470,10 @@ class DOMFragment {
    * next Element. Skips Nodes that are not Elements (e.g. Text and
    * Comment nodes).
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    */
   next() {
-    let current: ChildNode | null = this.one();
+    let current: ChildNode | null = this.oneNode();
     while (current) {
       current = current.nextSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -488,10 +488,10 @@ class DOMFragment {
    * previous Element. Skips Nodes that are not Elements (e.g. Text and
    * Comment nodes).
    *
-   * Asserts that this fragment contains exactly one element.
+   * Asserts that this fragment contains exactly one Node.
    */
   prev() {
-    let current: ChildNode | null = this.one();
+    let current: ChildNode | null = this.oneNode();
     while (current) {
       current = current.previousSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -559,7 +559,7 @@ class DOMFragment {
    * Insert this fragment into `el` either at the beginning or end of
    * its children, according to the direction specified by `dir`.
    */
-  insAtDirEnd(dir: Direction, el: ChildNode): DOMFragment {
+  insAtDirEnd(dir: Direction, el: HTMLElement): DOMFragment {
     return dir === L ? this.prependTo(el) : this.appendTo(el);
   }
 
@@ -633,8 +633,8 @@ function jQToDOMFragment(jQ: $) {
     const el = jQ[i];
     const nextEl = jQ[i + 1];
     pray(
-      'jQToDOMFragment expects jQ to be a collection of siblings',
-      domFrag(el).next().one() === nextEl
+      'jQToDOMFragment expects jQ to be a collection of sibling Elements',
+      domFrag(el).next().oneElement() === nextEl
     );
   }
 

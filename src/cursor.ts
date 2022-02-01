@@ -84,7 +84,7 @@ class Cursor extends Point {
         if (selection && selection.getEnd(L)[L] === this[L])
           this.domFrag().insertBefore(selection.domFrag());
         else this.domFrag().insertBefore(right.domFrag());
-      } else this.domFrag().appendTo(this.parent.domFrag().one());
+      } else this.domFrag().appendTo(this.parent.domFrag().oneElement());
       this.parent.focus();
     }
     this.intervalId = setInterval(this.blink, 500);
@@ -131,7 +131,7 @@ class Cursor extends Point {
   /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    this.domFrag().insAtDirEnd(dir, el.domFrag().one());
+    this.domFrag().insAtDirEnd(dir, el.domFrag().oneElement());
     this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;

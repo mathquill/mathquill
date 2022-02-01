@@ -27,7 +27,7 @@ class TextBlock extends MQNode {
     if (endsL) {
       const children = this.domFrag().children();
       if (!children.isEmpty()) {
-        endsL.setDOMFrag(domFrag(children.one()));
+        endsL.setDOMFrag(domFrag(children.oneText()));
       }
     }
     return this;
@@ -277,11 +277,11 @@ class TextBlock extends MQNode {
 }
 
 function TextBlockFuseChildren(self: TextBlock) {
-  self.domFrag().one().normalize();
+  self.domFrag().oneElement().normalize();
 
   const children = self.domFrag().children();
   if (children.isEmpty()) return;
-  const textPcDom = children.one() as Text;
+  const textPcDom = children.oneText();
   pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
   // nodeType === 3 has meant a Text node since ancient times:
   //   http://reference.sitepoint.com/javascript/Node/nodeType

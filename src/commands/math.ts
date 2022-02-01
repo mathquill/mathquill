@@ -152,7 +152,7 @@ class MathCommand extends MathElement {
     if (replacedFragment) {
       const cmdEndsL = cmd.getEnd(L);
       replacedFragment.adopt(cmdEndsL, 0, 0);
-      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().one());
+      replacedFragment.domFrag().appendTo(cmdEndsL.domFrag().oneElement());
       cmd.placeCursor(cursor);
       cmd.prepareInsertionAt(cursor);
     }
