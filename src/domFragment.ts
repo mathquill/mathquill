@@ -321,16 +321,32 @@ class DOMFragment {
   }
 
   /**
-   * Replace the node represented by this fragment with the given
-   * fragment.
+   * Replace this fragment with the fragment given by `children`. If
+   * this fragment is empty or does not have a parent node, detaches
+   * `children` from the document.
    *
-   * Asserts that this fragment contains exactly one element.
+   * Note that this behavior differs from jQuery if this is a collection
+   * with multiple nodes. In that case, jQuery replaces the first
+   * element of this collection with `children`, and then replaces each
+   * additional element in this collection with a clone of `children`.
+   * DOMFragment replaces this entire fragment with `children` and never
+   * makes additional clones of `children`.
    */
   replaceWith(children: DOMFragment) {
-    const el = this.oneNode();
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.replaceChild(children.toDocumentFragment(), el);
+    const rightEnd = this.ends?.[R];
+
+    // Note: important to cache parent and nextSibling (if they exist)
+    // before detaching this fragment from the document (which will
+    // its parent and sibling references)
+    const parent = rightEnd?.parentNode;
+    const nextSibling = rightEnd?.nextSibling;
+    this.detach();
+    // Note, this purposely detaches children from the document, even if
+    // they can't be reinserted because this fragment is empty or has no
+    // parent
+    const childDocumentFragment = children.toDocumentFragment();
+    if (!rightEnd || !parent) return this;
+    parent.insertBefore(childDocumentFragment, nextSibling || null);
     return this;
   }
 
@@ -517,6 +533,11 @@ class DOMFragment {
 
   /**
    * Remove every node in the fragment from the DOM.
+   *
+   * Implemented by moving every node in the fragment into a new
+   * document fragment in order to preserve the sibling relationships
+   * of the removed element. If you want to get access to this document
+   * fragment, use `.toDocumentFragment()` instead.
    */
   remove() {
     // TODO the corresponding jQuery methods clean up some internal
@@ -533,6 +554,11 @@ class DOMFragment {
 
   /**
    * Remove every node in the fragment from the DOM. Alias of remove.
+   *
+   * Implemented by moving every node in the fragment into a new
+   * document fragment in order to preserve the sibling relationships
+   * of the removed element. If you want to get access to this document
+   * fragment, use `.toDocumentFragment()` instead.
    *
    * Note: jQuery makes a distinction between detach() and remove().
    * remove() cleans up internal references, and detach() does not.
