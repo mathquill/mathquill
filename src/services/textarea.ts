@@ -27,7 +27,7 @@ class Controller extends Controller_scrollHoriz {
     this.textarea = jQToDOMFragment($(textarea))
       .appendTo(jQToDOMFragment(textareaSpan).oneElement())
       .toJQ();
-    this.aria.setContainer(this.textareaSpan);
+    this.aria.setContainer(jQToDOMFragment(textareaSpan).oneElement());
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function () {
@@ -68,10 +68,10 @@ class Controller extends Controller_scrollHoriz {
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     jQToDOMFragment(this.container).prepend(
-      jQToDOMFragment(
-        jQuery('<span aria-hidden="true" class="mq-selectable">').text(
-          '$' + ctrlr.exportLatex() + '$'
-        )
+      DOMFragment.create(
+        h('span', { 'aria-hidden': 'true', class: 'mq-selectable' }, [
+          h.text('$' + ctrlr.exportLatex() + '$'),
+        ])
       )
     );
     this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));

@@ -383,8 +383,8 @@ function getInterface(v: number) {
       target = target || document.elementFromPoint(clientX, clientY);
       var ctrlr = this.__controller,
         root = ctrlr.root;
-      if (!jQuery.contains(root.domFrag().oneElement(), target))
-        target = root.domFrag().oneElement();
+      const rootElement = root.domFrag().oneElement();
+      if (!rootElement.contains(target)) target = rootElement;
       ctrlr.seek($(target), clientX, clientY);
       if (ctrlr.blurred) this.focus();
       return this;

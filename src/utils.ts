@@ -9,11 +9,11 @@ const L: L = -1;
 const R: R = 1;
 type Direction = L | R;
 
-var jQuery = (window as any).jQuery;
 var min = Math.min;
 var max = Math.max;
 
-if (!jQuery) throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
+if (!(window as any).jQuery)
+  throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
 
 function noop() {}
 

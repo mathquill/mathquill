@@ -96,6 +96,7 @@ interface $ {
     duration?: string | number,
     complete?: Function
   ): $;
+  bind(opts: Record<string, boolean | ((evt: any) => any)>): $;
   bind(evt: string, cb: boolean | ((evt: Event) => any)): $;
   unbind(evt: string, cb?: Function, capture?: boolean): $;
   mousemove(cb: (evt: MouseEvent) => any): $;

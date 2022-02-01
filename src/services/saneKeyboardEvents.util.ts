@@ -93,8 +93,8 @@ var saneKeyboardEvents = (function () {
     var keydown: JQ_KeyboardEvent | null = null;
     var keypress: KeyboardEvent | null = null;
 
-    var textarea = jQuery(el);
-    var target = jQuery(controller.container || textarea);
+    var textarea = $(el);
+    var target = $(controller.container || textarea);
 
     // checkTextareaFor() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,
@@ -118,12 +118,9 @@ var saneKeyboardEvents = (function () {
         checker(e);
       });
     }
-    target.bind(
-      'keydown keypress input keyup paste',
-      function (e: KeyboardEvent) {
-        checkTextarea(e);
-      }
-    );
+    target.bind('keydown keypress input keyup paste', function (e: Event) {
+      checkTextarea(e);
+    });
 
     function guardedTextareaSelect() {
       try {
@@ -132,7 +129,7 @@ var saneKeyboardEvents = (function () {
         // likely that we don't really care if the selection
         // fails to happen in this case. Why would the textarea
         // be hidden? And who would even be able to tell?
-        textarea[0].select();
+        (textarea[0] as HTMLTextAreaElement).select();
       } catch (e) {}
     }
 
@@ -157,7 +154,7 @@ var saneKeyboardEvents = (function () {
     // This will always return false in IE < 9, which don't support
     // HTMLTextareaElement::selection{Start,End}.
     function hasSelection() {
-      var dom = textarea[0];
+      var dom = textarea[0] as HTMLTextAreaElement;
 
       if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
@@ -258,7 +255,7 @@ var saneKeyboardEvents = (function () {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
-      var text = textarea.val();
+      var text = (textarea[0] as HTMLTextAreaElement).value;
       if (text.length === 1) {
         textarea.val('');
         if (controller.options && controller.options.overrideTypedText) {
@@ -301,7 +298,7 @@ var saneKeyboardEvents = (function () {
       checkTextareaFor(pastedText);
     }
     function pastedText() {
-      var text = textarea.val();
+      var text = (textarea[0] as HTMLTextAreaElement).value;
       textarea.val('');
       if (text) controller.paste(text);
     }

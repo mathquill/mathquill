@@ -15,8 +15,12 @@ type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
   controller: Controller;
-  jQ = jQuery(
-    '<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>'
+  private domFragment = DOMFragment.create(
+    h('span', {
+      class: 'mq-aria-alert',
+      'aria-live': 'assertive',
+      'aria-atomic': 'true',
+    })
   );
   msg = '';
   items: AriaQueueItem[] = [];
@@ -25,8 +29,8 @@ class Aria {
     this.controller = controller;
   }
 
-  setContainer(el: $) {
-    this.jQ.appendTo(el);
+  setContainer(el: HTMLElement) {
+    this.domFragment.appendTo(el);
   }
 
   queue(item: AriaQueueItem, shouldDescribe: boolean = false) {
@@ -78,7 +82,7 @@ class Aria {
         .replace(/ +(?= )/g, '')
         .trim();
       if (this.controller.containerHasFocus()) {
-        this.jQ.empty().text(this.msg);
+        this.domFragment.oneElement().textContent = this.msg;
       }
     }
     return this.clear();
