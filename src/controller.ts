@@ -4,13 +4,13 @@
 class ControllerBase {
   id: number;
   data: ControllerData;
-  root: ControllerRoot;
+  readonly root: ControllerRoot;
   readonly container: DOMFragment; // TODO: represent as a single element
   options: CursorOptions;
   aria: Aria;
   ariaLabel: string;
   ariaPostLabel: string;
-  cursor: Cursor;
+  readonly cursor: Cursor;
   editable: boolean | undefined;
   _ariaAlertTimeout: number;
   KIND_OF_MQ: KIND_OF_MQ;
