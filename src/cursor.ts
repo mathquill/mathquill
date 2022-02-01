@@ -82,8 +82,8 @@ class Cursor extends Point {
       if (right) {
         var selection = this.selection;
         if (selection && selection.getEnd(L)[L] === this[L])
-          this.domFrag().insertBefore(selection.domFrag().one());
-        else this.domFrag().insertBefore(right.domFrag().firstNode());
+          this.domFrag().insertBefore(selection.domFrag());
+        else this.domFrag().insertBefore(right.domFrag());
       } else this.domFrag().appendTo(this.parent.domFrag().one());
       this.parent.focus();
     }
@@ -199,7 +199,7 @@ class Cursor extends Point {
         .children()
         .adopt(greatgramp, leftward, rightward)
         .each(function (cousin) {
-          cousin.domFrag().insertBefore(gramp.domFrag().firstNode());
+          cousin.domFrag().insertBefore(gramp.domFrag());
           return true;
         });
 

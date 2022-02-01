@@ -228,7 +228,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = newMinusNode;
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
-      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag().one());
+      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag());
     }
 
     // update the text of the current nodes

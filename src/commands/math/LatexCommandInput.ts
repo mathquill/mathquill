@@ -70,7 +70,8 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
-      var el = this.domFrag().one();
+      const frag = this.domFrag();
+      const el = frag.one();
       this._replacedFragment
         .domFrag()
         .addClass('mq-blur')
@@ -84,8 +85,9 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
             return false;
           }
         );
+
       this.setDOMFrag(
-        this._replacedFragment.domFrag().insertBefore(el).join(this.domFrag())
+        this._replacedFragment.domFrag().insertBefore(frag).join(frag)
       );
     }
   }

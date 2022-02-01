@@ -1286,7 +1286,7 @@ class Bracket extends DelimsNode {
       .disown()
       .adopt(this.parent, this, this[R])
       .domFrag()
-      .insertAfter(this.domFrag().one());
+      .insertAfter(this.domFrag());
     this.remove();
   }
   deleteSide(side: Direction, outward: boolean, cursor: Cursor) {

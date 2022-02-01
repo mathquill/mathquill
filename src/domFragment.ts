@@ -207,31 +207,45 @@ class DOMFragment {
 
   /**
    * Insert all the nodes in this fragment into the DOM directly before
-   * `el`.
+   * the first node of `sibling` fragment. If `sibling` is empty or does
+   * not have a parent node, detaches this fragment from the document.
    *
-   * Asserts that `el` has a parentNode.
+   * Note that this behavior differs from jQuery if `sibling` is a
+   * collection with multiple nodes. In that case, jQuery inserts this
+   * collection before the first node in `sibling`, and then inserts a
+   * clone of this collection before each additional node in the
+   * `sibling` collection. DOMFragment only ever inserts this collection
+   * before the first node of the sibling fragment, and never inserts
+   * additional clones.
    */
-  insertBefore(el: ChildNode) {
+  insertBefore(sibling: DOMFragment) {
     if (!this.ends) return this;
+    const el = sibling.ends?.[L];
+    if (!el || !el.parentNode) return this.detach();
 
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), el);
+    el.parentNode.insertBefore(this.toDocumentFragment(), el);
     return this;
   }
 
   /**
    * Insert all the nodes in this fragment into the DOM directly after
-   * `el`.
+   * the last node of `sibling` fragment. If `sibling` is empty or does
+   * not have a parent node, detaches this fragment from the document.
    *
-   * Asserts that `el` has a parentNode.
+   * Note that this behavior differs from jQuery if `sibling` is a
+   * collection with multiple nodes. In that case, jQuery inserts this
+   * collection before the first node in `sibling`, and then inserts a
+   * clone of this collection before each additional node in the
+   * `sibling` collection. DOMFragment only ever inserts this collection
+   * before the first node of the sibling fragment, and never inserts
+   * additional clones.
    */
-  insertAfter(el: ChildNode) {
+  insertAfter(sibling: DOMFragment) {
     if (!this.ends) return this;
+    const el = sibling.ends?.[R];
+    if (!el || !el.parentNode) return this.detach();
 
-    const parent = el.parentNode;
-    pray('parent is defined', parent);
-    parent.insertBefore(this.toDocumentFragment(), el.nextSibling);
+    el.parentNode.insertBefore(this.toDocumentFragment(), el.nextSibling);
     return this;
   }
 
@@ -533,16 +547,12 @@ class DOMFragment {
 
   /**
    * Insert this fragment either just before or just after `sibling`
-   * fragment according to the direction specified by `dir`.
-   *
-   * Asserts `sibling` is not empty.
+   * fragment according to the direction specified by `dir`. If
+   * `sibling` is empty or does not have a parent node, detaches this
+   * fragment from the document.
    */
   insDirOf(dir: Direction, sibling: DOMFragment): DOMFragment {
-    if (!this.ends) return this;
-
-    pray('new sibling is not empty', sibling.ends);
-    const el = sibling.ends[dir];
-    return dir === L ? this.insertBefore(el) : this.insertAfter(el);
+    return dir === L ? this.insertBefore(sibling) : this.insertAfter(sibling);
   }
 
   /**
