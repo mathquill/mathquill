@@ -1,3 +1,7 @@
+/**
+ * Like `el.getBoundingClientRect()` but avoids throwing for
+ * disconnected and hidden elements in IE <= 11.
+ * */
 function getBoundingClientRect(el: HTMLElement): DOMRect {
   // Return zeros for disconnected and hidden (display: none) elements
   // Running getBoundingClientRect on a disconnected node in IE <=11 throws an error
@@ -18,22 +22,30 @@ function getBoundingClientRect(el: HTMLElement): DOMRect {
   return el.getBoundingClientRect();
 }
 
-// In IE9, scrollX was called pageXOffset
-// Previous versions of IE had neither property and use scrollLeft instead
-//
-// https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX#notes
+/**
+ * Returns the number of pixels that the document is currently scrolled
+ * horizontally -- `window.scrollX` in modern browsers.
+ * */
 function getScrollX() {
+  // In IE9, scrollX was called pageXOffset
+  // Previous versions of IE had neither property and use scrollLeft instead
+  //
+  // https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX#notes
   return window.pageXOffset !== undefined
     ? window.pageXOffset
     : (document.documentElement || document.body.parentNode || document.body)
         .scrollLeft;
 }
 
-// In IE9, scrollY was called pageYOffset
-// Previous versions of IE had neither property and use scrollTop instead
-//
-// https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX#notes
+/**
+ * Returns the number of pixels that the document is currently scrolled
+ * vertically -- `window.scrollY` in modern browsers.
+ * */
 function getScrollY() {
+  // In IE9, scrollY was called pageYOffset
+  // Previous versions of IE had neither property and use scrollTop instead
+  //
+  // https://developer.mozilla.org/en-US/docs/Web/API/Window/scrollX#notes
   return window.pageYOffset !== undefined
     ? window.pageYOffset
     : (document.documentElement || document.body.parentNode || document.body)
