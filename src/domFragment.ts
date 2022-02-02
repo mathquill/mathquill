@@ -9,6 +9,26 @@
  * A `DOMFragment` simply holds references to nodes. It doesn't move or
  * mutate them in the way that the native `DocumentFragment` does.
  *
+ * `DOMFragment` implements many of the same methods for manipulating a
+ * collection of DOM elements that jQuery does, but it has some notable
+ * differences:
+ *
+ * 1.  A jQuery collection can hold an arbitrary ordered set of DOM
+ *     elemeents, but a `DOMFragment` can only hold a contiguous span of
+ *     sibling nodes.
+ * 2.  Some jQuery DOM manipulation methods like `insert{Before,After}`,
+ *     `append`, `prepend`, `appendTo`, `prependTo`, etc. may insert
+ *     several clones of a collection into different places in the DOM.
+ *     `DOMFragment` never makes clones of DOM nodes--instead, when
+ *     targeting multi-element fragments, it moves source nodes before
+ *     or after the targeted fragment as appropriate without ever making
+ *     more copies.
+ * 3.  For methods like `.children()`, where it's likely to be a mistake
+ *     to call the method on a fragment that doesn't contain exactly one
+ *     node or element, `DOMFragment` will throw whereas jQuery will
+ *     silently do something possibly unintended. Methods that assert
+ *     are commented with the properties that they assert.
+ *
  * Internally, `DOMFragment` holds immutable references to the left and
  * right end nodes (if the fragment is not empty). The other nodes are
  * represented implicitly through the sibling pointers of the DOM nodes
