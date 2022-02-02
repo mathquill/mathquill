@@ -457,241 +457,271 @@ suite('DOMFragment', function () {
     });
   });
 
-  suite('.insertBefore()', () => {
-    test('is a noop when called on an empty fragment', () => {
-      const children = [h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-      assert.ok(domFrag().insertBefore(domFrag(parent).children()).isValid());
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-    });
+  // .insertBefore(x) === .insDirOf(L, x) so run the same test suite for them
+  for (const { name, apply } of [
+    {
+      name: '.insertBefore()',
+      apply: function (self: DOMFragment, arg: DOMFragment) {
+        return self.insertBefore(arg);
+      },
+    },
+    {
+      name: '.insDirOf(L, ...)',
+      apply: function (self: DOMFragment, arg: DOMFragment) {
+        return self.insDirOf(L, arg);
+      },
+    },
+  ]) {
+    suite(name, () => {
+      test('is a noop when called on an empty fragment', () => {
+        const children = [h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+        assert.ok(apply(domFrag(), domFrag(parent).children()).isValid());
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+      });
 
-    test('detaches this fragment when called with an empty fragment', () => {
-      const children = [h('span'), h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        !domFrag(parent).children().isEmpty(),
-        'parent starts off with children'
-      );
-      assert.ok(domFrag(parent).children().insertBefore(domFrag()).isValid());
-      assert.ok(
-        domFrag(parent).children().isEmpty(),
-        'inserting the parents children somewhere else removes them from parent'
-      );
-    });
+      test('detaches this fragment when called with an empty fragment', () => {
+        const children = [h('span'), h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          !domFrag(parent).children().isEmpty(),
+          'parent starts off with children'
+        );
+        assert.ok(apply(domFrag(parent).children(), domFrag()).isValid());
+        assert.ok(
+          domFrag(parent).children().isEmpty(),
+          'inserting the parents children somewhere else removes them from parent'
+        );
+      });
 
-    test('detaches this fragment when called with a parentless fragment', () => {
-      const children = [h('span'), h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        !domFrag(parent).children().isEmpty(),
-        'parent starts off with children'
-      );
-      assert.ok(
-        domFrag(parent)
-          .children()
-          .insertBefore(domFrag(h('span')))
-          .isValid()
-      );
-      assert.ok(
-        domFrag(parent).children().isEmpty(),
-        'inserting the parents children somewhere else removes them from parent'
-      );
-    });
+      test('detaches this fragment when called with a parentless fragment', () => {
+        const children = [h('span'), h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          !domFrag(parent).children().isEmpty(),
+          'parent starts off with children'
+        );
+        assert.ok(
+          apply(domFrag(parent).children(), domFrag(h('span'))).isValid()
+        );
+        assert.ok(
+          domFrag(parent).children().isEmpty(),
+          'inserting the parents children somewhere else removes them from parent'
+        );
+      });
 
-    test('works correctly with single node targets', () => {
-      const nTargetChildren = 3;
-      for (let i = 0; i < nTargetChildren; i++) {
-        const sourceChildren = [h('span'), h.text('a'), h('span')];
-        const sourceParent = h('span', {}, sourceChildren);
-        const targetChildren = [h('span'), h.text('a'), h('span')];
-        assert.equal(nTargetChildren, targetChildren.length);
-        const targetParent = h('span', {}, targetChildren);
-        assert.ok(
-          !domFrag(sourceParent).children().isEmpty(),
-          'source parent starts off with children'
-        );
-        const targetFrag = domFrag(
-          domFrag(targetParent).children().toNodeArray()[i]
-        );
-        assert.ok(
-          domFrag(sourceParent).children().insertBefore(targetFrag).isValid()
-        );
-        assert.ok(
-          domFrag(sourceParent).children().isEmpty(),
-          'source parent has no children after they are moved'
-        );
-        assert.ok(
-          nodeArraysEqual(
-            domFrag(targetParent).children().toNodeArray(),
-            targetChildren
-              .slice(0, i)
-              .concat(sourceChildren)
-              .concat(targetChildren.slice(i))
-          )
-        );
-      }
-    });
+      test('works correctly with single node targets', () => {
+        const nTargetChildren = 3;
+        for (let i = 0; i < nTargetChildren; i++) {
+          const sourceChildren = [h('span'), h.text('a'), h('span')];
+          const sourceParent = h('span', {}, sourceChildren);
+          const targetChildren = [h('span'), h.text('a'), h('span')];
+          assert.equal(nTargetChildren, targetChildren.length);
+          const targetParent = h('span', {}, targetChildren);
+          assert.ok(
+            !domFrag(sourceParent).children().isEmpty(),
+            'source parent starts off with children'
+          );
+          const targetFrag = domFrag(
+            domFrag(targetParent).children().toNodeArray()[i]
+          );
+          assert.ok(
+            apply(domFrag(sourceParent).children(), targetFrag).isValid()
+          );
+          assert.ok(
+            domFrag(sourceParent).children().isEmpty(),
+            'source parent has no children after they are moved'
+          );
+          assert.ok(
+            nodeArraysEqual(
+              domFrag(targetParent).children().toNodeArray(),
+              targetChildren
+                .slice(0, i)
+                .concat(sourceChildren)
+                .concat(targetChildren.slice(i))
+            )
+          );
+        }
+      });
 
-    test('works correctly with multi node targets', () => {
-      const nTargetChildren = 3;
-      for (let i = 0; i < nTargetChildren; i++) {
-        const sourceChildren = [h('span'), h.text('a'), h('span')];
-        const sourceParent = h('span', {}, sourceChildren);
-        const targetChildren = [h('span'), h.text('a'), h('span')];
-        assert.equal(nTargetChildren, targetChildren.length);
-        const targetParent = h('span', {}, targetChildren);
-        assert.ok(
-          !domFrag(sourceParent).children().isEmpty(),
-          'source parent starts off with children'
-        );
-        const targetNodeArray = domFrag(targetParent).children().toNodeArray();
-        // This makes a sliding window of two adjacent sibling nodes
-        const targetFrag = domFrag(
-          targetNodeArray[i],
-          targetNodeArray[Math.min(i + 1, nTargetChildren - 1)]
-        );
-        assert.ok(
-          domFrag(sourceParent).children().insertBefore(targetFrag).isValid()
-        );
-        assert.ok(
-          domFrag(sourceParent).children().isEmpty(),
-          'source parent has no children after they are moved'
-        );
-        assert.ok(
-          nodeArraysEqual(
-            domFrag(targetParent).children().toNodeArray(),
-            targetChildren
-              .slice(0, i)
-              .concat(sourceChildren)
-              .concat(targetChildren.slice(i))
-          )
-        );
-      }
+      test('works correctly with multi node targets', () => {
+        const nTargetChildren = 3;
+        for (let i = 0; i < nTargetChildren; i++) {
+          const sourceChildren = [h('span'), h.text('a'), h('span')];
+          const sourceParent = h('span', {}, sourceChildren);
+          const targetChildren = [h('span'), h.text('a'), h('span')];
+          assert.equal(nTargetChildren, targetChildren.length);
+          const targetParent = h('span', {}, targetChildren);
+          assert.ok(
+            !domFrag(sourceParent).children().isEmpty(),
+            'source parent starts off with children'
+          );
+          const targetNodeArray = domFrag(targetParent)
+            .children()
+            .toNodeArray();
+          // This makes a sliding window of two adjacent sibling nodes
+          const targetFrag = domFrag(
+            targetNodeArray[i],
+            targetNodeArray[Math.min(i + 1, nTargetChildren - 1)]
+          );
+          assert.ok(
+            apply(domFrag(sourceParent).children(), targetFrag).isValid()
+          );
+          assert.ok(
+            domFrag(sourceParent).children().isEmpty(),
+            'source parent has no children after they are moved'
+          );
+          assert.ok(
+            nodeArraysEqual(
+              domFrag(targetParent).children().toNodeArray(),
+              targetChildren
+                .slice(0, i)
+                .concat(sourceChildren)
+                .concat(targetChildren.slice(i))
+            )
+          );
+        }
+      });
     });
-  });
+  }
 
-  suite('.insertAfter()', () => {
-    test('is a noop when called on an empty fragment', () => {
-      const children = [h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-      assert.ok(domFrag().insertAfter(domFrag(parent).children()).isValid());
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-    });
+  // .insertAfter(x) === .insDirOf(R, x) so run the same test suite for them
+  for (const { name, apply } of [
+    {
+      name: '.insertAfter()',
+      apply: function (self: DOMFragment, arg: DOMFragment) {
+        return self.insertAfter(arg);
+      },
+    },
+    {
+      name: '.insDirOf(R, ...)',
+      apply: function (self: DOMFragment, arg: DOMFragment) {
+        return self.insDirOf(R, arg);
+      },
+    },
+  ]) {
+    suite(name, () => {
+      test('is a noop when called on an empty fragment', () => {
+        const children = [h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+        assert.ok(apply(domFrag(), domFrag(parent).children()).isValid());
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+      });
 
-    test('detaches this fragment when called with an empty fragment', () => {
-      const children = [h('span'), h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        !domFrag(parent).children().isEmpty(),
-        'parent starts off with children'
-      );
-      assert.ok(domFrag(parent).children().insertAfter(domFrag()).isValid());
-      assert.ok(
-        domFrag(parent).children().isEmpty(),
-        'inserting the parents children somewhere else removes them from parent'
-      );
-    });
+      test('detaches this fragment when called with an empty fragment', () => {
+        const children = [h('span'), h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          !domFrag(parent).children().isEmpty(),
+          'parent starts off with children'
+        );
+        assert.ok(apply(domFrag(parent).children(), domFrag()).isValid());
+        assert.ok(
+          domFrag(parent).children().isEmpty(),
+          'inserting the parents children somewhere else removes them from parent'
+        );
+      });
 
-    test('detaches this fragment when called with a parentless fragment', () => {
-      const children = [h('span'), h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        !domFrag(parent).children().isEmpty(),
-        'parent starts off with children'
-      );
-      assert.ok(
-        domFrag(parent)
-          .children()
-          .insertAfter(domFrag(h('span')))
-          .isValid()
-      );
-      assert.ok(
-        domFrag(parent).children().isEmpty(),
-        'inserting the parents children somewhere else removes them from parent'
-      );
-    });
+      test('detaches this fragment when called with a parentless fragment', () => {
+        const children = [h('span'), h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          !domFrag(parent).children().isEmpty(),
+          'parent starts off with children'
+        );
+        assert.ok(
+          apply(domFrag(parent).children(), domFrag(h('span'))).isValid()
+        );
+        assert.ok(
+          domFrag(parent).children().isEmpty(),
+          'inserting the parents children somewhere else removes them from parent'
+        );
+      });
 
-    test('works correctly with single node targets', () => {
-      const nTargetChildren = 3;
-      for (let i = 0; i < nTargetChildren; i++) {
-        const sourceChildren = [h('span'), h.text('a'), h('span')];
-        const sourceParent = h('span', {}, sourceChildren);
-        const targetChildren = [h('span'), h.text('a'), h('span')];
-        assert.equal(nTargetChildren, targetChildren.length);
-        const targetParent = h('span', {}, targetChildren);
-        assert.ok(
-          !domFrag(sourceParent).children().isEmpty(),
-          'source parent starts off with children'
-        );
-        const targetFrag = domFrag(
-          domFrag(targetParent).children().toNodeArray()[i]
-        );
-        assert.ok(
-          domFrag(sourceParent).children().insertAfter(targetFrag).isValid()
-        );
-        assert.ok(
-          domFrag(sourceParent).children().isEmpty(),
-          'source parent has no children after they are moved'
-        );
-        assert.ok(
-          nodeArraysEqual(
-            domFrag(targetParent).children().toNodeArray(),
-            targetChildren
-              .slice(0, i + 1)
-              .concat(sourceChildren)
-              .concat(targetChildren.slice(i + 1))
-          )
-        );
-      }
-    });
+      test('works correctly with single node targets', () => {
+        const nTargetChildren = 3;
+        for (let i = 0; i < nTargetChildren; i++) {
+          const sourceChildren = [h('span'), h.text('a'), h('span')];
+          const sourceParent = h('span', {}, sourceChildren);
+          const targetChildren = [h('span'), h.text('a'), h('span')];
+          assert.equal(nTargetChildren, targetChildren.length);
+          const targetParent = h('span', {}, targetChildren);
+          assert.ok(
+            !domFrag(sourceParent).children().isEmpty(),
+            'source parent starts off with children'
+          );
+          const targetFrag = domFrag(
+            domFrag(targetParent).children().toNodeArray()[i]
+          );
+          assert.ok(
+            apply(domFrag(sourceParent).children(), targetFrag).isValid()
+          );
+          assert.ok(
+            domFrag(sourceParent).children().isEmpty(),
+            'source parent has no children after they are moved'
+          );
+          assert.ok(
+            nodeArraysEqual(
+              domFrag(targetParent).children().toNodeArray(),
+              targetChildren
+                .slice(0, i + 1)
+                .concat(sourceChildren)
+                .concat(targetChildren.slice(i + 1))
+            )
+          );
+        }
+      });
 
-    test('works correctly with multi node targets', () => {
-      const nTargetChildren = 3;
-      for (let i = 0; i < nTargetChildren; i++) {
-        const sourceChildren = [h('span'), h.text('a'), h('span')];
-        const sourceParent = h('span', {}, sourceChildren);
-        const targetChildren = [h('span'), h.text('a'), h('span')];
-        assert.equal(nTargetChildren, targetChildren.length);
-        const targetParent = h('span', {}, targetChildren);
-        assert.ok(
-          !domFrag(sourceParent).children().isEmpty(),
-          'source parent starts off with children'
-        );
-        const targetNodeArray = domFrag(targetParent).children().toNodeArray();
-        // This makes a sliding window of two adjacent sibling nodes
-        const targetFrag = domFrag(
-          targetNodeArray[Math.max(i - 1, 0)],
-          targetNodeArray[i]
-        );
-        assert.ok(
-          domFrag(sourceParent).children().insertAfter(targetFrag).isValid()
-        );
-        assert.ok(
-          domFrag(sourceParent).children().isEmpty(),
-          'source parent has no children after they are moved'
-        );
-        assert.ok(
-          nodeArraysEqual(
-            domFrag(targetParent).children().toNodeArray(),
-            targetChildren
-              .slice(0, i + 1)
-              .concat(sourceChildren)
-              .concat(targetChildren.slice(i + 1))
-          )
-        );
-      }
+      test('works correctly with multi node targets', () => {
+        const nTargetChildren = 3;
+        for (let i = 0; i < nTargetChildren; i++) {
+          const sourceChildren = [h('span'), h.text('a'), h('span')];
+          const sourceParent = h('span', {}, sourceChildren);
+          const targetChildren = [h('span'), h.text('a'), h('span')];
+          assert.equal(nTargetChildren, targetChildren.length);
+          const targetParent = h('span', {}, targetChildren);
+          assert.ok(
+            !domFrag(sourceParent).children().isEmpty(),
+            'source parent starts off with children'
+          );
+          const targetNodeArray = domFrag(targetParent)
+            .children()
+            .toNodeArray();
+          // This makes a sliding window of two adjacent sibling nodes
+          const targetFrag = domFrag(
+            targetNodeArray[Math.max(i - 1, 0)],
+            targetNodeArray[i]
+          );
+          assert.ok(
+            apply(domFrag(sourceParent).children(), targetFrag).isValid()
+          );
+          assert.ok(
+            domFrag(sourceParent).children().isEmpty(),
+            'source parent has no children after they are moved'
+          );
+          assert.ok(
+            nodeArraysEqual(
+              domFrag(targetParent).children().toNodeArray(),
+              targetChildren
+                .slice(0, i + 1)
+                .concat(sourceChildren)
+                .concat(targetChildren.slice(i + 1))
+            )
+          );
+        }
+      });
     });
-  });
+  }
 
   suite('.append()', () => {
     test('is a noop when called with an empty fragment', () => {
@@ -877,141 +907,173 @@ suite('DOMFragment', function () {
     });
   });
 
-  suite('.appendTo()', () => {
-    test('is a noop when this is an empty fragment', () => {
-      const children = [h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-      assert.ok(domFrag().appendTo(domFrag(parent).oneElement()).isValid());
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-    });
+  // .appendTo(x) === .insAtDirEnd(R, x) so run the same test suite for them
+  for (const { name, apply } of [
+    {
+      name: '.appendTo()',
+      apply: function (self: DOMFragment, arg: HTMLElement) {
+        return self.appendTo(arg);
+      },
+    },
+    {
+      name: '.insAtDirEnd(R, ...)',
+      apply: function (self: DOMFragment, arg: HTMLElement) {
+        return self.insAtDirEnd(R, arg);
+      },
+    },
+  ]) {
+    suite(name, () => {
+      test('is a noop when this is an empty fragment', () => {
+        const children = [h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+        assert.ok(apply(domFrag(), domFrag(parent).oneElement()).isValid());
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+      });
 
-    test('works correctly on target with no children', () => {
-      const sourceChildren = [h('span'), h.text('text'), h('span')];
-      const sourceParent = h('span', {}, sourceChildren);
-      const target = h('span');
-      assert.ok(domFrag(target).children().isEmpty());
-      assert.ok(
-        domFrag(sourceParent)
-          .children()
-          .appendTo(domFrag(target).oneElement())
-          .isValid()
-      );
-      assert.ok(
-        domFrag(sourceParent).children().isEmpty(),
-        'source parent has no children after moving them'
-      );
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(target).children().toNodeArray(),
-          sourceChildren
-        ),
-        'all source children moved to target children'
-      );
-    });
+      test('works correctly on target with no children', () => {
+        const sourceChildren = [h('span'), h.text('text'), h('span')];
+        const sourceParent = h('span', {}, sourceChildren);
+        const target = h('span');
+        assert.ok(domFrag(target).children().isEmpty());
+        assert.ok(
+          apply(
+            domFrag(sourceParent).children(),
+            domFrag(target).oneElement()
+          ).isValid()
+        );
+        assert.ok(
+          domFrag(sourceParent).children().isEmpty(),
+          'source parent has no children after moving them'
+        );
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(target).children().toNodeArray(),
+            sourceChildren
+          ),
+          'all source children moved to target children'
+        );
+      });
 
-    test('works correctly on target with children', () => {
-      const sourceChildren = [h('span'), h.text('text'), h('span')];
-      const sourceParent = h('span', {}, sourceChildren);
-      const targetChildren = [h('span'), h.text('text'), h('span')];
-      const targetParent = h('span', {}, targetChildren);
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(targetParent).children().toNodeArray(),
-          targetChildren
-        )
-      );
-      assert.ok(
-        domFrag(sourceParent)
-          .children()
-          .appendTo(domFrag(targetParent).oneElement())
-          .isValid()
-      );
-      assert.ok(
-        domFrag(sourceParent).children().isEmpty(),
-        'source parent has no children after moving them'
-      );
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(targetParent).children().toNodeArray(),
-          targetChildren.concat(sourceChildren)
-        ),
-        'all source children moved to target children'
-      );
+      test('works correctly on target with children', () => {
+        const sourceChildren = [h('span'), h.text('text'), h('span')];
+        const sourceParent = h('span', {}, sourceChildren);
+        const targetChildren = [h('span'), h.text('text'), h('span')];
+        const targetParent = h('span', {}, targetChildren);
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(targetParent).children().toNodeArray(),
+            targetChildren
+          )
+        );
+        assert.ok(
+          apply(
+            domFrag(sourceParent).children(),
+            domFrag(targetParent).oneElement()
+          ).isValid()
+        );
+        assert.ok(
+          domFrag(sourceParent).children().isEmpty(),
+          'source parent has no children after moving them'
+        );
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(targetParent).children().toNodeArray(),
+            targetChildren.concat(sourceChildren)
+          ),
+          'all source children moved to target children'
+        );
+      });
     });
-  });
+  }
 
-  suite('.prependTo()', () => {
-    test('is a noop when this is an empty fragment', () => {
-      const children = [h('span')];
-      const parent = h('span', {}, children);
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-      assert.ok(domFrag().prependTo(domFrag(parent).oneElement()).isValid());
-      assert.ok(
-        nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
-      );
-    });
+  // .prependTo(x) === .insAtDirEnd(L, x) so run the same test suite for them
+  for (const { name, apply } of [
+    {
+      name: '.prependTo()',
+      apply: function (self: DOMFragment, arg: HTMLElement) {
+        return self.prependTo(arg);
+      },
+    },
+    {
+      name: '.insAtDirEnd(L, ...)',
+      apply: function (self: DOMFragment, arg: HTMLElement) {
+        return self.insAtDirEnd(L, arg);
+      },
+    },
+  ]) {
+    suite(name, () => {
+      test('is a noop when this is an empty fragment', () => {
+        const children = [h('span')];
+        const parent = h('span', {}, children);
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+        assert.ok(apply(domFrag(), domFrag(parent).oneElement()).isValid());
+        assert.ok(
+          nodeArraysEqual(domFrag(parent).children().toNodeArray(), children)
+        );
+      });
 
-    test('works correctly on target with no children', () => {
-      const sourceChildren = [h('span'), h.text('text'), h('span')];
-      const sourceParent = h('span', {}, sourceChildren);
-      const target = h('span');
-      assert.ok(domFrag(target).children().isEmpty());
-      assert.ok(
-        domFrag(sourceParent)
-          .children()
-          .prependTo(domFrag(target).oneElement())
-          .isValid()
-      );
-      assert.ok(
-        domFrag(sourceParent).children().isEmpty(),
-        'source parent has no children after moving them'
-      );
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(target).children().toNodeArray(),
-          sourceChildren
-        ),
-        'all source children moved to target children'
-      );
-    });
+      test('works correctly on target with no children', () => {
+        const sourceChildren = [h('span'), h.text('text'), h('span')];
+        const sourceParent = h('span', {}, sourceChildren);
+        const target = h('span');
+        assert.ok(domFrag(target).children().isEmpty());
+        assert.ok(
+          apply(
+            domFrag(sourceParent).children(),
+            domFrag(target).oneElement()
+          ).isValid()
+        );
+        assert.ok(
+          domFrag(sourceParent).children().isEmpty(),
+          'source parent has no children after moving them'
+        );
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(target).children().toNodeArray(),
+            sourceChildren
+          ),
+          'all source children moved to target children'
+        );
+      });
 
-    test('works correctly on target with children', () => {
-      const sourceChildren = [h('span'), h.text('text'), h('span')];
-      const sourceParent = h('span', {}, sourceChildren);
-      const targetChildren = [h('span'), h.text('text'), h('span')];
-      const targetParent = h('span', {}, targetChildren);
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(targetParent).children().toNodeArray(),
-          targetChildren
-        )
-      );
-      assert.ok(
-        domFrag(sourceParent)
-          .children()
-          .prependTo(domFrag(targetParent).oneElement())
-          .isValid()
-      );
-      assert.ok(
-        domFrag(sourceParent).children().isEmpty(),
-        'source parent has no children after moving them'
-      );
-      assert.ok(
-        nodeArraysEqual(
-          domFrag(targetParent).children().toNodeArray(),
-          sourceChildren.concat(targetChildren)
-        ),
-        'all source children moved to target children'
-      );
+      test('works correctly on target with children', () => {
+        const sourceChildren = [h('span'), h.text('text'), h('span')];
+        const sourceParent = h('span', {}, sourceChildren);
+        const targetChildren = [h('span'), h.text('text'), h('span')];
+        const targetParent = h('span', {}, targetChildren);
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(targetParent).children().toNodeArray(),
+            targetChildren
+          )
+        );
+        assert.ok(
+          apply(
+            domFrag(sourceParent).children(),
+            domFrag(targetParent).oneElement()
+          ).isValid()
+        );
+        assert.ok(
+          domFrag(sourceParent).children().isEmpty(),
+          'source parent has no children after moving them'
+        );
+        assert.ok(
+          nodeArraysEqual(
+            domFrag(targetParent).children().toNodeArray(),
+            sourceChildren.concat(targetChildren)
+          ),
+          'all source children moved to target children'
+        );
+      });
     });
-  });
+  }
 
   suite('.parent()', () => {
     test('returns an empty fragment when this is an empty fragment', () => {
