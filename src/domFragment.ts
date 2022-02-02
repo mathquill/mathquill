@@ -280,12 +280,7 @@ class DOMFragment {
    * additional clones.
    */
   insertBefore(sibling: DOMFragment) {
-    if (!this.ends) return this;
-    const el = sibling.ends?.[L];
-    if (!el || !el.parentNode) return this.detach();
-
-    el.parentNode.insertBefore(this.toDocumentFragment(), el);
-    return this;
+    return this.insDirOf(L, sibling);
   }
 
   /**
@@ -302,12 +297,7 @@ class DOMFragment {
    * additional clones.
    */
   insertAfter(sibling: DOMFragment) {
-    if (!this.ends) return this;
-    const el = sibling.ends?.[R];
-    if (!el || !el.parentNode) return this.detach();
-
-    el.parentNode.insertBefore(this.toDocumentFragment(), el.nextSibling);
-    return this;
+    return this.insDirOf(R, sibling);
   }
 
   /**
@@ -316,9 +306,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Element.
    */
   append(children: DOMFragment) {
-    if (!children.ends) return this;
-    const el = this.oneElement();
-    el.appendChild(children.toDocumentFragment());
+    children.appendTo(this.oneElement());
     return this;
   }
 
@@ -328,9 +316,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Element.
    */
   prepend(children: DOMFragment) {
-    if (!children.ends) return this;
-    const el = this.oneElement();
-    el.insertBefore(children.toDocumentFragment(), el.firstChild);
+    children.prependTo(this.oneElement());
     return this;
   }
 
@@ -338,18 +324,14 @@ class DOMFragment {
    * Append all the nodes in this fragment to the children of `el`.
    */
   appendTo(el: HTMLElement) {
-    if (!this.ends) return this;
-    el.appendChild(this.toDocumentFragment());
-    return this;
+    return this.insAtDirEnd(R, el);
   }
 
   /**
    * Prepend all the nodes in this fragment to the children of `el`.
    */
   prependTo(el: HTMLElement) {
-    if (!this.ends) return this;
-    el.insertBefore(this.toDocumentFragment(), el.firstChild);
-    return this;
+    return this.insAtDirEnd(L, el);
   }
 
   /**
@@ -604,7 +586,11 @@ class DOMFragment {
    * fragment from the document.
    */
   insDirOf(dir: Direction, sibling: DOMFragment): DOMFragment {
-    return dir === L ? this.insertBefore(sibling) : this.insertAfter(sibling);
+    if (!this.ends) return this;
+    const el = sibling.ends?.[dir];
+    if (!el || !el.parentNode) return this.detach();
+    _insDirOf(dir, el.parentNode, this.toDocumentFragment(), el);
+    return this;
   }
 
   /**
@@ -612,7 +598,9 @@ class DOMFragment {
    * its children, according to the direction specified by `dir`.
    */
   insAtDirEnd(dir: Direction, el: HTMLElement): DOMFragment {
-    return dir === L ? this.prependTo(el) : this.appendTo(el);
+    if (!this.ends) return this;
+    _insAtDirEnd(dir, this.toDocumentFragment(), el);
+    return this;
   }
 
   /**
@@ -676,6 +664,35 @@ class DOMFragment {
 }
 
 const domFrag = DOMFragment.create;
+
+/**
+ * Insert `source` before or after `target` child of `parent` denending
+ * on `dir`. Only intended to be used internally as a helper in this module
+ */
+function _insDirOf(
+  dir: Direction,
+  parent: ParentNode,
+  source: ChildNode | DocumentFragment,
+  target: ChildNode
+) {
+  parent.insertBefore(source, dir === L ? target : target.nextSibling);
+}
+
+/**
+ * Insert `source` before or after `target` child of `parent` denending
+ * on `dir`. Only intended to be used internally as a helper in this module
+ */
+function _insAtDirEnd(
+  dir: Direction,
+  source: ChildNode | DocumentFragment,
+  parent: ParentNode
+) {
+  if (dir === L) {
+    parent.insertBefore(source, parent.firstChild);
+  } else {
+    parent.appendChild(source);
+  }
+}
 
 function jQToDOMFragment(jQ: $) {
   if (jQ.length === 0) return domFrag();

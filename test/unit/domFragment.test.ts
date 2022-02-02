@@ -742,6 +742,9 @@ suite('DOMFragment', function () {
       assert.throws(() => {
         domFrag().append(domFrag(parent).children());
       });
+      assert.throws(() => {
+        domFrag().append(domFrag());
+      });
     });
 
     test('throws on attempt to target a multi-node fragment', () => {
@@ -753,6 +756,9 @@ suite('DOMFragment', function () {
         domFrag(targetParent)
           .children()
           .append(domFrag(sourceParent).children());
+      });
+      assert.throws(() => {
+        domFrag(targetParent).children().append(domFrag());
       });
     });
 
@@ -815,7 +821,7 @@ suite('DOMFragment', function () {
   });
 
   suite('.prepend()', () => {
-    test('is a noop when called with an empty fragment', () => {
+    test('is a noop when called on a one element fragment with an empty fragment', () => {
       const children = [h('span')];
       const parent = h('span', {}, children);
       assert.ok(
@@ -833,6 +839,9 @@ suite('DOMFragment', function () {
       assert.throws(() => {
         domFrag().prepend(domFrag(parent).children());
       });
+      assert.throws(() => {
+        domFrag().prepend(domFrag());
+      });
     });
 
     test('throws on attempt to target a multi-node fragment', () => {
@@ -844,6 +853,9 @@ suite('DOMFragment', function () {
         domFrag(targetParent)
           .children()
           .prepend(domFrag(sourceParent).children());
+      });
+      assert.throws(() => {
+        domFrag(targetParent).children().prepend(domFrag());
       });
     });
 
