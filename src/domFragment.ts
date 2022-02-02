@@ -36,9 +36,7 @@ class DOMFragment {
     if (arguments.length === 1) last = first;
     pray('No half-empty DOMFragments', !!first === !!last);
     const out = new DOMFragment(first, last);
-    let maybeLast: ChildNode | undefined;
-    out.eachNode((el) => (maybeLast = el));
-    pray('last is a forward sibling of first', maybeLast === last);
+    pray('last is a forward sibling of first', out.isValid());
     return out;
   }
 
@@ -59,11 +57,63 @@ class DOMFragment {
   }
 
   /**
+   * Returns true if the fragment is empty or if its last node is equal
+   * to its first node or is a forward sibling of its first node.
+   *
+   * DOMFragments may be invalidated if any of the nodes they contain
+   * are moved or removed independently of the other nodes they contain.
+   */
+  isValid(): boolean {
+    if (!this.ends) return true;
+    let maybeLast: ChildNode | undefined;
+    this.eachNode((el) => (maybeLast = el));
+    return maybeLast === this.ends[R];
+  }
+
+  /**
+   * Return the first Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  firstNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[L];
+  }
+
+  /**
+   * Return the last Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  lastNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[R];
+  }
+
+  /**
+   * Return a fragment representing the children (including Text and
+   * Comment nodes) of the node represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one Node.
+   *
+   * Note, because this includes text and comment nodes, this is more
+   * like jQuery's .contents() than jQuery's .children()
+   */
+  children() {
+    const el = this.oneNode();
+    const first = el.firstChild;
+    const last = el.lastChild;
+    return first && last ? new DOMFragment(first, last) : new DOMFragment();
+  }
+
+  /**
    * Return a new `DOMFragment` spanning this fragment and `sibling`
    * fragment. Does not perform any DOM operations.
    *
    * Asserts that `sibling` is either empty or a forward sibling of
-   * `this`.
+   * this fragment that does not overlap this fragment.
    */
   join(sibling: DOMFragment) {
     if (!this.ends) return sibling;
@@ -71,7 +121,7 @@ class DOMFragment {
 
     // Check if sibling is actually a sibling of this span
     let found = false;
-    let current: ChildNode | null = this.ends[R];
+    let current: ChildNode | null = this.ends[R].nextSibling;
     while (current) {
       if (current === sibling.ends[L]) {
         found = true;
@@ -171,6 +221,16 @@ class DOMFragment {
     this.eachNode((node) => {
       accum += node.textContent || '';
     });
+    return accum;
+  }
+
+  /**
+   * Returns an array of all the Nodes in this fragment, including nodes
+   * that are not Element nodes such as Text and Comment nodes;
+   */
+  toNodeArray() {
+    const accum: ChildNode[] = [];
+    this.eachNode((el) => accum.push(el));
     return accum;
   }
 
@@ -337,7 +397,7 @@ class DOMFragment {
 
     // Note: important to cache parent and nextSibling (if they exist)
     // before detaching this fragment from the document (which will
-    // its parent and sibling references)
+    // mutate its parent and sibling references)
     const parent = rightEnd?.parentNode;
     const nextSibling = rightEnd?.nextSibling;
     this.detach();
@@ -351,22 +411,6 @@ class DOMFragment {
   }
 
   /**
-   * Return a fragment representing the children (including Text and
-   * Comment nodes) of the node represented by this fragment.
-   *
-   * Asserts that this fragment contains exactly one Node.
-   *
-   * Note, because this includes text and comment nodes, this is more
-   * like jQuery's .contents() than jQuery's .children()
-   */
-  children() {
-    const el = this.oneNode();
-    const first = el.firstChild;
-    const last = el.lastChild;
-    return first && last ? new DOMFragment(first, last) : new DOMFragment();
-  }
-
-  /**
    * Return the nth Element node of this collection, or undefined if
    * there is no nth Element. Skips Nodes that are not Elements (e.g.
    * Text and Comment nodes).
@@ -376,6 +420,7 @@ class DOMFragment {
    */
   nthElement(n: number): HTMLElement | undefined {
     if (!this.ends) return undefined;
+    if (n < 0 || n !== Math.floor(n)) return undefined;
     let current: ChildNode | null = this.ends[L];
     while (current) {
       // Only count element nodes
@@ -387,28 +432,6 @@ class DOMFragment {
       current = current.nextSibling;
     }
     return undefined;
-  }
-
-  /**
-   * Return the first Node of this fragment. May be a a Node that is not
-   * an Element such as a Text or Comment node.
-   *
-   * Asserts fragment is not empty.
-   */
-  firstNode() {
-    pray('Fragment is not empty', this.ends);
-    return this.ends[L];
-  }
-
-  /**
-   * Return the last Node of this fragment. May be a a Node that is not
-   * an Element such as a Text or Comment node.
-   *
-   * Asserts fragment is not empty.
-   */
-  lastNode() {
-    pray('Fragment is not empty', this.ends);
-    return this.ends[L];
   }
 
   /**
@@ -474,6 +497,8 @@ class DOMFragment {
    * Nodes that are not Elements (e.g. Text and Comment nodes).
    */
   slice(n: number) {
+    // Note, would be reasonable to extend this to take a second
+    // argument if we ever find we need this
     if (!this.ends) return this;
     const el = this.nthElement(n);
     if (!el) return new DOMFragment();
