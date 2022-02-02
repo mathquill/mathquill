@@ -1220,8 +1220,8 @@ suite('DOMFragment', function () {
         h.text('text'),
         h('span'),
         h.text('text'),
-      ];
-      const parent = h('span', {}, children);
+      ] as const;
+      const parent = h('span', {}, children as unknown as ChildNode[]);
       const frag = domFrag(parent).children();
       const elements = [children[1], children[3]];
       for (let i = 0; i < elements.length; i++) {
@@ -1245,8 +1245,8 @@ suite('DOMFragment', function () {
         h.text('text'),
         h('span'),
         h.text('text'),
-      ];
-      const parent = h('span', {}, children);
+      ] as const;
+      const parent = h('span', {}, children as unknown as ChildNode[]);
       const frag = domFrag(parent).children();
       assert.equal(frag.firstElement(), children[1]);
     });
@@ -1267,8 +1267,8 @@ suite('DOMFragment', function () {
         h.text('text'),
         h('span'),
         h.text('text'),
-      ];
-      const parent = h('span', {}, children);
+      ] as const;
+      const parent = h('span', {}, children as unknown as ChildNode[]);
       const frag = domFrag(parent).children();
       assert.equal(frag.lastElement(), children[3]);
     });
