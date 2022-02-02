@@ -1464,4 +1464,160 @@ suite('DOMFragment', function () {
       });
     });
   }
+
+  suite('.hasClass()', () => {
+    test('is always false for an empty fragment', () => {
+      assert.ok(!domFrag().hasClass('cls'));
+    });
+    test('returns false for a one element fragment that does not have the class', () => {
+      assert.ok(!domFrag(h('span')).hasClass('cls'));
+    });
+    test('returns true if a one element fragment does have the class', () => {
+      assert.ok(domFrag(h('span', { class: 'cls' })).hasClass('cls'));
+    });
+    test('returns false if no element of a multi-element fragment has the class', () => {
+      const children = [h('span'), h.text('text'), h('span')];
+      const parent = h('span', {}, children);
+      assert.ok(!domFrag(parent).children().hasClass('cls'));
+    });
+    test('returns true if any element of a multi-element fragment has the class', () => {
+      const nChildren = 3;
+      for (let i = 0; i <= nChildren; i++) {
+        const filler = [h('span'), h.text('text'), h('span')];
+        assert.equal(filler.length, nChildren);
+        const children = filler
+          .slice(0, i)
+          .concat(h('span', { class: 'a cls b' }))
+          .concat(filler.slice(i));
+        const parent = h('span', {}, children);
+        assert.ok(domFrag(parent).children().hasClass('cls'));
+      }
+    });
+  });
+
+  suite('.addClass()', () => {
+    test('is a noop for an empty fragment', () => {
+      assert.ok(domFrag().addClass('cls').isValid());
+    });
+    test('is a noop for a fragment with no elements', () => {
+      assert.ok(domFrag(h.text('text')).addClass('cls').isValid());
+    });
+    test('adds class to each element of a multi-element fragment', () => {
+      const children = [
+        h('span', { class: 'a b' }),
+        h.text('text'),
+        h('span', { class: 'c' }),
+        h('span', { class: 'cls' }),
+      ] as const;
+      // Making children a tuple so we know we can read the classname
+      // of the first and last element, but TS doesn't like handing a
+      // type this specific to h
+      const parent = h('span', {}, children as unknown as ChildNode[]);
+      assert.equal(children[0].className, 'a b');
+      assert.equal(children[2].className, 'c');
+      assert.equal(children[3].className, 'cls');
+      domFrag(parent).children().addClass('cls');
+      assert.equal(children[0].className, 'a b cls');
+      assert.equal(children[2].className, 'c cls');
+      assert.equal(children[3].className, 'cls');
+    });
+  });
+
+  suite('.removeClass()', () => {
+    test('is a noop for an empty fragment', () => {
+      assert.ok(domFrag().removeClass('cls').isValid());
+    });
+    test('is a noop for a fragment with no elements', () => {
+      assert.ok(domFrag(h.text('text')).removeClass('cls').isValid());
+    });
+    test('removes class from each element of a multi-element fragment', () => {
+      const children = [
+        h('span', { class: 'a cls b' }),
+        h.text('text'),
+        h('span', { class: 'c cls' }),
+        h('span', { class: 'd' }),
+      ] as const;
+      // Making children a tuple so we know we can read the classname
+      // of the first and last element, but TS doesn't like handing a
+      // type this specific to h
+      const parent = h('span', {}, children as unknown as ChildNode[]);
+      assert.equal(children[0].className, 'a cls b');
+      assert.equal(children[2].className, 'c cls');
+      assert.equal(children[3].className, 'd');
+      domFrag(parent).children().removeClass('cls');
+      assert.equal(children[0].className, 'a b');
+      assert.equal(children[2].className, 'c');
+      assert.equal(children[3].className, 'd');
+    });
+  });
+
+  suite('.toggleClass()', () => {
+    test('is a noop for an empty fragment', () => {
+      assert.ok(domFrag().toggleClass('cls').isValid());
+      assert.ok(domFrag().toggleClass('cls', true).isValid());
+      assert.ok(domFrag().toggleClass('cls', false).isValid());
+    });
+    test('is a noop for a fragment with no elements', () => {
+      assert.ok(domFrag(h.text('text')).toggleClass('cls').isValid());
+      assert.ok(domFrag(h.text('text')).toggleClass('cls', true).isValid());
+      assert.ok(domFrag(h.text('text')).toggleClass('cls', false).isValid());
+    });
+    test('with one argumet, toggles class to each element of a multi-element fragment', () => {
+      const children = [
+        h('span', { class: 'a b' }),
+        h.text('text'),
+        h('span', { class: 'c' }),
+        h('span', { class: 'cls' }),
+      ] as const;
+      // Making children a tuple so we know we can read the classname
+      // of the first and last element, but TS doesn't like handing a
+      // type this specific to h
+      const parent = h('span', {}, children as unknown as ChildNode[]);
+      assert.equal(children[0].className, 'a b');
+      assert.equal(children[2].className, 'c');
+      assert.equal(children[3].className, 'cls');
+      domFrag(parent).children().toggleClass('cls');
+      assert.equal(children[0].className, 'a b cls');
+      assert.equal(children[2].className, 'c cls');
+      assert.equal(children[3].className, '');
+    });
+    test('when second argument is true, adds class to each element of a multi-element fragment', () => {
+      const children = [
+        h('span', { class: 'a b' }),
+        h.text('text'),
+        h('span', { class: 'c' }),
+        h('span', { class: 'cls' }),
+      ] as const;
+      // Making children a tuple so we know we can read the classname
+      // of the first and last element, but TS doesn't like handing a
+      // type this specific to h
+      const parent = h('span', {}, children as unknown as ChildNode[]);
+      assert.equal(children[0].className, 'a b');
+      assert.equal(children[2].className, 'c');
+      assert.equal(children[3].className, 'cls');
+      domFrag(parent).children().toggleClass('cls', true);
+      assert.equal(children[0].className, 'a b cls');
+      assert.equal(children[2].className, 'c cls');
+      assert.equal(children[3].className, 'cls');
+    });
+    test('when second argument is false, removes class to each element of a multi-element fragment', () => {
+      const children = [
+        h('span', { class: 'a b cls' }),
+        h.text('text'),
+        h('span', { class: 'c cls' }),
+        h('span', { class: 'd' }),
+      ] as const;
+      // Making children a tuple so we know we can read the classname
+      // of the first and last element, but TS doesn't like handing a
+      // type this specific to h
+      const parent = h('span', {}, children as unknown as ChildNode[]);
+      assert.equal(children[0].className, 'a b cls');
+      assert.equal(children[2].className, 'c cls');
+      assert.equal(children[3].className, 'd');
+      domFrag(parent).children().toggleClass('cls', false);
+      assert.equal(children[0].className, 'a b');
+      assert.equal(children[2].className, 'c');
+      assert.equal(children[3].className, 'd');
+    });
+  });
 });

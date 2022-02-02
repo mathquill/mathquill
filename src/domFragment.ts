@@ -665,7 +665,7 @@ class DOMFragment {
   toggleClass(classNames: string, on?: boolean) {
     if (on === true) return this.addClass(classNames);
     if (on === false) return this.removeClass(classNames);
-    for (const className of classNames.split(/s+/)) {
+    for (const className of classNames.split(/\s+/)) {
       if (!className) continue;
       this.eachElement((el) => {
         el.classList.toggle(className);
