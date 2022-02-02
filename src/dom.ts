@@ -33,12 +33,12 @@ interface HtmlBuilder {
   (
     type: HTMLTagName,
     attributes?: CreateElementAttributes,
-    children?: (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
+    children?: readonly (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
   ): HTMLElement;
   (
     type: SVGTagName,
     attributes?: CreateElementAttributes,
-    children?: (ChildNode | DocumentFragment)[]
+    children?: readonly (ChildNode | DocumentFragment)[]
   ): SVGElement;
 
   text(s: string): Text;

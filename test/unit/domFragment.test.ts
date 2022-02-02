@@ -1221,7 +1221,7 @@ suite('DOMFragment', function () {
         h('span'),
         h.text('text'),
       ] as const;
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       const frag = domFrag(parent).children();
       const elements = [children[1], children[3]];
       for (let i = 0; i < elements.length; i++) {
@@ -1246,7 +1246,7 @@ suite('DOMFragment', function () {
         h('span'),
         h.text('text'),
       ] as const;
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       const frag = domFrag(parent).children();
       assert.equal(frag.firstElement(), children[1]);
     });
@@ -1268,7 +1268,7 @@ suite('DOMFragment', function () {
         h('span'),
         h.text('text'),
       ] as const;
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       const frag = domFrag(parent).children();
       assert.equal(frag.lastElement(), children[3]);
     });
@@ -1586,7 +1586,7 @@ suite('DOMFragment', function () {
       // Making children a tuple so we know we can read the classname
       // of the first and last element, but TS doesn't like handing a
       // type this specific to h
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       assert.equal(children[0].className, 'a b');
       assert.equal(children[2].className, 'c');
       assert.equal(children[3].className, 'cls');
@@ -1614,7 +1614,7 @@ suite('DOMFragment', function () {
       // Making children a tuple so we know we can read the classname
       // of the first and last element, but TS doesn't like handing a
       // type this specific to h
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       assert.equal(children[0].className, 'a cls b');
       assert.equal(children[2].className, 'c cls');
       assert.equal(children[3].className, 'd');
@@ -1646,7 +1646,7 @@ suite('DOMFragment', function () {
       // Making children a tuple so we know we can read the classname
       // of the first and last element, but TS doesn't like handing a
       // type this specific to h
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       assert.equal(children[0].className, 'a b');
       assert.equal(children[2].className, 'c');
       assert.equal(children[3].className, 'cls');
@@ -1665,7 +1665,7 @@ suite('DOMFragment', function () {
       // Making children a tuple so we know we can read the classname
       // of the first and last element, but TS doesn't like handing a
       // type this specific to h
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       assert.equal(children[0].className, 'a b');
       assert.equal(children[2].className, 'c');
       assert.equal(children[3].className, 'cls');
@@ -1684,7 +1684,7 @@ suite('DOMFragment', function () {
       // Making children a tuple so we know we can read the classname
       // of the first and last element, but TS doesn't like handing a
       // type this specific to h
-      const parent = h('span', {}, children as unknown as ChildNode[]);
+      const parent = h('span', {}, children);
       assert.equal(children[0].className, 'a b cls');
       assert.equal(children[2].className, 'c cls');
       assert.equal(children[3].className, 'd');
