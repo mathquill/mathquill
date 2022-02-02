@@ -33,9 +33,10 @@
  * right end nodes (if the fragment is not empty). The other nodes are
  * represented implicitly through the sibling pointers of the DOM nodes
  * themselves. This means that it is possible to invalidate a
- * `DOMFragment` by mutating the siblings of any of the nodes that it
- * represents, for example by removing one of the nodes from the DOM, or
- * by moving one of the nodes without also moving all of the others.
+ * `DOMFragment` by moving one of its ends without moving the other in
+ * such a way that they are no longer siblings. It is also possible to
+ * change the contents of a `DOMFragment` by adding or removing DOM
+ * nodes between its ends.
  */
 class DOMFragment {
   private ends: Ends<ChildNode> | undefined;
