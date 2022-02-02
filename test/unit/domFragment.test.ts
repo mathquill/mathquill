@@ -184,9 +184,22 @@ suite('DOMFragment', function () {
       assert.throws(() => frag1.join(frag2));
     });
 
-    test('Joining fragments are not disjoint throws', () => {
-      const frag1 = domFrag(h('span'));
-      assert.throws(() => frag1.join(frag1));
+    test('Joining a fragment to itself is a noop', () => {
+      const el = h('span');
+      assert.equal(domFrag(el).join(domFrag(el)).oneElement(), el);
+    });
+
+    test('Joining fragments that are siblings but not directional siblings throws', () => {
+      const children = [h('span'), h.text('text'), h('span')];
+      // Insert children into a parent to make them siblings;
+      h('span', {}, children);
+      assert.throws(() => domFrag(children[2]).join(domFrag(children[0])));
+      assert.throws(() =>
+        domFrag(children[0], children[2]).join(domFrag(children[1]))
+      );
+      assert.throws(() =>
+        domFrag(children[2]).join(domFrag(children[0], children[2]))
+      );
     });
 
     test('Joining fragments represents the closure of their union', () => {

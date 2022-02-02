@@ -113,7 +113,8 @@ class DOMFragment {
    * fragment. Does not perform any DOM operations.
    *
    * Asserts that `sibling` is either empty or a forward sibling of
-   * this fragment that does not overlap this fragment.
+   * this fragment that may share its first node with the last node of
+   * this fragment
    */
   join(sibling: DOMFragment) {
     if (!this.ends) return sibling;
@@ -121,7 +122,7 @@ class DOMFragment {
 
     // Check if sibling is actually a sibling of this span
     let found = false;
-    let current: ChildNode | null = this.ends[R].nextSibling;
+    let current: ChildNode | null = this.ends[R];
     while (current) {
       if (current === sibling.ends[L]) {
         found = true;
