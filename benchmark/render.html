@@ -79,7 +79,12 @@
 
       window.results = [];
       for (let i = 0; i < NUM_EXPRESSIONS; i++) {
-        const latex = randomLatex();
+        let latex = '';
+        for (let depth = 0; depth <= MAX_DEPTH; depth++) {
+          const trialLatex = randomLatex(depth);
+          if (trialLatex.length > MAX_LENGTH) break;
+          latex = trialLatex;
+        }
         for (let s = 0; s < NUM_SAMPLES; s++) {
           run(latex);
         }
@@ -164,10 +169,12 @@
         }
         let length = 0;
         for (let i = 0; i < arity; i++) {
-          const arg = randomLatex(depth - 1);
-          length += arg.length;
-          if (length + arg.length > MAX_LENGTH) break;
+          // If we've already exceeded MAX_LENGTH, this sample is going
+          // to be rejected by an outer loop. In that case, just append
+          // something simple ('1') and move on to save time.
+          const arg = length > MAX_LENGTH ? '1' : randomLatex(depth - 1);
           args.push(arg);
+          length += arg.length;
         }
         return fn(...args);
       }
