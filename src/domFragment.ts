@@ -48,7 +48,8 @@ class DOMFragment {
    * If no elements are passed, creates and empty `DOMFragment`.
    *
    * If two elements are passed, asserts that the second element is a
-   * forward sibling of the first element.
+   * forward sibling of the first element. Checking this invariant is
+   * O(n) in the total number of nodes in the fragment
    */
   static create(
     first?: ChildNode | undefined,
@@ -83,6 +84,9 @@ class DOMFragment {
    *
    * DOMFragments may be invalidated if any of the nodes they contain
    * are moved or removed independently of the other nodes they contain.
+   *
+   * Note that this check visits each node in the fragment, so it is
+   * O(n).
    */
   isValid(): boolean {
     if (!this.ends) return true;
