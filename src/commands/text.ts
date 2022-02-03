@@ -309,7 +309,7 @@ class TextPiece extends MQNode {
     this.textStr = text;
   }
   html() {
-    const out = document.createTextNode(this.textStr);
+    const out = h.text(this.textStr);
     this.setDOMFrag(domFrag(out));
     return out;
   }
