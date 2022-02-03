@@ -15,24 +15,21 @@ type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
   controller: Controller;
-  frag: DocumentFragment;
   span: HTMLElement;
   msg = '';
   items: AriaQueueItem[] = [];
 
   constructor(controller: Controller) {
     this.controller = controller;
-    this.frag = document.createDocumentFragment();
     this.span = document.createElement('span');
     this.span.setAttribute('aria-live', 'assertive');
     this.span.setAttribute('aria-atomic', 'true');
-    this.frag.appendChild(this.span);
   }
 
   attach() {
     const container = this.controller.container && this.controller.container[0];
-    if (container && !container.contains(this.frag)) {
-      container.appendChild(this.frag);
+    if (container && this.span.parentNode !== container) {
+      container.appendChild(this.span);
     }
   }
 
