@@ -22,6 +22,7 @@ class Aria {
   constructor(controller: Controller) {
     this.controller = controller;
     this.span = document.createElement('span');
+    this.span.className = 'mq-aria-alert';
     this.span.setAttribute('aria-live', 'assertive');
     this.span.setAttribute('aria-atomic', 'true');
   }
