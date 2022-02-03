@@ -1,5 +1,3 @@
-declare const assert: any; // see test/support/assert.js
-
 suite('HTML', function () {
   function renderHtml(domView: DOMView) {
     const Cmd = class extends MathCommand {
