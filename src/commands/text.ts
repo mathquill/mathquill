@@ -91,11 +91,12 @@ class TextBlock extends MQNode {
     );
   }
   html() {
-    return h(
-      'span',
-      { class: 'mq-text-mode', 'mathquill-command-id': this.id },
-      [h.text(this.textContents())]
-    );
+    const out = h('span', { class: 'mq-text-mode' }, [
+      h.text(this.textContents()),
+    ]);
+    this.setDOMFrag(domFrag(out));
+    NodeBase.linkElementByCmdNode(out, this);
+    return out;
   }
 
   mathspeakTemplate = ['StartText', 'EndText'];
@@ -307,10 +308,10 @@ class TextPiece extends MQNode {
     super();
     this.textStr = text;
   }
-  jQize() {
-    return this.setDOMFrag(
-      domFrag(document.createTextNode(this.textStr))
-    ).getJQ();
+  html() {
+    const out = document.createTextNode(this.textStr);
+    this.setDOMFrag(domFrag(out));
+    return out;
   }
   appendText(text: string) {
     this.textStr += text;
@@ -432,9 +433,10 @@ function makeTextBlock(
     ariaLabel = ariaLabel;
 
     html() {
-      return h(tagName, { ...attrs, 'mathquill-command-id': this.id }, [
-        h.text(this.textContents()),
-      ]);
+      const out = h(tagName, attrs, [h.text(this.textContents())]);
+      this.setDOMFrag(domFrag(out));
+      NodeBase.linkElementByCmdNode(out, this);
+      return out;
     }
   };
 }
