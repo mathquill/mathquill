@@ -214,7 +214,7 @@ function getInterface(v: number) {
           jQToDOMFragment(el).oneElement()
         )
       );
-      NodeBase.linkElementByBlockId(root.domFrag().oneElement(), root.id);
+      NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());
 
       this.revert = function () {

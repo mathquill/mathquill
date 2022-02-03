@@ -321,7 +321,6 @@ class Controller_latex extends Controller_keystroke {
       const frag = root.domFrag();
       frag.children().remove();
       frag.oneElement().appendChild(block.html());
-      root.jQize(frag.children().toJQ());
       root.finalizeInsert(cursor.options, cursor);
     } else {
       root.domFrag().empty();
@@ -382,7 +381,7 @@ class Controller_latex extends Controller_keystroke {
         commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      jQToDOMFragment(root.jQize()).appendTo(root.domFrag().oneElement());
+      domFrag(root.html()).appendTo(root.domFrag().oneElement());
 
       root.finalizeInsert(cursor.options, cursor);
     }
