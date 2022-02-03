@@ -151,7 +151,7 @@ suite('DOMFragment', function () {
     test('returns an empty fragment when called on a fragment holding an element with no children', () => {
       assert.ok(domFrag(h('span')).children().isEmpty());
     });
-    test('returns an empty fragment when called on a fragment a Text node', () => {
+    test('returns an empty fragment when called on a fragment holding a single Text node', () => {
       assert.ok(domFrag(h.text('text')).children().isEmpty());
     });
     test('returns a fragment representing all children', () => {
@@ -228,7 +228,7 @@ suite('DOMFragment', function () {
       assert.throws(() => domFrag().oneNode());
     });
 
-    test('for many node fragments', () => {
+    test('throws for many node fragments', () => {
       const el = h('span', {}, [h('span'), h('span')]);
       assert.throws(() => domFrag(el).children().oneNode());
     });
@@ -527,9 +527,7 @@ suite('DOMFragment', function () {
             !domFrag(sourceParent).children().isEmpty(),
             'source parent starts off with children'
           );
-          const targetFrag = domFrag(
-            domFrag(targetParent).children().toNodeArray()[i]
-          );
+          const targetFrag = domFrag(targetChildren[i]);
           assert.ok(
             apply(domFrag(sourceParent).children(), targetFrag).isValid()
           );
@@ -561,13 +559,10 @@ suite('DOMFragment', function () {
             !domFrag(sourceParent).children().isEmpty(),
             'source parent starts off with children'
           );
-          const targetNodeArray = domFrag(targetParent)
-            .children()
-            .toNodeArray();
           // This makes a sliding window of two adjacent sibling nodes
           const targetFrag = domFrag(
-            targetNodeArray[i],
-            targetNodeArray[Math.min(i + 1, nTargetChildren - 1)]
+            targetChildren[i],
+            targetChildren[Math.min(i + 1, nTargetChildren - 1)]
           );
           assert.ok(
             apply(domFrag(sourceParent).children(), targetFrag).isValid()
