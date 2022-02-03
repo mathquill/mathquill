@@ -32,7 +32,7 @@ class Cursor extends Point {
   blink: () => void;
   private readonly cursorElement: HTMLElement = h(
     'span',
-    { class: 'mq-cursor', 'aria-hidden': 'true' },
+    { class: 'mq-cursor' },
     [h.text(U_ZERO_WIDTH_SPACE)]
   );
   private _domFrag = domFrag();

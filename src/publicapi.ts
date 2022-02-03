@@ -210,9 +210,9 @@ function getInterface(v: number) {
         .detach();
 
       root.setDOMFrag(
-        domFrag(h('span', { class: 'mq-root-block' })).appendTo(
-          jQToDOMFragment(el).oneElement()
-        )
+        domFrag(
+          h('span', { class: 'mq-root-block', 'aria-hidden': 'true' })
+        ).appendTo(jQToDOMFragment(el).oneElement())
       );
       NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());
