@@ -39,7 +39,7 @@
  * nodes between its ends.
  */
 class DOMFragment {
-  private ends: Ends<ChildNode> | undefined;
+  private ends: Ends<Node> | undefined;
 
   /**
    * Returns a `DOMFragment` representing the contiguous span of sibling
@@ -52,8 +52,8 @@ class DOMFragment {
    * O(n) in the total number of nodes in the fragment
    */
   static create(
-    first?: ChildNode | undefined,
-    last?: ChildNode | undefined
+    first?: Node | undefined,
+    last?: Node | undefined
   ): DOMFragment {
     if (arguments.length === 1) last = first;
     pray('No half-empty DOMFragments', !!first === !!last);
@@ -68,7 +68,7 @@ class DOMFragment {
    * allowed to use this constructor when they can guarantee they're
    * passing sibling nodes (such as children of a parent node).
    */
-  private constructor(first?: ChildNode, last?: ChildNode) {
+  private constructor(first?: Node, last?: Node) {
     if (arguments.length === 1) last = first;
     if (!first || !last) return;
     this.ends = { [L]: first, [R]: last };
@@ -90,7 +90,7 @@ class DOMFragment {
    */
   isValid(): boolean {
     if (!this.ends) return true;
-    let maybeLast: ChildNode | undefined;
+    let maybeLast: Node | undefined;
     this.eachNode((el) => (maybeLast = el));
     return maybeLast === this.ends[R];
   }
@@ -147,7 +147,7 @@ class DOMFragment {
 
     // Check if sibling is actually a sibling of this span
     let found = false;
-    let current: ChildNode | null = this.ends[R];
+    let current: Node | null = this.ends[R];
     while (current) {
       if (current === sibling.ends[L]) {
         found = true;
@@ -165,12 +165,12 @@ class DOMFragment {
    *
    * Asserts that this fragment contains exactly one Node.
    */
-  oneNode(): ChildNode {
+  oneNode(): Node {
     pray(
       'Fragment has a single node',
       this.ends && this.ends[L] === this.ends[R]
     );
-    return this.ends[L] as ChildNode;
+    return this.ends[L];
   }
 
   /**
@@ -202,14 +202,10 @@ class DOMFragment {
    * Includes nodes that are not Elements, such as Text and Comment
    * nodes.
    */
-  eachNode(cb: (el: ChildNode) => void): DOMFragment {
+  eachNode(cb: (el: Node) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
-    for (
-      let node: ChildNode = this.ends[L], next: ChildNode;
-      node;
-      node = next
-    ) {
+    for (let node: Node = this.ends[L], next: Node; node; node = next) {
       // Note, this loop is organized in a slightly tricky way in order
       // cache "next" before calling the callback. This is done because
       // the callback could mutate node.nextSibling (e.g. by moving the
@@ -255,7 +251,7 @@ class DOMFragment {
    * that are not Element nodes such as Text and Comment nodes;
    */
   toNodeArray() {
-    const accum: ChildNode[] = [];
+    const accum: Node[] = [];
     this.eachNode((el) => accum.push(el));
     return accum;
   }
@@ -368,7 +364,7 @@ class DOMFragment {
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
     if (!parent) return new DOMFragment();
-    return new DOMFragment(parent as unknown as ChildNode);
+    return new DOMFragment(parent);
   }
 
   /**
@@ -429,7 +425,7 @@ class DOMFragment {
   nthElement(n: number): HTMLElement | undefined {
     if (!this.ends) return undefined;
     if (n < 0 || n !== Math.floor(n)) return undefined;
-    let current: ChildNode | null = this.ends[L];
+    let current: Node | null = this.ends[L];
     while (current) {
       // Only count element nodes
       if (current.nodeType === Node.ELEMENT_NODE) {
@@ -458,7 +454,7 @@ class DOMFragment {
    */
   lastElement(): HTMLElement | undefined {
     if (!this.ends) return undefined;
-    let current: ChildNode | null = this.ends[R];
+    let current: Node | null = this.ends[R];
     while (current) {
       // Only count element nodes
       if (current.nodeType === Node.ELEMENT_NODE) {
@@ -522,7 +518,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Node.
    */
   next() {
-    let current: ChildNode | null = this.oneNode();
+    let current: Node | null = this.oneNode();
     while (current) {
       current = current.nextSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -540,7 +536,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Node.
    */
   prev() {
-    let current: ChildNode | null = this.oneNode();
+    let current: Node | null = this.oneNode();
     while (current) {
       current = current.previousSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -697,8 +693,8 @@ const domFrag = DOMFragment.create;
 function _insDirOf(
   dir: Direction,
   parent: ParentNode,
-  source: ChildNode | DocumentFragment,
-  target: ChildNode
+  source: Node | DocumentFragment,
+  target: Node
 ) {
   parent.insertBefore(source, dir === L ? target : target.nextSibling);
 }
@@ -709,7 +705,7 @@ function _insDirOf(
  */
 function _insAtDirEnd(
   dir: Direction,
-  source: ChildNode | DocumentFragment,
+  source: Node | DocumentFragment,
   parent: ParentNode
 ) {
   if (dir === L) {

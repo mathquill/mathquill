@@ -1,5 +1,5 @@
 suite('DOMFragment', function () {
-  function nodeArraysEqual(arr1: ChildNode[], arr2: ChildNode[]) {
+  function nodeArraysEqual(arr1: Node[], arr2: Node[]) {
     if (arr1.length !== arr2.length) return false;
     for (let i = 0; i < arr1.length; i++) {
       if (arr1[i] !== arr2[i]) return false;
@@ -318,7 +318,7 @@ suite('DOMFragment', function () {
       const children = [h('span'), h.text('text'), h('span')];
       const parent = h('span', {}, children);
 
-      const accum: ChildNode[] = [];
+      const accum: Node[] = [];
       domFrag(parent)
         .children()
         .eachNode((node) => accum.push(node));
@@ -359,7 +359,7 @@ suite('DOMFragment', function () {
       const children = [h.text('text'), h('span'), h.text('text'), h('span')];
       const parent = h('span', {}, children);
 
-      const accum: ChildNode[] = [];
+      const accum: Node[] = [];
       domFrag(parent)
         .children()
         .eachElement((node) => accum.push(node));
