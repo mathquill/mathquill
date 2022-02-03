@@ -22,7 +22,6 @@ class Controller extends Controller_scrollHoriz {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
     this.textarea = $(textarea).appendTo(textareaSpan);
-    this.aria.setContainer(this.textareaSpan);
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function () {
