@@ -17,7 +17,6 @@ class Aria {
   controller: Controller;
   frag: DocumentFragment;
   span: HTMLElement;
-  attached = false;
   msg = '';
   items: AriaQueueItem[] = [];
 
@@ -31,11 +30,9 @@ class Aria {
   }
 
   attach() {
-    if (this.attached) return;
     const container = this.controller.container && this.controller.container[0];
     if (container && !container.contains(this.frag)) {
       container.appendChild(this.frag);
-      this.attached = true;
     }
   }
 
