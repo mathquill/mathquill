@@ -1,3 +1,31 @@
+/** Poller that fires once every tick. */
+class EveryTick<Args extends unknown[] = []> {
+  private timeoutId: number;
+  constructor(private fn: (...args: Args | []) => void) {}
+
+  listen(fn: (...args: Args | []) => void) {
+    this.fn = fn;
+    clearTimeout(this.timeoutId);
+    this.timeoutId = setTimeout(this.fn);
+  }
+
+  listenOnce(fn: (...args: Args | []) => void) {
+    this.listen((...args: Args | []) => {
+      this.clearListener();
+      fn(...args);
+    });
+  }
+
+  clearListener() {
+    this.fn = noop;
+    clearTimeout(this.timeoutId);
+  }
+
+  trigger(...args: Args | []) {
+    this.fn(...args);
+  }
+}
+
 /*************************************************
  * Sane Keyboard Events Shim
  *
@@ -20,9 +48,7 @@
  *    + event handler logic
  *    + attach event handlers and export methods
  ************************************************/
-type TextareaChecker = (e?: Event) => void;
-
-var saneKeyboardEvents = (function () {
+var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
   // The following [key values][1] map was compiled from the
   // [DOM3 Events appendix section on key codes][2] and
   // [a widely cited report on cross-browser tests of key codes][3],
@@ -96,7 +122,7 @@ var saneKeyboardEvents = (function () {
     var textarea = $(el);
     var target = controller.container?.toJQ() || $(textarea);
 
-    // checkTextareaFor() is called after key or clipboard events to
+    // everyTick.listen() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,
     // so that at all subsequent opportune times (next event or timeout),
     // will check for expected typed or pasted text.
@@ -104,22 +130,9 @@ var saneKeyboardEvents = (function () {
     // after selecting something and then typing, the textarea is
     // incorrectly reported as selected during the input event (but not
     // subsequently).
-    var checkTextarea: TextareaChecker = noop;
-    var timeoutId: number;
-    function checkTextareaFor(checker: TextareaChecker) {
-      checkTextarea = checker;
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(checker);
-    }
-    function checkTextareaOnce(checker: TextareaChecker) {
-      checkTextareaFor(function (e) {
-        checkTextarea = noop;
-        clearTimeout(timeoutId);
-        checker(e);
-      });
-    }
+    const everyTick = new EveryTick<[Event]>(noop);
     target.bind('keydown keypress input keyup paste', function (e: Event) {
-      checkTextarea(e);
+      everyTick.trigger(e);
     });
 
     function guardedTextareaSelect() {
@@ -138,9 +151,8 @@ var saneKeyboardEvents = (function () {
       // check textarea at least once/one last time before munging (so
       // no race condition if selection happens after keypress/paste but
       // before checkTextarea), then never again ('cos it's been munged)
-      checkTextarea();
-      checkTextarea = noop;
-      clearTimeout(timeoutId);
+      everyTick.trigger();
+      everyTick.clearListener();
 
       textarea.val(text);
       if (text) guardedTextareaSelect();
@@ -176,7 +188,7 @@ var saneKeyboardEvents = (function () {
       keypress = null;
 
       if (shouldBeSelected)
-        checkTextareaOnce(function (e?: Event) {
+        everyTick.listenOnce(function (e?: Event) {
           if (!(e && e.type === 'focusout')) {
             // re-select textarea in case it's an unrecognized key that clears
             // the selection, then never again, 'cos next thing might be blur
@@ -202,6 +214,7 @@ var saneKeyboardEvents = (function () {
 
       return false;
     }
+
     function onKeypress(e: KeyboardEvent) {
       if (e.target !== textarea[0]) return;
 
@@ -218,9 +231,10 @@ var saneKeyboardEvents = (function () {
       // use the mq.keystroke('Right') command while a single character
       // is selected. Only detected in FF.
       if (!isArrowKey(e)) {
-        checkTextareaFor(typedText);
+        everyTick.listen(typedText);
       }
     }
+
     function onKeyup(e: KeyboardEvent) {
       if (e.target !== textarea[0]) return;
 
@@ -231,10 +245,11 @@ var saneKeyboardEvents = (function () {
         // use the mq.keystroke('Right') command while a single character
         // is selected. Only detected in FF.
         if (!isArrowKey(e)) {
-          checkTextareaFor(typedText);
+          everyTick.listen(typedText);
         }
       }
     }
+
     function typedText() {
       // If there is a selection, the contents of the textarea couldn't
       // possibly have just been typed in.
@@ -271,8 +286,7 @@ var saneKeyboardEvents = (function () {
     function onBlur() {
       keydown = null;
       keypress = null;
-      checkTextarea = noop;
-      clearTimeout(timeoutId);
+      everyTick.clearListener();
       textarea.val('');
     }
 
@@ -295,12 +309,11 @@ var saneKeyboardEvents = (function () {
         textarea[0].focus();
       }
 
-      checkTextareaFor(pastedText);
-    }
-    function pastedText() {
-      var text = (textarea[0] as HTMLTextAreaElement).value;
-      textarea.val('');
-      if (text) controller.paste(text);
+      everyTick.listen(function pastedText() {
+        var text = (textarea[0] as HTMLTextAreaElement).value;
+        textarea.val('');
+        if (text) controller.paste(text);
+      });
     }
 
     // -*- attach event handlers -*- //
@@ -328,12 +341,12 @@ var saneKeyboardEvents = (function () {
         keyup: onKeyup,
         focusout: onBlur,
         cut: function () {
-          checkTextareaOnce(function () {
+          everyTick.listenOnce(function () {
             controller.cut();
           });
         },
         copy: function () {
-          checkTextareaOnce(function () {
+          everyTick.listenOnce(function () {
             controller.copy();
           });
         },

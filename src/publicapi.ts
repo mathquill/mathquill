@@ -72,13 +72,19 @@ type AutoDict = {
   [id: string]: any;
 };
 
+type SubstituteKeyboardEvents = (
+  el: $,
+  controller: Controller
+) => {
+  select: (text: string) => void;
+};
+
 class Options {
   constructor(public version: 1 | 2) {}
   ignoreNextMousedown: (_el: MouseEvent) => boolean;
   substituteTextarea: () => HTMLElement;
-
   /** Only used in interface version 1. */
-  substituteKeyboardEvents: typeof saneKeyboardEvents;
+  substituteKeyboardEvents: SubstituteKeyboardEvents;
 
   restrictMismatchedBrackets?: boolean;
   typingSlashCreatesNewFraction?: boolean;
