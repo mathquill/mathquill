@@ -30,7 +30,7 @@ class Aria {
   attach() {
     const container = this.controller.container && this.controller.container[0];
     if (container && this.span.parentNode !== container) {
-      container.appendChild(this.span);
+      container.prepend(this.span);
     }
   }
 
