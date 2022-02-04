@@ -27,7 +27,6 @@ class Controller extends Controller_scrollHoriz {
     this.textarea = jQToDOMFragment($(textarea))
       .appendTo(jQToDOMFragment(textareaSpan).oneElement())
       .toJQ();
-    this.aria.setContainer(jQToDOMFragment(textareaSpan).oneElement());
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function () {
