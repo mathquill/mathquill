@@ -45,7 +45,10 @@ class Cursor extends Point {
     this.controller = controller;
     this.options = options;
 
-    var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor" aria-hidden="true">&#8203;</span>'));
+    var jQ =
+      (this.jQ =
+      this._jQ =
+        $('<span class="mq-cursor" aria-hidden="true">&#8203;</span>'));
     //closured for setInterval
     this.blink = function () {
       jQ.toggleClass('mq-blink');
