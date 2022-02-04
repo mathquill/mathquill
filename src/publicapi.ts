@@ -281,7 +281,7 @@ function getInterface(v: number) {
       this.latex(contents.text());
 
       this.revert = function () {
-        el.toJQ().unbind('.mathquill');
+        ctrlr.delegateMouseEvents();
         el.removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
@@ -333,7 +333,7 @@ function getInterface(v: number) {
     mathquillify(classNames: string) {
       super.mathquillify(classNames);
       this.__controller.editable = true;
-      this.__controller.delegateMouseEvents();
+      this.__controller.addMouseEventListener();
       this.__controller.editablesTextareaEvents();
       return this;
     }
