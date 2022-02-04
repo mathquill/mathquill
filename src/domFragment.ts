@@ -9,16 +9,37 @@
  * A `DOMFragment` simply holds references to nodes. It doesn't move or
  * mutate them in the way that the native `DocumentFragment` does.
  *
+ * `DOMFragment` implements many of the same methods for manipulating a
+ * collection of DOM elements that jQuery does, but it has some notable
+ * differences:
+ *
+ * 1.  A jQuery collection can hold an arbitrary ordered set of DOM
+ *     elemeents, but a `DOMFragment` can only hold a contiguous span of
+ *     sibling nodes.
+ * 2.  Some jQuery DOM manipulation methods like `insert{Before,After}`,
+ *     `append`, `prepend`, `appendTo`, `prependTo`, etc. may insert
+ *     several clones of a collection into different places in the DOM.
+ *     `DOMFragment` never makes clones of DOM nodes--instead, when
+ *     targeting multi-element fragments, it moves source nodes before
+ *     or after the targeted fragment as appropriate without ever making
+ *     more copies.
+ * 3.  For methods like `.children()`, where it's likely to be a mistake
+ *     to call the method on a fragment that doesn't contain exactly one
+ *     node or element, `DOMFragment` will throw whereas jQuery will
+ *     silently do something possibly unintended. Methods that assert
+ *     are commented with the properties that they assert.
+ *
  * Internally, `DOMFragment` holds immutable references to the left and
  * right end nodes (if the fragment is not empty). The other nodes are
  * represented implicitly through the sibling pointers of the DOM nodes
  * themselves. This means that it is possible to invalidate a
- * `DOMFragment` by mutating the siblings of any of the nodes that it
- * represents, for example by removing one of the nodes from the DOM, or
- * by moving one of the nodes without also moving all of the others.
+ * `DOMFragment` by moving one of its ends without moving the other in
+ * such a way that they are no longer siblings. It is also possible to
+ * change the contents of a `DOMFragment` by adding or removing DOM
+ * nodes between its ends.
  */
 class DOMFragment {
-  private ends: Ends<ChildNode> | undefined;
+  private ends: Ends<Node> | undefined;
 
   /**
    * Returns a `DOMFragment` representing the contiguous span of sibling
@@ -27,18 +48,17 @@ class DOMFragment {
    * If no elements are passed, creates and empty `DOMFragment`.
    *
    * If two elements are passed, asserts that the second element is a
-   * forward sibling of the first element.
+   * forward sibling of the first element. Checking this invariant is
+   * O(n) in the total number of nodes in the fragment
    */
   static create(
-    first?: ChildNode | undefined,
-    last?: ChildNode | undefined
+    first?: Node | undefined,
+    last?: Node | undefined
   ): DOMFragment {
     if (arguments.length === 1) last = first;
     pray('No half-empty DOMFragments', !!first === !!last);
     const out = new DOMFragment(first, last);
-    let maybeLast: ChildNode | undefined;
-    out.eachNode((el) => (maybeLast = el));
-    pray('last is a forward sibling of first', maybeLast === last);
+    pray('last is a forward sibling of first', out.isValid());
     return out;
   }
 
@@ -48,7 +68,7 @@ class DOMFragment {
    * allowed to use this constructor when they can guarantee they're
    * passing sibling nodes (such as children of a parent node).
    */
-  private constructor(first?: ChildNode, last?: ChildNode) {
+  private constructor(first?: Node, last?: Node) {
     if (arguments.length === 1) last = first;
     if (!first || !last) return;
     this.ends = { [L]: first, [R]: last };
@@ -59,11 +79,67 @@ class DOMFragment {
   }
 
   /**
+   * Returns true if the fragment is empty or if its last node is equal
+   * to its first node or is a forward sibling of its first node.
+   *
+   * DOMFragments may be invalidated if any of the nodes they contain
+   * are moved or removed independently of the other nodes they contain.
+   *
+   * Note that this check visits each node in the fragment, so it is
+   * O(n).
+   */
+  isValid(): boolean {
+    if (!this.ends) return true;
+    let maybeLast: Node | undefined;
+    this.eachNode((el) => (maybeLast = el));
+    return maybeLast === this.ends[R];
+  }
+
+  /**
+   * Return the first Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  firstNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[L];
+  }
+
+  /**
+   * Return the last Node of this fragment. May be a a Node that is not
+   * an Element such as a Text or Comment node.
+   *
+   * Asserts fragment is not empty.
+   */
+  lastNode() {
+    pray('Fragment is not empty', this.ends);
+    return this.ends[R];
+  }
+
+  /**
+   * Return a fragment representing the children (including Text and
+   * Comment nodes) of the node represented by this fragment.
+   *
+   * Asserts that this fragment contains exactly one Node.
+   *
+   * Note, because this includes text and comment nodes, this is more
+   * like jQuery's .contents() than jQuery's .children()
+   */
+  children() {
+    const el = this.oneNode();
+    const first = el.firstChild;
+    const last = el.lastChild;
+    return first && last ? new DOMFragment(first, last) : new DOMFragment();
+  }
+
+  /**
    * Return a new `DOMFragment` spanning this fragment and `sibling`
    * fragment. Does not perform any DOM operations.
    *
    * Asserts that `sibling` is either empty or a forward sibling of
-   * `this`.
+   * this fragment that may share its first node with the last node of
+   * this fragment
    */
   join(sibling: DOMFragment) {
     if (!this.ends) return sibling;
@@ -71,7 +147,7 @@ class DOMFragment {
 
     // Check if sibling is actually a sibling of this span
     let found = false;
-    let current: ChildNode | null = this.ends[R];
+    let current: Node | null = this.ends[R];
     while (current) {
       if (current === sibling.ends[L]) {
         found = true;
@@ -89,12 +165,12 @@ class DOMFragment {
    *
    * Asserts that this fragment contains exactly one Node.
    */
-  oneNode(): ChildNode {
+  oneNode(): Node {
     pray(
       'Fragment has a single node',
       this.ends && this.ends[L] === this.ends[R]
     );
-    return this.ends[L] as ChildNode;
+    return this.ends[L];
   }
 
   /**
@@ -126,14 +202,10 @@ class DOMFragment {
    * Includes nodes that are not Elements, such as Text and Comment
    * nodes.
    */
-  eachNode(cb: (el: ChildNode) => void): DOMFragment {
+  eachNode(cb: (el: Node) => void): DOMFragment {
     if (!this.ends) return this;
     const stop = this.ends[R];
-    for (
-      let node: ChildNode = this.ends[L], next: ChildNode;
-      node;
-      node = next
-    ) {
+    for (let node: Node = this.ends[L], next: Node; node; node = next) {
       // Note, this loop is organized in a slightly tricky way in order
       // cache "next" before calling the callback. This is done because
       // the callback could mutate node.nextSibling (e.g. by moving the
@@ -171,6 +243,16 @@ class DOMFragment {
     this.eachNode((node) => {
       accum += node.textContent || '';
     });
+    return accum;
+  }
+
+  /**
+   * Returns an array of all the Nodes in this fragment, including nodes
+   * that are not Element nodes such as Text and Comment nodes;
+   */
+  toNodeArray() {
+    const accum: Node[] = [];
+    this.eachNode((el) => accum.push(el));
     return accum;
   }
 
@@ -219,12 +301,7 @@ class DOMFragment {
    * additional clones.
    */
   insertBefore(sibling: DOMFragment) {
-    if (!this.ends) return this;
-    const el = sibling.ends?.[L];
-    if (!el || !el.parentNode) return this.detach();
-
-    el.parentNode.insertBefore(this.toDocumentFragment(), el);
-    return this;
+    return this.insDirOf(L, sibling);
   }
 
   /**
@@ -241,12 +318,7 @@ class DOMFragment {
    * additional clones.
    */
   insertAfter(sibling: DOMFragment) {
-    if (!this.ends) return this;
-    const el = sibling.ends?.[R];
-    if (!el || !el.parentNode) return this.detach();
-
-    el.parentNode.insertBefore(this.toDocumentFragment(), el.nextSibling);
-    return this;
+    return this.insDirOf(R, sibling);
   }
 
   /**
@@ -255,9 +327,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Element.
    */
   append(children: DOMFragment) {
-    if (!children.ends) return this;
-    const el = this.oneElement();
-    el.appendChild(children.toDocumentFragment());
+    children.appendTo(this.oneElement());
     return this;
   }
 
@@ -267,9 +337,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Element.
    */
   prepend(children: DOMFragment) {
-    if (!children.ends) return this;
-    const el = this.oneElement();
-    el.insertBefore(children.toDocumentFragment(), el.firstChild);
+    children.prependTo(this.oneElement());
     return this;
   }
 
@@ -277,18 +345,14 @@ class DOMFragment {
    * Append all the nodes in this fragment to the children of `el`.
    */
   appendTo(el: HTMLElement) {
-    if (!this.ends) return this;
-    el.appendChild(this.toDocumentFragment());
-    return this;
+    return this.insAtDirEnd(R, el);
   }
 
   /**
    * Prepend all the nodes in this fragment to the children of `el`.
    */
   prependTo(el: HTMLElement) {
-    if (!this.ends) return this;
-    el.insertBefore(this.toDocumentFragment(), el.firstChild);
-    return this;
+    return this.insAtDirEnd(L, el);
   }
 
   /**
@@ -300,7 +364,7 @@ class DOMFragment {
     if (!this.ends) return this;
     const parent = this.ends[L].parentNode;
     if (!parent) return new DOMFragment();
-    return new DOMFragment(parent as unknown as ChildNode);
+    return new DOMFragment(parent);
   }
 
   /**
@@ -337,7 +401,7 @@ class DOMFragment {
 
     // Note: important to cache parent and nextSibling (if they exist)
     // before detaching this fragment from the document (which will
-    // its parent and sibling references)
+    // mutate its parent and sibling references)
     const parent = rightEnd?.parentNode;
     const nextSibling = rightEnd?.nextSibling;
     this.detach();
@@ -351,22 +415,6 @@ class DOMFragment {
   }
 
   /**
-   * Return a fragment representing the children (including Text and
-   * Comment nodes) of the node represented by this fragment.
-   *
-   * Asserts that this fragment contains exactly one Node.
-   *
-   * Note, because this includes text and comment nodes, this is more
-   * like jQuery's .contents() than jQuery's .children()
-   */
-  children() {
-    const el = this.oneNode();
-    const first = el.firstChild;
-    const last = el.lastChild;
-    return first && last ? new DOMFragment(first, last) : new DOMFragment();
-  }
-
-  /**
    * Return the nth Element node of this collection, or undefined if
    * there is no nth Element. Skips Nodes that are not Elements (e.g.
    * Text and Comment nodes).
@@ -376,7 +424,8 @@ class DOMFragment {
    */
   nthElement(n: number): HTMLElement | undefined {
     if (!this.ends) return undefined;
-    let current: ChildNode | null = this.ends[L];
+    if (n < 0 || n !== Math.floor(n)) return undefined;
+    let current: Node | null = this.ends[L];
     while (current) {
       // Only count element nodes
       if (current.nodeType === Node.ELEMENT_NODE) {
@@ -387,28 +436,6 @@ class DOMFragment {
       current = current.nextSibling;
     }
     return undefined;
-  }
-
-  /**
-   * Return the first Node of this fragment. May be a a Node that is not
-   * an Element such as a Text or Comment node.
-   *
-   * Asserts fragment is not empty.
-   */
-  firstNode() {
-    pray('Fragment is not empty', this.ends);
-    return this.ends[L];
-  }
-
-  /**
-   * Return the last Node of this fragment. May be a a Node that is not
-   * an Element such as a Text or Comment node.
-   *
-   * Asserts fragment is not empty.
-   */
-  lastNode() {
-    pray('Fragment is not empty', this.ends);
-    return this.ends[L];
   }
 
   /**
@@ -427,7 +454,7 @@ class DOMFragment {
    */
   lastElement(): HTMLElement | undefined {
     if (!this.ends) return undefined;
-    let current: ChildNode | null = this.ends[R];
+    let current: Node | null = this.ends[R];
     while (current) {
       // Only count element nodes
       if (current.nodeType === Node.ELEMENT_NODE) {
@@ -474,6 +501,8 @@ class DOMFragment {
    * Nodes that are not Elements (e.g. Text and Comment nodes).
    */
   slice(n: number) {
+    // Note, would be reasonable to extend this to take a second
+    // argument if we ever find we need this
     if (!this.ends) return this;
     const el = this.nthElement(n);
     if (!el) return new DOMFragment();
@@ -489,7 +518,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Node.
    */
   next() {
-    let current: ChildNode | null = this.oneNode();
+    let current: Node | null = this.oneNode();
     while (current) {
       current = current.nextSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -507,7 +536,7 @@ class DOMFragment {
    * Asserts that this fragment contains exactly one Node.
    */
   prev() {
-    let current: ChildNode | null = this.oneNode();
+    let current: Node | null = this.oneNode();
     while (current) {
       current = current.previousSibling;
       if (current && current.nodeType === Node.ELEMENT_NODE)
@@ -578,7 +607,11 @@ class DOMFragment {
    * fragment from the document.
    */
   insDirOf(dir: Direction, sibling: DOMFragment): DOMFragment {
-    return dir === L ? this.insertBefore(sibling) : this.insertAfter(sibling);
+    if (!this.ends) return this;
+    const el = sibling.ends?.[dir];
+    if (!el || !el.parentNode) return this.detach();
+    _insDirOf(dir, el.parentNode, this.toDocumentFragment(), el);
+    return this;
   }
 
   /**
@@ -586,7 +619,9 @@ class DOMFragment {
    * its children, according to the direction specified by `dir`.
    */
   insAtDirEnd(dir: Direction, el: HTMLElement): DOMFragment {
-    return dir === L ? this.prependTo(el) : this.appendTo(el);
+    if (!this.ends) return this;
+    _insAtDirEnd(dir, this.toDocumentFragment(), el);
+    return this;
   }
 
   /**
@@ -639,7 +674,7 @@ class DOMFragment {
   toggleClass(classNames: string, on?: boolean) {
     if (on === true) return this.addClass(classNames);
     if (on === false) return this.removeClass(classNames);
-    for (const className of classNames.split(/s+/)) {
+    for (const className of classNames.split(/\s+/)) {
       if (!className) continue;
       this.eachElement((el) => {
         el.classList.toggle(className);
@@ -650,6 +685,35 @@ class DOMFragment {
 }
 
 const domFrag = DOMFragment.create;
+
+/**
+ * Insert `source` before or after `target` child of `parent` denending
+ * on `dir`. Only intended to be used internally as a helper in this module
+ */
+function _insDirOf(
+  dir: Direction,
+  parent: ParentNode,
+  source: Node | DocumentFragment,
+  target: Node
+) {
+  parent.insertBefore(source, dir === L ? target : target.nextSibling);
+}
+
+/**
+ * Insert `source` before or after `target` child of `parent` denending
+ * on `dir`. Only intended to be used internally as a helper in this module
+ */
+function _insAtDirEnd(
+  dir: Direction,
+  source: Node | DocumentFragment,
+  parent: ParentNode
+) {
+  if (dir === L) {
+    parent.insertBefore(source, parent.firstChild);
+  } else {
+    parent.appendChild(source);
+  }
+}
 
 function jQToDOMFragment(jQ: $) {
   if (jQ.length === 0) return domFrag();

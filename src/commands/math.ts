@@ -273,12 +273,13 @@ class MathCommand extends MathElement {
     pray('domView is defined', this.domView);
     const template = this.domView;
     const dom = template.render(blocks || []);
-    // Add mathquill-command-id and aria-hidden (for screen reader users) to all top-level elements
+    // Add aria-hidden (for screen reader users) to all top-level elements
     let node: ChildNode | null =
       dom instanceof DocumentFragment ? dom.childNodes[0] : dom;
     while (node) {
       if (node instanceof Element) {
-        node.setAttribute('mathquill-command-id', '' + this.id);
+        this.joinFrag(domFrag(node));
+        NodeBase.linkElementByCmdNode(node, this);
         node.setAttribute('aria-hidden', 'true');
       }
       node = node.nextSibling;
@@ -645,8 +646,7 @@ class MathBlock extends MathElement {
       block
         .children()
         .adopt(cursor.parent, cursor[L] as NodeRef, cursor[R] as NodeRef); // TODO - masking undefined. should be 0
-      var jQ = block.jQize();
-      jQToDOMFragment(jQ).insertBefore(cursor.domFrag());
+      domFrag(block.html()).insertBefore(cursor.domFrag());
       cursor[L] = block.getEnd(R);
       block.finalizeInsert(cursor.options, cursor);
       var blockEndsR = block.getEnd(R);

@@ -33,18 +33,19 @@ interface HtmlBuilder {
   (
     type: HTMLTagName,
     attributes?: CreateElementAttributes,
-    children?: (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
+    children?: readonly (ChildNode | DocumentFragment)[] | NodeListOf<ChildNode>
   ): HTMLElement;
   (
     type: SVGTagName,
     attributes?: CreateElementAttributes,
-    children?: (ChildNode | DocumentFragment)[]
+    children?: readonly (ChildNode | DocumentFragment)[]
   ): SVGElement;
 
   text(s: string): Text;
   /**
-   * Render an HTML node containing a child block. We use a specialized function for this because MathQuill expects
-   * each block's containing element to have a `mathquill-block-id` attribute set on it.
+   * Render an HTML node containing a child block. We use a specialized
+   * function for this to link back to the MQNode from a property of the
+   * generated DOM.
    */
   block(
     type: HTMLTagName,
@@ -89,12 +90,12 @@ h.block = (
   type: HTMLTagName,
   attributes: CreateElementAttributes | undefined,
   block: MathBlock
-) =>
-  h(
-    type,
-    { ...attributes, 'mathquill-block-id': block.id + '', 'aria-hidden': true },
-    [block.html()]
-  );
+) => {
+  const out = h(type, { ...attributes, 'aria-hidden': true }, [block.html()]);
+  block.joinFrag(domFrag(out));
+  NodeBase.linkElementByBlockNode(out, block);
+  return out;
+};
 
 h.entityText = (s: string) => {
   // TODO: replace with h.text(U_BLAHBLAH) or maybe a named entity->unicode lookup

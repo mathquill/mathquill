@@ -493,7 +493,7 @@ class SupSub extends MathCommand {
       this.domFrag().append(
         domFrag(
           h('span', { style: 'display:inline-block;width:0' }, [
-            document.createTextNode(U_ZERO_WIDTH_SPACE),
+            h.text(U_ZERO_WIDTH_SPACE),
           ])
         )
       );

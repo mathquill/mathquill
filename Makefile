@@ -68,6 +68,7 @@ CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 FONT_SOURCE = $(SRC_DIR)/fonts
 FONT_TARGET = $(BUILD_DIR)/fonts
 
+TEST_SUPPORT = ./test/support/assert.ts
 UNIT_TESTS = ./test/unit/*.test.js ./test/unit/*.test.ts
 
 # outputs
@@ -183,6 +184,6 @@ benchmark: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
 	@echo "** now open benchmark/{render,select}.html in your browser. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(TEST_SUPPORT) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/tsc-emit-only > $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
