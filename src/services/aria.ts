@@ -15,18 +15,23 @@ type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
   controller: Controller;
-  jQ = jQuery(
-    '<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>'
-  );
+  span: HTMLElement;
   msg = '';
   items: AriaQueueItem[] = [];
 
   constructor(controller: Controller) {
     this.controller = controller;
+    this.span = document.createElement('span');
+    this.span.className = 'mq-aria-alert';
+    this.span.setAttribute('aria-live', 'assertive');
+    this.span.setAttribute('aria-atomic', 'true');
   }
 
-  setContainer(el: $) {
-    this.jQ.appendTo(el);
+  attach() {
+    const container = this.controller.container && this.controller.container[0];
+    if (container && this.span.parentNode !== container) {
+      container.prepend(this.span);
+    }
   }
 
   queue(item: AriaQueueItem, shouldDescribe: boolean = false) {
@@ -67,6 +72,7 @@ class Aria {
   }
 
   alert(t?: AriaQueueItem) {
+    this.attach();
     if (t) this.queue(t);
     if (this.items.length) {
       // To cut down on potential verbiage from multiple Mathquills firing near-simultaneous ARIA alerts,
@@ -78,7 +84,7 @@ class Aria {
         .replace(/ +(?= )/g, '')
         .trim();
       if (this.controller.containerHasFocus()) {
-        this.jQ.empty().text(this.msg);
+        this.span.textContent = this.msg;
       }
     }
     return this.clear();
