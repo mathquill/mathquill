@@ -1,12 +1,81 @@
 suite('aria', function () {
   var mathField;
+  var container;
   setup(function () {
-    mathField = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    container = $('<span></span>').appendTo('#mock')[0];
+    mathField = MQ.MathField(container);
   });
 
   function assertAriaEqual(alertText) {
     assert.equal(alertText, mathField.__controller.aria.msg);
   }
+
+  test('mathfield has aria-hidden on mq-root-block', function () {
+    mathField.latex('1+\\frac{1}{x}');
+    var ariaHiddenChildren = $(container).find('[aria-hidden]="true"');
+    assert.equal(ariaHiddenChildren.length, 1, '1 aria-hidden element');
+    assert.ok(
+      ariaHiddenChildren.hasClass('mq-root-block'),
+      'aria-hidden is set on mq-root-block'
+    );
+  });
+
+  test('Static math aria-hidden', function () {
+    var staticMath = MQ.StaticMath(container);
+    staticMath.latex('1+\\frac{1}{x}');
+    var ariaHiddenChildren = $(container).find('[aria-hidden]="true"');
+    assert.equal(ariaHiddenChildren.length, 1, '1 aria-hidden element');
+    assert.ok(
+      ariaHiddenChildren.hasClass('mq-root-block'),
+      'aria-hidden is set on mq-root-block'
+    );
+  });
+
+  test('MathQuillMathField aria-hidden', function () {
+    var staticMath = MQ.StaticMath(container);
+    staticMath.latex('1+\\sqrt{\\MathQuillMathField{x^2+y^2}}+\\frac{1}{x}');
+    var textArea = $(container).find('textarea');
+    assert.equal(textArea.length, 1, 'One text area for inner editable field');
+    assert.equal(
+      textArea.closest('[aria-hidden]="true"').length,
+      0,
+      'Textarea has no aria-hidden parent'
+    );
+    var mathSpeak = $(container).find('.mq-mathspeak');
+    assert.equal(mathSpeak.length, 1, 'One mathspeak region');
+    assert.equal(
+      mathSpeak.closest('[aria-hidden]="true"').length,
+      0,
+      'Textarea has no aria-hidden parent'
+    );
+    var nHiddenTexts = 0;
+    var allChildren = $(container).find('*');
+    allChildren.each(function (_i, elt) {
+      if (elt.textContent === '') return;
+      if (
+        $(elt).has('.mq-mathspeak').length === 1 ||
+        $(elt).closest('.mq-mathspeak').length === 1
+      )
+        return;
+
+      if (
+        $(elt).has('[aria-hidden]="true').length === 1 ||
+        $(elt).closest('[aria-hidden]="true').length === 1
+      ) {
+        nHiddenTexts += 1;
+        return;
+      }
+
+      assert.ok(
+        false,
+        'All children with text content have an aria-hidden parent, or are part of mathspeak'
+      );
+    });
+    assert.ok(
+      nHiddenTexts > 0,
+      'At least one element with text content is aria-hidden'
+    );
+  });
 
   test('typing and backspacing over simple expression', function () {
     mathField.typedText('1');
