@@ -1387,7 +1387,7 @@ class Bracket extends DelimsNode {
       this.side = 0;
     };
   }
-  siblingCreated(_opts: Options, dir: Direction) {
+  siblingCreated(_opts: CursorOptions, dir: Direction) {
     // if something typed between ghost and far
     if (dir === -this.side) this.finalizeTree(); // end of its block, solidify
   }

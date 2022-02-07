@@ -278,7 +278,9 @@ function bindVariable(
   return () => new Variable(ch, h.entityText(htmlEntity));
 }
 
-Options.prototype.autoCommands = { _maxLength: 0 };
+Options.prototype.autoCommands = {
+  _maxLength: 0,
+};
 optionProcessors.autoCommands = function (cmds: string) {
   if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"' + cmds + '" not a space-delimited list of only letters';
@@ -575,12 +577,16 @@ var BuiltInOpNames: AutoDict = {}; // the set of operator names like \sin, \cos,
 // and 'arsinh', which must be exported as \operatorname{hcf} and
 // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
 // \varlimsup are not supported
-var AutoOpNames: AutoDict = (Options.prototype.autoOperatorNames = {
-  _maxLength: 9,
-}); // the set
-// of operator names that MathQuill auto-unitalicizes by default; overridable
+
+// the set of operator names that MathQuill auto-unitalicizes by default; overridable
+Options.prototype.autoOperatorNames = defaultAutoOpNames();
+
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
-(function () {
+
+function defaultAutoOpNames() {
+  const AutoOpNames: AutoDict = {
+    _maxLength: 9,
+  };
   var mostOps = (
     'arg deg det dim exp gcd hom inf ker lg lim ln log max min sup' +
     ' limsup liminf injlim projlim Pr'
@@ -614,7 +620,8 @@ var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
   for (var i = 0; i < moreNonstandardOps.length; i += 1) {
     AutoOpNames[moreNonstandardOps[i]] = 1;
   }
-})();
+  return AutoOpNames;
+}
 
 optionProcessors.autoOperatorNames = function (cmds) {
   if (typeof cmds !== 'string') {
@@ -671,10 +678,12 @@ class OperatorName extends MQSymbol {
     return Parser.succeed(block.children());
   }
 }
-for (var fn in AutoOpNames)
-  if (AutoOpNames.hasOwnProperty(fn)) {
+
+for (var fn in Options.prototype.autoOperatorNames)
+  if (Options.prototype.autoOperatorNames.hasOwnProperty(fn)) {
     (LatexCmds as LatexCmdsAny)[fn as string] = OperatorName;
   }
+
 LatexCmds.operatorname = class extends MathCommand {
   createLeftOf() {}
   numBlocks() {

@@ -9,7 +9,8 @@ interface IAbstractMathQuill {
   __options: CursorOptions;
   id: number;
   data: ControllerData;
-  revert?: () => $;
+  /** Interface V1 returns a jQuery collection. Interface V2 returns an HTMLElement. */
+  revert(): $ | HTMLElement;
 
   mathquillify(classNames: string): void;
   __mathquillify(
@@ -72,8 +73,11 @@ type AutoDict = {
 };
 
 class Options {
+  constructor(public version: 1 | 2) {}
   ignoreNextMousedown: (_el: MouseEvent) => boolean;
   substituteTextarea: () => HTMLElement;
+
+  /** Only used in interface version 1. */
   substituteKeyboardEvents: typeof saneKeyboardEvents;
 
   restrictMismatchedBrackets?: boolean;
@@ -104,6 +108,7 @@ class Options {
   disableAutoSubstitutionInSubscripts?: boolean;
   handlers: HandlerOptions;
 }
+
 class Progenote {}
 
 /**
@@ -160,7 +165,7 @@ MathQuill.getInterface = getInterface;
 var MIN = (getInterface.MIN = 1),
   MAX = (getInterface.MAX = 2);
 function getInterface(v: number) {
-  if (!(MIN <= v && v <= MAX))
+  if (v !== 1 && v !== 2)
     throw (
       'Only interface versions between ' +
       MIN +
@@ -198,9 +203,14 @@ function getInterface(v: number) {
 
   MQ.L = L;
   MQ.R = R;
-  MQ.saneKeyboardEvents = saneKeyboardEvents;
+  if (v < 2) {
+    MQ.saneKeyboardEvents = saneKeyboardEvents;
+  }
 
-  function config(currentOptions: CursorOptions, newOptions: CursorOptions) {
+  function config(
+    currentOptions: CursorOptions,
+    newOptions: ConfigOptionsV1 | ConfigOptionsV2
+  ) {
     if (newOptions && newOptions.handlers) {
       newOptions.handlers = {
         fns: newOptions.handlers,
@@ -214,10 +224,13 @@ function getInterface(v: number) {
         (currentOptions as any)[name] = processor ? processor(value) : value; // TODO - think about typing better
       }
   }
-  MQ.config = function (opts: CursorOptions) {
-    config(Options.prototype, opts);
+
+  const BaseOptions = v < 2 ? Options : class BaseOptions extends Options {};
+  MQ.config = function (opts: ConfigOptionsV1 | ConfigOptionsV2) {
+    config(BaseOptions.prototype, opts);
     return this;
   };
+
   MQ.registerEmbed = function (
     name: string,
     options: (data: EmbedOptionsData) => EmbedOptions
@@ -236,10 +249,7 @@ function getInterface(v: number) {
     __options: CursorOptions;
     id: number;
     data: ControllerData;
-    // TODO this public API method returns a jQuery collection. To
-    // completely remove the jQuery dependency, we'll have to make a
-    // breaking change to the return value of revert
-    revert?: () => $;
+    abstract revert(): HTMLElement | $;
 
     constructor(ctrlr: Controller) {
       super();
@@ -274,14 +284,14 @@ function getInterface(v: number) {
       this.latex(contents.text());
 
       this.revert = function () {
-        return jQToDOMFragment(el.unbind('.mathquill'))
+        const frag = jQToDOMFragment(el.unbind('.mathquill'))
           .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
-          .append(contents)
-          .toJQ();
+          .append(contents);
+        return v < 2 ? frag.toJQ() : frag.oneElement();
       };
     }
-    config(opts: CursorOptions) {
+    config(opts: ConfigOptionsV1 | ConfigOptionsV2) {
       config(this.__options, opts);
       return this;
     }
@@ -475,7 +485,7 @@ function getInterface(v: number) {
         var ctrlr = new Controller(
           new APIClass.RootBlock() as ControllerRoot,
           $(el),
-          new Options()
+          new BaseOptions(v)
         );
         ctrlr.KIND_OF_MQ = kind;
         return new APIClass(ctrlr).__mathquillify(opts, v);

@@ -7,7 +7,78 @@ type ControllerEvent =
   | 'select'
   | undefined;
 type JoinMethod = 'mathspeak' | 'latex' | 'text';
-type CursorOptions = typeof Options.prototype;
+
+type CursorOptions = Options;
+
+type ConfigOptions = ConfigOptionsV1 | ConfigOptionsV2;
+
+interface ConfigOptionsV1 {
+  ignoreNextMousedown: (_el: MouseEvent) => boolean;
+  substituteTextarea: () => HTMLElement;
+  substituteKeyboardEvents: typeof saneKeyboardEvents;
+
+  restrictMismatchedBrackets?: boolean;
+  typingSlashCreatesNewFraction?: boolean;
+  charsThatBreakOutOfSupSub: string;
+  sumStartsWithNEquals?: boolean;
+  autoSubscriptNumerals?: boolean;
+  supSubsRequireOperand?: boolean;
+  spaceBehavesLikeTab?: boolean;
+  typingAsteriskWritesTimesSymbol?: boolean;
+  typingSlashWritesDivisionSymbol: boolean;
+  typingPercentWritesPercentOf?: boolean;
+  resetCursorOnBlur?: boolean | undefined;
+  leftRightIntoCmdGoes?: 'up' | 'down';
+  enableDigitGrouping?: boolean;
+  mouseEvents?: boolean;
+  maxDepth?: number;
+  disableCopyPaste?: boolean;
+  statelessClipboard?: boolean;
+  onPaste?: () => void;
+  onCut?: () => void;
+  overrideTypedText?: (text: string) => void;
+  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
+  autoOperatorNames: AutoDict;
+  autoCommands: AutoDict;
+  autoParenthesizedFunctions: AutoDict;
+  quietEmptyDelimiters: { [id: string]: any };
+  disableAutoSubstitutionInSubscripts?: boolean;
+  handlers: HandlerOptions;
+}
+
+interface ConfigOptionsV2 {
+  ignoreNextMousedown: (_el: MouseEvent) => boolean;
+  substituteTextarea: () => HTMLElement;
+
+  restrictMismatchedBrackets?: boolean;
+  typingSlashCreatesNewFraction?: boolean;
+  charsThatBreakOutOfSupSub: string;
+  sumStartsWithNEquals?: boolean;
+  autoSubscriptNumerals?: boolean;
+  supSubsRequireOperand?: boolean;
+  spaceBehavesLikeTab?: boolean;
+  typingAsteriskWritesTimesSymbol?: boolean;
+  typingSlashWritesDivisionSymbol: boolean;
+  typingPercentWritesPercentOf?: boolean;
+  resetCursorOnBlur?: boolean | undefined;
+  leftRightIntoCmdGoes?: 'up' | 'down';
+  enableDigitGrouping?: boolean;
+  mouseEvents?: boolean;
+  maxDepth?: number;
+  disableCopyPaste?: boolean;
+  statelessClipboard?: boolean;
+  onPaste?: () => void;
+  onCut?: () => void;
+  overrideTypedText?: (text: string) => void;
+  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
+  autoOperatorNames: AutoDict;
+  autoCommands: AutoDict;
+  autoParenthesizedFunctions: AutoDict;
+  quietEmptyDelimiters: { [id: string]: any };
+  disableAutoSubstitutionInSubscripts?: boolean;
+  handlers: HandlerOptions;
+}
+
 type MathspeakOptions = {
   createdLeftOf?: Cursor;
   ignoreShorthand?: boolean;
@@ -78,6 +149,7 @@ type JQSelector =
   | NodeListOf<ChildNode>
   | HTMLElement[]
   | EventTarget;
+
 interface $ {
   (selector?: JQSelector): $;
   attr(attr: string, val: string | number | null): $;

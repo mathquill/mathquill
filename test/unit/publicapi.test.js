@@ -81,6 +81,13 @@ suite('Public API', function () {
 
     test('.revert()', function () {
       var mq = MQ.MathField($('<span>some <code>HTML</code></span>')[0]);
+      assert.equal(mq.revert().innerHTML, 'some <code>HTML</code>');
+    });
+
+    test('interface v1 .revert() returns jquery colletion', function () {
+      // interface version 1
+      var MQ1 = MathQuill.getInterface(1);
+      var mq = MQ1.MathField($('<span>some <code>HTML</code></span>')[0]);
       assert.equal(mq.revert().html(), 'some <code>HTML</code>');
     });
 
@@ -1033,11 +1040,12 @@ suite('Public API', function () {
     });
   });
 
-  suite('substituteKeyboardEvents', function () {
+  suite('substituteKeyboardEvents (interface version 1)', function () {
+    var MQ1 = MathQuill.getInterface(1);
     test('can intercept key events', function () {
-      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+      var mq = MQ1.MathField($('<span>').appendTo('#mock')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ1.saneKeyboardEvents(
             textarea,
             jQuery.extend({}, handlers, {
               keystroke: function (_key, evt) {
@@ -1054,9 +1062,9 @@ suite('Public API', function () {
       assert.equal(key, 'Left');
     });
     test('cut is async', function () {
-      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+      var mq = MQ1.MathField($('<span>').appendTo('#mock')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ1.saneKeyboardEvents(
             textarea,
             jQuery.extend({}, handlers, {
               cut: function () {

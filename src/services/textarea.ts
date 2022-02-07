@@ -103,13 +103,19 @@ class Controller extends Controller_scrollHoriz {
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(
-      textarea,
-      this
-    );
-    this.selectFn = function (text: string) {
-      keyboardEventsShim.select(text);
-    };
+    if (this.options.version === 1) {
+      var keyboardEventsShim = this.options.substituteKeyboardEvents(
+        textarea,
+        this
+      );
+      this.selectFn = function (text: string) {
+        keyboardEventsShim.select(text);
+      };
+    } else {
+      const { select } = saneKeyboardEvents(textarea, this);
+      this.selectFn = select;
+    }
+
     jQToDOMFragment(this.container).prepend(jQToDOMFragment(textareaSpan));
     this.focusBlurEvents();
     this.updateMathspeak();
