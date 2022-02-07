@@ -1597,6 +1597,12 @@ class MathFieldNode extends MathCommand {
     ctrlr.cursor.insAtRightEnd(ctrlr.root);
     RootBlockMixin(ctrlr.root);
 
+    // MathQuill applies aria-hidden to .mq-root-block containers
+    // because these contain math notation that screen readers can't
+    // interpret directly. MathQuill use an aria-live region as a
+    // sibling of these block containers to provide an alternative
+    // representation for screen readers
+    //
     // MathFieldNodes have their own focusable text aria and aria live
     // region, so it is incorrect for any parent of the editable field
     // to have an aria-hidden property
