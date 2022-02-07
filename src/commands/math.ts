@@ -685,18 +685,19 @@ class MathBlock extends MathElement {
 Options.prototype.mouseEvents = true;
 API.StaticMath = function (APIClasses: APIClasses) {
   return class StaticMath extends APIClasses.AbstractMathQuill {
+    innerFields: InnerFields;
     static RootBlock = MathBlock;
 
     __mathquillify(opts: CursorOptions, _interfaceVersion: number) {
       this.config(opts);
-      super.__mathquillify('mq-math-mode');
+      super.mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
         this.__controller.delegateMouseEvents();
         this.__controller.staticMathTextareaEvents();
       }
       return this;
     }
-    constructor(el: MQNode) {
+    constructor(el: Controller) {
       super(el);
       var innerFields = (this.innerFields = []);
       this.__controller.root.postOrder(function (node: MQNode) {
@@ -704,7 +705,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
       });
     }
     latex() {
-      var returned = super.latex.apply(this, arguments);
+      var returned = super.latex.apply(this, arguments as unknown as [string]);
       if (arguments.length > 0) {
         var innerFields = (this.innerFields = []);
         this.__controller.root.postOrder(function (node: MQNode) {
@@ -735,26 +736,32 @@ API.MathField = function (APIClasses: APIClasses) {
     __mathquillify(opts: CursorOptions, interfaceVersion: number) {
       this.config(opts);
       if (interfaceVersion > 1) this.__controller.root.reflow = noop;
-      super.__mathquillify('mq-editable-field mq-math-mode');
-      delete this.__controller.root.reflow;
+      super.mathquillify('mq-editable-field mq-math-mode');
+      // TODO: Why does this need to be deleted (contrary to the type definition)? Could we set it to `noop` instead?
+      delete (this.__controller.root as any).reflow;
       return this;
     }
   };
 };
 
 API.InnerMathField = function (APIClasses: APIClasses) {
+  pray('MathField class is defined', APIClasses.MathField);
   return class extends APIClasses.MathField {
     makeStatic() {
       this.__controller.editable = false;
       this.__controller.root.blur();
       this.__controller.unbindEditablesEvents();
-      this.__controller.container.removeClass('mq-editable-field');
+      jQToDOMFragment(this.__controller.container).removeClass(
+        'mq-editable-field'
+      );
     }
     makeEditable() {
       this.__controller.editable = true;
       this.__controller.editablesTextareaEvents();
       this.__controller.cursor.insAtRightEnd(this.__controller.root);
-      this.__controller.container.addClass('mq-editable-field');
+      jQToDOMFragment(this.__controller.container).addClass(
+        'mq-editable-field'
+      );
     }
   };
 };

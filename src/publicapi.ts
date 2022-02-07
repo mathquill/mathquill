@@ -2,6 +2,52 @@
  * The publicly exposed MathQuill API.
  ********************************************************/
 
+type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
+
+interface IAbstractMathQuill {
+  __controller: Controller;
+  __options: CursorOptions;
+  id: number;
+  data: ControllerData;
+  revert?: () => $;
+
+  mathquillify(classNames: string): void;
+  __mathquillify(
+    opts: CursorOptions,
+    _interfaceVersion: number
+  ): IAbstractMathQuill;
+  config(opts: CursorOptions): IAbstractMathQuill;
+  el(): HTMLElement;
+  text(): string;
+  mathspeak(): string;
+  latex(latex: string): string | IAbstractMathQuill;
+  html(): string;
+  reflow(): IAbstractMathQuill;
+}
+interface IAbstractMathQuillClass {
+  new (ctrlr: Controller): IAbstractMathQuill;
+}
+
+interface APIClass extends IAbstractMathQuillClass {
+  RootBlock: typeof MathBlock;
+}
+
+interface APIClasses {
+  StaticMath?: APIClass;
+  MathField?: APIClass;
+  InnerMathField?: APIClass;
+  TextField?: APIClass;
+  AbstractMathQuill: IAbstractMathQuillClass;
+  EditableField: IAbstractMathQuillClass;
+}
+
+type API = {
+  StaticMath?: (APIClasses: APIClasses) => APIClass;
+  MathField?: (APIClasses: APIClasses) => APIClass;
+  InnerMathField?: (APIClasses: APIClasses) => APIClass;
+  TextField?: (APIClasses: APIClasses) => APIClass;
+};
+
 var API: API = {};
 
 var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
@@ -146,7 +192,8 @@ function getInterface(v: number) {
     }
     var blockNode = NodeBase.getNodeOfElement(blockElement) as MathBlock; // TODO - assumng it's a MathBlock
     var ctrlr = blockNode && blockNode.controller;
-    return ctrlr ? new APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
+    const APIClass = ctrlr && APIClasses[ctrlr.KIND_OF_MQ];
+    return ctrlr && APIClass ? new APIClass(ctrlr) : null;
   };
 
   MQ.L = L;
@@ -181,7 +228,10 @@ function getInterface(v: number) {
     EMBEDS[name] = options;
   };
 
-  class AbstractMathQuill extends Progenote {
+  abstract class AbstractMathQuill
+    extends Progenote
+    implements IAbstractMathQuill
+  {
     __controller: Controller;
     __options: CursorOptions;
     id: number;
@@ -198,7 +248,13 @@ function getInterface(v: number) {
       this.id = ctrlr.id;
       this.data = ctrlr.data;
     }
-    __mathquillify(classNames: string) {
+
+    abstract __mathquillify(
+      opts: CursorOptions,
+      _interfaceVersion: number
+    ): IAbstractMathQuill;
+
+    mathquillify(classNames: string) {
       var ctrlr = this.__controller,
         root = ctrlr.root,
         el = ctrlr.container;
@@ -266,9 +322,9 @@ function getInterface(v: number) {
   }
   MQ.prototype = AbstractMathQuill.prototype;
 
-  class EditableField extends AbstractMathQuill {
-    __mathquillify(classNames: string) {
-      super.__mathquillify(classNames);
+  abstract class EditableField extends AbstractMathQuill {
+    mathquillify(classNames: string) {
+      super.mathquillify(classNames);
       this.__controller.editable = true;
       this.__controller.delegateMouseEvents();
       this.__controller.editablesTextareaEvents();
@@ -402,7 +458,7 @@ function getInterface(v: number) {
   var APIClasses: APIClasses = {
     AbstractMathQuill,
     EditableField,
-  };
+  } as unknown as APIClasses;
 
   /**
    * Export the API functions that MathQuill-ify an HTML element into API objects
@@ -410,13 +466,14 @@ function getInterface(v: number) {
    * different kind (or it's not an HTML element), return null.
    */
   for (var kind in API)
-    (function (kind, defAPIClass) {
+    (function <K extends keyof typeof API>(kind: K, defAPIClass: API[K]) {
+      if (!defAPIClass) return;
       var APIClass = (APIClasses[kind] = defAPIClass(APIClasses));
       MQ[kind] = function (el: HTMLElement, opts: CursorOptions) {
         var mq = MQ(el);
         if (mq instanceof APIClass || !el || !el.nodeType) return mq;
         var ctrlr = new Controller(
-          new APIClass.RootBlock(),
+          new APIClass.RootBlock() as ControllerRoot,
           $(el),
           new Options()
         );
@@ -424,7 +481,7 @@ function getInterface(v: number) {
         return new APIClass(ctrlr).__mathquillify(opts, v);
       };
       MQ[kind].prototype = APIClass.prototype;
-    })(kind, API[kind]);
+    })(kind as keyof typeof API, API[kind as keyof typeof API]);
 
   return MQ;
 }

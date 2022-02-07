@@ -339,7 +339,7 @@ class NodeBase {
   }
   finalizeTree(_options: CursorOptions, _dir?: Direction) {}
   contactWeld(_cursor: Cursor, _dir?: Direction) {}
-  blur(_cursor: Cursor) {}
+  blur(_cursor?: Cursor) {}
   focus() {}
   intentionalBlur() {}
   reflow() {}

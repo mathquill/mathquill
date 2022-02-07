@@ -526,7 +526,8 @@ API.TextField = function (APIClasses: APIClasses) {
   return class extends APIClasses.EditableField {
     static RootBlock = RootTextBlock;
     __mathquillify() {
-      return super.__mathquillify('mq-editable-field mq-text-mode');
+      super.mathquillify('mq-editable-field mq-text-mode');
+      return this;
     }
     latex(latex: string) {
       if (arguments.length > 0) {

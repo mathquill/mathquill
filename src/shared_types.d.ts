@@ -29,7 +29,6 @@ type InequalityData = {
   mathspeakStrict: string;
 };
 
-type API = any;
 type HandlerOptions = any;
 type ControllerData = any;
 type ControllerRoot = MQNode & {
@@ -38,8 +37,6 @@ type ControllerRoot = MQNode & {
   latex: () => string;
 };
 type HandlerName = any;
-type KIND_OF_MQ = any;
-type APIClasses = any;
 type JQ_KeyboardEvent = KeyboardEvent & {
   originalEvent?: KeyboardEvent;
 };
