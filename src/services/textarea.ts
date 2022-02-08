@@ -66,13 +66,6 @@ class Controller extends Controller_scrollHoriz {
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    jQToDOMFragment(this.container).prepend(
-      DOMFragment.create(
-        h('span', { 'aria-hidden': 'true', class: 'mq-selectable' }, [
-          h.text('$' + ctrlr.exportLatex() + '$'),
-        ])
-      )
-    );
     this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
     jQToDOMFragment(this.container).prepend(
       jQToDOMFragment(this.mathspeakSpan)

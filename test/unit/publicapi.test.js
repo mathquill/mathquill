@@ -118,7 +118,7 @@ suite('Public API', function () {
       mq.latex('x+y');
       assert.equal(
         mq.html(),
-        '<var aria-hidden="true">x</var><span aria-hidden="true" class="mq-binary-operator">+</span><var aria-hidden="true">y</var>'
+        '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>'
       );
     });
 

@@ -43,13 +43,13 @@ suite('HTML', function () {
   test('simple HTML templates', function () {
     assertDOMEqual(
       renderHtml(new DOMView(0, () => h('span', {}, [h.text('A Symbol')]))),
-      '<span aria-hidden="true">A Symbol</span>',
+      '<span>A Symbol</span>',
       'a symbol'
     );
 
     assertDOMEqual(
       renderHtml(new DOMView(1, (blocks) => h.block('span', {}, blocks[0]))),
-      '<span aria-hidden="true" aria-hidden="true">Block:0</span>',
+      '<span>Block:0</span>',
       'same span is cmd and block'
     );
 
@@ -62,16 +62,13 @@ suite('HTML', function () {
           ])
         )
       ),
-      '<span aria-hidden="true">' +
-        '<span aria-hidden="true">Block:0</span>' +
-        '<span aria-hidden="true">Block:1</span>' +
-        '</span>',
+      '<span>' + '<span>Block:0</span>' + '<span>Block:1</span>' + '</span>',
       'container span with two block spans'
     );
 
     assertDOMEqual(
       renderHtml(new DOMView(0, () => h('br'))),
-      '<br aria-hidden="true"/>',
+      '<br/>',
       'self-closing tag'
     );
   });
@@ -86,11 +83,11 @@ suite('HTML', function () {
           return frag;
         })
       ),
-      '<span aria-hidden="true">' +
-        '<span aria-hidden="true">Block:0</span>' +
+      '<span>' +
+        '<span>Block:0</span>' +
         '</span>' +
-        '<span aria-hidden="true">' +
-        '<span aria-hidden="true">Block:1</span>' +
+        '<span>' +
+        '<span>Block:1</span>' +
         '</span>',
       'two cmd spans'
     );
@@ -112,14 +109,14 @@ suite('HTML', function () {
           return frag;
         })
       ),
-      '<span aria-hidden="true"></span>' +
-        '<span aria-hidden="true"></span>' +
-        '<span aria-hidden="true">' +
+      '<span></span>' +
+        '<span></span>' +
+        '<span>' +
         '<span><span></span></span>' +
-        '<span aria-hidden="true">Block:1</span>' +
+        '<span>Block:1</span>' +
         '<span></span>' +
         '</span>' +
-        '<span aria-hidden="true">Block:0</span>',
+        '<span>Block:0</span>',
       'multiple nested cmd and block spans'
     );
   });

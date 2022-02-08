@@ -1561,11 +1561,15 @@ LatexCmds.choose = class extends Binomial {
 class MathFieldNode extends MathCommand {
   name: string;
   ctrlSeq = '\\MathQuillMathField';
-  domView = new DOMView(1, (blocks) =>
-    h('span', { class: 'mq-editable-field' }, [
-      h.block('span', { class: 'mq-root-block' }, blocks[0]),
-    ])
-  );
+  domView = new DOMView(1, (blocks) => {
+    return h('span', { class: 'mq-editable-field' }, [
+      h.block(
+        'span',
+        { class: 'mq-root-block', 'aria-hidden': 'true' },
+        blocks[0]
+      ),
+    ]);
+  });
   parser() {
     var self = this,
       string = Parser.string,
@@ -1592,6 +1596,45 @@ class MathFieldNode extends MathCommand {
     ctrlr.editablesTextareaEvents();
     ctrlr.cursor.insAtRightEnd(ctrlr.root);
     RootBlockMixin(ctrlr.root);
+
+    // MathQuill applies aria-hidden to .mq-root-block containers
+    // because these contain math notation that screen readers can't
+    // interpret directly. MathQuill use an aria-live region as a
+    // sibling of these block containers to provide an alternative
+    // representation for screen readers
+    //
+    // MathFieldNodes have their own focusable text aria and aria live
+    // region, so it is incorrect for any parent of the editable field
+    // to have an aria-hidden property
+    //
+    // https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/Attributes/aria-hidden
+    //
+    // Handle this by recursively walking the parents of this element
+    // until we hit a root block, and if we hit any parent with
+    // aria-hidden="true", removing the property from the parent and
+    // pushing it down to each of the parents children. This should
+    // result in no parent of this node having aria-hidden="true", but
+    // should keep as much of what was previously hidden hidden as
+    // possible while obeying this constraint
+    function pushDownAriaHidden(node: ParentNode) {
+      if (node.parentNode && !domFrag(node).hasClass('mq-root-block')) {
+        pushDownAriaHidden(node.parentNode);
+      }
+      if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        if (element.getAttribute('aria-hidden') === 'true') {
+          element.removeAttribute('aria-hidden');
+          domFrag(node)
+            .children()
+            .eachElement((child) => {
+              child.setAttribute('aria-hidden', 'true');
+            });
+        }
+      }
+    }
+
+    pushDownAriaHidden(this.domFrag().parent().oneElement());
+    this.domFrag().oneElement().removeAttribute('aria-hidden');
   }
   registerInnerField(innerFields: InnerFields, MathField: InnerMathField) {
     const controller = (this.getEnd(L) as RootMathBlock).controller;

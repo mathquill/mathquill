@@ -91,7 +91,7 @@ h.block = (
   attributes: CreateElementAttributes | undefined,
   block: MathBlock
 ) => {
-  const out = h(type, { ...attributes, 'aria-hidden': true }, [block.html()]);
+  const out = h(type, attributes, [block.html()]);
   block.joinFrag(domFrag(out));
   NodeBase.linkElementByBlockNode(out, block);
   return out;

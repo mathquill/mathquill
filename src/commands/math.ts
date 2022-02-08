@@ -280,7 +280,6 @@ class MathCommand extends MathElement {
       if (node instanceof Element) {
         this.joinFrag(domFrag(node));
         NodeBase.linkElementByCmdNode(node, this);
-        node.setAttribute('aria-hidden', 'true');
       }
       node = node.nextSibling;
     }
