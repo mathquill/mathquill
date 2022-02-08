@@ -11,9 +11,28 @@ Options.prototype.substituteTextarea = function () {
     'x-palm-disable-ste-all': true,
   });
 };
-Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
+function defaultSubstituteKeyboardEvents(jq: $, controller: Controller) {
+  return saneKeyboardEvents(jq[0] as HTMLTextAreaElement, controller);
+}
+Options.prototype.substituteKeyboardEvents = defaultSubstituteKeyboardEvents;
+
+type TextareaKeyboardEvents =
+  | 'keydown'
+  | 'keypress'
+  | 'keyup'
+  | 'input'
+  | 'cut'
+  | 'copy'
+  | 'paste'
+  | 'focusout';
+
+type TextareaKeyboardEventListeners = Partial<{
+  [K in TextareaKeyboardEvents]: (event: HTMLElementEventMap[K]) => any;
+}>;
 
 class Controller extends Controller_scrollHoriz {
+  keyboardEventListeners: TextareaKeyboardEventListeners = {};
+
   selectFn: (text: string) => void;
 
   createTextarea() {
@@ -33,6 +52,26 @@ class Controller extends Controller_scrollHoriz {
       ctrlr.selectionChanged();
     };
   }
+
+  /** Add the given event listeners on this.textarea, replacing the existing listener for that event if it exists. */
+  addTextareaEventListeners(listeners: TextareaKeyboardEventListeners) {
+    if (!this.textarea) return;
+    const textarea = jQToDOMFragment(this.textarea).oneElement();
+    for (const key in listeners) {
+      const event = key as keyof typeof listeners;
+      this.removeTextareaEventListener(event);
+      textarea.addEventListener(event, listeners[event] as EventListener);
+    }
+  }
+
+  private removeTextareaEventListener(event: TextareaKeyboardEvents) {
+    if (!this.textarea) return;
+    const textarea = jQToDOMFragment(this.textarea).oneElement();
+    const listener = this.keyboardEventListeners[event];
+    if (!listener) return;
+    textarea.removeEventListener(event, listener as EventListener);
+  }
+
   selectionChanged() {
     var ctrlr = this;
 
@@ -69,12 +108,15 @@ class Controller extends Controller_scrollHoriz {
     this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
     this.container.prepend(jQToDOMFragment(this.mathspeakSpan));
     ctrlr.blurred = true;
-    textarea.bind('cut paste', false);
+    this.removeTextareaEventListener('cut');
+    this.removeTextareaEventListener('paste');
     if (ctrlr.options.disableCopyPaste) {
-      textarea.bind('copy', false);
+      this.removeTextareaEventListener('copy');
     } else {
-      textarea.bind('copy', function () {
-        ctrlr.setTextareaSelection();
+      this.addTextareaEventListeners({
+        copy: function () {
+          ctrlr.setTextareaSelection();
+        },
       });
     }
     textarea
@@ -110,7 +152,10 @@ class Controller extends Controller_scrollHoriz {
         keyboardEventsShim.select(text);
       };
     } else {
-      const { select } = saneKeyboardEvents(textarea, this);
+      const { select } = saneKeyboardEvents(
+        jQToDOMFragment(textarea).oneElement() as HTMLTextAreaElement,
+        this
+      );
       this.selectFn = select;
     }
 
@@ -132,7 +177,8 @@ class Controller extends Controller_scrollHoriz {
     this.unbindFocusBlurEvents();
 
     ctrlr.blurred = true;
-    textarea.bind('cut paste', false);
+    this.removeTextareaEventListener('cut');
+    this.removeTextareaEventListener('paste');
   }
   typedText(ch: string) {
     if (ch === '\n') return this.handle('enter');

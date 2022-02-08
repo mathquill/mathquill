@@ -29,9 +29,8 @@ class EveryTick<Args extends unknown[] = []> {
 /*************************************************
  * Sane Keyboard Events Shim
  *
- * An abstraction layer wrapping the textarea in
- * an object with methods to manipulate and listen
- * to events on, that hides all the nasty cross-
+ * An abstraction layer over the raw browser browser events
+ * on the textarea that hides all the nasty cross-
  * browser incompatibilities behind a uniform API.
  *
  * Design goal: This is a *HARD* internal
@@ -40,15 +39,8 @@ class EveryTick<Args extends unknown[] = []> {
  * and be dealt with by event handlers. All future
  * cross-browser issues that arise must be dealt
  * with here, and if necessary, the API updated.
- *
- * Organization:
- * - key values map and stringify()
- * - saneKeyboardEvents()
- *    + defer() and flush()
- *    + event handler logic
- *    + attach event handlers and export methods
  ************************************************/
-var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
+var saneKeyboardEvents = (function () {
   // The following [key values][1] map was compiled from the
   // [DOM3 Events appendix section on key codes][2] and
   // [a widely cited report on cross-browser tests of key codes][3],
@@ -113,14 +105,12 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
     return modifiers.join('-');
   }
 
-  // create a keyboard events shim that calls callbacks at useful times
-  // and exports useful public methods
-  return function saneKeyboardEvents(el: $, controller: Controller) {
+  return function saneKeyboardEvents(
+    textarea: HTMLTextAreaElement,
+    controller: Controller
+  ) {
     var keydown: JQ_KeyboardEvent | null = null;
     var keypress: KeyboardEvent | null = null;
-
-    var textarea = $(el);
-    var target = controller.container?.toJQ() || $(textarea);
 
     // everyTick.listen() is called after key or clipboard events to
     // say "Hey, I think something was just typed" or "pasted" etc,
@@ -131,9 +121,6 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
     // incorrectly reported as selected during the input event (but not
     // subsequently).
     const everyTick = new EveryTick<[Event]>(noop);
-    target.bind('keydown keypress input keyup paste', function (e: Event) {
-      everyTick.trigger(e);
-    });
 
     function guardedTextareaSelect() {
       try {
@@ -142,7 +129,7 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
         // likely that we don't really care if the selection
         // fails to happen in this case. Why would the textarea
         // be hidden? And who would even be able to tell?
-        (textarea[0] as HTMLTextAreaElement).select();
+        textarea.select();
       } catch (e) {}
     }
 
@@ -154,7 +141,7 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
       everyTick.trigger();
       everyTick.clearListener();
 
-      textarea.val(text);
+      textarea.value = text;
       if (text) guardedTextareaSelect();
       shouldBeSelected = !!text;
     }
@@ -166,7 +153,7 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
     // This will always return false in IE < 9, which don't support
     // HTMLTextareaElement::selection{Start,End}.
     function hasSelection() {
-      var dom = textarea[0] as HTMLTextAreaElement;
+      var dom = textarea;
 
       if (!('selectionStart' in dom)) return false;
       return dom.selectionStart !== dom.selectionEnd;
@@ -182,7 +169,8 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
 
     // -*- event handlers -*- //
     function onKeydown(e: KeyboardEvent) {
-      if (e.target !== textarea[0]) return;
+      everyTick.trigger(e);
+      if (e.target !== textarea) return;
 
       keydown = e;
       keypress = null;
@@ -216,7 +204,8 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
     }
 
     function onKeypress(e: KeyboardEvent) {
-      if (e.target !== textarea[0]) return;
+      everyTick.trigger(e);
+      if (e.target !== textarea) return;
 
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
@@ -236,7 +225,8 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
     }
 
     function onKeyup(e: KeyboardEvent) {
-      if (e.target !== textarea[0]) return;
+      everyTick.trigger(e);
+      if (e.target !== textarea) return;
 
       // Handle case of no keypress event being sent
       if (!!keydown && !keypress) {
@@ -270,9 +260,9 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
-      var text = (textarea[0] as HTMLTextAreaElement).value;
+      var text = textarea.value;
       if (text.length === 1) {
-        textarea.val('');
+        textarea.value = '';
         if (controller.options && controller.options.overrideTypedText) {
           controller.options.overrideTypedText(text);
         } else {
@@ -287,11 +277,12 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
       keydown = null;
       keypress = null;
       everyTick.clearListener();
-      textarea.val('');
+      textarea.value = '';
     }
 
     function onPaste(e: Event) {
-      if (e.target !== textarea[0]) return;
+      everyTick.trigger();
+      if (e.target !== textarea) return;
 
       // browsers are dumb.
       //
@@ -305,21 +296,23 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
       // on keydown too, FWIW).
       //
       // And by nifty, we mean dumb (but useful sometimes).
-      if (document.activeElement !== textarea[0]) {
-        textarea[0].focus();
+      if (document.activeElement !== textarea) {
+        textarea.focus();
       }
 
       everyTick.listen(function pastedText() {
-        var text = (textarea[0] as HTMLTextAreaElement).value;
-        textarea.val('');
+        var text = textarea.value;
+        textarea.value = '';
         if (text) controller.paste(text);
       });
     }
 
-    // -*- attach event handlers -*- //
+    function onInput(e: Event) {
+      everyTick.trigger(e);
+    }
 
     if (controller.options && controller.options.disableCopyPaste) {
-      target.bind({
+      controller.addTextareaEventListeners({
         keydown: onKeydown,
         keypress: onKeypress,
         keyup: onKeyup,
@@ -331,11 +324,13 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
           e.preventDefault();
         },
         paste: function (e: Event) {
+          everyTick.trigger();
           e.preventDefault();
         },
+        input: onInput,
       });
     } else {
-      target.bind({
+      controller.addTextareaEventListeners({
         keydown: onKeydown,
         keypress: onKeypress,
         keyup: onKeyup,
@@ -351,12 +346,11 @@ var saneKeyboardEvents: SubstituteKeyboardEvents = (function () {
           });
         },
         paste: onPaste,
+        input: onInput,
       });
     }
 
     // -*- export public methods -*- //
-    return {
-      select: select,
-    };
+    return { select };
   };
 })();

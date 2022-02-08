@@ -210,7 +210,7 @@ function getInterface(v: number) {
   MQ.L = L;
   MQ.R = R;
   if (v < 2) {
-    MQ.saneKeyboardEvents = saneKeyboardEvents;
+    MQ.saneKeyboardEvents = defaultSubstituteKeyboardEvents;
   }
 
   function config(
