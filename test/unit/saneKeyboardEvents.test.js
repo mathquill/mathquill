@@ -413,40 +413,6 @@ suite('saneKeyboardEvents', function () {
                 'textarea remains blurred'
               );
             });
-
-            test('with keypress, only 1 character selected', function () {
-              var count = 0;
-              var shim = saneKeyboardEvents(
-                el[0],
-                mockController({
-                  keystroke: noop,
-                  typedText: function (ch) {
-                    assert.equal(ch, 'a');
-                    assert.equal(el.val(), '');
-                    count += 1;
-                  },
-                })
-              );
-
-              shim.select('a');
-              assert.equal(el.val(), 'a');
-
-              if (!supportsSelectionAPI()) return;
-
-              trigger.keydown(el[0], 'ArrowLeft', { altKey: true });
-              trigger.keypress(el[0], 'ArrowLeft', { altKey: true });
-              el[0].selectionEnd = 0;
-
-              trigger.keyup(el[0]);
-              assert.equal(count, 1);
-
-              el.blur();
-              shim.select('');
-              assert.ok(
-                document.activeElement !== el[0],
-                'textarea remains blurred'
-              );
-            });
           }
         );
       }

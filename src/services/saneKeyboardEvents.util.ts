@@ -230,6 +230,8 @@ var saneKeyboardEvents = (function () {
       // is selected. Only detected in FF.
       if (!isArrowKey(e)) {
         everyTick.listen(typedText);
+      } else {
+        everyTick.listenOnce(maybeReselect);
       }
     }
 
@@ -245,6 +247,8 @@ var saneKeyboardEvents = (function () {
         // is selected. Only detected in FF.
         if (!isArrowKey(e)) {
           everyTick.listen(typedText);
+        } else {
+          everyTick.listenOnce(maybeReselect);
         }
       }
     }
@@ -279,7 +283,13 @@ var saneKeyboardEvents = (function () {
         }
       } // in Firefox, keys that don't type text, just clear seln, fire keypress
       // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
-      else if (text) guardedTextareaSelect(); // re-select if that's why we're here
+      else maybeReselect(); // re-select if that's why we're here
+    }
+
+    function maybeReselect() {
+      if (textarea.value.length > 1) {
+        guardedTextareaSelect();
+      }
     }
 
     function onBlur() {
