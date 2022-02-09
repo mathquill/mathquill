@@ -32,8 +32,14 @@ var cancelSelectionOnEdit:
 
 class Controller_mouse extends Controller_latex {
   private handleMouseDown = (e: MouseEvent) => {
-    var rootjQ = $(closest(e.target as HTMLElement | null, '.mq-root-block'));
-    var root = (NodeBase.getNodeOfElement(rootjQ[0]) ||
+    const rootElement = closest(
+      e.target as HTMLElement | null,
+      '.mq-root-block'
+    ) as HTMLElement | null;
+    pray('rootElement is defined', rootElement);
+    const ownerDocument = rootElement.ownerDocument;
+
+    var root = (NodeBase.getNodeOfElement(rootElement) ||
       NodeBase.getNodeOfElement(
         this.root.domFrag().oneElement()
       )) as ControllerRoot;
@@ -49,31 +55,28 @@ class Controller_mouse extends Controller_latex {
     if (cursor.options.ignoreNextMousedown(e)) return;
     else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
-    var target: $ | undefined;
+    var lastMousemoveTarget: $ | undefined;
     function mousemove(e: Event) {
-      target = $(e.target);
+      lastMousemoveTarget = $(e.target);
     }
-    function docmousemove(e: MouseEvent) {
+    function onDocumentMouseMove(e: MouseEvent) {
       if (!cursor.anticursor) cursor.startSelection();
-      ctrlr.seek(target!, e.clientX, e.clientY).cursor.select();
+      ctrlr.seek(lastMousemoveTarget!, e.clientX, e.clientY).cursor.select();
       if (cursor.selection)
         cursor.controller.aria
           .clear()
           .queue(cursor.selection.join('mathspeak') + ' selected')
           .alert();
-      target = undefined;
+      lastMousemoveTarget = undefined;
     }
-    // outside rootjQ, the MathQuill node corresponding to the target (if any)
+    // outside rootElement, the MathQuill node corresponding to the target (if any)
     // won't be inside this root, so don't mislead Controller::seek with it
 
-    function unbindListeners(e: MouseEvent) {
+    function unbindListeners() {
       // delete the mouse handlers now that we're not dragging anymore
-      rootjQ.unbind('mousemove', mousemove);
-
-      const anyTarget = e.target as any; // TODO - why do we need to cast to any?
-      $(anyTarget.ownerDocument)
-        .unbind('mousemove', docmousemove)
-        .unbind('mouseup', mouseup);
+      rootElement?.removeEventListener('mousemove', mousemove);
+      ownerDocument?.removeEventListener('mousemove', onDocumentMouseMove);
+      ownerDocument?.removeEventListener('mouseup', onDocumentMouseUp);
       cancelSelectionOnEdit = undefined;
     }
 
@@ -86,10 +89,10 @@ class Controller_mouse extends Controller_latex {
       }
     }
 
-    function mouseup(e: MouseEvent) {
+    function onDocumentMouseUp() {
       cursor.blink = blink;
       if (!cursor.selection) updateCursor();
-      unbindListeners(e);
+      unbindListeners();
     }
 
     var wasEdited;
@@ -103,13 +106,13 @@ class Controller_mouse extends Controller_latex {
         cursor.blink = blink;
         cursor.clearSelection();
         updateCursor();
-        unbindListeners(e);
+        unbindListeners();
       },
     };
 
     if (ctrlr.blurred) {
       if (!ctrlr.editable)
-        jQToDOMFragment(rootjQ).prepend(jQToDOMFragment(textareaSpan));
+        DOMFragment.create(rootElement).prepend(jQToDOMFragment(textareaSpan));
       textarea[0].focus();
       // focus call may bubble to clients, who may then write to
       // mathquill, triggering cancelSelectionOnEdit. If that happens, we
@@ -121,9 +124,9 @@ class Controller_mouse extends Controller_latex {
     cursor.blink = noop;
     ctrlr.seek($(e.target), e.clientX, e.clientY).cursor.startSelection();
 
-    rootjQ.mousemove(mousemove);
-    const anyTarget = e.target as any; // TODO - why do we need to cast to any?
-    $(anyTarget.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+    rootElement.addEventListener('mousemove', mousemove);
+    ownerDocument?.addEventListener('mousemove', onDocumentMouseMove);
+    ownerDocument?.addEventListener('mouseup', onDocumentMouseUp);
     // listen on document not just body to not only hear about mousemove and
     // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
   };

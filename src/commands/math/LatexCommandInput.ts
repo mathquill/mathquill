@@ -72,19 +72,20 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     if (this._replacedFragment) {
       const frag = this.domFrag();
       const el = frag.oneElement();
-      this._replacedFragment
-        .domFrag()
-        .addClass('mq-blur')
-        .toJQ()
-        .bind(
-          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
-          function (e) {
-            // TODO - overwritting e.target
-            (e as any).target = el;
-            el.dispatchEvent(e);
-            return false;
-          }
-        );
+      this._replacedFragment.domFrag().addClass('mq-blur');
+
+      //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+      const rewriteMousedownEventTarget = (e: MouseEvent) => {
+        {
+          // TODO - overwritting e.target
+          (e as any).target = el;
+          el.dispatchEvent(e);
+          return false;
+        }
+      };
+
+      el.addEventListener('mousedown', rewriteMousedownEventTarget);
+      el.addEventListener('mouseup', rewriteMousedownEventTarget);
 
       this.setDOMFrag(
         this._replacedFragment.domFrag().insertBefore(frag).join(frag)

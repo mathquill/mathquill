@@ -164,11 +164,7 @@ interface $ {
     duration?: string | number,
     complete?: Function
   ): $;
-  bind(opts: Record<string, boolean | ((evt: any) => any)>): $;
-  bind(evt: string, cb: boolean | ((evt: Event) => any)): $;
-  unbind(evt: string, cb?: Function, capture?: boolean): $;
-  mousemove(cb: (evt: MouseEvent) => any): $;
-  mouseup(cb: (evt: MouseEvent) => any): $;
+
   closest(selector: JQSelector): $;
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
