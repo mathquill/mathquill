@@ -29,7 +29,13 @@ class Aria {
 
   attach() {
     const container = this.controller.container && this.controller.container[0];
-    if (container && this.span.parentNode !== container) {
+    if (
+      // Extra paranoid check that we can safely prepend the alert element as container may have changed.
+      container &&
+      container instanceof Element &&
+      typeof container.prepend === 'function' &&
+      this.span.parentNode !== container
+    ) {
       container.prepend(this.span);
     }
   }
