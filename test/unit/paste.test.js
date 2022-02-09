@@ -13,56 +13,63 @@ suite('paste', function () {
     assert.equal(mq.latex(), latex);
   }
 
+  function simulatePaste(mq, value) {
+    const textarea = mq.el().querySelector('textarea');
+    trigger.paste(textarea);
+    textarea.value = value;
+    trigger.input(textarea);
+  }
+
   suite('√', function () {
     test('sqrt symbol in empty latex', function () {
-      $(mq.el()).find('textarea').trigger('paste').val('√').trigger('input');
+      simulatePaste(mq, '√');
       assertLatex('\\sqrt{ }');
     });
     test('sqrt symbol in non-empty latex', function () {
       mq.latex('1+');
-      $(mq.el()).find('textarea').trigger('paste').val('√').trigger('input');
+      simulatePaste(mq, '√');
       assertLatex('1+\\sqrt{ }');
     });
     test('sqrt symbol at start of non-empty latex', function () {
       mq.latex('1+');
       mq.moveToLeftEnd();
-      $(mq.el()).find('textarea').trigger('paste').val('√').trigger('input');
+      simulatePaste(mq, '√');
       assertLatex('\\sqrt{ }1+');
     });
   });
 
   suite('√2', function () {
     test('sqrt symbol in empty latex', function () {
-      $(mq.el()).find('textarea').trigger('paste').val('√2').trigger('input');
+      simulatePaste(mq, '√2');
       assertLatex('\\sqrt{ }2');
     });
     test('sqrt symbol in non-empty latex', function () {
       mq.latex('1+');
-      $(mq.el()).find('textarea').trigger('paste').val('√2').trigger('input');
+      simulatePaste(mq, '√2');
       assertLatex('1+\\sqrt{ }2');
     });
     test('sqrt symbol at start of non-empty latex', function () {
       mq.latex('1+');
       mq.moveToLeftEnd();
-      $(mq.el()).find('textarea').trigger('paste').val('√2').trigger('input');
+      simulatePaste(mq, '√2');
       assertLatex('\\sqrt{ }21+');
     });
   });
 
   suite('sqrt text', function () {
     test('sqrt symbol in empty latex', function () {
-      $(mq.el()).find('textarea').trigger('paste').val('sqrt').trigger('input');
+      simulatePaste(mq, 'sqrt');
       assertLatex('sqrt');
     });
     test('sqrt symbol in non-empty latex', function () {
       mq.latex('1+');
-      $(mq.el()).find('textarea').trigger('paste').val('sqrt').trigger('input');
+      simulatePaste(mq, 'sqrt');
       assertLatex('1+sqrt');
     });
     test('sqrt symbol at start of non-empty latex', function () {
       mq.latex('1+');
       mq.moveToLeftEnd();
-      $(mq.el()).find('textarea').trigger('paste').val('sqrt').trigger('input');
+      simulatePaste(mq, 'sqrt');
       assertLatex('sqrt1+');
     });
   });

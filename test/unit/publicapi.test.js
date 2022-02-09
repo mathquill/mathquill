@@ -617,7 +617,9 @@ suite('Public API', function () {
       function assertPaste(paste, latex) {
         if (arguments.length < 2) latex = paste;
         mq.latex('');
-        textarea.trigger('paste').val(paste).trigger('input');
+        trigger.paste(textarea[0]);
+        textarea.val(paste);
+        trigger.input(textarea[0]);
         assert.equal(mq.latex(), latex);
       }
 
@@ -661,7 +663,9 @@ suite('Public API', function () {
       function assertPaste(paste, latex) {
         if (arguments.length < 2) latex = paste;
         mq.latex('');
-        textarea.trigger('paste').val(paste).trigger('input');
+        trigger.paste(textarea[0]);
+        textarea.val(paste);
+        trigger.input(textarea[0]);
         assert.equal(mq.latex(), latex);
       }
 
@@ -1010,7 +1014,7 @@ suite('Public API', function () {
       });
       var key;
 
-      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      trigger.keydown(mq.el().querySelector('textarea'), 'ArrowLeft');
       assert.equal(key, 'Left');
     });
     test('cut is async', function (done) {
@@ -1024,13 +1028,15 @@ suite('Public API', function () {
       mq.latex('a=2');
       mq.select();
 
-      $(mq.el()).find('textarea').trigger('cut');
+      const textarea = mq.el().querySelector('textarea');
+
+      trigger.cut(textarea);
       assert.equal(count, 0);
 
-      $(mq.el()).find('textarea').trigger('input');
+      trigger.input(textarea);
       assert.equal(count, 0);
 
-      $(mq.el()).find('textarea').trigger('keyup');
+      trigger.keyup(textarea);
       assert.equal(count, 0);
 
       setTimeout(function () {
@@ -1058,7 +1064,7 @@ suite('Public API', function () {
       });
       var key;
 
-      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      trigger.keydown(mq.el().querySelector('textarea'), 'ArrowLeft');
       assert.equal(key, 'Left');
     });
     test('cut is async', function () {
@@ -1077,13 +1083,15 @@ suite('Public API', function () {
       });
       var count = 0;
 
-      $(mq.el()).find('textarea').trigger('cut');
+      const textarea = mq.el().querySelector('textarea');
+
+      trigger.cut(textarea);
       assert.equal(count, 0);
 
-      $(mq.el()).find('textarea').trigger('input');
+      trigger.input(textarea);
       assert.equal(count, 1);
 
-      $(mq.el()).find('textarea').trigger('keyup');
+      trigger.keyup(textarea);
       assert.equal(count, 1);
     });
   });

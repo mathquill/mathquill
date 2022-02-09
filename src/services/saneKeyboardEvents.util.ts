@@ -84,22 +84,47 @@ var saneKeyboardEvents = (function () {
     144: 'NumLock',
   };
 
-  // To the extent possible, create a normalized string representation
-  // of the key combo (i.e., key code and modifier keys).
-  function stringify(evt: JQ_KeyboardEvent) {
-    var which = evt.which || evt.keyCode;
-    var keyVal = KEY_VALUES[which];
-    var key;
+  function isArrowKey(e: KeyboardEvent) {
+    // The keyPress event in FF reports which=0 for some reason. The new
+    // .key property seems to report reasonable results, so we're using that
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowLeft':
+      case 'ArrowDown':
+      case 'ArrowUp':
+        return true;
+    }
+    return false;
+  }
+
+  function isLowercaseAlphaCharacter(s: string) {
+    return s.length === 1 && s >= 'a' && s <= 'z';
+  }
+
+  /** To the extent possible, create a normalized string representation
+   * of the key combo (i.e., key code and modifier keys). */
+  function getKeyName(evt: KeyboardEvent) {
+    let key;
+    if (evt.key) {
+      key = isArrowKey(evt)
+        ? // Strip the leading "Arrow" from arrow key names (e.g. "ArrowLeft" -> "Left")
+          evt.key.slice(5)
+        : isLowercaseAlphaCharacter(evt.key)
+        ? // Use uppercase for alphabet characters
+          evt.key.toUpperCase()
+        : evt.key;
+    } else {
+      const which = evt.which || evt.keyCode;
+      key = KEY_VALUES[which] || String.fromCharCode(which);
+    }
     var modifiers = [];
 
     if (evt.ctrlKey) modifiers.push('Ctrl');
-    if (evt.originalEvent && evt.originalEvent.metaKey) modifiers.push('Meta');
+    if (evt.metaKey) modifiers.push('Meta');
     if (evt.altKey) modifiers.push('Alt');
     if (evt.shiftKey) modifiers.push('Shift');
 
-    key = keyVal || String.fromCharCode(which);
-
-    if (!modifiers.length && !keyVal) return key;
+    if (!modifiers.length) return key;
 
     modifiers.push(key);
     return modifiers.join('-');
@@ -109,7 +134,7 @@ var saneKeyboardEvents = (function () {
     textarea: HTMLTextAreaElement,
     controller: Controller
   ) {
-    var keydown: JQ_KeyboardEvent | null = null;
+    var keydown: KeyboardEvent | null = null;
     var keypress: KeyboardEvent | null = null;
 
     // everyTick.listen() is called after key or clipboard events to
@@ -161,9 +186,9 @@ var saneKeyboardEvents = (function () {
 
     function handleKey() {
       if (controller.options && controller.options.overrideKeystroke) {
-        controller.options.overrideKeystroke(stringify(keydown!), keydown!);
+        controller.options.overrideKeystroke(getKeyName(keydown!), keydown!);
       } else {
-        controller.keystroke(stringify(keydown!), keydown!);
+        controller.keystroke(getKeyName(keydown!), keydown!);
       }
     }
 
@@ -185,22 +210,6 @@ var saneKeyboardEvents = (function () {
         });
 
       handleKey();
-    }
-
-    function isArrowKey(e: JQ_KeyboardEvent) {
-      if (!e || !e.originalEvent) return false;
-
-      // The keyPress event in FF reports which=0 for some reason. The new
-      // .key property seems to report reasonable results, so we're using that
-      switch (e.originalEvent.key) {
-        case 'ArrowRight':
-        case 'ArrowLeft':
-        case 'ArrowDown':
-        case 'ArrowUp':
-          return true;
-      }
-
-      return false;
     }
 
     function onKeypress(e: KeyboardEvent) {

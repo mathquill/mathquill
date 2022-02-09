@@ -22,9 +22,7 @@ suite('focusBlur', function () {
     });
 
     function triggerUpOutOf(mq) {
-      $(mq.el())
-        .find('textarea')
-        .trigger(jQuery.extend(jQuery.Event('keydown'), { which: 38 }));
+      trigger.keydown(mq.el().querySelector('textarea'), 'ArrowUp');
       assert.ok(wasUpOutOfCalled);
     }
 

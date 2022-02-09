@@ -68,7 +68,7 @@ CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 FONT_SOURCE = $(SRC_DIR)/fonts
 FONT_TARGET = $(BUILD_DIR)/fonts
 
-TEST_SUPPORT = ./test/support/assert.ts
+TEST_SUPPORT = ./test/support/assert.ts ./test/support/trigger-event.ts
 UNIT_TESTS = ./test/unit/*.test.js ./test/unit/*.test.ts
 
 # outputs

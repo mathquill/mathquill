@@ -93,11 +93,15 @@ suite('autoOperatorNames', function () {
   test('no auto operator names in simple subscripts when pasting', function () {
     var textarea = $(mq.el()).find('textarea');
     mq.config(normalConfig);
-    textarea.trigger('paste').val('x_{sin}').trigger('input');
+    trigger.paste(textarea[0]);
+    textarea.val('x_{sin}');
+    trigger.input(textarea[0]);
     assertLatex('subscripts turn to operatorname', 'x_{\\sin}');
     mq.latex('');
     mq.config(subscriptConfig);
-    textarea.trigger('paste').val('x_{sin}').trigger('input');
+    trigger.paste(textarea[0]);
+    textarea.val('x_{sin}');
+    trigger.input(textarea[0]);
     assertLatex('subscripts do not turn to operatorname', 'x_{sin}');
     mq.config(normalConfig);
   });
