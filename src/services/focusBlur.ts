@@ -65,7 +65,7 @@ class Controller_focusBlur extends Controller_exportText {
       this.updateMathspeak();
       this.scrollHoriz();
     });
-    $(window).bind('blur', this.handleWindowBlur);
+    window.addEventListener('blur', this.handleWindowBlur);
   };
 
   private handleWindowBlur = () => {
@@ -81,7 +81,7 @@ class Controller_focusBlur extends Controller_exportText {
     // not directly in the textarea blur handler so as to be
     this.cursor.hide().parent.blur(this.cursor); // synchronous with/in the same frame as
     this.container.removeClass('mq-focused'); // clearing/blurring selection
-    $(window).unbind('blur', this.handleWindowBlur);
+    window.removeEventListener('blur', this.handleWindowBlur);
 
     if (this.options && this.options.resetCursorOnBlur) {
       this.cursor.resetToEnd(this);
@@ -92,13 +92,16 @@ class Controller_focusBlur extends Controller_exportText {
     var ctrlr = this,
       cursor = ctrlr.cursor;
     const textarea = ctrlr.getTextareaOrThrow();
-    textarea.focus(this.handleTextareaFocus).blur(this.handleTextareaBlur);
+    textarea[0].addEventListener('focus', this.handleTextareaFocus);
+    textarea[0].addEventListener('blur', this.handleTextareaBlur);
     ctrlr.blurred = true;
     cursor.hide().parent.blur(cursor);
   }
+
   unbindFocusBlurEvents() {
     var textarea = this.getTextareaOrThrow();
-    textarea.unbind('focus blur');
+    textarea[0].removeEventListener('focus', this.handleTextareaFocus);
+    textarea[0].removeEventListener('blur', this.handleTextareaBlur);
   }
 }
 

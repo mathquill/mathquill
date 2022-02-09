@@ -119,14 +119,16 @@ class Controller extends Controller_scrollHoriz {
         },
       });
     }
-    textarea
-      .focus(function () {
-        ctrlr.blurred = false;
-      })
-      .blur(function () {
-        if (cursor.selection) cursor.selection.clear();
-        setTimeout(detach); //detaching during blur explodes in WebKit
-      });
+    // TODO: It seems like it's a problem to never unbind these in the case where we take an editable
+    // mathquill, make it static, and then make it editable again.  But I don't think we're unbinding them
+    // on main -- need to confirm this.
+    textarea[0].addEventListener('focus', function () {
+      ctrlr.blurred = false;
+    });
+    textarea[0].addEventListener('blur', function () {
+      if (cursor.selection) cursor.selection.clear();
+      setTimeout(detach); //detaching during blur explodes in WebKit
+    });
     function detach() {
       jQToDOMFragment(textareaSpan).detach();
       ctrlr.blurred = true;
