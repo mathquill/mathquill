@@ -6,6 +6,10 @@ const trigger = {
   keydown: triggerKeyboardEvent.bind(null, 'keydown'),
   keyup: triggerKeyboardEvent.bind(null, 'keyup'),
   keypress: triggerKeyboardEvent.bind(null, 'keypress'),
+  blur: (el: HTMLElement) => {
+    el.dispatchEvent(new FocusEvent('blur'));
+    el.dispatchEvent(new FocusEvent('focusout'));
+  },
   _: '',
 };
 

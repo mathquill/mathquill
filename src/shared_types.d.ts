@@ -154,7 +154,6 @@ interface $ {
   (selector?: JQSelector): $;
   attr(attr: string, val: string | number | null): $;
   css(prop: string, val: string | number | null): $;
-  trigger(e: Event): $;
   select(): $;
   val(val: string): $;
   stop(): $;

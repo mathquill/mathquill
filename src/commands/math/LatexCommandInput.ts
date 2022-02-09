@@ -81,7 +81,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
           function (e) {
             // TODO - overwritting e.target
             (e as any).target = el;
-            $(el).trigger(e);
+            el.dispatchEvent(e);
             return false;
           }
         );

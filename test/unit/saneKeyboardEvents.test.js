@@ -176,7 +176,7 @@ suite('saneKeyboardEvents', function () {
       var shim = saneKeyboardEvents(el[0], mockController({ keystroke: noop }));
 
       shim.select('foobar');
-      el.trigger('blur');
+      trigger.blur(el[0]);
       el.focus();
 
       // IE < 9 doesn't support selection{Start,End}
