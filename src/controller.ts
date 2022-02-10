@@ -5,7 +5,7 @@ class ControllerBase {
   id: number;
   data: ControllerData;
   readonly root: ControllerRoot;
-  readonly container: DOMFragment; // TODO: represent as a single element
+  readonly container: HTMLElement;
   options: CursorOptions;
   aria: Aria;
   ariaLabel: string;
@@ -20,7 +20,7 @@ class ControllerBase {
 
   constructor(
     root: ControllerRoot,
-    container: DOMFragment,
+    container: HTMLElement,
     options: CursorOptions
   ) {
     this.id = root.id;
@@ -127,9 +127,7 @@ class ControllerBase {
   }
   containerHasFocus() {
     return (
-      document.activeElement &&
-      this.container &&
-      this.container.firstElement()?.contains(document.activeElement)
+      document.activeElement && this.container.contains(document.activeElement)
     );
   }
 

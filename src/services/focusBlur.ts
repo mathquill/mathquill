@@ -38,7 +38,7 @@ class Controller_focusBlur extends Controller_exportText {
     this.updateMathspeak();
     this.blurred = false;
     clearTimeout(this.blurTimeout);
-    this.container.addClass('mq-focused');
+    domFrag(this.container).addClass('mq-focused');
     if (!cursor.parent) cursor.insAtRightEnd(this.root);
     if (cursor.selection) {
       cursor.selection.domFrag().removeClass('mq-blur');
@@ -80,7 +80,7 @@ class Controller_focusBlur extends Controller_exportText {
   private blur() {
     // not directly in the textarea blur handler so as to be
     this.cursor.hide().parent.blur(this.cursor); // synchronous with/in the same frame as
-    this.container.removeClass('mq-focused'); // clearing/blurring selection
+    domFrag(this.container).removeClass('mq-focused'); // clearing/blurring selection
     window.removeEventListener('blur', this.handleWindowBlur);
 
     if (this.options && this.options.resetCursorOnBlur) {

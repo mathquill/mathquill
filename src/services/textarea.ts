@@ -106,7 +106,7 @@ class Controller extends Controller_scrollHoriz {
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
-    this.container.prepend(jQToDOMFragment(this.mathspeakSpan));
+    domFrag(this.container).prepend(jQToDOMFragment(this.mathspeakSpan));
     ctrlr.blurred = true;
     this.removeTextareaEventListener('cut');
     this.removeTextareaEventListener('paste');
@@ -161,7 +161,7 @@ class Controller extends Controller_scrollHoriz {
       this.selectFn = select;
     }
 
-    this.container.prepend(jQToDOMFragment(textareaSpan));
+    domFrag(this.container).prepend(jQToDOMFragment(textareaSpan));
     this.focusBlurEvents();
     this.updateMathspeak();
   }

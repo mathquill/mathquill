@@ -387,7 +387,7 @@ suite('latex', function () {
       outer.innerFields.m.makeStatic();
       assert.equal(outer.innerFields.m.__controller.editable, false);
       assert.equal(
-        outer.innerFields.m.__controller.container.hasClass(
+        domFrag(outer.innerFields.m.__controller.container).hasClass(
           'mq-editable-field'
         ),
         false
@@ -398,7 +398,7 @@ suite('latex', function () {
       outer.innerFields.m.makeStatic();
       assert.equal(outer.innerFields.m.__controller.editable, false);
       assert.equal(
-        outer.innerFields.m.__controller.container.hasClass(
+        domFrag(outer.innerFields.m.__controller.container).hasClass(
           'mq-editable-field'
         ),
         false
@@ -408,7 +408,7 @@ suite('latex', function () {
       outer.innerFields.m.makeEditable();
       assert.equal(outer.innerFields.m.__controller.editable, true);
       assert.equal(
-        outer.innerFields.m.__controller.container.hasClass(
+        domFrag(outer.innerFields.m.__controller.container).hasClass(
           'mq-editable-field'
         ),
         true
@@ -419,7 +419,7 @@ suite('latex', function () {
       outer.innerFields.m.makeEditable();
       assert.equal(outer.innerFields.m.__controller.editable, true);
       assert.equal(
-        outer.innerFields.m.__controller.container.hasClass(
+        domFrag(outer.innerFields.m.__controller.container).hasClass(
           'mq-editable-field'
         ),
         true

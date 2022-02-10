@@ -276,22 +276,23 @@ function getInterface(v: number) {
         el = ctrlr.container;
       ctrlr.createTextarea();
 
-      var contents = el.addClass(classNames).children().detach();
+      var contents = domFrag(el).addClass(classNames).children().detach();
 
       root.setDOMFrag(
         domFrag(
           h('span', { class: 'mq-root-block', 'aria-hidden': true })
-        ).appendTo(el.oneElement())
+        ).appendTo(el)
       );
       NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());
 
       this.revert = function () {
         ctrlr.delegateMouseEvents();
-        el.removeClass('mq-editable-field mq-math-mode mq-text-mode')
+        domFrag(el)
+          .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
-        return v < 2 ? el.toJQ() : el.oneElement();
+        return v < 2 ? domFrag(el).toJQ() : el;
       };
     }
     config(opts: ConfigOptionsV1 | ConfigOptionsV2) {
@@ -299,7 +300,7 @@ function getInterface(v: number) {
       return this;
     }
     el() {
-      return this.__controller.container.oneElement();
+      return this.__controller.container;
     }
     text() {
       return this.__controller.exportText();
@@ -487,7 +488,7 @@ function getInterface(v: number) {
         if (mq instanceof APIClass || !el || !el.nodeType) return mq;
         var ctrlr = new Controller(
           new APIClass.RootBlock() as ControllerRoot,
-          DOMFragment.create(el),
+          el,
           new BaseOptions(v)
         );
         ctrlr.KIND_OF_MQ = kind;

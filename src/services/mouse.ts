@@ -133,15 +133,11 @@ class Controller_mouse extends Controller_latex {
 
   addMouseEventListener() {
     //drag-to-select event handling
-    this.container
-      .oneElement()
-      .addEventListener('mousedown', this.handleMouseDown);
+    this.container.addEventListener('mousedown', this.handleMouseDown);
   }
 
   delegateMouseEvents() {
-    this.container
-      .oneElement()
-      .removeEventListener('mousedown', this.handleMouseDown);
+    this.container.removeEventListener('mousedown', this.handleMouseDown);
   }
 
   seek($target: $, clientX: number, _clientY: number) {
