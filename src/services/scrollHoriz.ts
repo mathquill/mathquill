@@ -4,7 +4,7 @@
  **********************************************/
 
 class Controller_scrollHoriz extends Controller_mouse {
-  cancelScrollHoriz: (() => void) | undefined;
+  private cancelScrollHoriz: (() => void) | undefined;
   setOverflowClasses() {
     var root = this.root.domFrag().oneElement();
     var shouldHaveOverflowRight = false;
