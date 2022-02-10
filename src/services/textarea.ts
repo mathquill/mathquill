@@ -199,10 +199,10 @@ class Controller extends Controller_scrollHoriz {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      textarea.attr('aria-label', '');
+      textarea[0].setAttribute('aria-label', '');
       ctrlr.mathspeakSpan.text((labelWithSuffix + ' ' + mathspeak).trim());
     } else {
-      textarea.attr(
+      textarea[0].setAttribute(
         'aria-label',
         (labelWithSuffix + ' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
