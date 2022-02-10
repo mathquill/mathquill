@@ -1,3 +1,7 @@
+type TextareaKeyboardEventListeners = Partial<{
+  [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
+}>;
+
 /*********************************************
  * Controller for a MathQuill instance
  ********************************************/
@@ -14,7 +18,12 @@ class ControllerBase {
   editable: boolean | undefined;
   _ariaAlertTimeout: number;
   KIND_OF_MQ: KIND_OF_MQ;
+
   textarea: $ | undefined;
+  private textareaEventListeners: Partial<{
+    [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
+  }> = {};
+
   textareaSpan: $ | undefined;
   mathspeakSpan: $ | undefined;
 
@@ -141,6 +150,25 @@ class ControllerBase {
     var textareaSpan = this.textareaSpan;
     if (!textareaSpan) throw new Error('expected a textareaSpan');
     return textareaSpan;
+  }
+
+  /** Add the given event listeners on this.textarea, replacing the existing listener for that event if it exists. */
+  addTextareaEventListeners(listeners: TextareaKeyboardEventListeners) {
+    if (!this.textarea) return;
+    const textarea = jQToDOMFragment(this.textarea).oneElement();
+    for (const key in listeners) {
+      const event = key as keyof typeof listeners;
+      this.removeTextareaEventListener(event);
+      textarea.addEventListener(event, listeners[event] as EventListener);
+    }
+  }
+
+  protected removeTextareaEventListener(event: keyof HTMLElementEventMap) {
+    if (!this.textarea) return;
+    const textarea = jQToDOMFragment(this.textarea).oneElement();
+    const listener = this.textareaEventListeners[event];
+    if (!listener) return;
+    textarea.removeEventListener(event, listener as EventListener);
   }
 
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/

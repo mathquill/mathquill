@@ -33,7 +33,8 @@ class Controller_focusBlur extends Controller_exportText {
   }
 
   private blurTimeout: number;
-  private handleTextareaFocus = () => {
+
+  private handleTextareaFocusEditable = () => {
     const cursor = this.cursor;
     this.updateMathspeak();
     this.blurred = false;
@@ -48,7 +49,8 @@ class Controller_focusBlur extends Controller_exportText {
     }
     this.setOverflowClasses();
   };
-  private handleTextareaBlur = () => {
+
+  private handleTextareaBlurEditable = () => {
     if (this.textareaSelectionTimeout) {
       clearTimeout(this.textareaSelectionTimeout);
       this.textareaSelectionTimeout = 0;
@@ -66,6 +68,21 @@ class Controller_focusBlur extends Controller_exportText {
       this.scrollHoriz();
     });
     window.addEventListener('blur', this.handleWindowBlur);
+  };
+
+  private handleTextareaFocusStatic = () => {
+    this.blurred = false;
+  };
+
+  private handleTextareaBlurStatic = () => {
+    if (this.cursor.selection) {
+      this.cursor.selection.clear();
+    }
+    //detaching during blur explodes in WebKit
+    setTimeout(() => {
+      jQToDOMFragment(this.getTextareaSpanOrThrow()).detach();
+      this.blurred = true;
+    });
   };
 
   private handleWindowBlur = () => {
@@ -88,20 +105,22 @@ class Controller_focusBlur extends Controller_exportText {
     }
   }
 
-  focusBlurEvents() {
+  addEditableFocusBlurListeners() {
     var ctrlr = this,
       cursor = ctrlr.cursor;
-    const textarea = ctrlr.getTextareaOrThrow();
-    textarea[0].addEventListener('focus', this.handleTextareaFocus);
-    textarea[0].addEventListener('blur', this.handleTextareaBlur);
+    this.addTextareaEventListeners({
+      focus: this.handleTextareaFocusEditable,
+      blur: this.handleTextareaBlurEditable,
+    });
     ctrlr.blurred = true;
     cursor.hide().parent.blur(cursor);
   }
 
-  unbindFocusBlurEvents() {
-    var textarea = this.getTextareaOrThrow();
-    textarea[0].removeEventListener('focus', this.handleTextareaFocus);
-    textarea[0].removeEventListener('blur', this.handleTextareaBlur);
+  addStaticFocusBlurListeners() {
+    this.addTextareaEventListeners({
+      focus: this.handleTextareaFocusStatic,
+      blur: this.handleTextareaBlurStatic,
+    });
   }
 }
 
