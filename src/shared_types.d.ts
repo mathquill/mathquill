@@ -152,7 +152,7 @@ type JQSelector =
 
 interface $ {
   (selector?: JQSelector): $;
-  css(prop: string, val: string | number | null): $;
+  trigger(e: Event): $;
   select(): $;
   val(val: string): $;
   stop(): $;

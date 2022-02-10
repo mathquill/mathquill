@@ -1204,10 +1204,9 @@ class Bracket extends DelimsNode {
   closeOpposing(brack: Bracket) {
     brack.side = 0;
     brack.sides[this.side as Direction] = this.sides[this.side as Direction]; // copy over my info (may be
-    var $brack = brack.delimFrags[this.side === L ? L : R] // mismatched, like [a, b))
-      .removeClass('mq-ghost')
-      .toJQ();
-    this.replaceBracket($brack, this.side);
+    const brackFrag = brack.delimFrags[this.side === L ? L : R] // mismatched, like [a, b))
+      .removeClass('mq-ghost');
+    this.replaceBracket(brackFrag, this.side);
   }
   createLeftOf(cursor: Cursor) {
     var brack;
@@ -1340,8 +1339,8 @@ class Bracket extends DelimsNode {
         this.sides[side] = getOppBracketSide(this);
         this.delimFrags[L].removeClass('mq-ghost');
         this.delimFrags[R].removeClass('mq-ghost');
-        var $brack = this.delimFrags[side].addClass('mq-ghost').toJQ();
-        this.replaceBracket($brack, side);
+        const brackFrag = this.delimFrags[side].addClass('mq-ghost');
+        this.replaceBracket(brackFrag, side);
       }
       if (sib) {
         // auto-expand so ghost is at far end
@@ -1362,15 +1361,21 @@ class Bracket extends DelimsNode {
           : cursor.insAtDirEnd(side, this.getEnd(L));
     }
   }
-  replaceBracket($brack: $, side: BracketSide) {
+  replaceBracket(brackFrag: DOMFragment, side: BracketSide) {
     var symbol = this.getSymbol(side);
-    jQToDOMFragment($brack).children().replaceWith(domFrag(symbol.html()));
-    $brack.css('width', symbol.width);
+    brackFrag.children().replaceWith(domFrag(symbol.html()));
+    brackFrag.oneElement().style.width = symbol.width;
 
     if (side === L) {
-      jQToDOMFragment($brack).next().toJQ().css('margin-left', symbol.width);
+      const next = brackFrag.next();
+      if (!next.isEmpty()) {
+        next.oneElement().style.marginLeft = symbol.width;
+      }
     } else {
-      jQToDOMFragment($brack).prev().toJQ().css('margin-right', symbol.width);
+      const prev = brackFrag.prev();
+      if (!prev.isEmpty()) {
+        prev.oneElement().style.marginRight = symbol.width;
+      }
     }
   }
   deleteTowards(dir: Direction, cursor: Cursor) {
