@@ -36,7 +36,9 @@ class Controller_mouse extends Controller_latex {
       e.target as HTMLElement | null,
       '.mq-root-block'
     ) as HTMLElement | null;
-    pray('rootElement is defined', rootElement);
+
+    if (!rootElement) return;
+
     const ownerDocument = rootElement.ownerDocument;
 
     var root = (NodeBase.getNodeOfElement(rootElement) ||
@@ -112,7 +114,7 @@ class Controller_mouse extends Controller_latex {
 
     if (ctrlr.blurred) {
       if (!ctrlr.editable)
-        DOMFragment.create(rootElement).prepend(jQToDOMFragment(textareaSpan));
+        domFrag(rootElement).prepend(jQToDOMFragment(textareaSpan));
       textarea[0].focus();
       // focus call may bubble to clients, who may then write to
       // mathquill, triggering cancelSelectionOnEdit. If that happens, we
@@ -136,7 +138,7 @@ class Controller_mouse extends Controller_latex {
     this.container.addEventListener('mousedown', this.handleMouseDown);
   }
 
-  delegateMouseEvents() {
+  removeMouseEventListener() {
     this.container.removeEventListener('mousedown', this.handleMouseDown);
   }
 

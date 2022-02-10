@@ -1,7 +1,8 @@
 /** Poller that fires once every tick. */
 class EveryTick<Args extends unknown[] = []> {
   private timeoutId: number;
-  constructor(private fn: (...args: Args | []) => void) {}
+  private fn: (...args: Args | []) => void = noop;
+  constructor() {}
 
   listen(fn: (...args: Args | []) => void) {
     this.fn = fn;
@@ -145,7 +146,7 @@ var saneKeyboardEvents = (function () {
     // after selecting something and then typing, the textarea is
     // incorrectly reported as selected during the input event (but not
     // subsequently).
-    const everyTick = new EveryTick<[Event]>(noop);
+    const everyTick = new EveryTick<[Event]>();
 
     function guardedTextareaSelect() {
       try {

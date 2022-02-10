@@ -287,7 +287,7 @@ function getInterface(v: number) {
       this.latex(contents.text());
 
       this.revert = function () {
-        ctrlr.delegateMouseEvents();
+        ctrlr.removeMouseEventListener();
         domFrag(el)
           .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
