@@ -155,15 +155,8 @@ interface $ {
   trigger(e: Event): $;
   select(): $;
   val(val: string): $;
-  stop(): $;
   html(t: string): $;
   text(str: string): $;
-  animate(
-    properties: Object,
-    duration?: string | number,
-    complete?: Function
-  ): $;
-
   closest(selector: JQSelector): $;
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
