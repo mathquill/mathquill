@@ -152,7 +152,6 @@ type JQSelector =
 
 interface $ {
   (selector?: JQSelector): $;
-  trigger(e: Event): $;
   select(): $;
   val(val: string): $;
   html(t: string): $;
