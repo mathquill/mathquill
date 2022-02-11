@@ -6,8 +6,6 @@
  * of the tree.
  ************************************************/
 
-var $: $ = (window as any).jQuery;
-
 /** A cursor-like location in an mq node tree. */
 class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */

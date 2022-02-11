@@ -116,6 +116,8 @@ class Options {
 
   assertJquery() {
     pray('Interface versions > 2 do not depend on JQuery', this.version <= 2);
+    if (!(window as any).jQuery)
+      throw 'MathQuill requires jQuery 1.5.2+ to be loaded first';
     return (window as any).jQuery as $;
   }
 }
@@ -436,7 +438,7 @@ function getInterface(v: number) {
       var clientY = pageY - getScrollY();
 
       var el = document.elementFromPoint(clientX, clientY);
-      this.__controller.seek($(el), clientX, clientY);
+      this.__controller.seek(el, clientX, clientY);
       var cmd = new EmbedNode().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     }
@@ -460,7 +462,7 @@ function getInterface(v: number) {
         root = ctrlr.root;
       const rootElement = root.domFrag().oneElement();
       if (!rootElement.contains(target)) target = rootElement;
-      ctrlr.seek($(target), clientX, clientY);
+      ctrlr.seek(target, clientX, clientY);
       if (ctrlr.blurred) this.focus();
       return this;
     }
