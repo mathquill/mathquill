@@ -113,6 +113,11 @@ class Options {
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
   handlers: HandlerOptions;
+
+  assertJquery() {
+    pray('Interface versions > 2 do not depend on JQuery', this.version <= 2);
+    return (window as any).jQuery as $;
+  }
 }
 
 class Progenote {}
@@ -345,12 +350,12 @@ function getInterface(v: number) {
       return this;
     }
     focus() {
-      this.__controller.getTextareaOrThrow()[0].focus();
+      this.__controller.getTextareaOrThrow().focus();
       this.__controller.scrollHoriz();
       return this;
     }
     blur() {
-      this.__controller.getTextareaOrThrow()[0].blur();
+      this.__controller.getTextareaOrThrow().blur();
       return this;
     }
     write(latex: string) {

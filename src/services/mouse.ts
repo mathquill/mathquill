@@ -87,7 +87,7 @@ class Controller_mouse extends Controller_latex {
         cursor.show();
         cursor.controller.aria.queue(cursor.parent).alert();
       } else {
-        jQToDOMFragment(textareaSpan).detach();
+        domFrag(textareaSpan).detach();
       }
     }
 
@@ -113,9 +113,8 @@ class Controller_mouse extends Controller_latex {
     };
 
     if (ctrlr.blurred) {
-      if (!ctrlr.editable)
-        domFrag(rootElement).prepend(jQToDOMFragment(textareaSpan));
-      textarea[0].focus();
+      if (!ctrlr.editable) domFrag(rootElement).prepend(domFrag(textareaSpan));
+      textarea.focus();
       // focus call may bubble to clients, who may then write to
       // mathquill, triggering cancelSelectionOnEdit. If that happens, we
       // don't want to stop the cursor blink or bind listeners,

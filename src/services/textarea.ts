@@ -20,16 +20,14 @@ class Controller extends Controller_scrollHoriz {
   selectFn: (text: string) => void;
 
   createTextarea() {
-    var textareaSpan = (this.textareaSpan = $(
-        h('span', { class: 'mq-textarea' })
-      )),
-      textarea = this.options.substituteTextarea();
+    this.textareaSpan = h('span', { class: 'mq-textarea' });
+    const textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    this.textarea = jQToDOMFragment($(textarea))
-      .appendTo(jQToDOMFragment(textareaSpan).oneElement())
-      .toJQ();
+    this.textarea = domFrag(textarea)
+      .appendTo(this.textareaSpan)
+      .oneElement() as HTMLTextAreaElement;
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function () {
@@ -69,8 +67,8 @@ class Controller extends Controller_scrollHoriz {
   staticMathTextareaEvents() {
     var ctrlr = this;
 
-    this.mathspeakSpan = $(h('span', { class: 'mq-mathspeak' }));
-    domFrag(this.container).prepend(jQToDOMFragment(this.mathspeakSpan));
+    this.mathspeakSpan = h('span', { class: 'mq-mathspeak' });
+    domFrag(this.container).prepend(domFrag(this.mathspeakSpan));
     ctrlr.blurred = true;
     this.removeTextareaEventListener('cut');
     this.removeTextareaEventListener('paste');
@@ -88,7 +86,8 @@ class Controller extends Controller_scrollHoriz {
 
     ctrlr.selectFn = function (text: string) {
       const textarea = ctrlr.getTextareaOrThrow();
-      textarea.val(text);
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.value = text;
       if (text) textarea.select();
     };
     this.updateMathspeak();
@@ -100,22 +99,20 @@ class Controller extends Controller_scrollHoriz {
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     if (this.options.version === 1) {
+      const $ = this.options.assertJquery();
       var keyboardEventsShim = this.options.substituteKeyboardEvents(
-        textarea,
+        $(textarea),
         this
       );
       this.selectFn = function (text: string) {
         keyboardEventsShim.select(text);
       };
     } else {
-      const { select } = saneKeyboardEvents(
-        jQToDOMFragment(textarea).oneElement() as HTMLTextAreaElement,
-        this
-      );
+      const { select } = saneKeyboardEvents(textarea, this);
       this.selectFn = select;
     }
 
-    domFrag(this.container).prepend(jQToDOMFragment(textareaSpan));
+    domFrag(this.container).prepend(domFrag(textareaSpan));
     this.addEditableFocusBlurListeners();
     this.updateMathspeak();
   }
@@ -125,10 +122,11 @@ class Controller extends Controller_scrollHoriz {
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     this.selectFn = function (text: string) {
-      textarea.val(text);
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.value = text;
       if (text) textarea.select();
     };
-    jQToDOMFragment(textareaSpan).remove();
+    domFrag(textareaSpan).remove();
 
     this.removeTextareaEventListener('focus');
     this.removeTextareaEventListener('blur');
@@ -200,10 +198,14 @@ class Controller extends Controller_scrollHoriz {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      textarea[0].setAttribute('aria-label', '');
-      ctrlr.mathspeakSpan.text((labelWithSuffix + ' ' + mathspeak).trim());
+      textarea.setAttribute('aria-label', '');
+      ctrlr.mathspeakSpan.textContent = (
+        labelWithSuffix +
+        ' ' +
+        mathspeak
+      ).trim();
     } else {
-      textarea[0].setAttribute(
+      textarea.setAttribute(
         'aria-label',
         (labelWithSuffix + ' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );

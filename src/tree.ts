@@ -86,11 +86,6 @@ type Ends<T> = {
   readonly [R]: T;
 };
 
-/**
- * MathQuill virtual-DOM tree-node abstract base class
- */
-var defaultJQ = $();
-
 class NodeBase {
   static idCounter = 0;
   static uniqueNodeId() {
