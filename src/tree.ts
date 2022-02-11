@@ -170,10 +170,6 @@ class NodeBase {
     return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
-  getJQ(): $ {
-    return this.domFrag().toJQ();
-  }
-
   setDOMFrag(frag: DOMFragment) {
     this._domFrag = frag;
     return this;
@@ -451,10 +447,6 @@ class Fragment {
 
   getEnd(dir: Direction): NodeRef {
     return this.ends ? this.ends[dir] : 0;
-  }
-
-  getJQ(): $ {
-    return this.domFrag().toJQ();
   }
 
   setDOMFrag(frag: DOMFragment) {

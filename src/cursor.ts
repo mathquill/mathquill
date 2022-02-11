@@ -57,10 +57,6 @@ class Cursor extends Point {
     };
   }
 
-  getJQ(): $ {
-    return this.domFrag().toJQ();
-  }
-
   setDOMFrag(frag: DOMFragment) {
     this._domFrag = frag;
     return this;

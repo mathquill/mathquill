@@ -297,7 +297,7 @@ function getInterface(v: number) {
           .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
-        return v < 2 ? domFrag(el).toJQ() : el;
+        return v < 2 ? this.__options.assertJquery()(el) : el;
       };
     }
     config(opts: ConfigOptionsV1 | ConfigOptionsV2) {

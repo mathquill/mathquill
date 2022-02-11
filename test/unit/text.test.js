@@ -31,8 +31,8 @@ suite('text', function () {
     return div.innerHTML;
   }
 
-  function assertSplit(jQ, prev, next) {
-    var dom = jQ[0];
+  function assertSplit(domFrag, prev, next) {
+    var dom = domFrag.firstElement();
 
     if (prev) {
       assert.ok(dom.previousSibling instanceof Text);
@@ -55,25 +55,25 @@ suite('text', function () {
     var cursor = ctrlr.cursor;
 
     ctrlr.moveLeft();
-    assertSplit(cursor.getJQ(), 'abc', null);
+    assertSplit(cursor.domFrag(), 'abc', null);
 
     ctrlr.moveLeft();
-    assertSplit(cursor.getJQ(), 'ab', 'c');
+    assertSplit(cursor.domFrag(), 'ab', 'c');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.getJQ(), 'a', 'bc');
+    assertSplit(cursor.domFrag(), 'a', 'bc');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.getJQ(), null, 'abc');
+    assertSplit(cursor.domFrag(), null, 'abc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.getJQ(), 'a', 'bc');
+    assertSplit(cursor.domFrag(), 'a', 'bc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.getJQ(), 'ab', 'c');
+    assertSplit(cursor.domFrag(), 'ab', 'c');
 
     ctrlr.moveRight();
-    assertSplit(cursor.getJQ(), 'abc', null);
+    assertSplit(cursor.domFrag(), 'abc', null);
   });
 
   test('does not change latex as the cursor moves around', function () {
@@ -96,15 +96,15 @@ suite('text', function () {
       assertLatex('\\text{x}');
 
       mq.keystroke('Left');
-      assertSplit(cursor.getJQ(), 'x');
+      assertSplit(cursor.domFrag(), 'x');
       assertLatex('\\text{x}');
 
       mq.keystroke('Backspace');
-      assertSplit(cursor.getJQ());
+      assertSplit(cursor.domFrag());
       assertLatex('');
 
       mq.keystroke('Right');
-      assertSplit(cursor.getJQ());
+      assertSplit(cursor.domFrag());
       assert.equal(cursor[L], 0);
       assertLatex('');
     });
@@ -117,7 +117,7 @@ suite('text', function () {
       assertLatex('\\text{asdf}');
 
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.getJQ(), 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
       assertLatex('\\text{asdf}');
 
       mq.typedText('$');
@@ -132,11 +132,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.getJQ(), 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('foo');
 
-      assertSplit(cursor.getJQ(), 'asfoo', 'df');
+      assertSplit(cursor.domFrag(), 'asfoo', 'df');
       assertLatex('\\text{asfoodf}');
       prayWellFormedPoint(cursor);
     });
@@ -147,11 +147,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.getJQ(), 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('$foo');
 
-      assertSplit(cursor.getJQ(), 'as$foo', 'df');
+      assertSplit(cursor.domFrag(), 'as$foo', 'df');
       assertLatex('\\text{as$foodf}');
       prayWellFormedPoint(cursor);
     });
@@ -162,11 +162,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.getJQ(), 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('\\pi');
 
-      assertSplit(cursor.getJQ(), 'as\\pi', 'df');
+      assertSplit(cursor.domFrag(), 'as\\pi', 'df');
       assertLatex('\\text{as\\backslash pidf}');
       prayWellFormedPoint(cursor);
     });
@@ -177,11 +177,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.getJQ(), 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('{');
 
-      assertSplit(cursor.getJQ(), 'as{', 'df');
+      assertSplit(cursor.domFrag(), 'as{', 'df');
       assertLatex('\\text{as\\{df}');
       prayWellFormedPoint(cursor);
     });
