@@ -152,11 +152,6 @@ type JQSelector =
 
 interface $ {
   (selector?: JQSelector): $;
-  select(): $;
-  val(val: string): $;
-  html(t: string): $;
-  text(str: string): $;
-  closest(selector: JQSelector): $;
   length: number;
   [index: number]: HTMLElement; // TODO - this can be undefined. Either fix uses or wait until removing jquery
 }
