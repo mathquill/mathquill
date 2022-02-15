@@ -98,7 +98,7 @@ class Controller extends Controller_scrollHoriz {
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    if (this.options.version === 1) {
+    if (this.options.version < 3) {
       const $ = this.options.assertJquery();
       var keyboardEventsShim = this.options.substituteKeyboardEvents(
         $(textarea),
