@@ -1,4 +1,5 @@
 suite('resetCursorOnBlur', function () {
+  const $ = window.test_only_jquery;
   var $el;
   setup(function () {
     $el = $('<span style="display:inline-block; width: 100px"></span>');

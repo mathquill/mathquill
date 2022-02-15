@@ -1,4 +1,5 @@
 suite('latex', function () {
+  const $ = window.test_only_jquery;
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 

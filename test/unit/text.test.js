@@ -1,4 +1,5 @@
 suite('text', function () {
+  const $ = window.test_only_jquery;
   var mq, mostRecentlyReportedLatex;
   setup(function () {
     mostRecentlyReportedLatex = NaN; // != to everything

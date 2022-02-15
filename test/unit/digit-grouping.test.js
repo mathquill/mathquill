@@ -1,4 +1,5 @@
 suite('Digit Grouping', function () {
+  const $ = window.test_only_jquery;
   function buildTreeRecursively($el) {
     var tree = {};
 

@@ -1,4 +1,5 @@
 suite('CSS', function () {
+  const $ = window.test_only_jquery;
   test("math field doesn't fuck up ancestor's .scrollWidth", function () {
     var container = $('<div>')
       .css({
@@ -53,7 +54,7 @@ suite('CSS', function () {
     var mq,
       mock = $('#mock');
 
-    mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
+    mq = MQ.MathField($('<span></span>').appendTo(mock)[0]);
     mq.typedText("f'");
 
     var mqF = $(mq.el()).find('.mq-f');
@@ -132,10 +133,10 @@ suite('CSS', function () {
   });
 
   test('operator name spacing e.g. sin x', function () {
-    var mq = MathQuill.MathField($('<span></span>').appendTo(mock)[0]);
+    var mq = MQ.MathField($('<span></span>').appendTo(mock)[0]);
 
     mq.typedText('sin');
-    var n = jQuery('#mock var.mq-operator-name:last');
+    var n = $('#mock var.mq-operator-name:last');
     assert.equal(n.text(), 'n');
     assert.ok(!n.is('.mq-last'));
 
@@ -147,7 +148,7 @@ suite('CSS', function () {
 
     mq.keystroke('Backspace').typedText('^');
     assert.ok(!n.is('.mq-last'));
-    var supsub = jQuery('#mock .mq-supsub');
+    var supsub = $('#mock .mq-supsub');
     assert.ok(supsub.is('.mq-after-operator-name'));
 
     mq.typedText('2').keystroke('Tab').typedText('(');
