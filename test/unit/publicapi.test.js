@@ -30,6 +30,31 @@ suite('Public API', function () {
       assert.ok(!(mathField instanceof MQ1));
     });
 
+    test('interface version < 3 throws an error if jQuery is not present', function () {
+      window.$ = window.jQuery = undefined;
+      assert.throws(
+        () => MathQuill.getInterface(1),
+        'MathQuill.getInterface(1) throws if jquery is not present'
+      );
+      assert.throws(
+        () => MathQuill.getInterface(2),
+        'MathQuill.getInterface(2) throws if jquery is not present'
+      );
+      assert.ok(
+        MathQuill.getInterface(3),
+        'MathQuill.getInterface(3) succeeds without jquery present'
+      );
+      setupJqueryStub();
+      assert.ok(
+        MathQuill.getInterface(1),
+        'MathQuill.getInterface(1) succeeds when jquery is present'
+      );
+      assert.ok(
+        MathQuill.getInterface(2),
+        'MathQuill.getInterface(1) succeeds when jquery is present'
+      );
+    });
+
     test('identity of API object returned by MQ()', function () {
       var mathFieldSpan = $('<span/>')[0];
       var mathField = MQ.MathField(mathFieldSpan);
