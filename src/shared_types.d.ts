@@ -138,7 +138,6 @@ type LatexCmd =
 type LatexCmds = Record<string, LatexCmd>;
 type CharCmds = Record<string, LatexCmd>;
 
-declare var MQ1: any;
 declare var validateAutoCommandsOption: any;
 
 type JQSelector =
