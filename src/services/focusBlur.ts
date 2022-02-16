@@ -80,7 +80,7 @@ class Controller_focusBlur extends Controller_exportText {
     }
     //detaching during blur explodes in WebKit
     setTimeout(() => {
-      jQToDOMFragment(this.getTextareaSpanOrThrow()).detach();
+      domFrag(this.getTextareaSpanOrThrow()).detach();
       this.blurred = true;
     });
   };

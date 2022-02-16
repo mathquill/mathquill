@@ -6,8 +6,6 @@
  * of the tree.
  ************************************************/
 
-var $: $ = (window as any).jQuery;
-
 /** A cursor-like location in an mq node tree. */
 class Point {
   /** The node to the left of this point (or 0 for the position before a first child) */
@@ -85,11 +83,6 @@ type Ends<T> = {
   readonly [L]: T;
   readonly [R]: T;
 };
-
-/**
- * MathQuill virtual-DOM tree-node abstract base class
- */
-var defaultJQ = $();
 
 class NodeBase {
   static idCounter = 0;
@@ -173,10 +166,6 @@ class NodeBase {
 
   toString() {
     return '{{ MathQuill Node #' + this.id + ' }}';
-  }
-
-  getJQ(): $ {
-    return this.domFrag().toJQ();
   }
 
   setDOMFrag(frag: DOMFragment) {
@@ -456,10 +445,6 @@ class Fragment {
 
   getEnd(dir: Direction): NodeRef {
     return this.ends ? this.ends[dir] : 0;
-  }
-
-  getJQ(): $ {
-    return this.domFrag().toJQ();
   }
 
   setDOMFrag(frag: DOMFragment) {

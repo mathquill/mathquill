@@ -132,7 +132,8 @@ var saneKeyboardEvents = (function () {
   }
 
   return function saneKeyboardEvents(
-    textarea: HTMLTextAreaElement,
+    /** Usually the textarea associated with a MQ instance, but can be another kind of element if `substituteTextarea` was used to replace it with something else. */
+    textarea: HTMLElement,
     controller: Controller
   ) {
     var keydown: KeyboardEvent | null = null;
@@ -155,7 +156,7 @@ var saneKeyboardEvents = (function () {
         // likely that we don't really care if the selection
         // fails to happen in this case. Why would the textarea
         // be hidden? And who would even be able to tell?
-        textarea.select();
+        if (textarea instanceof HTMLTextAreaElement) textarea.select();
       } catch (e) {}
     }
 
@@ -167,7 +168,7 @@ var saneKeyboardEvents = (function () {
       everyTick.trigger();
       everyTick.clearListener();
 
-      textarea.value = text;
+      if (textarea instanceof HTMLTextAreaElement) textarea.value = text;
       if (text) guardedTextareaSelect();
       shouldBeSelected = !!text;
     }
@@ -179,10 +180,9 @@ var saneKeyboardEvents = (function () {
     // This will always return false in IE < 9, which don't support
     // HTMLTextareaElement::selection{Start,End}.
     function hasSelection() {
-      var dom = textarea;
-
-      if (!('selectionStart' in dom)) return false;
-      return dom.selectionStart !== dom.selectionEnd;
+      if (!('selectionStart' in textarea)) return false;
+      if (!(textarea instanceof HTMLTextAreaElement)) return false;
+      return textarea.selectionStart !== textarea.selectionEnd;
     }
 
     function handleKey() {
@@ -274,6 +274,7 @@ var saneKeyboardEvents = (function () {
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
 
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
       var text = textarea.value;
       if (text.length === 1) {
         textarea.value = '';
@@ -288,6 +289,7 @@ var saneKeyboardEvents = (function () {
     }
 
     function maybeReselect() {
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
       if (textarea.value.length > 1) {
         guardedTextareaSelect();
       }
@@ -297,7 +299,7 @@ var saneKeyboardEvents = (function () {
       keydown = null;
       keypress = null;
       everyTick.clearListener();
-      textarea.value = '';
+      if (textarea instanceof HTMLTextAreaElement) textarea.value = '';
     }
 
     function onPaste(e: Event) {
@@ -321,6 +323,7 @@ var saneKeyboardEvents = (function () {
       }
 
       everyTick.listen(function pastedText() {
+        if (!(textarea instanceof HTMLTextAreaElement)) return;
         var text = textarea.value;
         textarea.value = '';
         if (text) controller.paste(text);

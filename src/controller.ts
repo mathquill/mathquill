@@ -19,13 +19,13 @@ class ControllerBase {
   _ariaAlertTimeout: number;
   KIND_OF_MQ: KIND_OF_MQ;
 
-  textarea: $ | undefined;
+  textarea: HTMLElement | undefined;
   private textareaEventListeners: Partial<{
     [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
   }> = {};
 
-  textareaSpan: $ | undefined;
-  mathspeakSpan: $ | undefined;
+  textareaSpan: HTMLElement | undefined;
+  mathspeakSpan: HTMLElement | undefined;
 
   constructor(
     root: ControllerRoot,
@@ -155,20 +155,18 @@ class ControllerBase {
   /** Add the given event listeners on this.textarea, replacing the existing listener for that event if it exists. */
   addTextareaEventListeners(listeners: TextareaKeyboardEventListeners) {
     if (!this.textarea) return;
-    const textarea = jQToDOMFragment(this.textarea).oneElement();
     for (const key in listeners) {
       const event = key as keyof typeof listeners;
       this.removeTextareaEventListener(event);
-      textarea.addEventListener(event, listeners[event] as EventListener);
+      this.textarea.addEventListener(event, listeners[event] as EventListener);
     }
   }
 
   protected removeTextareaEventListener(event: keyof HTMLElementEventMap) {
     if (!this.textarea) return;
-    const textarea = jQToDOMFragment(this.textarea).oneElement();
     const listener = this.textareaEventListeners[event];
     if (!listener) return;
-    textarea.removeEventListener(event, listener as EventListener);
+    this.textarea.removeEventListener(event, listener as EventListener);
   }
 
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/

@@ -80,7 +80,8 @@ type SubstituteKeyboardEvents = (
 };
 
 class Options {
-  constructor(public version: 1 | 2) {}
+  constructor(public version: 1 | 2 | 3) {}
+
   ignoreNextMousedown: (_el: MouseEvent) => boolean;
   substituteTextarea: () => HTMLElement;
   /** Only used in interface version 1. */
@@ -113,6 +114,13 @@ class Options {
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
   handlers: HandlerOptions;
+
+  jQuery: $ | undefined;
+  assertJquery() {
+    pray('Interface versions > 2 do not depend on JQuery', this.version <= 2);
+    pray('JQuery is set for interface v < 3', this.jQuery);
+    return this.jQuery;
+  }
 }
 
 class Progenote {}
@@ -140,10 +148,31 @@ var insistOnInterVer = function () {
     );
 };
 // globally exported API object
+
+let MQ1: any;
 function MathQuill(el: HTMLElement) {
   insistOnInterVer();
+  if (!MQ1) {
+    MQ1 = getInterface(1);
+  }
   return MQ1(el);
 }
+
+// For backwards compatibility, set up the global MathQuill object as an instance of API interface v1
+if ((window as any).jQuery) {
+  MQ1 = getInterface(1);
+  for (var key in MQ1)
+    (function (key, val) {
+      if (typeof val === 'function') {
+        (MathQuill as any)[key] = function () {
+          insistOnInterVer();
+          return val.apply(this, arguments);
+        };
+        (MathQuill as any)[key].prototype = val.prototype;
+      } else (MathQuill as any)[key] = val;
+    })(key, MQ1[key]);
+}
+
 MathQuill.prototype = Progenote.prototype;
 MathQuill.VERSION = '{VERSION}';
 MathQuill.interfaceVersion = function (v: number) {
@@ -169,9 +198,9 @@ MathQuill.interfaceVersion = function (v: number) {
 MathQuill.getInterface = getInterface;
 
 var MIN = (getInterface.MIN = 1),
-  MAX = (getInterface.MAX = 2);
+  MAX = (getInterface.MAX = 3);
 function getInterface(v: number) {
-  if (v !== 1 && v !== 2)
+  if (v !== 1 && v !== 2 && v !== 3)
     throw (
       'Only interface versions between ' +
       MIN +
@@ -180,6 +209,13 @@ function getInterface(v: number) {
       ' supported. You specified: ' +
       v
     );
+
+  if (v < 3) {
+    const jQuery = (window as any).jQuery;
+    if (!jQuery)
+      throw `MathQuill interface version ${v} requires jQuery 1.5.2+ to be loaded first`;
+    Options.prototype.jQuery = jQuery;
+  }
 
   /**
    * Function that takes an HTML element and, if it's the root HTML element of a
@@ -209,7 +245,7 @@ function getInterface(v: number) {
 
   MQ.L = L;
   MQ.R = R;
-  if (v < 2) {
+  if (v < 3) {
     MQ.saneKeyboardEvents = defaultSubstituteKeyboardEvents;
   }
 
@@ -231,7 +267,7 @@ function getInterface(v: number) {
       }
   }
 
-  const BaseOptions = v < 2 ? Options : class BaseOptions extends Options {};
+  const BaseOptions = v < 3 ? Options : class BaseOptions extends Options {};
   MQ.config = function (opts: ConfigOptionsV1 | ConfigOptionsV2) {
     config(BaseOptions.prototype, opts);
     return this;
@@ -292,7 +328,7 @@ function getInterface(v: number) {
           .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
-        return v < 2 ? domFrag(el).toJQ() : el;
+        return v < 3 ? this.__options.assertJquery()(el) : el;
       };
     }
     config(opts: ConfigOptionsV1 | ConfigOptionsV2) {
@@ -345,12 +381,12 @@ function getInterface(v: number) {
       return this;
     }
     focus() {
-      this.__controller.getTextareaOrThrow()[0].focus();
+      this.__controller.getTextareaOrThrow().focus();
       this.__controller.scrollHoriz();
       return this;
     }
     blur() {
-      this.__controller.getTextareaOrThrow()[0].blur();
+      this.__controller.getTextareaOrThrow().blur();
       return this;
     }
     write(latex: string) {
@@ -431,7 +467,7 @@ function getInterface(v: number) {
       var clientY = pageY - getScrollY();
 
       var el = document.elementFromPoint(clientX, clientY);
-      this.__controller.seek($(el), clientX, clientY);
+      this.__controller.seek(el, clientX, clientY);
       var cmd = new EmbedNode().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     }
@@ -455,7 +491,7 @@ function getInterface(v: number) {
         root = ctrlr.root;
       const rootElement = root.domFrag().oneElement();
       if (!rootElement.contains(target)) target = rootElement;
-      ctrlr.seek($(target), clientX, clientY);
+      ctrlr.seek(target, clientX, clientY);
       if (ctrlr.blurred) this.focus();
       return this;
     }

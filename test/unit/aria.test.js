@@ -1,4 +1,5 @@
 suite('aria', function () {
+  const $ = window.test_only_jquery;
   var mathField;
   var container;
   setup(function () {
@@ -188,7 +189,7 @@ suite('aria', function () {
     mathField.blur();
     setTimeout(function () {
       assert.equal(
-        mathField.__controller.textarea.attr('aria-label'),
+        mathField.__controller.textarea.getAttribute('aria-label'),
         'Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
       );
       done();
@@ -200,19 +201,19 @@ suite('aria', function () {
     );
     assert.equal(
       '"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
-      staticMath.__controller.mathspeakSpan.text()
+      staticMath.__controller.mathspeakSpan.innerText
     );
     assert.equal('', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
     assert.equal(
       'Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
-      staticMath.__controller.mathspeakSpan.text()
+      staticMath.__controller.mathspeakSpan.innerText
     );
     assert.equal('Static Label', staticMath.getAriaLabel());
     staticMath.latex('2+2');
     assert.equal(
       'Static Label: 2 plus 2',
-      staticMath.__controller.mathspeakSpan.text()
+      staticMath.__controller.mathspeakSpan.innerText
     );
   });
 });

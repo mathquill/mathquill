@@ -1,4 +1,5 @@
 suite('latex', function () {
+  const $ = window.test_only_jquery;
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
@@ -267,7 +268,7 @@ suite('latex', function () {
 
       test('overflow triggers automatic horizontal scroll', function (done) {
         var mqEl = mq.el();
-        var rootEl = mq.__controller.root.getJQ()[0];
+        var rootEl = mq.__controller.root.domFrag().oneElement();
         var cursor = mq.__controller.cursor;
 
         $(mqEl).width(10);
@@ -286,7 +287,7 @@ suite('latex', function () {
             );
             assert.ok(
               mqEl.getBoundingClientRect().right >
-                cursor.getJQ()[0].getBoundingClientRect().right,
+                cursor.domFrag().firstElement().getBoundingClientRect().right,
               'cursor right end is inside the field'
             );
           } catch (error) {

@@ -214,7 +214,7 @@ class Controller_latex extends Controller_keystroke {
       var newMinusNode = new PlusMinus('-');
       var minusSpan = document.createElement('span');
       minusSpan.textContent = '-';
-      newMinusNode.setDOMFrag(jQToDOMFragment($(minusSpan)));
+      newMinusNode.setDOMFrag(domFrag(minusSpan));
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
@@ -265,7 +265,7 @@ class Controller_latex extends Controller_keystroke {
 
         var newNode = new Digit(newDigits[i]);
         newNode.parent = root;
-        newNode.setDOMFrag(jQToDOMFragment($(span)));
+        newNode.setDOMFrag(domFrag(span));
         frag.appendChild(span);
 
         // splice this node in

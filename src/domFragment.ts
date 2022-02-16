@@ -268,15 +268,6 @@ class DOMFragment {
   }
 
   /**
-   * Returns a jQuery collection containing all of the Element nodes in
-   * this fragment. The result does not include nodes that are not
-   * Elements, such as Text and Comment nodes.
-   */
-  toJQ(): $ {
-    return $(this.toElementArray());
-  }
-
-  /**
    * Moves all of the nodes in this fragment into a new DocumentFragment
    * and returns it. This includes Nodes that are not Elements such as
    * Text and Comment nodes.
@@ -713,20 +704,4 @@ function _insAtDirEnd(
   } else {
     parent.appendChild(source);
   }
-}
-
-function jQToDOMFragment(jQ: $) {
-  if (jQ.length === 0) return domFrag();
-  if (jQ.length === 1) return domFrag(jQ[0]);
-
-  for (let i = 0; i < jQ.length - 1; i++) {
-    const el = jQ[i];
-    const nextEl = jQ[i + 1];
-    pray(
-      'jQToDOMFragment expects jQ to be a collection of sibling Elements',
-      domFrag(el).next().oneElement() === nextEl
-    );
-  }
-
-  return domFrag(jQ[0], jQ[jQ.length - 1]);
 }

@@ -57,19 +57,20 @@ class Controller_mouse extends Controller_latex {
     if (cursor.options.ignoreNextMousedown(e)) return;
     else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
-    var lastMousemoveTarget: $ | undefined;
+    var lastMousemoveTarget: HTMLElement | null = null;
     function mousemove(e: Event) {
-      lastMousemoveTarget = $(e.target);
+      lastMousemoveTarget = e.target as HTMLElement | null;
     }
     function onDocumentMouseMove(e: MouseEvent) {
+      if (!lastMousemoveTarget) return;
       if (!cursor.anticursor) cursor.startSelection();
-      ctrlr.seek(lastMousemoveTarget!, e.clientX, e.clientY).cursor.select();
+      ctrlr.seek(lastMousemoveTarget, e.clientX, e.clientY).cursor.select();
       if (cursor.selection)
         cursor.controller.aria
           .clear()
           .queue(cursor.selection.join('mathspeak') + ' selected')
           .alert();
-      lastMousemoveTarget = undefined;
+      lastMousemoveTarget = null;
     }
     // outside rootElement, the MathQuill node corresponding to the target (if any)
     // won't be inside this root, so don't mislead Controller::seek with it
@@ -87,7 +88,7 @@ class Controller_mouse extends Controller_latex {
         cursor.show();
         cursor.controller.aria.queue(cursor.parent).alert();
       } else {
-        jQToDOMFragment(textareaSpan).detach();
+        domFrag(textareaSpan).detach();
       }
     }
 
@@ -113,9 +114,8 @@ class Controller_mouse extends Controller_latex {
     };
 
     if (ctrlr.blurred) {
-      if (!ctrlr.editable)
-        domFrag(rootElement).prepend(jQToDOMFragment(textareaSpan));
-      textarea[0].focus();
+      if (!ctrlr.editable) domFrag(rootElement).prepend(domFrag(textareaSpan));
+      textarea.focus();
       // focus call may bubble to clients, who may then write to
       // mathquill, triggering cancelSelectionOnEdit. If that happens, we
       // don't want to stop the cursor blink or bind listeners,
@@ -124,7 +124,9 @@ class Controller_mouse extends Controller_latex {
     }
 
     cursor.blink = noop;
-    ctrlr.seek($(e.target), e.clientX, e.clientY).cursor.startSelection();
+    ctrlr
+      .seek(e.target as HTMLElement | null, e.clientX, e.clientY)
+      .cursor.startSelection();
 
     rootElement.addEventListener('mousemove', mousemove);
     ownerDocument?.addEventListener('mousemove', onDocumentMouseMove);
@@ -142,10 +144,9 @@ class Controller_mouse extends Controller_latex {
     this.container.removeEventListener('mousedown', this.handleMouseDown);
   }
 
-  seek($target: $, clientX: number, _clientY: number) {
+  seek(targetElm: Element | null, clientX: number, _clientY: number) {
     var cursor = this.notify('select').cursor;
     var node;
-    var targetElm: HTMLElement | null = $target && $target[0];
 
     // we can click on an element that is deeply nested past the point
     // that mathquill knows about. We need to traverse up to the first

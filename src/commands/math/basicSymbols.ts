@@ -727,7 +727,7 @@ LatexCmds.f = class extends Letter {
   italicize(bool: boolean) {
     // Why is this necesssary? Does someone replace the `f` at some
     // point?
-    this.getJQ().html('f');
+    this.domFrag().eachElement((el) => (el.textContent = 'f'));
     this.domFrag().toggleClass('mq-f', bool);
     return super.italicize(bool);
   }
