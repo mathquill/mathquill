@@ -132,6 +132,7 @@ var saneKeyboardEvents = (function () {
   }
 
   return function saneKeyboardEvents(
+    /** Usually the textarea associated with a MQ instance, but can be another kind of element if `substituteTextarea` was used to replace it with something else. */
     textarea: HTMLElement,
     controller: Controller
   ) {
