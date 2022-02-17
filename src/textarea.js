@@ -145,7 +145,7 @@ var manageTextarea = (function() {
 
     function popText(callback) {
       var text = textarea.val();
-      text = text.replace(/[ˆ´˜¨]/g, '');
+      text = text.replace(/[ˆ´˜¨áéíúäëïöüâêîôûãñõ]/g, '');
       textarea.val('');
       if (text) callback(text);
     }
