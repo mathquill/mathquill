@@ -688,7 +688,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
     innerFields: InnerFields;
     static RootBlock = MathBlock;
 
-    __mathquillify(opts: CursorOptions, _interfaceVersion: number) {
+    __mathquillify(opts: ConfigOptions, _interfaceVersion: number) {
       this.config(opts);
       super.mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
@@ -733,7 +733,7 @@ API.MathField = function (APIClasses: APIClasses) {
   return class MathField extends APIClasses.EditableField {
     static RootBlock = RootMathBlock;
 
-    __mathquillify(opts: CursorOptions, interfaceVersion: number) {
+    __mathquillify(opts: ConfigOptions, interfaceVersion: number) {
       this.config(opts);
       if (interfaceVersion > 1) this.__controller.root.reflow = noop;
       super.mathquillify('mq-editable-field mq-math-mode');

@@ -98,7 +98,7 @@ var latexMathParser = (function () {
   return latexMath;
 })();
 
-optionProcessors.maxDepth = function (depth: number) {
+baseOptionProcessors.maxDepth = function (depth: number | undefined) {
   return typeof depth === 'number' ? depth : undefined;
 };
 

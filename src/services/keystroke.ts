@@ -230,7 +230,9 @@ class MQNode extends NodeBase {
 ControllerBase.onNotify(function (cursor: Cursor, e: ControllerEvent) {
   if (e === 'move' || e === 'upDown') cursor.show().clearSelection();
 });
-optionProcessors.leftRightIntoCmdGoes = function (updown: 'up' | 'down') {
+baseOptionProcessors.leftRightIntoCmdGoes = function (
+  updown: 'up' | 'down' | undefined
+) {
   if (updown && updown !== 'up' && updown !== 'down') {
     throw (
       '"up" or "down" required for leftRightIntoCmdGoes option, ' +

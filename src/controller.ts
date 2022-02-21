@@ -60,10 +60,13 @@ class ControllerBase {
 
   handle(name: HandlerName, dir?: Direction) {
     var handlers = this.options.handlers;
-    if (handlers && handlers.fns[name]) {
-      var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);
-      if (dir === L || dir === R) handlers.fns[name](dir, mq);
-      else handlers.fns[name](mq);
+    const handler = this.options.handlers?.fns[name];
+    if (handler) {
+      const APIClass = handlers?.APIClasses[this.KIND_OF_MQ];
+      pray('APIClass is defined', APIClass);
+      var mq = new APIClass(this as any); // cast to any bedcause APIClass needs the final Controller subclass.
+      if (dir === L || dir === R) handler(dir, mq);
+      else handler(mq);
     }
   }
 

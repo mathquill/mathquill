@@ -10,12 +10,12 @@ type JoinMethod = 'mathspeak' | 'latex' | 'text';
 
 type CursorOptions = Options;
 
-type ConfigOptions = ConfigOptionsV1 | ConfigOptionsV2;
+type ConfigOptions = ConfigOptionsV1 | ConfigOptionsV3;
 
 interface ConfigOptionsV1 {
-  ignoreNextMousedown: (_el: MouseEvent) => boolean;
-  substituteTextarea: () => HTMLElement;
-  substituteKeyboardEvents: typeof saneKeyboardEvents;
+  ignoreNextMousedown?: (_el: MouseEvent) => boolean;
+  substituteTextarea?: () => HTMLElement;
+  substituteKeyboardEvents?: typeof saneKeyboardEvents;
 
   restrictMismatchedBrackets?: boolean;
   typingSlashCreatesNewFraction?: boolean;
@@ -25,7 +25,7 @@ interface ConfigOptionsV1 {
   supSubsRequireOperand?: boolean;
   spaceBehavesLikeTab?: boolean;
   typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol: boolean;
+  typingSlashWritesDivisionSymbol?: boolean;
   typingPercentWritesPercentOf?: boolean;
   resetCursorOnBlur?: boolean | undefined;
   leftRightIntoCmdGoes?: 'up' | 'down';
@@ -37,47 +37,16 @@ interface ConfigOptionsV1 {
   onPaste?: () => void;
   onCut?: () => void;
   overrideTypedText?: (text: string) => void;
-  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames: AutoDict;
-  autoCommands: AutoDict;
-  autoParenthesizedFunctions: AutoDict;
-  quietEmptyDelimiters: { [id: string]: any };
+  overrideKeystroke?: (key: string, event: KeyboardEvent) => void;
+  autoOperatorNames?: string;
+  autoCommands?: string;
+  autoParenthesizedFunctions?: string;
+  quietEmptyDelimiters?: string;
   disableAutoSubstitutionInSubscripts?: boolean;
-  handlers: HandlerOptions;
+  handlers?: HandlerOptions;
 }
 
-interface ConfigOptionsV2 {
-  ignoreNextMousedown: (_el: MouseEvent) => boolean;
-  substituteTextarea: () => HTMLElement;
-
-  restrictMismatchedBrackets?: boolean;
-  typingSlashCreatesNewFraction?: boolean;
-  charsThatBreakOutOfSupSub: string;
-  sumStartsWithNEquals?: boolean;
-  autoSubscriptNumerals?: boolean;
-  supSubsRequireOperand?: boolean;
-  spaceBehavesLikeTab?: boolean;
-  typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol: boolean;
-  typingPercentWritesPercentOf?: boolean;
-  resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: 'up' | 'down';
-  enableDigitGrouping?: boolean;
-  mouseEvents?: boolean;
-  maxDepth?: number;
-  disableCopyPaste?: boolean;
-  statelessClipboard?: boolean;
-  onPaste?: () => void;
-  onCut?: () => void;
-  overrideTypedText?: (text: string) => void;
-  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames: AutoDict;
-  autoCommands: AutoDict;
-  autoParenthesizedFunctions: AutoDict;
-  quietEmptyDelimiters: { [id: string]: any };
-  disableAutoSubstitutionInSubscripts?: boolean;
-  handlers: HandlerOptions;
-}
+type ConfigOptionsV3 = Omit<ConfigOptionsV1, 'substituteKeyboardEvents'>;
 
 type MathspeakOptions = {
   createdLeftOf?: Cursor;
@@ -100,18 +69,35 @@ type InequalityData = {
   mathspeakStrict: string;
 };
 
-type HandlerOptions = any;
+interface Handler<MQClass> {
+  (mq: MQClass): void;
+  (dir: Direction, mq: MQClass): void;
+}
+
+type HandlerName =
+  | 'reflow'
+  | 'enter'
+  | 'moveOutOf'
+  | 'deleteOutOf'
+  | 'selectOutOf'
+  | 'upOutOf'
+  | 'downOutOf'
+  | 'edited'
+  | 'edit';
+type HandlerOptions<MQClass = unknown> = Partial<{
+  [K in HandlerName]: Handler<MQClass>;
+}>;
+
 type ControllerData = any;
 type ControllerRoot = MQNode & {
   controller: Controller;
   cursor?: Cursor;
   latex: () => string;
 };
-type HandlerName = any;
 type JQ_KeyboardEvent = KeyboardEvent & {
   originalEvent?: KeyboardEvent;
 };
-type RootBlockMixinInput = any;
+type RootBlockMixinInput = MQNode & { controller?: Controller };
 type BracketSide = L | R | 0;
 
 type InnerMathField = any;

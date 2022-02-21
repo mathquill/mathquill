@@ -14,10 +14,10 @@ interface IAbstractMathQuill {
 
   mathquillify(classNames: string): void;
   __mathquillify(
-    opts: CursorOptions,
+    opts: ConfigOptions,
     _interfaceVersion: number
   ): IAbstractMathQuill;
-  config(opts: CursorOptions): IAbstractMathQuill;
+  config(opts: ConfigOptions): IAbstractMathQuill;
   el(): HTMLElement;
   text(): string;
   mathspeak(): string;
@@ -53,20 +53,24 @@ var API: API = {};
 
 var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
 
-class OptionProcessors {
-  maxDepth: (n: number) => CursorOptions['maxDepth'];
-  leftRightIntoCmdGoes: (
-    s: 'up' | 'down'
-  ) => CursorOptions['leftRightIntoCmdGoes'];
-  autoCommands: (list: string) => CursorOptions['autoOperatorNames'];
-  autoOperatorNames: (list: string) => CursorOptions['autoOperatorNames'];
-  autoParenthesizedFunctions: (
-    list: string
-  ) => CursorOptions['autoOperatorNames'];
-  quietEmptyDelimiters: (list: string) => CursorOptions['quietEmptyDelimiters'];
-}
+const processedOptions = {
+  handlers: true,
+  autoCommands: true,
+  quietEmptyDelimiters: true,
+  autoParenthesizedFunctions: true,
+  autoOperatorNames: true,
+  leftRightIntoCmdGoes: true,
+  maxDepth: true,
+};
+type ProcessedOption = keyof typeof processedOptions;
 
-const optionProcessors = new OptionProcessors();
+/** Map of functions transforming client-provided config options to the internal representation (i.e. property of the Options class) */
+type OptionProcessors = Partial<{
+  [K in ProcessedOption]: (optionValue: ConfigOptions[K]) => CursorOptions[K];
+}>;
+
+const baseOptionProcessors: OptionProcessors = {};
+
 type AutoDict = {
   _maxLength?: number;
   [id: string]: any;
@@ -113,7 +117,10 @@ class Options {
   autoParenthesizedFunctions: AutoDict;
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
-  handlers: HandlerOptions;
+  handlers?: {
+    fns: HandlerOptions;
+    APIClasses: APIClasses;
+  };
 
   jQuery: $ | undefined;
   assertJquery() {
@@ -249,26 +256,25 @@ function getInterface(v: number) {
     MQ.saneKeyboardEvents = defaultSubstituteKeyboardEvents;
   }
 
-  function config(
-    currentOptions: CursorOptions,
-    newOptions: ConfigOptionsV1 | ConfigOptionsV2
-  ) {
-    if (newOptions && newOptions.handlers) {
-      newOptions.handlers = {
-        fns: newOptions.handlers,
-        APIClasses: APIClasses,
-      };
-    }
-    for (var name in newOptions)
+  const optionProcessors: OptionProcessors = {
+    ...baseOptionProcessors,
+    handlers: (handlers: HandlerOptions | undefined) => ({
+      fns: handlers || {},
+      APIClasses,
+    }),
+  };
+  function config(currentOptions: CursorOptions, newOptions: ConfigOptions) {
+    for (const name in newOptions) {
       if (newOptions.hasOwnProperty(name)) {
         var value = (newOptions as any)[name]; // TODO - think about typing this better
         var processor = (optionProcessors as any)[name]; // TODO - validate option processors better
         (currentOptions as any)[name] = processor ? processor(value) : value; // TODO - think about typing better
       }
+    }
   }
 
   const BaseOptions = v < 3 ? Options : class BaseOptions extends Options {};
-  MQ.config = function (opts: ConfigOptionsV1 | ConfigOptionsV2) {
+  MQ.config = function (opts: ConfigOptions) {
     config(BaseOptions.prototype, opts);
     return this;
   };
@@ -302,7 +308,7 @@ function getInterface(v: number) {
     }
 
     abstract __mathquillify(
-      opts: CursorOptions,
+      opts: ConfigOptions,
       _interfaceVersion: number
     ): IAbstractMathQuill;
 
@@ -331,7 +337,7 @@ function getInterface(v: number) {
         return v < 3 ? this.__options.assertJquery()(el) : el;
       };
     }
-    config(opts: ConfigOptionsV1 | ConfigOptionsV2) {
+    config(opts: ConfigOptions) {
       config(this.__options, opts);
       return this;
     }
@@ -519,7 +525,7 @@ function getInterface(v: number) {
     (function <K extends keyof typeof API>(kind: K, defAPIClass: API[K]) {
       if (!defAPIClass) return;
       var APIClass = (APIClasses[kind] = defAPIClass(APIClasses));
-      MQ[kind] = function (el: HTMLElement, opts: CursorOptions) {
+      MQ[kind] = function (el: HTMLElement, opts: ConfigOptions) {
         var mq = MQ(el);
         if (mq instanceof APIClass || !el || !el.nodeType) return mq;
         var ctrlr = new Controller(
@@ -545,24 +551,26 @@ window.MathQuill = MathQuill;
 
 function RootBlockMixin(_: RootBlockMixinInput) {
   _.moveOutOf = function (dir: Direction) {
-    this.controller.handle('moveOutOf', dir);
+    this.controller?.handle('moveOutOf', dir);
   };
   _.deleteOutOf = function (dir: Direction) {
-    this.controller.handle('deleteOutOf', dir);
+    this.controller?.handle('deleteOutOf', dir);
   };
   _.selectOutOf = function (dir: Direction) {
-    this.controller.handle('selectOutOf', dir);
+    this.controller?.handle('selectOutOf', dir);
   };
-  _.upOutOf = function (dir: Direction) {
-    this.controller.handle('upOutOf', dir);
+  _.upOutOf = function () {
+    this.controller?.handle('upOutOf');
+    return undefined;
   };
-  _.downOutOf = function (dir: Direction) {
-    this.controller.handle('downOutOf', dir);
+  _.downOutOf = function () {
+    this.controller?.handle('downOutOf');
+    return undefined;
   };
 
   _.reflow = function () {
-    this.controller.handle('reflow');
-    this.controller.handle('edited');
-    this.controller.handle('edit');
+    this.controller?.handle('reflow');
+    this.controller?.handle('edited');
+    this.controller?.handle('edit');
   };
 }
