@@ -1,3 +1,14 @@
+## Interface v3 (February 2022)
+
+The major change in this interface version is the removal of MathQuill's dependency on JQuery.
+
+**breaking changes:**
+- `.revert()` now returns an HTML element rather than a JQuery collection
+- In previous interface versions, `MQ.config()` changed the _global_ default configuration, shared across multiple API instances.  On a v3 instance, it only affects the default configuration for that instance.
+- The (undocumented) `substituteKeyboardEvents` configuration option is no longer supported
+- The (undocumented) `overrideKeystroke` configuration option now receives a native `KeyboardEvent` as its second parameter (it previously received a JQuery event).
+
+
 ## v0.10.1: Fix `font-size: 0` typing problems and more
 
 _2016-03-21_
