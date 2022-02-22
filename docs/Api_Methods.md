@@ -1,6 +1,6 @@
 # API Methods
 
-To use the MathQuill API, first get the latest version of the interface:
+To use the MathQuill API, first get an instance of the latest version of the interface:
 
 ```js
 var MQ = MathQuill.getInterface(3);
@@ -66,8 +66,19 @@ MQ(otherSpan) // => null
 
 ## MQ.config(config)
 
-Updates the default [configuration options](Config.md) for this instance of the API (which can be overridden on a per-field basis).
+Updates the default [configuration options](Config.md) for this instance of the API (which can be overridden on a per-field basis -- see the `MQ.MathField` and `MQ.StaticMath` constructors above).
 
+If there are multiple instances of the MathQuill API, `MQ.config()` only affects the math MathQuill objects created by `MQ`. E.g.:
+
+```javascript
+var MQ1 = MathQuill.getInterface(3), MQ2 = MathQuill.getInterface(3);
+
+MQ1.config(myConfig);
+MQ1.MathField(a); // configured with myConfig
+MQ1.MathField(b);
+
+MQ2.MathField(c); // unaffected by myConfig
+```
 
 
 # Comparing MathFields
