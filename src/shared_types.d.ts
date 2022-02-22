@@ -10,54 +10,12 @@ type JoinMethod = 'mathspeak' | 'latex' | 'text';
 
 type CursorOptions = Options;
 
-type ConfigOptions = ConfigOptionsV1 | ConfigOptionsV3;
-
-interface ConfigOptionsV1 {
-  ignoreNextMousedown?: (_el: MouseEvent) => boolean;
-  substituteTextarea?: () => HTMLElement;
-  substituteKeyboardEvents?: typeof saneKeyboardEvents;
-
-  restrictMismatchedBrackets?: boolean;
-  typingSlashCreatesNewFraction?: boolean;
-  charsThatBreakOutOfSupSub: string;
-  sumStartsWithNEquals?: boolean;
-  autoSubscriptNumerals?: boolean;
-  supSubsRequireOperand?: boolean;
-  spaceBehavesLikeTab?: boolean;
-  typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol?: boolean;
-  typingPercentWritesPercentOf?: boolean;
-  resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: 'up' | 'down';
-  enableDigitGrouping?: boolean;
-  mouseEvents?: boolean;
-  maxDepth?: number;
-  disableCopyPaste?: boolean;
-  statelessClipboard?: boolean;
-  onPaste?: () => void;
-  onCut?: () => void;
-  overrideTypedText?: (text: string) => void;
-  overrideKeystroke?: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames?: string;
-  autoCommands?: string;
-  autoParenthesizedFunctions?: string;
-  quietEmptyDelimiters?: string;
-  disableAutoSubstitutionInSubscripts?: boolean;
-  handlers?: HandlerOptions;
-}
-
-type ConfigOptionsV3 = Omit<ConfigOptionsV1, 'substituteKeyboardEvents'>;
+type ConfigOptions = MathQuill.v1.Config | MathQuill.v3.Config;
 
 type MathspeakOptions = {
   createdLeftOf?: Cursor;
   ignoreShorthand?: boolean;
 };
-type EmbedOptions = {
-  latex?: () => string;
-  text?: () => string;
-  htmlString?: string;
-};
-
 type InequalityData = {
   ctrlSeq: string;
   ctrlSeqStrict: string;
@@ -68,25 +26,6 @@ type InequalityData = {
   mathspeak: string;
   mathspeakStrict: string;
 };
-
-interface Handler<MQClass> {
-  (mq: MQClass): void;
-  (dir: Direction, mq: MQClass): void;
-}
-
-type HandlerName =
-  | 'reflow'
-  | 'enter'
-  | 'moveOutOf'
-  | 'deleteOutOf'
-  | 'selectOutOf'
-  | 'upOutOf'
-  | 'downOutOf'
-  | 'edited'
-  | 'edit';
-type HandlerOptions<MQClass = unknown> = Partial<{
-  [K in HandlerName]: Handler<MQClass>;
-}>;
 
 type ControllerData = any;
 type ControllerRoot = MQNode & {
@@ -102,8 +41,6 @@ type BracketSide = L | R | 0;
 
 type InnerMathField = any;
 type InnerFields = any;
-type EmbedOptionsData = any;
-type MQ = any;
 type LatexCmdsAny = any;
 type CharCmdsAny = any;
 type LatexCmdsSingleCharBuilder = Record<string, (char: string) => MQNode>;

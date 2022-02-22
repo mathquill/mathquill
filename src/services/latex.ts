@@ -117,7 +117,7 @@ class Controller_latex extends Controller_keystroke {
     return this;
   }
 
-  classifyLatexForEfficientUpdate(latex: string) {
+  classifyLatexForEfficientUpdate(latex: unknown) {
     if (typeof latex !== 'string') return;
 
     var matches = latex.match(/-?[0-9.]+$/g);
@@ -131,7 +131,7 @@ class Controller_latex extends Controller_keystroke {
 
     return;
   }
-  renderLatexMathEfficiently(latex: string) {
+  renderLatexMathEfficiently(latex: unknown) {
     var root = this.root;
     var oldLatex = this.exportLatex();
     if (root.getEnd(L) && root.getEnd(R) && oldLatex === latex) {
@@ -300,7 +300,7 @@ class Controller_latex extends Controller_keystroke {
 
     return true;
   }
-  renderLatexMathFromScratch(latex: string) {
+  renderLatexMathFromScratch(latex: unknown) {
     var root = this.root,
       cursor = this.cursor;
     var all = Parser.all;
@@ -329,7 +329,7 @@ class Controller_latex extends Controller_keystroke {
     delete cursor.selection;
     cursor.insAtRightEnd(root);
   }
-  renderLatexMath(latex: string) {
+  renderLatexMath(latex: unknown) {
     this.notify('replace');
 
     if (this.renderLatexMathEfficiently(latex)) return;

@@ -543,12 +543,12 @@ class MathBlock extends MathElement {
 
   ariaLabel = 'block';
 
-  keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
+  keystroke(key: string, e: KeyboardEvent | undefined, ctrlr: Controller) {
     if (
       ctrlr.options.spaceBehavesLikeTab &&
       (key === 'Spacebar' || key === 'Shift-Spacebar')
     ) {
-      e.preventDefault();
+      e?.preventDefault();
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
@@ -704,8 +704,10 @@ API.StaticMath = function (APIClasses: APIClasses) {
         node.registerInnerField(innerFields, APIClasses.InnerMathField);
       });
     }
-    latex() {
-      var returned = super.latex.apply(this, arguments as unknown as [string]);
+    latex(s: string): IBaseMathQuill;
+    latex(): string;
+    latex(_latex?: string): string | IBaseMathQuill {
+      var returned = super.latex.apply(this, arguments as unknown as any);
       if (arguments.length > 0) {
         var innerFields = (this.innerFields = []);
         this.__controller.root.postOrder(function (node: MQNode) {

@@ -58,7 +58,7 @@ class ControllerBase {
     return this as any as Controller;
   }
 
-  handle(name: HandlerName, dir?: Direction) {
+  handle(name: MathQuill.v1.HandlerName, dir?: Direction) {
     var handlers = this.options.handlers;
     const handler = this.options.handlers?.fns[name];
     if (handler) {

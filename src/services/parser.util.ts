@@ -29,7 +29,7 @@ class Parser<T> {
     this._ = body;
   }
 
-  parse(stream: string): T {
+  parse(stream: unknown): T {
     return this.skip(Parser.eof)._('' + stream, success, parseError);
 
     function success(_stream: string, result: T) {
