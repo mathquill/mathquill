@@ -4,7 +4,7 @@
 
 type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
 
-interface IAbstractMathQuill {
+interface IBaseMathQuill {
   __controller: Controller;
   __options: CursorOptions;
   id: number;
@@ -16,40 +16,59 @@ interface IAbstractMathQuill {
   __mathquillify(
     opts: ConfigOptions,
     _interfaceVersion: number
-  ): IAbstractMathQuill;
-  config(opts: ConfigOptions): IAbstractMathQuill;
+  ): IBaseMathQuill;
+  config(opts: ConfigOptions): IBaseMathQuill;
   el(): HTMLElement;
   text(): string;
   mathspeak(): string;
-  latex(latex: string): string | IAbstractMathQuill;
+  latex(latex: string): string | IBaseMathQuill;
   html(): string;
-  reflow(): IAbstractMathQuill;
-}
-interface IAbstractMathQuillClass {
-  new (ctrlr: Controller): IAbstractMathQuill;
+  reflow(): IBaseMathQuill;
 }
 
-interface APIClass extends IAbstractMathQuillClass {
+interface IBaseMathQuillClass {
+  new (ctrlr: Controller): IBaseMathQuill;
+  RootBlock: typeof MathBlock;
+}
+
+interface IEditableField extends IBaseMathQuill {
+  select: () => void;
+  moveToRightEnd: () => void;
+  cmd: (latex: string) => void;
+  write: (latex: string) => void;
+  keystroke: (key: string, evt?: KeyboardEvent) => void;
+  typedText: (text: string) => void;
+  clearSelection: () => void;
+  blur: () => void;
+  focus: () => void;
+  getAriaPostLabel: () => string;
+  setAriaPostLabel: (str: string, timeout?: number) => void;
+  ignoreNextMousedown: (func: () => boolean) => void;
+  clickAt: (x: number, y: number, el: HTMLElement) => void;
+}
+
+interface IEditableFieldClass {
+  new (ctrlr: Controller): IEditableField;
   RootBlock: typeof MathBlock;
 }
 
 interface APIClasses {
-  StaticMath?: APIClass;
-  MathField?: APIClass;
-  InnerMathField?: APIClass;
-  TextField?: APIClass;
-  AbstractMathQuill: IAbstractMathQuillClass;
-  EditableField: IAbstractMathQuillClass;
+  StaticMath?: IBaseMathQuillClass;
+  MathField?: IEditableFieldClass;
+  InnerMathField?: IEditableFieldClass;
+  TextField?: IEditableFieldClass;
+  AbstractMathQuill: IBaseMathQuillClass;
+  EditableField: IEditableFieldClass;
 }
 
-type API = {
-  StaticMath?: (APIClasses: APIClasses) => APIClass;
-  MathField?: (APIClasses: APIClasses) => APIClass;
-  InnerMathField?: (APIClasses: APIClasses) => APIClass;
-  TextField?: (APIClasses: APIClasses) => APIClass;
+type APIClassBuilders = {
+  StaticMath?: (APIClasses: APIClasses) => IBaseMathQuillClass;
+  MathField?: (APIClasses: APIClasses) => IEditableFieldClass;
+  InnerMathField?: (APIClasses: APIClasses) => IEditableFieldClass;
+  TextField?: (APIClasses: APIClasses) => IEditableFieldClass;
 };
 
-var API: API = {};
+var API: APIClassBuilders = {};
 
 var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
 
@@ -217,10 +236,12 @@ function getInterface(v: number) {
       v
     );
 
-  if (v < 3) {
+  const version = v;
+
+  if (version < 3) {
     const jQuery = (window as any).jQuery;
     if (!jQuery)
-      throw `MathQuill interface version ${v} requires jQuery 1.5.2+ to be loaded first`;
+      throw `MathQuill interface version ${version} requires jQuery 1.5.2+ to be loaded first`;
     Options.prototype.jQuery = jQuery;
   }
 
@@ -233,7 +254,7 @@ function getInterface(v: number) {
    *   assert(MQ(mathFieldSpan).id === MQ(mathFieldSpan).id);
    *
    */
-  var MQ: MQ = function (el: HTMLElement) {
+  const MQ: MQ = function (el: HTMLElement) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
     // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
     let blockElement;
@@ -252,7 +273,7 @@ function getInterface(v: number) {
 
   MQ.L = L;
   MQ.R = R;
-  if (v < 3) {
+  if (version < 3) {
     MQ.saneKeyboardEvents = defaultSubstituteKeyboardEvents;
   }
 
@@ -273,7 +294,8 @@ function getInterface(v: number) {
     }
   }
 
-  const BaseOptions = v < 3 ? Options : class BaseOptions extends Options {};
+  const BaseOptions =
+    version < 3 ? Options : class BaseOptions extends Options {};
   MQ.config = function (opts: ConfigOptions) {
     config(BaseOptions.prototype, opts);
     return this;
@@ -289,10 +311,7 @@ function getInterface(v: number) {
     EMBEDS[name] = options;
   };
 
-  abstract class AbstractMathQuill
-    extends Progenote
-    implements IAbstractMathQuill
-  {
+  abstract class AbstractMathQuill extends Progenote implements IBaseMathQuill {
     __controller: Controller;
     __options: CursorOptions;
     id: number;
@@ -310,7 +329,7 @@ function getInterface(v: number) {
     abstract __mathquillify(
       opts: ConfigOptions,
       _interfaceVersion: number
-    ): IAbstractMathQuill;
+    ): IBaseMathQuill;
 
     mathquillify(classNames: string) {
       var ctrlr = this.__controller,
@@ -334,7 +353,7 @@ function getInterface(v: number) {
           .removeClass('mq-editable-field mq-math-mode mq-text-mode')
           .empty()
           .append(contents);
-        return v < 3 ? this.__options.assertJquery()(el) : el;
+        return version < 3 ? this.__options.assertJquery()(el) : el;
       };
     }
     config(opts: ConfigOptions) {
@@ -378,7 +397,10 @@ function getInterface(v: number) {
   }
   MQ.prototype = AbstractMathQuill.prototype;
 
-  abstract class EditableField extends AbstractMathQuill {
+  abstract class EditableField
+    extends AbstractMathQuill
+    implements IEditableField
+  {
     mathquillify(classNames: string) {
       super.mathquillify(classNames);
       this.__controller.editable = true;
@@ -456,10 +478,10 @@ function getInterface(v: number) {
       return this.moveToDirEnd(R);
     }
 
-    keystroke(keysString: string, evt: KeyboardEvent) {
+    keystroke(keysString: string, evt?: KeyboardEvent) {
       var keys = keysString.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
-        this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
+        this.__controller.keystroke(keys[i], evt);
       }
       return this;
     }
@@ -484,7 +506,7 @@ function getInterface(v: number) {
     getAriaLabel() {
       return this.__controller.getAriaLabel();
     }
-    setAriaPostLabel(ariaPostLabel: string, timeout: number) {
+    setAriaPostLabel(ariaPostLabel: string, timeout?: number) {
       this.__controller.setAriaPostLabel(ariaPostLabel, timeout);
       return this;
     }
@@ -516,29 +538,44 @@ function getInterface(v: number) {
     EditableField,
   } as unknown as APIClasses;
 
-  /**
+  /*
    * Export the API functions that MathQuill-ify an HTML element into API objects
    * of each class. If the element had already been MathQuill-ified but into a
    * different kind (or it's not an HTML element), return null.
    */
-  for (var kind in API)
-    (function <K extends keyof typeof API>(kind: K, defAPIClass: API[K]) {
-      if (!defAPIClass) return;
-      var APIClass = (APIClasses[kind] = defAPIClass(APIClasses));
-      MQ[kind] = function (el: HTMLElement, opts: ConfigOptions) {
-        var mq = MQ(el);
-        if (mq instanceof APIClass || !el || !el.nodeType) return mq;
-        var ctrlr = new Controller(
-          new APIClass.RootBlock() as ControllerRoot,
-          el,
-          new BaseOptions(v)
-        );
-        ctrlr.KIND_OF_MQ = kind;
-        return new APIClass(ctrlr).__mathquillify(opts, v);
-      };
-      MQ[kind].prototype = APIClass.prototype;
-    })(kind as keyof typeof API, API[kind as keyof typeof API]);
 
+  pray('API.StaticMath defined', API.StaticMath);
+  APIClasses.StaticMath = API.StaticMath(APIClasses);
+  for (const kind of ['MathField', 'InnerMathField', 'TextField'] as const) {
+    const createClass = API[kind];
+    if (!createClass) continue;
+    APIClasses[kind] = createClass(APIClasses);
+  }
+
+  for (const key in API) {
+    const kind = key as keyof typeof API;
+    const APIClass = APIClasses[kind];
+    pray(kind + ' is defined', APIClass);
+    attachEntrypoint(kind, APIClass);
+  }
+
+  function attachEntrypoint<K extends keyof typeof API>(
+    kind: K,
+    APIClass: IBaseMathQuillClass
+  ) {
+    MQ[kind] = function (el: HTMLElement, opts: ConfigOptions) {
+      var mq = MQ(el);
+      if (mq instanceof APIClass || !el || !el.nodeType) return mq;
+      var ctrlr = new Controller(
+        new APIClass.RootBlock() as ControllerRoot,
+        el,
+        new BaseOptions(version)
+      );
+      ctrlr.KIND_OF_MQ = kind;
+      return new APIClass(ctrlr).__mathquillify(opts, version);
+    };
+    MQ[kind].prototype = APIClass.prototype;
+  }
   return MQ;
 }
 

@@ -10,7 +10,7 @@
 var INCREMENTAL_SELECTION_OPEN = false;
 
 class MQNode extends NodeBase {
-  keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
+  keystroke(key: string, e: KeyboardEvent | undefined, ctrlr: Controller) {
     var cursor = ctrlr.cursor;
 
     switch (key) {
@@ -200,7 +200,7 @@ class MQNode extends NodeBase {
         return;
     }
     ctrlr.aria.alert();
-    e.preventDefault();
+    e?.preventDefault();
     ctrlr.scrollHoriz();
   }
 
@@ -255,16 +255,16 @@ ControllerBase.onNotify(function (cursor: Cursor, e: ControllerEvent) {
 });
 
 class Controller_keystroke extends Controller_focusBlur {
-  keystroke(key: string, evt: KeyboardEvent) {
+  keystroke(key: string, evt?: KeyboardEvent) {
     this.cursor.parent.keystroke(key, evt, this.getControllerSelf());
   }
 
-  escapeDir(dir: Direction, _key: string, e: KeyboardEvent) {
+  escapeDir(dir: Direction, _key: string, e?: KeyboardEvent) {
     prayDirection(dir);
     var cursor = this.cursor;
 
     // only prevent default of Tab if not in the root editable
-    if (cursor.parent !== this.root) e.preventDefault();
+    if (cursor.parent !== this.root) e?.preventDefault();
 
     // want to be a noop if in the root editable (in fact, Tab has an unrelated
     // default browser action if so)

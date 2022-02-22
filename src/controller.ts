@@ -107,7 +107,7 @@ class ControllerBase {
       return '';
     }
   }
-  setAriaPostLabel(ariaPostLabel: string, timeout: number) {
+  setAriaPostLabel(ariaPostLabel: string, timeout?: number) {
     if (
       ariaPostLabel &&
       typeof ariaPostLabel === 'string' &&
