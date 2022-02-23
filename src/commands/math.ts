@@ -543,12 +543,12 @@ class MathBlock extends MathElement {
 
   ariaLabel = 'block';
 
-  keystroke(key: string, e: KeyboardEvent, ctrlr: Controller) {
+  keystroke(key: string, e: KeyboardEvent | undefined, ctrlr: Controller) {
     if (
       ctrlr.options.spaceBehavesLikeTab &&
       (key === 'Spacebar' || key === 'Shift-Spacebar')
     ) {
-      e.preventDefault();
+      e?.preventDefault();
       ctrlr.escapeDir(key === 'Shift-Spacebar' ? L : R, key, e);
       return;
     }
@@ -688,7 +688,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
     innerFields: InnerFields;
     static RootBlock = MathBlock;
 
-    __mathquillify(opts: CursorOptions, _interfaceVersion: number) {
+    __mathquillify(opts: ConfigOptions, _interfaceVersion: number) {
       this.config(opts);
       super.mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
@@ -704,8 +704,10 @@ API.StaticMath = function (APIClasses: APIClasses) {
         node.registerInnerField(innerFields, APIClasses.InnerMathField);
       });
     }
-    latex() {
-      var returned = super.latex.apply(this, arguments as unknown as [string]);
+    latex(s: string): IBaseMathQuill;
+    latex(): string;
+    latex(_latex?: string): string | IBaseMathQuill {
+      var returned = super.latex.apply(this, arguments as unknown as any);
       if (arguments.length > 0) {
         var innerFields = (this.innerFields = []);
         this.__controller.root.postOrder(function (node: MQNode) {
@@ -733,7 +735,7 @@ API.MathField = function (APIClasses: APIClasses) {
   return class MathField extends APIClasses.EditableField {
     static RootBlock = RootMathBlock;
 
-    __mathquillify(opts: CursorOptions, interfaceVersion: number) {
+    __mathquillify(opts: ConfigOptions, interfaceVersion: number) {
       this.config(opts);
       if (interfaceVersion > 1) this.__controller.root.reflow = noop;
       super.mathquillify('mq-editable-field mq-math-mode');

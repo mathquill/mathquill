@@ -174,6 +174,8 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 .PHONY:
 lint:
 	npx tsc --noEmit
+  # Make sure that the public, standalone type definitions do not depend on any internal sources.
+	npx tsc --noEmit -p test/tsconfig.public-types-test.json
 
 .PHONY: test server benchmark
 server:

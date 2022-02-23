@@ -10,85 +10,22 @@ type JoinMethod = 'mathspeak' | 'latex' | 'text';
 
 type CursorOptions = Options;
 
-type ConfigOptions = ConfigOptionsV1 | ConfigOptionsV2;
+// These types are just aliases for the corresponding public types, for use in internal code.
+// If we version the interface, these can be changed to "MathQuill.v4...." (or maybe "MathQuill.v3.... | MathQuill.v3....")
+type BaseMathQuill = MathQuill.v3.BaseMathQuill;
+type EditableMathQuill = MathQuill.v3.EditableMathQuill;
+type EmbedOptions = MathQuill.v3.EmbedOptions;
+type EmbedOptionsData = MathQuill.v3.EmbedOptionsData;
+type HandlersWithDirection = MathQuill.v3.HandlersWithDirection;
+type HandlersWithoutDirection = MathQuill.v3.HandlersWithoutDirection;
+type HandlerOptions = MathQuill.v3.HandlerOptions;
 
-interface ConfigOptionsV1 {
-  ignoreNextMousedown: (_el: MouseEvent) => boolean;
-  substituteTextarea: () => HTMLElement;
-  substituteKeyboardEvents: typeof saneKeyboardEvents;
-
-  restrictMismatchedBrackets?: boolean;
-  typingSlashCreatesNewFraction?: boolean;
-  charsThatBreakOutOfSupSub: string;
-  sumStartsWithNEquals?: boolean;
-  autoSubscriptNumerals?: boolean;
-  supSubsRequireOperand?: boolean;
-  spaceBehavesLikeTab?: boolean;
-  typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol: boolean;
-  typingPercentWritesPercentOf?: boolean;
-  resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: 'up' | 'down';
-  enableDigitGrouping?: boolean;
-  mouseEvents?: boolean;
-  maxDepth?: number;
-  disableCopyPaste?: boolean;
-  statelessClipboard?: boolean;
-  onPaste?: () => void;
-  onCut?: () => void;
-  overrideTypedText?: (text: string) => void;
-  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames: AutoDict;
-  autoCommands: AutoDict;
-  autoParenthesizedFunctions: AutoDict;
-  quietEmptyDelimiters: { [id: string]: any };
-  disableAutoSubstitutionInSubscripts?: boolean;
-  handlers: HandlerOptions;
-}
-
-interface ConfigOptionsV2 {
-  ignoreNextMousedown: (_el: MouseEvent) => boolean;
-  substituteTextarea: () => HTMLElement;
-
-  restrictMismatchedBrackets?: boolean;
-  typingSlashCreatesNewFraction?: boolean;
-  charsThatBreakOutOfSupSub: string;
-  sumStartsWithNEquals?: boolean;
-  autoSubscriptNumerals?: boolean;
-  supSubsRequireOperand?: boolean;
-  spaceBehavesLikeTab?: boolean;
-  typingAsteriskWritesTimesSymbol?: boolean;
-  typingSlashWritesDivisionSymbol: boolean;
-  typingPercentWritesPercentOf?: boolean;
-  resetCursorOnBlur?: boolean | undefined;
-  leftRightIntoCmdGoes?: 'up' | 'down';
-  enableDigitGrouping?: boolean;
-  mouseEvents?: boolean;
-  maxDepth?: number;
-  disableCopyPaste?: boolean;
-  statelessClipboard?: boolean;
-  onPaste?: () => void;
-  onCut?: () => void;
-  overrideTypedText?: (text: string) => void;
-  overrideKeystroke: (key: string, event: KeyboardEvent) => void;
-  autoOperatorNames: AutoDict;
-  autoCommands: AutoDict;
-  autoParenthesizedFunctions: AutoDict;
-  quietEmptyDelimiters: { [id: string]: any };
-  disableAutoSubstitutionInSubscripts?: boolean;
-  handlers: HandlerOptions;
-}
+type ConfigOptions = MathQuill.v1.Config | MathQuill.v3.Config;
 
 type MathspeakOptions = {
   createdLeftOf?: Cursor;
   ignoreShorthand?: boolean;
 };
-type EmbedOptions = {
-  latex?: () => string;
-  text?: () => string;
-  htmlString?: string;
-};
-
 type InequalityData = {
   ctrlSeq: string;
   ctrlSeqStrict: string;
@@ -100,24 +37,20 @@ type InequalityData = {
   mathspeakStrict: string;
 };
 
-type HandlerOptions = any;
 type ControllerData = any;
 type ControllerRoot = MQNode & {
   controller: Controller;
   cursor?: Cursor;
   latex: () => string;
 };
-type HandlerName = any;
 type JQ_KeyboardEvent = KeyboardEvent & {
   originalEvent?: KeyboardEvent;
 };
-type RootBlockMixinInput = any;
+type RootBlockMixinInput = MQNode & { controller?: Controller };
 type BracketSide = L | R | 0;
 
 type InnerMathField = any;
 type InnerFields = any;
-type EmbedOptionsData = any;
-type MQ = any;
 type LatexCmdsAny = any;
 type CharCmdsAny = any;
 type LatexCmdsSingleCharBuilder = Record<string, (char: string) => MQNode>;

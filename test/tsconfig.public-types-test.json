@@ -1,0 +1,20 @@
+{
+    "compilerOptions": {
+      "noImplicitThis": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "strictNullChecks": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "strictPropertyInitialization": false,
+      "strict": true,
+      "target": "ES5",
+      "lib": ["ES5", "ScriptHost", "DOM", "ES2015.Collection"],
+      "module": "ES2015",
+      "importHelpers": true,
+      "noEmit": true,
+      "pretty": true
+    },
+    "include": ["../src/mathquill.d.ts", "../src/jquery.d.ts"]
+  }

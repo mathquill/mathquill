@@ -59,7 +59,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         );
         // TODO needs tests
         ctrlr.aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
-        e.preventDefault();
+        e?.preventDefault();
         return;
       }
 

@@ -281,8 +281,8 @@ function bindVariable(
 Options.prototype.autoCommands = {
   _maxLength: 0,
 };
-optionProcessors.autoCommands = function (cmds: string) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+baseOptionProcessors.autoCommands = function (cmds: string | undefined) {
+  if (typeof cmds !== 'string' || !/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"' + cmds + '" not a space-delimited list of only letters';
   }
   var list = cmds.split(' ');
@@ -306,7 +306,7 @@ optionProcessors.autoCommands = function (cmds: string) {
 };
 
 Options.prototype.quietEmptyDelimiters = {};
-optionProcessors.quietEmptyDelimiters = function (dlms: string) {
+baseOptionProcessors.quietEmptyDelimiters = function (dlms: string = '') {
   var list = dlms.split(' ');
   var dict: { [id: string]: any } = {};
   for (var i = 0; i < list.length; i += 1) {
@@ -317,8 +317,8 @@ optionProcessors.quietEmptyDelimiters = function (dlms: string) {
 };
 
 Options.prototype.autoParenthesizedFunctions = { _maxLength: 0 };
-optionProcessors.autoParenthesizedFunctions = function (cmds) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+baseOptionProcessors.autoParenthesizedFunctions = function (cmds) {
+  if (typeof cmds !== 'string' || !/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"' + cmds + '" not a space-delimited list of only letters';
   }
   var list = cmds.split(' ');
@@ -623,7 +623,7 @@ function defaultAutoOpNames() {
   return AutoOpNames;
 }
 
-optionProcessors.autoOperatorNames = function (cmds) {
+baseOptionProcessors.autoOperatorNames = function (cmds) {
   if (typeof cmds !== 'string') {
     throw '"' + cmds + '" not a space-delimited list';
   }

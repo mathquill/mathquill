@@ -523,18 +523,22 @@ class RootTextBlock extends RootMathBlock {
   }
 }
 API.TextField = function (APIClasses: APIClasses) {
-  return class extends APIClasses.EditableField {
+  return class TextField extends APIClasses.EditableField {
     static RootBlock = RootTextBlock;
     __mathquillify() {
       super.mathquillify('mq-editable-field mq-text-mode');
       return this;
     }
-    latex(latex: string) {
-      if (arguments.length > 0) {
+    latex(): string;
+    latex(l: string): IEditableField;
+    latex(latex?: string) {
+      if (latex) {
         this.__controller.renderLatexText(latex);
         if (this.__controller.blurred)
           this.__controller.cursor.hide().parent.blur();
-        return this;
+
+        const _this: IBaseMathQuill = this; // just to help help TS out
+        return _this;
       }
       return this.__controller.exportLatex();
     }
