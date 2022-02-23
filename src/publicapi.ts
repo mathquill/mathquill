@@ -84,7 +84,7 @@ class Options {
 
   ignoreNextMousedown: (_el: MouseEvent) => boolean;
   substituteTextarea: () => HTMLElement;
-  /** Only used in interface version 1. */
+  /** Only used in interface versions 1 and 2. */
   substituteKeyboardEvents: SubstituteKeyboardEvents;
 
   restrictMismatchedBrackets?: boolean;

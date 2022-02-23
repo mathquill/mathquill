@@ -1,9 +1,9 @@
 # API Methods
 
-To use the MathQuill API, first get the latest version of the interface:
+To use the MathQuill API, first get an instance of the latest version of the interface:
 
 ```js
-var MQ = MathQuill.getInterface(2);
+var MQ = MathQuill.getInterface(3);
 ```
 
 By default, MathQuill overwrites the global `MathQuill` variable when loaded. If you do not want this behavior, you can use `.noConflict()` ([similar to `jQuery.noConflict()`](http://api.jquery.com/jQuery.noConflict)):
@@ -12,10 +12,10 @@ By default, MathQuill overwrites the global `MathQuill` variable when loaded. If
 <script src="/path/to/first-mathquill.js"></script>
 <script src="/path/to/second-mathquill.js"></script>
 <script>
-var secondMQ = MathQuill.noConflict().getInterface(2);
+var secondMQ = MathQuill.noConflict().getInterface(3);
 secondMQ.MathField(...);
 
-var firstMQ = MathQuill.getInterface(2);
+var firstMQ = MathQuill.getInterface(3);
 firstMQ.MathField(...);
 </script>
 ```
@@ -66,8 +66,19 @@ MQ(otherSpan) // => null
 
 ## MQ.config(config)
 
-Updates the global [configuration options](Config.md) (which can be overridden on a per-field basis).
+Updates the default [configuration options](Config.md) for this instance of the API (which can be overridden on a per-field basis -- see the `MQ.MathField` and `MQ.StaticMath` constructors above).
 
+If there are multiple instances of the MathQuill API, `MQ.config()` only affects the math MathQuill objects created by `MQ`. E.g.:
+
+```javascript
+var MQ1 = MathQuill.getInterface(3), MQ2 = MathQuill.getInterface(3);
+
+MQ1.config(myConfig);
+MQ1.MathField(a); // configured with myConfig
+MQ1.MathField(b);
+
+MQ2.MathField(c); // unaffected by myConfig
+```
 
 
 # Comparing MathFields
@@ -122,7 +133,7 @@ Any element that has been turned into a MathQuill instance can be reverted:
 </span>
 ```
 ```js
-mathfield.revert().html(); // => 'some <code>HTML</code>'
+mathfield.revert().innerHTML; // => 'some <code>HTML</code>'
 ```
 
 ## .reflow()
