@@ -9,7 +9,15 @@ declare namespace MathQuill {
   type Direction = -1 | 1;
 
   namespace v3 {
-    type Config = Omit<v1.Config, 'substituteKeyboardEvents'>;
+    type HandlersWithDirection = v1.HandlersWithDirection;
+    type HandlersWithoutDirection = v1.HandlersWithoutDirection;
+    type HandlerOptions = v1.HandlerOptions<BaseMathQuill>;
+    type EmbedOptions = v1.EmbedOptions;
+    type EmbedOptionsData = v1.EmbedOptionsData;
+
+    type Config = Omit<v1.Config, 'substituteKeyboardEvents' | 'handlers'> & {
+      handlers?: HandlerOptions;
+    };
 
     interface BaseMathQuill {
       id: number;
@@ -106,7 +114,7 @@ declare namespace MathQuill {
       autoParenthesizedFunctions?: string;
       quietEmptyDelimiters?: string;
       disableAutoSubstitutionInSubscripts?: boolean;
-      handlers?: HandlerOptions;
+      handlers?: HandlerOptions<BaseMathQuill<$>>;
     }
 
     interface Handler<MQClass> {
@@ -114,19 +122,22 @@ declare namespace MathQuill {
       (dir: Direction, mq: MQClass): void;
     }
 
-    type HandlerName =
+    type HandlersWithDirection = 'moveOutOf' | 'deleteOutOf' | 'selectOutOf';
+    type HandlersWithoutDirection =
       | 'reflow'
       | 'enter'
-      | 'moveOutOf'
-      | 'deleteOutOf'
-      | 'selectOutOf'
       | 'upOutOf'
       | 'downOutOf'
       | 'edited'
       | 'edit';
-    type HandlerOptions<MQClass = unknown> = Partial<{
-      [K in HandlerName]: Handler<MQClass>;
-    }>;
+    type HandlerOptions<MQClass = unknown> = Partial<
+      {
+        [K in HandlersWithDirection]: (dir: Direction, mq: MQClass) => void;
+      } & {
+        [K in HandlersWithoutDirection]: (mq: MQClass) => void;
+      }
+    >;
+    type HandlerName = keyof HandlerOptions;
 
     interface BaseMathQuill<$ = DefaultJquery> {
       id: number;

@@ -5,6 +5,14 @@ type TextareaKeyboardEventListeners = Partial<{
 /*********************************************
  * Controller for a MathQuill instance
  ********************************************/
+
+type HandlerWithDirectionFunction = NonNullable<
+  HandlerOptions[HandlersWithDirection]
+>;
+type HandlerWithoutDirectionFunction = NonNullable<
+  HandlerOptions[HandlersWithoutDirection]
+>;
+
 class ControllerBase {
   id: number;
   data: ControllerData;
@@ -58,15 +66,21 @@ class ControllerBase {
     return this as any as Controller;
   }
 
-  handle(name: MathQuill.v1.HandlerName, dir?: Direction) {
+  handle(name: HandlersWithDirection, dir: Direction): void;
+  handle(name: HandlersWithoutDirection): void;
+  handle(
+    name: HandlersWithDirection | HandlersWithoutDirection,
+    dir?: Direction
+  ) {
     var handlers = this.options.handlers;
     const handler = this.options.handlers?.fns[name];
     if (handler) {
       const APIClass = handlers?.APIClasses[this.KIND_OF_MQ];
       pray('APIClass is defined', APIClass);
       var mq = new APIClass(this as any); // cast to any bedcause APIClass needs the final Controller subclass.
-      if (dir === L || dir === R) handler(dir, mq);
-      else handler(mq);
+      if (dir === L || dir === R)
+        (handler as HandlerWithDirectionFunction)(dir, mq);
+      else (handler as HandlerWithoutDirectionFunction)(mq);
     }
   }
 

@@ -1664,7 +1664,7 @@ LatexCmds.editable = LatexCmds.MathQuillMathField = MathFieldNode; // backcompat
 // or by calling the global public API method .registerEmbed()
 // and rendering LaTeX like \embed{registeredName} (see test).
 class EmbedNode extends MQSymbol {
-  setOptions(options: MathQuill.v1.EmbedOptions) {
+  setOptions(options: EmbedOptions) {
     function noop() {
       return '';
     }

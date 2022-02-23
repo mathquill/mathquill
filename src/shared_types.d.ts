@@ -10,6 +10,16 @@ type JoinMethod = 'mathspeak' | 'latex' | 'text';
 
 type CursorOptions = Options;
 
+// These types are just aliases for the corresponding public types, for use in internal code.
+// If we version the interface, these can be changed to "MathQuill.v4...." (or maybe "MathQuill.v3.... | MathQuill.v3....")
+type BaseMathQuill = MathQuill.v3.BaseMathQuill;
+type EditableMathQuill = MathQuill.v3.EditableMathQuill;
+type EmbedOptions = MathQuill.v3.EmbedOptions;
+type EmbedOptionsData = MathQuill.v3.EmbedOptionsData;
+type HandlersWithDirection = MathQuill.v3.HandlersWithDirection;
+type HandlersWithoutDirection = MathQuill.v3.HandlersWithoutDirection;
+type HandlerOptions = MathQuill.v3.HandlerOptions;
+
 type ConfigOptions = MathQuill.v1.Config | MathQuill.v3.Config;
 
 type MathspeakOptions = {

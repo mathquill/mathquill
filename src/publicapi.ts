@@ -4,7 +4,7 @@
 
 type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
 
-interface IBaseMathQuill extends MathQuill.v3.BaseMathQuill {
+interface IBaseMathQuill extends BaseMathQuill {
   __controller: Controller;
   __options: CursorOptions;
   id: number;
@@ -22,9 +22,7 @@ interface IBaseMathQuillClass {
   RootBlock: typeof MathBlock;
 }
 
-interface IEditableField
-  extends IBaseMathQuill,
-    MathQuill.v3.EditableMathQuill {}
+interface IEditableField extends IBaseMathQuill, EditableMathQuill {}
 
 interface IEditableFieldClass {
   new (ctrlr: Controller): IEditableField;
@@ -49,10 +47,7 @@ type APIClassBuilders = {
 
 var API: APIClassBuilders = {};
 
-var EMBEDS: Record<
-  string,
-  (data: MathQuill.v1.EmbedOptionsData) => MathQuill.v1.EmbedOptions
-> = {};
+var EMBEDS: Record<string, (data: EmbedOptionsData) => EmbedOptions> = {};
 
 const processedOptions = {
   handlers: true,
@@ -119,7 +114,7 @@ class Options {
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
   handlers?: {
-    fns: MathQuill.v1.HandlerOptions;
+    fns: HandlerOptions;
     APIClasses: APIClasses;
   };
 
@@ -218,8 +213,9 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
 
   const optionProcessors: OptionProcessors = {
     ...baseOptionProcessors,
-    handlers: (handlers: MathQuill.v1.HandlerOptions | undefined) => ({
-      fns: handlers || {},
+    handlers: (handlers) => ({
+      // casting to the v3 version of this type
+      fns: (handlers as HandlerOptions) || {},
       APIClasses,
     }),
   };
@@ -426,11 +422,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
         this.__controller.typedText(text.charAt(i));
       return this;
     }
-    dropEmbedded(
-      pageX: number,
-      pageY: number,
-      options: MathQuill.v1.EmbedOptions
-    ) {
+    dropEmbedded(pageX: number, pageY: number, options: EmbedOptions) {
       var clientX = pageX - getScrollX();
       var clientY = pageY - getScrollY();
 
@@ -513,7 +505,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
 
   MQ.registerEmbed = function (
     name: string,
-    options: (data: MathQuill.v1.EmbedOptionsData) => MathQuill.v1.EmbedOptions
+    options: (data: EmbedOptionsData) => EmbedOptions
   ) {
     if (!/^[a-z][a-z0-9]*$/i.test(name)) {
       throw 'Embed name must start with letter and be only letters and digits';
