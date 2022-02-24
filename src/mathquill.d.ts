@@ -23,7 +23,7 @@ declare namespace MathQuill {
       id: number;
       data: { [key: string]: any };
       revert: () => HTMLElement;
-      latex(latex: unknown): BaseMathQuill;
+      latex(latex: string): BaseMathQuill;
       latex(): string;
       reflow: () => void;
       el: () => HTMLElement;
@@ -38,7 +38,7 @@ declare namespace MathQuill {
       id: number;
       data: { [key: string]: any };
       revert: () => HTMLElement;
-      latex(latex: unknown): EditableMathQuill;
+      latex(latex: string): EditableMathQuill;
       latex(): string;
       reflow: () => void;
       el: () => HTMLElement;
