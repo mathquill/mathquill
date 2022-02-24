@@ -579,26 +579,32 @@ window.MathQuill = MathQuill;
 
 function RootBlockMixin(_: RootBlockMixinInput) {
   _.moveOutOf = function (dir: Direction) {
-    this.controller?.handle('moveOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('moveOutOf', dir);
   };
   _.deleteOutOf = function (dir: Direction) {
-    this.controller?.handle('deleteOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('deleteOutOf', dir);
   };
   _.selectOutOf = function (dir: Direction) {
-    this.controller?.handle('selectOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('selectOutOf', dir);
   };
   _.upOutOf = function () {
-    this.controller?.handle('upOutOf');
+    pray('controller is defined', this.controller);
+    this.controller.handle('upOutOf');
     return undefined;
   };
   _.downOutOf = function () {
-    this.controller?.handle('downOutOf');
+    pray('controller is defined', this.controller);
+    this.controller.handle('downOutOf');
     return undefined;
   };
 
   _.reflow = function () {
-    this.controller?.handle('reflow');
-    this.controller?.handle('edited');
-    this.controller?.handle('edit');
+    pray('controller is defined', this.controller);
+    this.controller.handle('reflow');
+    this.controller.handle('edited');
+    this.controller.handle('edit');
   };
 }
