@@ -51,7 +51,7 @@ var saneKeyboardEvents = (function () {
   // [1]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#keys-keyvalues
   // [2]: http://www.w3.org/TR/2012/WD-DOM-Level-3-Events-20120614/#fixed-virtual-key-codes
   // [3]: http://unixpapa.com/js/key.html
-  const KEY_VALUES: Record<number, string | undefined> = {
+  const WHICH_TO_MQ_KEY_STEM: Record<number, string | undefined> = {
     8: 'Backspace',
     9: 'Tab',
 
@@ -85,6 +85,16 @@ var saneKeyboardEvents = (function () {
     144: 'NumLock',
   };
 
+  const KEY_TO_MQ_KEY_STEM: Record<string, string | undefined> = {
+    ArrowRight: 'Right',
+    ArrowLeft: 'Left',
+    ArrowDown: 'Down',
+    ArrowUp: 'Up',
+    Delete: 'Del',
+    Escape: 'Esc',
+    ' ': 'Spacebar',
+  };
+
   function isArrowKey(e: KeyboardEvent) {
     // The keyPress event in FF reports which=0 for some reason. The new
     // .key property seems to report reasonable results, so we're using that
@@ -102,22 +112,22 @@ var saneKeyboardEvents = (function () {
     return s.length === 1 && s >= 'a' && s <= 'z';
   }
 
+  function getMQKeyStem(evt: KeyboardEvent) {
+    // Translate browser key names to MQ's internal naming system
+    //
+    // Ref: https://developer.mozilla.org/en-US/docs/Web/API/KeyboardEvent/key/Key_Values
+    if (evt.key === undefined) {
+      const which = evt.which || evt.keyCode;
+      return WHICH_TO_MQ_KEY_STEM[which] || String.fromCharCode(which);
+    }
+    if (isLowercaseAlphaCharacter(evt.key)) return evt.key.toUpperCase();
+    return KEY_TO_MQ_KEY_STEM[evt.key] ?? evt.key;
+  }
+
   /** To the extent possible, create a normalized string representation
    * of the key combo (i.e., key code and modifier keys). */
-  function getKeyName(evt: KeyboardEvent) {
-    let key;
-    if (evt.key) {
-      key = isArrowKey(evt)
-        ? // Strip the leading "Arrow" from arrow key names (e.g. "ArrowLeft" -> "Left")
-          evt.key.slice(5)
-        : isLowercaseAlphaCharacter(evt.key)
-        ? // Use uppercase for alphabet characters
-          evt.key.toUpperCase()
-        : evt.key;
-    } else {
-      const which = evt.which || evt.keyCode;
-      key = KEY_VALUES[which] || String.fromCharCode(which);
-    }
+  function getMQKeyName(evt: KeyboardEvent) {
+    const key = getMQKeyStem(evt);
     var modifiers = [];
 
     if (evt.ctrlKey) modifiers.push('Ctrl');
@@ -187,9 +197,9 @@ var saneKeyboardEvents = (function () {
 
     function handleKey() {
       if (controller.options && controller.options.overrideKeystroke) {
-        controller.options.overrideKeystroke(getKeyName(keydown!), keydown!);
+        controller.options.overrideKeystroke(getMQKeyName(keydown!), keydown!);
       } else {
-        controller.keystroke(getKeyName(keydown!), keydown!);
+        controller.keystroke(getMQKeyName(keydown!), keydown!);
       }
     }
 
