@@ -98,11 +98,11 @@ var saneKeyboardEvents = (function () {
   function isArrowKey(e: KeyboardEvent) {
     // The keyPress event in FF reports which=0 for some reason. The new
     // .key property seems to report reasonable results, so we're using that
-    switch (e.key) {
-      case 'ArrowRight':
-      case 'ArrowLeft':
-      case 'ArrowDown':
-      case 'ArrowUp':
+    switch (getMQKeyStem(e)) {
+      case 'Right':
+      case 'Left':
+      case 'Down':
+      case 'Up':
         return true;
     }
     return false;
