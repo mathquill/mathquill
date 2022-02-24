@@ -4,7 +4,8 @@
 
 type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
 
-interface IBaseMathQuill extends BaseMathQuill {
+/** MathQuill instance fields/methods that are internal, not exposed in the public type defs. */
+interface InternalMathQuillInstance {
   __controller: Controller;
   __options: CursorOptions;
   id: number;
@@ -17,12 +18,14 @@ interface IBaseMathQuill extends BaseMathQuill {
   config(opts: ConfigOptions): IBaseMathQuill;
 }
 
+interface IBaseMathQuill extends BaseMathQuill, InternalMathQuillInstance {}
+
 interface IBaseMathQuillClass {
   new (ctrlr: Controller): IBaseMathQuill;
   RootBlock: typeof MathBlock;
 }
 
-interface IEditableField extends IBaseMathQuill, EditableMathQuill {}
+interface IEditableField extends EditableMathQuill, InternalMathQuillInstance {}
 
 interface IEditableFieldClass {
   new (ctrlr: Controller): IEditableField;

@@ -28,26 +28,40 @@ declare namespace MathQuill {
       reflow: () => void;
       el: () => HTMLElement;
       getAriaLabel(): string;
-      setAriaLabel(str: string): void;
+      setAriaLabel(str: string): BaseMathQuill;
       html: () => string;
       mathspeak: () => string;
       text(): string;
     }
 
-    interface EditableMathQuill extends BaseMathQuill {
-      select: () => void;
-      moveToRightEnd: () => void;
-      cmd: (latex: string) => void;
-      write: (latex: string) => void;
-      keystroke: (key: string, evt?: KeyboardEvent) => void;
-      typedText: (text: string) => void;
-      clearSelection: () => void;
-      blur: () => void;
-      focus: () => void;
+    interface EditableMathQuill {
+      id: number;
+      data: { [key: string]: any };
+      revert: () => HTMLElement;
+      latex(latex: unknown): EditableMathQuill;
+      latex(): string;
+      reflow: () => void;
+      el: () => HTMLElement;
+      getAriaLabel(): string;
+      setAriaLabel(str: string): EditableMathQuill;
+      html: () => string;
+      mathspeak: () => string;
+      text(): string;
+
+      select: () => EditableMathQuill;
+      moveToRightEnd: () => EditableMathQuill;
+      moveToLeftEnd: () => EditableMathQuill;
+      cmd: (latex: string) => EditableMathQuill;
+      write: (latex: string) => EditableMathQuill;
+      keystroke: (key: string, evt?: KeyboardEvent) => EditableMathQuill;
+      typedText: (text: string) => EditableMathQuill;
+      clearSelection: () => EditableMathQuill;
+      blur: () => EditableMathQuill;
+      focus: () => EditableMathQuill;
       getAriaPostLabel: () => string;
-      setAriaPostLabel: (str: string, timeout?: number) => void;
-      ignoreNextMousedown: (func: () => boolean) => void;
-      clickAt: (x: number, y: number, el: HTMLElement) => void;
+      setAriaPostLabel: (str: string, timeout?: number) => EditableMathQuill;
+      ignoreNextMousedown: (func: () => boolean) => EditableMathQuill;
+      clickAt: (x: number, y: number, el: HTMLElement) => EditableMathQuill;
     }
 
     interface API {
