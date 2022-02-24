@@ -4,7 +4,8 @@
 
 type KIND_OF_MQ = 'StaticMath' | 'MathField' | 'InnerMathField' | 'TextField';
 
-interface IBaseMathQuill extends BaseMathQuill {
+/** MathQuill instance fields/methods that are internal, not exposed in the public type defs. */
+interface InternalMathQuillInstance {
   __controller: Controller;
   __options: CursorOptions;
   id: number;
@@ -17,12 +18,14 @@ interface IBaseMathQuill extends BaseMathQuill {
   config(opts: ConfigOptions): IBaseMathQuill;
 }
 
+interface IBaseMathQuill extends BaseMathQuill, InternalMathQuillInstance {}
+
 interface IBaseMathQuillClass {
   new (ctrlr: Controller): IBaseMathQuill;
   RootBlock: typeof MathBlock;
 }
 
-interface IEditableField extends IBaseMathQuill, EditableMathQuill {}
+interface IEditableField extends EditableMathQuill, InternalMathQuillInstance {}
 
 interface IEditableFieldClass {
   new (ctrlr: Controller): IEditableField;
@@ -576,26 +579,32 @@ window.MathQuill = MathQuill;
 
 function RootBlockMixin(_: RootBlockMixinInput) {
   _.moveOutOf = function (dir: Direction) {
-    this.controller?.handle('moveOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('moveOutOf', dir);
   };
   _.deleteOutOf = function (dir: Direction) {
-    this.controller?.handle('deleteOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('deleteOutOf', dir);
   };
   _.selectOutOf = function (dir: Direction) {
-    this.controller?.handle('selectOutOf', dir);
+    pray('controller is defined', this.controller);
+    this.controller.handle('selectOutOf', dir);
   };
   _.upOutOf = function () {
-    this.controller?.handle('upOutOf');
+    pray('controller is defined', this.controller);
+    this.controller.handle('upOutOf');
     return undefined;
   };
   _.downOutOf = function () {
-    this.controller?.handle('downOutOf');
+    pray('controller is defined', this.controller);
+    this.controller.handle('downOutOf');
     return undefined;
   };
 
   _.reflow = function () {
-    this.controller?.handle('reflow');
-    this.controller?.handle('edited');
-    this.controller?.handle('edit');
+    pray('controller is defined', this.controller);
+    this.controller.handle('reflow');
+    this.controller.handle('edited');
+    this.controller.handle('edit');
   };
 }
