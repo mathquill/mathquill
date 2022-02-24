@@ -134,9 +134,9 @@ var MathCommand = P(MathElement, function(_, super_) {
   _.placeCursor = function(cursor) {
     //insert the cursor at the right end of the first empty child, searching
     //left-to-right, or if none empty, the right end child
-    cursor.insAtRightEnd(this.foldChildren(this.ends[L], function(leftward, child) {
-      return leftward.isEmpty() ? leftward : child;
-    }));
+    cursor.insAtRightEnd(this.foldChildren(this.ends[cursor.options.focusOnDenominator ? R : L]
+      , function (leftward, child) { return leftward.isEmpty() ? leftward : child; }
+    ));
   };
 
   // editability methods: called by the cursor for editing, cursor movements,

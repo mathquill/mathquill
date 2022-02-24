@@ -499,11 +499,17 @@ var less = { ctrlSeq: '\\le ', html: '&le;', text: '≤',
              ctrlSeqStrict: '<', htmlStrict: '&lt;', textStrict: '<' };
 var greater = { ctrlSeq: '\\ge ', html: '&ge;', text: '≥',
                 ctrlSeqStrict: '>', htmlStrict: '&gt;', textStrict: '>' };
+var geq = { ctrlSeq: '\\geq ', html: '\u2267', text: '\u2267',
+            ctrlSeqStrict: '>', htmlStrict: '\u2267', textStrict: '>' };
+var leq = { ctrlSeq: '\\leq ', html: '\u2266', text: '\u2266',
+            ctrlSeqStrict: '<', htmlStrict: '\u2266', textStrict: '<' };
 
 LatexCmds['<'] = LatexCmds.lt = bind(Inequality, less, true);
 LatexCmds['>'] = LatexCmds.gt = bind(Inequality, greater, true);
-LatexCmds['≤'] = LatexCmds.le = LatexCmds.leq = bind(Inequality, less, false);
-LatexCmds['≥'] = LatexCmds.ge = LatexCmds.geq = bind(Inequality, greater, false);
+LatexCmds['≤'] = LatexCmds.le = bind(Inequality, less, false);
+LatexCmds['≥'] = LatexCmds.ge = bind(Inequality, greater, false);
+LatexCmds.leq = bind(Inequality, leq, false);
+LatexCmds.geq = bind(Inequality, geq, false);
 
 var Equality = P(BinaryOperator, function(_, super_) {
   _.init = function() {
