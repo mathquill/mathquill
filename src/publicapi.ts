@@ -57,6 +57,7 @@ class Options {
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
   handlers: HandlerOptions;
+  scrollAnimationDuration?: number;
 }
 class Progenote {}
 

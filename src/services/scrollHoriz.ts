@@ -31,9 +31,11 @@ class Controller_scrollHoriz extends Controller_mouse {
       seln = cursor.selection;
     var rootRect = this.root.jQ[0].getBoundingClientRect();
     if (!cursor.jQ[0] && !seln) {
-      this.root.jQ.stop().animate({ scrollLeft: 0 }, 100, () => {
-        this.setOverflowClasses();
-      });
+      this.root.jQ
+        .stop()
+        .animate({ scrollLeft: 0 }, this.getScrollAnimationDuration(), () => {
+          this.setOverflowClasses();
+        });
       return;
     } else if (!seln) {
       var x = cursor.jQ[0].getBoundingClientRect().left;
@@ -65,8 +67,18 @@ class Controller_scrollHoriz extends Controller_mouse {
     if (scrollBy < 0 && root.scrollLeft === 0) return;
     if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width)
       return;
-    this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, () => {
-      this.setOverflowClasses();
-    });
+    this.root.jQ
+      .stop()
+      .animate(
+        { scrollLeft: '+=' + scrollBy },
+        this.getScrollAnimationDuration(),
+        () => {
+          this.setOverflowClasses();
+        }
+      );
+  }
+
+  private getScrollAnimationDuration() {
+    return this.options.scrollAnimationDuration ?? 100;
   }
 }
