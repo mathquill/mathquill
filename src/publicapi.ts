@@ -120,6 +120,7 @@ class Options {
     fns: HandlerOptions;
     APIClasses: APIClasses;
   };
+  scrollAnimationDuration?: number;
 
   jQuery: $ | undefined;
   assertJquery() {
