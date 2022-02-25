@@ -62,7 +62,6 @@ class Controller_mouse extends Controller_latex {
       lastMousemoveTarget = e.target as HTMLElement | null;
     }
     function onDocumentMouseMove(e: MouseEvent) {
-      if (!lastMousemoveTarget) return;
       if (!cursor.anticursor) cursor.startSelection();
       ctrlr.seek(lastMousemoveTarget, e.clientX, e.clientY).cursor.select();
       if (cursor.selection)
