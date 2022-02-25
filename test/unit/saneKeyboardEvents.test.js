@@ -107,6 +107,35 @@ suite('saneKeyboardEvents', function () {
     trigger.keydown(el[0], 'ArrowLeft');
   });
 
+  test('keys with evt.key values that are remapped', function (done) {
+    var pairs = [
+      ['ArrowRight', 'Right'],
+      ['ArrowLeft', 'Left'],
+      ['ArrowDown', 'Down'],
+      ['ArrowUp', 'Up'],
+      ['Delete', 'Del'],
+      ['Escape', 'Esc'],
+      [' ', 'Spacebar'],
+    ];
+
+    var counter = 0;
+
+    saneKeyboardEvents(
+      el[0],
+      mockController({
+        keystroke: function (key) {
+          assert.equal(key, pairs[counter][1]);
+          counter += 1;
+          if (counter === pairs.length) done();
+        },
+      })
+    );
+
+    for (var i = 0; i < pairs.length; i++) {
+      trigger.keydown(el[0], pairs[i][0]);
+    }
+  });
+
   test('one keydown and a series of keypresses', function (done) {
     var counter = 0;
 
