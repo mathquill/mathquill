@@ -69,6 +69,6 @@ const animate = (function () {
       cancel();
       cancelToken = rafShim(step);
     }
-    cb(duration === 0 ? 1 : 0, scheduleNext, cancel);
+    cb(duration <= 0 ? 1 : 0, scheduleNext, cancel);
   };
 })();
