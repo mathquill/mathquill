@@ -39,17 +39,20 @@ class Controller_scrollHoriz extends Controller_mouse {
 
       const rootElt = this.root.domFrag().oneElement();
       const start = rootElt.scrollLeft;
-      animate(100, (progress, scheduleNext, cancel) => {
-        if (progress >= 1) {
-          this.cancelScrollHoriz = undefined;
-          rootElt.scrollLeft = 0;
-          this.setOverflowClasses();
-        } else {
-          this.cancelScrollHoriz = cancel;
-          scheduleNext();
-          rootElt.scrollLeft = Math.round((1 - progress) * start);
+      animate(
+        this.getScrollAnimationDuration(),
+        (progress, scheduleNext, cancel) => {
+          if (progress >= 1) {
+            this.cancelScrollHoriz = undefined;
+            rootElt.scrollLeft = 0;
+            this.setOverflowClasses();
+          } else {
+            this.cancelScrollHoriz = cancel;
+            scheduleNext();
+            rootElt.scrollLeft = Math.round((1 - progress) * start);
+          }
         }
-      });
+      );
 
       return;
     } else if (!seln) {
@@ -90,16 +93,23 @@ class Controller_scrollHoriz extends Controller_mouse {
 
     const rootElt = this.root.domFrag().oneElement();
     const start = rootElt.scrollLeft;
-    animate(100, (progress, scheduleNext, cancel) => {
-      if (progress >= 1) {
-        this.cancelScrollHoriz = undefined;
-        rootElt.scrollLeft = Math.round(start + scrollBy);
-        this.setOverflowClasses();
-      } else {
-        this.cancelScrollHoriz = cancel;
-        scheduleNext();
-        rootElt.scrollLeft = Math.round(start + progress * scrollBy);
+    animate(
+      this.getScrollAnimationDuration(),
+      (progress, scheduleNext, cancel) => {
+        if (progress >= 1) {
+          this.cancelScrollHoriz = undefined;
+          rootElt.scrollLeft = Math.round(start + scrollBy);
+          this.setOverflowClasses();
+        } else {
+          this.cancelScrollHoriz = cancel;
+          scheduleNext();
+          rootElt.scrollLeft = Math.round(start + progress * scrollBy);
+        }
       }
-    });
+    );
+  }
+
+  private getScrollAnimationDuration() {
+    return this.options.scrollAnimationDuration ?? 100;
   }
 }

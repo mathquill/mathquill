@@ -1,8 +1,8 @@
 /**
- * Given `duration` in ms and callback `cb`, immediately calls `cb` with
- * `progress` set to `0`, `scheduleNext` a function that schedules a
- * future call to `cb`, and `cancel` a function that cancels any pending
- * `scheduleNext` call.
+ * Given `duration` in ms and callback `cb`, immediately calls `cb(progress, scheduleNext, cancel)` with:
+ * - `progress` set to `0` if duration > 0, or 1 if duration <= 0
+ * - `scheduleNext` a function that schedules a future call to `cb`
+ * - `cancel` a function that cancels any pending `scheduleNext` call.
  *
  * `scheduleNext` schedules a call to `cb` with `progress` set to the
  * ratio of currently elapsed time and `duration`.
@@ -69,6 +69,6 @@ const animate = (function () {
       cancel();
       cancelToken = rafShim(step);
     }
-    cb(0, scheduleNext, cancel);
+    cb(duration === 0 ? 1 : 0, scheduleNext, cancel);
   };
 })();
