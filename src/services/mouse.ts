@@ -43,7 +43,6 @@ class Controller_mouse extends Controller_latex {
       )) as ControllerRoot;
 
     const ownerDocument = root.domFrag().firstNode().ownerDocument;
-    console.log('handleMouseDown', e, rootElement, root);
 
     var ctrlr = root.controller,
       cursor = ctrlr.cursor,
