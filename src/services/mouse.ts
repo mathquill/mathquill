@@ -37,14 +37,14 @@ class Controller_mouse extends Controller_latex {
       '.mq-root-block'
     ) as HTMLElement | null;
 
-    if (!rootElement) return;
-
-    const ownerDocument = rootElement.ownerDocument;
-
-    var root = (NodeBase.getNodeOfElement(rootElement) ||
+    var root = ((rootElement && NodeBase.getNodeOfElement(rootElement)) ||
       NodeBase.getNodeOfElement(
         this.root.domFrag().oneElement()
       )) as ControllerRoot;
+
+    const ownerDocument = root.domFrag().firstNode().ownerDocument;
+    console.log('handleMouseDown', e, rootElement, root);
+
     var ctrlr = root.controller,
       cursor = ctrlr.cursor,
       blink = cursor.blink;
@@ -113,7 +113,8 @@ class Controller_mouse extends Controller_latex {
     };
 
     if (ctrlr.blurred) {
-      if (!ctrlr.editable) domFrag(rootElement).prepend(domFrag(textareaSpan));
+      if (!ctrlr.editable)
+        domFrag(rootElement || undefined).prepend(domFrag(textareaSpan));
       textarea.focus();
       // focus call may bubble to clients, who may then write to
       // mathquill, triggering cancelSelectionOnEdit. If that happens, we
@@ -127,7 +128,7 @@ class Controller_mouse extends Controller_latex {
       .seek(e.target as HTMLElement | null, e.clientX, e.clientY)
       .cursor.startSelection();
 
-    rootElement.addEventListener('mousemove', mousemove);
+    rootElement?.addEventListener('mousemove', mousemove);
     ownerDocument?.addEventListener('mousemove', onDocumentMouseMove);
     ownerDocument?.addEventListener('mouseup', onDocumentMouseUp);
     // listen on document not just body to not only hear about mousemove and
