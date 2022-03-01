@@ -431,7 +431,15 @@ class Fragment {
       maybeRightEnd === ends[R]
     );
 
-    this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));
+    if (ends[L] === ends[R]) {
+      // In a few cases, we create a Fragment to represent a single
+      // MQNode that is represented by multiple DOM nodes. In that case,
+      // attempting to join the multi-element domFrag to itself will
+      // fail.
+      this.setDOMFrag(ends[L].domFrag());
+    } else {
+      this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));
+    }
   }
 
   /**
