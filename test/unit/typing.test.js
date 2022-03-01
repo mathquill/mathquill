@@ -74,6 +74,11 @@ suite('typing with auto-replaces', function () {
       assertLatex('\\sqrt{49}');
     });
 
+    test('removes selection if it is removed', function () {
+      mq.typedText('49').select().typedText('\\').keystroke('Backspace');
+      assertLatex('');
+    });
+
     test('auto-operator names', function () {
       mq.typedText('\\sin^2');
       assertLatex('\\sin^{2}');
