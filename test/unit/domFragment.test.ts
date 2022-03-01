@@ -184,9 +184,9 @@ suite('DOMFragment', function () {
       assert.throws(() => frag1.join(frag2));
     });
 
-    test('Joining a fragment to itself is a noop', () => {
+    test('Joining a fragment to itself throws', () => {
       const el = h('span');
-      assert.equal(domFrag(el).join(domFrag(el)).oneElement(), el);
+      assert.throws(() => domFrag(el).join(domFrag(el)).oneElement());
     });
 
     test('Joining fragments that are siblings but not directional siblings throws', () => {
