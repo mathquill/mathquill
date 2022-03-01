@@ -78,6 +78,10 @@ class DOMFragment {
     return this.ends === undefined;
   }
 
+  isOneNode(): boolean {
+    return !!(this.ends && this.ends[L] === this.ends[R]);
+  }
+
   /**
    * Returns true if the fragment is empty or if its last node is equal
    * to its first node or is a forward sibling of its first node.

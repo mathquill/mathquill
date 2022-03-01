@@ -1663,7 +1663,9 @@ class EmbedNode extends MQSymbol {
       return '';
     }
     this.text = options.text || noop;
-    this.domView = new DOMView(0, () => parseHTML(options.htmlString || ''));
+    this.domView = new DOMView(0, () =>
+      h('span', {}, [parseHTML(options.htmlString || '')])
+    );
     this.latex = options.latex || noop;
     return this;
   }

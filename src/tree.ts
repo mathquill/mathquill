@@ -169,6 +169,7 @@ class NodeBase {
   }
 
   setDOMFrag(frag: DOMFragment) {
+    pray('Nodes are represented by a single element', frag.isOneNode());
     this._domFrag = frag;
     return this;
   }
