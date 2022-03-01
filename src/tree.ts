@@ -432,10 +432,8 @@ class Fragment {
     );
 
     if (ends[L] === ends[R]) {
-      // In a few cases, we create a Fragment to represent a single
-      // MQNode that is represented by multiple DOM nodes. In that case,
-      // attempting to join the multi-element domFrag to itself will
-      // fail.
+      // Note, joining a DOMFragment to itself is not allowed, so
+      // don't attempt to join the end fragments if the ends are equal
       this.setDOMFrag(ends[L].domFrag());
     } else {
       this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));

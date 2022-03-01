@@ -147,7 +147,7 @@ class DOMFragment {
 
     // Check if sibling is actually a sibling of this span
     let found = false;
-    let current: Node | null = this.ends[R];
+    let current: Node | null = this.ends[R].nextSibling;
     while (current) {
       if (current === sibling.ends[L]) {
         found = true;
