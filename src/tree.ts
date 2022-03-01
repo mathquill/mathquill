@@ -246,7 +246,7 @@ class NodeBase {
     return new Fragment(this.getEnd(L), this.getEnd(R));
   }
 
-  eachChild(yield_: (el: MQNode) => boolean | undefined) {
+  eachChild(yield_: (el: MQNode) => boolean | undefined | void) {
     eachNode(this.ends, yield_);
     return this;
   }
