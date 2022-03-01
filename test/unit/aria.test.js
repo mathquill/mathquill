@@ -201,19 +201,19 @@ suite('aria', function () {
     );
     assert.equal(
       '"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
-      staticMath.__controller.mathspeakSpan.innerText
+      staticMath.__controller.mathspeakSpan.textContent
     );
     assert.equal('', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
     assert.equal(
       'Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
-      staticMath.__controller.mathspeakSpan.innerText
+      staticMath.__controller.mathspeakSpan.textContent
     );
     assert.equal('Static Label', staticMath.getAriaLabel());
     staticMath.latex('2+2');
     assert.equal(
       'Static Label: 2 plus 2',
-      staticMath.__controller.mathspeakSpan.innerText
+      staticMath.__controller.mathspeakSpan.textContent
     );
   });
 });
