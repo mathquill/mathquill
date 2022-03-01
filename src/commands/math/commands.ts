@@ -299,17 +299,11 @@ var intRgx = /^[\+\-]?[\d]+$/;
 function getCtrlSeqsFromBlock(block: NodeRef): string {
   if (!block) return '';
 
-  var children = block.children();
-  if (!children || !children.getEnd(L)) return '';
+  let chars = '';
+  block.eachChild((child) => {
+    if (child.ctrlSeq !== undefined) chars += child.ctrlSeq;
+  });
 
-  var chars = '';
-  for (
-    var sibling: NodeRef | undefined = children.getEnd(L);
-    sibling && sibling[R] !== undefined;
-    sibling = sibling[R]
-  ) {
-    if (sibling.ctrlSeq !== undefined) chars += sibling.ctrlSeq;
-  }
   return chars;
 }
 
