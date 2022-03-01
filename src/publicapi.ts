@@ -265,10 +265,10 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
 
       var contents = domFrag(el).addClass(classNames).children().detach();
 
-      root.setDOMFrag(
-        domFrag(
-          h('span', { class: 'mq-root-block', 'aria-hidden': true })
-        ).appendTo(el)
+      root.setDOM(
+        domFrag(h('span', { class: 'mq-root-block', 'aria-hidden': true }))
+          .appendTo(el)
+          .oneElement()
       );
       NodeBase.linkElementByBlockNode(root.domFrag().oneElement(), root);
       this.latex(contents.text());

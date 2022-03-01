@@ -143,7 +143,7 @@ class NodeBase {
     return this.ends[dir];
   }
 
-  private _domFrag = domFrag();
+  private _el: Element | Text | undefined;
   id = NodeBase.uniqueNodeId();
   ctrlSeq: string | undefined;
   ariaLabel: string | undefined;
@@ -168,18 +168,20 @@ class NodeBase {
     return '{{ MathQuill Node #' + this.id + ' }}';
   }
 
-  setDOMFrag(frag: DOMFragment) {
-    pray('Nodes are represented by a single element', frag.isOneNode());
-    this._domFrag = frag;
+  setDOM(el: Element | Text | undefined) {
+    if (el) {
+      pray(
+        'DOM is an element or a text node',
+        el.nodeType === Node.ELEMENT_NODE || el.nodeType === Node.TEXT_NODE
+      );
+    }
+
+    this._el = el;
     return this;
   }
 
   domFrag(): DOMFragment {
-    return this._domFrag;
-  }
-
-  joinFrag(sibling: DOMFragment) {
-    return this.setDOMFrag(this.domFrag().join(sibling));
+    return domFrag(this._el);
   }
 
   createDir(dir: Direction, cursor: Cursor) {

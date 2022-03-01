@@ -9,7 +9,7 @@ suite('HTML', function () {
           const content = 'Block:' + i;
           this.blocks[i] = {
             id: 2 + i,
-            joinFrag: (_sibling) => {},
+            setDOM: (_sibling) => {},
             html: () => {
               const frag = document.createDocumentFragment();
               frag.appendChild(h.text(content));

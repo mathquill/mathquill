@@ -96,7 +96,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.setDOMFrag(this.domFrag().children().last());
+    this.setDOM(this.domFrag().children().lastElement());
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);

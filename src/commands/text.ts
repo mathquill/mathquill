@@ -21,13 +21,13 @@ class TextBlock extends MQNode {
       this.replacedText = replacedText;
   }
 
-  setDOMFrag(frag: DOMFragment) {
-    super.setDOMFrag(frag);
+  setDOMFrag(el: Element | undefined) {
+    super.setDOM(el);
     const endsL = this.getEnd(L);
     if (endsL) {
       const children = this.domFrag().children();
       if (!children.isEmpty()) {
-        endsL.setDOMFrag(domFrag(children.oneText()));
+        endsL.setDOM(children.oneText());
       }
     }
     return this;
@@ -94,7 +94,7 @@ class TextBlock extends MQNode {
     const out = h('span', { class: 'mq-text-mode' }, [
       h.text(this.textContents()),
     ]);
-    this.setDOMFrag(domFrag(out));
+    this.setDOM(out);
     NodeBase.linkElementByCmdNode(out, this);
     return out;
   }
@@ -287,7 +287,7 @@ function TextBlockFuseChildren(self: TextBlock) {
   //   http://reference.sitepoint.com/javascript/Node/nodeType
 
   var textPc = new TextPiece(textPcDom.data);
-  textPc.setDOMFrag(domFrag(textPcDom));
+  textPc.setDOM(textPcDom);
 
   self.children().disown();
   textPc.adopt(self, 0, 0);
@@ -310,7 +310,7 @@ class TextPiece extends MQNode {
   }
   html() {
     const out = h.text(this.textStr);
-    this.setDOMFrag(domFrag(out));
+    this.setDOM(out);
     return out;
   }
   appendText(text: string) {
@@ -332,7 +332,7 @@ class TextPiece extends MQNode {
       this,
       this[R]
     );
-    newPc.setDOMFrag(domFrag(this.domFrag().oneText().splitText(i)));
+    newPc.setDOM(this.domFrag().oneText().splitText(i));
     this.textStr = this.textStr.slice(0, i);
     return newPc;
   }
@@ -434,7 +434,7 @@ function makeTextBlock(
 
     html() {
       const out = h(tagName, attrs, [h.text(this.textContents())]);
-      this.setDOMFrag(domFrag(out));
+      this.setDOM(out);
       NodeBase.linkElementByCmdNode(out, this);
       return out;
     }
