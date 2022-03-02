@@ -94,6 +94,7 @@ class DOMFragment {
    */
   isValid(): boolean {
     if (!this.ends) return true;
+    if (this.ends[L] === this.ends[R]) return true;
     let maybeLast: Node | undefined;
     this.eachNode((el) => (maybeLast = el));
     return maybeLast === this.ends[R];
