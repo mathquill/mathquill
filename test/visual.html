@@ -147,7 +147,7 @@
             .keystroke('Right');
           var textarea = $('#reflowing-test textarea');
           // paste some stuff that needs resizing
-          textarea.trigger('paste');
+          textarea[0].dispatchEvent(new ClipboardEvent('paste'));
           textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
           setTimeout(function () {
             if (count !== 1) throw 'reflow not called';
@@ -1086,9 +1086,10 @@
         setTimeout(function () {
           $('#selection-tests .mathquill-text-field').each(function () {
             var start = +new Date();
-            $('textarea', this)
-              .focus()
-              .trigger({ type: 'keydown', ctrlKey: true, which: 65 });
+            $('textarea', this).focus();
+            $('textarea')[0].dispatchEvent(
+              new KeyboardEvent('keydown', { key: 'A', ctrlKey: true })
+            );
             console.log(
               'Time taken to Select All (should be &lt;50ms):',
               new Date() - start

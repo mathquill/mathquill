@@ -1,4 +1,5 @@
 suite('tree', function () {
+  const $ = window.test_only_jquery;
   suite('adopt', function () {
     function assertTwoChildren(parent, one, two) {
       assert.equal(one.parent, parent, 'one.parent is set');

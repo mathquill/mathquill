@@ -10,7 +10,7 @@ Load MathQuill with something like (order matters):
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
-var MQ = MathQuill.getInterface(2);
+var MQ = MathQuill.getInterface(3);
 </script>
 ```
 

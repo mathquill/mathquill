@@ -1,4 +1,5 @@
 suite('SupSub', function () {
+  const $ = window.test_only_jquery;
   var mq;
   setup(function () {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
@@ -198,6 +199,26 @@ suite('SupSub', function () {
 
       mq.typedText('c');
       assert.equal(mq.latex(), 'x_{a}cb');
+    });
+  });
+
+  suite('Escpae', function () {
+    test('from partial selection of a superscript', function () {
+      mq.typedText('x^2.3');
+      assert.equal(mq.latex(), 'x^{2.3}');
+      mq.keystroke('Shift-Left');
+      mq.keystroke('Esc');
+      mq.typedText('+1');
+      assert.equal(mq.latex(), 'x^{2.3}+1');
+    });
+
+    test('from partial selection of a subscript', function () {
+      mq.typedText('x_2.3');
+      assert.equal(mq.latex(), 'x_{2.3}');
+      mq.keystroke('Shift-Left');
+      mq.keystroke('Esc');
+      mq.typedText('+1');
+      assert.equal(mq.latex(), 'x_{2.3}+1');
     });
   });
 });

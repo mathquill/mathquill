@@ -15,28 +15,22 @@ type AriaQueueItem = NodeRef | Fragment | string;
 
 class Aria {
   controller: Controller;
-  span: HTMLElement;
+  span = h('span', {
+    class: 'mq-aria-alert',
+    'aria-live': 'assertive',
+    'aria-atomic': 'true',
+  });
   msg = '';
   items: AriaQueueItem[] = [];
 
   constructor(controller: Controller) {
     this.controller = controller;
-    this.span = document.createElement('span');
-    this.span.className = 'mq-aria-alert';
-    this.span.setAttribute('aria-live', 'assertive');
-    this.span.setAttribute('aria-atomic', 'true');
   }
 
   attach() {
-    const container = this.controller.container && this.controller.container[0];
-    if (
-      // Extra paranoid check that we can safely prepend the alert element as container may have changed.
-      container &&
-      container instanceof Element &&
-      typeof container.prepend === 'function' &&
-      this.span.parentNode !== container
-    ) {
-      container.prepend(this.span);
+    const container = this.controller.container;
+    if (this.span.parentNode !== container) {
+      domFrag(container).prepend(domFrag(this.span));
     }
   }
 

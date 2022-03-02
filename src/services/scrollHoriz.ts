@@ -4,12 +4,13 @@
  **********************************************/
 
 class Controller_scrollHoriz extends Controller_mouse {
+  private cancelScrollHoriz: (() => void) | undefined;
   setOverflowClasses() {
-    var root = this.root.jQ[0];
+    var root = this.root.domFrag().oneElement();
     var shouldHaveOverflowRight = false;
     var shouldHaveOverflowLeft = false;
     if (!this.blurred) {
-      var width = root.getBoundingClientRect().width;
+      var width = getBoundingClientRect(root).width;
       var scrollWidth = root.scrollWidth;
       var scroll = root.scrollLeft;
       shouldHaveOverflowRight = scrollWidth > width + scroll;
@@ -29,21 +30,38 @@ class Controller_scrollHoriz extends Controller_mouse {
   scrollHoriz() {
     var cursor = this.cursor,
       seln = cursor.selection;
-    var rootRect = this.root.jQ[0].getBoundingClientRect();
-    if (!cursor.jQ[0] && !seln) {
-      this.root.jQ
-        .stop()
-        .animate({ scrollLeft: 0 }, this.getScrollAnimationDuration(), () => {
-          this.setOverflowClasses();
-        });
+    var rootRect = getBoundingClientRect(this.root.domFrag().oneElement());
+    if (cursor.domFrag().isEmpty() && !seln) {
+      if (this.cancelScrollHoriz) {
+        this.cancelScrollHoriz();
+        this.cancelScrollHoriz = undefined;
+      }
+
+      const rootElt = this.root.domFrag().oneElement();
+      const start = rootElt.scrollLeft;
+      animate(
+        this.getScrollAnimationDuration(),
+        (progress, scheduleNext, cancel) => {
+          if (progress >= 1) {
+            this.cancelScrollHoriz = undefined;
+            rootElt.scrollLeft = 0;
+            this.setOverflowClasses();
+          } else {
+            this.cancelScrollHoriz = cancel;
+            scheduleNext();
+            rootElt.scrollLeft = Math.round((1 - progress) * start);
+          }
+        }
+      );
+
       return;
     } else if (!seln) {
-      var x = cursor.jQ[0].getBoundingClientRect().left;
+      var x = getBoundingClientRect(cursor.domFrag().oneElement()).left;
       if (x > rootRect.right - 20) var scrollBy = x - (rootRect.right - 20);
       else if (x < rootRect.left + 20) var scrollBy = x - (rootRect.left + 20);
       else return;
     } else {
-      var rect = seln.jQ[0].getBoundingClientRect();
+      var rect = getBoundingClientRect(seln.domFrag().oneElement());
       var overLeft = rect.left - (rootRect.left + 20);
       var overRight = rect.right - (rootRect.right - 20);
       if (seln.getEnd(L) === cursor[R]) {
@@ -63,19 +81,32 @@ class Controller_scrollHoriz extends Controller_mouse {
       }
     }
 
-    var root = this.root.jQ[0];
+    var root = this.root.domFrag().oneElement();
     if (scrollBy < 0 && root.scrollLeft === 0) return;
     if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width)
       return;
-    this.root.jQ
-      .stop()
-      .animate(
-        { scrollLeft: '+=' + scrollBy },
-        this.getScrollAnimationDuration(),
-        () => {
+
+    if (this.cancelScrollHoriz) {
+      this.cancelScrollHoriz();
+      this.cancelScrollHoriz = undefined;
+    }
+
+    const rootElt = this.root.domFrag().oneElement();
+    const start = rootElt.scrollLeft;
+    animate(
+      this.getScrollAnimationDuration(),
+      (progress, scheduleNext, cancel) => {
+        if (progress >= 1) {
+          this.cancelScrollHoriz = undefined;
+          rootElt.scrollLeft = Math.round(start + scrollBy);
           this.setOverflowClasses();
+        } else {
+          this.cancelScrollHoriz = cancel;
+          scheduleNext();
+          rootElt.scrollLeft = Math.round(start + progress * scrollBy);
         }
-      );
+      }
+    );
   }
 
   private getScrollAnimationDuration() {

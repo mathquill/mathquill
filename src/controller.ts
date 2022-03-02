@@ -1,24 +1,45 @@
+type TextareaKeyboardEventListeners = Partial<{
+  [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
+}>;
+
 /*********************************************
  * Controller for a MathQuill instance
  ********************************************/
+
+type HandlerWithDirectionFunction = NonNullable<
+  HandlerOptions[HandlersWithDirection]
+>;
+type HandlerWithoutDirectionFunction = NonNullable<
+  HandlerOptions[HandlersWithoutDirection]
+>;
+
 class ControllerBase {
   id: number;
   data: ControllerData;
-  root: ControllerRoot;
-  container: $;
+  readonly root: ControllerRoot;
+  readonly container: HTMLElement;
   options: CursorOptions;
   aria: Aria;
   ariaLabel: string;
   ariaPostLabel: string;
-  cursor: Cursor;
+  readonly cursor: Cursor;
   editable: boolean | undefined;
   _ariaAlertTimeout: number;
   KIND_OF_MQ: KIND_OF_MQ;
-  textarea: $ | undefined;
-  textareaSpan: $ | undefined;
-  mathspeakSpan: $ | undefined;
 
-  constructor(root: ControllerRoot, container: $, options: CursorOptions) {
+  textarea: HTMLElement | undefined;
+  private textareaEventListeners: Partial<{
+    [K in keyof HTMLElementEventMap]: (event: HTMLElementEventMap[K]) => any;
+  }> = {};
+
+  textareaSpan: HTMLElement | undefined;
+  mathspeakSpan: HTMLElement | undefined;
+
+  constructor(
+    root: ControllerRoot,
+    container: HTMLElement,
+    options: CursorOptions
+  ) {
     this.id = root.id;
     this.data = {};
 
@@ -45,12 +66,21 @@ class ControllerBase {
     return this as any as Controller;
   }
 
-  handle(name: HandlerName, dir?: Direction) {
+  handle(name: HandlersWithDirection, dir: Direction): void;
+  handle(name: HandlersWithoutDirection): void;
+  handle(
+    name: HandlersWithDirection | HandlersWithoutDirection,
+    dir?: Direction
+  ) {
     var handlers = this.options.handlers;
-    if (handlers && handlers.fns[name]) {
-      var mq = new handlers.APIClasses[this.KIND_OF_MQ](this);
-      if (dir === L || dir === R) handlers.fns[name](dir, mq);
-      else handlers.fns[name](mq);
+    const handler = this.options.handlers?.fns[name];
+    if (handler) {
+      const APIClass = handlers?.APIClasses[this.KIND_OF_MQ];
+      pray('APIClass is defined', APIClass);
+      var mq = new APIClass(this as any); // cast to any bedcause APIClass needs the final Controller subclass.
+      if (dir === L || dir === R)
+        (handler as HandlerWithDirectionFunction)(dir, mq);
+      else (handler as HandlerWithoutDirectionFunction)(mq);
     }
   }
 
@@ -91,7 +121,7 @@ class ControllerBase {
       return '';
     }
   }
-  setAriaPostLabel(ariaPostLabel: string, timeout: number) {
+  setAriaPostLabel(ariaPostLabel: string, timeout?: number) {
     if (
       ariaPostLabel &&
       typeof ariaPostLabel === 'string' &&
@@ -123,10 +153,7 @@ class ControllerBase {
   }
   containerHasFocus() {
     return (
-      document.activeElement &&
-      this.container &&
-      this.container[0] &&
-      this.container[0].contains(document.activeElement)
+      document.activeElement && this.container.contains(document.activeElement)
     );
   }
 
@@ -140,6 +167,23 @@ class ControllerBase {
     var textareaSpan = this.textareaSpan;
     if (!textareaSpan) throw new Error('expected a textareaSpan');
     return textareaSpan;
+  }
+
+  /** Add the given event listeners on this.textarea, replacing the existing listener for that event if it exists. */
+  addTextareaEventListeners(listeners: TextareaKeyboardEventListeners) {
+    if (!this.textarea) return;
+    for (const key in listeners) {
+      const event = key as keyof typeof listeners;
+      this.removeTextareaEventListener(event);
+      this.textarea.addEventListener(event, listeners[event] as EventListener);
+    }
+  }
+
+  protected removeTextareaEventListener(event: keyof HTMLElementEventMap) {
+    if (!this.textarea) return;
+    const listener = this.textareaEventListeners[event];
+    if (!listener) return;
+    this.textarea.removeEventListener(event, listener as EventListener);
   }
 
   // based on http://www.gh-mathspeak.com/examples/quick-tutorial/

@@ -1,4 +1,5 @@
 suite('text', function () {
+  const $ = window.test_only_jquery;
   var mq, mostRecentlyReportedLatex;
   setup(function () {
     mostRecentlyReportedLatex = NaN; // != to everything
@@ -21,14 +22,18 @@ suite('text', function () {
   }
 
   function fromLatex(latex) {
-    var block = latexMathParser.parse(latex);
-    block.jQize();
-
-    return block;
+    return latexMathParser.parse(latex);
   }
 
-  function assertSplit(jQ, prev, next) {
-    var dom = jQ[0];
+  // return HTML string for the given node or DocumentFragment
+  function domToString(dom) {
+    const div = document.createElement('div');
+    div.appendChild(dom);
+    return div.innerHTML;
+  }
+
+  function assertSplit(domFrag, prev, next) {
+    var dom = domFrag.firstElement();
 
     if (prev) {
       assert.ok(dom.previousSibling instanceof Text);
@@ -46,42 +51,41 @@ suite('text', function () {
   }
 
   test('changes the text nodes as the cursor moves around', function () {
-    var block = fromLatex('\\text{abc}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{abc}');
+    var ctrlr = mq.__controller;
+    var cursor = ctrlr.cursor;
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'abc', null);
+    assertSplit(cursor.domFrag(), 'abc', null);
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'ab', 'c');
+    assertSplit(cursor.domFrag(), 'ab', 'c');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, 'a', 'bc');
+    assertSplit(cursor.domFrag(), 'a', 'bc');
 
     ctrlr.moveLeft();
-    assertSplit(cursor.jQ, null, 'abc');
+    assertSplit(cursor.domFrag(), null, 'abc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'a', 'bc');
+    assertSplit(cursor.domFrag(), 'a', 'bc');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'ab', 'c');
+    assertSplit(cursor.domFrag(), 'ab', 'c');
 
     ctrlr.moveRight();
-    assertSplit(cursor.jQ, 'abc', null);
+    assertSplit(cursor.domFrag(), 'abc', null);
   });
 
   test('does not change latex as the cursor moves around', function () {
-    var block = fromLatex('\\text{x}');
-    var ctrlr = new Controller(block, 0, 0);
-    var cursor = ctrlr.cursor.insAtRightEnd(block);
+    mq.latex('\\text{x}');
+    var ctrlr = mq.__controller;
 
     ctrlr.moveLeft();
     ctrlr.moveLeft();
     ctrlr.moveLeft();
 
-    assert.equal(block.latex(), '\\text{x}');
+    assert.equal(mq.latex(), '\\text{x}');
   });
 
   suite('typing', function () {
@@ -93,15 +97,15 @@ suite('text', function () {
       assertLatex('\\text{x}');
 
       mq.keystroke('Left');
-      assertSplit(cursor.jQ, 'x');
+      assertSplit(cursor.domFrag(), 'x');
       assertLatex('\\text{x}');
 
       mq.keystroke('Backspace');
-      assertSplit(cursor.jQ);
+      assertSplit(cursor.domFrag());
       assertLatex('');
 
       mq.keystroke('Right');
-      assertSplit(cursor.jQ);
+      assertSplit(cursor.domFrag());
       assert.equal(cursor[L], 0);
       assertLatex('');
     });
@@ -114,7 +118,7 @@ suite('text', function () {
       assertLatex('\\text{asdf}');
 
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
       assertLatex('\\text{asdf}');
 
       mq.typedText('$');
@@ -129,11 +133,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('foo');
 
-      assertSplit(cursor.jQ, 'asfoo', 'df');
+      assertSplit(cursor.domFrag(), 'asfoo', 'df');
       assertLatex('\\text{asfoodf}');
       prayWellFormedPoint(cursor);
     });
@@ -144,11 +148,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('$foo');
 
-      assertSplit(cursor.jQ, 'as$foo', 'df');
+      assertSplit(cursor.domFrag(), 'as$foo', 'df');
       assertLatex('\\text{as$foodf}');
       prayWellFormedPoint(cursor);
     });
@@ -159,11 +163,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('\\pi');
 
-      assertSplit(cursor.jQ, 'as\\pi', 'df');
+      assertSplit(cursor.domFrag(), 'as\\pi', 'df');
       assertLatex('\\text{as\\backslash pidf}');
       prayWellFormedPoint(cursor);
     });
@@ -174,11 +178,11 @@ suite('text', function () {
 
       mq.latex('\\text{asdf}');
       mq.keystroke('Left Left Left');
-      assertSplit(cursor.jQ, 'as', 'df');
+      assertSplit(cursor.domFrag(), 'as', 'df');
 
       controller.paste('{');
 
-      assertSplit(cursor.jQ, 'as{', 'df');
+      assertSplit(cursor.domFrag(), 'as{', 'df');
       assertLatex('\\text{as\\{df}');
       prayWellFormedPoint(cursor);
     });
@@ -186,61 +190,40 @@ suite('text', function () {
 
   test('HTML for subclassed text blocks', function () {
     var block = fromLatex('\\text{abc}');
-    var _id = block.html().match(/mathquill-command-id=([0-9]+)/)[1];
-    function id() {
-      _id = parseInt(_id) + 3;
-      return _id;
-    }
 
     block = fromLatex('\\text{abc}');
     assert.equal(
-      block.html(),
-      '<span class="mq-text-mode" mathquill-command-id=' + id() + '>abc</span>'
+      domToString(block.html()),
+      '<span class="mq-text-mode">abc</span>'
     );
     block = fromLatex('\\textit{abc}');
-    assert.equal(
-      block.html(),
-      '<i class="mq-text-mode" mathquill-command-id=' + id() + '>abc</i>'
-    );
+    assert.equal(domToString(block.html()), '<i class="mq-text-mode">abc</i>');
     block = fromLatex('\\textbf{abc}');
-    assert.equal(
-      block.html(),
-      '<b class="mq-text-mode" mathquill-command-id=' + id() + '>abc</b>'
-    );
+    assert.equal(domToString(block.html()), '<b class="mq-text-mode">abc</b>');
     block = fromLatex('\\textsf{abc}');
     assert.equal(
-      block.html(),
-      '<span class="mq-sans-serif mq-text-mode" mathquill-command-id=' +
-        id() +
-        '>abc</span>'
+      domToString(block.html()),
+      '<span class="mq-sans-serif mq-text-mode">abc</span>'
     );
     block = fromLatex('\\texttt{abc}');
     assert.equal(
-      block.html(),
-      '<span class="mq-monospace mq-text-mode" mathquill-command-id=' +
-        id() +
-        '>abc</span>'
+      domToString(block.html()),
+      '<span class="mq-monospace mq-text-mode">abc</span>'
     );
     block = fromLatex('\\textsc{abc}');
     assert.equal(
-      block.html(),
-      '<span style="font-variant:small-caps" class="mq-text-mode" mathquill-command-id=' +
-        id() +
-        '>abc</span>'
+      domToString(block.html()),
+      '<span style="font-variant:small-caps" class="mq-text-mode">abc</span>'
     );
     block = fromLatex('\\uppercase{abc}');
     assert.equal(
-      block.html(),
-      '<span style="text-transform:uppercase" class="mq-text-mode" mathquill-command-id=' +
-        id() +
-        '>abc</span>'
+      domToString(block.html()),
+      '<span style="text-transform:uppercase" class="mq-text-mode">abc</span>'
     );
     block = fromLatex('\\lowercase{abc}');
     assert.equal(
-      block.html(),
-      '<span style="text-transform:lowercase" class="mq-text-mode" mathquill-command-id=' +
-        id() +
-        '>abc</span>'
+      domToString(block.html()),
+      '<span style="text-transform:lowercase" class="mq-text-mode">abc</span>'
     );
   });
 });

@@ -1,4 +1,5 @@
 suite('typing with auto-replaces', function () {
+  const $ = window.test_only_jquery;
   var mq, mostRecentlyReportedLatex;
   setup(function () {
     mostRecentlyReportedLatex = NaN; // != to everything
@@ -71,6 +72,11 @@ suite('typing with auto-replaces', function () {
     test('replaces selection', function () {
       mq.typedText('49').select().typedText('\\sqrt').keystroke('Enter');
       assertLatex('\\sqrt{49}');
+    });
+
+    test('removes selection if it is removed', function () {
+      mq.typedText('49').select().typedText('\\').keystroke('Backspace');
+      assertLatex('');
     });
 
     test('auto-operator names', function () {
@@ -1155,11 +1161,15 @@ suite('typing with auto-replaces', function () {
     test('no auto operator names in simple subscripts when pasting', function () {
       var textarea = $(mq.el()).find('textarea');
       mq.config(normalConfig);
-      textarea.trigger('paste').val('x_{sin}').trigger('input');
+      trigger.paste(textarea[0]);
+      textarea.val('x_{sin}');
+      trigger.input(textarea[0]);
       assertLatex('x_{\\sin}');
       mq.latex('');
       mq.config(subscriptConfig);
-      textarea.trigger('paste').val('x_{sin}').trigger('input');
+      trigger.paste(textarea[0]);
+      textarea.val('x_{sin}');
+      trigger.input(textarea[0]);
       assertLatex('x_{sin}');
       mq.config(normalConfig);
     });

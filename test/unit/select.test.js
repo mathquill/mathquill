@@ -1,5 +1,11 @@
 suite('Cursor::select()', function () {
+  const $ = window.test_only_jquery;
   var cursor = new Cursor();
+  // Stub out insDirOf since it does DOM operations that are not valid
+  // for this cursor, which is not fully constructed
+  cursor.insDirOf = function () {
+    return this;
+  };
   cursor.selectionChanged = noop;
 
   function assertSelection(A, B, leftEnd, rightEnd) {

@@ -98,7 +98,7 @@ var latexMathParser = (function () {
   return latexMath;
 })();
 
-optionProcessors.maxDepth = function (depth: number) {
+baseOptionProcessors.maxDepth = function (depth: number | undefined) {
   return typeof depth === 'number' ? depth : undefined;
 };
 
@@ -117,7 +117,7 @@ class Controller_latex extends Controller_keystroke {
     return this;
   }
 
-  classifyLatexForEfficientUpdate(latex: string) {
+  classifyLatexForEfficientUpdate(latex: unknown) {
     if (typeof latex !== 'string') return;
 
     var matches = latex.match(/-?[0-9.]+$/g);
@@ -131,7 +131,7 @@ class Controller_latex extends Controller_keystroke {
 
     return;
   }
-  renderLatexMathEfficiently(latex: string) {
+  renderLatexMathEfficiently(latex: unknown) {
     var root = this.root;
     var oldLatex = this.exportLatex();
     if (root.getEnd(L) && root.getEnd(R) && oldLatex === latex) {
@@ -206,7 +206,7 @@ class Controller_latex extends Controller_keystroke {
       }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
-      oldMinusNode.jQ.remove();
+      oldMinusNode.domFrag().remove();
     }
 
     // add a minus sign
@@ -214,7 +214,7 @@ class Controller_latex extends Controller_keystroke {
       var newMinusNode = new PlusMinus('-');
       var minusSpan = document.createElement('span');
       minusSpan.textContent = '-';
-      newMinusNode.jQ = $(minusSpan);
+      newMinusNode.setDOM(minusSpan);
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
@@ -228,7 +228,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = newMinusNode;
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
-      newMinusNode.jQ.insertBefore(oldCharNodes[0].jQ);
+      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag());
     }
 
     // update the text of the current nodes
@@ -238,7 +238,7 @@ class Controller_latex extends Controller_keystroke {
       charNode = oldCharNodes[i];
       if (charNode.ctrlSeq !== newText) {
         charNode.ctrlSeq = newText;
-        charNode.jQ[0].textContent = newText;
+        charNode.domFrag().oneElement().textContent = newText;
         charNode.mathspeakName = newText;
       }
     }
@@ -250,7 +250,7 @@ class Controller_latex extends Controller_keystroke {
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
-        oldCharNodes[i].jQ.remove();
+        oldCharNodes[i].domFrag().remove();
       }
     }
 
@@ -265,7 +265,7 @@ class Controller_latex extends Controller_keystroke {
 
         var newNode = new Digit(newDigits[i]);
         newNode.parent = root;
-        newNode.jQ = $(span);
+        newNode.setDOM(span);
         frag.appendChild(span);
 
         // splice this node in
@@ -277,7 +277,7 @@ class Controller_latex extends Controller_keystroke {
         root.setEnds({ [L]: root.getEnd(L), [R]: newNode });
       }
 
-      root.jQ[0].appendChild(frag);
+      root.domFrag().oneElement().appendChild(frag);
     }
 
     var currentLatex = this.exportLatex();
@@ -300,7 +300,7 @@ class Controller_latex extends Controller_keystroke {
 
     return true;
   }
-  renderLatexMathFromScratch(latex: string) {
+  renderLatexMathFromScratch(latex: unknown) {
     var root = this.root,
       cursor = this.cursor;
     var all = Parser.all;
@@ -317,21 +317,19 @@ class Controller_latex extends Controller_keystroke {
       block.children().adopt(root, 0, 0);
     }
 
-    var jQ = root.jQ;
-
     if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      root.jQize(jQ.children());
+      const frag = root.domFrag();
+      frag.children().remove();
+      frag.oneElement().appendChild(block.html());
       root.finalizeInsert(cursor.options, cursor);
     } else {
-      jQ.empty();
+      root.domFrag().empty();
     }
     this.updateMathspeak();
     delete cursor.selection;
     cursor.insAtRightEnd(root);
   }
-  renderLatexMath(latex: string) {
+  renderLatexMath(latex: unknown) {
     this.notify('replace');
 
     if (this.renderLatexMathEfficiently(latex)) return;
@@ -341,7 +339,7 @@ class Controller_latex extends Controller_keystroke {
     var root = this.root,
       cursor = this.cursor;
 
-    root.jQ.children().slice(1).remove();
+    root.domFrag().children().slice(1).remove();
     root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
@@ -383,7 +381,7 @@ class Controller_latex extends Controller_keystroke {
         commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      root.jQize().appendTo(root.jQ);
+      domFrag(root.html()).appendTo(root.domFrag().oneElement());
 
       root.finalizeInsert(cursor.options, cursor);
     }
