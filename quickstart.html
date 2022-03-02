@@ -22,7 +22,6 @@
       var staticMathSpan = document.getElementById('static-math');
       var mathFieldSpan = document.getElementById('math-field');
       var latexSpan = document.getElementById('latex');
-      var previousLatex = '';
 
       var MQ = MathQuill.getInterface(3); // keeps the API stable
 
@@ -37,16 +36,9 @@
         handlers: {
           edit: function () {
             // retrieve, in LaTeX format, the math that was typed:
-            previousLatex = latexSpan.textContent;
             latexSpan.textContent = mathField.latex();
           },
         },
-      });
-
-      document.addEventListener('keydown', (e) => {
-        if (e.key === 'z' && e.metaKey) {
-          mathField.latex(previousLatex);
-        }
       });
     </script>
   </body>

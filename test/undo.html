@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MathQuill Undo Test Page</title>
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
+  </head>
+  <body>
+    <p>Editable math field: <span id="math-field">x^2</span></p>
+    <p>LaTeX of what you typed: <code id="latex">x^2</code></p>
+
+    <script src="../build/mathquill.js"></script>
+    <script>
+      var mathFieldSpan = document.getElementById('math-field');
+      var latexSpan = document.getElementById('latex');
+      var previousLatex = '';
+
+      var MQ = MathQuill.getInterface(3); // keeps the API stable
+
+      // you may pass in an options object:
+      var mathField = MQ.MathField(mathFieldSpan, {
+        handlers: {
+          edit: function () {
+            previousLatex = latexSpan.textContent;
+            latexSpan.textContent = mathField.latex();
+          },
+        },
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'z' && e.metaKey) {
+          mathField.latex(previousLatex);
+        }
+      });
+    </script>
+  </body>
+</html>
