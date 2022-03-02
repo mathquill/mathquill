@@ -385,20 +385,20 @@ class Cursor extends Point {
 }
 class MQSelection extends Fragment {
   protected ends: Ends<MQNode>;
-  private el: HTMLElement | undefined;
+  private _el: HTMLElement | undefined;
 
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
-    this.el = h('span', { class: 'mq-selection' });
-    this.getDOMFragFromEnds().wrapAll(this.el);
+    this._el = h('span', { class: 'mq-selection' });
+    this.getDOMFragFromEnds().wrapAll(this._el);
   }
 
   isCleared() {
-    return this.el === undefined;
+    return this._el === undefined;
   }
 
   domFrag() {
-    return this.isCleared() ? this.getDOMFragFromEnds() : domFrag(this.el);
+    return this.isCleared() ? this.getDOMFragFromEnds() : domFrag(this._el);
   }
 
   setEnds(ends: Ends<MQNode>) {
@@ -421,7 +421,7 @@ class MQSelection extends Fragment {
     // and jQuery's .collection() method than jQuery's .children() method
     const childFrag = this.getDOMFragFromEnds();
     this.domFrag().replaceWith(childFrag);
-    this.el = undefined;
+    this._el = undefined;
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {
