@@ -92,7 +92,7 @@ h.block = (
   block: MathBlock
 ) => {
   const out = h(type, attributes, [block.html()]);
-  block.joinFrag(domFrag(out));
+  block.setDOM(out);
   NodeBase.linkElementByBlockNode(out, block);
   return out;
 };

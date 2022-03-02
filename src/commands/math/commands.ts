@@ -468,20 +468,22 @@ class SupSub extends MathCommand {
     if (this.supsub === 'sub') {
       this.sup = this.upInto = (this.sub as MQNode).upOutOf = block;
       block.adopt(this, this.sub as MQNode, 0).downOutOf = this.sub;
-      block.setDOMFrag(
+      block.setDOM(
         domFrag(h('span', { class: 'mq-sup' }))
           .append(block.domFrag().children())
           .prependTo(this.domFrag().oneElement())
+          .oneElement()
       );
       NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
     } else {
       this.sub = this.downInto = (this.sup as MQNode).downOutOf = block;
       block.adopt(this, 0, this.sup as MQNode).upOutOf = this.sup;
       this.domFrag().removeClass('mq-sup-only');
-      block.setDOMFrag(
+      block.setDOM(
         domFrag(h('span', { class: 'mq-sub' }))
           .append(block.domFrag().children())
           .appendTo(this.domFrag().oneElement())
+          .oneElement()
       );
       NodeBase.linkElementByBlockNode(block.domFrag().oneElement(), block);
       this.domFrag().append(
@@ -1053,8 +1055,8 @@ LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
 class DelimsNode extends MathCommand {
   delimFrags: Ends<DOMFragment>;
 
-  setDOMFrag(frag: DOMFragment) {
-    super.setDOMFrag(frag);
+  setDOM(el: Element | undefined) {
+    super.setDOM(el);
     const children = this.domFrag().children();
     if (!children.isEmpty()) {
       this.delimFrags = {
@@ -1663,7 +1665,9 @@ class EmbedNode extends MQSymbol {
       return '';
     }
     this.text = options.text || noop;
-    this.domView = new DOMView(0, () => parseHTML(options.htmlString || ''));
+    this.domView = new DOMView(0, () =>
+      h('span', {}, [parseHTML(options.htmlString || '')])
+    );
     this.latex = options.latex || noop;
     return this;
   }

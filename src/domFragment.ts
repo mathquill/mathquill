@@ -14,7 +14,7 @@
  * differences:
  *
  * 1.  A jQuery collection can hold an arbitrary ordered set of DOM
- *     elemeents, but a `DOMFragment` can only hold a contiguous span of
+ *     elements, but a `DOMFragment` can only hold a contiguous span of
  *     sibling nodes.
  * 2.  Some jQuery DOM manipulation methods like `insert{Before,After}`,
  *     `append`, `prepend`, `appendTo`, `prependTo`, etc. may insert
@@ -78,6 +78,10 @@ class DOMFragment {
     return this.ends === undefined;
   }
 
+  isOneNode(): boolean {
+    return !!(this.ends && this.ends[L] === this.ends[R]);
+  }
+
   /**
    * Returns true if the fragment is empty or if its last node is equal
    * to its first node or is a forward sibling of its first node.
@@ -90,6 +94,7 @@ class DOMFragment {
    */
   isValid(): boolean {
     if (!this.ends) return true;
+    if (this.ends[L] === this.ends[R]) return true;
     let maybeLast: Node | undefined;
     this.eachNode((el) => (maybeLast = el));
     return maybeLast === this.ends[R];

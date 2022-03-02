@@ -13,9 +13,11 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     };
   }
   domView = new DOMView(1, (blocks) =>
-    h('span', { class: 'mq-latex-command-input mq-non-leaf' }, [
-      h.text('\\'),
-      h.block('span', {}, blocks[0]),
+    h('span', { class: 'mq-latex-command-input-wrapper mq-non-leaf' }, [
+      h('span', { class: 'mq-latex-command-input mq-non-leaf' }, [
+        h.text('\\'),
+        h.block('span', {}, blocks[0]),
+      ]),
     ])
   );
   textTemplate = ['\\'];
@@ -87,16 +89,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       el.addEventListener('mousedown', rewriteMousedownEventTarget);
       el.addEventListener('mouseup', rewriteMousedownEventTarget);
 
-      this.setDOMFrag(
-        this._replacedFragment.domFrag().insertBefore(frag).join(frag)
-      );
+      this._replacedFragment.domFrag().insertBefore(frag.children().first());
     }
   }
   latex() {
     return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.setDOMFrag(this.domFrag().last());
+    this.setDOM(this.domFrag().children().lastElement());
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);

@@ -80,7 +80,7 @@ class MathElement extends MQNode {
 class DOMView {
   constructor(
     public readonly childCount: number,
-    public readonly render: (blocks: MathBlock[]) => Element | DocumentFragment
+    public readonly render: (blocks: MathBlock[]) => Element
   ) {}
 }
 
@@ -273,16 +273,8 @@ class MathCommand extends MathElement {
     pray('domView is defined', this.domView);
     const template = this.domView;
     const dom = template.render(blocks || []);
-    // Add aria-hidden (for screen reader users) to all top-level elements
-    let node: ChildNode | null =
-      dom instanceof DocumentFragment ? dom.childNodes[0] : dom;
-    while (node) {
-      if (node instanceof Element) {
-        this.joinFrag(domFrag(node));
-        NodeBase.linkElementByCmdNode(node, this);
-      }
-      node = node.nextSibling;
-    }
+    this.setDOM(dom);
+    NodeBase.linkElementByCmdNode(dom, this);
     return dom;
   }
 

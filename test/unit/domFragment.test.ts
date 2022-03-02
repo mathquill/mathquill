@@ -76,8 +76,31 @@ suite('DOMFragment', function () {
   });
 
   test('.isEmpty()', () => {
+    const children = [
+      h('span'),
+      h.text('text'),
+      h('span'),
+      h.text('text'),
+      h('span'),
+    ];
+    const parent = h('span', {}, children);
     assert.ok(domFrag().isEmpty());
     assert.ok(!domFrag(h('span')).isEmpty());
+    assert.ok(!domFrag(parent).children().isEmpty());
+  });
+
+  test('.isOneNode()', () => {
+    const children = [
+      h('span'),
+      h.text('text'),
+      h('span'),
+      h.text('text'),
+      h('span'),
+    ];
+    const parent = h('span', {}, children);
+    assert.ok(!domFrag().isOneNode());
+    assert.ok(domFrag(h('span')).isOneNode());
+    assert.ok(!domFrag(parent).children().isOneNode());
   });
 
   suite('.isValid()', () => {

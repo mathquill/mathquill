@@ -9,7 +9,7 @@ suite('HTML', function () {
           const content = 'Block:' + i;
           this.blocks[i] = {
             id: 2 + i,
-            joinFrag: (_sibling) => {},
+            setDOM: (_sibling) => {},
             html: () => {
               const frag = document.createDocumentFragment();
               frag.appendChild(h.text(content));
@@ -73,51 +73,16 @@ suite('HTML', function () {
     );
   });
 
-  test('templates returning a fragment', function () {
-    assertDOMEqual(
+  test('Attempting to render multiple html nodes into a math command throws', function () {
+    assert.throws(() => {
       renderHtml(
         new DOMView(2, (blocks) => {
           const frag = document.createDocumentFragment();
           frag.appendChild(h('span', {}, [h.block('span', {}, blocks[0])]));
           frag.appendChild(h('span', {}, [h.block('span', {}, blocks[1])]));
-          return frag;
+          return frag as any;
         })
-      ),
-      '<span>' +
-        '<span>Block:0</span>' +
-        '</span>' +
-        '<span>' +
-        '<span>Block:1</span>' +
-        '</span>',
-      'two cmd spans'
-    );
-
-    assertDOMEqual(
-      renderHtml(
-        new DOMView(2, (blocks) => {
-          const frag = document.createDocumentFragment();
-          frag.appendChild(h('span'));
-          frag.appendChild(h('span'));
-          frag.appendChild(
-            h('span', {}, [
-              h('span', {}, [h('span')]),
-              h.block('span', {}, blocks[1]),
-              h('span'),
-            ])
-          );
-          frag.appendChild(h.block('span', {}, blocks[0]));
-          return frag;
-        })
-      ),
-      '<span></span>' +
-        '<span></span>' +
-        '<span>' +
-        '<span><span></span></span>' +
-        '<span>Block:1</span>' +
-        '<span></span>' +
-        '</span>' +
-        '<span>Block:0</span>',
-      'multiple nested cmd and block spans'
-    );
+      );
+    });
   });
 });
