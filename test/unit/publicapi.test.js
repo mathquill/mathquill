@@ -163,6 +163,23 @@ suite('Public API', function () {
       assert.equal(mq.latex(), '1c');
     });
 
+    test('latex while cursor is in the middle of an expression', function () {
+      mq.typedText('1.2');
+      mq.focus();
+      var t = mq.el().querySelector('textarea');
+      trigger.keydown(t, 'ArrowLeft');
+      trigger.keypress(t, 'ArrowLeft');
+      trigger.keyup(t, 'ArrowLeft');
+      trigger.keydown(t, 'Backspace');
+      trigger.keypress(t, 'Backspace');
+      trigger.keyup(t, 'Backspace');
+      assert.equal(mq.latex(), '12');
+      mq.latex('1.2');
+      assert.equal(mq.latex(), '1.2');
+      mq.typedText('/');
+      assert.equal(mq.latex(), '\\frac{1.2}{ }');
+    });
+
     test('.html() trivial case', function () {
       mq.latex('x+y');
       assert.equal(
