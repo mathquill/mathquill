@@ -385,25 +385,20 @@ class Cursor extends Point {
 }
 class MQSelection extends Fragment {
   protected ends: Ends<MQNode>;
-  private _domFrag = domFrag();
+  private el: HTMLElement | undefined;
 
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
-
-    this.setDOMFrag(
-      this.getDOMFragFromEnds()
-        .wrapAll(h('span', { class: 'mq-selection' }))
-        .parent()
-    );
+    this.el = h('span', { class: 'mq-selection' });
+    this.getDOMFragFromEnds().wrapAll(this.el);
   }
 
-  setDOMFrag(frag: DOMFragment) {
-    this._domFrag = frag;
-    return this;
+  isCleared() {
+    return this.el === undefined;
   }
 
   domFrag() {
-    return this._domFrag;
+    return this.isCleared() ? this.getDOMFragFromEnds() : domFrag(this.el);
   }
 
   validateFrag() {}
@@ -418,10 +413,7 @@ class MQSelection extends Fragment {
   }
 
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-    const childFrag = this.domFrag().children();
-    this.domFrag().replaceWith(childFrag);
-    this.setDOMFrag(childFrag);
-
+    this.clear();
     return super.adopt(parent, leftward, rightward);
   }
   clear() {
@@ -429,7 +421,9 @@ class MQSelection extends Fragment {
     // child nodes (including Text nodes), and not just Element nodes.
     // This makes it more similar to the native DOM childNodes property
     // and jQuery's .collection() method than jQuery's .children() method
-    this.domFrag().replaceWith(this.domFrag().children());
+    const childFrag = this.getDOMFragFromEnds();
+    this.domFrag().replaceWith(childFrag);
+    this.el = undefined;
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {
