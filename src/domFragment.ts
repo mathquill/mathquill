@@ -14,7 +14,7 @@
  * differences:
  *
  * 1.  A jQuery collection can hold an arbitrary ordered set of DOM
- *     elemeents, but a `DOMFragment` can only hold a contiguous span of
+ *     elements, but a `DOMFragment` can only hold a contiguous span of
  *     sibling nodes.
  * 2.  Some jQuery DOM manipulation methods like `insert{Before,After}`,
  *     `append`, `prepend`, `appendTo`, `prependTo`, etc. may insert
