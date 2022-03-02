@@ -385,16 +385,28 @@ class Cursor extends Point {
 }
 class MQSelection extends Fragment {
   protected ends: Ends<MQNode>;
+  private _domFrag = domFrag();
 
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
 
     this.setDOMFrag(
-      this.domFrag()
+      this.getDOMFragFromEnds()
         .wrapAll(h('span', { class: 'mq-selection' }))
         .parent()
     );
   }
+
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
+  }
+
+  domFrag() {
+    return this._domFrag;
+  }
+
+  validateFrag() {}
 
   setEnds(ends: Ends<MQNode>) {
     pray('Selection ends are never empty', ends[L] && ends[R]);

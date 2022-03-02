@@ -396,8 +396,6 @@ class Fragment {
    * enforce that the Fragment is not empty.
    * */
   protected ends: Ends<NodeRef>;
-
-  private _domFrag = domFrag();
   disowned: boolean = false;
 
   constructor(withDir: NodeRef, oppDir: NodeRef, dir?: Direction) {
@@ -433,13 +431,19 @@ class Fragment {
       'following direction siblings from start reaches end',
       maybeRightEnd === ends[R]
     );
+  }
 
-    if (ends[L] === ends[R]) {
+  protected getDOMFragFromEnds() {
+    const left = this.ends[L];
+    const right = this.ends[R];
+    if (left === 0 || right === 0) {
+      return domFrag();
+    } else if (left === right) {
       // Note, joining a DOMFragment to itself is not allowed, so
       // don't attempt to join the end fragments if the ends are equal
-      this.setDOMFrag(ends[L].domFrag());
+      return left.domFrag();
     } else {
-      this.setDOMFrag(ends[L].domFrag().join(ends[R].domFrag()));
+      return left.domFrag().join(right.domFrag());
     }
   }
 
@@ -456,13 +460,8 @@ class Fragment {
     return this.ends ? this.ends[dir] : 0;
   }
 
-  setDOMFrag(frag: DOMFragment) {
-    this._domFrag = frag;
-    return this;
-  }
-
   domFrag(): DOMFragment {
-    return this._domFrag;
+    return this.getDOMFragFromEnds();
   }
 
   // like Cursor::withDirInsertAt(dir, parent, withDir, oppDir)
