@@ -401,8 +401,6 @@ class MQSelection extends Fragment {
     return this.isCleared() ? this.getDOMFragFromEnds() : domFrag(this.el);
   }
 
-  validateFrag() {}
-
   setEnds(ends: Ends<MQNode>) {
     pray('Selection ends are never empty', ends[L] && ends[R]);
     this.ends = ends;
