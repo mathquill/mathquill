@@ -152,6 +152,17 @@ suite('Public API', function () {
       assert.equal(mq.latex(), 'bc');
     });
 
+    test("latex while there's a selection 2", function () {
+      mq.latex('1.2');
+      assert.equal(mq.latex(), '1.2');
+      mq.select();
+      assert.equal(mq.__controller.cursor.selection.join('latex'), '1.2');
+      mq.latex('1');
+      assert.equal(mq.latex(), '1');
+      mq.typedText('c');
+      assert.equal(mq.latex(), '1c');
+    });
+
     test('.html() trivial case', function () {
       mq.latex('x+y');
       assert.equal(
