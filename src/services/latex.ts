@@ -291,7 +291,7 @@ class Controller_latex extends Controller_keystroke {
       return false;
     }
 
-    this.cursor.resetToEnd(this);
+    this.cursor.insAtRightEnd(root);
 
     var rightMost = root.getEnd(R);
     if (rightMost) {
