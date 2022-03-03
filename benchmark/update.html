@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=624" />
+
+    <title>MathQuill Performance Test Page</title>
+
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
+
+    <script
+      type="text/javascript"
+      src="../test/support/jquery-1.5.2.js"
+    ></script>
+    <script type="text/javascript">
+      window.onerror = function (err) {
+        document.querySelector('html').style.background = 'red';
+      };
+    </script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+  </head>
+  <body>
+    <p>Mean rendering time: <code id="report">loading...</code></p>
+    <div id="mqs" style="width: 80%"></div>
+
+    <script>
+      var MQ = MathQuill.getInterface(3);
+      var nmqs = 100;
+
+      var mqContainer = document.getElementById('mqs');
+      var mqs = [];
+      for (var i = 0; i < nmqs; i++) {
+        var el = document.createElement('span');
+        el.style.width = '10em';
+        mqContainer.appendChild(el);
+        mqs.push(MQ.MathField(el));
+      }
+
+      var report = document.getElementById('report');
+
+      var stepCount = 0;
+      var samples = [];
+      var maxLength = 100;
+      function mean(arr) {
+        var total = 0;
+        for (let i = 0; i < arr.length; i++) {
+          total += arr[i];
+        }
+        return total / arr.length;
+      }
+
+      function step() {
+        requestAnimationFrame(step);
+        var start = Date.now();
+        for (var i = 0; i < mqs.length; i++) {
+          mqs[i].latex('' + (i + start / 1000));
+        }
+        // Force synchronous layout
+        document.body.getBoundingClientRect();
+        samples[stepCount % maxLength] = Date.now() - start;
+        stepCount += 1;
+        if (stepCount > 2 * maxLength)
+          report.textContent = mean(samples).toFixed(2);
+      }
+      step();
+    </script>
+  </body>
+</html>
