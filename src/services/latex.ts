@@ -131,7 +131,7 @@ class Controller_latex extends Controller_keystroke {
 
     return;
   }
-  updateLatexMathEfficiently(latex: unknown, oldLatex: unknown) {
+  private updateLatexMathEfficiently(latex: unknown, oldLatex: unknown) {
     // Note, benchmark/update.html is useful for measuring the
     // performance of renderLatexMathEfficiently
     var root = this.root;
@@ -289,8 +289,6 @@ class Controller_latex extends Controller_keystroke {
       return false;
     }
 
-    this.cursor.insAtRightEnd(root);
-
     var rightMost = root.getEnd(R);
     if (rightMost) {
       rightMost.fixDigitGrouping(this.cursor.options);
@@ -298,7 +296,7 @@ class Controller_latex extends Controller_keystroke {
 
     return true;
   }
-  renderLatexMathFromScratch(latex: unknown) {
+  private renderLatexMathFromScratch(latex: unknown) {
     var root = this.root,
       cursor = this.cursor;
     var all = Parser.all;
