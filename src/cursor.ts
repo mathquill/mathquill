@@ -330,13 +330,6 @@ class Cursor extends Point {
     this.selectionChanged();
     return true;
   }
-  resetToEnd(controller: ControllerBase) {
-    this.clearSelection();
-    var root = controller.root;
-    this[R] = 0;
-    this[L] = root.getEnd(R);
-    this.parent = root;
-  }
   clearSelection() {
     if (this.selection) {
       this.selection.clear();
