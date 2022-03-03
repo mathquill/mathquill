@@ -132,6 +132,8 @@ class Controller_latex extends Controller_keystroke {
     return;
   }
   renderLatexMathEfficiently(latex: unknown) {
+    // Note, benchmark/update.html is useful for measuring the
+    // performance of renderLatexMathEfficiently
     var root = this.root;
     var oldLatex = this.exportLatex();
     if (root.getEnd(L) && root.getEnd(R) && oldLatex === latex) {
