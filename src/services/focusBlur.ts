@@ -101,7 +101,7 @@ class Controller_focusBlur extends Controller_exportText {
     window.removeEventListener('blur', this.handleWindowBlur);
 
     if (this.options && this.options.resetCursorOnBlur) {
-      this.cursor.insAtRightEnd(this.root);
+      this.cursor.resetToEnd(this);
     }
   }
 
