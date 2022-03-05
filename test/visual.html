@@ -1252,9 +1252,11 @@
         },
       });
 
-      MQ.MathField($('#disable-typing-ske')[0], {
+      var MQ2 = MathQuill.getInterface(2);
+
+      MQ2.MathField($('#disable-typing-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               cut: $.noop,
@@ -1266,9 +1268,9 @@
         },
       });
 
-      var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
+      var SKEMQ1 = MQ2.MathField($('#wrap-typing-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               typedText: function (text) {
@@ -1281,9 +1283,9 @@
         },
       });
 
-      var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
+      var SKEMQ2 = MQ2.MathField($('#select-all-right-arrow-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               keystroke: function (key) {
