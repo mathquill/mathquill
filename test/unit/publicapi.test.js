@@ -1157,6 +1157,14 @@ suite('Public API', function () {
         assert.equal(count, 1);
       });
     }
+
+    test('throws for interface version 3', function () {
+      assert.throws(() =>
+        MQ.MathField(document.createElement('span'), {
+          substituteKeyboardEvents: function () {},
+        })
+      );
+    });
   });
 
   suite('clickAt', function () {
