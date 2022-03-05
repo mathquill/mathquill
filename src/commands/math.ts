@@ -684,7 +684,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
       this.config(opts);
       super.mathquillify('mq-math-mode');
       if (this.__options.mouseEvents) {
-        this.__controller.removeMouseEventListener();
+        this.__controller.addMouseEventListener();
         this.__controller.staticMathTextareaEvents();
       }
       return this;
