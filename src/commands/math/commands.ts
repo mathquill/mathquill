@@ -220,7 +220,7 @@ LatexCmds.textcolor = class extends MathCommand {
     this.domView = new DOMView(1, (blocks) =>
       h.block(
         'span',
-        { class: 'mq-textcolor', style: "color:' + color + '" },
+        { class: 'mq-textcolor', style: 'color:' + color },
         blocks[0]
       )
     );
