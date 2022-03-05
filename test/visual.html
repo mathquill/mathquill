@@ -1086,10 +1086,11 @@
         setTimeout(function () {
           $('#selection-tests .mathquill-text-field').each(function () {
             var start = +new Date();
-            $('textarea', this).focus();
-            $('textarea')[0].dispatchEvent(
-              new KeyboardEvent('keydown', { key: 'A', ctrlKey: true })
-            );
+            $('textarea', this)
+              .focus()[0]
+              .dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'A', ctrlKey: true })
+              );
             console.log(
               'Time taken to Select All (should be &lt;50ms):',
               new Date() - start
