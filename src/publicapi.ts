@@ -227,6 +227,15 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
   function config(currentOptions: CursorOptions, newOptions: ConfigOptions) {
     for (const name in newOptions) {
       if (newOptions.hasOwnProperty(name)) {
+        if (name === 'substituteKeyboardEvents' && version >= 3) {
+          throw new Error(
+            [
+              "As of interface version 3, the 'substituteKeyboardEvents'",
+              "option is no longer supported. Use 'overrideTypedText' and",
+              "'overrideKeystroke' instead.",
+            ].join(' ')
+          );
+        }
         var value = (newOptions as any)[name]; // TODO - think about typing this better
         var processor = (optionProcessors as any)[name]; // TODO - validate option processors better
         (currentOptions as any)[name] = processor ? processor(value) : value; // TODO - think about typing better
