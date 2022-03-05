@@ -32,6 +32,20 @@ suite('typing with auto-replaces', function () {
     }
   }
 
+  suite('cursor movement', function () {
+    test('escaping left with a selection', function () {
+      mq.typedText('(0');
+      assertLatex('\\left(0\\right)');
+      mq.keystroke('Shift-Left');
+      // Should move the cursor back to the beginning of the input
+      mq.keystroke('Shift-Tab');
+      mq.typedText('3');
+      assertLatex('3\\left(0\\right)');
+      mq.keystroke('Left Shift-Right Shift-Right Backspace');
+      assertLatex('');
+    });
+  });
+
   suite('LiveFraction', function () {
     test('full MathQuill', function () {
       mq.typedText('1/2').keystroke('Tab').typedText('+sinx/');
