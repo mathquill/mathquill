@@ -1039,18 +1039,20 @@ LatexCmds.cbrt = class extends NthRoot {
 };
 
 class DiacriticAbove extends MathCommand {
-  constructor(ctrlSeq: string, symbol: string, textTemplate?: string[]) {
+  constructor(ctrlSeq: string, html: ChildNode, textTemplate?: string[]) {
     var domView = new DOMView(1, (blocks) =>
       h('span', { class: 'mq-non-leaf' }, [
-        h('span', { class: 'mq-diacritic-above' }, [h.text(symbol)]),
+        h('span', { class: 'mq-diacritic-above' }, [html]),
         h.block('span', { class: 'mq-diacritic-stem' }, blocks[0]),
       ])
     );
     super(ctrlSeq, domView, textTemplate);
   }
 }
-LatexCmds.vec = () => new DiacriticAbove('\\vec', '&rarr;', ['vec(', ')']);
-LatexCmds.tilde = () => new DiacriticAbove('\\tilde', '~', ['tilde(', ')']);
+LatexCmds.vec = () =>
+  new DiacriticAbove('\\vec', h.entityText('&rarr;'), ['vec(', ')']);
+LatexCmds.tilde = () =>
+  new DiacriticAbove('\\tilde', h.text('~'), ['tilde(', ')']);
 
 class DelimsNode extends MathCommand {
   delimFrags: Ends<DOMFragment>;
