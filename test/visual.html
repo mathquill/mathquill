@@ -1054,7 +1054,9 @@
       $('.math-container')
         .mousedown(function (e) {
           if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
-          $mq.triggerHandler(e);
+          var originalEvent = e.originalEvent;
+          var newEvent = new MouseEvent(originalEvent.type, originalEvent);
+          $mq[0].dispatchEvent(newEvent);
         })
         // test API for "fast touch taps" #622 & #403
         .bind('touchstart', function () {
