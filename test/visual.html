@@ -1055,7 +1055,7 @@
         .mousedown(function (e) {
           if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
           var originalEvent = e.originalEvent;
-          var newEvent = new KeyboardEvent(originalEvent.type, originalEvent);
+          var newEvent = new MouseEvent(originalEvent.type, originalEvent);
           $mq[0].dispatchEvent(newEvent);
         })
         // test API for "fast touch taps" #622 & #403
