@@ -683,6 +683,7 @@ API.StaticMath = function (APIClasses: APIClasses) {
     __mathquillify(opts: ConfigOptions, _interfaceVersion: number) {
       this.config(opts);
       super.mathquillify('mq-math-mode');
+      this.__controller.setupStaticField();
       if (this.__options.mouseEvents) {
         this.__controller.addMouseEventListener();
         this.__controller.staticMathTextareaEvents();
