@@ -1298,4 +1298,58 @@ suite('Public API', function () {
     assert.equal(mq.text(), 'sqrt(embedded text)');
     assert.equal(mq.latex(), '\\sqrt{embedded latex}');
   });
+
+  suite('StaticMath', function () {
+    test('does not render cursor', function () {
+      const span = document.createElement('span');
+      span.textContent = '\\frac{1}{2}';
+      var mq = MQ.StaticMath(
+        domFrag(span).appendTo(document.querySelector('#mock')).oneElement(),
+        {}
+      );
+      assert.equal(
+        mq.__controller.blurred,
+        true,
+        'focus state is initialized to blurred'
+      );
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is no .mq-cursor element'
+      );
+      mq.latex('123');
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is still no .mq-cursor element'
+      );
+    });
+
+    test('does not render cursor with mouseEvents: false', function () {
+      const span = document.createElement('span');
+      span.textContent = '\\frac{1}{2}';
+      var mq = MQ.StaticMath(
+        domFrag(span).appendTo(document.querySelector('#mock')).oneElement(),
+        {
+          mouseEvents: false,
+        }
+      );
+      assert.equal(
+        mq.__controller.blurred,
+        true,
+        'focus state is initialized to blurred'
+      );
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is no .mq-cursor element'
+      );
+      mq.latex('123');
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is still no .mq-cursor element'
+      );
+    });
+  });
 });

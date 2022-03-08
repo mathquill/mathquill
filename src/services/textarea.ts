@@ -17,7 +17,7 @@ function defaultSubstituteKeyboardEvents(jq: $, controller: Controller) {
 Options.prototype.substituteKeyboardEvents = defaultSubstituteKeyboardEvents;
 
 class Controller extends Controller_scrollHoriz {
-  selectFn: (text: string) => void;
+  selectFn: (text: string) => void = noop;
 
   createTextarea() {
     this.textareaSpan = h('span', { class: 'mq-textarea' });
@@ -66,10 +66,6 @@ class Controller extends Controller_scrollHoriz {
 
   staticMathTextareaEvents() {
     var ctrlr = this;
-
-    this.mathspeakSpan = h('span', { class: 'mq-mathspeak' });
-    domFrag(this.container).prepend(domFrag(this.mathspeakSpan));
-    ctrlr.blurred = true;
     this.removeTextareaEventListener('cut');
     this.removeTextareaEventListener('paste');
     if (ctrlr.options.disableCopyPaste) {
@@ -90,7 +86,6 @@ class Controller extends Controller_scrollHoriz {
       textarea.value = text;
       if (text) textarea.select();
     };
-    this.updateMathspeak();
   }
 
   editablesTextareaEvents() {
@@ -180,6 +175,16 @@ class Controller extends Controller_scrollHoriz {
       this.options.onPaste();
     }
   }
+
+  /** Set up for a static MQ field (i.e., create and attach the mathspeak element and initialize the focus state to blurred) */
+  setupStaticField() {
+    this.mathspeakSpan = h('span', { class: 'mq-mathspeak' });
+    domFrag(this.container).prepend(domFrag(this.mathspeakSpan));
+    this.updateMathspeak();
+    this.blurred = true;
+    this.cursor.hide().parent.blur(this.cursor);
+  }
+
   updateMathspeak() {
     var ctrlr = this;
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
