@@ -949,6 +949,42 @@ const PercentOfBuilder = () =>
   );
 LatexCmds.percent = LatexCmds.percentof = PercentOfBuilder;
 
+// NOTE: we expect a _ to be placed between the \\token and the id.
+// this is purely so that this looks like an identifier in the Desmos
+// parser / evaluator. We eat up the _ token in this node's parser.
+class Token extends MQSymbol {
+  tokenId = '';
+  ctrlSeq = '\\token';
+  textTemplate = ['token(', ')'];
+  mathspeakTemplate = ['StartToken,', ', EndToken'];
+  ariaLabel = 'token';
+
+  latex () {
+    return '\\token_{'+ this.tokenId +'}';
+  }
+
+  parser () {
+    var self = this;
+    return Parser.string('_').then(() => {
+      return latexMathParser.block.map(function(block) {
+        var digit = block.getEnd(L)
+        if (digit) {
+          self.tokenId += (digit as Digit).ctrlSeq;
+          while (digit = digit[R]) {
+            self.tokenId += (digit as Digit).ctrlSeq;
+          }
+        }
+
+        self.domView = new DOMView(1, () =>
+          h('span', { class: 'mq-token', 'data-mq-token': self.tokenId })
+        );
+        return self;
+      })
+    })
+  };
+};
+LatexCmds.token = Token;
+
 class SquareRoot extends MathCommand {
   ctrlSeq = '\\sqrt';
   domView = new DOMView(1, (blocks) =>
