@@ -959,30 +959,34 @@ class Token extends MQSymbol {
   mathspeakTemplate = ['StartToken,', ', EndToken'];
   ariaLabel = 'token';
 
-  latex () {
-    return '\\token_{'+ this.tokenId +'}';
+  html(): Element | DocumentFragment {
+    const out = h('span', { class: 'mq-token', 'data-mq-token': this.tokenId });
+    this.setDOM(out);
+    NodeBase.linkElementByCmdNode(out, this);
+    return out;
   }
 
-  parser () {
+  latex() {
+    return '\\token_{' + this.tokenId + '}';
+  }
+
+  parser() {
     var self = this;
     return Parser.string('_').then(() => {
-      return latexMathParser.block.map(function(block) {
-        var digit = block.getEnd(L)
+      return latexMathParser.block.map(function (block) {
+        var digit = block.getEnd(L);
         if (digit) {
           self.tokenId += (digit as Digit).ctrlSeq;
-          while (digit = digit[R]) {
+          while ((digit = digit[R])) {
             self.tokenId += (digit as Digit).ctrlSeq;
           }
         }
 
-        self.domView = new DOMView(1, () =>
-          h('span', { class: 'mq-token', 'data-mq-token': self.tokenId })
-        );
         return self;
-      })
-    })
-  };
-};
+      });
+    });
+  }
+}
 LatexCmds.token = Token;
 
 class SquareRoot extends MathCommand {
