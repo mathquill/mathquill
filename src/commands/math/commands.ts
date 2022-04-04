@@ -960,7 +960,10 @@ class Token extends MQSymbol {
   ariaLabel = 'token';
 
   html(): Element | DocumentFragment {
-    const out = h('span', { class: 'mq-token', 'data-mq-token': this.tokenId });
+    const out = h('span', {
+      class: 'mq-token mq-ignore-mousedown',
+      'data-mq-token': this.tokenId,
+    });
     this.setDOM(out);
     NodeBase.linkElementByCmdNode(out, this);
     return out;
