@@ -970,23 +970,21 @@ class Token extends MQSymbol {
   }
 
   latex() {
-    return '\\token_{' + this.tokenId + '}';
+    return '\\token{' + this.tokenId + '}';
   }
 
   parser() {
     var self = this;
-    return Parser.string('_').then(() => {
-      return latexMathParser.block.map(function (block) {
-        var digit = block.getEnd(L);
-        if (digit) {
+    return latexMathParser.block.map(function (block) {
+      var digit = block.getEnd(L);
+      if (digit) {
+        self.tokenId += (digit as Digit).ctrlSeq;
+        while ((digit = digit[R])) {
           self.tokenId += (digit as Digit).ctrlSeq;
-          while ((digit = digit[R])) {
-            self.tokenId += (digit as Digit).ctrlSeq;
-          }
         }
+      }
 
-        return self;
-      });
+      return self;
     });
   }
 }
