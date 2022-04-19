@@ -6,7 +6,7 @@ type ControllerEvent =
   | 'edit'
   | 'select'
   | undefined;
-type JoinMethod = 'mathspeak' | 'latex' | 'text';
+type JoinMethod = 'mathspeak' | 'text' | 'latex';
 
 type CursorOptions = Options;
 
@@ -37,11 +37,18 @@ type InequalityData = {
   mathspeakStrict: string;
 };
 
+type LatexContext = {
+  latex: string;
+  startCursor: number;
+  endCursor: number;
+};
+
 type ControllerData = any;
 type ControllerRoot = MQNode & {
   controller: Controller;
   cursor?: Cursor;
   latex: () => string;
+  latexRecursive: (ctx: LatexContext) => void;
 };
 type JQ_KeyboardEvent = KeyboardEvent & {
   originalEvent?: KeyboardEvent;

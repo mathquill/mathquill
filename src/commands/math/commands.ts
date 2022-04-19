@@ -230,9 +230,11 @@ LatexCmds.textcolor = class extends MathCommand {
       'End ' + this.ariaLabel,
     ];
   }
-  latex() {
+  latexRecursive(ctx: LatexContext) {
     var blocks0 = this.blocks![0];
-    return '\\textcolor{' + this.color + '}{' + blocks0.latex() + '}';
+    ctx.latex += '\\textcolor{' + this.color + '}{';
+    blocks0.latexRecursive(ctx);
+    ctx.latex += '}';
   }
   parser() {
     var optWhitespace = Parser.optWhitespace;
@@ -280,9 +282,12 @@ var Class = (LatexCmds['class'] = class extends MathCommand {
         return super.parser();
       });
   }
-  latex() {
+  latexRecursive(ctx: LatexContext) {
     var blocks0 = this.blocks![0];
-    return '\\class{' + this.cls + '}{' + blocks0.latex() + '}';
+
+    ctx.latex += '\\class{' + this.cls + '}{';
+    blocks0.latexRecursive(ctx);
+    ctx.latex += '}';
   }
   isStyleBlock() {
     return true;
@@ -448,12 +453,32 @@ class SupSub extends MathCommand {
       }
     } else super.deleteTowards(dir, cursor);
   }
-  latex() {
-    function latex(prefix: string, block: NodeRef | undefined) {
-      var l = block && block.latex();
-      return block ? prefix + '{' + (l || ' ') + '}' : '';
+  latexRecursive(ctx: LatexContext) {
+    if (this.sub) {
+      ctx.latex += '_{';
+      const beforeLength = ctx.latex.length;
+      this.sub.latexRecursive(ctx);
+      const afterLength = ctx.latex.length;
+      if (beforeLength === afterLength) {
+        // nothing was written. so we write a space
+        ctx.latex += ' ';
+      }
+
+      ctx.latex += '}';
     }
-    return latex('_', this.sub) + latex('^', this.sup);
+
+    if (this.sup) {
+      ctx.latex += '^{';
+      const beforeLength = ctx.latex.length;
+      this.sup.latexRecursive(ctx);
+      const afterLength = ctx.latex.length;
+      if (beforeLength === afterLength) {
+        // nothing was written. so we write a space
+        ctx.latex += ' ';
+      }
+
+      ctx.latex += '}';
+    }
   }
   text() {
     function text(prefix: string, block: NodeRef | undefined) {
@@ -664,17 +689,26 @@ class SummationNotation extends MathCommand {
       new Equality().createLeftOf(cursor);
     }
   }
-  latex() {
-    function simplify(latex: string) {
-      return '{' + (latex || ' ') + '}';
+  latexRecursive(ctx: LatexContext) {
+    ctx.latex += this.ctrlSeq + '_{';
+    let beforeLength = ctx.latex.length;
+    this.getEnd(L).latexRecursive(ctx);
+    let afterLength = ctx.latex.length;
+    if (afterLength === beforeLength) {
+      // nothing was written so we write a space
+      ctx.latex += ' ';
     }
-    return (
-      this.ctrlSeq +
-      '_' +
-      simplify(this.getEnd(L).latex()) +
-      '^' +
-      simplify(this.getEnd(R).latex())
-    );
+
+    ctx.latex += '}^{';
+    beforeLength = ctx.latex.length;
+    this.getEnd(R).latexRecursive(ctx);
+    afterLength = ctx.latex.length;
+    if (beforeLength === afterLength) {
+      // nothing was written so we write a space
+      ctx.latex += ' ';
+    }
+
+    ctx.latex += '}';
   }
   mathspeak() {
     return (
@@ -1004,10 +1038,12 @@ class NthRoot extends SquareRoot {
   );
 
   textTemplate = ['sqrt[', '](', ')'];
-  latex() {
-    return (
-      '\\sqrt[' + this.getEnd(L).latex() + ']{' + this.getEnd(R).latex() + '}'
-    );
+  latexRecursive(ctx: LatexContext) {
+    ctx.latex += '\\sqrt[';
+    this.getEnd(L).latexRecursive(ctx);
+    ctx.latex += ']{';
+    this.getEnd(R).latexRecursive(ctx);
+    ctx.latex += '}';
   }
   mathspeak() {
     var indexMathspeak = this.getEnd(L).mathspeak();
@@ -1148,14 +1184,10 @@ class Bracket extends DelimsNode {
     var ch = this.sides[side || R].ch as keyof typeof SVG_SYMBOLS;
     return SVG_SYMBOLS[ch] || { width: '0', html: '' };
   }
-  latex() {
-    return (
-      '\\left' +
-      this.sides[L].ctrlSeq +
-      this.getEnd(L).latex() +
-      '\\right' +
-      this.sides[R].ctrlSeq
-    );
+  latexRecursive(ctx: LatexContext) {
+    ctx.latex += '\\left' + this.sides[L].ctrlSeq;
+    this.getEnd(L).latexRecursive(ctx);
+    ctx.latex += '\\right' + this.sides[R].ctrlSeq;
   }
   mathspeak(opts?: MathspeakOptions) {
     var open = this.sides[L].ch,
@@ -1645,8 +1677,8 @@ class MathFieldNode extends MathCommand {
     innerFields[this.name] = newField;
     innerFields.push(newField);
   }
-  latex() {
-    return this.getEnd(L).latex();
+  latexRecursive(ctx: LatexContext) {
+    this.getEnd(L).latexRecursive(ctx);
   }
   text() {
     return this.getEnd(L).text();
@@ -1672,6 +1704,9 @@ class EmbedNode extends MQSymbol {
     );
     this.latex = options.latex || noop;
     return this;
+  }
+  latexRecursive(ctx: LatexContext): void {
+    ctx.latex += this.latex();
   }
   parser() {
     var self = this,

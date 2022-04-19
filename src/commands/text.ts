@@ -80,15 +80,15 @@ class TextBlock extends MQNode {
   text() {
     return '"' + this.textContents() + '"';
   }
-  latex() {
+  latexRecursive(ctx: LatexContext) {
     var contents = this.textContents();
-    if (contents.length === 0) return '';
-    return (
-      this.ctrlSeq +
-      '{' +
-      contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') +
-      '}'
-    );
+    if (contents.length === 0) return;
+
+    ctx.latex += this.ctrlSeq + '{';
+    ctx.latex += contents
+      .replace(/\\/g, '\\backslash ')
+      .replace(/[{}]/g, '\\$&');
+    ctx.latex += '}';
   }
   html() {
     const out = h('span', { class: 'mq-text-mode' }, [
@@ -355,8 +355,8 @@ class TextPiece extends MQNode {
   mathspeak() {
     return this.textStr;
   }
-  latex() {
-    return this.textStr;
+  latexRecursive(ctx: LatexContext) {
+    ctx.latex += this.textStr;
   }
 
   deleteTowards(dir: Direction, cursor: Cursor) {
@@ -501,8 +501,10 @@ class RootMathCommand extends MathCommand {
       else MathBlock.prototype.write.call(this, cursor, ch);
     };
   }
-  latex() {
-    return '$' + this.getEnd(L).latex() + '$';
+  latexRecursive(ctx: LatexContext) {
+    ctx.latex += '$';
+    this.getEnd(L).latexRecursive(ctx);
+    ctx.latex += '$';
   }
 }
 

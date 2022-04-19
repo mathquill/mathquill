@@ -326,9 +326,12 @@ class NodeBase {
   text(): string {
     return '';
   }
-  latex(): string {
-    return '';
+  latex() {
+    let ctx: LatexContext = { latex: '', startCursor: -1, endCursor: -1 };
+    this.latexRecursive(ctx);
+    return ctx.latex;
   }
+  latexRecursive(_ctx: LatexContext): void {}
   finalizeTree(_options: CursorOptions, _dir?: Direction) {}
   contactWeld(_cursor: Cursor, _dir?: Direction) {}
   blur(_cursor?: Cursor) {}
