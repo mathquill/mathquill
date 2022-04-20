@@ -116,6 +116,41 @@ class Controller_latex extends Controller_keystroke {
 
     return this;
   }
+  exportLatexSelection() {
+    var ctx: LatexContext = {
+      latex: '',
+      startIndex: -1,
+      endIndex: -1,
+    };
+
+    var selection = this.cursor.selection;
+    if (selection) {
+      ctx.startSelectionBefore = selection.getEnd(L);
+      ctx.endSelectionAfter = selection.getEnd(R);
+    } else {
+      var cursorL = this.cursor[L];
+      if (cursorL) {
+        ctx.startSelectionAfter = cursorL;
+      } else {
+        ctx.startSelectionBefore = this.cursor.parent;
+      }
+
+      var cursorR = this.cursor[R];
+      if (cursorR) {
+        ctx.endSelectionBefore = cursorR;
+      } else {
+        ctx.endSelectionAfter = this.cursor.parent;
+      }
+    }
+
+    this.root.latexRecursive(ctx);
+
+    return {
+      latex: ctx.latex,
+      startIndex: ctx.startIndex,
+      endIndex: ctx.endIndex,
+    };
+  }
 
   classifyLatexForEfficientUpdate(latex: unknown) {
     if (typeof latex !== 'string') return;

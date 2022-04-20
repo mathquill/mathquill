@@ -322,6 +322,174 @@ suite('latex', function () {
         });
       });
     });
+
+    suite('.selection()', function () {
+      function assertSelection(str, expected, commands) {
+        mq.latex(str);
+        commands.split(' ').forEach((cmd) => {
+          if (!cmd) return;
+          switch (cmd) {
+            case 'Blur':
+              mq.blur();
+              break;
+            default:
+              mq.keystroke(cmd);
+          }
+        });
+
+        var expectedLatex = expected.replace(/\|/g, '');
+        var expectedStart = expected.indexOf('|');
+        var expectedEnd = expected.lastIndexOf('|');
+        if (expectedStart !== expectedEnd) {
+          expectedEnd -= 1; // ignore the first | character insertted into our expectation of a selection
+        }
+
+        var sel = mq.selection();
+        var actualFormattedParts = expectedLatex.split('');
+        if (sel.startIndex !== -1) {
+          if (sel.endIndex > sel.startIndex) {
+            actualFormattedParts.splice(sel.endIndex, 0, '|');
+          }
+          actualFormattedParts.splice(sel.startIndex, 0, '|');
+        }
+        var actualFormattedLatex = actualFormattedParts.join('');
+
+        assert.equal(expected, actualFormattedLatex);
+        assert.equal(sel.latex, expectedLatex);
+        assert.equal(sel.startIndex, expectedStart);
+        assert.equal(sel.endIndex, expectedEnd);
+      }
+
+      test('no selection', function () {
+        assertSelection('', '', 'Blur');
+        assertSelection(' ', '', 'Blur');
+        assertSelection('{}', '', 'Blur');
+        assertSelection('   {}{} {{{}}  }', '', 'Blur');
+      });
+
+      test('move cursor left from end', function () {
+        assertSelection('', '|', '');
+        assertSelection('', '|', 'Left');
+
+        assertSelection('   {}{} {{{}}  }', '|', '');
+        assertSelection('   {}{} {{{}}  }', '|', 'Left');
+
+        assertSelection('y=2', 'y=2|', '');
+        assertSelection('y=2', 'y=|2', 'Left');
+        assertSelection('y=2', 'y|=2', 'Left Left');
+        assertSelection('y=2', '|y=2', 'Left Left Left');
+        assertSelection('y=2', '|y=2', 'Left Left Left Left');
+
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x}=|',
+          ''
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x}|=',
+          'Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x|}=',
+          'Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{|x}=',
+          'Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}|\\sqrt{x}=',
+          'Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx|}\\sqrt{x}=',
+          'Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{d|x}\\sqrt{x}=',
+          'Left Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{|dx}\\sqrt{x}=',
+          'Left Left Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d|}{dx}\\sqrt{x}=',
+          'Left Left Left Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{|d}{dx}\\sqrt{x}=',
+          'Left Left Left Left Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '|\\frac{d}{dx}\\sqrt{x}=',
+          'Left Left Left Left Left Left Left Left Left Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '|\\frac{d}{dx}\\sqrt{x}=',
+          'Left Left Left Left Left Left Left Left Left Left Left'
+        );
+      });
+
+      test('shift select leftward', function () {
+        assertSelection('', '|', 'Shift-Left');
+
+        assertSelection('   {}{} {{{}}  }', '|', 'Shift-Left');
+
+        assertSelection('y=2', 'y=2|', '');
+        assertSelection('y=2', 'y=|2|', 'Shift-Left');
+        assertSelection('y=2', 'y|=2|', 'Shift-Left Shift-Left');
+        assertSelection('y=2', '|y=2|', 'Shift-Left Shift-Left Shift-Left');
+        assertSelection(
+          'y=2',
+          '|y=2|',
+          'Shift-Left Shift-Left Shift-Left Shift-Left'
+        );
+
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x}=|',
+          ''
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x}|=|',
+          'Shift-Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}|\\sqrt{x}=|',
+          'Shift-Left Shift-Left'
+        );
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '|\\frac{d}{dx}\\sqrt{x}=|',
+          'Shift-Left Shift-Left Shift-Left'
+        );
+      });
+
+      test('experiment selection', function () {
+        assertSelection('\\sqrt{x}', '\\sqrt{x}|', '');
+        assertSelection('\\sqrt{x}', '\\sqrt{|x|}', 'Left Shift-Left');
+        assertSelection(
+          '\\sqrt{x}',
+          '|\\sqrt{x}|',
+          'Left Shift-Left Shift-Left'
+        );
+        assertSelection('\\sqrt{x}', '|\\sqrt{x}|', 'Shift-Left');
+      });
+    });
   });
 
   suite('\\MathQuillMathField', function () {

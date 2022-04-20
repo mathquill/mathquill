@@ -81,14 +81,18 @@ class TextBlock extends MQNode {
     return '"' + this.textContents() + '"';
   }
   latexRecursive(ctx: LatexContext) {
-    var contents = this.textContents();
-    if (contents.length === 0) return;
+    this.checkCursorContextOpen(ctx);
 
-    ctx.latex += this.ctrlSeq + '{';
-    ctx.latex += contents
-      .replace(/\\/g, '\\backslash ')
-      .replace(/[{}]/g, '\\$&');
-    ctx.latex += '}';
+    var contents = this.textContents();
+    if (contents.length > 0) {
+      ctx.latex += this.ctrlSeq + '{';
+      ctx.latex += contents
+        .replace(/\\/g, '\\backslash ')
+        .replace(/[{}]/g, '\\$&');
+      ctx.latex += '}';
+    }
+
+    this.checkCursorContextClose(ctx);
   }
   html() {
     const out = h('span', { class: 'mq-text-mode' }, [
@@ -356,7 +360,9 @@ class TextPiece extends MQNode {
     return this.textStr;
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
     ctx.latex += this.textStr;
+    this.checkCursorContextClose(ctx);
   }
 
   deleteTowards(dir: Direction, cursor: Cursor) {
@@ -502,9 +508,11 @@ class RootMathCommand extends MathCommand {
     };
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
     ctx.latex += '$';
     this.getEnd(L).latexRecursive(ctx);
     ctx.latex += '$';
+    this.checkCursorContextClose(ctx);
   }
 }
 

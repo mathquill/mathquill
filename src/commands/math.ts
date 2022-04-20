@@ -280,6 +280,8 @@ class MathCommand extends MathElement {
 
   // methods to export a string representation of the math tree
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     ctx.latex += this.ctrlSeq || '';
     this.eachChild((child) => {
       ctx.latex += '{';
@@ -294,6 +296,8 @@ class MathCommand extends MathElement {
 
       ctx.latex += '}';
     });
+
+    this.checkCursorContextClose(ctx);
   }
   textTemplate = [''];
   text() {
@@ -400,7 +404,9 @@ class MQSymbol extends MathCommand {
   }
 
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
     ctx.latex += this.ctrlSeq || '';
+    this.checkCursorContextClose(ctx);
   }
   text() {
     return this.textTemplate.join('');
@@ -494,7 +500,9 @@ class MathBlock extends MathElement {
     return fragment;
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
     this.eachChild((child) => child.latexRecursive(ctx));
+    this.checkCursorContextClose(ctx);
   }
   text() {
     var endsL = this.getEnd(L);

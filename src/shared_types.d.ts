@@ -39,8 +39,12 @@ type InequalityData = {
 
 type LatexContext = {
   latex: string;
-  startCursor: number;
-  endCursor: number;
+  startIndex: number;
+  endIndex: number;
+  startSelectionBefore?: NodeRef;
+  startSelectionAfter?: NodeRef;
+  endSelectionBefore?: NodeRef;
+  endSelectionAfter?: NodeRef;
 };
 
 type ControllerData = any;

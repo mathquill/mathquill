@@ -231,10 +231,12 @@ LatexCmds.textcolor = class extends MathCommand {
     ];
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
     var blocks0 = this.blocks![0];
     ctx.latex += '\\textcolor{' + this.color + '}{';
     blocks0.latexRecursive(ctx);
     ctx.latex += '}';
+    this.checkCursorContextClose(ctx);
   }
   parser() {
     var optWhitespace = Parser.optWhitespace;
@@ -283,11 +285,14 @@ var Class = (LatexCmds['class'] = class extends MathCommand {
       });
   }
   latexRecursive(ctx: LatexContext) {
-    var blocks0 = this.blocks![0];
+    this.checkCursorContextOpen(ctx);
 
+    var blocks0 = this.blocks![0];
     ctx.latex += '\\class{' + this.cls + '}{';
     blocks0.latexRecursive(ctx);
     ctx.latex += '}';
+
+    this.checkCursorContextClose(ctx);
   }
   isStyleBlock() {
     return true;
@@ -454,6 +459,8 @@ class SupSub extends MathCommand {
     } else super.deleteTowards(dir, cursor);
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     if (this.sub) {
       ctx.latex += '_{';
       const beforeLength = ctx.latex.length;
@@ -479,6 +486,8 @@ class SupSub extends MathCommand {
 
       ctx.latex += '}';
     }
+
+    this.checkCursorContextClose(ctx);
   }
   text() {
     function text(prefix: string, block: NodeRef | undefined) {
@@ -690,6 +699,8 @@ class SummationNotation extends MathCommand {
     }
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     ctx.latex += this.ctrlSeq + '_{';
     let beforeLength = ctx.latex.length;
     this.getEnd(L).latexRecursive(ctx);
@@ -709,6 +720,7 @@ class SummationNotation extends MathCommand {
     }
 
     ctx.latex += '}';
+    this.checkCursorContextClose(ctx);
   }
   mathspeak() {
     return (
@@ -1039,11 +1051,15 @@ class NthRoot extends SquareRoot {
 
   textTemplate = ['sqrt[', '](', ')'];
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     ctx.latex += '\\sqrt[';
     this.getEnd(L).latexRecursive(ctx);
     ctx.latex += ']{';
     this.getEnd(R).latexRecursive(ctx);
     ctx.latex += '}';
+
+    this.checkCursorContextClose(ctx);
   }
   mathspeak() {
     var indexMathspeak = this.getEnd(L).mathspeak();
@@ -1185,9 +1201,13 @@ class Bracket extends DelimsNode {
     return SVG_SYMBOLS[ch] || { width: '0', html: '' };
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     ctx.latex += '\\left' + this.sides[L].ctrlSeq;
     this.getEnd(L).latexRecursive(ctx);
     ctx.latex += '\\right' + this.sides[R].ctrlSeq;
+
+    this.checkCursorContextClose(ctx);
   }
   mathspeak(opts?: MathspeakOptions) {
     var open = this.sides[L].ch,
@@ -1678,7 +1698,11 @@ class MathFieldNode extends MathCommand {
     innerFields.push(newField);
   }
   latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
     this.getEnd(L).latexRecursive(ctx);
+
+    this.checkCursorContextClose(ctx);
   }
   text() {
     return this.getEnd(L).text();
@@ -1706,7 +1730,11 @@ class EmbedNode extends MQSymbol {
     return this;
   }
   latexRecursive(ctx: LatexContext): void {
+    this.checkCursorContextOpen(ctx);
+
     ctx.latex += this.latex();
+
+    this.checkCursorContextClose(ctx);
   }
   parser() {
     var self = this,
