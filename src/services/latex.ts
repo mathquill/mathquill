@@ -147,21 +147,27 @@ class Controller_latex extends Controller_keystroke {
 
     // need to clean the latex
     var originalLatex = ctx.latex;
+    var cleanLatex = this.cleanLatex(originalLatex);
     var startIndex = ctx.startIndex;
     var endIndex = ctx.endIndex;
 
-    var cleanLatex = this.cleanLatex(originalLatex);
-    var diffs = 0;
-    for (var i = 0; i + diffs <= endIndex; i++) {
-      if (originalLatex[i + diffs] !== cleanLatex[i]) {
-        diffs += 1;
-        i -= 1;
-
-        if (i < startIndex) {
+    // assumes that the cleaning process will only remove characters. We
+    // run through the originalLatex and cleanLatex to find differences.
+    // when we find differences we see how many characters are dropped until
+    // we sync back up. While detecting missing characters we decrement the
+    // startIndex and endIndex if appropriate.
+    var j = 0;
+    for (var i = 0; i < ctx.endIndex; i++) {
+      if (originalLatex[i] !== cleanLatex[j]) {
+        if (i < ctx.startIndex) {
           startIndex -= 1;
         }
-
         endIndex -= 1;
+
+        // do not increment j. We wan to keep looking at this same
+        // cleanLatex character until we find it in the originalLatex
+      } else {
+        j += 1; //move to next cleanLatex character
       }
     }
 
