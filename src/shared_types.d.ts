@@ -41,10 +41,10 @@ type LatexContext = {
   latex: string;
   startIndex: number;
   endIndex: number;
-  startSelectionBefore?: NodeRef;
-  startSelectionAfter?: NodeRef;
-  endSelectionBefore?: NodeRef;
-  endSelectionAfter?: NodeRef;
+  startSelectionBefore?: NodeBase;
+  startSelectionAfter?: NodeBase;
+  endSelectionBefore?: NodeBase;
+  endSelectionAfter?: NodeBase;
 };
 
 type ControllerData = any;

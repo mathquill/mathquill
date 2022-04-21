@@ -333,20 +333,18 @@ class NodeBase {
   }
   latexRecursive(_ctx: LatexContext): void {}
   checkCursorContextOpen(ctx: LatexContext) {
-    var self = this as any;
-    if (ctx.startSelectionBefore === self) {
+    if (ctx.startSelectionBefore === this) {
       ctx.startIndex = ctx.latex.length;
     }
-    if (ctx.endSelectionBefore === self) {
+    if (ctx.endSelectionBefore === this) {
       ctx.endIndex = ctx.latex.length;
     }
   }
   checkCursorContextClose(ctx: LatexContext) {
-    var self = this as any;
-    if (ctx.startSelectionAfter === self) {
+    if (ctx.startSelectionAfter === this) {
       ctx.startIndex = ctx.latex.length;
     }
-    if (ctx.endSelectionAfter === self) {
+    if (ctx.endSelectionAfter === this) {
       ctx.endIndex = ctx.latex.length;
     }
   }
