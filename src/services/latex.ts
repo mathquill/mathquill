@@ -152,7 +152,7 @@ class Controller_latex extends Controller_keystroke {
 
     var cleanLatex = this.cleanLatex(originalLatex);
     var diffs = 0;
-    for (var i = 0; i + diffs < endIndex; i++) {
+    for (var i = 0; i + diffs <= endIndex; i++) {
       if (originalLatex[i + diffs] !== cleanLatex[i]) {
         diffs += 1;
         i -= 1;

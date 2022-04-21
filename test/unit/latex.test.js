@@ -340,7 +340,7 @@ suite('latex', function () {
           }
         });
 
-        var expectedLatex = mq.latex();
+        var expectedLatex = expected.replace(/[|]/g, '');
         var expectedStart = expected.indexOf('|');
         var expectedEnd = expected.lastIndexOf('|');
         if (expectedStart !== expectedEnd) {
@@ -348,7 +348,7 @@ suite('latex', function () {
         }
 
         var sel = mq.selection();
-        var actualFormattedParts = expectedLatex.split('');
+        var actualFormattedParts = sel.latex.split('');
         if (sel.startIndex !== -1) {
           if (sel.endIndex > sel.startIndex) {
             actualFormattedParts.splice(sel.endIndex, 0, '|');
@@ -357,10 +357,12 @@ suite('latex', function () {
         }
         var actualFormattedLatex = actualFormattedParts.join('');
         //if (expected !== actualFormattedLatex) debugger;
-        assert.equal(expected, actualFormattedLatex);
-        assert.equal(sel.latex, expectedLatex);
-        assert.equal(sel.startIndex, expectedStart);
-        assert.equal(sel.endIndex, expectedEnd);
+        assert.equal(expected, actualFormattedLatex, 'formatted latex');
+        assert.equal(sel.latex, expectedLatex, 'actual latex');
+
+        // if (sel.startIndex !== expectedStart) debugger;
+        assert.equal(sel.startIndex, expectedStart, 'start position');
+        assert.equal(sel.endIndex, expectedEnd, 'end position');
       }
 
       function executeCases(cases, startKeys, repeatKey) {
@@ -470,6 +472,15 @@ suite('latex', function () {
 
       test('still cleans the latex', function () {
         var leftCases = {
+          '\\sin\\cos': [
+            '\\sin\\cos|',
+            '\\sin\\co|s',
+            '\\sin\\c|os',
+            '\\sin|\\cos',
+            '\\si|n\\cos',
+            '\\s|in\\cos',
+            '|\\sin\\cos',
+          ],
           '\\sin\\left(\\right)': [
             '\\sin\\left(\\right)|',
             '\\sin\\left(|\\right)',
@@ -513,26 +524,60 @@ suite('latex', function () {
           ],
         };
 
-        var midShiftLeftCases = {
-          '\\sin\\cos\\tan\\sec': [
-            '\\sin\\cos\\ta|n\\sec',
-            '\\sin\\cos\\t|a|n\\sec',
-            '\\sin\\cos|\\ta|n\\sec',
-            '\\sin\\co|s\\ta|n\\sec',
-            '\\sin\\c|os\\ta|n\\sec',
-            '\\sin|\\cos\\ta|n\\sec',
-            '\\si|n\\cos\\ta|n\\sec',
+        var twoShiftLeftCases = {
+          '\\sin\\cos': [
+            '\\sin\\c|os',
+            '\\sin|\\c|os',
+            '\\si|n\\c|os',
+            '\\s|in\\c|os',
+            '|\\sin\\c|os',
+          ],
+          '\\sin\\cos+': [
+            '\\sin\\co|s+',
+            '\\sin\\c|o|s+',
+            '\\sin|\\co|s+',
+            '\\si|n\\co|s+',
+            '\\s|in\\co|s+',
+            '|\\sin\\co|s+',
+          ],
+          '\\sin\\cos+\\sin\\cos': [
+            '\\sin\\cos+\\sin\\c|os',
+            '\\sin\\cos+\\sin|\\c|os',
+            '\\sin\\cos+\\si|n\\c|os',
+            '\\sin\\cos+\\s|in\\c|os',
+            '\\sin\\cos+|\\sin\\c|os',
+            '\\sin\\cos|+\\sin\\c|os',
+            '\\sin\\co|s+\\sin\\c|os',
+          ],
+        };
+
+        var fourShiftLeftCases = {
+          '\\sin\\cos': ['\\si|n\\cos', '\\s|i|n\\cos', '|\\si|n\\cos'],
+          '\\sin\\cos+': [
+            '\\sin|\\cos+',
+            '\\si|n|\\cos+',
+            '\\s|in|\\cos+',
+            '|\\sin|\\cos+',
+          ],
+          '\\sin\\cos+\\sin\\cos': [
+            '\\sin\\cos+\\si|n\\cos',
+            '\\sin\\cos+\\s|i|n\\cos',
+            '\\sin\\cos+|\\si|n\\cos',
+            '\\sin\\cos|+\\si|n\\cos',
+            '\\sin\\co|s+\\si|n\\cos',
+            '\\sin\\c|os+\\si|n\\cos',
+            '\\sin|\\cos+\\si|n\\cos',
+            '\\si|n\\cos+\\si|n\\cos',
+            '\\s|in\\cos+\\si|n\\cos',
+            '|\\sin\\cos+\\si|n\\cos',
           ],
         };
 
         executeCases(leftCases, [], 'Left');
         executeCases(leftShiftCases, [], 'Shift-Left');
         executeCases(rightShiftCases, ['Start'], 'Shift-Right');
-        executeCases(
-          midShiftLeftCases,
-          ['Left', 'Left', 'Left', 'Left'],
-          'Shift-Left'
-        );
+        executeCases(twoShiftLeftCases, ['Left Left'], 'Shift-Left');
+        executeCases(fourShiftLeftCases, ['Left Left Left Left'], 'Shift-Left');
       });
     });
   });
