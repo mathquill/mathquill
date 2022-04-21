@@ -145,10 +145,30 @@ class Controller_latex extends Controller_keystroke {
 
     this.root.latexRecursive(ctx);
 
+    // need to clean the latex
+    var originalLatex = ctx.latex;
+    var startIndex = ctx.startIndex;
+    var endIndex = ctx.endIndex;
+
+    var cleanLatex = this.cleanLatex(originalLatex);
+    var diffs = 0;
+    for (var i = 0; i + diffs < endIndex; i++) {
+      if (originalLatex[i + diffs] !== cleanLatex[i]) {
+        diffs += 1;
+        i -= 1;
+
+        if (i < startIndex) {
+          startIndex -= 1;
+        }
+
+        endIndex -= 1;
+      }
+    }
+
     return {
-      latex: ctx.latex,
-      startIndex: ctx.startIndex,
-      endIndex: ctx.endIndex,
+      latex: cleanLatex,
+      startIndex: startIndex,
+      endIndex: endIndex,
     };
   }
 
