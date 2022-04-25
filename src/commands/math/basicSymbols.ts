@@ -1302,5 +1302,5 @@ class Approx extends BinaryOperator {
   }
 }
 
-CharCmds['~'] = LatexCmds.sim = Sim;
+LatexCmds['~'] = LatexCmds.sim = Sim;
 LatexCmds['≈'] = LatexCmds.approx = Approx;
