@@ -116,6 +116,7 @@ class Options {
   autoParenthesizedFunctions: AutoDict;
   quietEmptyDelimiters: { [id: string]: any };
   disableAutoSubstitutionInSubscripts?: boolean;
+  interpretTildeAsSim: boolean;
   handlers?: {
     fns: HandlerOptions;
     APIClasses: APIClasses;
