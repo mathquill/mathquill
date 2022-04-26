@@ -159,7 +159,17 @@ Returns the contents as LaTeX.
 
 This will render the argument as LaTeX in the MathQuill instance.
 
+## .selection()
 
+Returns the current cursor position / selection within the latex.
+If the cursor is before the plus this method would return:
+```js
+{
+  latex: 'a+b',
+  startIndex: 1,
+  endIndex: 1
+}
+```
 
 # Editable MathField methods
 
