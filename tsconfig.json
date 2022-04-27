@@ -18,6 +18,7 @@
       },
       "importHelpers": true,
       "noEmit": true,
-      "pretty": true
+      "pretty": true,
+      "typeRoots": ["./node_modules/@types"]
     }
   }
