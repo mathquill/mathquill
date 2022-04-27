@@ -14,7 +14,8 @@
       "module": "ES2015",
       "importHelpers": true,
       "noEmit": true,
-      "pretty": true
+      "pretty": true,
+      "typeRoots": ["./node_modules/@types"]
     },
     "include": ["../src/mathquill.d.ts", "../src/jquery.d.ts"]
   }
