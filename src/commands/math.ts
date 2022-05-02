@@ -279,10 +279,25 @@ class MathCommand extends MathElement {
   }
 
   // methods to export a string representation of the math tree
-  latex() {
-    return this.foldChildren(this.ctrlSeq || '', function (latex, child) {
-      return latex + '{' + (child.latex() || ' ') + '}';
+  latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
+    ctx.latex += this.ctrlSeq || '';
+    this.eachChild((child) => {
+      ctx.latex += '{';
+
+      let beforeLength = ctx.latex.length;
+      child.latexRecursive(ctx);
+      let afterLength = ctx.latex.length;
+      if (beforeLength === afterLength) {
+        // nothing was written so we write a space
+        ctx.latex += ' ';
+      }
+
+      ctx.latex += '}';
     });
+
+    this.checkCursorContextClose(ctx);
   }
   textTemplate = [''];
   text() {
@@ -388,8 +403,10 @@ class MQSymbol extends MathCommand {
     return cursor;
   }
 
-  latex() {
-    return this.ctrlSeq || '';
+  latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+    ctx.latex += this.ctrlSeq || '';
+    this.checkCursorContextClose(ctx);
   }
   text() {
     return this.textTemplate.join('');
@@ -482,8 +499,10 @@ class MathBlock extends MathElement {
     });
     return fragment;
   }
-  latex() {
-    return this.join('latex');
+  latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+    this.eachChild((child) => child.latexRecursive(ctx));
+    this.checkCursorContextClose(ctx);
   }
   text() {
     var endsL = this.getEnd(L);

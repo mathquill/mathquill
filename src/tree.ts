@@ -326,8 +326,27 @@ class NodeBase {
   text(): string {
     return '';
   }
-  latex(): string {
-    return '';
+  latex() {
+    let ctx: LatexContext = { latex: '', startIndex: -1, endIndex: -1 };
+    this.latexRecursive(ctx);
+    return ctx.latex;
+  }
+  latexRecursive(_ctx: LatexContext): void {}
+  checkCursorContextOpen(ctx: LatexContext) {
+    if (ctx.startSelectionBefore === this) {
+      ctx.startIndex = ctx.latex.length;
+    }
+    if (ctx.endSelectionBefore === this) {
+      ctx.endIndex = ctx.latex.length;
+    }
+  }
+  checkCursorContextClose(ctx: LatexContext) {
+    if (ctx.startSelectionAfter === this) {
+      ctx.startIndex = ctx.latex.length;
+    }
+    if (ctx.endSelectionAfter === this) {
+      ctx.endIndex = ctx.latex.length;
+    }
   }
   finalizeTree(_options: CursorOptions, _dir?: Direction) {}
   contactWeld(_cursor: Cursor, _dir?: Direction) {}

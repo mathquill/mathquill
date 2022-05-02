@@ -322,6 +322,264 @@ suite('latex', function () {
         });
       });
     });
+
+    suite('.selection()', function () {
+      function assertSelection(str, expected, commands) {
+        mq.latex(str);
+        commands.split(' ').forEach((cmd) => {
+          if (!cmd) return;
+          switch (cmd) {
+            case 'Blur':
+              mq.blur();
+              break;
+            case 'Start':
+              mq.keystroke('Ctrl-Home');
+              break;
+            default:
+              mq.keystroke(cmd);
+          }
+        });
+
+        var expectedLatex = expected.replace(/[|]/g, '');
+        var expectedStart = expected.indexOf('|');
+        var expectedEnd = expected.lastIndexOf('|');
+        if (expectedStart !== expectedEnd) {
+          expectedEnd -= 1; // ignore the first | character insertted into our expectation of a selection
+        }
+
+        var sel = mq.selection();
+        var actualFormattedParts = sel.latex.split('');
+        if (sel.startIndex !== -1) {
+          if (sel.endIndex > sel.startIndex) {
+            actualFormattedParts.splice(sel.endIndex, 0, '|');
+          }
+          actualFormattedParts.splice(sel.startIndex, 0, '|');
+        }
+        var actualFormattedLatex = actualFormattedParts.join('');
+        //if (expected !== actualFormattedLatex) debugger;
+        assert.equal(expected, actualFormattedLatex, 'formatted latex');
+        assert.equal(sel.latex, expectedLatex, 'actual latex');
+
+        // if (sel.startIndex !== expectedStart) debugger;
+        assert.equal(sel.startIndex, expectedStart, 'start position');
+        assert.equal(sel.endIndex, expectedEnd, 'end position');
+      }
+
+      function executeCases(cases, startKeys, repeatKey) {
+        for (var latex in cases) {
+          var keys = startKeys.slice();
+          cases[latex].forEach((_case) => {
+            assertSelection(latex, _case, keys.join(' '));
+            keys.push(repeatKey);
+          });
+        }
+      }
+
+      test('not focused still returns default cursor position', function () {
+        assertSelection('', '|', 'Blur');
+        assertSelection(' ', '|', 'Blur');
+        assertSelection('{}', '|', 'Blur');
+        assertSelection('   {}{} {{{}}  }', '|', 'Blur');
+        assertSelection('y=2', 'y=2|', 'Blur');
+        assertSelection(
+          '\\frac{d}{dx}\\sqrt{x}=',
+          '\\frac{d}{dx}\\sqrt{x}=|',
+          'Blur'
+        );
+      });
+
+      test('move cursor left from end', function () {
+        var cases = {
+          '': ['|', '|'],
+          '   {}{} {{{}}  }': ['|', '|'],
+          'y=2': ['y=2|', 'y=|2', 'y|=2', '|y=2', '|y=2'],
+          '\\frac{d}{dx}\\sqrt{x}=': [
+            '\\frac{d}{dx}\\sqrt{x}=|',
+            '\\frac{d}{dx}\\sqrt{x}|=',
+            '\\frac{d}{dx}\\sqrt{x|}=',
+            '\\frac{d}{dx}\\sqrt{|x}=',
+            '\\frac{d}{dx}|\\sqrt{x}=',
+            '\\frac{d}{dx|}\\sqrt{x}=',
+            '\\frac{d}{d|x}\\sqrt{x}=',
+            '\\frac{d}{|dx}\\sqrt{x}=',
+            '\\frac{d|}{dx}\\sqrt{x}=',
+            '\\frac{|d}{dx}\\sqrt{x}=',
+            '|\\frac{d}{dx}\\sqrt{x}=',
+            '|\\frac{d}{dx}\\sqrt{x}=',
+          ],
+        };
+
+        executeCases(cases, [], 'Left');
+      });
+
+      test('move cursor right from start', function () {
+        var cases = {
+          '': ['|', '|'],
+          '   {}{} {{{}}  }': ['|', '|'],
+          'y=2': ['|y=2', 'y|=2', 'y=|2', 'y=2|', 'y=2|'],
+          '\\frac{d}{dx}\\sqrt{x}=': [
+            '|\\frac{d}{dx}\\sqrt{x}=',
+            '\\frac{|d}{dx}\\sqrt{x}=',
+            '\\frac{d|}{dx}\\sqrt{x}=',
+            '\\frac{d}{|dx}\\sqrt{x}=',
+            '\\frac{d}{d|x}\\sqrt{x}=',
+            '\\frac{d}{dx|}\\sqrt{x}=',
+            '\\frac{d}{dx}|\\sqrt{x}=',
+            '\\frac{d}{dx}\\sqrt{|x}=',
+            '\\frac{d}{dx}\\sqrt{x|}=',
+            '\\frac{d}{dx}\\sqrt{x}|=',
+            '\\frac{d}{dx}\\sqrt{x}=|',
+            '\\frac{d}{dx}\\sqrt{x}=|',
+          ],
+        };
+
+        executeCases(cases, ['Start'], 'Right');
+      });
+
+      test('shift select leftward', function () {
+        var cases = {
+          '': ['|', '|'],
+          '   {}{} {{{}}  }': ['|', '|'],
+          'y=2': ['y=2|', 'y=|2|', 'y|=2|', '|y=2|', '|y=2|'],
+          '\\frac{d}{dx}\\sqrt{x}=': [
+            '\\frac{d}{dx}\\sqrt{x}=|',
+            '\\frac{d}{dx}\\sqrt{x}|=|',
+            '\\frac{d}{dx}|\\sqrt{x}=|',
+            '|\\frac{d}{dx}\\sqrt{x}=|',
+            '|\\frac{d}{dx}\\sqrt{x}=|',
+          ],
+        };
+
+        executeCases(cases, [], 'Shift-Left');
+      });
+
+      test('shift select rightward', function () {
+        var cases = {
+          '': ['|', '|'],
+          '   {}{} {{{}}  }': ['|', '|'],
+          'y=2': ['|y=2', '|y|=2', '|y=|2', '|y=2|', '|y=2|'],
+          '\\frac{d}{dx}\\sqrt{x}=': [
+            '|\\frac{d}{dx}\\sqrt{x}=',
+            '|\\frac{d}{dx}|\\sqrt{x}=',
+            '|\\frac{d}{dx}\\sqrt{x}|=',
+            '|\\frac{d}{dx}\\sqrt{x}=|',
+            '|\\frac{d}{dx}\\sqrt{x}=|',
+          ],
+        };
+
+        executeCases(cases, ['Start'], 'Shift-Right');
+      });
+
+      test('still cleans the latex', function () {
+        var leftCases = {
+          '\\sin\\cos': [
+            '\\sin\\cos|',
+            '\\sin\\co|s',
+            '\\sin\\c|os',
+            '\\sin|\\cos',
+            '\\si|n\\cos',
+            '\\s|in\\cos',
+            '|\\sin\\cos',
+          ],
+          '\\sin\\left(\\right)': [
+            '\\sin\\left(\\right)|',
+            '\\sin\\left(|\\right)',
+            '\\sin|\\left(\\right)',
+            '\\si|n\\left(\\right)',
+            '\\s|in\\left(\\right)',
+            '|\\sin\\left(\\right)',
+          ],
+          '\\sum _{n=0}^{100}': [
+            '\\sum_{n=0}^{100}|',
+            '\\sum_{n=0}^{100|}',
+            '\\sum_{n=0}^{10|0}',
+            '\\sum_{n=0}^{1|00}',
+            '\\sum_{n=0}^{|100}',
+            '\\sum_{n=0|}^{100}',
+            '\\sum_{n=|0}^{100}',
+            '\\sum_{n|=0}^{100}',
+            '\\sum_{|n=0}^{100}',
+            '|\\sum_{n=0}^{100}',
+          ],
+        };
+
+        var leftShiftCases = {
+          '\\sin\\left(\\right)': [
+            '\\sin\\left(\\right)|',
+            '\\sin|\\left(\\right)|',
+            '\\si|n\\left(\\right)|',
+            '\\s|in\\left(\\right)|',
+            '|\\sin\\left(\\right)|',
+          ],
+          '\\sum _{n=0}^{100}': ['\\sum_{n=0}^{100}|', '|\\sum_{n=0}^{100}|'],
+        };
+
+        var rightShiftCases = {
+          '\\sin\\left(\\right)': [
+            '|\\sin\\left(\\right)',
+            '|\\s|in\\left(\\right)',
+            '|\\si|n\\left(\\right)',
+            '|\\sin|\\left(\\right)',
+            '|\\sin\\left(\\right)|',
+          ],
+        };
+
+        var twoShiftLeftCases = {
+          '\\sin\\cos': [
+            '\\sin\\c|os',
+            '\\sin|\\c|os',
+            '\\si|n\\c|os',
+            '\\s|in\\c|os',
+            '|\\sin\\c|os',
+          ],
+          '\\sin\\cos+': [
+            '\\sin\\co|s+',
+            '\\sin\\c|o|s+',
+            '\\sin|\\co|s+',
+            '\\si|n\\co|s+',
+            '\\s|in\\co|s+',
+            '|\\sin\\co|s+',
+          ],
+          '\\sin\\cos+\\sin\\cos': [
+            '\\sin\\cos+\\sin\\c|os',
+            '\\sin\\cos+\\sin|\\c|os',
+            '\\sin\\cos+\\si|n\\c|os',
+            '\\sin\\cos+\\s|in\\c|os',
+            '\\sin\\cos+|\\sin\\c|os',
+            '\\sin\\cos|+\\sin\\c|os',
+            '\\sin\\co|s+\\sin\\c|os',
+          ],
+        };
+
+        var fourShiftLeftCases = {
+          '\\sin\\cos': ['\\si|n\\cos', '\\s|i|n\\cos', '|\\si|n\\cos'],
+          '\\sin\\cos+': [
+            '\\sin|\\cos+',
+            '\\si|n|\\cos+',
+            '\\s|in|\\cos+',
+            '|\\sin|\\cos+',
+          ],
+          '\\sin\\cos+\\sin\\cos': [
+            '\\sin\\cos+\\si|n\\cos',
+            '\\sin\\cos+\\s|i|n\\cos',
+            '\\sin\\cos+|\\si|n\\cos',
+            '\\sin\\cos|+\\si|n\\cos',
+            '\\sin\\co|s+\\si|n\\cos',
+            '\\sin\\c|os+\\si|n\\cos',
+            '\\sin|\\cos+\\si|n\\cos',
+            '\\si|n\\cos+\\si|n\\cos',
+            '\\s|in\\cos+\\si|n\\cos',
+            '|\\sin\\cos+\\si|n\\cos',
+          ],
+        };
+
+        executeCases(leftCases, [], 'Left');
+        executeCases(leftShiftCases, [], 'Shift-Left');
+        executeCases(rightShiftCases, ['Start'], 'Shift-Right');
+        executeCases(twoShiftLeftCases, ['Left Left'], 'Shift-Left');
+        executeCases(fourShiftLeftCases, ['Left Left Left Left'], 'Shift-Left');
+      });
+    });
   });
 
   suite('\\MathQuillMathField', function () {

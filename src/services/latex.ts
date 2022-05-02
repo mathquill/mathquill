@@ -116,6 +116,67 @@ class Controller_latex extends Controller_keystroke {
 
     return this;
   }
+  exportLatexSelection() {
+    var ctx: LatexContext = {
+      latex: '',
+      startIndex: -1,
+      endIndex: -1,
+    };
+
+    var selection = this.cursor.selection;
+    if (selection) {
+      ctx.startSelectionBefore = selection.getEnd(L);
+      ctx.endSelectionAfter = selection.getEnd(R);
+    } else {
+      var cursorL = this.cursor[L];
+      if (cursorL) {
+        ctx.startSelectionAfter = cursorL;
+      } else {
+        ctx.startSelectionBefore = this.cursor.parent;
+      }
+
+      var cursorR = this.cursor[R];
+      if (cursorR) {
+        ctx.endSelectionBefore = cursorR;
+      } else {
+        ctx.endSelectionAfter = this.cursor.parent;
+      }
+    }
+
+    this.root.latexRecursive(ctx);
+
+    // need to clean the latex
+    var originalLatex = ctx.latex;
+    var cleanLatex = this.cleanLatex(originalLatex);
+    var startIndex = ctx.startIndex;
+    var endIndex = ctx.endIndex;
+
+    // assumes that the cleaning process will only remove characters. We
+    // run through the originalLatex and cleanLatex to find differences.
+    // when we find differences we see how many characters are dropped until
+    // we sync back up. While detecting missing characters we decrement the
+    // startIndex and endIndex if appropriate.
+    var j = 0;
+    for (var i = 0; i < ctx.endIndex; i++) {
+      if (originalLatex[i] !== cleanLatex[j]) {
+        if (i < ctx.startIndex) {
+          startIndex -= 1;
+        }
+        endIndex -= 1;
+
+        // do not increment j. We wan to keep looking at this same
+        // cleanLatex character until we find it in the originalLatex
+      } else {
+        j += 1; //move to next cleanLatex character
+      }
+    }
+
+    return {
+      latex: cleanLatex,
+      startIndex: startIndex,
+      endIndex: endIndex,
+    };
+  }
 
   classifyLatexForEfficientUpdate(latex: unknown) {
     if (typeof latex !== 'string') return;
