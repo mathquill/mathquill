@@ -1015,8 +1015,12 @@ class Token extends MQSymbol {
     return out;
   }
 
-  latex() {
-    return '\\token{' + this.tokenId + '}';
+  latexRecursive(ctx: LatexContext): void {
+    this.checkCursorContextOpen(ctx);
+
+    ctx.latex += '\\token{' + this.tokenId + '}';
+
+    this.checkCursorContextClose(ctx);
   }
 
   parser() {
