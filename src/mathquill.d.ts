@@ -128,6 +128,7 @@ declare namespace MathQuill {
       autoParenthesizedFunctions?: string;
       quietEmptyDelimiters?: string;
       disableAutoSubstitutionInSubscripts?: boolean;
+      interpretTildeAsSim?: boolean;
       handlers?: HandlerOptions<BaseMathQuill<$>>;
     }
 
