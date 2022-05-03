@@ -1479,18 +1479,23 @@ suite('typing with auto-replaces', function () {
     });
 
     test('typing and backspacing ~', function () {
+      // Set interprettildeAsSim to false. Tilde characters entered
+      // via Latex should change, but those always input from the keyboard should continue to become \sim or \approx regardless.
+      mq.config({ interpretTildeAsSim: false });
       mq.typedText('~');
       assertLatex('\\sim');
       assertMathspeak('tilde');
       mq.typedText('~');
       assertLatex('\\approx');
       assertMathspeak('approximately equal');
+      mq.config({ interpretTildeAsSim: true });
       mq.typedText('~');
       assertLatex('\\approx\\sim');
       assertMathspeak('approximately equal tilde');
       mq.typedText('~');
       assertLatex('\\approx\\approx');
       assertMathspeak('approximately equal approximately equal');
+      mq.config({ interpretTildeAsSim: false });
       mq.keystroke('Backspace');
       assertLatex('\\approx\\sim');
       assertMathspeak('approximately equal tilde');
@@ -1508,7 +1513,19 @@ suite('typing with auto-replaces', function () {
       mq.typedText('~b');
       assertLatex('a\\approx b');
       assertMathspeak('"a" approximately equal "b"');
+
+      // Now test that tilde is properly transformed when pasting in LaTeX.
+      mq.latex('');
+      mq.latex('a~b');
+      assertLatex('a~b');
+      assertMathspeak('"a" "b"');
+      mq.latex('');
+      mq.config({ interpretTildeAsSim: true });
+      mq.latex('a~b');
+      assertLatex('a\\sim b');
+      assertMathspeak('"a" tilde "b"');
     });
+
     test('typing ≈ char directly', function () {
       mq.typedText('≈');
       assertLatex('\\approx');

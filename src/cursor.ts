@@ -25,6 +25,7 @@ class Cursor extends Point {
   controller: Controller;
   parent: MQNode;
   options: CursorOptions;
+
   /** Slightly more than just a "cache", this remembers the cursor's position in each block node, so that we can return to the right
    * point in that node when moving up and down among blocks.
    */

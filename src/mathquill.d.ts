@@ -47,6 +47,11 @@ declare namespace MathQuill {
       html: () => string;
       mathspeak: () => string;
       text(): string;
+      selection(): {
+        latex: string;
+        startIndex: number;
+        endIndex: number;
+      };
 
       select: () => EditableMathQuill;
       moveToRightEnd: () => EditableMathQuill;
@@ -128,6 +133,7 @@ declare namespace MathQuill {
       autoParenthesizedFunctions?: string;
       quietEmptyDelimiters?: string;
       disableAutoSubstitutionInSubscripts?: boolean;
+      interpretTildeAsSim?: boolean;
       handlers?: HandlerOptions<BaseMathQuill<$>>;
     }
 

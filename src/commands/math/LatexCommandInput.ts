@@ -92,8 +92,14 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       this._replacedFragment.domFrag().insertBefore(frag.children().first());
     }
   }
-  latex() {
-    return '\\' + this.getEnd(L).latex() + ' ';
+  latexRecursive(ctx: LatexContext) {
+    this.checkCursorContextOpen(ctx);
+
+    ctx.latex += '\\';
+    this.getEnd(L).latexRecursive(ctx);
+    ctx.latex += ' ';
+
+    this.checkCursorContextClose(ctx);
   }
   renderCommand(cursor: Cursor) {
     this.setDOM(this.domFrag().children().lastElement());
