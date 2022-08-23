@@ -33,7 +33,10 @@
 #
 # then translated from 1.0 to 2.0 with: https://circleci.com/docs/2.0/config-translation/
 
-version: 2
+version: 2.1
+# browser-tools orb that provides installers for various browsers: https://circleci.com/developer/orbs/orb/circleci/browser-tools
+orbs:
+  browser-tools: circleci/browser-tools@1.4.0
 jobs:
   build:
     working_directory: ~/mathquill/mathquill
@@ -44,18 +47,12 @@ jobs:
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-    # In CircleCI 1.0 we used a pre-configured image with a large number of languages and other packages.
-    # In CircleCI 2.0 you can now specify your own image, or use one of our pre-configured images.
-    # The following configuration line tells CircleCI to use the specified docker image as the runtime environment for you job.
-    # We have selected a pre-built image that mirrors the build environment we use on
-    # the 1.0 platform, but we recommend you choose an image more tailored to the needs
-    # of each job. For more information on choosing an image (or alternatively using a
-    # VM instead of a container) see https://circleci.com/docs/2.0/executor-types/
-    # To see the list of pre-built images that CircleCI provides for most common languages see
-    # https://circleci.com/docs/2.0/circleci-images/
+    # Docker image with browser testing tools: https://discuss.circleci.com/t/legacy-convenience-image-deprecation/41034#browser-testing-4
     docker:
     - image: circleci/node:lts-browsers
     steps:
+    # install browsers: https://circleci.com/developer/orbs/orb/circleci/browser-tools
+    - browser-tools/install-browser-tools
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
