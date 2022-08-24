@@ -87,8 +87,8 @@ jobs:
           if [ -x sc-*-linux/bin/sc ]; then
             echo Using cached sc-*-linux/bin/sc
           else
-            time wget https://saucelabs.com/downloads/sc-4.7.1-linux.tar.gz
-            time tar -xzf sc-4.7.1-linux.tar.gz
+            time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
+            time tar -xzf sc-4.8.1-linux.tar.gz
           fi
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
@@ -97,8 +97,8 @@ jobs:
 
           echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
           rm -rf *
-          time wget https://saucelabs.com/downloads/sc-4.7.1-linux.tar.gz
-          time tar -xzf sc-4.7.1-linux.tar.gz
+          time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
+          time tar -xzf sc-4.8.1-linux.tar.gz
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
             --readyfile ~/sauce_is_ready
@@ -154,7 +154,7 @@ jobs:
     - run:
         command: |-
           # Screenshots: capture in the background while running unit tests
-          mkdir -p $CIRCLE_TEST_REPORTS/mocha
+          mkdir -p $CIRCLE_TEST_REPORTS/mocha $CIRCLE_TEST_REPORTS/junit
 
           # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
           #   https://circleci.com/docs/test-metadata/#a-namemochajsamocha-for-nodejs
