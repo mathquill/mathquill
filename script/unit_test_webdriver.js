@@ -2,7 +2,7 @@
 //   1. You've installed wd with `npm install wd'.
 //   2. You've set the environment variables $SAUCE_USERNAME and $SAUCE_ACCESS_KEY.
 //   3. If the environment variable $CIRCLE_TEST_REPORTS is not set images will be saved in /tmp
-//   4. The argument is a URL of test/unit.html, which defines a get_xunit() async function that this script will call via Selenium WebDriver.
+//   4. The argument is a URL of test/unit.html?xunit=true
 //
 // The intention of this script is that it will be ran from CircleCI
 //
@@ -33,8 +33,8 @@ browserDriver.init({
 })
 .get(url)
 .then(willLog('get', url))
-.safeExecuteAsync('get_xunit(arguments[0])')
-.then(willLog('get_xunit()'))
+.safeExecuteAsync('window.xunitCallback = arguments[0];')
+.then(willLog('waited for xunitCallback()'))
 .then(function(resultsXML) {
   var lines = resultsXML.split('\n');
   console.log('Got results XML (' + lines.length + ' lines):\n' + lines.slice(0, 10).join('\n') + '\n...');

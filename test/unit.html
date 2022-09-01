@@ -10,11 +10,6 @@
     window.onerror = function() {
       document.documentElement.style.background = 'red';
     };
-
-    var xunitCallback;
-    function get_xunit(cb) {
-      xunitCallback = cb;
-    }
     </script>
 
     <!-- better living through jQuery -->
@@ -66,7 +61,7 @@
 
       runner.on('end', function() {
         setTimeout(function() {
-          if (xunitCallback) xunitCallback(xunit);
+          if (window.xunitCallback) xunitCallback(xunit);
         });
       });
     </script>
