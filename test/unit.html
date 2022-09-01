@@ -10,6 +10,11 @@
     window.onerror = function() {
       document.documentElement.style.background = 'red';
     };
+
+    var xunitCallback;
+    function get_xunit(cb) {
+      xunitCallback = cb;
+    }
     </script>
 
     <!-- better living through jQuery -->
@@ -33,11 +38,6 @@
 
       var xunit = '';
       Mocha.process.stdout.write = function(line) { xunit += line; };
-
-      var xunitCallback;
-      function get_xunit(cb) {
-        xunitCallback = cb;
-      }
     </script>
 
     <!-- include the library with the tests inlined -->
