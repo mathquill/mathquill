@@ -49,7 +49,7 @@ jobs:
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
     # Docker image with browser testing tools: https://discuss.circleci.com/t/legacy-convenience-image-deprecation/41034#browser-testing-4
     docker:
-    - image: circleci/node:lts-browsers
+    - image: cimg/node:lts-browsers
     steps:
     # install browsers: https://circleci.com/developer/orbs/orb/circleci/browser-tools
     - browser-tools/install-browser-tools
