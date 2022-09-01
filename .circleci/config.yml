@@ -135,7 +135,7 @@ jobs:
     - run: |-
         # Generate link to Many-Worlds build and add to GitHub Commit Status
         curl -i -X POST https://api.github.com/repos/mathquill/mathquill/statuses/$CIRCLE_SHA1 \
-             -u MathQuillBot:$GITHUB_STATUS_API_KEY \
+             -u laughinghan:$GITHUB_STATUS_ACCESS_TOKEN \
              -d '{
                    "context": "ci/many-worlds",
                    "state": "success",
