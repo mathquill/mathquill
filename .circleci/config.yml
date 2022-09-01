@@ -126,6 +126,7 @@ jobs:
     - run: export PATH="~/mathquill/mathquill/node_modules/.bin:$PATH"
     - run: npm install
     - run: npm install wd
+    - run: sudo apt-get install -y imagemagick
     # Save dependency cache
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
@@ -143,6 +144,8 @@ jobs:
         # These cache paths were specified in the 1.0 config
         - ~/sauce-connect
         - ./node_modules
+        # Based on: https://xyxyx.org/posts/2019-04-09-saving-the-debian-package-cache-on-circleci.html
+        - /var/cache/apt/archives
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
@@ -180,10 +183,6 @@ jobs:
         node script/unit_test_webdriver.js http://localhost:8000/test/unit.html?xunit=true
     - run: |-
         # Stitch together screenshots and diff against master
-
-        echo '-1. Install ImageMagick'
-        time sudo apt-get install -y imagemagick
-
         echo '0. Wait for screenshots to be ready'
         time while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
         test -z "$(<~/screenshots_are_ready)" || exit 1
