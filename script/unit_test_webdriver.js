@@ -33,8 +33,8 @@ browserDriver.init({
 })
 .get(url)
 .then(willLog('get', url))
-.setAsyncScriptTimeout(Infinity)
-.then(willLog('setAsyncScriptTimeout(Infinity)'))
+.setAsyncScriptTimeout(2**31 - 1)
+.then(willLog('setAsyncScriptTimeout(2**31 - 1)'))
 .safeExecuteAsync('window.xunitCallback = arguments[0];')
 .then(willLog('waited for xunitCallback()'))
 .then(function(resultsXML) {
