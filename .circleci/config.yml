@@ -154,45 +154,21 @@ jobs:
     - run:
         command: |-
           # Screenshots: capture in the background while running unit tests
-          mkdir -p $CIRCLE_TEST_REPORTS/mocha $CIRCLE_TEST_REPORTS/junit
 
-          # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
-          #   https://circleci.com/docs/test-metadata/#a-namemochajsamocha-for-nodejs
-          # Our unit tests are in a browser, so they can't write to a file, and Sauce
-          # apparently truncates custom data in their test result reports, so instead we
-          # POST to this trivial Node server on localhost:9000 that writes the body of
-          # any POST request to $CIRCLE_TEST_REPORTS/junit/test-results.xml
-          node -e '
-            require("http").createServer(function(req, res) {
-              res.setHeader("Access-Control-Allow-Origin", "*");
-              req.pipe(process.stdout);
-              req.on("end", res.end.bind(res));
-            })
-            .listen(9000);
-            console.error("listening on http://0.0.0.0:9000/");
-          ' 2>&1 >$CIRCLE_TEST_REPORTS/junit/test-results.xml | {
-            # ^ note: `2>&1` must precede `>$CIRCLE_TEST_REPORTS/...` because
-            # shell redirect is like assignment; if it came after, then both
-            # stdout and stderr would be written to `xunit.xml` and nothing
-            # would be  piped into here
+          # https://circleci.com/docs/environment-variables/
+          build_name="CircleCI build #$CIRCLE_BUILD_NUM"
+          if [ $CIRCLE_PR_NUMBER ]; then
+            build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
+            [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
+          else
+            build_name="$build_name: $CIRCLE_BRANCH"
+          fi
+          build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+          export MQ_CI_BUILD_NAME="$build_name"
 
-            head -1 # wait for "listening on ..." to be logged
-
-            # https://circleci.com/docs/environment-variables/
-            build_name="CircleCI build #$CIRCLE_BUILD_NUM"
-            if [ $CIRCLE_PR_NUMBER ]; then
-              build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
-              [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
-            else
-              build_name="$build_name: $CIRCLE_BRANCH"
-            fi
-            build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
-            export MQ_CI_BUILD_NAME="$build_name"
-
-            time { test -d node_modules/wd || npm install wd; }
-            time node script/screenshots.js http://localhost:8000/test/visual.html \
-              && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
-          }
+          time { test -d node_modules/wd || npm install wd; }
+          time node script/screenshots.js http://localhost:8000/test/visual.html \
+            && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
         background: true
     - run: |-
         # Unit tests in the browser
