@@ -37,8 +37,8 @@ browserDriver.init({
   var lines = resultsXML.split('\n');
   console.log('Got results XML (' + lines.length + ' lines):\n' + lines.slice(0, 10).join('\n') + '\n...');
 
-  fs.writeFileSync(baseDir + '/junit/test-results.xml', resultsXML);
-  console.log('Wrote to ' + baseDir + '/junit/test-results.xml');
+  fs.writeFileSync(baseDir + '/test-results.xml', resultsXML);
+  console.log('Wrote to ' + baseDir + '/test-results.xml');
 
   // TODO: exit status based on whether tests passed
 })
