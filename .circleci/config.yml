@@ -194,7 +194,8 @@ jobs:
               && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
           }
         background: true
-    - run: |-
+    - run:
+       command: |-
         # Unit tests in the browser
 
         echo '1. Launch tests'
@@ -247,6 +248,7 @@ jobs:
 
         echo '3. Exit with non-zero status code if any unit tests failed'
         exit "$(jq '.["js tests"][0].result.failures' <status.json)"
+       background: true
     - run: |-
         # Stitch together screenshots and diff against master
 
