@@ -44,7 +44,7 @@ browserDriver.init({
 
   const [_, failures, errors] = lines[0].match(/ failures="(\d+)" errors="(\d+)"/)
   console.log(failures + ' failures, ' + errors + ' errors');
-  success = (failures + errors === 0);
+  success = (parseInt(failures) + parseInt(errors) === 0);
 })
 .fail(function(err) {
   console.log('ERROR:', JSON.stringify(err, null, 2));
