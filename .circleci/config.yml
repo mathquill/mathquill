@@ -96,7 +96,8 @@ jobs:
           test -e ~/sauce_was_ready && exit
 
           echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
-          rm -rf *
+          cat ~/sauce_is_ready
+          rm -rf * ~/sauce_is_ready
           time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
           time tar -xzf sc-4.8.1-linux.tar.gz
 
