@@ -21,6 +21,8 @@ if (!baseDir) {
   process.exit(1);
 }
 
+var success = true
+
 var browserDriver = wd.promiseChainRemote('ondemand.saucelabs.com', 80, username, accessKey);
 browserDriver.init({
   browserName: 'Chrome',
@@ -40,12 +42,21 @@ browserDriver.init({
   fs.writeFileSync(baseDir + '/test-results.xml', resultsXML);
   console.log('Wrote to ' + baseDir + '/test-results.xml');
 
-  // TODO: exit status based on whether tests passed
+  const [_, failures, errors] = lines[0].match(/ failures="(\d+)" errors="(\d+)"/)
+  console.log(failures + ' failures, ' + errors + ' errors');
+  success = (failures + errors === 0);
 })
 .fail(function(err) {
   console.log('ERROR:', JSON.stringify(err, null, 2));
+  success = false;
 })
-.quit();
+.then(function() {
+  return browserDriver.sauceJobStatus(success);
+})
+.quit()
+.then(function() {
+  process.exit(success ? 0 : 1);
+});
 
 function willLog() {
   var msg = [].join.call(arguments, ' ');
