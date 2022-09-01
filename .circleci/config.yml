@@ -253,15 +253,15 @@ jobs:
         # Stitch together screenshots and diff against master
 
         echo '-1. Install ImageMagick'
-        sudo apt-get install -y imagemagick
+        time sudo apt-get install -y imagemagick
 
         echo '0. Wait for screenshots to be ready'
-        while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
+        time while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
         test -z "$(<~/screenshots_are_ready)" || exit 1
 
         echo '1. Stitch together pieces'
-        for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
-          convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
+        time for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
+          time convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
         done
 
         echo '2. Download the latest screenshots from master'
