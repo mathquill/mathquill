@@ -194,12 +194,8 @@ jobs:
               && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
           }
         background: true
-    - run:
-       command: |-
+    - run: |-
         # Unit tests in the browser
-
-        echo '1. Launch tests'
-        echo
 
         # https://circleci.com/docs/environment-variables/
         build_name="CircleCI build #$CIRCLE_BUILD_NUM"
@@ -210,45 +206,10 @@ jobs:
           build_name="$build_name: $CIRCLE_BRANCH"
         fi
         build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+        export MQ_CI_BUILD_NAME="$build_name"
 
-        # "build" and "customData" parameters from:
-        #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
-        set -o pipefail
-        curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
-             -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-             -H 'Content-Type: application/json' \
-             -d '{
-                   "name": "Unit tests, Mocha",
-                   "build": "'"$build_name"'",
-                   "customData": {"build_url": "'"$CIRCLE_BUILD_URL"'"},
-                   "framework": "mocha",
-                   "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
-                   "platforms": [["", "Chrome", ""]]
-                 }' \
-        | tee /dev/stderr | tail -1 > js-tests.json
-
-        echo '2. Wait for tests to finish:'
-        echo
-        #   > Make the request multiple times as the tests run until the response
-        #   > contains `completed: true` to the get the final results.
-        # https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
-        while true  # Bash has no do...while >:(
-        do
-          sleep 5
-          curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
-               -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-               -H 'Content-Type: application/json' \
-               -d @js-tests.json \
-          | tee /dev/stderr | tail -1 > status.json
-
-          # deliberately do `... != false` rather than `... == true`
-          # because unexpected values should break rather than infinite loop
-          [ "$(jq .completed <status.json)" != false ] && break
-        done
-
-        echo '3. Exit with non-zero status code if any unit tests failed'
-        exit "$(jq '.["js tests"][0].result.failures' <status.json)"
-       background: true
+        time { test -d node_modules/wd || npm install wd; }
+        time node script/unit_test_webdriver.js http://localhost:8000/test/unit.html?xunit=true
     - run: |-
         # Stitch together screenshots and diff against master
 
