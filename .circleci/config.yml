@@ -108,10 +108,23 @@ jobs:
             | tee /dev/stderr > ~/sauce_is_ready
           exit 1
         background: true
+    - run: |-
+        # Format build name $MQ_CI_BUILD_NAME
+        # https://circleci.com/docs/environment-variables/
+        build_name="CircleCI build #$CIRCLE_BUILD_NUM"
+        if [ $CIRCLE_PR_NUMBER ]; then
+          build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
+          [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
+        else
+          build_name="$build_name: $CIRCLE_BRANCH"
+        fi
+        build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+        export MQ_CI_BUILD_NAME="$build_name"
     # The following line was run implicitly in your 1.0 builds based on what CircleCI inferred about the structure of your project. In 2.0 you need to be explicit about which commands should be run. In some cases you can discard inferred commands if they are not relevant to your project.
     - run: if [ -z "${NODE_ENV:-}" ]; then export NODE_ENV=test; fi
     - run: export PATH="~/mathquill/mathquill/node_modules/.bin:$PATH"
     - run: npm install
+    - run: npm install wd
     # Save dependency cache
     - save_cache:
         key: v1-dep-{{ .Branch }}-{{ epoch }}
@@ -158,38 +171,12 @@ jobs:
     - run:
         command: |-
           # Screenshots: capture in the background while running unit tests
-
-          # https://circleci.com/docs/environment-variables/
-          build_name="CircleCI build #$CIRCLE_BUILD_NUM"
-          if [ $CIRCLE_PR_NUMBER ]; then
-            build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
-            [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
-          else
-            build_name="$build_name: $CIRCLE_BRANCH"
-          fi
-          build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
-          export MQ_CI_BUILD_NAME="$build_name"
-
-          time { test -d node_modules/wd || npm install wd; }
           time node script/screenshots.js http://localhost:8000/test/visual.html \
             && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
         background: true
     - run: |-
         # Unit tests in the browser
-
-        # https://circleci.com/docs/environment-variables/
-        build_name="CircleCI build #$CIRCLE_BUILD_NUM"
-        if [ $CIRCLE_PR_NUMBER ]; then
-          build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
-          [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
-        else
-          build_name="$build_name: $CIRCLE_BRANCH"
-        fi
-        build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
-        export MQ_CI_BUILD_NAME="$build_name"
-
-        time { test -d node_modules/wd || npm install wd; }
-        time node script/unit_test_webdriver.js http://localhost:8000/test/unit.html?xunit=true
+        node script/unit_test_webdriver.js http://localhost:8000/test/unit.html?xunit=true
     - run: |-
         # Stitch together screenshots and diff against master
 
