@@ -252,6 +252,9 @@ jobs:
     - run: |-
         # Stitch together screenshots and diff against master
 
+        echo '-1. Install ImageMagick'
+        sudo apt-get install -y imagemagick
+
         echo '0. Wait for screenshots to be ready'
         while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
         test -z "$(<~/screenshots_are_ready)" || exit 1
