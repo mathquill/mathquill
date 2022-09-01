@@ -149,7 +149,11 @@ jobs:
         command: PORT=8000 make server
         background: true
     # Wait for tunnel to be ready (`make server` is much faster, no need to wait for it)
-    - run: while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; touch ~/sauce_was_ready; test -z "$(<~/sauce_is_ready)"
+    - run: |-
+        while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
+        touch ~/sauce_was_ready
+        cat ~/sauce_is_ready
+        test -z "$(<~/sauce_is_ready)"
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
