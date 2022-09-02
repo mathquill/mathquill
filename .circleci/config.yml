@@ -67,11 +67,11 @@ jobs:
     - restore_cache:
         keys:
         # This branch if available
-        - v2-dep-{{ .Branch }}-
+        - v3-dep-{{ .Branch }}-
         # Default branch if not
-        - v2-dep-master-
+        - v3-dep-master-
         # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v2-dep-
+        - v3-dep-
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
@@ -128,7 +128,7 @@ jobs:
     - run: sudo apt-get install -y imagemagick
     # Save dependency cache
     - save_cache:
-        key: v2-dep-{{ .Branch }}-{{ epoch }}
+        key: v3-dep-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
