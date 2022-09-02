@@ -67,11 +67,11 @@ jobs:
     - restore_cache:
         keys:
         # This branch if available
-        - v1-dep-{{ .Branch }}-
+        - v2-dep-{{ .Branch }}-
         # Default branch if not
-        - v1-dep-master-
+        - v2-dep-master-
         # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v1-dep-
+        - v2-dep-
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
@@ -96,8 +96,7 @@ jobs:
           test -e ~/sauce_was_ready && exit
 
           echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
-          cat ~/sauce_is_ready
-          rm -rf * ~/sauce_is_ready
+          rm -rf *
           time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
           time tar -xzf sc-4.8.1-linux.tar.gz
 
@@ -129,7 +128,7 @@ jobs:
     - run: sudo apt-get install -y imagemagick
     # Save dependency cache
     - save_cache:
-        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        key: v2-dep-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
@@ -170,7 +169,9 @@ jobs:
         while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
         touch ~/sauce_was_ready
         cat ~/sauce_is_ready
-        test -z "$(<~/sauce_is_ready)"
+        # this is how you check if a string starts with another string in Bash
+        # https://stackoverflow.com/a/2172367/362030
+        [[ "$(<~/sauce_is_ready)" != ERROR:* ]]
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
