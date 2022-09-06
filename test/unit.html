@@ -24,11 +24,11 @@
 
     <!-- configure mocha and chai -->
     <script type="text/javascript">
-      var post_xunit_to = new URLSearchParams(location.search).get('post_xunit_to');
+      var outputXunit = new URLSearchParams(location.search).get('xunit');
 
       mocha.setup({
         ui: 'tdd',
-        reporter: post_xunit_to ? 'xunit' : 'html'
+        reporter: outputXunit ? 'xunit' : 'html'
       });
 
       var xunit = '';
@@ -59,31 +59,11 @@
       teardown(function() { $('#mock').empty(); });
       var runner = mocha.run();
 
-      if (post_xunit_to) {
-        // the following is based on https://github.com/saucelabs-sample-scripts/JavaScript/blob/4946c5cf0ab7325dce5562881dba7c28e30989e5/reporting_mocha.js
-        var failedTests = [];
-        runner.on('fail', function(test, err) {
-          function flattenTitles(test) {
-            var titles = [];
-            while (test.parent.title) {
-              titles.push(test.parent.title);
-              test = test.parent;
-            }
-            return titles.reverse();
-          }
-
-          failedTests.push({name: test.title, result: false, message: err.message, stack: err.stack, titles: flattenTitles(test) });
+      runner.on('end', function() {
+        setTimeout(function() {
+          if (window.xunitCallback) xunitCallback(xunit);
         });
-
-        runner.on('end', function() {
-          setTimeout(function() {
-            $.post(post_xunit_to, xunit).complete(function() {
-              window.mochaResults = runner.stats;
-              window.mochaResults.reports = failedTests;
-            });
-          });
-        });
-      }
+      });
     </script>
   </body>
 </html>
