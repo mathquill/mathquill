@@ -372,19 +372,19 @@ var SummationNotation = P(MathCommand, function(_, super_) {
     ;
     Symbol.prototype.init.call(this, ch, htmlTemplate);
   };
-  _.createLeftOf = function(cursor) {
-    super_.createLeftOf.apply(this, arguments);
-    if (cursor.options.sumStartsWithNEquals) {
-      Letter('n').createLeftOf(cursor);
-      Equality().createLeftOf(cursor);
-    }
-  };
   _.latex = function() {
     function simplify(latex) {
       return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
     }
     return this.ctrlSeq + '_' + simplify(this.ends[L].latex()) +
       '^' + simplify(this.ends[R].latex());
+  };
+  _.createLeftOf = function(cursor) {
+    super_.createLeftOf.apply(this, arguments);
+    if (cursor.options.sumStartsWithNEquals) {
+      Letter('n').createLeftOf(cursor);
+      Equality().createLeftOf(cursor);
+    }
   };
   _.parser = function() {
     var string = Parser.string;
@@ -443,6 +443,55 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
   };
   // FIXME: refactor rather than overriding
   _.createLeftOf = MathCommand.p.createLeftOf;
+});
+
+LatexCmds.lim =
+LatexCmds.limit = P(MathCommand, function(_, super_) {
+  _.init = function() {
+    var htmlTemplate =
+      '<span class="mq-limit mq-non-leaf">'
+    +   '<span class="mq-lim">lim</span>'
+    +   '<span class="mq-approaches"><span>&0</span></span>'
+    + '</span>'
+    ;
+    Symbol.prototype.init.call(this, '\\lim ', htmlTemplate);
+  };
+  _.latex = function() {
+    function simplify(latex) {
+      return latex.length === 1 ? latex : '{' + (latex || ' ') + '}';
+    }
+    return this.ctrlSeq + '_' + simplify(this.ends[L].latex());
+  };
+  _.parser = function() {
+    var string = Parser.string;
+    var optWhitespace = Parser.optWhitespace;
+    var succeed = Parser.succeed;
+    var block = latexMathParser.block;
+
+    var self = this, child = MathBlock();
+    self.blocks = [ child ];
+    child.adopt(self, 0, 0);
+
+    return optWhitespace.then(string('_')).then(function(supOrSub) {
+      return block.then(function(block) {
+        block.children().adopt(child, child.ends[R], 0);
+        return succeed(self);
+      });
+    }).many().result(self);
+  };
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L];
+    this.ends[L].upOutOf = function(cursor) {
+      // this is basically gonna be insRightOfMeUnlessAtEnd,
+      // by analogy with insLeftOfMeUnlessAtEnd
+      var cmd = this.parent, ancestorCmd = cursor;
+      do {
+        if (ancestorCmd[L]) return cursor.insRightOf(cmd);
+        ancestorCmd = ancestorCmd.parent.parent;
+      } while (ancestorCmd !== cmd);
+      cursor.insLeftOf(cmd);
+    };
+  };
 });
 
 var Fraction =
