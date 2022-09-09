@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>MathQuill Matrix Test</title>
+
+<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+<script type="text/javascript" src="support/jquery-1.7.2.js"></script>
+<script type="text/javascript" src="../build/mathquill.js"></script>
+</head>
+<body>
+
+<h3>MathQuill Matrix Test</h3>
+<span id="example">
+\begin{Bmatrix}1&amp;2\\x&amp;y\end{Bmatrix}
+</span>
+
+<script>
+MathQuill = MathQuill.getInterface(1);
+instance = MathQuill.MathField(document.getElementById('example'));
+console.log(instance.latex());
+</script>
+
+</body>
+</html>
