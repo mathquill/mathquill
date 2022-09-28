@@ -29,6 +29,7 @@ PJS_SRC = ./node_modules/pjs/src/p.js
 BASE_SOURCES = \
   $(PJS_SRC) \
   $(SRC_DIR)/tree.js \
+  $(SRC_DIR)/htmlEntities.js \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
