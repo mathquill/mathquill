@@ -137,7 +137,9 @@ var saneKeyboardEvents = (function () {
 
     if (!modifiers.length) return key;
 
-    modifiers.push(key);
+    // Don't append the key name if it already exists as a modifier, e.g. Ctrl-Control and Shift-Shift is nonsensical.
+    if (key !== 'Alt' && key !== 'Control' && key !== 'Meta' && key !== 'Shift')
+      modifiers.push(key);
     return modifiers.join('-');
   }
 
@@ -207,7 +209,6 @@ var saneKeyboardEvents = (function () {
     function onKeydown(e: KeyboardEvent) {
       everyTick.trigger(e);
       if (e.target !== textarea) return;
-
       keydown = e;
       keypress = null;
 
@@ -226,7 +227,6 @@ var saneKeyboardEvents = (function () {
     function onKeypress(e: KeyboardEvent) {
       everyTick.trigger(e);
       if (e.target !== textarea) return;
-
       // call the key handler for repeated keypresses.
       // This excludes keypresses that happen directly
       // after keydown.  In that case, there will be
@@ -249,7 +249,6 @@ var saneKeyboardEvents = (function () {
     function onKeyup(e: KeyboardEvent) {
       everyTick.trigger(e);
       if (e.target !== textarea) return;
-
       // Handle case of no keypress event being sent
       if (!!keydown && !keypress) {
         // only check for typed text if this key can type text. Otherwise
@@ -283,9 +282,26 @@ var saneKeyboardEvents = (function () {
       // If anything like #40 or #71 is reported in IE < 9, see
       // b1318e5349160b665003e36d4eedd64101ceacd8
       if (hasSelection()) return;
-
       if (!(textarea instanceof HTMLTextAreaElement)) return;
       var text = textarea.value;
+
+      // In Linux and Chrome or Chrome OS, users may issue the Ctrl-Shift-U command to input a Unicode character.
+      // Unfortunately, when the system is in this state, Chrome sends a keydown of "Ctrl-Shift-Unidentified" in Linux, "Ctrl-Shift-U" on Windows/Mac, or "Ctrl-Shift-Process" in the latest Chrome OS.
+      // Equally vexing is that the keyup correctly comes back as Ctrl-Shift-U.
+      // Furthermore, an input event with the value "u" is still processed in Linux and Chrome OS due to the down/up mismatch.
+      // The end result is that a spurious "u" is sent followed by the intended character.
+      // Due to how this feature works, it's vital to completely ignore Ctrl-Shift-U no matter how the input event appears to Mathquill as clearing the textarea by mistake breaks the expected input flow.
+      if (
+        keydown &&
+        !keydown.altKey &&
+        keydown.ctrlKey &&
+        !keydown.metaKey &&
+        keydown.shiftKey &&
+        (keydown.key === 'U' ||
+          keydown.key === 'Unidentified' ||
+          keydown.key === 'Process')
+      )
+        return;
       if (text.length === 1) {
         textarea.value = '';
         if (controller.options && controller.options.overrideTypedText) {
