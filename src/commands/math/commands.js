@@ -496,6 +496,36 @@ CharCmds['/'] = P(Fraction, function(_, super_) {
   };
 });
 
+LatexCmds.underset = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\underset';
+  _.htmlTemplate =
+      '<span class="mq-underset mq-overunder mq-non-leaf">'
+    +   '<span class="mq-over">&1</span>'
+    +   '<span class="mq-under">&0</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['[', '|', ']'];
+  _.finalizeTree = function() {
+    this.downInto = this.ends[L].upOutOf = this.ends[R];
+    this.upInto = this.ends[R].downOutOf = this.ends[L];
+  };
+});
+
+LatexCmds.overset = P(MathCommand, function(_, super_) {
+  _.ctrlSeq = '\\overset';
+  _.htmlTemplate =
+      '<span class="mq-overset mq-overunder mq-non-leaf">'
+    +   '<span class="mq-over">&0</span>'
+    +   '<span class="mq-under">&1</span>'
+    + '</span>'
+  ;
+  _.textTemplate = ['[', '|', ']'];
+  _.finalizeTree = function() {
+    this.downInto = this.ends[R].upOutOf = this.ends[L];
+    this.upInto = this.ends[L].downOutOf = this.ends[R];
+  };
+});
+
 var SquareRoot =
 LatexCmds.sqrt =
 LatexCmds['√'] = P(MathCommand, function(_, super_) {

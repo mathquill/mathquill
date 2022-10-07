@@ -178,6 +178,11 @@ suite('latex', function() {
     assertParsesLatex('\\square ');
   });
 
+  test('miscellaneous symbols', function() {
+    assertParsesLatex('\\underset{under}{over}');
+    assertParsesLatex('\\underset{\\sim }{over}');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
