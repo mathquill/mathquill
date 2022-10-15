@@ -271,7 +271,7 @@ var MathCommand = P(MathElement, function(_, super_) {
 
     var cmd = this;
     var blocks = cmd.blocks;
-    var cmdId = ' mathquill-command-id=' + cmd.id;
+    var cmdId = ' mathquill-command-id="' + cmd.id + '"';
     var tokens = cmd.htmlTemplate.match(/<[^<>]+>|[^<>]+/g);
 
     pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
@@ -305,7 +305,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       }
     }
     return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
-      return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
+      return ' mathquill-block-id="' + blocks[$1].id + '">' + blocks[$1].join('html');
     });
   };
 

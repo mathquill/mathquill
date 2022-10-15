@@ -416,11 +416,11 @@ var SummationNotation = P(MathCommand, function(_, super_) {
 
 LatexCmds['∑'] =
 LatexCmds.sum =
-LatexCmds.summation = bind(SummationNotation,'\\sum ','&sum;');
+LatexCmds.summation = bind(SummationNotation,'\\sum ','∑');
 
 LatexCmds['∏'] =
 LatexCmds.prod =
-LatexCmds.product = bind(SummationNotation,'\\prod ','&prod;');
+LatexCmds.product = bind(SummationNotation,'\\prod ','∏');
 
 LatexCmds.coprod =
 LatexCmds.coproduct = bind(SummationNotation,'\\coprod ','&#8720;');
@@ -431,7 +431,7 @@ LatexCmds.integral = P(SummationNotation, function(_, super_) {
   _.init = function() {
     var htmlTemplate =
       '<span class="mq-int mq-non-leaf">'
-    +   '<big>&int;</big>'
+    +   '<big>∫</big>'
     +   '<span class="mq-supsub mq-non-leaf">'
     +     '<span class="mq-sup"><span class="mq-sup-inner">&1</span></span>'
     +     '<span class="mq-sub">&0</span>'
@@ -502,7 +502,7 @@ LatexCmds['√'] = P(MathCommand, function(_, super_) {
   _.ctrlSeq = '\\sqrt';
   _.htmlTemplate =
       '<span class="mq-non-leaf">'
-    +   '<span class="mq-scaled mq-sqrt-prefix">&radic;</span>'
+    +   '<span class="mq-scaled mq-sqrt-prefix">√</span>'
     +   '<span class="mq-non-leaf mq-sqrt-stem">&0</span>'
     + '</span>'
   ;
@@ -540,7 +540,7 @@ LatexCmds.nthroot = P(SquareRoot, function(_, super_) {
   _.htmlTemplate =
       '<sup class="mq-nthroot mq-non-leaf">&0</sup>'
     + '<span class="mq-scaled">'
-    +   '<span class="mq-sqrt-prefix mq-scaled">&radic;</span>'
+    +   '<span class="mq-sqrt-prefix mq-scaled">√</span>'
     +   '<span class="mq-sqrt-stem mq-non-leaf">&1</span>'
     + '</span>'
   ;
@@ -562,7 +562,7 @@ var DiacriticAbove = P(MathCommand, function(_, super_) {
     super_.init.call(this, ctrlSeq, htmlTemplate, textTemplate);
   };
 });
-LatexCmds.vec = bind(DiacriticAbove, '\\vec', '&rarr;', ['vec(', ')']);
+LatexCmds.vec = bind(DiacriticAbove, '\\vec', '→', ['vec(', ')']);
 LatexCmds.tilde = bind(DiacriticAbove, '\\tilde', '~', ['tilde(', ')']);
 
 function DelimsMixin(_, super_) {
@@ -737,8 +737,8 @@ var OPP_BRACKS = {
   '}': '{',
   '\\{': '\\}',
   '\\}': '\\{',
-  '&lang;': '&rang;',
-  '&rang;': '&lang;',
+  '〈': '〉;',
+  '〉;': '〈',
   '\\langle ': '\\rangle ',
   '\\rangle ': '\\langle ',
   '|': '|',
@@ -754,8 +754,8 @@ function bindCharBracketPair(open, ctrlSeq) {
 bindCharBracketPair('(');
 bindCharBracketPair('[');
 bindCharBracketPair('{', '\\{');
-LatexCmds.langle = bind(Bracket, L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
-LatexCmds.rangle = bind(Bracket, R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.langle = bind(Bracket, L, '〈', '〉;', '\\langle ', '\\rangle ');
+LatexCmds.rangle = bind(Bracket, R, '〈', '〉;', '\\langle ', '\\rangle ');
 CharCmds['|'] = bind(Bracket, L, '|', '|', '|', '|');
 LatexCmds.lVert = bind(Bracket, L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
 LatexCmds.rVert = bind(Bracket, R, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
@@ -770,13 +770,13 @@ LatexCmds.left = P(MathCommand, function(_) {
     return optWhitespace.then(regex(/^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z]))/))
       .then(function(ctrlSeq) {
         var open = (ctrlSeq.charAt(0) === '\\' ? ctrlSeq.slice(1) : ctrlSeq);
-	if (ctrlSeq=="\\langle") { open = '&lang;'; ctrlSeq = ctrlSeq + ' '; }
+	if (ctrlSeq=="\\langle") { open = '〈'; ctrlSeq = ctrlSeq + ' '; }
 	if (ctrlSeq=="\\lVert") { open = '&#8741;'; ctrlSeq = ctrlSeq + ' '; }
         return latexMathParser.then(function (block) {
           return string('\\right').skip(optWhitespace)
             .then(regex(/^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z]))/)).map(function(end) {
               var close = (end.charAt(0) === '\\' ? end.slice(1) : end);
-	      if (end=="\\rangle") { close = '&rang;'; end = end + ' '; }
+	      if (end=="\\rangle") { close = '〉;'; end = end + ' '; }
 	      if (end=="\\rVert") { close = '&#8741;'; end = end + ' '; }
               var cmd = Bracket(0, open, close, ctrlSeq, end);
               cmd.blocks = [ block ];

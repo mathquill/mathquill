@@ -5,8 +5,8 @@
 
 Controller.open(function(_) {
   Options.p.substituteTextarea = function() {
-    return $('<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-               'spellcheck=false x-palm-disable-ste-all=true />')[0];
+    return $('<textarea autocapitalize="off" autocomplete="off" autocorrect="off" ' +
+               'spellcheck="false" x-palm-disable-ste-all="true" />')[0];
   };
   _.createTextarea = function() {
     var textareaSpan = this.textareaSpan = $('<span class="mq-textarea"></span>'),
