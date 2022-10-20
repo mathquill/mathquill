@@ -96,6 +96,9 @@ function getInterface(v) {
     }
     EMBEDS[name] = options;
   };
+  MQ.addMacro = function (name,latex) {
+    LatexCmds[name] = bind(Macro, name, latex);
+  };
 
   var AbstractMathQuill = APIClasses.AbstractMathQuill = P(Progenote, function(_) {
     _.init = function(ctrlr) {
