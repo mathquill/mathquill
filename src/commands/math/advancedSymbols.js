@@ -219,6 +219,14 @@ LatexCmds.square = bind(VanillaSymbol, '\\square ', '&#11036;');
 
 //variable-sized
 LatexCmds.oint = bind(VanillaSymbol, '\\oint ', '&#8750;');
+LatexCmds.iint = bind(VanillaSymbol, '\\iint ', '&#8748;');
+LatexCmds.iiint = bind(VanillaSymbol, '\\iiint ', '&#8749;');
+LatexCmds.intclockwise = bind(VanillaSymbol, '\\intclockwise ', '&#8753;');
+LatexCmds.intctrclockwise = bind(VanillaSymbol, '\\intctrclockwise ', '&#10769;');
+LatexCmds.varointclockwise = bind(VanillaSymbol, '\\varointclockwise ', '&#8754;');
+LatexCmds.ointctrclockwise = bind(VanillaSymbol, '\\ointctrclockwise ', '&#8755;');
+LatexCmds.oiint = bind(VanillaSymbol, '\\oiint ', '&#8751;');
+LatexCmds.oiiint = bind(VanillaSymbol, '\\oiiint ', '&#8752;');
 LatexCmds.bigcap = bind(VanillaSymbol, '\\bigcap ', '&#8745;');
 LatexCmds.bigcup = bind(VanillaSymbol, '\\bigcup ', '&#8746;');
 LatexCmds.bigsqcup = bind(VanillaSymbol, '\\bigsqcup ', '&#8852;');
