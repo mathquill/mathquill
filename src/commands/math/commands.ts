@@ -995,9 +995,22 @@ const PercentOfBuilder = () =>
   );
 LatexCmds.percent = LatexCmds.percentof = PercentOfBuilder;
 
-// NOTE: we expect a _ to be placed between the \\token and the id.
-// this is purely so that this looks like an identifier in the Desmos
-// parser / evaluator. We eat up the _ token in this node's parser.
+/** A Token represents a region in typeset math that is designed to be
+ * externally styled and which delegates mousedown events to external
+ * handlers.
+ *
+ * LaTeX syntax: `\token{id}`.
+ *
+ * Token is designed for similar use cases as EmbedNode. Differences:
+ *     * Mousedown events on a Token are not handled by MathQuill (they
+ *       are expected to be handled externally).
+ *     * The API for Tokens is simpler: they don't require registering
+ *       handlers with MathQuill.
+ *     * The current syntax for embed (`\embed{name}[id]`) gets the order
+ *       of optional and required arguments backwards compared to normal
+ *       LaTeX syntax. The syntax of Token is simpler and more in line
+ *       with LaTeX
+ */
 class Token extends MQSymbol {
   tokenId = '';
   ctrlSeq = '\\token';

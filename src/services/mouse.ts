@@ -58,7 +58,7 @@ class Controller_mouse extends Controller_latex {
 
     // some elements should not act like internal mathquill nodes. Tokens for instance define external
     // click / hover behaviors. So we have mathquill act like the item was never clicked. This allows
-    // use to click a token without putting focus in the mathquill.
+    // us to click a token without putting focus in the mathquill.
     if (closest(e.target as HTMLElement | null, '.mq-ignore-mousedown')) {
       return;
     }
