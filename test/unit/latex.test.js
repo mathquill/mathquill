@@ -321,6 +321,13 @@ suite('latex', function () {
           assert.equal(mq.latex(), '\\sum_{ }^{5}x^{n}');
         });
       });
+
+      suite('\\token', function () {
+        test('parsing and serializing', function () {
+          mq.latex('\\token{12}');
+          assert.equal(mq.latex(), '\\token{12}');
+        });
+      });
     });
 
     suite('.selection()', function () {
