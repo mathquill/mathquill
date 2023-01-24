@@ -178,6 +178,14 @@ suite('latex', function() {
     assertParsesLatex('\\square ');
   });
 
+  test('compound symbols beginning with \\not', function() {
+    assertParsesLatex('\\not\\ni ');
+    assertParsesLatex('\\not\\subset ');
+    assertParsesLatex('\\not\\supset ');
+    assertParsesLatex('\\not\\subseteq ');
+    assertParsesLatex('\\not\\supseteq ');
+  });
+
   suite('public API', function() {
     var mq;
     setup(function() {
