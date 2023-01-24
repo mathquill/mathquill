@@ -196,6 +196,13 @@ function getInterface(v) {
       this.__controller.cursor.clearSelection();
       return this;
     };
+    _.getSelection = function() {
+      if (this.__controller.cursor.selection) {
+        return this.__controller.cursor.selection.join('latex');
+      } else {
+	return null;
+      }
+    };
 
     _.moveToDirEnd = function(dir) {
       this.__controller.notify('move').cursor.insAtDirEnd(dir, this.__controller.root);
