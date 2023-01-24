@@ -7,7 +7,7 @@ Controller.open(function(_) {
   _.delegateMouseEvents = function() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
-    this.container.bind('mousedown.mathquill', function(e) {
+    this.container.bind('mousedown.mathquill touchstart.mathquill', function(e) {
       var rootjQ = $(e.target).closest('.mq-root-block');
       var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
@@ -23,7 +23,17 @@ Controller.open(function(_) {
       function mousemove(e) { target = $(e.target); }
       function docmousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
-        ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        if (e.type == 'touchmove') {
+          var touch = e.originalEvent.changedTouches[0] || e.originalEvent.touches[0];
+          // for touch, target is the original element, not element under thumb.
+          var touchtarget = $(document.elementFromPoint(touch.clientX, touch.clientY));
+          // this target may not be in original element, so check
+          if (jQuery.contains(rootjQ[0], touchtarget[0])) {
+            ctrlr.seek(touchtarget, touch.pageX, touch.pageY).cursor.select();
+          }
+        } else {
+          ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        }
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
@@ -41,8 +51,8 @@ Controller.open(function(_) {
         }
 
         // delete the mouse handlers now that we're not dragging anymore
-        rootjQ.unbind('mousemove', mousemove);
-        $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+        rootjQ.unbind('mousemove touchmove', mousemove);
+        $(e.target.ownerDocument).unbind('mousemove touchmove', docmousemove).unbind('mouseup touchend', mouseup);
       }
 
       if (ctrlr.blurred) {
@@ -51,10 +61,20 @@ Controller.open(function(_) {
       }
 
       cursor.blink = noop;
-      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      if (e.type == 'touchstart') {
+        var touch = e.originalEvent.changedTouches[0] || e.originalEvent.touches[0];
+        // for touch, target is the original element, not element under thumb.
+        var touchtarget = $(document.elementFromPoint(touch.clientX, touch.clientY));
+        // this target may not be in original element, so check
+        if (jQuery.contains(rootjQ[0], touchtarget[0])) {
+          ctrlr.seek(touchtarget, touch.pageX, touch.pageY).cursor.startSelection();
+        }
+      } else {
+        ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      }
 
-      rootjQ.mousemove(mousemove);
-      $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);
+      rootjQ.bind('mousemove touchmove', mousemove);
+      $(e.target.ownerDocument).bind('mousemove touchmove', docmousemove).bind('mouseup touchend', mouseup);
       // listen on document not just body to not only hear about mousemove and
       // mouseup on page outside field, but even outside page, except iframes: https://github.com/mathquill/mathquill/commit/8c50028afcffcace655d8ae2049f6e02482346c5#commitcomment-6175800
     });
