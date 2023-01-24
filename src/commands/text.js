@@ -95,8 +95,8 @@ var TextBlock = P(Node, function(_, super_) {
   };
   _.write = function(cursor, ch) {
     cursor.show().deleteSelection();
-
-    if (ch !== '$') {
+    console.log('TextBlock', this.parent.controller.options, ch);
+    if (ch !== '$' || !this.parent.controller.options.dollarAsCharCmd) {
       if (!cursor[L]) TextPiece(ch).createLeftOf(cursor);
       else cursor[L].appendText(ch);
     }
