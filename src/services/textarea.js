@@ -51,6 +51,7 @@ Controller.open(function(_) {
     this.container.prepend(jQuery('<span class="mq-selectable">')
       .text('$'+ctrlr.exportLatex()+'$'));
     ctrlr.blurred = true;
+    cursor.hide().parent.blur();
     textarea.bind('cut paste', false)
     .bind('copy', function() { ctrlr.setTextareaSelection(); })
     .focus(function() { ctrlr.blurred = false; }).blur(function() {
