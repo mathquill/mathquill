@@ -171,6 +171,10 @@ suite('latex', function() {
     assertParsesLatex('\\class{name}{8-4}', '\\class{name}{8-4}');
   });
 
+  test('\\mathcal', function() {
+    assertParsesLatex('\\mathcal{A}');
+  });
+  
   test('not real LaTex commands, but valid symbols', function() {
     assertParsesLatex('\\parallelogram ');
     assertParsesLatex('\\circledot ', '\\odot ');
