@@ -444,7 +444,7 @@ class DOMFragment {
   }
 
   /**
-   * Return the first Element node of this fragment, or undefined if
+   * Return the last Element node of this fragment, or undefined if
    * the fragment is empty. Skips Nodes that are not Elements (e.g.
    * Text and Comment nodes).
    */
