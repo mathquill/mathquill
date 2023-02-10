@@ -1044,11 +1044,12 @@ class Token extends MQSymbol {
       .children()
       .eachElement((el) => {
         const label = el.getAttribute('aria-label');
-        if (label) ariaLabelArray.push(label);
+        if (label !== undefined && typeof label === 'string' && label !== '')
+          ariaLabelArray.push(label);
       });
     return ariaLabelArray.length > 0
       ? ariaLabelArray.join(' ').trim()
-      : super.mathspeak();
+      : 'token ' + this.tokenId;
   }
 
   parser() {

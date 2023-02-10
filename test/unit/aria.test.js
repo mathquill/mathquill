@@ -216,4 +216,23 @@ suite('aria', function () {
       staticMath.__controller.mathspeakSpan.textContent
     );
   });
+
+  test('testing aria-label for tokens', function () {
+    var staticMath = MQ.StaticMath(container);
+    staticMath.latex('\\token{123}');
+    assert.equal(
+      'token 123',
+      staticMath.mathspeak().trim(),
+      'default token mathspeak is correct'
+    );
+
+    $('<span aria-label="point 123"></span>').appendTo(
+      $(container).find('.mq-token')[0]
+    );
+    assert.equal(
+      'point 123',
+      staticMath.mathspeak().trim(),
+      "token's child aria-label used for mathspeak"
+    );
+  });
 });
