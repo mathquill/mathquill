@@ -1036,6 +1036,22 @@ class Token extends MQSymbol {
     this.checkCursorContextClose(ctx);
   }
 
+  mathspeak() {
+    // If the caller responsible for creating this token has set an aria-label attribute for the inner children, use them in the mathspeak calculation.
+    let ariaLabelArray: string[] = [];
+
+    this.domFrag()
+      .children()
+      .eachElement((el) => {
+        const label = el.getAttribute('aria-label');
+        if (typeof label === 'string' && label !== '')
+          ariaLabelArray.push(label);
+      });
+    return ariaLabelArray.length > 0
+      ? ariaLabelArray.join(' ').trim()
+      : 'token ' + this.tokenId;
+  }
+
   parser() {
     var self = this;
     return latexMathParser.block.map(function (block) {
