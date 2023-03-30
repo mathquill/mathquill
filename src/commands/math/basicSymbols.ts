@@ -1249,12 +1249,10 @@ class Equality extends BinaryOperator {
 }
 LatexCmds['='] = Equality;
 
-LatexCmds['×'] = LatexCmds.times = bindBinaryOperator(
-  '\\times ',
-  '&times;',
-  '[x]',
-  'times'
-);
+LatexCmds['×'] =
+  LatexCmds.times =
+  LatexCmds.cross =
+    bindBinaryOperator('\\times ', '&times;', '[x]', 'times');
 
 LatexCmds['÷'] =
   LatexCmds.div =
