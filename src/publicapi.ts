@@ -108,6 +108,7 @@ class Options {
   maxDepth?: number;
   disableCopyPaste?: boolean;
   statelessClipboard?: boolean;
+  logAriaAlerts?: boolean;
   onPaste?: () => void;
   onCut?: () => void;
   overrideTypedText?: (text: string) => void;
