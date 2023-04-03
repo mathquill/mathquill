@@ -412,9 +412,9 @@ class SupSub extends MathCommand {
     endsL.write = function (cursor: Cursor, ch: string) {
       if (
         cursor.options.autoSubscriptNumerals &&
-        this === (this.parent as SupSub).sub
+        this === (this.parent as SupSub).sub &&
+        '0123456789'.indexOf(ch) >= 0
       ) {
-        if (ch === '_') return;
         var cmd = this.chToCmd(ch, cursor.options);
         if (cmd instanceof MQSymbol) cursor.deleteSelection();
         else cursor.clearSelection().insRightOf(this.parent);
