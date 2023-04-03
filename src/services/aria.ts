@@ -84,6 +84,9 @@ class Aria {
         .replace(/ +(?= )/g, '')
         .trim();
       if (this.controller.containerHasFocus()) {
+        if (this.controller.options.logAriaAlerts && this.msg) {
+          console.log(this.msg);
+        }
         this.span.textContent = this.msg;
       }
     }
