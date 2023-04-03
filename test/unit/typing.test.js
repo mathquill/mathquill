@@ -1622,7 +1622,7 @@ suite('typing with auto-replaces', function () {
       assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n}+y');
       mq.latex('');
 
-      // Unary operators never break out of exponents.
+      // Unary operators never break out of subscripts.
       assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
       mq.latex('');
       assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
@@ -1656,7 +1656,7 @@ suite('typing with auto-replaces', function () {
       assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n}+y');
       mq.latex('');
 
-      // Unary operators never break out of exponents.
+      // Unary operators never break out of subscript.
       assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
       mq.latex('');
       assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
