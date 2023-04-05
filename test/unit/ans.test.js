@@ -2,8 +2,9 @@ suite('ans command', function () {
   const $ = window.test_only_jquery;
   var mq;
   setup(function () {
-    MQ.config({ autoCommands: 'ans' });
-    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
+    mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
+      autoCommands: 'ans',
+    });
   });
   teardown(function () {
     $(mq.el()).remove();

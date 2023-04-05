@@ -82,28 +82,7 @@ suite('backspace', function () {
     assertLatex('1+1');
   });
 
-  test('backspace through compound subscript with autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: true,
-    });
-    mq.latex('x_{2_2}');
-
-    //first backspace goes into the subscript
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x_{2}');
-
-    //second one goes into the subscripts' subscript
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x_{ }');
-
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x');
-  });
-
-  test('backspace through compound subscript without autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: false,
-    });
+  test('backspace through compound subscript', function () {
     mq.latex('x_{2_2}');
 
     //first backspace goes into the subscript
@@ -127,28 +106,7 @@ suite('backspace', function () {
     assert.equal(mq.latex(), 'x');
   });
 
-  test('backspace through simple subscript with autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: true,
-    });
-
-    mq.latex('x_{2+3}');
-
-    assert.equal(cursor.parent, rootBlock, 'start in the root block');
-
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x_{2+}');
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x_{2}');
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x');
-  });
-
-  test('backspace through simple subscript without autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: false,
-    });
-
+  test('backspace through simple subscript', function () {
     mq.latex('x_{2+3}');
 
     assert.equal(cursor.parent, rootBlock, 'start in the root block');
@@ -166,39 +124,7 @@ suite('backspace', function () {
     assert.equal(mq.latex(), 'x');
   });
 
-  test('backspace through subscript & superscript with autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: true,
-    });
-    mq.latex('x_2^{32}');
-
-    //first backspace trims the subscript
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x^{32}');
-
-    //second backspace takes us until the exponent
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x^{32}');
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x^{3}');
-
-    //clear out exponent
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x^{ }');
-
-    //unpeel exponent
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), 'x');
-
-    //clear out math field
-    mq.keystroke('Backspace');
-    assert.equal(mq.latex(), '');
-  });
-
-  test('backspace through subscript & superscript without autoSubscriptNumerals', function () {
-    MQ.config({
-      autoSubscriptNumerals: false,
-    });
+  test('backspace through subscript & superscript', function () {
     mq.latex('x_2^{32}');
 
     //first backspace takes us into the exponent

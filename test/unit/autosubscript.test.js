@@ -110,4 +110,19 @@ suite('autoSubscript', function () {
     mq.keystroke('Backspace');
     assert.equal(mq.latex(), 'x');
   });
+
+  test('backspace through compound subscript', function () {
+    mq.latex('x_{2_2}');
+
+    //first backspace goes into the subscript
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(), 'x_{2}');
+
+    //second one goes into the subscripts' subscript
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(), 'x_{ }');
+
+    mq.keystroke('Backspace');
+    assert.equal(mq.latex(), 'x');
+  });
 });

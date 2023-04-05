@@ -1575,8 +1575,7 @@ suite('typing with auto-replaces', function () {
   });
 
   suite('SupSub behavior options', function () {
-    test('charsThatBreakOutOfSupSub superscript', function () {
-      MQ.config({ charsThatBreakOutOfSupSub: '' });
+    test('superscript', function () {
       assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n+y}');
       mq.latex('');
       assert.equal(mq.typedText('x^+2n').latex(), 'x^{+2n}');
@@ -1585,29 +1584,9 @@ suite('typing with auto-replaces', function () {
       mq.latex('');
       assert.equal(mq.typedText('x^=2n').latex(), 'x^{=2n}');
       mq.latex('');
-
-      MQ.config({ charsThatBreakOutOfSupSub: '+-=<>' });
-
-      assert.equal(mq.typedText('x^2n+y').latex(), 'x^{2n}+y');
-      mq.latex('');
-
-      // Unary operators never break out of exponents.
-      assert.equal(mq.typedText('x^+2n').latex(), 'x^{+2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x^-2n').latex(), 'x^{-2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x^=2n').latex(), 'x^{=2n}');
-      mq.latex('');
-
-      // Only break out of exponents if cursor at the end, don't
-      // jump from the middle of the exponent out to the right.
-      assert.equal(mq.typedText('x^ab').latex(), 'x^{ab}');
-      assert.equal(mq.keystroke('Left').typedText('+').latex(), 'x^{a+b}');
-      mq.latex('');
     });
 
-    test('charsThatBreakOutOfSupSub subscript', function () {
-      MQ.config({ charsThatBreakOutOfSupSub: '' });
+    test('subscript', function () {
       assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n+y}');
       mq.latex('');
       assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
@@ -1615,59 +1594,6 @@ suite('typing with auto-replaces', function () {
       assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
       mq.latex('');
       assert.equal(mq.typedText('x_=2n').latex(), 'x_{=2n}');
-      mq.latex('');
-
-      MQ.config({ charsThatBreakOutOfSupSub: '+-=<>' });
-
-      assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n}+y');
-      mq.latex('');
-
-      // Unary operators never break out of subscripts.
-      assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_=2n').latex(), 'x_{=2n}');
-      mq.latex('');
-
-      // Only break out of exponents if cursor at the end, don't
-      // jump from the middle of the exponent out to the right.
-      assert.equal(mq.typedText('x_ab').latex(), 'x_{ab}');
-      assert.equal(mq.keystroke('Left').typedText('+').latex(), 'x_{a+b}');
-      mq.latex('');
-    });
-
-    test('charsThatBreakOutOfSupSub subscript with autoSubscriptNumerals', function () {
-      MQ.config({ charsThatBreakOutOfSupSub: '' });
-      assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n+y}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_=2n').latex(), 'x_{=2n}');
-      mq.latex('');
-
-      MQ.config({
-        charsThatBreakOutOfSupSub: '+-=<>',
-        autoSubscriptNumerals: true,
-      });
-
-      assert.equal(mq.typedText('x_2n+y').latex(), 'x_{2n}+y');
-      mq.latex('');
-
-      // Unary operators never break out of subscript.
-      assert.equal(mq.typedText('x_+2n').latex(), 'x_{+2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_-2n').latex(), 'x_{-2n}');
-      mq.latex('');
-      assert.equal(mq.typedText('x_=2n').latex(), 'x_{=2n}');
-      mq.latex('');
-
-      // Only break out of exponents if cursor at the end, don't
-      // jump from the middle of the exponent out to the right.
-      assert.equal(mq.typedText('x_ab').latex(), 'x_{ab}');
-      assert.equal(mq.keystroke('Left').typedText('+').latex(), 'x_{a+b}');
       mq.latex('');
     });
 
