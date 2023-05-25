@@ -1093,6 +1093,12 @@ function getInterface(v) {
     };
     _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
     _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
+    _.cursorAtLeftEnd = function () {
+      return this.__controller.cursor[L] === 0;
+    };
+    _.cursorAtRightEnd = function () {
+      return this.__controller.cursor[R] === 0;
+    };
 
     _.keystroke = function(keys) {
       var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
@@ -3131,7 +3137,7 @@ LatexCmds.alef = LatexCmds.alefsym = LatexCmds.aleph = LatexCmds.alephsym =
 LatexCmds.xist = //LOL
 LatexCmds.xists = LatexCmds.exist = LatexCmds.exists =
   bind(VanillaSymbol,'\\exists ','&exist;');
-
+  
 LatexCmds.nexists = LatexCmds.nexist =
       bind(VanillaSymbol, '\\nexists ', '&#8708;');
 
