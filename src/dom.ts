@@ -1,5 +1,3 @@
-const urlParams = new URLSearchParams(window.location.search);
-
 type HTMLTagName =
   | 'span'
   | 'textarea'
