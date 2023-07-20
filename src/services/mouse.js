@@ -51,7 +51,7 @@ Controller.open(function(_) {
       }
 
       cursor.blink = noop;
-      ctrlr.seek($(e.target), e.pageX, e.pageY).cursor.startSelection();
+      ctrlr.seek($(e.target), e.pageX, e.pageY);
 
       rootjQ.mousemove(mousemove);
       $(e.target.ownerDocument).mousemove(docmousemove).mouseup(mouseup);

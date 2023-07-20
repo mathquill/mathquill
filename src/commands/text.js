@@ -153,9 +153,9 @@ var TextBlock = P(Node, function(_, super_) {
     }
     else if (cursor.anticursor.parent === this) {
       // mouse-selecting within this TextBlock, re-insert the anticursor
-      var cursorPosition = cursor[L] && cursor[L].text.length;;
+      var cursorPosition = cursor[L] && cursor[L].text.length;
       if (this.anticursorPosition === cursorPosition) {
-        cursor.anticursor = Point.copy(cursor);
+        cursor.anticursor = Anticursor(cursor.parent, cursor[L], cursor[R]);
       }
       else {
         if (this.anticursorPosition < cursorPosition) {
@@ -165,7 +165,7 @@ var TextBlock = P(Node, function(_, super_) {
         else {
           var newTextPc = cursor[R].splitRight(this.anticursorPosition - cursorPosition);
         }
-        cursor.anticursor = Point(this, newTextPc[L], newTextPc);
+        cursor.anticursor = Anticursor(this, newTextPc[L], newTextPc);
       }
     }
   };
