@@ -9,7 +9,10 @@
  * Wraps a single HTMLSpanElement.
  */
 var TextBlock = P(Node, function(_, super_) {
+
   _.ctrlSeq = '\\text';
+  _.attrs = 'class="mq-text-mode"';
+  _.tagName = 'span';
 
   _.replaces = function(replacedText) {
     if (replacedText instanceof Fragment)
@@ -65,13 +68,13 @@ var TextBlock = P(Node, function(_, super_) {
   _.latex = function() {
     var contents = this.textContents();
     if (contents.length === 0) return '';
-    return '\\text{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
+    return this.ctrlSeq + '{' + contents.replace(/\\/g, '\\backslash ').replace(/[{}]/g, '\\$&') + '}';
   };
   _.html = function() {
     return (
-        '<span class="mq-text-mode" mathquill-command-id='+this.id+'>'
-      +   this.textContents()
-      + '</span>'
+      '<' + this.tagName + ' ' + this.attrs + ' mathquill-command-id=' + this.id + ' >'
+      + this.textContents()
+      + '</' + this.tagName + '>'
     );
   };
 
@@ -311,13 +314,17 @@ LatexCmds.textmd = TextBlock;
 function makeTextBlock(latex, tagName, attrs) {
   return P(TextBlock, {
     ctrlSeq: latex,
-    htmlTemplate: '<'+tagName+' '+attrs+'>&0</'+tagName+'>'
+    tagName: tagName,
+    attrs: attrs,
+    htmlTemplate: '<' + tagName + ' ' + attrs + '>&0</' + tagName + '>'
   });
 }
 
+LatexCmds.textnormal = LatexCmds.text =
+  makeTextBlock('\\text', 'span', 'class="mq-text-mode"');
 LatexCmds.em = LatexCmds.italic = LatexCmds.italics =
-LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
-  makeTextBlock('\\textit', 'i', 'class="mq-text-mode"');
+  LatexCmds.emph = LatexCmds.textit = LatexCmds.textsl =
+    makeTextBlock('\\textit', 'i', 'class="mq-text-mode"');
 LatexCmds.strong = LatexCmds.bold = LatexCmds.textbf =
   makeTextBlock('\\textbf', 'b', 'class="mq-text-mode"');
 LatexCmds.sf = LatexCmds.textsf =
