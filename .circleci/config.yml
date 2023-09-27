@@ -145,7 +145,7 @@ jobs:
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
     - run:
-        command: PORT=8000 make server
+        command: PORT=8000 NO_INSTALL=1 make server
         background: true
     # Wait for tunnel to be ready (`make server` is much faster, no need to wait for it)
     - run: |-
