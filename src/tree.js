@@ -74,6 +74,80 @@ var Point = P(function(_) {
   };
 });
 
+/*
+  Mathquill used to create a global dictionary that held onto
+  all nodes ever created. It was up to the mathquill instances
+  to call .dispose() on all of the nodes they created. That .dispose()
+  method would remove the node from the global dictionary. That
+  leaked memory for these reasons:
+  1) mathField.revert() didn't actually call the .dispose() method
+     on ANY of the nodes.
+  2) parts of the code create temporary nodes that never get linked
+     to anything. So they definitely didn't get their dispose() method
+     called.
+  3) even if everything above worked it's really common for users of
+     mathquill to forget to tear it down correctly.
+
+  It turns out mathquill always uses the Node and the Element as pairs. So we
+  can store the Node on the Element and the Element on the Node. That makes it
+  possible to get one from the other. This also has the added benefit of meaning
+  the Node isn't stored in a global dictionary. If you lose all references to
+  the Element, then you'll also lose all references to the Node. This means the
+  browser can garbage collect all of mathquill's internals when the DOM is destroyed.
+
+  There's only 1 small gotcha. The linking between Element and Node is a little clumsy.
+  1) All of the Nodes will be created.
+  2) Then all of the Elements will be created.
+  3) Then the two will be linked
+
+  The problem is that the linking step only has access to the elements. It doesn't have
+  access to the nodes. That means we need to store the id of the node we want on the element
+  at creation time. Then we need to lookup that Node by id during the linking step. This
+  means we still need a dictionary. But at least it can be a temporary dictionary.
+  Steps 1 - 3 happen synchronously. So after those steps we can simply clean out the
+  temporary dictionary and remove all hard references to the Nodes.
+
+  Any time we create a Node we schedule a task to clean all Nodes out of the dictionary
+  on the next frame. That's safe because there's no opportunity for nodes to be created
+  and NOT linked between the time we schedule the cleaning step and actually do it.
+*/
+
+var TempByIdDict = {};
+var cleaningScheduled = false;
+
+function scheduleDictionaryCleaning () {
+  if (!cleaningScheduled) {
+    cleaningScheduled = true;
+    setTimeout(cleanDictionary);
+  }
+}
+
+function cleanDictionary () {
+  cleaningScheduled = false;
+  TempByIdDict = {};
+}
+
+function eachNode (ends, yield_) {
+  var el = ends[L];
+  if (!el) return;
+
+  for (; el !== ends[R][R]; el = el[R]) {
+    var result = yield_(el);
+    if (result === false) break;
+  }
+}
+
+function foldNodes (ends, fold, yield_) {
+  var el = ends[L];
+  if (!el) return fold;
+
+  for (; el !== ends[R][R]; el = el[R]) {
+    fold = yield_(fold, el);
+  }
+
+  return fold;
+}
+
 /**
  * MathQuill virtual-DOM tree-node abstract base class
  */
@@ -84,18 +158,34 @@ var Node = P(function(_) {
 
   var id = 0;
   function uniqueNodeId() { return id += 1; }
-  this.byId = {};
+
+  this.getNodeOfElement = function (el) {
+    if (!el) return;
+    if (!el.nodeType) throw new Error('must pass an HTMLElement to Node.getNodeOfElement')
+    return el.mqBlockNode || el.mqCmdNode;
+  }
+
+  this.linkElementByBlockId = function (elm, id) {
+    Node.linkElementByBlockNode(elm, TempByIdDict[id]);
+  };
+
+  this.linkElementByBlockNode = function (elm, blockNode) {
+    elm.mqBlockNode = blockNode;
+  };
+
+  this.linkElementByCmdNode = function (elm, cmdNode) {
+    elm.mqCmdNode = cmdNode;
+  };
 
   _.init = function() {
     this.id = uniqueNodeId();
-    Node.byId[this.id] = this;
+    TempByIdDict[id] = this;
+    scheduleDictionaryCleaning(id, this);
 
     this.ends = {};
     this.ends[L] = 0;
     this.ends[R] = 0;
   };
-
-  _.dispose = function() { delete Node.byId[this.id]; };
 
   _.toString = function() { return '{{ MathQuill Node #'+this.id+' }}'; };
 
@@ -106,11 +196,23 @@ var Node = P(function(_) {
     var jQ = $(jQ || this.html());
 
     function jQadd(el) {
+
       if (el.getAttribute) {
         var cmdId = el.getAttribute('mathquill-command-id');
+        if (cmdId) {
+          el.removeAttribute('mathquill-command-id');
+          var cmdNode = TempByIdDict[cmdId]
+          cmdNode.jQadd(el);
+          Node.linkElementByCmdNode(el, cmdNode);
+        }
+
         var blockId = el.getAttribute('mathquill-block-id');
-        if (cmdId) Node.byId[cmdId].jQadd(el);
-        if (blockId) Node.byId[blockId].jQadd(el);
+        if (blockId) {
+          el.removeAttribute('mathquill-block-id');
+          var blockNode = TempByIdDict[blockId]
+          blockNode.jQadd(el);
+          Node.linkElementByBlockNode(el, blockNode);
+        }
       }
       for (el = el.firstChild; el; el = el.nextSibling) {
         jQadd(el);
@@ -135,29 +237,45 @@ var Node = P(function(_) {
     return Selection(leftEnd, rightEnd);
   };
 
-  _.bubble = iterator(function(yield_) {
+  _.bubble = function (yield_) {
     for (var ancestor = this; ancestor; ancestor = ancestor.parent) {
       var result = yield_(ancestor);
       if (result === false) break;
     }
 
     return this;
-  });
+  };
 
-  _.postOrder = iterator(function(yield_) {
+  _.postOrder = function(yield_) {
     (function recurse(descendant) {
       descendant.eachChild(recurse);
       yield_(descendant);
     })(this);
 
     return this;
-  });
+  };
 
   _.isEmpty = function() {
     return this.ends[L] === 0 && this.ends[R] === 0;
   };
-  
+
+  _.isEmptyParens = function () {
+    if (!this.isEmpty()) return false;
+    if (!this.parent) return false;
+    return this.parent.ctrlSeq === '\\left(';
+  }
+
+  _.isEmptySquareBrackets = function () {
+    if (!this.isEmpty()) return false;
+    if (!this.parent) return false;
+    return this.parent.ctrlSeq === '\\left[';
+  }
+
   _.isStyleBlock = function() {
+    return false;
+  };
+
+  _.isTextBlock = function() {
     return false;
   };
 
@@ -165,14 +283,13 @@ var Node = P(function(_) {
     return Fragment(this.ends[L], this.ends[R]);
   };
 
-  _.eachChild = function() {
-    var children = this.children();
-    children.each.apply(children, arguments);
+  _.eachChild = function(yield_) {
+    eachNode(this.ends, yield_);
     return this;
   };
 
-  _.foldChildren = function(fold, fn) {
-    return this.children().fold(fold, fn);
+  _.foldChildren = function (fold, yield_) {
+    return foldNodes(this.ends, fold, yield_);
   };
 
   _.withDirAdopt = function(dir, parent, withDir, oppDir) {
@@ -192,9 +309,34 @@ var Node = P(function(_) {
 
   _.remove = function() {
     this.jQ.remove();
-    this.postOrder('dispose');
     return this.disown();
   };
+
+  _.isParentSimpleSubscript = function () {
+    if (!this.parent) return false;
+    if (!(this.parent.parent instanceof SupSub)) return false;
+
+    // Mathquill is gross. There are many different paths that
+    // create subscripts and sometimes we don't even construct
+    // true instances of `LatexCmds._`. Another problem is that
+    // the relationship between the sub and the SupSub isn't
+    // completely setup during a paste at the time we check
+    // this. I wanted to use: `this.parent.parent.sub !== this.parent`
+    // but that check doesn't always work. This seems to be the only
+    // check that always works. I'd rather live with this than try
+    // to change the init order of things.
+    if (!this.parent.jQ.hasClass('mq-sub')) return false;
+
+    return true;
+  };
+
+  // Overridden by child classes
+  _.finalizeTree = function () { };
+  _.contactWeld = function () { };
+  _.blur = function () { };
+  _.intentionalBlur = function () { };
+  _.reflow = function () { };
+  _.registerInnerField = function () { };
 });
 
 function prayWellFormed(parent, leftward, rightward) {
@@ -338,29 +480,16 @@ var Fragment = P(function(_) {
 
   _.remove = function() {
     this.jQ.remove();
-    this.each('postOrder', 'dispose');
     return this.disown();
   };
 
-  _.each = iterator(function(yield_) {
-    var self = this;
-    var el = self.ends[L];
-    if (!el) return self;
+  _.each = function (yield_) {
+    eachNode(this.ends, yield_);
+    return this;
+  };
 
-    for (; el !== self.ends[R][R]; el = el[R]) {
-      var result = yield_(el);
-      if (result === false) break;
-    }
-
-    return self;
-  });
-
-  _.fold = function(fold, fn) {
-    this.each(function(el) {
-      fold = fn.call(this, fold, el);
-    });
-
-    return fold;
+  _.fold = function (fold, yield_) {
+    return foldNodes(this.ends, fold, yield_);
   };
 });
 

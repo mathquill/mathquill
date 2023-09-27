@@ -107,7 +107,7 @@ suite('Public API', function() {
 
     test('.html() trivial case', function() {
       mq.latex('x+y');
-      assert.equal(mq.html(), '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>');
+      assert.equal(mq.html(), '<var aria-hidden="true">x</var><span aria-hidden="true" class="mq-binary-operator">+</span><var aria-hidden="true">y</var>');
     });
 
     test('.text() with incomplete commands', function() {
@@ -163,6 +163,44 @@ suite('Public API', function() {
       mq.latex('xyz');
       mq.empty();
       assert.equal(mq.latex(), '');
+    });
+    test('ARIA labels', function() {
+      mq.setAriaLabel('ARIA label');
+      mq.setAriaPostLabel('ARIA post-label');
+      assert.equal(mq.getAriaLabel(), 'ARIA label');
+      assert.equal(mq.getAriaPostLabel(), 'ARIA post-label');
+      mq.setAriaLabel('');
+      mq.setAriaPostLabel('');
+      assert.equal(mq.getAriaLabel(), 'Math Input');
+      assert.equal(mq.getAriaPostLabel(), '');
+    });
+
+    test('.mathspeak()', function() {
+      function assertMathSpeakEqual(a, b) {
+        assert.equal(normalize(a), normalize(b));
+        function normalize(str) {
+          return str.replace(/\d(?!\d)/g, '$& ').split(/[ ,]+/).join(' ').trim();
+        }
+      }
+
+      mq.latex('123.456');
+      assertMathSpeakEqual(mq.mathspeak(), '123.4 5 6');
+
+      mq.latex('\\frac{d}{dx}\\sqrt{x}');
+      assertMathSpeakEqual(mq.mathspeak(), 'StartFraction "d" Over "d" "x" EndFraction StartRoot "x" EndRoot');
+
+      mq.latex('1+2-3\\cdot\\frac{5}{6^7}=\\left(8+9\\right)');
+      assertMathSpeakEqual(mq.mathspeak(), '1 plus 2 minus 3 times StartFraction 5 Over 6 to the 7th power EndFraction equals left parenthesis 8 plus 9 right parenthesis');
+
+      // Example 13 from http://www.gh-mathspeak.com/examples/quick-tutorial/index.php?verbosity=v&explicitness=2&interp=0
+      mq.latex('d=\\sqrt{ \\left( x_2 - x_1 \\right)^2 - \\left( y_2 - y_1 \\right)^2 }');
+      assertMathSpeakEqual(mq.mathspeak(), '"d" equals StartRoot left parenthesis "x" Subscript 2 Baseline minus "x" Subscript 1 Baseline right parenthesis squared minus left parenthesis "y" Subscript 2 Baseline minus "y" Subscript 1 Baseline right parenthesis squared EndRoot');
+
+      mq.latex('').typedText('\\langle').keystroke('Spacebar').typedText('u,v'); // .latex() doesn't work yet for angle brackets :(
+      assertMathSpeakEqual(mq.mathspeak(), 'left angle-bracket "u" "v" right angle-bracket');
+
+      mq.latex('\\left| x \\right| + \\left( y \\right|');
+      assertMathSpeakEqual(mq.mathspeak(), 'StartAbsoluteValue "x" EndAbsoluteValue plus left parenthesis "y" right pipe');
     });
   });
 
@@ -311,7 +349,7 @@ suite('Public API', function() {
       });
     }
   });
-  
+
   suite('edit handler', function() {
     test('fires when closing a bracket expression', function() {
       var count = 0;
@@ -343,11 +381,11 @@ suite('Public API', function() {
       mq.cmd('^');
       assert.equal(mq.latex(), 'xy^{ }');
       mq.cmd('2');
-      assert.equal(mq.latex(), 'xy^2');
+      assert.equal(mq.latex(), 'xy^{2}');
       mq.keystroke('Right Shift-Left Shift-Left Shift-Left').cmd('\\sqrt');
-      assert.equal(mq.latex(), '\\sqrt{xy^2}');
+      assert.equal(mq.latex(), '\\sqrt{xy^{2}}');
       mq.typedText('*2**');
-      assert.equal(mq.latex(), '\\sqrt{xy^2\\cdot2\\cdot\\cdot}');
+      assert.equal(mq.latex(), '\\sqrt{xy^{2}\\cdot2\\cdot\\cdot}');
     });
 
     test('backslash commands are passed their name', function() {
@@ -510,7 +548,7 @@ suite('Public API', function() {
                     + 'thegraphicalelementsofadocumentorvisualpresentation.');
       });
       test('actual LaTeX', function() {
-        assertPaste('a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('a_{n}x^{n}+a_{n+1}x^{n+1}');
         assertPaste('\\frac{1}{2\\sqrt{x}}');
       });
       test('\\text{...}', function() {
@@ -521,7 +559,7 @@ suite('Public API', function() {
       test('selection', function(done) {
         mq.latex('x^2').select();
         setTimeout(function() {
-          assert.equal(textarea.val(), 'x^2');
+          assert.equal(textarea.val(), 'x^{2}');
           done();
         });
       });
@@ -557,13 +595,13 @@ suite('Public API', function() {
       });
       // TODO: braces (currently broken)
       test('actual math LaTeX wrapped in dollar signs', function() {
-        assertPaste('$a_nx^n+a_{n+1}x^{n+1}$', 'a_nx^n+a_{n+1}x^{n+1}');
+        assertPaste('$a_nx^n+a_{n+1}x^{n+1}$', 'a_{n}x^{n}+a_{n+1}x^{n+1}');
         assertPaste('$\\frac{1}{2\\sqrt{x}}$', '\\frac{1}{2\\sqrt{x}}');
       });
       test('selection', function(done) {
         mq.latex('x^2').select();
         setTimeout(function() {
-          assert.equal(textarea.val(), '$x^2$');
+          assert.equal(textarea.val(), '$x^{2}$');
           done();
         });
       });
@@ -628,25 +666,25 @@ suite('Public API', function() {
 
       test('supsub', function() {
         mq.latex('x_a+y^b+z_a^b+w');
-        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.moveToLeftEnd().typedText('1');
-        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('2');
-        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('3');
-        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('4');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('5');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('6');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('7');
         assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{6a}^{7b}+w');
@@ -708,28 +746,28 @@ suite('Public API', function() {
 
       test('supsub', function() {
         mq.latex('x_a+y^b+z_a^b+w');
-        assert.equal(mq.latex(), 'x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), 'x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.moveToLeftEnd().typedText('1');
-        assert.equal(mq.latex(), '1x_a+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('2');
-        assert.equal(mq.latex(), '1x_{2a}+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('3');
-        assert.equal(mq.latex(), '1x_{2a}3+y^b+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('4');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}+z_{a}^{b}+w');
 
         mq.keystroke('Right Right').typedText('5');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^b+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{b}+w');
 
         mq.keystroke('Right Right Right').typedText('6');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{6b}+w');
 
         mq.keystroke('Right Right').typedText('7');
-        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_a^{6b}7+w');
+        assert.equal(mq.latex(), '1x_{2a}3+y^{4b}5+z_{a}^{6b}7+w');
       });
 
       test('nthroot', function() {
@@ -760,7 +798,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\sum_{ }^{ }');
 
       mq.cmd('n');
-      assert.equal(mq.latex(), '\\sum_n^{ }', 'cursor in lower limit');
+      assert.equal(mq.latex(), '\\sum_{n}^{ }', 'cursor in lower limit');
     });
     test('sum starts with `n=`', function() {
       var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
@@ -784,7 +822,7 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '\\int_{ }^{ }');
 
       mq.cmd('0');
-      assert.equal(mq.latex(), '\\int_0^{ }', 'cursor in the from block');
+      assert.equal(mq.latex(), '\\int_{0}^{ }', 'cursor in the from block');
     });
   });
 
@@ -799,6 +837,46 @@ suite('Public API', function() {
       assert.equal(mq.latex(), '');
       mq.write('asdf');
       mq.select();
+    });
+  });
+
+  suite('overrideKeystroke', function() {
+    test('can intercept key events', function() {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        overrideKeystroke: function (_key, evt) {
+          key = _key;
+          return mq.keystroke.apply(mq, arguments);
+        }
+      });
+      var key;
+
+      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      assert.equal(key, 'Left');
+    });
+    test('cut is async', function(done) {
+      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
+        onCut: function() {
+          count += 1;
+        }
+      });
+      var count = 0;
+
+      mq.latex('a=2');
+      mq.select();
+
+      $(mq.el()).find('textarea').trigger('cut');
+      assert.equal(count, 0);
+
+      $(mq.el()).find('textarea').trigger('input');
+      assert.equal(count, 0);
+
+      $(mq.el()).find('textarea').trigger('keyup');
+      assert.equal(count, 0);
+
+      setTimeout(function () {
+        assert.equal(count, 1);
+        done();
+      }, 100)
     });
   });
 

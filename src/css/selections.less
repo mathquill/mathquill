@@ -12,45 +12,29 @@
   .mq-selection {
     &, & .mq-non-leaf, & .mq-scaled {
       background: #B4D5FE !important;
-      background: Highlight !important;
-      color: HighlightText;
-      border-color: HighlightText;
-    }
-
-    .mq-matrixed {
-      // The Chroma filter doesn't support the 'Highlight' keyword,
-      // but is only used in IE 8 and below anyway, so just use the
-      // default Windows highlight color. Even if the highlight color
-      // of the system has been customized, it's not a big deal,
-      // most of the solid blue area is chroma keyed, there'll just
-      // be a blue anti-aliased fringe around the matrix-filter-
-      // stretched text.
-
-      // If you use IE 8 or below and customized your highlight
-      // color, and after the effort I put into making everything
-      // else in MathQuill work in IE 8 and below have the *gall*
-      // to complain about the blue fringe that appears in selections
-      // around the otherwise beautifully stretched square roots and
-      // stuff, and you have no ideas for how to solve the problem,
-      // just a complaint, then I'd like to politely suggest that you
-      // go choke on a dick. Unless you're into that, in which case,
-      // go do something that would make you unhappy instead.
-
-      background: #39F !important;
-    }
-    .mq-matrixed-container {
-      filter: progid:DXImageTransform.Microsoft.Chroma(color='#3399FF') !important;
     }
 
     &.mq-blur {
-      &, & .mq-non-leaf, & .mq-scaled, & .mq-matrixed {
+      &, & .mq-non-leaf, & .mq-scaled {
         background: #D4D4D4 !important;
         color: black;
         border-color: black;
       }
+    }
+  }
+}
 
-      .mq-matrixed-container {
-        filter: progid:DXImageTransform.Microsoft.Chroma(color='#D4D4D4') !important;
+
+html body { // adding  'html body' for specificity
+  .mq-math-mode, .mq-editable-field {
+    .mq-selection {
+      // do not show a background inside any of the
+      // children of nthroot. We draw a background on
+      // the nthroot itself. We don't want the index
+      // to be covered up by the background of the
+      // radical.
+      .mq-nthroot-container * {
+        background: transparent !important;
       }
     }
   }

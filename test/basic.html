@@ -2,6 +2,7 @@
 <html>
 <head>
 
+<meta charset="UTF-8">
 <meta name="viewport" content="width=624">
 
 <title>MathQuill-basic Demo</title>
@@ -38,6 +39,8 @@ var latex = $('#basic-latex').bind('keydown keypress', function() {
 });
 var mq = MQ.MathField($('#basic')[0], {
   autoSubscriptNumerals: true,
+  autoCommands: 'alpha beta sqrt theta phi pi tau nthroot cbrt prod int ans percent mid square',
+  autoParenthesizedFunctions: 'sin cos',
   handlers: { edit: function() {
     if (!latex.is(':focus')) latex.val(mq.latex());
   } }

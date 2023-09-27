@@ -12,19 +12,19 @@ var MathElement = P(Node, function(_, super_) {
       // SupSub::contactWeld, and is deliberately only passed in by writeLatex,
       // see ea7307eb4fac77c149a11ffdf9a831df85247693
     var self = this;
-    self.postOrder('finalizeTree', options);
-    self.postOrder('contactWeld', cursor);
+    self.postOrder(function (node) { node.finalizeTree(options) });
+    self.postOrder(function (node) { node.contactWeld(cursor) });
 
     // note: this order is important.
     // empty elements need the empty box provided by blur to
     // be present in order for their dimensions to be measured
     // correctly by 'reflow' handlers.
-    self.postOrder('blur');
+    self.postOrder(function (node) { node.blur(); });
 
-    self.postOrder('reflow');
+    self.postOrder(function (node) { node.reflow(); });
     if (self[R].siblingCreated) self[R].siblingCreated(options, L);
     if (self[L].siblingCreated) self[L].siblingCreated(options, R);
-    self.bubble('reflow');
+    self.bubble(function (node) { node.reflow(); });
   };
   // If the maxDepth option is set, make sure
   // deeply nested content is truncated. Just return
@@ -145,6 +145,7 @@ var MathCommand = P(MathElement, function(_, super_) {
   _.moveTowards = function(dir, cursor, updown) {
     var updownInto = updown && this[updown+'Into'];
     cursor.insAtDirEnd(-dir, updownInto || this.ends[-dir]);
+    aria.queueDirEndOf(-dir).queue(cursor.parent, true);
   };
   _.deleteTowards = function(dir, cursor) {
     if (this.isEmpty()) cursor[dir] = this.remove()[dir];
@@ -276,17 +277,19 @@ var MathCommand = P(MathElement, function(_, super_) {
 
     pray('no unmatched angle brackets', tokens.join('') === this.htmlTemplate);
 
-    // add cmdId to all top-level tags
+    // add cmdId and aria-hidden (for screen reader users) to all top-level tags
+    // Note: with the RegExp search/replace approach, it's possible that an element which is both a command and block may contain redundant aria-hidden attributes.
+    // In practice this doesn't appear to cause problems for screen readers.
     for (var i = 0, token = tokens[0]; token; i += 1, token = tokens[i]) {
       // top-level self-closing tags
       if (token.slice(-2) === '/>') {
-        tokens[i] = token.slice(0,-2) + cmdId + '/>';
+        tokens[i] = token.slice(0,-2) + cmdId + ' aria-hidden="true"/>';
       }
       // top-level open tags
       else if (token.charAt(0) === '<') {
         pray('not an unmatched top-level close tag', token.charAt(1) !== '/');
 
-        tokens[i] = token.slice(0,-1) + cmdId + '>';
+        tokens[i] = token.slice(0,-1) + cmdId + ' aria-hidden="true">';
 
         // skip matching top-level close tag and all tag pairs in between
         var nesting = 1;
@@ -305,7 +308,7 @@ var MathCommand = P(MathElement, function(_, super_) {
       }
     }
     return tokens.join('').replace(/>&(\d+)/g, function($0, $1) {
-      return ' mathquill-block-id=' + blocks[$1].id + '>' + blocks[$1].join('html');
+      return ' mathquill-block-id=' + blocks[$1].id + ' aria-hidden="true">' + blocks[$1].join('html');
     });
   };
 
@@ -327,15 +330,24 @@ var MathCommand = P(MathElement, function(_, super_) {
       return text + child_text + (cmd.textTemplate[i] || '');
     });
   };
+  _.mathspeakTemplate = [];
+  _.mathspeak = function() {
+    var cmd = this, i = 0;
+    return cmd.foldChildren(cmd.mathspeakTemplate[i] || 'Start'+cmd.ctrlSeq+' ', function(speech, block) {
+      i += 1;
+      return speech + ' ' + block.mathspeak() + ' ' + (cmd.mathspeakTemplate[i]+' ' || 'End'+cmd.ctrlSeq+' ');
+    });
+  };
 });
 
 /**
  * Lightweight command without blocks or children.
  */
 var Symbol = P(MathCommand, function(_, super_) {
-  _.init = function(ctrlSeq, html, text) {
-    if (!text) text = ctrlSeq && ctrlSeq.length > 1 ? ctrlSeq.slice(1) : ctrlSeq;
+  _.init = function(ctrlSeq, html, text, mathspeak) {
+    if (!text && !!ctrlSeq) text = ctrlSeq.replace(/^\\/, '');
 
+    this.mathspeakName = mathspeak || text;
     super_.init.call(this, ctrlSeq, html, [ text ]);
   };
 
@@ -351,6 +363,7 @@ var Symbol = P(MathCommand, function(_, super_) {
     cursor.jQ.insDirOf(dir, this.jQ);
     cursor[-dir] = this;
     cursor[dir] = this[dir];
+    aria.queue(this);
   };
   _.deleteTowards = function(dir, cursor) {
     cursor[dir] = this.remove()[dir];
@@ -364,19 +377,20 @@ var Symbol = P(MathCommand, function(_, super_) {
   };
 
   _.latex = function(){ return this.ctrlSeq; };
-  _.text = function(){ return this.textTemplate; };
+  _.text = function(){ return this.textTemplate.join(''); };
+  _.mathspeak = function(){ return this.mathspeakName; };
   _.placeCursor = noop;
   _.isEmpty = function(){ return true; };
 });
 var VanillaSymbol = P(Symbol, function(_, super_) {
-  _.init = function(ch, html) {
-    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>');
+  _.init = function(ch, html, mathspeak) {
+    super_.init.call(this, ch, '<span>'+(html || ch)+'</span>', undefined, mathspeak);
   };
 });
 var BinaryOperator = P(Symbol, function(_, super_) {
-  _.init = function(ctrlSeq, html, text) {
+  _.init = function(ctrlSeq, html, text, mathspeak) {
     super_.init.call(this,
-      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text
+      ctrlSeq, '<span class="mq-binary-operator">'+html+'</span>', text, mathspeak
     );
   };
 });
@@ -400,6 +414,45 @@ var MathBlock = P(MathElement, function(_, super_) {
       this.join('text')
     ;
   };
+  _.mathspeak = function() {
+    var tempOp = '';
+    var autoOps = {};
+    if (this.controller) autoOps = this.controller.options.autoOperatorNames;
+    return this.foldChildren([], function(speechArray, cmd) {
+      if (cmd.isPartOfOperator) {
+        tempOp += cmd.mathspeak();
+      } else {
+        if(tempOp!=='') {
+          if(autoOps !== {} && autoOps._maxLength > 0) {
+            var x = autoOps[tempOp.toLowerCase()];
+            if(typeof x === 'string') tempOp = x;
+          }
+          speechArray.push(tempOp+' ');
+          tempOp = '';
+        }
+        var mathspeakText = cmd.mathspeak();
+        var cmdText = cmd.ctrlSeq;
+        if (
+          isNaN(cmdText) &&
+          cmdText !== '.' &&
+          (!cmd.parent || !cmd.parent.parent || !cmd.parent.parent.isTextBlock())
+        ) {
+          mathspeakText = ' ' + mathspeakText + ' ';
+        }
+        speechArray.push(mathspeakText);
+      }
+      return speechArray;
+    })
+    .join('')
+    .replace(/ +(?= )/g,'')
+    // For Apple devices in particular, split out digits after a decimal point so they aren't read aloud as whole words.
+    // Not doing so makes 123.456 potentially spoken as "one hundred twenty-three point four hundred fifty-six."
+    // Instead, add spaces so it is spoken as "one hundred twenty-three point four five six."
+    .replace(/(\.)([0-9]+)/g, function(match, p1, p2) {
+      return p1 + p2.split('').join(' ').trim();
+    });
+  };
+  _.ariaLabel = 'block';
 
   _.keystroke = function(key, e, ctrlr) {
     if (ctrlr.options.spaceBehavesLikeTab
@@ -416,8 +469,14 @@ var MathBlock = P(MathElement, function(_, super_) {
   // the cursor
   _.moveOutOf = function(dir, cursor, updown) {
     var updownInto = updown && this.parent[updown+'Into'];
-    if (!updownInto && this[dir]) cursor.insAtDirEnd(-dir, this[dir]);
-    else cursor.insDirOf(dir, this.parent);
+    if (!updownInto && this[dir]) {
+      cursor.insAtDirEnd(-dir, this[dir]);
+      aria.queueDirEndOf(-dir).queue(cursor.parent, true);
+    }
+    else {
+      cursor.insDirOf(dir, this.parent);
+      aria.queueDirOf(dir).queue(this.parent);
+    }
   };
   _.selectOutOf = function(dir, cursor) {
     cursor.insDirOf(dir, this.parent);
@@ -445,6 +504,8 @@ var MathBlock = P(MathElement, function(_, super_) {
       return LatexCmds['÷'](ch);
     else if (options && options.typingAsteriskWritesTimesSymbol && ch === '*')
       return LatexCmds['×'](ch);
+    else if (options && options.typingPercentWritesPercentOf && ch === '%')
+      return LatexCmds.percentof(ch);
     else if (cons = CharCmds[ch] || LatexCmds[ch])
       return cons(ch);
     else
@@ -455,6 +516,12 @@ var MathBlock = P(MathElement, function(_, super_) {
     if (cursor.selection) cmd.replaces(cursor.replaceSelection());
     if (!cursor.isTooDeep()) {
       cmd.createLeftOf(cursor.show());
+      // special-case the slash so that fractions are voiced while typing
+      if (ch === '/') {
+        aria.alert('over');
+      } else {
+        aria.alert(cmd.mathspeak({ createdLeftOf: cursor }));
+      }
     }
   };
 
@@ -473,7 +540,7 @@ var MathBlock = P(MathElement, function(_, super_) {
       block.finalizeInsert(cursor.options, cursor);
       if (block.ends[R][R].siblingCreated) block.ends[R][R].siblingCreated(cursor.options, L);
       if (block.ends[L][L].siblingCreated) block.ends[L][L].siblingCreated(cursor.options, R);
-      cursor.parent.bubble('reflow');
+      cursor.parent.bubble(function (node) { node.reflow(); });
     }
   };
 
@@ -485,9 +552,14 @@ var MathBlock = P(MathElement, function(_, super_) {
   };
   _.blur = function() {
     this.jQ.removeClass('mq-hasCursor');
-    if (this.isEmpty())
+    if (this.isEmpty()) {
       this.jQ.addClass('mq-empty');
-
+      if (this.isEmptyParens()) {
+        this.jQ.addClass('mq-empty-parens');
+      } else if (this.isEmptySquareBrackets()) {
+        this.jQ.addClass('mq-empty-square-brackets');
+      }
+    }
     return this;
   };
 });
@@ -507,16 +579,29 @@ API.StaticMath = function(APIClasses) {
     };
     _.init = function() {
       super_.init.apply(this, arguments);
-      this.__controller.root.postOrder(
-        'registerInnerField', this.innerFields = [], APIClasses.InnerMathField);
+      var innerFields = this.innerFields = [];
+      this.__controller.root.postOrder(function (node) {
+        node.registerInnerField(innerFields, APIClasses.InnerMathField);
+      });
     };
     _.latex = function() {
       var returned = super_.latex.apply(this, arguments);
       if (arguments.length > 0) {
-        this.__controller.root.postOrder(
-          'registerInnerField', this.innerFields = [], APIClasses.InnerMathField);
+        var innerFields = this.innerFields = [];
+        this.__controller.root.postOrder(function (node) {
+          node.registerInnerField(innerFields, APIClasses.InnerMathField);
+        });
+        // Force an ARIA label update to remain in sync with the new LaTeX value.
+        this.__controller.updateMathspeak();
       }
       return returned;
+    };
+    _.setAriaLabel = function(ariaLabel) {
+      this.__controller.setAriaLabel(ariaLabel);
+      return this;
+    };
+    _.getAriaLabel = function () {
+      return this.__controller.getAriaLabel();
     };
   });
 };

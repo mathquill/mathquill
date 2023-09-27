@@ -4,12 +4,29 @@
 
 Controller.open(function(_) {
   Options.p.ignoreNextMousedown = noop;
+
+  // Whenever edits to the tree occur, in-progress selection events
+  // must be invalidated and selection changes must not be applied to
+  // the edited tree. cancelSelectionOnEdit takes care of this.
+  var cancelSelectionOnEdit;
+  this.onNotify(function (e) {
+    if ((e === 'edit' || e === 'replace')) {
+      // this will be called any time ANY mathquill is edited. We only want
+      // to cancel selection if the selection is happening within the mathquill
+      // that dispatched the notify. Otherwise you won't be able to select any
+      // mathquills while a slider is playing.
+      if (cancelSelectionOnEdit && cancelSelectionOnEdit.cursor === this) {
+        cancelSelectionOnEdit.cb();
+      }
+    }
+  });
+
   _.delegateMouseEvents = function() {
     var ultimateRootjQ = this.root.jQ;
     //drag-to-select event handling
     this.container.bind('mousedown.mathquill', function(e) {
       var rootjQ = $(e.target).closest('.mq-root-block');
-      var root = Node.byId[rootjQ.attr(mqBlockId) || ultimateRootjQ.attr(mqBlockId)];
+      var root = Node.getNodeOfElement(rootjQ[0]) || Node.getNodeOfElement(ultimateRootjQ[0]);
       var ctrlr = root.controller, cursor = ctrlr.cursor, blink = cursor.blink;
       var textareaSpan = ctrlr.textareaSpan, textarea = ctrlr.textarea;
 
@@ -24,30 +41,58 @@ Controller.open(function(_) {
       function docmousemove(e) {
         if (!cursor.anticursor) cursor.startSelection();
         ctrlr.seek(target, e.pageX, e.pageY).cursor.select();
+        if(cursor.selection) aria.clear().queue(cursor.selection.join('mathspeak') + ' selected').alert();
         target = undefined;
       }
       // outside rootjQ, the MathQuill node corresponding to the target (if any)
       // won't be inside this root, so don't mislead Controller::seek with it
 
-      function mouseup(e) {
-        cursor.blink = blink;
-        if (!cursor.selection) {
-          if (ctrlr.editable) {
-            cursor.show();
-          }
-          else {
-            textareaSpan.detach();
-          }
-        }
-
+      function unbindListeners (e) {
         // delete the mouse handlers now that we're not dragging anymore
         rootjQ.unbind('mousemove', mousemove);
         $(e.target.ownerDocument).unbind('mousemove', docmousemove).unbind('mouseup', mouseup);
+        cancelSelectionOnEdit = undefined;
+      }
+
+      function updateCursor () {
+        if (ctrlr.editable) {
+          cursor.show();
+          aria.queue(cursor.parent).alert();
+        }
+        else {
+          textareaSpan.detach();
+        }
+      }
+
+      function mouseup(e) {
+        cursor.blink = blink;
+        if (!cursor.selection) updateCursor();
+        unbindListeners(e);
+      }
+
+      var wasEdited;
+      cancelSelectionOnEdit = {
+        cursor: cursor,
+        cb: function () {
+          // If an edit happens while the mouse is down, the existing
+          // selection is no longer valid. Clear it and unbind listeners,
+          // similar to what happens on mouseup.
+          wasEdited = true;
+          cursor.blink = blink;
+          cursor.clearSelection();
+          updateCursor();
+          unbindListeners(e);
+        }
       }
 
       if (ctrlr.blurred) {
         if (!ctrlr.editable) rootjQ.prepend(textareaSpan);
-        textarea.focus();
+        textarea[0].focus();
+        // focus call may bubble to clients, who may then write to
+        // mathquill, triggering cancelSelectionOnEdit. If that happens, we
+        // don't want to stop the cursor blink or bind listeners,
+        // so return early.
+        if (wasEdited) return;
       }
 
       cursor.blink = noop;
@@ -62,18 +107,27 @@ Controller.open(function(_) {
 });
 
 Controller.open(function(_) {
-  _.seek = function(target, pageX, pageY) {
+  _.seek = function($target, pageX, pageY) {
     var cursor = this.notify('select').cursor;
+    var node;
+    var targetElm = $target && $target[0];
 
-    if (target) {
-      var nodeId = target.attr(mqBlockId) || target.attr(mqCmdId);
-      if (!nodeId) {
-        var targetParent = target.parent();
-        nodeId = targetParent.attr(mqBlockId) || targetParent.attr(mqCmdId);
-      }
+    // we can click on an element that is deeply nested past the point
+    // that mathquill knows about. We need to traverse up to the first
+    // node that mathquill is aware of
+    while (targetElm) {
+      // try to find the MQ Node associated with the DOM Element
+      node = Node.getNodeOfElement(targetElm);
+      if (node) break;
+
+      // must be too deep, traverse up to the parent DOM Element
+      targetElm = targetElm.parentElement;
     }
-    var node = nodeId ? Node.byId[nodeId] : this.root;
-    pray('nodeId is the id of some Node that exists', node);
+
+    // Could not find any nodes, just use the root
+    if (!node) {
+      node = this.root;
+    }
 
     // don't clear selection until after getting node from target, in case
     // target was selection span, otherwise target will have no parent and will

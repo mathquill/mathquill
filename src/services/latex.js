@@ -18,6 +18,7 @@ var latexMathParser = (function() {
   var string = Parser.string;
   var regex = Parser.regex;
   var letter = Parser.letter;
+  var digit = Parser.digit;
   var any = Parser.any;
   var optWhitespace = Parser.optWhitespace;
   var succeed = Parser.succeed;
@@ -26,6 +27,7 @@ var latexMathParser = (function() {
   // Parsers yielding either MathCommands, or Fragments of MathCommands
   //   (either way, something that can be adopted by a MathBlock)
   var variable = letter.map(function(c) { return Letter(c); });
+  var number = digit.map(function (c) { return Digit(c); });
   var symbol = regex(/^[^${}\\_^]/).map(function(c) { return VanillaSymbol(c); });
 
   var controlSequence =
@@ -49,6 +51,7 @@ var latexMathParser = (function() {
   var command =
     controlSequence
     .or(variable)
+    .or(number)
     .or(symbol)
   ;
 
@@ -74,8 +77,12 @@ var latexMathParser = (function() {
 })();
 
 Controller.open(function(_, super_) {
+  _.cleanLatex = function (latex) {
+    //prune unnecessary spaces
+    return latex.replace(/(\\[a-z]+) (?![a-z])/ig,'$1')
+  }
   _.exportLatex = function() {
-    return this.root.latex().replace(/(\\[a-z]+) (?![a-z])/ig,'$1');
+    return this.cleanLatex(this.root.latex());
   };
 
   optionProcessors.maxDepth = function(depth) {
@@ -87,39 +94,208 @@ Controller.open(function(_, super_) {
 
     return this;
   };
-  _.renderLatexMath = function(latex) {
-    var root = this.root;
-    var cursor = this.cursor;
-    var options = cursor.options;
-    var jQ = root.jQ;
 
+  _.classifyLatexForEfficientUpdate = function (latex) {
+    if (typeof latex !== 'string') return;
+
+    var matches = latex.match(/-?[0-9.]+$/g);
+    if (matches && matches.length === 1) {
+      return {
+        latex: latex,
+        prefix: latex.substr(0, latex.length - matches[0].length),
+        digits: matches[0]
+      };
+    }
+  };
+  _.renderLatexMathEfficiently = function (latex) {
+    var root = this.root;
+    var oldLatex = this.exportLatex();
+    if (root.ends[L] && root.ends[R] && oldLatex === latex) {
+      return true;
+    }
+    var oldClassification;
+    var classification = this.classifyLatexForEfficientUpdate(latex);
+    if (classification) {
+      oldClassification = this.classifyLatexForEfficientUpdate(oldLatex);
+      if (!oldClassification || oldClassification.prefix !== classification.prefix) {
+        return false;
+      }
+    } else {
+      return false;
+    }
+
+
+    // check if minus sign is changing
+    var oldDigits = oldClassification.digits;
+    var newDigits = classification.digits;
+    var oldMinusSign = false;
+    var newMinusSign = false;
+    if (oldDigits[0] === '-') {
+      oldMinusSign = true;
+      oldDigits = oldDigits.substr(1);
+    }
+    if (newDigits[0] === '-') {
+      newMinusSign = true;
+      newDigits = newDigits.substr(1);
+    }
+
+    // start at the very end
+    var charNode = this.root.ends[R];
+    var oldCharNodes = [];
+    for (var i= oldDigits.length - 1; i >= 0; i--) {
+      // the tree does not match what we expect
+      if (charNode.ctrlSeq !== oldDigits[i]) {
+        return false;
+      }
+
+      // the trailing digits are not just under the root. We require the root
+      // to be the parent so that we can be sure we do not need a reflow to
+      // grow parens.
+      if (charNode.parent !== root) {
+        return false;
+      }
+
+      // push to the start. We're traversing backwards
+      oldCharNodes.unshift(charNode);
+
+      // move left one character
+      charNode = charNode[L];
+    }
+
+    // remove the minus sign
+    if (oldMinusSign && !newMinusSign) {
+      var oldMinusNode = charNode;
+      if (oldMinusNode.ctrlSeq !== '-') return false;
+      if (oldMinusNode[R] !== oldCharNodes[0]) return false;
+      if (oldMinusNode.parent !== root) return false;
+      if (oldMinusNode[L] && oldMinusNode[L].parent !== root) return false;
+
+      oldCharNodes[0][L] = oldMinusNode[L];
+
+      if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
+      if (oldMinusNode[L]) oldMinusNode[L][R] = oldCharNodes[0];
+
+      oldMinusNode.jQ.remove();
+    }
+
+    // add a minus sign
+    if (!oldMinusSign && newMinusSign) {
+      var newMinusNode = PlusMinus('-');
+      var minusSpan = document.createElement('span');
+      minusSpan.textContent = '-';
+      newMinusNode.jQ = $(minusSpan);
+
+      if (oldCharNodes[0][L]) oldCharNodes[0][L][R] = newMinusNode;
+      if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
+
+      newMinusNode.parent = root;
+      newMinusNode[L] = oldCharNodes[0][L];
+      newMinusNode[R] = oldCharNodes[0];
+      oldCharNodes[0][L] = newMinusNode;
+
+      newMinusNode.contactWeld(); // decide if binary operator
+      newMinusNode.jQ.insertBefore(oldCharNodes[0].jQ);
+    }
+
+    // update the text of the current nodes
+    var commonLength = Math.min(oldDigits.length, newDigits.length);
+    for (i=0; i < commonLength; i++) {
+      var newText = newDigits[i];
+      charNode = oldCharNodes[i];
+      if (charNode.ctrlSeq !== newText) {
+        charNode.ctrlSeq = newText;
+        charNode.jQ[0].textContent = newText;
+        charNode.mathspeakName = newText;
+      }
+    }
+
+    // remove the extra digits at the end
+    if (oldDigits.length > newDigits.length) {
+      charNode = oldCharNodes[newDigits.length - 1];
+      root.ends[R] = charNode;
+      charNode[R] = 0;
+
+      for (i = oldDigits.length - 1; i >= commonLength; i--) {
+        oldCharNodes[i].jQ.remove();
+      }
+    }
+
+    // add new digits after the existing ones
+    if (newDigits.length > oldDigits.length) {
+      var frag = document.createDocumentFragment();
+
+      for (i = commonLength; i < newDigits.length; i++) {
+        var span = document.createElement('span');
+        span.className = "mq-digit";
+        span.textContent = newDigits[i];
+
+        var newNode = Digit(newDigits[i]);
+        newNode.parent = root;
+        newNode.jQ = $(span);
+        frag.appendChild(span);
+
+        // splice this node in
+        newNode[L] = root.ends[R];
+        newNode[R] = 0;
+        newNode[L][R] = newNode;
+        root.ends[R] = newNode;
+      }
+
+      root.jQ[0].appendChild(frag);
+    }
+
+    var currentLatex = this.exportLatex();
+    if (currentLatex !== latex) {
+      console.warn('tried updating latex efficiently but did not work. Attempted: ' + latex + ' but wrote: ' + currentLatex);
+      return false;
+    }
+
+    this.cursor.resetToEnd(this);
+
+    var rightMost = root.ends[R];
+    if (rightMost.fixDigitGrouping) {
+      rightMost.fixDigitGrouping(this.cursor.options);
+    }
+
+    return true;
+  };
+  _.renderLatexMathFromScratch = function (latex) {
+    var root = this.root, cursor = this.cursor;
     var all = Parser.all;
     var eof = Parser.eof;
 
     var block = latexMathParser.skip(eof).or(all.result(false)).parse(latex);
 
-    root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
 
-    if (block && block.prepareInsertionAt(cursor)) {
+    if (block) {
       block.children().adopt(root, 0, 0);
+    }
+
+    var jQ = root.jQ;
+
+    if (block) {
       var html = block.join('html');
       jQ.html(html);
       root.jQize(jQ.children());
       root.finalizeInsert(cursor.options);
-    }
-    else {
+    } else {
       jQ.empty();
     }
-
+    this.updateMathspeak();
     delete cursor.selection;
     cursor.insAtRightEnd(root);
+  };
+  _.renderLatexMath = function(latex) {
+    this.notify('replace');
+
+    if (this.renderLatexMathEfficiently(latex)) return;
+    this.renderLatexMathFromScratch(latex);
   };
   _.renderLatexText = function(latex) {
     var root = this.root, cursor = this.cursor;
 
     root.jQ.children().slice(1).remove();
-    root.eachChild('postOrder', 'dispose');
     root.ends[L] = root.ends[R] = 0;
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);

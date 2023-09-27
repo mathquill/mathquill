@@ -1,3 +1,9 @@
+// look here to see the digit layout strategy:
+// https://www.desmos.com/calculator/ctvh9utz0t
+@digit-separator: .11em;
+@expand-margin: .009em;
+@contract-margin: -.01em;
+
 .mq-root-block, .mq-math-mode .mq-root-block {
   .inline-block;
   width: 100%;
@@ -6,7 +12,40 @@
   white-space: nowrap;
   overflow: hidden;
   vertical-align: middle;
+
+  .mq-digit {
+    margin-left: @expand-margin;
+    margin-right: @expand-margin;
+  }
+
+  .mq-group-start {
+    margin-left: @digit-separator;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-other {
+    margin-left: @contract-margin;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-leading-1, .mq-group-leading-2 {
+    margin-left: 0;
+    margin-right: @contract-margin;
+  }
+
+  .mq-group-leading-3 {
+    margin-left: 4 * @expand-margin;
+    margin-right: @contract-margin;
+  }
+
+  &.mq-suppress-grouping {
+    .mq-group-start, .mq-group-other, .mq-group-leading-1, .mq-group-leading-2, .mq-group-leading-3 {
+      margin-left: @expand-margin;
+      margin-right: @expand-margin;
+    }
+  }
 }
+
 .mq-math-mode {
   font-variant: normal;
   font-weight: normal;
@@ -25,6 +64,20 @@
     line-height: .9;
   }
 
+  svg {
+    // svg symbols are sometimes used for autoscaling brackets and
+    // square root symbols. This piece of css magic allows you to copy
+    // over the current value of the font color to the svg symbols.
+    fill: currentColor;
+
+    // the svg symbols fill their container
+    position:absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
   * {
     font-size: inherit;
     line-height: inherit;
@@ -37,16 +90,18 @@
 
   // TODO: what's the difference between these?
   .mq-empty {
-    background: #ccc;
+    background: rgba(0,0,0,.2);
     &.mq-root-block {
       background: transparent;
+    }
+    &.mq-empty-parens, &.mq-empty-square-brackets {
+      background: transparent
     }
   }
 
   &.mq-empty {
     background: transparent;
   }
-
 
   .mq-text-mode {
     display: inline-block;
@@ -127,11 +182,11 @@
   }
 
   .mq-overline {
-    border-top: 1px solid black;
+    border-top: 1px solid;
     margin-top: 1px;
   }
   .mq-underline {
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid;
     margin-bottom: 1px;
   }
 
@@ -160,7 +215,7 @@
     &.mq-sup-only {
       vertical-align: .5em;
 
-      .mq-sup {
+      & > .mq-sup {
         display: inline-block;
         vertical-align: text-bottom;
       }
@@ -196,21 +251,24 @@
 
   ////
   // parentheses
-  .mq-paren {
-    padding: 0 .1em;
-    vertical-align: top;
-    -webkit-transform-origin: center .06em;
-    -moz-transform-origin: center .06em;
-    -ms-transform-origin: center .06em;
-    -o-transform-origin: center .06em;
-    transform-origin: center .06em;
-
-    &.mq-ghost { color: silver; }
-
-    + span {
-      margin-top: .1em;
-      margin-bottom: .1em;
-    }
+  .mq-ghost svg { opacity: .2 }
+  .mq-bracket-middle {
+    margin-top: .1em;
+    margin-bottom: .1em;
+  }
+  .mq-bracket-l, .mq-bracket-r {
+    position: absolute;
+    top: 0;
+    bottom: 2px;
+  }
+  .mq-bracket-l {
+    left: 0;
+  }
+  .mq-bracket-r {
+    right:0;
+  }
+  .mq-bracket-container {
+    position: relative;
   }
 
   .mq-array {
@@ -285,16 +343,20 @@
   // \sqrt
   // square roots
   .mq-sqrt-prefix {
-    padding-top: 0;
+    position: absolute;
+    top: 1px;
+    bottom: 0.15em;
+    width: 0.95em;
+  }
+
+  .mq-sqrt-container {
     position: relative;
-    top: 0.1em;
-    vertical-align: top;
-    .transform-origin(top);
   }
 
   .mq-sqrt-stem {
     border-top: 1px solid;
     margin-top: 1px;
+    margin-left: 0.9em;
     padding-left: .15em;
     padding-right: .2em;
     margin-right: .1em;
@@ -311,7 +373,7 @@
     display: block;
     text-align: center;
   }
-  
+
   .mq-hat-prefix {
     display: block;
     text-align: center;
@@ -369,16 +431,24 @@
     padding-top: 0.2em;
     text-align: center;
 
-    &:before {
-      display: block;
-      position: relative;
-      top: -0.34em;
+    &:after {
+      position: absolute;
+      right: -0.1em;
+      top: -0.48em;
       font-size: 0.5em;
-      line-height: 0em;
       content: '\27A4';
-      text-align: right;
     }
-    &.mq-arrow-left:before {
+    //really wish I could use :not here, but less doesn't seem to be happy with that
+    &.mq-arrow-left:after {
+      content: '';
+      display: none;
+    }
+    &.mq-arrow-left:before, &.mq-arrow-leftright:before {
+      position: absolute;
+      top: -0.48em;
+      left: -0.1em;
+      font-size: 0.5em;
+      content: '\27A4';
       -moz-transform: scaleX(-1);
       -o-transform: scaleX(-1);
       -webkit-transform: scaleX(-1);

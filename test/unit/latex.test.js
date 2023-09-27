@@ -2,7 +2,9 @@ suite('latex', function() {
   function assertParsesLatex(str, latex) {
     if (arguments.length < 2) latex = str;
 
-    var result = latexMathParser.parse(str).postOrder('finalizeTree', Options.p).join('latex');
+    var result = latexMathParser.parse(str).postOrder(function (node) {
+      node.finalizeTree(Options.p)
+    }).join('latex');
     assert.equal(result, latex,
       'parsing \''+str+'\', got \''+result+'\', expected \''+latex+'\''
     );
@@ -35,23 +37,23 @@ suite('latex', function() {
   });
 
   test('simple exponent', function() {
-    assertParsesLatex('x^n');
+    assertParsesLatex('x^{n}');
   });
 
   test('block exponent', function() {
-    assertParsesLatex('x^{n}', 'x^n');
+    assertParsesLatex('x^{n}', 'x^{n}');
     assertParsesLatex('x^{nm}');
     assertParsesLatex('x^{}', 'x^{ }');
   });
 
   test('nested exponents', function() {
-    assertParsesLatex('x^{n^m}');
+    assertParsesLatex('x^{n^{m}}');
   });
 
   test('exponents with spaces', function() {
-    assertParsesLatex('x^ 2', 'x^2');
+    assertParsesLatex('x^ 2', 'x^{2}');
 
-    assertParsesLatex('x ^2', 'x^2');
+    assertParsesLatex('x ^2', 'x^{2}');
   });
 
   test('inner groups', function() {
@@ -193,13 +195,13 @@ suite('latex', function() {
 
       test('basic rendering', function() {
         assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
-                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+                          'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}');
       });
 
       test('re-rendering', function() {
-        assertParsesLatex('a x^2 + b x + c = 0', 'ax^2+bx+c=0');
+        assertParsesLatex('a x^2 + b x + c = 0', 'ax^{2}+bx+c=0');
         assertParsesLatex('x = \\frac{ -b \\pm \\sqrt{ b^2 - 4ac } }{ 2a }',
-                          'x=\\frac{-b\\pm\\sqrt{b^2-4ac}}{2a}');
+                          'x=\\frac{-b\\pm\\sqrt{b^{2}-4ac}}{2a}');
       });
 
       test('empty LaTeX', function () {
@@ -266,23 +268,23 @@ suite('latex', function() {
       suite('\\sum', function() {
         test('basic', function() {
           mq.write('\\sum_{n=0}^5');
-          assert.equal(mq.latex(), '\\sum_{n=0}^5');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{5}');
           mq.write('x^n');
-          assert.equal(mq.latex(), '\\sum_{n=0}^5x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{5}x^{n}');
         });
 
         test('only lower bound', function() {
           mq.write('\\sum_{n=0}');
           assert.equal(mq.latex(), '\\sum_{n=0}^{ }');
           mq.write('x^n');
-          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^n');
+          assert.equal(mq.latex(), '\\sum_{n=0}^{ }x^{n}');
         });
 
         test('only upper bound', function() {
           mq.write('\\sum^5');
-          assert.equal(mq.latex(), '\\sum_{ }^5');
+          assert.equal(mq.latex(), '\\sum_{ }^{5}');
           mq.write('x^n');
-          assert.equal(mq.latex(), '\\sum_{ }^5x^n');
+          assert.equal(mq.latex(), '\\sum_{ }^{5}x^{n}');
         });
       });
     });
@@ -300,25 +302,25 @@ suite('latex', function() {
     });
 
     test('initial latex', function() {
-      assert.equal(inner1.latex(), 'x_0+x_1+x_2');
+      assert.equal(inner1.latex(), 'x_{0}+x_{1}+x_{2}');
       assert.equal(inner2.latex(), '3');
-      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2}{3}');
+      assert.equal(outer.latex(), '\\frac{x_{0}+x_{1}+x_{2}}{3}');
     });
 
     test('setting latex', function() {
       inner1.latex('\\sum_{i=0}^N x_i');
       inner2.latex('N');
-      assert.equal(inner1.latex(), '\\sum_{i=0}^Nx_i');
+      assert.equal(inner1.latex(), '\\sum_{i=0}^{N}x_{i}');
       assert.equal(inner2.latex(), 'N');
-      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^Nx_i}{N}');
+      assert.equal(outer.latex(), '\\frac{\\sum_{i=0}^{N}x_{i}}{N}');
     });
 
     test('writing latex', function() {
       inner1.write('+ x_3');
       inner2.write('+ 1');
-      assert.equal(inner1.latex(), 'x_0+x_1+x_2+x_3');
+      assert.equal(inner1.latex(), 'x_{0}+x_{1}+x_{2}+x_{3}');
       assert.equal(inner2.latex(), '3+1');
-      assert.equal(outer.latex(), '\\frac{x_0+x_1+x_2+x_3}{3+1}');
+      assert.equal(outer.latex(), '\\frac{x_{0}+x_{1}+x_{2}+x_{3}}{3+1}');
     });
 
     test('optional inner field name', function() {
@@ -336,7 +338,7 @@ suite('latex', function() {
       mantissa.latex('1.2345');
       base.latex('10');
       exp.latex('8');
-      assert.equal(outer.latex(), '1.2345\\cdot10^8');
+      assert.equal(outer.latex(), '1.2345\\cdot10^{8}');
     });
 
     test('make inner field static and then editable', function() {

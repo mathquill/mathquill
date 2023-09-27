@@ -70,8 +70,8 @@ function getInterface(v) {
   function MQ(el) {
     if (!el || !el.nodeType) return null; // check that `el` is a HTML element, using the
       // same technique as jQuery: https://github.com/jquery/jquery/blob/679536ee4b7a92ae64a5f58d90e9cc38c001e807/src/core/init.js#L92
-    var blockId = $(el).children('.mq-root-block').attr(mqBlockId);
-    var ctrlr = blockId && Node.byId[blockId].controller;
+    var blockNode = Node.getNodeOfElement($(el).children('.mq-root-block')[0]);
+    var ctrlr = blockNode && blockNode.controller;
     return ctrlr ? APIClasses[ctrlr.KIND_OF_MQ](ctrlr) : null;
   };
   var APIClasses = {};
@@ -109,8 +109,8 @@ function getInterface(v) {
       ctrlr.createTextarea();
 
       var contents = el.addClass(classNames).contents().detach();
-      root.jQ =
-        $('<span class="mq-root-block"/>').attr(mqBlockId, root.id).appendTo(el);
+      root.jQ = $('<span class="mq-root-block"/>').appendTo(el);
+      Node.linkElementByBlockId(root.jQ[0], root.id);
       this.latex(contents.text());
 
       this.revert = function() {
@@ -122,6 +122,7 @@ function getInterface(v) {
     _.config = function(opts) { config(this.__options, opts); return this; };
     _.el = function() { return this.__controller.container[0]; };
     _.text = function() { return this.__controller.exportText(); };
+    _.mathspeak = function() { return this.__controller.exportMathSpeak(); };
     _.latex = function(latex) {
       if (arguments.length > 0) {
         this.__controller.renderLatexMath(latex);
@@ -138,7 +139,7 @@ function getInterface(v) {
         .replace(/ class=(""|(?= |>))/g, '');
     };
     _.reflow = function() {
-      this.__controller.root.postOrder('reflow');
+      this.__controller.root.postOrder(function (node) { node.reflow(); });
       return this;
     };
   });
@@ -152,7 +153,11 @@ function getInterface(v) {
       this.__controller.editablesTextareaEvents();
       return this;
     };
-    _.focus = function() { this.__controller.textarea.focus(); return this; };
+    _.focus = function() {
+      this.__controller.textarea[0].focus();
+      this.__controller.scrollHoriz();
+      return this;
+    };
     _.blur = function() { this.__controller.textarea.blur(); return this; };
     _.write = function(latex) {
       this.__controller.writeLatex(latex);
@@ -162,7 +167,7 @@ function getInterface(v) {
     };
     _.empty = function() {
       var root = this.__controller.root, cursor = this.__controller.cursor;
-      root.eachChild('postOrder', 'dispose');
+
       root.ends[L] = root.ends[R] = 0;
       root.jQ.empty();
       delete cursor.selection;
@@ -178,11 +183,12 @@ function getInterface(v) {
           cmd = klass(cmd);
           if (cursor.selection) cmd.replaces(cursor.replaceSelection());
           cmd.createLeftOf(cursor.show());
-          this.__controller.scrollHoriz();
         }
         else /* TODO: API needs better error reporting */;
       }
       else cursor.parent.write(cursor, cmd);
+
+      ctrlr.scrollHoriz();
       if (ctrlr.blurred) cursor.hide().parent.blur();
       return this;
     };
@@ -204,10 +210,10 @@ function getInterface(v) {
     _.moveToLeftEnd = function() { return this.moveToDirEnd(L); };
     _.moveToRightEnd = function() { return this.moveToDirEnd(R); };
 
-    _.keystroke = function(keys) {
+    _.keystroke = function(keys, evt) {
       var keys = keys.replace(/^\s+|\s+$/g, '').split(/\s+/);
       for (var i = 0; i < keys.length; i += 1) {
-        this.__controller.keystroke(keys[i], { preventDefault: noop });
+        this.__controller.keystroke(keys[i], evt || { preventDefault: noop });
       }
       return this;
     };
@@ -224,9 +230,22 @@ function getInterface(v) {
       var cmd = Embed().setOptions(options);
       cmd.createLeftOf(this.__controller.cursor);
     };
+    _.setAriaLabel = function(ariaLabel) {
+      this.__controller.setAriaLabel(ariaLabel);
+      return this;
+    };
+    _.getAriaLabel = function () {
+      return this.__controller.getAriaLabel();
+    };
+    _.setAriaPostLabel = function(ariaPostLabel, timeout) {
+      this.__controller.setAriaPostLabel(ariaPostLabel, timeout);
+      return this;
+    };
+    _.getAriaPostLabel = function () {
+      return this.__controller.getAriaPostLabel();
+    };
     _.clickAt = function(clientX, clientY, target) {
       target = target || document.elementFromPoint(clientX, clientY);
-
       var ctrlr = this.__controller, root = ctrlr.root;
       if (!jQuery.contains(root.jQ[0], target)) target = root.jQ[0];
       ctrlr.seek($(target), clientX + pageXOffset, clientY + pageYOffset);

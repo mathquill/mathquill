@@ -32,17 +32,22 @@ BASE_SOURCES = \
   $(SRC_DIR)/cursor.js \
   $(SRC_DIR)/controller.js \
   $(SRC_DIR)/publicapi.js \
-  $(SRC_DIR)/services/*.util.js \
-  $(SRC_DIR)/services/*.js
+  $(SRC_DIR)/services/parser.util.js \
+  $(SRC_DIR)/services/saneKeyboardEvents.util.js \
+  $(SRC_DIR)/services/aria.js \
+  $(SRC_DIR)/services/exportText.js \
+  $(SRC_DIR)/services/focusBlur.js \
+  $(SRC_DIR)/services/keystroke.js \
+  $(SRC_DIR)/services/latex.js \
+  $(SRC_DIR)/services/mouse.js \
+  $(SRC_DIR)/services/scrollHoriz.js \
+  $(SRC_DIR)/services/textarea.js
 
 SOURCES_FULL = \
   $(BASE_SOURCES) \
   $(SRC_DIR)/commands/math.js \
   $(SRC_DIR)/commands/text.js \
   $(SRC_DIR)/commands/math/*.js
-# FIXME text.js currently depends on math.js (#435), restore these when fixed:
-# $(SRC_DIR)/commands/*.js \
-# $(SRC_DIR)/commands/*/*.js
 
 SOURCES_BASIC = \
   $(BASE_SOURCES) \
@@ -98,6 +103,7 @@ BUILD_DIR_EXISTS = $(BUILD_DIR)/.exists--used_by_Makefile
 .PHONY: all basic dev js uglify css font clean
 all: font css uglify
 basic: $(UGLY_BASIC_JS) $(BASIC_CSS)
+unminified_basic: $(BASIC_JS) $(BASIC_CSS)
 # dev is like all, but without minification
 dev: font css js
 js: $(BUILD_JS)
@@ -111,6 +117,7 @@ $(PJS_SRC): $(NODE_MODULES_INSTALLED)
 
 $(BUILD_JS): $(INTRO) $(SOURCES_FULL) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
+	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
@@ -118,6 +125,7 @@ $(UGLY_JS): $(BUILD_JS) $(NODE_MODULES_INSTALLED)
 
 $(BASIC_JS): $(INTRO) $(SOURCES_BASIC) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/escape-non-ascii > $@
+	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
@@ -125,10 +133,12 @@ $(UGLY_BASIC_JS): $(BASIC_JS) $(NODE_MODULES_INSTALLED)
 
 $(BUILD_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) $(LESS_OPTS) $(CSS_MAIN) > $@
+	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	$(LESSC) --modify-var="basic=true" $(LESS_OPTS) $(CSS_MAIN) > $@
+	perl -pi -e s/mq-/$(MQ_CLASS_PREFIX)mq-/g $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(NODE_MODULES_INSTALLED): package.json

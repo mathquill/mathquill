@@ -2,3 +2,24 @@
   display: -moz-inline-box;
   display: inline-block;
 }
+
+// ARIA alert styling; must technically be visible for browsers to fire needed events (except IE). Common technique is to show them offscreen so visual users aren't impacted.
+.mq-aria-alert {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 0px;
+  height: 0px;
+  text-align: left;
+  overflow: hidden;
+}
+
+.mq-mathspeak {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 0px;
+  height: 0px;
+  text-align: left;
+  overflow: hidden;
+}
