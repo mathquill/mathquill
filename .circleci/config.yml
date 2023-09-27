@@ -67,11 +67,11 @@ jobs:
     - restore_cache:
         keys:
         # This branch if available
-        - v3-dep-{{ .Branch }}-
+        - v6-dep-{{ .Branch }}-
         # Default branch if not
-        - v3-dep-master-
+        - v6-dep-master-
         # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v3-dep-
+        - v6-dep-
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
@@ -220,7 +220,7 @@ jobs:
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # Save dependency cache
     - save_cache:
-        key: v3-dep-{{ .Branch }}-{{ epoch }}
+        key: v6-dep-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
