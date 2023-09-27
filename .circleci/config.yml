@@ -126,25 +126,6 @@ jobs:
     - run: npm install
     - run: npm install wd
     - run: sudo apt-get install -y imagemagick
-    # Save dependency cache
-    - save_cache:
-        key: v3-dep-{{ .Branch }}-{{ epoch }}
-        paths:
-        # This is a broad list of cache paths to include many possible development environments
-        # You can probably delete some of these entries
-        - vendor/bundle
-        - ~/virtualenvs
-        - ~/.m2
-        - ~/.ivy2
-        - ~/.bundle
-        - ~/.go_workspace
-        - ~/.gradle
-        - ~/.cache/bower
-        # These cache paths were specified in the 1.0 config
-        - ~/sauce-connect
-        - ./node_modules
-        # Based on: https://xyxyx.org/posts/2019-04-09-saving-the-debian-package-cache-on-circleci.html
-        - /var/cache/apt/archives
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
@@ -236,6 +217,25 @@ jobs:
     - run: killall --wait sc; true  # wait for Sauce Connect to close the tunnel; ignore errors since it's just cleanup
     # Teardown
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
+    # Save dependency cache
+    - save_cache:
+        key: v3-dep-{{ .Branch }}-{{ epoch }}
+        paths:
+        # This is a broad list of cache paths to include many possible development environments
+        # You can probably delete some of these entries
+        - vendor/bundle
+        - ~/virtualenvs
+        - ~/.m2
+        - ~/.ivy2
+        - ~/.bundle
+        - ~/.go_workspace
+        - ~/.gradle
+        - ~/.cache/bower
+        # These cache paths were specified in the 1.0 config
+        - ~/sauce-connect
+        - ./node_modules
+        # Based on: https://xyxyx.org/posts/2019-04-09-saving-the-debian-package-cache-on-circleci.html
+        - /var/cache/apt/archives
     # Save test results
     - store_test_results:
         path: /tmp/circleci-test-results
