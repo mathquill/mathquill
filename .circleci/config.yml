@@ -232,9 +232,9 @@ jobs:
         - ~/.go_workspace
         - ~/.gradle
         - ~/.cache/bower
+        - ~/.npm
         # These cache paths were specified in the 1.0 config
         - ~/sauce-connect
-        - ./node_modules
         # Based on: https://xyxyx.org/posts/2019-04-09-saving-the-debian-package-cache-on-circleci.html
         - /var/cache/apt/archives
     # Save test results
