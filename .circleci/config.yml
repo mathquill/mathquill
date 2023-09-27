@@ -126,6 +126,7 @@ jobs:
     - run: npm cache verify
     - run: npm install
     - run: npm install wd
+    - run: npm version
     - run: sudo apt-get install -y imagemagick
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
