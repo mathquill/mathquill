@@ -54,6 +54,7 @@ class Controller_mouse extends Controller_latex {
     (e.target as any).unselectable = true; // http://jsbin.com/yagekiji/1 // TODO - no idea what this unselectable property is
 
     if (cursor.options.ignoreNextMousedown(e)) return;
+    else cursor.options.ignoreNextMousedown = ignoreNextMouseDownNoop;
 
     // some elements should not act like internal mathquill nodes. Tokens for instance define external
     // click / hover behaviors. So we have mathquill act like the item was never clicked. This allows
