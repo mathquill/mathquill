@@ -58,6 +58,9 @@
       teardown(function() { $('#mock').empty(); });
 
       function runXUnit() {
+        var xunit = '';
+        Mocha.process.stdout.write = function(line) { xunit += line; };
+        
         var runner = mocha.run();
         runner.on('end', function() {
           setTimeout(function() {
