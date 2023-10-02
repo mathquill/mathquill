@@ -156,9 +156,13 @@ $(BASIC_CSS): $(CSS_SOURCES) $(NODE_MODULES_INSTALLED) $(BUILD_DIR_EXISTS)
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@
 
 $(NODE_MODULES_INSTALLED): package.json
+ifdef NO_INSTALL
+	@echo "Skipping npm install because NO_INSTALL environment variable is set."
+else
 	test -e $(NODE_MODULES_INSTALLED) || rm -rf ./node_modules/ # robust against previous botched npm install
 	NODE_ENV=development npm ci
 	touch $(NODE_MODULES_INSTALLED)
+endif
 
 $(BUILD_DIR_EXISTS):
 	mkdir -p $(BUILD_DIR)
