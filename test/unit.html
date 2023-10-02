@@ -28,7 +28,7 @@
 
       mocha.setup({
         ui: 'tdd',
-        reporter: outputXunit ? 'xunit' : 'html'
+        reporter: outputXunit ? 'xunit' : 'html',
         bail: false
       });
     </script>
@@ -58,6 +58,9 @@
       teardown(function() { $('#mock').empty(); });
 
       function runXUnit() {
+        var xunit = '';
+        Mocha.process.stdout.write = function(line) { xunit += line; };
+        
         var runner = mocha.run();
         runner.on('end', function() {
           setTimeout(function() {
