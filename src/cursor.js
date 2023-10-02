@@ -90,7 +90,7 @@ var Cursor = P(Point, function(_) {
    */
   _.jumpUpDown = function(from, to) {
     var self = this;
-    self.upDownCache[from.id] = Point.copy(self);
+    self.upDownCache[from.id] = Point(self.parent, self[L], self[R]);
     var cached = self.upDownCache[to.id];
     if (cached) {
       cached[R] ? self.insLeftOf(cached[R]) : self.insAtRightEnd(cached.parent);
@@ -160,15 +160,11 @@ var Cursor = P(Point, function(_) {
     if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(cursor.options, L);
   };
   _.startSelection = function() {
-    var anticursor = this.anticursor = Point.copy(this);
-    var ancestors = anticursor.ancestors = {}; // a map from each ancestor of
-      // the anticursor, to its child that is also an ancestor; in other words,
-      // the anticursor's ancestor chain in reverse order
-    for (var ancestor = anticursor; ancestor.parent; ancestor = ancestor.parent) {
-      ancestors[ancestor.parent.id] = ancestor;
-    }
+    // do this on Shift-Left/Right or mousemove if there isn't already an anticursor
+    this.anticursor = Anticursor(this.parent, this[L], this[R]);
   };
-  _.endSelection = function() {
+  _.resetSelection = function() {
+    // do this on Left/Right or mousedown to reset where selection would start from
     delete this.anticursor;
   };
   _.select = function() {
@@ -278,6 +274,21 @@ var Cursor = P(Point, function(_) {
   _.isTooDeep = function(offset) {
     if (this.options.maxDepth !== undefined) {
       return this.depth() + (offset || 0) > this.options.maxDepth;
+    }
+  };
+});
+
+// When you select a selection, you're selecting from a Point to a Point,
+// and the "to" Point is always the cursor. The "from" is the anticursor.
+var Anticursor = P(Point, function(_, super_) {
+  _.init = function() {
+    super_.init.apply(this, arguments);
+
+    var ancestors = this.ancestors = {}; // a map from each ancestor of
+    // the point, to its child that is also an ancestor; in other words,
+    // the point's ancestor chain in reverse order
+    for (var ancestor = this; ancestor.parent; ancestor = ancestor.parent) {
+      ancestors[ancestor.parent.id] = ancestor;
     }
   };
 });

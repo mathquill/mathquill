@@ -343,7 +343,7 @@ Controller.open(function(_) {
   _.backspace = function() { return this.deleteDir(L); };
   _.deleteForward = function() { return this.deleteDir(R); };
 
-  this.onNotify(function(e) { if (e !== 'select') this.endSelection(); });
+  this.onNotify(function(e) { if (e !== 'select') this.resetSelection(); });
   _.selectDir = function(dir) {
     var cursor = this.notify('select').cursor, seln = cursor.selection;
     prayDirection(dir);
