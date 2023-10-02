@@ -1,5 +1,5 @@
 html {
-  background-color: #DDF;
+  background-color: #ddf;
   height: 100%;
 }
 body {
@@ -25,14 +25,14 @@ h1 small {
 }
 code {
   font: 90% monospace;
-  background: #DDD;
-  border-radius: .3em;
-  -moz-border-radius: .3em;
-  -webkit-border-radius: .3em;
-  padding: 0 .3em;
+  background: #ddd;
+  border-radius: 0.3em;
+  -moz-border-radius: 0.3em;
+  -webkit-border-radius: 0.3em;
+  padding: 0 0.3em;
 }
 code:hover {
-  color: #DDD;
+  color: #ddd;
   background: #222;
 }
 a {
@@ -41,11 +41,11 @@ a {
 }
 a:hover {
   color: black;
-  text-shadow: #40F 0 0 .2em;
+  text-shadow: #40f 0 0 0.2em;
 }
 a:active {
   color: #400;
-  text-shadow: red 0 0 .2em;
+  text-shadow: red 0 0 0.2em;
 }
 ul {
   padding-left: 1em;

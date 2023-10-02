@@ -11,77 +11,81 @@
  * Chrome 54+ on Android works reliably with Talkback.
  ****************************************/
 
-var Aria = P(function(_) {
-  _.init = function() {
-    this.jQ = jQuery([]); // empty element
-    // Add the alert DOM element only after the page has loaded.
-    jQuery(document).ready(function() {
-      var el = '.mq-aria-alert';
-      // No matter how many Mathquill instances exist, we only need one alert object to say something.
-      if (!jQuery(el).length) jQuery('body').append("<p aria-live='assertive' aria-atomic='true' class='mq-aria-alert'></p>"); // make this as noisy as possible in hopes that all modern screen reader/browser combinations will speak when triggered later.
-      this.jQ = jQuery(el);
-    }.bind(this));
-    this.items = [];
-    this.msg = '';
-  };
+type AriaQueueItem = NodeRef | Fragment | string;
 
-  _.queue = function(item, shouldDescribe) {
-    var output = '';
-    if (item instanceof Node) {
+class Aria {
+  controller: Controller;
+  jQ = jQuery(
+    '<span class="mq-aria-alert" aria-live="assertive" aria-atomic="true"></span>'
+  );
+  msg = '';
+  items: AriaQueueItem[] = [];
+
+  constructor(controller: Controller) {
+    this.controller = controller;
+  }
+
+  setContainer(el: $) {
+    this.jQ.appendTo(el);
+  }
+
+  queue(item: AriaQueueItem, shouldDescribe: boolean = false) {
+    var output: Fragment | string = '';
+    if (item instanceof MQNode) {
       // Some constructs include verbal shorthand (such as simple fractions and exponents).
       // Since ARIA alerts relate to moving through interactive content, we don't want to use that shorthand if it exists
       // since doing so may be ambiguous or confusing.
-      var itemMathspeak = item.mathspeak({ignoreShorthand: true});
-      if (shouldDescribe) { // used to ensure item is described when cursor reaches block boundaries
+      var itemMathspeak = item.mathspeak({ ignoreShorthand: true });
+      if (shouldDescribe) {
+        // used to ensure item is described when cursor reaches block boundaries
         if (
           item.parent &&
           item.parent.ariaLabel &&
           item.ariaLabel === 'block'
         ) {
-          output = item.parent.ariaLabel+' '+itemMathspeak;
+          output = item.parent.ariaLabel + ' ' + itemMathspeak;
         } else if (item.ariaLabel) {
-          output = item.ariaLabel+' '+itemMathspeak;
+          output = item.ariaLabel + ' ' + itemMathspeak;
         }
       }
       if (output === '') {
         output = itemMathspeak;
       }
     } else {
-      output = item;
+      output = item || '';
     }
     this.items.push(output);
     return this;
-  };
-  _.queueDirOf = function(dir) {
+  }
+  queueDirOf(dir: Direction) {
     prayDirection(dir);
     return this.queue(dir === L ? 'before' : 'after');
-  };
-  _.queueDirEndOf = function(dir) {
+  }
+  queueDirEndOf(dir: Direction) {
     prayDirection(dir);
     return this.queue(dir === L ? 'beginning of' : 'end of');
-  };
+  }
 
-  _.alert = function(t) {
+  alert(t?: AriaQueueItem) {
     if (t) this.queue(t);
     if (this.items.length) {
-      this.msg = this.items.join(' ').replace(/ +(?= )/g,'').trim();
-      this.jQ.empty().text(this.msg);
+      // To cut down on potential verbiage from multiple Mathquills firing near-simultaneous ARIA alerts,
+      // update the text of this instance if its container also has keyboard focus.
+      // If it does not, leave the DOM unchanged but flush the queue regardless.
+      // Note: updating the msg variable regardless of focus for unit tests.
+      this.msg = this.items
+        .join(' ')
+        .replace(/ +(?= )/g, '')
+        .trim();
+      if (this.controller.containerHasFocus()) {
+        this.jQ.empty().text(this.msg);
+      }
     }
     return this.clear();
-  };
+  }
 
-  _.clear = function() {
+  clear() {
     this.items.length = 0;
     return this;
-  };
-});
-
-// We only ever need one instance of the ARIA alert object, and it needs to be easily accessible from all modules.
-var aria = Aria();
-
-Controller.open(function(_) {
-  _.aria = aria;
-  // based on http://www.gh-mathspeak.com/examples/quick-tutorial/
-  // and http://www.gh-mathspeak.com/examples/grammar-rules/
-  _.exportMathSpeak = function() { return this.root.mathspeak(); };
-});
+  }
+}

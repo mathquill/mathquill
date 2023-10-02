@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=624" />
+
+    <title>MathQuill Select benchmark</title>
+
+    <link rel="stylesheet" type="text/css" href="support/home.css" />
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
+  </head>
+  <body>
+    <p>Benchmark inserting and then selecting n characters</p>
+    <button id="run-button">Run</button>
+    <div>
+      <span id="editable" style="width: 10em"></span>
+    </div>
+    <table id="report">
+      <thead>
+        <tr>
+          <th>nchars</th>
+          <th>render (ms)</th>
+          <th>select (ms)</th>
+        </tr>
+      </thead>
+    </table>
+    <script
+      type="text/javascript"
+      src="../test/support/jquery-1.5.2.js"
+    ></script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+    <script type="text/javascript">
+      var MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+
+      var editableElt = document.getElementById('editable');
+      var mq = MQ.MathField(editableElt);
+      var reportElt = document.getElementById('report');
+
+      function runOne(n) {
+        var rowElt = document.createElement('tr');
+        var td1 = document.createElement('td');
+        var td2 = document.createElement('td');
+        var td3 = document.createElement('td');
+        rowElt.appendChild(td1);
+        rowElt.appendChild(td2);
+        rowElt.appendChild(td3);
+
+        td1.textContent = n;
+
+        var mark = performance.now();
+        mq.latex(Array(n + 1).join('1'));
+        var insert = performance.now();
+        td2.textContent = (insert - mark).toFixed(2);
+        mark = insert;
+        mq.select();
+        var select = performance.now();
+        td3.textContent = (select - mark).toFixed(2);
+
+        reportElt.appendChild(rowElt);
+      }
+
+      var i = 0;
+      var sizes = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000];
+
+      function runNext() {
+        runOne(sizes[i]);
+        i += 1;
+        if (i >= sizes.length) return;
+        setTimeout(runNext, 100);
+      }
+
+      document
+        .getElementById('run-button')
+        .addEventListener('click', function () {
+          runNext();
+        });
+    </script>
+  </body>
+</html>

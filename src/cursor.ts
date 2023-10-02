@@ -10,75 +10,118 @@ textbox, but any one HTML document can contain many such textboxes, so any one
 JS environment could actually contain many instances. */
 
 //A fake cursor in the fake textbox that the math is rendered in.
-var Cursor = P(Point, function(_) {
-  _.init = function(initParent, options, controller) {
+class Anticursor extends Point {
+  ancestors: Record<string | number, Anticursor | MQNode | undefined> = {};
+  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
+    super(parent, leftward, rightward);
+  }
+
+  static fromCursor(cursor: Cursor) {
+    return new Anticursor(cursor.parent, cursor[L], cursor[R]);
+  }
+}
+
+class Cursor extends Point {
+  controller: Controller;
+  parent: MQNode;
+  options: CursorOptions;
+  /** Slightly more than just a "cache", this remembers the cursor's position in each block node, so that we can return to the right
+   * point in that node when moving up and down among blocks.
+   */
+  upDownCache: Record<number | string, Point | undefined> = {};
+  blink: () => void;
+  _jQ: $;
+  jQ: $;
+  selection: MQSelection | undefined;
+  intervalId: number;
+  anticursor: Anticursor | undefined;
+
+  constructor(
+    initParent: MQNode,
+    options: CursorOptions,
+    controller: Controller
+  ) {
+    super(initParent);
     this.controller = controller;
-    this.parent = initParent;
     this.options = options;
 
-    var jQ = this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>');
+    var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>'));
     //closured for setInterval
-    this.blink = function(){ jQ.toggleClass('mq-blink'); };
+    this.blink = function () {
+      jQ.toggleClass('mq-blink');
+    };
+  }
 
-    this.upDownCache = {};
-  };
-
-  _.show = function() {
+  show() {
     this.jQ = this._jQ.removeClass('mq-blink');
-    if ('intervalId' in this) //already was shown, just restart interval
+    if (this.intervalId)
+      //already was shown, just restart interval
       clearInterval(this.intervalId);
-    else { //was hidden and detached, insert this.jQ back into HTML DOM
+    else {
+      //was hidden and detached, insert this.jQ back into HTML DOM
       if (this[R]) {
-        if (this.selection && this.selection.ends[L][L] === this[L])
-          this.jQ.insertBefore(this.selection.jQ);
-        else
-          this.jQ.insertBefore(this[R].jQ.first());
-      }
-      else
-        this.jQ.appendTo(this.parent.jQ);
+        var selection = this.selection;
+        if (selection && (selection.ends[L] as MQNode)[L] === this[L])
+          this.jQ.insertBefore(selection.jQ);
+        else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
+      } else this.jQ.appendTo(this.parent.jQ);
       this.parent.focus();
     }
     this.intervalId = setInterval(this.blink, 500);
     return this;
-  };
-  _.hide = function() {
-    if ('intervalId' in this)
-      clearInterval(this.intervalId);
-    delete this.intervalId;
+  }
+  hide() {
+    if (this.intervalId) clearInterval(this.intervalId);
+    this.intervalId = 0;
     this.jQ.detach();
     this.jQ = $();
     return this;
-  };
+  }
 
-  _.withDirInsertAt = function(dir, parent, withDir, oppDir) {
+  withDirInsertAt(
+    dir: Direction,
+    parent: MQNode,
+    withDir: NodeRef,
+    oppDir: NodeRef
+  ) {
     var oldParent = this.parent;
     this.parent = parent;
-    this[dir] = withDir;
-    this[-dir] = oppDir;
+    this[dir as Direction] = withDir;
+    this[-dir as Direction] = oppDir;
     // by contract, .blur() is called after all has been said and done
     // and the cursor has actually been moved
     // FIXME pass cursor to .blur() so text can fix cursor pointers when removing itself
     if (oldParent !== parent && oldParent.blur) oldParent.blur(this);
-  };
-  _.insDirOf = function(dir, el) {
+  }
+  /** Place the cursor before or after `el`, according the side specified by `dir`. */
+  insDirOf(dir: Direction, el: MQNode) {
     prayDirection(dir);
     this.jQ.insDirOf(dir, el.jQ);
     this.withDirInsertAt(dir, el.parent, el[dir], el);
     this.parent.jQ.addClass('mq-hasCursor');
     return this;
-  };
-  _.insLeftOf = function(el) { return this.insDirOf(L, el); };
-  _.insRightOf = function(el) { return this.insDirOf(R, el); };
+  }
+  insLeftOf(el: MQNode) {
+    return this.insDirOf(L, el);
+  }
+  insRightOf(el: MQNode) {
+    return this.insDirOf(R, el);
+  }
 
-  _.insAtDirEnd = function(dir, el) {
+  /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
+  insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
     this.jQ.insAtDirEnd(dir, el.jQ);
     this.withDirInsertAt(dir, el, 0, el.ends[dir]);
     el.focus();
     return this;
-  };
-  _.insAtLeftEnd = function(el) { return this.insAtDirEnd(L, el); };
-  _.insAtRightEnd = function(el) { return this.insAtDirEnd(R, el); };
+  }
+  insAtLeftEnd(el: MQNode) {
+    return this.insAtDirEnd(L, el);
+  }
+  insAtRightEnd(el: MQNode) {
+    return this.insAtDirEnd(R, el);
+  }
 
   /**
    * jump up or down from one block Node to another:
@@ -88,20 +131,24 @@ var Cursor = P(Point, function(_) {
    *   + if not seek a position in the node that is horizontally closest to
    *     the cursor's current position
    */
-  _.jumpUpDown = function(from, to) {
+  jumpUpDown(from: MQNode, to: MQNode) {
     var self = this;
     self.upDownCache[from.id] = Point.copy(self);
     var cached = self.upDownCache[to.id];
     if (cached) {
-      cached[R] ? self.insLeftOf(cached[R]) : self.insAtRightEnd(cached.parent);
-    }
-    else {
+      var cachedR = cached[R];
+      if (cachedR) {
+        self.insLeftOf(cachedR);
+      } else {
+        self.insAtRightEnd(cached.parent);
+      }
+    } else {
       var pageX = self.offset().left;
       to.seek(pageX, self);
     }
-    aria.queue(to, true);
-  };
-  _.offset = function() {
+    self.controller.aria.queue(to, true);
+  }
+  offset() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -109,39 +156,44 @@ var Cursor = P(Point, function(_) {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var self = this, offset = self.jQ.removeClass('mq-cursor').offset();
+    var self = this,
+      offset = self.jQ.removeClass('mq-cursor').offset();
     self.jQ.addClass('mq-cursor');
     return offset;
   }
-  _.unwrapGramp = function() {
+  unwrapGramp() {
     var gramp = this.parent.parent;
     var greatgramp = gramp.parent;
     var rightward = gramp[R];
     var cursor = this;
 
     var leftward = gramp[L];
-    gramp.disown().eachChild(function(uncle) {
-      if (uncle.isEmpty()) return;
+    gramp.disown().eachChild(function (uncle) {
+      if (uncle.isEmpty()) return true;
 
-      uncle.children()
+      uncle
+        .children()
         .adopt(greatgramp, leftward, rightward)
-        .each(function(cousin) {
+        .each(function (cousin) {
           cousin.jQ.insertBefore(gramp.jQ.first());
-        })
-      ;
+          return true;
+        });
 
       leftward = uncle.ends[R];
+      return true;
     });
 
-    if (!this[R]) { //then find something to be rightward to insLeftOf
-      if (this[L])
-        this[R] = this[L][R];
+    if (!this[R]) {
+      //then find something to be rightward to insLeftOf
+      var thisL = this[L];
+      if (thisL) this[R] = thisL[R];
       else {
         while (!this[R]) {
-          this.parent = this.parent[R];
-          if (this.parent)
-            this[R] = this.parent.ends[L];
-          else {
+          var newParent = this.parent[R];
+          if (newParent) {
+            this.parent = newParent;
+            this[R] = newParent.ends[L];
+          } else {
             this[R] = gramp[R];
             this.parent = greatgramp;
             break;
@@ -149,41 +201,54 @@ var Cursor = P(Point, function(_) {
         }
       }
     }
-    if (this[R])
-      this.insLeftOf(this[R]);
-    else
-      this.insAtRightEnd(greatgramp);
+
+    var thisR = this[R];
+    if (thisR) this.insLeftOf(thisR);
+    else this.insAtRightEnd(greatgramp);
 
     gramp.jQ.remove();
 
-    if (gramp[L].siblingDeleted) gramp[L].siblingDeleted(cursor.options, R);
-    if (gramp[R].siblingDeleted) gramp[R].siblingDeleted(cursor.options, L);
-  };
-  _.startSelection = function() {
-    var anticursor = this.anticursor = Point.copy(this);
-    var ancestors = anticursor.ancestors = {}; // a map from each ancestor of
-      // the anticursor, to its child that is also an ancestor; in other words,
-      // the anticursor's ancestor chain in reverse order
-    for (var ancestor = anticursor; ancestor.parent; ancestor = ancestor.parent) {
+    var grampL = gramp[L];
+    var grampR = gramp[R];
+    if (grampL) grampL.siblingDeleted(cursor.options, R);
+    if (grampR) grampR.siblingDeleted(cursor.options, L);
+  }
+  startSelection() {
+    var anticursor = (this.anticursor = Anticursor.fromCursor(this));
+    var ancestors = anticursor.ancestors;
+
+    for (
+      var ancestor: MQNode | Anticursor = anticursor;
+      ancestor.parent;
+      ancestor = ancestor.parent
+    ) {
       ancestors[ancestor.parent.id] = ancestor;
     }
-  };
-  _.endSelection = function() {
+  }
+  endSelection() {
     delete this.anticursor;
-  };
-  _.select = function() {
-    var anticursor = this.anticursor;
-    if (this[L] === anticursor[L] && this.parent === anticursor.parent) return false;
+  }
+  select() {
+    var _lca;
+    var anticursor = this.anticursor!;
+    if (this[L] === anticursor[L] && this.parent === anticursor.parent)
+      return false;
 
     // Find the lowest common ancestor (`lca`), and the ancestor of the cursor
     // whose parent is the LCA (which'll be an end of the selection fragment).
-    for (var ancestor = this; ancestor.parent; ancestor = ancestor.parent) {
+    for (
+      var ancestor: MQNode | Point | undefined = this;
+      ancestor.parent;
+      ancestor = ancestor.parent
+    ) {
       if (ancestor.parent.id in anticursor.ancestors) {
-        var lca = ancestor.parent;
+        _lca = ancestor.parent;
         break;
       }
     }
-    pray('cursor and anticursor in the same tree', lca);
+    pray('cursor and anticursor in the same tree', _lca);
+    var lca = _lca as MQNode;
+
     // The cursor and the anticursor should be in the same tree, because the
     // mousemove handler attached to the document, unlike the one attached to
     // the root HTML DOM element, doesn't try to get the math tree node of the
@@ -192,13 +257,15 @@ var Cursor = P(Point, function(_) {
 
     // The other end of the selection fragment, the ancestor of the anticursor
     // whose parent is the LCA.
-    var antiAncestor = anticursor.ancestors[lca.id];
+    var antiAncestor = anticursor.ancestors[lca.id] as MQNode;
 
     // Now we have two either Nodes or Points, guaranteed to have a common
     // parent and guaranteed that if both are Points, they are not the same,
     // and we have to figure out which is the left end and which the right end
     // of the selection.
-    var leftEnd, rightEnd, dir = R;
+    var leftEnd,
+      rightEnd,
+      dir: Direction = R;
 
     // This is an extremely subtle algorithm.
     // As a special case, `ancestor` could be a Point and `antiAncestor` a Node
@@ -211,7 +278,11 @@ var Cursor = P(Point, function(_) {
     // `ancestor` or to its right, if and only if `antiAncestor` is to
     // the right of `ancestor`.
     if (ancestor[L] !== antiAncestor) {
-      for (var rightward = ancestor; rightward; rightward = rightward[R]) {
+      for (
+        var rightward: NodeRef | Point | undefined = ancestor;
+        rightward;
+        rightward = rightward[R]
+      ) {
         if (rightward[R] === antiAncestor[R]) {
           dir = L;
           leftEnd = ancestor;
@@ -229,79 +300,89 @@ var Cursor = P(Point, function(_) {
     if (leftEnd instanceof Point) leftEnd = leftEnd[R];
     if (rightEnd instanceof Point) rightEnd = rightEnd[L];
 
-    this.hide().selection = lca.selectChildren(leftEnd, rightEnd);
-    this.insDirOf(dir, this.selection.ends[dir]);
+    this.hide().selection = lca.selectChildren(
+      leftEnd as MQNode,
+      rightEnd as MQNode
+    );
+
+    var insEl = this.selection!.ends[dir] as MQNode;
+    this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
-  };
-  _.resetToEnd = function (controller) {
+  }
+  resetToEnd(controller: ControllerBase) {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
     this[L] = root.ends[R];
     this.parent = root;
-  };
-  _.clearSelection = function() {
+  }
+  clearSelection() {
     if (this.selection) {
       this.selection.clear();
       delete this.selection;
       this.selectionChanged();
     }
     return this;
-  };
-  _.deleteSelection = function() {
-    if (!this.selection) return;
+  }
+  deleteSelection() {
+    var selection = this.selection;
+    if (!selection) return;
 
-    this[L] = this.selection.ends[L][L];
-    this[R] = this.selection.ends[R][R];
-    this.selection.remove();
+    this[L] = (selection.ends[L] as MQNode)[L];
+    this[R] = (selection.ends[R] as MQNode)[R];
+    selection.remove();
     this.selectionChanged();
     delete this.selection;
-  };
-  _.replaceSelection = function() {
+  }
+  replaceSelection() {
     var seln = this.selection;
     if (seln) {
-      this[L] = seln.ends[L][L];
-      this[R] = seln.ends[R][R];
+      this[L] = (seln.ends[L] as MQNode)[L];
+      this[R] = (seln.ends[R] as MQNode)[R];
       delete this.selection;
     }
     return seln;
-  };
-  _.depth = function() {
-    var node = this;
+  }
+  depth() {
+    var node: MQNode | Point = this;
     var depth = 0;
-    while (node = node.parent) {
-      depth += (node instanceof MathBlock) ? 1 : 0;
+    while ((node = node.parent)) {
+      depth += node instanceof MathBlock ? 1 : 0;
     }
     return depth;
-  };
-  _.isTooDeep = function(offset) {
+  }
+  isTooDeep(offset?: number) {
     if (this.options.maxDepth !== undefined) {
       return this.depth() + (offset || 0) > this.options.maxDepth;
+    } else {
+      return false;
     }
-  };
-});
+  }
 
-var Selection = P(Fragment, function(_, super_) {
-  _.init = function() {
-    super_.init.apply(this, arguments);
+  // can be overridden
+  selectionChanged() {}
+}
+class MQSelection extends Fragment {
+  constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
+    super(withDir, oppDir, dir);
+
     this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
-      //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
-  };
-  _.adopt = function() {
-    this.jQ.replaceWith(this.jQ = this.jQ.children());
-    return super_.adopt.apply(this, arguments);
-  };
-  _.clear = function() {
+    //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
+  }
+  adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
+    this.jQ.replaceWith((this.jQ = this.jQ.children()));
+    return super.adopt(parent, leftward, rightward);
+  }
+  clear() {
     // using the browser's native .childNodes property so that we
     // don't discard text nodes.
     this.jQ.replaceWith(this.jQ[0].childNodes);
     return this;
-  };
-  _.join = function(methodName, separatorToken) {
-    var separator = separatorToken || '';
-    return this.fold('', function(fold, child) {
+  }
+  join(methodName: JoinMethod, separator: string = ''): string {
+    return this.fold('', function (fold, child) {
       return fold + separator + child[methodName]();
     });
-  };
-});
+  }
+}

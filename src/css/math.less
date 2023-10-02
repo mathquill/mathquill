@@ -94,7 +94,7 @@
     &.mq-root-block {
       background: transparent;
     }
-    &.mq-empty-parens, &.mq-empty-square-brackets {
+    &.mq-quiet-delimiter {
       background: transparent
     }
   }
@@ -105,7 +105,7 @@
 
   .mq-text-mode {
     display: inline-block;
-    white-space: pre;  
+    white-space: pre;
   }
 
   .mq-text-mode.mq-hasCursor {
@@ -430,6 +430,7 @@
     margin-top: 1px;
     padding-top: 0.2em;
     text-align: center;
+    position: relative;
 
     &:after {
       position: absolute;
@@ -455,35 +456,6 @@
       transform: scaleX(-1);
       filter: FlipH;
       -ms-filter: "FlipH";
-    }
-    &.mq-arrow-both {
-      vertical-align: text-bottom;
-
-      &.mq-empty {
-        min-height: 1.23em;
-
-        &:after {
-          top: -0.34em;
-        }
-      }
-      &:before{
-        -moz-transform: scaleX(-1);
-        -o-transform: scaleX(-1);
-        -webkit-transform: scaleX(-1);
-        transform: scaleX(-1);
-        filter: FlipH;
-        -ms-filter: "FlipH";
-      }
-      &:after {
-        display: block;
-        position: relative;
-        top: -2.3em;
-        font-size: 0.5em;
-        line-height: 0em;
-        content: '\27A4';
-        visibility: visible; //must override .mq-editable-field.mq-empty:after
-        text-align: right;
-      }
     }
   }
 }
