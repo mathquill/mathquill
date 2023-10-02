@@ -33,7 +33,10 @@
 #
 # then translated from 1.0 to 2.0 with: https://circleci.com/docs/2.0/config-translation/
 
-version: 2
+version: 2.1
+# browser-tools orb that provides installers for various browsers: https://circleci.com/developer/orbs/orb/circleci/browser-tools
+orbs:
+  browser-tools: circleci/browser-tools@1.4.6
 jobs:
   build:
     working_directory: ~/mathquill/mathquill
@@ -44,18 +47,12 @@ jobs:
     environment:
       CIRCLE_ARTIFACTS: /tmp/circleci-artifacts
       CIRCLE_TEST_REPORTS: /tmp/circleci-test-results
-    # In CircleCI 1.0 we used a pre-configured image with a large number of languages and other packages.
-    # In CircleCI 2.0 you can now specify your own image, or use one of our pre-configured images.
-    # The following configuration line tells CircleCI to use the specified docker image as the runtime environment for you job.
-    # We have selected a pre-built image that mirrors the build environment we use on
-    # the 1.0 platform, but we recommend you choose an image more tailored to the needs
-    # of each job. For more information on choosing an image (or alternatively using a
-    # VM instead of a container) see https://circleci.com/docs/2.0/executor-types/
-    # To see the list of pre-built images that CircleCI provides for most common languages see
-    # https://circleci.com/docs/2.0/circleci-images/
+    # Docker image with browser testing tools: https://discuss.circleci.com/t/legacy-convenience-image-deprecation/41034#browser-testing-4
     docker:
-    - image: circleci/node:lts-browsers
+    - image: cimg/node:lts-browsers
     steps:
+    # install browsers: https://circleci.com/developer/orbs/orb/circleci/browser-tools
+    - browser-tools/install-browser-tools
     # Machine Setup
     #   If you break your build into multiple jobs with workflows, you will probably want to do the parts of this that are relevant in each
     # The following `checkout` command checks out your code to your working directory. In 1.0 we did this implicitly. In 2.0 you can choose where in the course of a job your code should be checked out.
@@ -70,11 +67,11 @@ jobs:
     - restore_cache:
         keys:
         # This branch if available
-        - v1-dep-{{ .Branch }}-
+        - v3-dep-{{ .Branch }}-
         # Default branch if not
-        - v1-dep-master-
+        - v3-dep-master-
         # Any branch if there are none on the default branch - this should be unnecessary if you have your default branch configured correctly
-        - v1-dep-
+        - v3-dep-
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
@@ -90,8 +87,8 @@ jobs:
           if [ -x sc-*-linux/bin/sc ]; then
             echo Using cached sc-*-linux/bin/sc
           else
-            time wget https://saucelabs.com/downloads/sc-4.7.1-linux.tar.gz
-            time tar -xzf sc-4.7.1-linux.tar.gz
+            time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
+            time tar -xzf sc-4.8.1-linux.tar.gz
           fi
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
@@ -100,8 +97,8 @@ jobs:
 
           echo 'Sauce Connect failed, try redownloading (https://git.io/vSxsJ)'
           rm -rf *
-          time wget https://saucelabs.com/downloads/sc-4.7.1-linux.tar.gz
-          time tar -xzf sc-4.7.1-linux.tar.gz
+          time wget https://saucelabs.com/downloads/sc-4.8.1-linux.tar.gz
+          time tar -xzf sc-4.8.1-linux.tar.gz
 
           time sc-*-linux/bin/sc --user $SAUCE_USERNAME --api-key $SAUCE_ACCESS_KEY \
             --readyfile ~/sauce_is_ready
@@ -111,13 +108,27 @@ jobs:
             | tee /dev/stderr > ~/sauce_is_ready
           exit 1
         background: true
+    - run: |-
+        # Format build name $MQ_CI_BUILD_NAME
+        # https://circleci.com/docs/environment-variables/
+        build_name="CircleCI build #$CIRCLE_BUILD_NUM"
+        if [ $CIRCLE_PR_NUMBER ]; then
+          build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
+          [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
+        else
+          build_name="$build_name: $CIRCLE_BRANCH"
+        fi
+        build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
+        export MQ_CI_BUILD_NAME="$build_name"
     # The following line was run implicitly in your 1.0 builds based on what CircleCI inferred about the structure of your project. In 2.0 you need to be explicit about which commands should be run. In some cases you can discard inferred commands if they are not relevant to your project.
     - run: if [ -z "${NODE_ENV:-}" ]; then export NODE_ENV=test; fi
     - run: export PATH="~/mathquill/mathquill/node_modules/.bin:$PATH"
     - run: npm install
+    - run: npm install wd
+    - run: sudo apt-get install -y imagemagick
     # Save dependency cache
     - save_cache:
-        key: v1-dep-{{ .Branch }}-{{ epoch }}
+        key: v3-dep-{{ .Branch }}-{{ epoch }}
         paths:
         # This is a broad list of cache paths to include many possible development environments
         # You can probably delete some of these entries
@@ -132,13 +143,15 @@ jobs:
         # These cache paths were specified in the 1.0 config
         - ~/sauce-connect
         - ./node_modules
+        # Based on: https://xyxyx.org/posts/2019-04-09-saving-the-debian-package-cache-on-circleci.html
+        - /var/cache/apt/archives
     # Test
     #   This would typically be a build job when using workflows, possibly combined with build
     # This is based on your 1.0 configuration file or project settings
     - run: |-
         # Generate link to Many-Worlds build and add to GitHub Commit Status
         curl -i -X POST https://api.github.com/repos/mathquill/mathquill/statuses/$CIRCLE_SHA1 \
-             -u MathQuillBot:$GITHUB_STATUS_API_KEY \
+             -u laughinghan:$GITHUB_STATUS_ACCESS_TOKEN \
              -d '{
                    "context": "ci/many-worlds",
                    "state": "success",
@@ -149,117 +162,35 @@ jobs:
     # https://david263a.wordpress.com/2015/04/18/fixing-safari-cant-connect-to-localhost-issue-when-using-sauce-labs-connect-tunnel/
     # https://support.saucelabs.com/customer/portal/questions/14368823-requests-to-localhost-on-microsoft-edge-are-failing-over-sauce-connect
     - run:
-        command: PORT=8000 make server
+        command: PORT=8000 NO_INSTALL=1 make server
         background: true
     # Wait for tunnel to be ready (`make server` is much faster, no need to wait for it)
-    - run: while [ ! -e ~/sauce_is_ready ]; do sleep 1; done; touch ~/sauce_was_ready; test -z "$(<~/sauce_is_ready)"
+    - run: |-
+        while [ ! -e ~/sauce_is_ready ]; do sleep 1; done
+        touch ~/sauce_was_ready
+        cat ~/sauce_is_ready
+        # this is how you check if a string starts with another string in Bash
+        # https://stackoverflow.com/a/2172367/362030
+        [[ "$(<~/sauce_is_ready)" != ERROR:* ]]
     # This is based on your 1.0 configuration file or project settings
     - run:
         command: |-
           # Screenshots: capture in the background while running unit tests
-          mkdir -p $CIRCLE_TEST_REPORTS/mocha
-
-          # CircleCI expects test results to be reported in an JUnit/xUnit-style XML file:
-          #   https://circleci.com/docs/test-metadata/#a-namemochajsamocha-for-nodejs
-          # Our unit tests are in a browser, so they can't write to a file, and Sauce
-          # apparently truncates custom data in their test result reports, so instead we
-          # POST to this trivial Node server on localhost:9000 that writes the body of
-          # any POST request to $CIRCLE_TEST_REPORTS/junit/test-results.xml
-          node -e '
-            require("http").createServer(function(req, res) {
-              res.setHeader("Access-Control-Allow-Origin", "*");
-              req.pipe(process.stdout);
-              req.on("end", res.end.bind(res));
-            })
-            .listen(9000);
-            console.error("listening on http://0.0.0.0:9000/");
-          ' 2>&1 >$CIRCLE_TEST_REPORTS/junit/test-results.xml | {
-            # ^ note: `2>&1` must precede `>$CIRCLE_TEST_REPORTS/...` because
-            # shell redirect is like assignment; if it came after, then both
-            # stdout and stderr would be written to `xunit.xml` and nothing
-            # would be  piped into here
-
-            head -1 # wait for "listening on ..." to be logged
-
-            # https://circleci.com/docs/environment-variables/
-            build_name="CircleCI build #$CIRCLE_BUILD_NUM"
-            if [ $CIRCLE_PR_NUMBER ]; then
-              build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
-              [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
-            else
-              build_name="$build_name: $CIRCLE_BRANCH"
-            fi
-            build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
-            export MQ_CI_BUILD_NAME="$build_name"
-
-            time { test -d node_modules/wd || npm install wd; }
-            time node script/screenshots.js http://localhost:8000/test/visual.html \
-              && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
-          }
+          time node script/screenshots.js http://localhost:8000/test/visual.html \
+            && touch ~/screenshots_are_ready || echo EXIT STATUS $? | tee /dev/stderr > ~/screenshots_are_ready:
         background: true
     - run: |-
         # Unit tests in the browser
-
-        echo '1. Launch tests'
-        echo
-
-        # https://circleci.com/docs/environment-variables/
-        build_name="CircleCI build #$CIRCLE_BUILD_NUM"
-        if [ $CIRCLE_PR_NUMBER ]; then
-          build_name="$build_name: PR #$CIRCLE_PR_NUMBER"
-          [ "$CIRCLE_BRANCH" ] && build_name="$build_name ($CIRCLE_BRANCH)"
-        else
-          build_name="$build_name: $CIRCLE_BRANCH"
-        fi
-        build_name="$build_name @ ${CIRCLE_SHA1:0:7}"
-
-        # "build" and "customData" parameters from:
-        #   https://wiki.saucelabs.com/display/DOCS/Test+Configuration+Options#TestConfigurationOptions-TestAnnotation
-        set -o pipefail
-        curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests \
-             -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-             -H 'Content-Type: application/json' \
-             -d '{
-                   "name": "Unit tests, Mocha",
-                   "build": "'"$build_name"'",
-                   "customData": {"build_url": "'"$CIRCLE_BUILD_URL"'"},
-                   "framework": "mocha",
-                   "url": "http://localhost:8000/test/unit.html?post_xunit_to=http://localhost:9000",
-                   "platforms": [["", "Chrome", ""]]
-                 }' \
-        | tee /dev/stderr | tail -1 > js-tests.json
-
-        echo '2. Wait for tests to finish:'
-        echo
-        #   > Make the request multiple times as the tests run until the response
-        #   > contains `completed: true` to the get the final results.
-        # https://wiki.saucelabs.com/display/DOCS/JavaScript+Unit+Testing+Methods
-        while true  # Bash has no do...while >:(
-        do
-          sleep 5
-          curl -i -X POST https://saucelabs.com/rest/v1/$SAUCE_USERNAME/js-tests/status \
-               -u $SAUCE_USERNAME:$SAUCE_ACCESS_KEY \
-               -H 'Content-Type: application/json' \
-               -d @js-tests.json \
-          | tee /dev/stderr | tail -1 > status.json
-
-          # deliberately do `... != false` rather than `... == true`
-          # because unexpected values should break rather than infinite loop
-          [ "$(jq .completed <status.json)" != false ] && break
-        done
-
-        echo '3. Exit with non-zero status code if any unit tests failed'
-        exit "$(jq '.["js tests"][0].result.failures' <status.json)"
+        node script/unit_test_webdriver.js http://localhost:8000/test/unit.html?xunit=true
     - run: |-
         # Stitch together screenshots and diff against master
-
         echo '0. Wait for screenshots to be ready'
-        while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
+        time while [ ! -e ~/screenshots_are_ready ]; do sleep 1; done
         test -z "$(<~/screenshots_are_ready)" || exit 1
 
         echo '1. Stitch together pieces'
-        for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
-          convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
+        time for img in $(ls $CIRCLE_ARTIFACTS/imgs/pieces/); do
+          time convert $(ls -1 $CIRCLE_ARTIFACTS/imgs/pieces/$img/*.png | sort -n) -append $CIRCLE_ARTIFACTS/imgs/$img.png
         done
 
         echo '2. Download the latest screenshots from master'
