@@ -16,9 +16,6 @@ type HandlerWithoutDirectionFunction = NonNullable<
 class ControllerBase {
   id: number;
   data: ControllerData;
-  readonly root: ControllerRoot;
-  readonly container: HTMLElement;
-  options: CursorOptions;
   aria: Aria;
   ariaLabel: string;
   ariaPostLabel: string;
@@ -36,16 +33,12 @@ class ControllerBase {
   mathspeakSpan: HTMLElement | undefined;
 
   constructor(
-    root: ControllerRoot,
-    container: HTMLElement,
-    options: CursorOptions
+    readonly root: ControllerRoot,
+    readonly container: HTMLElement,
+    readonly options: CursorOptions
   ) {
     this.id = root.id;
     this.data = {};
-
-    this.root = root;
-    this.container = container;
-    this.options = options;
 
     this.aria = new Aria(this.getControllerSelf());
     this.ariaLabel = 'Math Input';

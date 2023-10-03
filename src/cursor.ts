@@ -12,9 +12,6 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Anticursor extends Point {
   ancestors: Record<string | number, Anticursor | MQNode | undefined> = {};
-  constructor(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-    super(parent, leftward, rightward);
-  }
 
   static fromCursor(cursor: Cursor) {
     return new Anticursor(cursor.parent, cursor[L], cursor[R]);
@@ -22,9 +19,7 @@ class Anticursor extends Point {
 }
 
 class Cursor extends Point {
-  controller: Controller;
   parent: MQNode;
-  options: CursorOptions;
   /** Slightly more than just a "cache", this remembers the cursor's position in each block node, so that we can return to the right
    * point in that node when moving up and down among blocks.
    */
@@ -42,12 +37,10 @@ class Cursor extends Point {
 
   constructor(
     initParent: MQNode,
-    options: CursorOptions,
-    controller: Controller
+    readonly options: CursorOptions,
+    readonly controller: Controller
   ) {
     super(initParent, 0, 0);
-    this.controller = controller;
-    this.options = options;
 
     this.setDOMFrag(domFrag(this.cursorElement));
 
