@@ -26,7 +26,7 @@ The configuration options object is of the following form:
 
 You can configure an editable math field by passing an options argument as the second argument to [the constructor (`MQ.MathField(html_element, config)`)](Api_Methods.md#mqmathfieldhtml_element-config), or by [calling `.config()` on the math field (`mathField.config(new_config)`)](Api_Methods.md#confignew_config).
 
-Defaults may be set with [`MQ.config(global_config)`](Api_Methods.md#mqconfigconfig).
+Defaults may be set with [`MQ.config(config)`](Api_Methods.md#mqconfigconfig).
 
 
 
