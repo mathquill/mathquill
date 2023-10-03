@@ -202,7 +202,7 @@ suite('SupSub', function () {
     });
   });
 
-  suite('Escpae', function () {
+  suite('Escape', function () {
     test('from partial selection of a superscript', function () {
       mq.typedText('x^2.3');
       assert.equal(mq.latex(), 'x^{2.3}');
