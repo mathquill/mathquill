@@ -101,24 +101,24 @@ For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabi
 
 Handlers are called after a specified event. They are called directly on the `handlers` object passed in, preserving the `this` value, so you can do stuff like:
 ```js
-var MathList = P(function(_) {
-  _.init = function() {
+class MathList {
+  constructor () {
     this.maths = [];
     this.el = ...
   };
-  _.add = function() {
+  add () {
     var math = MQ.MathField($('<span/>')[0], { handlers: this });
     $(math.el()).appendTo(this.el);
     math.data.i = this.maths.length;
     this.maths.push(math);
   };
-  _.moveOutOf = function(dir, math) {
+  moveOutOf (dir, math) {
     var adjacentI = (dir === MQ.L ? math.data.i - 1 : math.data.i + 1);
     var adjacentMath = this.maths[adjacentI];
     if (adjacentMath) adjacentMath.focus().moveToDirEnd(-dir);
   };
   ...
-});
+};
 ```
 
 It's common to just ignore the last argument, like if the handlers close over the math field:

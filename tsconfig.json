@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "noImplicitThis": true,
+      "noImplicitAny": true,
+      "noImplicitReturns": true,
+      "noFallthroughCasesInSwitch": true,
+      "strictNullChecks": true,
+      "noUnusedLocals": true,
+      "noUnusedParameters": true,
+      "strictPropertyInitialization": false,
+      "strict": true,
+      "target": "ES5",
+      "lib": ["ES5", "ScriptHost", "DOM", "ES2015.Collection"],
+      "rootDir": "src",
+      "baseUrl": ".",
+      "paths": {
+        "tslib": ["node_modules/tslib/tslib"],
+      },
+      "importHelpers": true,
+      "noEmit": true,
+      "pretty": true
+    }
+  }

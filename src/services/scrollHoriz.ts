@@ -3,8 +3,8 @@
  * overflow their width
  **********************************************/
 
-Controller.open(function(_) {
-  _.setOverflowClasses = function () {
+class Controller_scrollHoriz extends Controller_mouse {
+  setOverflowClasses() {
     var root = this.root.jQ[0];
     var shouldHaveOverflowRight = false;
     var shouldHaveOverflowLeft = false;
@@ -12,21 +12,28 @@ Controller.open(function(_) {
       var width = root.getBoundingClientRect().width;
       var scrollWidth = root.scrollWidth;
       var scroll = root.scrollLeft;
-      shouldHaveOverflowRight = (scrollWidth > width + scroll);
-      shouldHaveOverflowLeft = (scroll > 0);
+      shouldHaveOverflowRight = scrollWidth > width + scroll;
+      shouldHaveOverflowLeft = scroll > 0;
     }
-    if (root.classList.contains('mq-editing-overflow-right') !== shouldHaveOverflowRight)
-      root.classList.toggle('mq-editing-overflow-right')
-    if (root.classList.contains('mq-editing-overflow-left') !== shouldHaveOverflowLeft)
-      root.classList.toggle('mq-editing-overflow-left')
+    if (
+      root.classList.contains('mq-editing-overflow-right') !==
+      shouldHaveOverflowRight
+    )
+      root.classList.toggle('mq-editing-overflow-right');
+    if (
+      root.classList.contains('mq-editing-overflow-left') !==
+      shouldHaveOverflowLeft
+    )
+      root.classList.toggle('mq-editing-overflow-left');
   }
-  _.scrollHoriz = function() {
-    var cursor = this.cursor, seln = cursor.selection;
+  scrollHoriz() {
+    var cursor = this.cursor,
+      seln = cursor.selection;
     var rootRect = this.root.jQ[0].getBoundingClientRect();
     if (!cursor.jQ[0] && !seln) {
-      this.root.jQ.stop().animate({scrollLeft: 0}, 100, function () {
+      this.root.jQ.stop().animate({ scrollLeft: 0 }, 100, () => {
         this.setOverflowClasses();
-      }.bind(this));
+      });
       return;
     } else if (!seln) {
       var x = cursor.jQ[0].getBoundingClientRect().left;
@@ -40,26 +47,26 @@ Controller.open(function(_) {
       if (seln.ends[L] === cursor[R]) {
         if (overLeft < 0) var scrollBy = overLeft;
         else if (overRight > 0) {
-          if (rect.left - overRight < rootRect.left + 20) var scrollBy = overLeft;
+          if (rect.left - overRight < rootRect.left + 20)
+            var scrollBy = overLeft;
           else var scrollBy = overRight;
-        }
-        else return;
-      }
-      else {
+        } else return;
+      } else {
         if (overRight > 0) var scrollBy = overRight;
         else if (overLeft < 0) {
-          if (rect.right - overLeft > rootRect.right - 20) var scrollBy = overRight;
+          if (rect.right - overLeft > rootRect.right - 20)
+            var scrollBy = overRight;
           else var scrollBy = overLeft;
-        }
-        else return;
+        } else return;
       }
     }
 
-    var root = this.root.jQ[0]
-    if (scrollBy < 0 && root.scrollLeft === 0) return
-    if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width) return
-    this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy}, 100, function () {
+    var root = this.root.jQ[0];
+    if (scrollBy < 0 && root.scrollLeft === 0) return;
+    if (scrollBy > 0 && root.scrollWidth <= root.scrollLeft + rootRect.width)
+      return;
+    this.root.jQ.stop().animate({ scrollLeft: '+=' + scrollBy }, 100, () => {
       this.setOverflowClasses();
-    }.bind(this));
-  };
-});
+    });
+  }
+}

@@ -1,6 +1,6 @@
-suite('aria', function() {
+suite('aria', function () {
   var mathField;
-  setup(function() {
+  setup(function () {
     mathField = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
   });
 
@@ -8,7 +8,7 @@ suite('aria', function() {
     assert.equal(alertText, mathField.__controller.aria.msg);
   }
 
-  test('typing and backspacing over simple expression', function() {
+  test('typing and backspacing over simple expression', function () {
     mathField.typedText('1');
     assertAriaEqual('1');
     mathField.typedText('+');
@@ -31,7 +31,7 @@ suite('aria', function() {
     assertAriaEqual('1');
   });
 
-  test('typing and backspacing a fraction', function() {
+  test('typing and backspacing a fraction', function () {
     mathField.typedText('1');
     assertAriaEqual('1');
     mathField.typedText('/');
@@ -56,7 +56,7 @@ suite('aria', function() {
     assertAriaEqual('1');
   });
 
-  test('navigating a fraction', function() {
+  test('navigating a fraction', function () {
     mathField.typedText('1');
     assertAriaEqual('1');
     mathField.typedText('/');
@@ -70,7 +70,7 @@ suite('aria', function() {
     mathField.latex('');
   });
 
-  test('typing and backspacing through parenthesies', function() {
+  test('typing and backspacing through parenthesies', function () {
     mathField.typedText('(');
     assertAriaEqual('left parenthesis');
     mathField.typedText('1');
@@ -93,33 +93,56 @@ suite('aria', function() {
     assertAriaEqual('left parenthesis');
   });
 
-  test('testing beginning and end alerts', function() {
+  test('testing beginning and end alerts', function () {
     mathField.typedText('sqrt(x)');
     mathField.keystroke('Home');
-    assertAriaEqual('beginning of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual(
+      'beginning of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
+    );
     mathField.keystroke('End');
-    assertAriaEqual('end of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual(
+      'end of block "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
+    );
     mathField.keystroke('Ctrl-Home');
-    assertAriaEqual('beginning of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual(
+      'beginning of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
+    );
     mathField.keystroke('Ctrl-End');
-    assertAriaEqual('end of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    assertAriaEqual(
+      'end of Math Input "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
+    );
   });
 
-  test('testing aria-label for interactive and static math', function(done) {
+  test('testing aria-label for interactive and static math', function (done) {
     mathField.typedText('sqrt(x)');
     mathField.blur();
-    setTimeout(function() {
-      assert.equal(mathField.__controller.textarea.attr('aria-label'), 'Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis');
+    setTimeout(function () {
+      assert.equal(
+        mathField.__controller.textarea.attr('aria-label'),
+        'Math Input: "s" "q" "r" "t" left parenthesis, "x" , right parenthesis'
+      );
       done();
     });
-    var staticMath = MQ.StaticMath($('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo('#mock')[0]);
-    assert.equal('"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
+    var staticMath = MQ.StaticMath(
+      $('<span class="mathquill-static-math">y=\\frac{2x}{3y}</span>').appendTo(
+        '#mock'
+      )[0]
+    );
+    assert.equal(
+      '"y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
+      staticMath.__controller.mathspeakSpan.text()
+    );
     assert.equal('', staticMath.getAriaLabel());
     staticMath.setAriaLabel('Static Label');
-    assert.equal('Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction', staticMath.__controller.mathspeakSpan.text());
+    assert.equal(
+      'Static Label: "y" equals StartFraction, 2 "x" Over 3 "y" , EndFraction',
+      staticMath.__controller.mathspeakSpan.text()
+    );
     assert.equal('Static Label', staticMath.getAriaLabel());
     staticMath.latex('2+2');
-    assert.equal('Static Label: 2 plus 2', staticMath.__controller.mathspeakSpan.text());
+    assert.equal(
+      'Static Label: 2 plus 2',
+      staticMath.__controller.mathspeakSpan.text()
+    );
   });
-
 });

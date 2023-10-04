@@ -1,0 +1,8 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# run prettier on staged files
+npx lint-staged
+
+# typecheck
+make lint

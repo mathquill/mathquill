@@ -1,4 +1,4 @@
-window.assert = (function() {
+window.assert = (function () {
   function AssertionError(opts) {
     if (!opts) opts = {};
 
@@ -19,28 +19,28 @@ window.assert = (function() {
   }
 
   return {
-    ok: function(thing, message) {
+    ok: function (thing, message) {
       if (thing) return;
 
       fail({
         message: message,
-        explanation: 'expected '+thing+' to be truthy'
+        explanation: 'expected ' + thing + ' to be truthy',
       });
     },
-    equal: function(thing1, thing2, message) {
+    equal: function (thing1, thing2, message) {
       if (thing1 === thing2) return;
 
       fail({
         message: message,
-        explanation: 'expected ('+thing1+') to equal ('+thing2+')'
+        explanation: 'expected (' + thing1 + ') to equal (' + thing2 + ')',
       });
     },
-    throws: function(fn, message) {
+    throws: function (fn, message) {
       var error = false;
 
       try {
         fn();
-      } catch(e) {
+      } catch (e) {
         error = true;
       }
 
@@ -48,11 +48,11 @@ window.assert = (function() {
 
       fail({
         message: message,
-        explanation: 'expected '+fn+' to throw an error'
+        explanation: 'expected ' + fn + ' to throw an error',
       });
     },
-    fail: function(message) {
+    fail: function (message) {
       fail({ message: message, explanation: 'generic fail' });
-    }
-  }
+    },
+  };
 })();
