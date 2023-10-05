@@ -15,21 +15,22 @@ class TextBlock extends MQNode {
   anticursorPosition?: number;
 
   replaces(replacedText: Fragment | string) {
-    if (replacedText instanceof Fragment)
-      this.replacedText = replacedText.remove().jQ.text();
-    else if (typeof replacedText === 'string') this.replacedText = replacedText;
+    if (replacedText instanceof Fragment) {
+      this.replacedText = replacedText.remove().domFrag().text();
+    } else if (typeof replacedText === 'string')
+      this.replacedText = replacedText;
   }
 
-  jQadd(jQ: $) {
-    super.jQadd(jQ);
-    const endsL = this.ends[L];
+  setDOMFrag(el: Element | undefined) {
+    super.setDOM(el);
+    const endsL = this.getEnd(L);
     if (endsL) {
-      const child = this.jQ[0].firstChild;
-      if (child) {
-        endsL.jQadd(child);
+      const children = this.domFrag().children();
+      if (!children.isEmpty()) {
+        endsL.setDOM(children.oneText());
       }
     }
-    return this.jQ;
+    return this;
   }
 
   createLeftOf(cursor: Cursor) {
@@ -64,11 +65,11 @@ class TextBlock extends MQNode {
       .then(regex(/^[^}]*/))
       .skip(string('}'))
       .map(function (text) {
-        if (text.length === 0) return new Fragment();
+        if (text.length === 0) return new Fragment(0, 0);
 
         new TextPiece(text).adopt(textBlock, 0, 0);
         return textBlock;
-      }) as ParserAny;
+      });
   }
 
   textContents() {
@@ -90,13 +91,12 @@ class TextBlock extends MQNode {
     );
   }
   html() {
-    return (
-      '<span class="mq-text-mode" mathquill-command-id=' +
-      this.id +
-      '>' +
-      this.textContents() +
-      '</span>'
-    );
+    const out = h('span', { class: 'mq-text-mode' }, [
+      h.text(this.textContents()),
+    ]);
+    this.setDOM(out);
+    NodeBase.linkElementByCmdNode(out, this);
+    return out;
   }
 
   mathspeakTemplate = ['StartText', 'EndText'];
@@ -158,15 +158,15 @@ class TextBlock extends MQNode {
       else if (cursorL instanceof TextPiece) cursorL.appendText(ch);
     } else if (this.isEmpty()) {
       cursor.insRightOf(this);
-      new VanillaSymbol('\\$', '$').createLeftOf(cursor);
+      new VanillaSymbol('\\$', h.text('$')).createLeftOf(cursor);
     } else if (!cursor[R]) cursor.insRightOf(this);
     else if (!cursor[L]) cursor.insLeftOf(this);
     else {
       // split apart
       var leftBlock = new TextBlock();
-      var leftPc = this.ends[L];
+      var leftPc = this.getEnd(L);
       if (leftPc) {
-        leftPc.disown().jQ.detach();
+        leftPc.disown().domFrag().detach();
         leftPc.adopt(leftBlock, 0, 0);
       }
 
@@ -190,30 +190,41 @@ class TextBlock extends MQNode {
     });
   }
 
-  seek(pageX: number, cursor: Cursor) {
+  seek(clientX: number, cursor: Cursor) {
     cursor.hide();
     var textPc = TextBlockFuseChildren(this);
     if (!textPc) return;
 
     // insert cursor at approx position in DOMTextNode
-    var avgChWidth = this.jQ.width() / this.text.length;
-    var approxPosition = Math.round(
-      (pageX - this.jQ.offset().left) / avgChWidth
-    );
-    if (approxPosition <= 0) cursor.insAtLeftEnd(this);
-    else if (approxPosition >= textPc.textStr.length)
-      cursor.insAtRightEnd(this);
-    else cursor.insLeftOf(textPc.splitRight(approxPosition));
+    const textNode = this.domFrag().children().oneText();
+    const range = document.createRange();
+    range.selectNodeContents(textNode);
+    var rects = range.getClientRects();
+    if (rects.length === 1) {
+      const { width, left } = rects[0];
+      var avgChWidth = width / this.textContents().length;
+      var approxPosition = Math.round((clientX - left) / avgChWidth);
+      if (approxPosition <= 0) {
+        cursor.insAtLeftEnd(this);
+      } else if (approxPosition >= textPc.textStr.length) {
+        cursor.insAtRightEnd(this);
+      } else {
+        cursor.insLeftOf(textPc.splitRight(approxPosition));
+      }
+    } else {
+      cursor.insAtLeftEnd(this);
+    }
 
-    // move towards mousedown (pageX)
-    var displ = pageX - cursor.show().offset().left; // displacement
+    // move towards mousedown (clientX)
+    var displ =
+      clientX - cursor.show().getBoundingClientRectWithoutMargin().left; // displacement
     var dir = displ && displ < 0 ? L : R;
     var prevDispl = dir as number;
     // displ * prevDispl > 0 iff displacement direction === previous direction
     while (cursor[dir] && displ * prevDispl > 0) {
       (cursor[dir] as MQNode).moveTowards(dir, cursor);
       prevDispl = displ;
-      displ = pageX - cursor.offset().left;
+      displ = clientX - cursor.getBoundingClientRectWithoutMargin().left;
     }
     if (dir * displ < -dir * prevDispl)
       (cursor[-dir as Direction] as MQNode).moveTowards(
@@ -266,16 +277,17 @@ class TextBlock extends MQNode {
 }
 
 function TextBlockFuseChildren(self: TextBlock) {
-  self.jQ[0].normalize();
+  self.domFrag().oneElement().normalize();
 
-  var textPcDom = self.jQ[0].firstChild as Text;
-  if (!textPcDom) return;
+  const children = self.domFrag().children();
+  if (children.isEmpty()) return;
+  const textPcDom = children.oneText();
   pray('only node in TextBlock span is Text node', textPcDom.nodeType === 3);
   // nodeType === 3 has meant a Text node since ancient times:
   //   http://reference.sitepoint.com/javascript/Node/nodeType
 
   var textPc = new TextPiece(textPcDom.data);
-  textPc.jQadd(textPcDom);
+  textPc.setDOM(textPcDom);
 
   self.children().disown();
   textPc.adopt(self, 0, 0);
@@ -291,27 +303,23 @@ function TextBlockFuseChildren(self: TextBlock) {
  */
 class TextPiece extends MQNode {
   textStr: string;
-  dom: Text;
 
   constructor(text: string) {
     super();
     this.textStr = text;
   }
-  jQadd(dom: Text) {
-    this.dom = dom;
-    this.jQ = $(dom);
-    return this.jQ;
-  }
-  jQize() {
-    return this.jQadd(document.createTextNode(this.textStr));
+  html() {
+    const out = h.text(this.textStr);
+    this.setDOM(out);
+    return out;
   }
   appendText(text: string) {
     this.textStr += text;
-    this.dom.appendData(text);
+    this.domFrag().oneText().appendData(text);
   }
   prependText(text: string) {
     this.textStr = text + this.textStr;
-    this.dom.insertData(0, text);
+    this.domFrag().oneText().insertData(0, text);
   }
   insTextAtDirEnd(text: string, dir: Direction) {
     prayDirection(dir);
@@ -324,7 +332,7 @@ class TextPiece extends MQNode {
       this,
       this[R]
     );
-    newPc.jQadd(this.dom.splitText(i));
+    newPc.setDOM(this.domFrag().oneText().splitText(i));
     this.textStr = this.textStr.slice(0, i);
     return newPc;
   }
@@ -355,20 +363,21 @@ class TextPiece extends MQNode {
     if (this.textStr.length > 1) {
       var deletedChar;
       if (dir === R) {
-        this.dom.deleteData(0, 1);
+        this.domFrag().oneText().deleteData(0, 1);
         deletedChar = this.textStr[0];
         this.textStr = this.textStr.slice(1);
       } else {
         // note that the order of these 2 lines is annoyingly important
         // (the second line mutates this.textStr.length)
-        this.dom.deleteData(-1 + this.textStr.length, 1);
+        this.domFrag()
+          .oneText()
+          .deleteData(-1 + this.textStr.length, 1);
         deletedChar = this.textStr[this.textStr.length - 1];
         this.textStr = this.textStr.slice(0, -1);
       }
       cursor.controller.aria.queue(deletedChar);
     } else {
       this.remove();
-      this.jQ.remove();
       cursor[dir] = this[dir];
       cursor.controller.aria.queue(this.textStr);
     }
@@ -392,7 +401,7 @@ class TextPiece extends MQNode {
         var newPc = new TextPiece(ch).createDir(-dir as Direction, cursor);
         var selection = cursor.selection;
         if (selection) {
-          newPc.jQ.insDirOf(-dir as Direction, selection.jQ);
+          newPc.domFrag().insDirOf(-dir as Direction, selection.domFrag());
         }
       }
 
@@ -415,8 +424,8 @@ LatexCmds.text =
 function makeTextBlock(
   latex: string,
   ariaLabel: string,
-  tagName: string,
-  attrs: string
+  tagName: HTMLTagName,
+  attrs: { style?: string; class: string }
 ) {
   return class extends TextBlock {
     ctrlSeq = latex;
@@ -424,20 +433,10 @@ function makeTextBlock(
     ariaLabel = ariaLabel;
 
     html() {
-      var cmdId = 'mathquill-command-id=' + this.id;
-      return (
-        '<' +
-        tagName +
-        ' ' +
-        attrs +
-        ' ' +
-        cmdId +
-        '>' +
-        this.textContents() +
-        '</' +
-        tagName +
-        '>'
-      );
+      const out = h(tagName, attrs, [h.text(this.textContents())]);
+      this.setDOM(out);
+      NodeBase.linkElementByCmdNode(out, this);
+      return out;
     }
   };
 }
@@ -448,41 +447,35 @@ LatexCmds.em =
   LatexCmds.emph =
   LatexCmds.textit =
   LatexCmds.textsl =
-    makeTextBlock('\\textit', 'Italic', 'i', 'class="mq-text-mode"');
+    makeTextBlock('\\textit', 'Italic', 'i', { class: 'mq-text-mode' });
 LatexCmds.strong =
   LatexCmds.bold =
   LatexCmds.textbf =
-    makeTextBlock('\\textbf', 'Bold', 'b', 'class="mq-text-mode"');
+    makeTextBlock('\\textbf', 'Bold', 'b', { class: 'mq-text-mode' });
 LatexCmds.sf = LatexCmds.textsf = makeTextBlock(
   '\\textsf',
   'Sans serif font',
   'span',
-  'class="mq-sans-serif mq-text-mode"'
+  { class: 'mq-sans-serif mq-text-mode' }
 );
 LatexCmds.tt = LatexCmds.texttt = makeTextBlock(
   '\\texttt',
   'Mono space font',
   'span',
-  'class="mq-monospace mq-text-mode"'
+  { class: 'mq-monospace mq-text-mode' }
 );
-LatexCmds.textsc = makeTextBlock(
-  '\\textsc',
-  'Variable font',
-  'span',
-  'style="font-variant:small-caps" class="mq-text-mode"'
-);
-LatexCmds.uppercase = makeTextBlock(
-  '\\uppercase',
-  'Uppercase',
-  'span',
-  'style="text-transform:uppercase" class="mq-text-mode"'
-);
-LatexCmds.lowercase = makeTextBlock(
-  '\\lowercase',
-  'Lowercase',
-  'span',
-  'style="text-transform:lowercase" class="mq-text-mode"'
-);
+LatexCmds.textsc = makeTextBlock('\\textsc', 'Variable font', 'span', {
+  style: 'font-variant:small-caps',
+  class: 'mq-text-mode',
+});
+LatexCmds.uppercase = makeTextBlock('\\uppercase', 'Uppercase', 'span', {
+  style: 'text-transform:uppercase',
+  class: 'mq-text-mode',
+});
+LatexCmds.lowercase = makeTextBlock('\\lowercase', 'Lowercase', 'span', {
+  style: 'text-transform:lowercase',
+  class: 'mq-text-mode',
+});
 
 class RootMathCommand extends MathCommand {
   cursor: Cursor;
@@ -490,24 +483,26 @@ class RootMathCommand extends MathCommand {
     super('$');
     this.cursor = cursor;
   }
-  htmlTemplate = '<span class="mq-math-mode">&0</span>';
+  domView = new DOMView(1, (blocks) =>
+    h.block('span', { class: 'mq-math-mode' }, blocks[0])
+  );
   createBlocks() {
     super.createBlocks();
-    const endsL = this.ends[L] as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
+    const endsL = this.getEnd(L) as RootMathCommand; // TODO - how do we know this is a RootMathCommand?
     endsL.cursor = this.cursor;
     endsL.write = function (cursor: Cursor, ch: string) {
       if (ch !== '$') MathBlock.prototype.write.call(this, cursor, ch);
       else if (this.isEmpty()) {
         cursor.insRightOf(this.parent);
         this.parent.deleteTowards(undefined!, cursor);
-        new VanillaSymbol('\\$', '$').createLeftOf(cursor.show());
+        new VanillaSymbol('\\$', h.text('$')).createLeftOf(cursor.show());
       } else if (!cursor[R]) cursor.insRightOf(this.parent);
       else if (!cursor[L]) cursor.insLeftOf(this.parent);
       else MathBlock.prototype.write.call(this, cursor, ch);
     };
   }
   latex() {
-    return '$' + (this.ends[L] as MQNode).latex() + '$';
+    return '$' + this.getEnd(L).latex() + '$';
   }
 }
 
@@ -521,24 +516,29 @@ class RootTextBlock extends RootMathBlock {
     if (ch === '$') new RootMathCommand(cursor).createLeftOf(cursor);
     else {
       var html;
-      if (ch === '<') html = '&lt;';
-      else if (ch === '>') html = '&gt;';
+      if (ch === '<') html = h.entityText('&lt;');
+      else if (ch === '>') html = h.entityText('&gt;');
       new VanillaSymbol(ch, html).createLeftOf(cursor);
     }
   }
 }
 API.TextField = function (APIClasses: APIClasses) {
-  return class extends APIClasses.EditableField {
+  return class TextField extends APIClasses.EditableField {
     static RootBlock = RootTextBlock;
     __mathquillify() {
-      return super.__mathquillify('mq-editable-field mq-text-mode');
+      super.mathquillify('mq-editable-field mq-text-mode');
+      return this;
     }
-    latex(latex: string) {
-      if (arguments.length > 0) {
+    latex(): string;
+    latex(l: string): IEditableField;
+    latex(latex?: string) {
+      if (latex) {
         this.__controller.renderLatexText(latex);
         if (this.__controller.blurred)
           this.__controller.cursor.hide().parent.blur();
-        return this;
+
+        const _this: IBaseMathQuill = this; // just to help help TS out
+        return _this;
       }
       return this.__controller.exportLatex();
     }

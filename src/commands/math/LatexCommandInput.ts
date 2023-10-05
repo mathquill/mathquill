@@ -12,22 +12,28 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       return false;
     };
   }
-  htmlTemplate =
-    '<span class="mq-latex-command-input mq-non-leaf">\\<span>&0</span></span>';
+  domView = new DOMView(1, (blocks) =>
+    h('span', { class: 'mq-latex-command-input-wrapper mq-non-leaf' }, [
+      h('span', { class: 'mq-latex-command-input mq-non-leaf' }, [
+        h.text('\\'),
+        h.block('span', {}, blocks[0]),
+      ]),
+    ])
+  );
   textTemplate = ['\\'];
   createBlocks() {
     super.createBlocks();
-    const endsL = this.ends[L] as MQNode;
+    const endsL = this.getEnd(L);
 
     endsL.focus = function () {
-      this.parent.jQ.addClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.jQ.removeClass('mq-empty');
+      this.parent.domFrag().addClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.domFrag().removeClass('mq-empty');
 
       return this;
     };
     endsL.blur = function () {
-      this.parent.jQ.removeClass('mq-hasCursor');
-      if (this.isEmpty()) this.parent.jQ.addClass('mq-empty');
+      this.parent.domFrag().removeClass('mq-hasCursor');
+      if (this.isEmpty()) this.parent.domFrag().addClass('mq-empty');
 
       return this;
     };
@@ -55,7 +61,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         );
         // TODO needs tests
         ctrlr.aria.alert(cmd.mathspeak({ createdLeftOf: ctrlr.cursor }));
-        e.preventDefault();
+        e?.preventDefault();
         return;
       }
 
@@ -66,27 +72,31 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
     super.createLeftOf(cursor);
 
     if (this._replacedFragment) {
-      var el = this.jQ[0];
-      this.jQ = this._replacedFragment.jQ
-        .addClass('mq-blur')
-        .bind(
-          'mousedown mousemove', //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
-          function (e) {
-            // TODO - overwritting e.target
-            (e as any).target = el;
-            $(el).trigger(e);
-            return false;
-          }
-        )
-        .insertBefore(this.jQ)
-        .add(this.jQ);
+      const frag = this.domFrag();
+      const el = frag.oneElement();
+      this._replacedFragment.domFrag().addClass('mq-blur');
+
+      //FIXME: is monkey-patching the mousedown and mousemove handlers the right way to do this?
+      const rewriteMousedownEventTarget = (e: MouseEvent) => {
+        {
+          // TODO - overwritting e.target
+          (e as any).target = el;
+          el.dispatchEvent(e);
+          return false;
+        }
+      };
+
+      el.addEventListener('mousedown', rewriteMousedownEventTarget);
+      el.addEventListener('mouseup', rewriteMousedownEventTarget);
+
+      this._replacedFragment.domFrag().insertBefore(frag.children().first());
     }
   }
   latex() {
-    return '\\' + (this.ends[L] as MQNode).latex() + ' ';
+    return '\\' + this.getEnd(L).latex() + ' ';
   }
   renderCommand(cursor: Cursor) {
-    this.jQ = this.jQ.last();
+    this.setDOM(this.domFrag().children().lastElement());
     this.remove();
     if (this[R]) {
       cursor.insLeftOf(this[R] as MQNode);
@@ -94,7 +104,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
       cursor.insAtRightEnd(this.parent);
     }
 
-    var latex = (this.ends[L] as MQNode).latex();
+    var latex = this.getEnd(L).latex();
     if (!latex) latex = ' ';
     var cmd = LatexCmds[latex];
 

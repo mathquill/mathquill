@@ -1,4 +1,5 @@
 suite('up/down', function () {
+  const $ = window.test_only_jquery;
   var mq, rootBlock, controller, cursor;
   setup(function () {
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0]);
@@ -301,11 +302,17 @@ suite('up/down', function () {
     mq.keystroke('Up');
     mq.keystroke('Up');
     assert.equal(cursor.parent.latex(), '1', 'cursor up goes to upper limit');
-    var upperRect = cursor.parent.jQ[0].getBoundingClientRect();
+    var upperRect = cursor.parent
+      .domFrag()
+      .firstElement()
+      .getBoundingClientRect();
 
     mq.keystroke('Down');
     assert.equal(cursor.parent.latex(), '0', 'cursor down goes to lower limit');
-    var lowerRect = cursor.parent.jQ[0].getBoundingClientRect();
+    var lowerRect = cursor.parent
+      .domFrag()
+      .firstElement()
+      .getBoundingClientRect();
 
     mq.keystroke('Up');
     assert.equal(cursor.parent.latex(), '1', 'cursor up goes to upper limit');

@@ -1,4 +1,5 @@
 suite('Public API', function () {
+  const $ = window.test_only_jquery;
   suite('global functions', function () {
     test('null', function () {
       assert.equal(MQ(), null);
@@ -27,6 +28,31 @@ suite('Public API', function () {
       assert.ok(!(mathField instanceof MQ1.MathField));
       assert.ok(!(mathField instanceof MQ1.EditableField));
       assert.ok(!(mathField instanceof MQ1));
+    });
+
+    test('interface version < 3 throws an error if jQuery is not present', function () {
+      window.$ = window.jQuery = undefined;
+      assert.throws(
+        () => MathQuill.getInterface(1),
+        'MathQuill.getInterface(1) throws if jquery is not present'
+      );
+      assert.throws(
+        () => MathQuill.getInterface(2),
+        'MathQuill.getInterface(2) throws if jquery is not present'
+      );
+      assert.ok(
+        MathQuill.getInterface(3),
+        'MathQuill.getInterface(3) succeeds without jquery present'
+      );
+      setupJqueryStub();
+      assert.ok(
+        MathQuill.getInterface(1),
+        'MathQuill.getInterface(1) succeeds when jquery is present'
+      );
+      assert.ok(
+        MathQuill.getInterface(2),
+        'MathQuill.getInterface(1) succeeds when jquery is present'
+      );
     });
 
     test('identity of API object returned by MQ()', function () {
@@ -81,6 +107,18 @@ suite('Public API', function () {
 
     test('.revert()', function () {
       var mq = MQ.MathField($('<span>some <code>HTML</code></span>')[0]);
+      assert.equal(mq.revert().innerHTML, 'some <code>HTML</code>');
+    });
+
+    test('interface v1 and v2 .revert() return jquery colletion', function () {
+      // interface version 1
+      setupJqueryStub();
+      var MQ1 = MathQuill.getInterface(1);
+      var mq = MQ1.MathField($('<span>some <code>HTML</code></span>')[0]);
+      assert.equal(mq.revert().html(), 'some <code>HTML</code>');
+
+      var MQ2 = MathQuill.getInterface(2);
+      var mq = MQ2.MathField($('<span>some <code>HTML</code></span>')[0]);
       assert.equal(mq.revert().html(), 'some <code>HTML</code>');
     });
 
@@ -114,11 +152,39 @@ suite('Public API', function () {
       assert.equal(mq.latex(), 'bc');
     });
 
+    test("latex while there's a selection 2", function () {
+      mq.latex('1.2');
+      assert.equal(mq.latex(), '1.2');
+      mq.select();
+      assert.equal(mq.__controller.cursor.selection.join('latex'), '1.2');
+      mq.latex('1');
+      assert.equal(mq.latex(), '1');
+      mq.typedText('c');
+      assert.equal(mq.latex(), '1c');
+    });
+
+    test('latex while cursor is in the middle of an expression', function () {
+      mq.typedText('1.2');
+      mq.focus();
+      var t = mq.el().querySelector('textarea');
+      trigger.keydown(t, 'ArrowLeft');
+      trigger.keypress(t, 'ArrowLeft');
+      trigger.keyup(t, 'ArrowLeft');
+      trigger.keydown(t, 'Backspace');
+      trigger.keypress(t, 'Backspace');
+      trigger.keyup(t, 'Backspace');
+      assert.equal(mq.latex(), '12');
+      mq.latex('1.2');
+      assert.equal(mq.latex(), '1.2');
+      mq.typedText('/');
+      assert.equal(mq.latex(), '\\frac{1.2}{ }');
+    });
+
     test('.html() trivial case', function () {
       mq.latex('x+y');
       assert.equal(
         mq.html(),
-        '<var aria-hidden="true">x</var><span aria-hidden="true" class="mq-binary-operator">+</span><var aria-hidden="true">y</var>'
+        '<var>x</var><span class="mq-binary-operator">+</span><var>y</var>'
       );
     });
 
@@ -239,6 +305,7 @@ suite('Public API', function () {
 
   test('edit handler interface versioning', function () {
     var count = 0;
+    setupJqueryStub();
 
     // interface version 2 (latest)
     var mq2 = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
@@ -469,7 +536,7 @@ suite('Public API', function () {
 
     test('overflow triggers automatic horizontal scroll', function (done) {
       var mqEl = mq.el();
-      var rootEl = mq.__controller.root.jQ[0];
+      var rootEl = mq.__controller.root.domFrag().oneElement();
       var cursor = mq.__controller.cursor;
 
       $(mqEl).width(10);
@@ -485,7 +552,7 @@ suite('Public API', function () {
           assert.ok(rootEl.scrollLeft > previousScrollLeft, 'scrolls on cmd');
           assert.ok(
             mqEl.getBoundingClientRect().right >
-              cursor.jQ[0].getBoundingClientRect().right,
+              cursor.domFrag().firstElement().getBoundingClientRect().right,
             'cursor right end is inside the field'
           );
         } catch (error) {
@@ -610,7 +677,9 @@ suite('Public API', function () {
       function assertPaste(paste, latex) {
         if (arguments.length < 2) latex = paste;
         mq.latex('');
-        textarea.trigger('paste').val(paste).trigger('input');
+        trigger.paste(textarea[0]);
+        textarea.val(paste);
+        trigger.input(textarea[0]);
         assert.equal(mq.latex(), latex);
       }
 
@@ -654,7 +723,9 @@ suite('Public API', function () {
       function assertPaste(paste, latex) {
         if (arguments.length < 2) latex = paste;
         mq.latex('');
-        textarea.trigger('paste').val(paste).trigger('input');
+        trigger.paste(textarea[0]);
+        textarea.val(paste);
+        trigger.input(textarea[0]);
         assert.equal(mq.latex(), latex);
       }
 
@@ -1003,7 +1074,7 @@ suite('Public API', function () {
       });
       var key;
 
-      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
+      trigger.keydown(mq.el().querySelector('textarea'), 'ArrowLeft');
       assert.equal(key, 'Left');
     });
     test('cut is async', function (done) {
@@ -1017,13 +1088,15 @@ suite('Public API', function () {
       mq.latex('a=2');
       mq.select();
 
-      $(mq.el()).find('textarea').trigger('cut');
+      const textarea = mq.el().querySelector('textarea');
+
+      trigger.cut(textarea);
       assert.equal(count, 0);
 
-      $(mq.el()).find('textarea').trigger('input');
+      trigger.input(textarea);
       assert.equal(count, 0);
 
-      $(mq.el()).find('textarea').trigger('keyup');
+      trigger.keyup(textarea);
       assert.equal(count, 0);
 
       setTimeout(function () {
@@ -1033,50 +1106,64 @@ suite('Public API', function () {
     });
   });
 
-  suite('substituteKeyboardEvents', function () {
-    test('can intercept key events', function () {
-      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
-        substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
-            textarea,
-            jQuery.extend({}, handlers, {
-              keystroke: function (_key, evt) {
-                key = _key;
-                return handlers.keystroke.apply(handlers, arguments);
-              },
-            })
-          );
-        },
+  suite('substituteKeyboardEvents (interface versions 1 and 2)', function () {
+    for (const v of [1, 2]) {
+      setupJqueryStub();
+      const MQ_old = MathQuill.getInterface(v);
+      test('can intercept key events, interface version ' + v, function () {
+        var mq = MQ_old.MathField($('<span>').appendTo('#mock')[0], {
+          substituteKeyboardEvents: function (textarea, handlers) {
+            return MQ_old.saneKeyboardEvents(
+              textarea,
+              $.extend({}, handlers, {
+                keystroke: function (_key, evt) {
+                  key = _key;
+                  return handlers.keystroke.apply(handlers, arguments);
+                },
+              })
+            );
+          },
+        });
+        var key;
+
+        trigger.keydown(mq.el().querySelector('textarea'), 'ArrowLeft');
+        assert.equal(key, 'Left');
       });
-      var key;
+      test('cut is async, interface version ' + v, function () {
+        var mq = MQ_old.MathField($('<span>').appendTo('#mock')[0], {
+          substituteKeyboardEvents: function (textarea, handlers) {
+            return MQ_old.saneKeyboardEvents(
+              textarea,
+              $.extend({}, handlers, {
+                cut: function () {
+                  count += 1;
+                  return handlers.cut.apply(handlers, arguments);
+                },
+              })
+            );
+          },
+        });
+        var count = 0;
 
-      $(mq.el()).find('textarea').trigger({ type: 'keydown', which: '37' });
-      assert.equal(key, 'Left');
-    });
-    test('cut is async', function () {
-      var mq = MQ.MathField($('<span>').appendTo('#mock')[0], {
-        substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
-            textarea,
-            jQuery.extend({}, handlers, {
-              cut: function () {
-                count += 1;
-                return handlers.cut.apply(handlers, arguments);
-              },
-            })
-          );
-        },
+        const textarea = mq.el().querySelector('textarea');
+
+        trigger.cut(textarea);
+        assert.equal(count, 0);
+
+        trigger.input(textarea);
+        assert.equal(count, 1);
+
+        trigger.keyup(textarea);
+        assert.equal(count, 1);
       });
-      var count = 0;
+    }
 
-      $(mq.el()).find('textarea').trigger('cut');
-      assert.equal(count, 0);
-
-      $(mq.el()).find('textarea').trigger('input');
-      assert.equal(count, 1);
-
-      $(mq.el()).find('textarea').trigger('keyup');
-      assert.equal(count, 1);
+    test('throws for interface version 3', function () {
+      assert.throws(() =>
+        MQ.MathField(document.createElement('span'), {
+          substituteKeyboardEvents: function () {},
+        })
+      );
     });
   });
 
@@ -1139,7 +1226,7 @@ suite('Public API', function () {
         },
       });
 
-      assert.ok(jQuery('.embedded-html').length);
+      assert.ok($('.embedded-html').length);
       assert.equal(mq.text(), 'embedded text');
       assert.equal(mq.latex(), 'embedded latex');
     });
@@ -1168,7 +1255,7 @@ suite('Public API', function () {
         },
       });
 
-      assert.ok(jQuery('.embedded-html').length);
+      assert.ok($('.embedded-html').length);
       assert.equal(mq.text(), '(m*m*m*m)/(m*m*embedded text*m*m)');
       assert.equal(mq.latex(), '\\frac{mmmm}{mmembedded latexmm}');
     });
@@ -1181,7 +1268,8 @@ suite('Public API', function () {
       calls += 1;
       data = data_;
       return {
-        htmlString: '<span class="embedded-html"></span>',
+        htmlString:
+          '<span class="embedded-html"></span><span class="embedded-html-2"></span>',
         text: function () {
           return 'embedded text';
         },
@@ -1196,7 +1284,8 @@ suite('Public API', function () {
     assert.equal(calls, 1);
     assert.equal(data, undefined);
 
-    assert.ok(jQuery('.embedded-html').length);
+    assert.ok($('.embedded-html').length);
+    assert.ok($('.embedded-html-2').length);
     assert.equal(mq.text(), 'sqrt(embedded text)');
     assert.equal(mq.latex(), '\\sqrt{embedded latex}');
 
@@ -1204,8 +1293,63 @@ suite('Public API', function () {
     assert.equal(calls, 2);
     assert.equal(data, 'data');
 
-    assert.ok(jQuery('.embedded-html').length);
+    assert.ok($('.embedded-html').length);
+    assert.ok($('.embedded-html-2').length);
     assert.equal(mq.text(), 'sqrt(embedded text)');
     assert.equal(mq.latex(), '\\sqrt{embedded latex}');
+  });
+
+  suite('StaticMath', function () {
+    test('does not render cursor', function () {
+      const span = document.createElement('span');
+      span.textContent = '\\frac{1}{2}';
+      var mq = MQ.StaticMath(
+        domFrag(span).appendTo(document.querySelector('#mock')).oneElement(),
+        {}
+      );
+      assert.equal(
+        mq.__controller.blurred,
+        true,
+        'focus state is initialized to blurred'
+      );
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is no .mq-cursor element'
+      );
+      mq.latex('123');
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is still no .mq-cursor element'
+      );
+    });
+
+    test('does not render cursor with mouseEvents: false', function () {
+      const span = document.createElement('span');
+      span.textContent = '\\frac{1}{2}';
+      var mq = MQ.StaticMath(
+        domFrag(span).appendTo(document.querySelector('#mock')).oneElement(),
+        {
+          mouseEvents: false,
+        }
+      );
+      assert.equal(
+        mq.__controller.blurred,
+        true,
+        'focus state is initialized to blurred'
+      );
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is no .mq-cursor element'
+      );
+      mq.latex('123');
+      assert.equal(
+        span.querySelector('.mq-cursor'),
+        null,
+        'there is still no .mq-cursor element'
+      );
+    });
   });
 });

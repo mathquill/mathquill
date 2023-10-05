@@ -1,25 +1,27 @@
-window.assert = (function () {
-  function AssertionError(opts) {
-    if (!opts) opts = {};
-
-    $.extend(this, opts);
-    this.message = this.explanation + ' ' + this.message;
-
-    Error.call(this, this.message);
+var assert = (function () {
+  class AssertionError extends Error {
+    message: string;
+    explanation: string;
+    constructor({
+      message,
+      explanation,
+    }: {
+      message: string | undefined;
+      explanation: string;
+    }) {
+      const combined = `${explanation} ${message}`;
+      super(combined);
+      this.explanation = explanation;
+      this.message = combined;
+    }
   }
 
-  function noop() {}
-  noop.prototype = Error.prototype;
-  AssertionError.prototype = new noop();
-
-  function fail(opts) {
-    if (typeof opts === 'string') opts = { message: opts };
-
+  function fail(opts: { message: string | undefined; explanation: string }) {
     throw new AssertionError(opts);
   }
 
   return {
-    ok: function (thing, message) {
+    ok: function (thing: any, message?: string) {
       if (thing) return;
 
       fail({
@@ -27,7 +29,7 @@ window.assert = (function () {
         explanation: 'expected ' + thing + ' to be truthy',
       });
     },
-    equal: function (thing1, thing2, message) {
+    equal: function <T>(thing1: T, thing2: T, message?: string) {
       if (thing1 === thing2) return;
 
       fail({
@@ -35,7 +37,7 @@ window.assert = (function () {
         explanation: 'expected (' + thing1 + ') to equal (' + thing2 + ')',
       });
     },
-    throws: function (fn, message) {
+    throws: function (fn: Function, message?: string) {
       var error = false;
 
       try {
@@ -51,7 +53,7 @@ window.assert = (function () {
         explanation: 'expected ' + fn + ' to throw an error',
       });
     },
-    fail: function (message) {
+    fail: function (message?: string) {
       fail({ message: message, explanation: 'generic fail' });
     },
   };

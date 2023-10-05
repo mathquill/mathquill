@@ -16,7 +16,7 @@ var latexMathParser = (function () {
     var firstBlock = blocks[0] || new MathBlock();
 
     for (var i = 1; i < blocks.length; i += 1) {
-      blocks[i].children().adopt(firstBlock, firstBlock.ends[R], 0);
+      blocks[i].children().adopt(firstBlock, firstBlock.getEnd(R), 0);
     }
 
     return firstBlock;
@@ -51,7 +51,7 @@ var latexMathParser = (function () {
           .or(any)
       )
     )
-    .then(function (ctrlSeq): Parser<MQNode> {
+    .then(function (ctrlSeq) {
       // TODO - is Parser<MQNode> correct?
       var cmdKlass = (LatexCmds as LatexCmdsSingleChar)[ctrlSeq];
 
@@ -98,7 +98,7 @@ var latexMathParser = (function () {
   return latexMath;
 })();
 
-optionProcessors.maxDepth = function (depth: number) {
+baseOptionProcessors.maxDepth = function (depth: number | undefined) {
   return typeof depth === 'number' ? depth : undefined;
 };
 
@@ -117,7 +117,7 @@ class Controller_latex extends Controller_keystroke {
     return this;
   }
 
-  classifyLatexForEfficientUpdate(latex: string) {
+  classifyLatexForEfficientUpdate(latex: unknown) {
     if (typeof latex !== 'string') return;
 
     var matches = latex.match(/-?[0-9.]+$/g);
@@ -131,12 +131,10 @@ class Controller_latex extends Controller_keystroke {
 
     return;
   }
-  renderLatexMathEfficiently(latex: string) {
+  private updateLatexMathEfficiently(latex: unknown, oldLatex: unknown) {
+    // Note, benchmark/update.html is useful for measuring the
+    // performance of renderLatexMathEfficiently
     var root = this.root;
-    var oldLatex = this.exportLatex();
-    if (root.ends[L] && root.ends[R] && oldLatex === latex) {
-      return true;
-    }
     var oldClassification;
     var classification = this.classifyLatexForEfficientUpdate(latex);
     if (classification) {
@@ -166,7 +164,7 @@ class Controller_latex extends Controller_keystroke {
     }
 
     // start at the very end
-    var charNode = this.root.ends[R];
+    var charNode = this.root.getEnd(R);
     var oldCharNodes = [];
     for (var i = oldDigits.length - 1; i >= 0; i--) {
       // the tree does not match what we expect
@@ -201,10 +199,12 @@ class Controller_latex extends Controller_keystroke {
 
       oldCharNodes[0][L] = oldMinusNode[L];
 
-      if (root.ends[L] === oldMinusNode) root.ends[L] = oldCharNodes[0];
+      if (root.getEnd(L) === oldMinusNode) {
+        root.setEnds({ [L]: oldCharNodes[0], [R]: root.getEnd(R) });
+      }
       if (oldMinusNodeL) oldMinusNodeL[R] = oldCharNodes[0];
 
-      oldMinusNode.jQ.remove();
+      oldMinusNode.domFrag().remove();
     }
 
     // add a minus sign
@@ -212,11 +212,13 @@ class Controller_latex extends Controller_keystroke {
       var newMinusNode = new PlusMinus('-');
       var minusSpan = document.createElement('span');
       minusSpan.textContent = '-';
-      newMinusNode.jQ = $(minusSpan);
+      newMinusNode.setDOM(minusSpan);
 
       var oldCharNodes0L = oldCharNodes[0][L];
       if (oldCharNodes0L) oldCharNodes0L[R] = newMinusNode;
-      if (root.ends[L] === oldCharNodes[0]) root.ends[L] = newMinusNode;
+      if (root.getEnd(L) === oldCharNodes[0]) {
+        root.setEnds({ [L]: newMinusNode, [R]: root.getEnd(R) });
+      }
 
       newMinusNode.parent = root;
       newMinusNode[L] = oldCharNodes[0][L];
@@ -224,7 +226,7 @@ class Controller_latex extends Controller_keystroke {
       oldCharNodes[0][L] = newMinusNode;
 
       newMinusNode.contactWeld(this.cursor); // decide if binary operator
-      newMinusNode.jQ.insertBefore(oldCharNodes[0].jQ);
+      newMinusNode.domFrag().insertBefore(oldCharNodes[0].domFrag());
     }
 
     // update the text of the current nodes
@@ -234,7 +236,7 @@ class Controller_latex extends Controller_keystroke {
       charNode = oldCharNodes[i];
       if (charNode.ctrlSeq !== newText) {
         charNode.ctrlSeq = newText;
-        charNode.jQ[0].textContent = newText;
+        charNode.domFrag().oneElement().textContent = newText;
         charNode.mathspeakName = newText;
       }
     }
@@ -242,11 +244,11 @@ class Controller_latex extends Controller_keystroke {
     // remove the extra digits at the end
     if (oldDigits.length > newDigits.length) {
       charNode = oldCharNodes[newDigits.length - 1];
-      root.ends[R] = charNode;
+      root.setEnds({ [L]: root.getEnd(L), [R]: charNode });
       charNode[R] = 0;
 
       for (i = oldDigits.length - 1; i >= commonLength; i--) {
-        oldCharNodes[i].jQ.remove();
+        oldCharNodes[i].domFrag().remove();
       }
     }
 
@@ -261,19 +263,19 @@ class Controller_latex extends Controller_keystroke {
 
         var newNode = new Digit(newDigits[i]);
         newNode.parent = root;
-        newNode.jQ = $(span);
+        newNode.setDOM(span);
         frag.appendChild(span);
 
         // splice this node in
-        newNode[L] = root.ends[R];
+        newNode[L] = root.getEnd(R);
         newNode[R] = 0;
 
         const newNodeL = newNode[L] as MQNode;
         newNodeL[R] = newNode;
-        root.ends[R] = newNode;
+        root.setEnds({ [L]: root.getEnd(L), [R]: newNode });
       }
 
-      root.jQ[0].appendChild(frag);
+      root.domFrag().oneElement().appendChild(frag);
     }
 
     var currentLatex = this.exportLatex();
@@ -287,16 +289,14 @@ class Controller_latex extends Controller_keystroke {
       return false;
     }
 
-    this.cursor.resetToEnd(this);
-
-    var rightMost = root.ends[R];
+    var rightMost = root.getEnd(R);
     if (rightMost) {
       rightMost.fixDigitGrouping(this.cursor.options);
     }
 
     return true;
   }
-  renderLatexMathFromScratch(latex: string) {
+  private renderLatexMathFromScratch(latex: unknown) {
     var root = this.root,
       cursor = this.cursor;
     var all = Parser.all;
@@ -307,38 +307,40 @@ class Controller_latex extends Controller_keystroke {
       .or(all.result<false>(false))
       .parse(latex);
 
-    root.ends[L] = root.ends[R] = 0;
+    root.setEnds({ [L]: 0, [R]: 0 });
 
     if (block) {
       block.children().adopt(root, 0, 0);
     }
 
-    var jQ = root.jQ;
-
     if (block) {
-      var html = block.join('html');
-      jQ.html(html);
-      root.jQize(jQ.children());
+      const frag = root.domFrag();
+      frag.children().remove();
+      frag.oneElement().appendChild(block.html());
       root.finalizeInsert(cursor.options, cursor);
     } else {
-      jQ.empty();
+      root.domFrag().empty();
     }
-    this.updateMathspeak();
-    delete cursor.selection;
-    cursor.insAtRightEnd(root);
   }
-  renderLatexMath(latex: string) {
+  renderLatexMath(latex: unknown) {
+    var cursor = this.cursor;
+    var root = this.root;
     this.notify('replace');
-
-    if (this.renderLatexMathEfficiently(latex)) return;
-    this.renderLatexMathFromScratch(latex);
+    cursor.clearSelection();
+    var oldLatex = this.exportLatex();
+    if (!root.getEnd(L) || !root.getEnd(R) || oldLatex !== latex) {
+      this.updateLatexMathEfficiently(latex, oldLatex) ||
+        this.renderLatexMathFromScratch(latex);
+      this.updateMathspeak();
+    }
+    cursor.insAtRightEnd(root);
   }
   renderLatexText(latex: string) {
     var root = this.root,
       cursor = this.cursor;
 
-    root.jQ.children().slice(1).remove();
-    root.ends[L] = root.ends[R] = 0;
+    root.domFrag().children().slice(1).remove();
+    root.setEnds({ [L]: 0, [R]: 0 });
     delete cursor.selection;
     cursor.show().insAtRightEnd(root);
 
@@ -359,7 +361,7 @@ class Controller_latex extends Controller_keystroke {
         var rootMathCommand = new RootMathCommand(cursor);
 
         rootMathCommand.createBlocks();
-        var rootMathBlock = rootMathCommand.ends[L];
+        var rootMathBlock = rootMathCommand.getEnd(L);
         block.children().adopt(rootMathBlock as MQNode, 0, 0);
 
         return rootMathCommand;
@@ -376,10 +378,10 @@ class Controller_latex extends Controller_keystroke {
 
     if (commands) {
       for (var i = 0; i < commands.length; i += 1) {
-        commands[i].adopt(root, root.ends[R], 0);
+        commands[i].adopt(root, root.getEnd(R), 0);
       }
 
-      root.jQize().appendTo(root.jQ);
+      domFrag(root.html()).appendTo(root.domFrag().oneElement());
 
       root.finalizeInsert(cursor.options, cursor);
     }

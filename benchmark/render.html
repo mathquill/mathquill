@@ -45,7 +45,8 @@
           maxLength: (approximate) max length of randomly generated latex
           expressions (default: 2048)
         </li>
-        <li>samples: the number of expressions to generate (default: 1)</li>
+        <li>expressions: the number of expressions to generate (default: 1)</li>
+        <li>samples: the number of times to render each expression</li>
         <li>
           seed: random seed (to generate same expressions across page loads)
         </li>
@@ -65,17 +66,28 @@
         params.append('seed', Math.random().toString(16).slice(2, 10));
         window.location.href = window.location.href + '?' + params.toString();
       }
-      const MAX_DEPTH = params.get('maxDepth') || 6;
-      const MAX_LENGTH = params.get('maxLength') || 2048;
-      const NUM_SAMPLES = params.has('samples')
-        ? parseInt(params.get('samples'))
-        : 1;
+
+      function getNumericParam(key, defaultValue) {
+        return params.has(key) ? parseFloat(params.get(key)) : defaultValue;
+      }
+
+      const MAX_DEPTH = getNumericParam('maxDepth', 6);
+      const MAX_LENGTH = getNumericParam('maxLength', 2048);
+      const NUM_EXPRESSIONS = getNumericParam('expressions', 1);
+      const NUM_SAMPLES = getNumericParam('samples', 30);
       const random = new Math.seedrandom(params.get('seed'));
 
       window.results = [];
-      for (let i = 0; i < NUM_SAMPLES; i++) {
-        const latex = randomLatex();
-        run(latex);
+      for (let i = 0; i < NUM_EXPRESSIONS; i++) {
+        let latex = '';
+        for (let depth = 0; depth <= MAX_DEPTH; depth++) {
+          const trialLatex = randomLatex(depth);
+          if (trialLatex.length > MAX_LENGTH) break;
+          latex = trialLatex;
+        }
+        for (let s = 0; s < NUM_SAMPLES; s++) {
+          run(latex);
+        }
       }
       printResults();
 
@@ -157,10 +169,12 @@
         }
         let length = 0;
         for (let i = 0; i < arity; i++) {
-          const arg = randomLatex(depth - 1);
-          length += arg.length;
-          if (length + arg.length > MAX_LENGTH) break;
+          // If we've already exceeded MAX_LENGTH, this sample is going
+          // to be rejected by an outer loop. In that case, just append
+          // something simple ('1') and move on to save time.
+          const arg = length > MAX_LENGTH ? '1' : randomLatex(depth - 1);
           args.push(arg);
+          length += arg.length;
         }
         return fn(...args);
       }

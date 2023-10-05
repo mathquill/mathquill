@@ -11,13 +11,10 @@
       "strict": true,
       "target": "ES5",
       "lib": ["ES5", "ScriptHost", "DOM", "ES2015.Collection"],
-      "rootDir": ".",
-      "baseUrl": ".",
-      "paths": {
-        "tslib": ["node_modules/tslib/tslib"],
-      },
+      "module": "ES2015",
       "importHelpers": true,
       "noEmit": true,
       "pretty": true
-    }
+    },
+    "include": ["../src/mathquill.d.ts", "../src/jquery.d.ts"]
   }

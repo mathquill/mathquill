@@ -12,9 +12,6 @@ JS environment could actually contain many instances. */
 //A fake cursor in the fake textbox that the math is rendered in.
 class Anticursor extends Point {
   ancestors: Record<string | number, Anticursor | MQNode | undefined> = {};
-  constructor(parent: MQNode, leftward?: NodeRef, rightward?: NodeRef) {
-    super(parent, leftward, rightward);
-  }
 
   static fromCursor(cursor: Cursor) {
     return new Anticursor(cursor.parent, cursor[L], cursor[R]);
@@ -22,49 +19,61 @@ class Anticursor extends Point {
 }
 
 class Cursor extends Point {
-  controller: Controller;
   parent: MQNode;
-  options: CursorOptions;
   /** Slightly more than just a "cache", this remembers the cursor's position in each block node, so that we can return to the right
    * point in that node when moving up and down among blocks.
    */
   upDownCache: Record<number | string, Point | undefined> = {};
   blink: () => void;
-  _jQ: $;
-  jQ: $;
+  private readonly cursorElement: HTMLElement = h(
+    'span',
+    { class: 'mq-cursor' },
+    [h.text(U_ZERO_WIDTH_SPACE)]
+  );
+  private _domFrag = domFrag();
   selection: MQSelection | undefined;
   intervalId: number;
   anticursor: Anticursor | undefined;
 
   constructor(
     initParent: MQNode,
-    options: CursorOptions,
-    controller: Controller
+    readonly options: CursorOptions,
+    readonly controller: Controller
   ) {
-    super(initParent);
-    this.controller = controller;
-    this.options = options;
+    super(initParent, 0, 0);
 
-    var jQ = (this.jQ = this._jQ = $('<span class="mq-cursor">&#8203;</span>'));
+    this.setDOMFrag(domFrag(this.cursorElement));
+
     //closured for setInterval
-    this.blink = function () {
-      jQ.toggleClass('mq-blink');
+    this.blink = () => {
+      domFrag(this.cursorElement).toggleClass('mq-blink');
     };
   }
 
+  setDOMFrag(frag: DOMFragment) {
+    this._domFrag = frag;
+    return this;
+  }
+
+  domFrag(): DOMFragment {
+    return this._domFrag;
+  }
+
   show() {
-    this.jQ = this._jQ.removeClass('mq-blink');
+    domFrag(this.cursorElement).removeClass('mq-blink');
+    this.setDOMFrag(domFrag(this.cursorElement));
     if (this.intervalId)
       //already was shown, just restart interval
       clearInterval(this.intervalId);
     else {
       //was hidden and detached, insert this.jQ back into HTML DOM
-      if (this[R]) {
+      const right = this[R];
+      if (right) {
         var selection = this.selection;
-        if (selection && (selection.ends[L] as MQNode)[L] === this[L])
-          this.jQ.insertBefore(selection.jQ);
-        else this.jQ.insertBefore((this[R] as MQNode).jQ.first());
-      } else this.jQ.appendTo(this.parent.jQ);
+        if (selection && selection.getEnd(L)[L] === this[L])
+          this.domFrag().insertBefore(selection.domFrag());
+        else this.domFrag().insertBefore(right.domFrag());
+      } else this.domFrag().appendTo(this.parent.domFrag().oneElement());
       this.parent.focus();
     }
     this.intervalId = setInterval(this.blink, 500);
@@ -73,8 +82,8 @@ class Cursor extends Point {
   hide() {
     if (this.intervalId) clearInterval(this.intervalId);
     this.intervalId = 0;
-    this.jQ.detach();
-    this.jQ = $();
+    this.domFrag().detach();
+    this.setDOMFrag(domFrag());
     return this;
   }
 
@@ -96,9 +105,9 @@ class Cursor extends Point {
   /** Place the cursor before or after `el`, according the side specified by `dir`. */
   insDirOf(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    this.jQ.insDirOf(dir, el.jQ);
+    this.domFrag().insDirOf(dir, el.domFrag());
     this.withDirInsertAt(dir, el.parent, el[dir], el);
-    this.parent.jQ.addClass('mq-hasCursor');
+    this.parent.domFrag().addClass('mq-hasCursor');
     return this;
   }
   insLeftOf(el: MQNode) {
@@ -111,8 +120,8 @@ class Cursor extends Point {
   /** Place the cursor inside `el` at either the left or right end, according the side specified by `dir`. */
   insAtDirEnd(dir: Direction, el: MQNode) {
     prayDirection(dir);
-    this.jQ.insAtDirEnd(dir, el.jQ);
-    this.withDirInsertAt(dir, el, 0, el.ends[dir]);
+    this.domFrag().insAtDirEnd(dir, el.domFrag().oneElement());
+    this.withDirInsertAt(dir, el, 0, el.getEnd(dir));
     el.focus();
     return this;
   }
@@ -143,12 +152,12 @@ class Cursor extends Point {
         self.insAtRightEnd(cached.parent);
       }
     } else {
-      var pageX = self.offset().left;
-      to.seek(pageX, self);
+      var clientX = self.getBoundingClientRectWithoutMargin().left;
+      to.seek(clientX, self);
     }
     self.controller.aria.queue(to, true);
   }
-  offset() {
+  getBoundingClientRectWithoutMargin() {
     //in Opera 11.62, .getBoundingClientRect() and hence jQuery::offset()
     //returns all 0's on inline elements with negative margin-right (like
     //the cursor) at the end of their parent, so temporarily remove the
@@ -156,10 +165,14 @@ class Cursor extends Point {
     //Opera bug DSK-360043
     //http://bugs.jquery.com/ticket/11523
     //https://github.com/jquery/jquery/pull/717
-    var self = this,
-      offset = self.jQ.removeClass('mq-cursor').offset();
-    self.jQ.addClass('mq-cursor');
-    return offset;
+    const frag = this.domFrag();
+    frag.removeClass('mq-cursor');
+    const { left, right } = getBoundingClientRect(frag.oneElement());
+    frag.addClass('mq-cursor');
+    return {
+      left,
+      right,
+    };
   }
   unwrapGramp() {
     var gramp = this.parent.parent;
@@ -175,11 +188,11 @@ class Cursor extends Point {
         .children()
         .adopt(greatgramp, leftward, rightward)
         .each(function (cousin) {
-          cousin.jQ.insertBefore(gramp.jQ.first());
+          cousin.domFrag().insertBefore(gramp.domFrag());
           return true;
         });
 
-      leftward = uncle.ends[R];
+      leftward = uncle.getEnd(R);
       return true;
     });
 
@@ -192,7 +205,7 @@ class Cursor extends Point {
           var newParent = this.parent[R];
           if (newParent) {
             this.parent = newParent;
-            this[R] = newParent.ends[L];
+            this[R] = newParent.getEnd(L);
           } else {
             this[R] = gramp[R];
             this.parent = greatgramp;
@@ -206,7 +219,7 @@ class Cursor extends Point {
     if (thisR) this.insLeftOf(thisR);
     else this.insAtRightEnd(greatgramp);
 
-    gramp.jQ.remove();
+    gramp.domFrag().remove();
 
     var grampL = gramp[L];
     var grampR = gramp[R];
@@ -305,7 +318,7 @@ class Cursor extends Point {
       rightEnd as MQNode
     );
 
-    var insEl = this.selection!.ends[dir] as MQNode;
+    var insEl = this.selection!.getEnd(dir);
     this.insDirOf(dir, insEl);
     this.selectionChanged();
     return true;
@@ -314,7 +327,7 @@ class Cursor extends Point {
     this.clearSelection();
     var root = controller.root;
     this[R] = 0;
-    this[L] = root.ends[R];
+    this[L] = root.getEnd(R);
     this.parent = root;
   }
   clearSelection() {
@@ -329,8 +342,8 @@ class Cursor extends Point {
     var selection = this.selection;
     if (!selection) return;
 
-    this[L] = (selection.ends[L] as MQNode)[L];
-    this[R] = (selection.ends[R] as MQNode)[R];
+    this[L] = selection.getEnd(L)[L];
+    this[R] = selection.getEnd(R)[R];
     selection.remove();
     this.selectionChanged();
     delete this.selection;
@@ -338,8 +351,8 @@ class Cursor extends Point {
   replaceSelection() {
     var seln = this.selection;
     if (seln) {
-      this[L] = (seln.ends[L] as MQNode)[L];
-      this[R] = (seln.ends[R] as MQNode)[R];
+      this[L] = seln.getEnd(L)[L];
+      this[R] = seln.getEnd(R)[R];
       delete this.selection;
     }
     return seln;
@@ -364,20 +377,44 @@ class Cursor extends Point {
   selectionChanged() {}
 }
 class MQSelection extends Fragment {
+  protected ends: Ends<MQNode>;
+  private _el: HTMLElement | undefined;
+
   constructor(withDir: MQNode, oppDir: MQNode, dir?: Direction) {
     super(withDir, oppDir, dir);
-
-    this.jQ = this.jQ.wrapAll('<span class="mq-selection"></span>').parent();
-    //can't do wrapAll(this.jQ = $(...)) because wrapAll will clone it
+    this._el = h('span', { class: 'mq-selection' });
+    this.getDOMFragFromEnds().wrapAll(this._el);
   }
+
+  isCleared() {
+    return this._el === undefined;
+  }
+
+  domFrag() {
+    return this.isCleared() ? this.getDOMFragFromEnds() : domFrag(this._el);
+  }
+
+  setEnds(ends: Ends<MQNode>) {
+    pray('Selection ends are never empty', ends[L] && ends[R]);
+    this.ends = ends;
+  }
+
+  getEnd(dir: Direction): MQNode {
+    return this.ends[dir];
+  }
+
   adopt(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
-    this.jQ.replaceWith((this.jQ = this.jQ.children()));
+    this.clear();
     return super.adopt(parent, leftward, rightward);
   }
   clear() {
-    // using the browser's native .childNodes property so that we
-    // don't discard text nodes.
-    this.jQ.replaceWith(this.jQ[0].childNodes);
+    // NOTE it's important here that DOMFragment::children includes all
+    // child nodes (including Text nodes), and not just Element nodes.
+    // This makes it more similar to the native DOM childNodes property
+    // and jQuery's .collection() method than jQuery's .children() method
+    const childFrag = this.getDOMFragFromEnds();
+    this.domFrag().replaceWith(childFrag);
+    this._el = undefined;
     return this;
   }
   join(methodName: JoinMethod, separator: string = ''): string {
