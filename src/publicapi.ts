@@ -15,7 +15,6 @@ interface InternalMathQuillInstance {
     opts: ConfigOptions,
     _interfaceVersion: number
   ): IBaseMathQuill;
-  config(opts: ConfigOptions): IBaseMathQuill;
 }
 
 interface IBaseMathQuill extends BaseMathQuill, InternalMathQuillInstance {}
