@@ -1458,14 +1458,16 @@ var saneKeyboardEvents = (function() {
   // create a keyboard events shim that calls callbacks at useful times
   // and exports useful public methods
   return function saneKeyboardEvents(el, handlers) {
+    var isandroid = /.*android.*/i.test(navigator.userAgent);
+    var androidcompose = false;
     var keydown = null;
     var keypress = null;
 
     var textarea = jQuery(el);
     var target = jQuery(handlers.container || textarea);
 
-    // checkTextareaFor() is called after keypress or paste events to
-    // say "Hey, I think something was just typed" or "pasted" (resp.),
+    // checkTextareaFor() is called after key or clipboard events to
+    // say "Hey, I think something was just typed" or "pasted" etc,
     // so that at all subsequent opportune times (next event or timeout),
     // will check for expected typed or pasted text.
     // Need to check repeatedly because #135: in Safari 5.1 (at least),
@@ -1477,6 +1479,13 @@ var saneKeyboardEvents = (function() {
       checkTextarea = checker;
       clearTimeout(timeoutId);
       timeoutId = setTimeout(checker);
+    }
+    function checkTextareaOnce(checker) {
+      checkTextareaFor(function(e) {
+        checkTextarea = noop;
+        clearTimeout(timeoutId);
+        checker(e);
+      });
     }
     target.bind('keydown keypress input keyup focusout paste', function(e) { checkTextarea(e); });
 
@@ -1509,7 +1518,12 @@ var saneKeyboardEvents = (function() {
     }
 
     function handleKey() {
-      handlers.keystroke(stringify(keydown), keydown);
+      if (isandroid && keydown.which === 229) {
+        androidcompose = true;
+        textarea.val('\0');
+      } else {
+        handlers.keystroke(stringify(keydown), keydown);
+      }
     }
 
     // -*- event handlers -*- //
@@ -1517,12 +1531,12 @@ var saneKeyboardEvents = (function() {
       keydown = e;
       keypress = null;
 
-      if (shouldBeSelected) checkTextareaFor(function(e) {
+      if (shouldBeSelected) checkTextareaOnce(function(e) {
         if (!(e && e.type === 'focusout') && textarea[0].select) {
-          textarea[0].select(); // re-select textarea in case it's an unrecognized
+          // re-select textarea in case it's an unrecognized key that clears
+          // the selection, then never again, 'cos next thing might be blur
+          textarea[0].select();
         }
-        checkTextarea = noop; // key that clears the selection, then never
-        clearTimeout(timeoutId); // again, 'cos next thing might be blur
       });
 
       handleKey();
@@ -1539,33 +1553,53 @@ var saneKeyboardEvents = (function() {
 
       checkTextareaFor(typedText);
     }
+    function onKeyup(e) {
+      // Handle case of no keypress event being sent
+      if (!!keydown && !keypress) checkTextareaFor(typedText);
+    }
     function typedText() {
-      // If there is a selection, the contents of the textarea couldn't
-      // possibly have just been typed in.
-      // This happens in browsers like Firefox and Opera that fire
-      // keypress for keystrokes that are not text entry and leave the
-      // selection in the textarea alone, such as Ctrl-C.
-      // Note: we assume that browsers that don't support hasSelection()
-      // also never fire keypress on keystrokes that are not text entry.
-      // This seems reasonably safe because:
-      // - all modern browsers including IE 9+ support hasSelection(),
-      //   making it extremely unlikely any browser besides IE < 9 won't
-      // - as far as we know IE < 9 never fires keypress on keystrokes
-      //   that aren't text entry, which is only as reliable as our
-      //   tests are comprehensive, but the IE < 9 way to do
-      //   hasSelection() is poorly documented and is also only as
-      //   reliable as our tests are comprehensive
-      // If anything like #40 or #71 is reported in IE < 9, see
-      // b1318e5349160b665003e36d4eedd64101ceacd8
-      if (hasSelection()) return;
-
-      var text = textarea.val();
-      if (text.length === 1) {
+      if (androidcompose) {
+        var text = textarea.val();
+        androidcompose = false;
         textarea.val('');
-        handlers.typedText(text);
-      } // in Firefox, keys that don't type text, just clear seln, fire keypress
-      // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
-      else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
+        if (text.length == 0) {
+          handlers.keystroke('Backspace', keydown);
+        }
+        else if (text.length >= 2) {
+          text = text.substring(1);
+          handlers.keystroke(text === ' ' ? 'Spacebar' : text, keydown);
+          if (!keydown.isDefaultPrevented()) {
+            for (var i = 0; i < text.length; i += 1) handlers.typedText(text.charAt(i));
+          }
+        }
+      } else {
+        // If there is a selection, the contents of the textarea couldn't
+        // possibly have just been typed in.
+        // This happens in browsers like Firefox and Opera that fire
+        // keypress for keystrokes that are not text entry and leave the
+        // selection in the textarea alone, such as Ctrl-C.
+        // Note: we assume that browsers that don't support hasSelection()
+        // also never fire keypress on keystrokes that are not text entry.
+        // This seems reasonably safe because:
+        // - all modern browsers including IE 9+ support hasSelection(),
+        //   making it extremely unlikely any browser besides IE < 9 won't
+        // - as far as we know IE < 9 never fires keypress on keystrokes
+        //   that aren't text entry, which is only as reliable as our
+        //   tests are comprehensive, but the IE < 9 way to do
+        //   hasSelection() is poorly documented and is also only as
+        //   reliable as our tests are comprehensive
+        // If anything like #40 or #71 is reported in IE < 9, see
+        // b1318e5349160b665003e36d4eedd64101ceacd8
+        if (hasSelection()) return;
+
+        var text = textarea.val();
+        if (text.length >= 1) {
+          textarea.val('');
+          for (var i = 0; i < text.length; i += 1) handlers.typedText(text.charAt(i));
+        } // in Firefox, keys that don't type text, just clear seln, fire keypress
+        // https://github.com/mathquill/mathquill/issues/293#issuecomment-40997668
+        else if (text && textarea[0].select) textarea[0].select(); // re-select if that's why we're here
+      }
     }
 
     function onBlur() { keydown = keypress = null; }
@@ -1597,7 +1631,10 @@ var saneKeyboardEvents = (function() {
     target.bind({
       keydown: onKeydown,
       keypress: onKeypress,
+      keyup: onKeyup,
       focusout: onBlur,
+      cut: function() { checkTextareaOnce(function() { handlers.cut(); }); },
+      copy: function() { checkTextareaOnce(function() { handlers.copy(); }); },
       paste: onPaste
     });
 
@@ -1606,8 +1643,7 @@ var saneKeyboardEvents = (function() {
       select: select
     };
   };
-}());
-/***********************************************
+}());/***********************************************
  * Export math in a human-readable text format
  * As you can see, only half-baked so far.
  **********************************************/
