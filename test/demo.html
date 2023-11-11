@@ -1,165 +1,279 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=624" />
 
-<meta name="viewport" content="width=624">
+    <title>MathQuill Demo</title>
 
-<title>MathQuill Demo</title>
+    <link rel="stylesheet" type="text/css" href="support/home.css" />
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
 
-<link rel="stylesheet" type="text/css" href="support/home.css">
-<link rel="stylesheet" type="text/css" href="../build/mathquill.css">
+    <style type="text/css">
+      code span {
+        font: 90% Verdana, sans-serif;
+      }
+      #codecogsimg {
+        vertical-align: middle;
+        border: none;
+      }
+      .mathquill-text-field {
+        width: 100%;
+      }
+      #html-source {
+        display: none;
+        font-size: 90%;
+        white-space: pre-wrap;
+      }
+      .mq-math-mode .mq-editable-field {
+        min-width: 1cm;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="body">
+      <a href="http://github.com/laughinghan/mathquill"
+        ><img
+          style="position: absolute; top: 0; right: 0; border: 0"
+          src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png"
+          alt="Fork me on GitHub!"
+      /></a>
 
-<style type="text/css">
-code span {
-  font: 90% Verdana, sans-serif;
-}
-#codecogsimg {
-  vertical-align: middle;
-  border: none;
-}
-.mathquill-text-field {
-  width: 100%;
-}
-#html-source {
-  display: none;
-  font-size: 90%;
-  white-space: pre-wrap;
-}
-.mq-math-mode .mq-editable-field {
-  min-width: 1cm;
-}
-</style>
+      <h1>
+        <a href="http://mathquill.github.com">MathQuill</a> Demo
+        <small>local test page</small>
+      </h1>
 
-</head>
-<body>
-<div id="body">
+      <p>
+        Math textbox with initial LaTeX:
+        <span id="editable-math" class="mathquill-math-field"
+          >\frac{d}{dx}\sqrt{x}=</span
+        >
+      </p>
 
-<a href="http://github.com/laughinghan/mathquill"><img style="position: absolute; top: 0; right: 0; border: 0;" src="https://s3.amazonaws.com/github/ribbons/forkme_right_white_ffffff.png" alt="Fork me on GitHub!"></a>
+      <p>
+        <small
+          >Try typing <code>1/2\sqrt x</code> and using the arrow keys to move
+          around. Shortcut: use the tab key instead of arrow keys to get
+          &quot;out&quot; of a command, like
+          <code>a_n<span>[tab]</span>x^n</code>. Many LaTeX-style symbols and
+          commands preceded by a backslash are supported, such as
+          <code>\forall</code> or <code>n\choose k</code>.</small
+        >
+      </p>
 
-<h1><a href="http://mathquill.github.com">MathQuill</a> Demo <small>local test page</small></h1>
+      <p>
+        Latex source:
+        <textarea
+          id="latex-source"
+          style="width: 80%; vertical-align: top"
+        ></textarea>
+      </p>
 
-<p>Math textbox with initial LaTeX: <span id="editable-math" class="mathquill-math-field">\frac{d}{dx}\sqrt{x}=</span></p>
+      <p>
+        <button id="codecogs">Render LaTeX as an image with Code Cogs</button>
+        <a id="codecogslink"
+          ><img id="codecogsimg" alt="LaTeX rendered as an image" />
+          <span>Link</span></a
+        >
+      </p>
 
-<p><small>Try typing <code>1/2\sqrt x</code> and using the arrow keys to move around. Shortcut: use the tab key instead of arrow keys to get &quot;out&quot; of a command, like <code>a_n<span>[tab]</span>x^n</code>. Many LaTeX-style symbols and commands preceded by a backslash are supported, such as <code>\forall</code> or <code>n\choose k</code>.</small></p>
+      <p>
+        <a href="javascript:;" id="show-html-source"
+          >Show Semantically Meaningful HTML Source</a
+        >
+      </p>
+      <pre id="html-source"></pre>
 
-<p>Latex source: <textarea id="latex-source" style="width:80%;vertical-align:top"></textarea></p>
+      <p>
+        You could actually just copy-and-paste this HTML into any element with
+        <code>class="mq-math-mode"</code> on a page that includes the
+        <code>mathquill.css</code> and it would render beautifully, like this:
+        <span class="mq-math-mode" id="html-transplant-example"></span>
+      </p>
 
-<p><button id="codecogs">Render LaTeX as an image with Code Cogs</button> <a id="codecogslink"><img id="codecogsimg" alt="LaTeX rendered as an image"> <span>Link</span></a></p>
+      <p>
+        If you simply want to display some non-interactive math, you can use
+        MathQuill's StaticMath API:
+        <span class="mathquill-static-math">e^{i\pi}+1=0</span>. If you select
+        and copy static math, by default it will copy LaTeX source to the
+        clipboard.
+      </p>
 
-<p><a href="javascript:;" id="show-html-source">Show Semantically Meaningful HTML Source</a></p>
-<pre id="html-source"></pre>
+      <p>
+        You can also make static math non-selectable:
+        <span class="static-math-no-mouse-events"
+          >sin^2\theta + cos^2\theta = 1</span
+        >.
+      </p>
 
-<p>You could actually just copy-and-paste this HTML into any element with <code>class="mq-math-mode"</code> on a page that includes the <code>mathquill.css</code> and it would render beautifully, like this: <span class="mq-math-mode" id="html-transplant-example"></span></p>
+      <p>
+        Note that if you're only rendering static math,
+        <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and
+        renders better.
+      </p>
 
-<p>If you simply want to display some non-interactive math, you can use MathQuill's StaticMath API: <span class="mathquill-static-math">e^{i\pi}+1=0</span>. If you select and copy static math, by default it will copy LaTeX source to the clipboard.</p>
+      <p>
+        In many applications, such as a chat client, you probably type mostly
+        normal text with some math interspersed, so there is also a MathQuill
+        textbox that let's you type math between $'s:
+        <span class="mathquill-text-field"
+          >The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span
+        >
+      </p>
 
-<p>You can also make static math non-selectable: <span class="static-math-no-mouse-events">sin^2\theta + cos^2\theta = 1</span>.</p>
+      <p>
+        LaTeX math can also have textboxes inside:
+        <span class="mathquill-static-math">\int\MathQuillMathField{}dx</span>
+        or even
+        <span class="mathquill-static-math"
+          >\sqrt{\MathQuillMathField{x^2+y^2}}</span
+        >
+      </p>
 
-<p>Note that if you're only rendering static math, <a href="http://mathjax.org">MathJax</a> supports more of LaTeX and renders better.</p>
+      <p>
+        This button runs the JavaScript code written on it to MathQuill-ify the
+        following <code>&lt;span&gt;</code> element into an editable math
+        textbox:
+        <button
+          onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };"
+        >
+          MQ.MathField(this.nextSibling)</button
+        ><span
+          >\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} =
+          \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span
+        >
+      </p>
+    </div>
+    <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+    <script type="text/javascript">
+      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
 
-<p>In many applications, such as a chat client, you probably type mostly normal text with some math interspersed, so there is also a MathQuill textbox that let's you type math between $'s: <span class="mathquill-text-field">The Quadratic Equation is $x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}$</span></p>
+      //on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
+      //elements according to their CSS class.
+      $(function () {
+        $('.mathquill-static-math').each(function () {
+          MQ.StaticMath(this);
+        });
+        $('.static-math-no-mouse-events').each(function () {
+          MQ.StaticMath(this, { mouseEvents: false });
+        });
+        $('.mathquill-math-field').each(function () {
+          MQ.MathField(this);
+        });
+        $('.mathquill-text-field').each(function () {
+          MQ.TextField(this);
+        });
+      });
 
-<p>LaTeX math can also have textboxes inside: <span class="mathquill-static-math">\int\MathQuillMathField{}dx</span> or even <span class="mathquill-static-math">\sqrt{\MathQuillMathField{x^2+y^2}}</span></p>
+      $('#show-html-source').toggle(
+        function () {
+          $(this)
+            .html('Hide Semantically Meaningful HTML Source')
+            .parent()
+            .next()
+            .show();
+        },
+        function () {
+          $(this)
+            .html('Show Semantically Meaningful HTML Source')
+            .parent()
+            .next()
+            .hide();
+        }
+      );
 
-<p>This button runs the JavaScript code written on it to MathQuill-ify the following <code>&lt;span&gt;</code> element into an editable math textbox: <button onclick="$(this).text('MQ(this.nextSibling).revert()'); MQ.MathField(this.nextSibling); var orig = arguments.callee; this.onclick = function(){ $(this).text('MQ.MathField(this.nextSibling)'); MQ(this.nextSibling).revert(); this.onclick = orig; };">MQ.MathField(this.nextSibling)</button><span>\frac{d}{dx}\sqrt{x} = \frac{d}{dx}x^{\frac{1}{2}} = \frac{1}{2}x^{-\frac{1}{2}} = \frac{1}{2\sqrt{x}}</span></p>
+      var latexMath = $('#editable-math'),
+        latexSource = $('#latex-source'),
+        htmlSource = $('#html-source'),
+        codecogsimg = $('#codecogsimg'),
+        codecogslink = $('#codecogslink'),
+        htmlTransplantExample = $('#html-transplant-example');
 
-</div>
-<script type="text/javascript" src="support/jquery-1.5.2.js"></script>
-<script type="text/javascript" src="../build/mathquill.js"></script>
-<script type="text/javascript">
-MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+      $('#codecogs').click(function () {
+        var latex = latexSource.val();
+        codecogslink.attr(
+          'href',
+          'http://latex.codecogs.com/gif.latex?' + latex
+        );
+        codecogsimg.attr('src', 'http://latex.codecogs.com/gif.latex?' + latex);
+      });
 
-//on document ready, mathquill-ify all `<tag class="mathquill-*">latex</tag>`
-//elements according to their CSS class.
-$(function() {
-  $('.mathquill-static-math').each(function() { MQ.StaticMath(this); });
-  $('.static-math-no-mouse-events').each(function() { MQ.StaticMath(this, { mouseEvents:false }); });
-  $('.mathquill-math-field').each(function() { MQ.MathField(this); });
-  $('.mathquill-text-field').each(function() { MQ.TextField(this); });
-});
+      $(function () {
+        var latexMath = MQ($('#editable-math')[0]);
+        latexMath.config({
+          handlers: {
+            edit: function () {
+              var latex = latexMath.latex();
+              latexSource.val(latex);
+              //        location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
+              htmlSource.text(printTree(latexMath.html()));
+              htmlTransplantExample.html(latexMath.html());
+            },
+          },
+        });
+        latexMath.focus();
 
-$('#show-html-source').toggle(function() {
-  $(this).html('Hide Semantically Meaningful HTML Source').parent().next().show();
-}, function() {
-  $(this).html('Show Semantically Meaningful HTML Source').parent().next().hide();
-});
+        latexSource.val(latexMath.latex());
+        latexSource.bind('keydown keypress', function () {
+          var oldtext = latexSource.val();
+          setTimeout(function () {
+            var newtext = latexSource.val();
+            if (newtext !== oldtext) {
+              latexMath.latex(newtext);
+              htmlSource.text(printTree(latexMath.html()));
+              htmlTransplantExample.html(latexMath.html());
+            }
+          });
+        });
 
-var latexMath = $('#editable-math'), latexSource = $('#latex-source'), htmlSource = $('#html-source'), codecogsimg = $('#codecogsimg'), codecogslink = $('#codecogslink'), htmlTransplantExample = $('#html-transplant-example');
-
-$('#codecogs').click(function() {
-  var latex = latexSource.val();
-  codecogslink.attr('href','http://latex.codecogs.com/gif.latex?'+latex);
-  codecogsimg.attr('src','http://latex.codecogs.com/gif.latex?'+latex);
-});
-
-$(function() {
-  var latexMath = MQ($('#editable-math')[0]);
-  latexMath.config({
-    handlers: {
-      edit: function() {
-        var latex = latexMath.latex();
-        latexSource.val(latex);
-//        location.hash = '#'+latex; //extremely performance-crippling in Chrome for some reason
         htmlSource.text(printTree(latexMath.html()));
         htmlTransplantExample.html(latexMath.html());
+
+        if (location.hash && location.hash.length > 1)
+          latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
+      });
+
+      $('.insert-trigger').click(function () {
+        var latex = $(this).data('latex');
+        $(this)
+          .parent()
+          .find('.mathquill-math-field')
+          .each(function () {
+            var mathquill = MQ(this);
+            mathquill.write(latex);
+          });
+      });
+
+      //print the HTML source as an indented tree. TODO: syntax highlight
+      function printTree(html) {
+        html = html.match(/<[a-z]+|<\/[a-z]+>|./gi);
+        if (!html) return '';
+        var indent = '\n',
+          tree = [];
+        for (var i = 0; i < html.length; i += 1) {
+          var token = html[i];
+          if (token.charAt(0) === '<') {
+            if (token.charAt(1) === '/') {
+              //dedent on close tag
+              indent = indent.slice(0, -2);
+              if (html[i + 1] && html[i + 1].slice(0, 2) === '</')
+                //but maintain indent for close tags that come after other close tags
+                token += indent.slice(0, -2);
+            } else {
+              //indent on open tag
+              tree.push(indent);
+              indent += '  ';
+            }
+
+            token = token.toLowerCase();
+          }
+
+          tree.push(token);
+        }
+        return tree.join('').slice(1);
       }
-    }
-  });
-  latexMath.focus();
-
-  latexSource.val(latexMath.latex());
-  latexSource.bind('keydown keypress', function() {
-    var oldtext = latexSource.val();
-    setTimeout(function() {
-      var newtext = latexSource.val();
-      if(newtext !== oldtext) {
-        latexMath.latex(newtext);
-        htmlSource.text(printTree(latexMath.html()));
-        htmlTransplantExample.html(latexMath.html());
-      }
-    });
-  });
-
-  htmlSource.text(printTree(latexMath.html()));
-  htmlTransplantExample.html(latexMath.html());
-
-  if(location.hash && location.hash.length > 1)
-    latexMath.latex(decodeURIComponent(location.hash.slice(1))).focus();
-});
-
-$(".insert-trigger").click(function () {
-  var latex = $(this).data('latex');
-  $(this).parent().find('.mathquill-math-field').each(function () {
-    var mathquill = MQ(this);
-    mathquill.write(latex);
-  });
-});
-
-//print the HTML source as an indented tree. TODO: syntax highlight
-function printTree(html) {
-  html = html.match(/<[a-z]+|<\/[a-z]+>|./ig);
-  if (!html) return '';
-  var indent = '\n', tree = [];
-  for (var i = 0; i < html.length; i += 1) {
-    var token = html[i];
-    if (token.charAt(0) === '<') {
-      if (token.charAt(1) === '/') { //dedent on close tag
-        indent = indent.slice(0,-2);
-        if (html[i+1] && html[i+1].slice(0,2) === '</') //but maintain indent for close tags that come after other close tags
-          token += indent.slice(0,-2);
-      }
-      else { //indent on open tag
-        tree.push(indent);
-        indent += '  ';
-      }
-
-      token = token.toLowerCase();
-    }
-
-    tree.push(token);
-  }
-  return tree.join('').slice(1);
-}
-</script>
-</body>
+    </script>
+  </body>
 </html>

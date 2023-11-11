@@ -221,6 +221,26 @@ Simulates typing text, one character at a time from where the cursor currently i
 mathField.typedText('x=-b\\pm \\sqrt b^2 -4ac');
 ```
 
+## .setAriaLabel(ariaLabel)
+
+Specify an [ARIA label][`aria-label`] for this field, for screen readers. The actual [`aria-label`] includes this label followed by the math content of the field as speech. Default: `'Math Input'`
+
+## .getAriaLabel()
+
+Returns the [ARIA label][`aria-label`] for this field, for screen readers. If no ARIA label has been specified, `'Math Input'` is returned.
+
+## .setAriaPostLabel(ariaPostLabel, timeout)
+
+Specify a suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. Default: `''` (empty string)
+
+If a timeout (in ms) is supplied, and the math field has keyboard focus when the time has elapsed, an ARIA alert will fire which will cause a screen reader to read the content of the field along with the ARIA post-label. This is useful if the post-label contains an evaluation, error message, or other text that the user needs to know about.
+
+## .getAriaPostLabel()
+
+Returns the suffix to be appended to the [ARIA label][`aria-label`], after the math content of the field. If no ARIA post-label has been specified, `''` (empty string) is returned.
+
+[`aria-label`]: https://developer.mozilla.org/en-US/docs/Web/Accessibility/ARIA/ARIA_Techniques/Using_the_aria-label_attribute
+
 ## .config(new_config)
 
 Changes the [configuration](Config.md) of just this math field.

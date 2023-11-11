@@ -1,0 +1,27 @@
+#!/usr/bin/env node
+
+var ts = require('typescript');
+
+function compileTypescript (tsSource) {
+  compilerOptions = {
+    target: 'es5'
+  };
+
+  var jsSource = ts.transpileModule(tsSource, {
+    compilerOptions: compilerOptions
+  }).outputText;
+
+  return jsSource;
+}
+
+let contents = '';
+
+process.stdin.setEncoding('utf8');
+process.stdin.on('data', function(data) {
+    contents += data;
+});
+process.stdin.on('end', function () {
+    var ts = compileTypescript(contents);
+    console.log(ts);
+})
+process.stdin.resume();

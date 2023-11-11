@@ -87,6 +87,7 @@ Just like [`autoCommands`](#autocommands) above, this takes a string formatted a
 `maxDepth` specifies the maximum number of nested MathBlocks. When `maxDepth` is set to 1, the user can type simple math symbols directly into the editor but not into nested MathBlocks, e.g. the numerator and denominator of a fraction.
 
 Nested content in latex rendered during initialization or pasted into mathquill is truncated to avoid violating `maxDepth`. When `maxDepth` is not set, no depth limit is applied by default.
+You can also specify a speech-friendly representation of the operator name by supplying the operator name, a `|` and its speech alternative (separate multiple words with a `-`). For example, `'sin|sine cos|cosine tan|tangent sinh|hyperbolic-sine'`.
 
 ## substituteTextarea
 
@@ -100,24 +101,24 @@ For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabi
 
 Handlers are called after a specified event. They are called directly on the `handlers` object passed in, preserving the `this` value, so you can do stuff like:
 ```js
-var MathList = P(function(_) {
-  _.init = function() {
+class MathList {
+  constructor () {
     this.maths = [];
     this.el = ...
   };
-  _.add = function() {
+  add () {
     var math = MQ.MathField($('<span/>')[0], { handlers: this });
     $(math.el()).appendTo(this.el);
     math.data.i = this.maths.length;
     this.maths.push(math);
   };
-  _.moveOutOf = function(dir, math) {
+  moveOutOf (dir, math) {
     var adjacentI = (dir === MQ.L ? math.data.i - 1 : math.data.i + 1);
     var adjacentMath = this.maths[adjacentI];
     if (adjacentMath) adjacentMath.focus().moveToDirEnd(-dir);
   };
   ...
-});
+};
 ```
 
 It's common to just ignore the last argument, like if the handlers close over the math field:
@@ -158,13 +159,3 @@ For example, to style as white-on-black instead of black-on-white use:
       border-color: white;
       background: black;
     }
-    #my-math-input .mq-matrixed {
-      background: black;
-    }
-    #my-math-input .mq-matrixed-container {
-      filter: progid:DXImageTransform.Microsoft.Chroma(color='black');
-    }
-
-## Color Change Support on IE8
-
-To support a MathQuill editable background color other than white in IE8, set the background color on both the editable mathField and on elements with class `mq-matrixed`. Then set a Chroma filter on elements with class `mq-matrixed-container`.

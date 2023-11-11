@@ -1,18 +1,19 @@
-suite('text', function() {
-
+suite('text', function () {
   var mq, mostRecentlyReportedLatex;
-  setup(function() {
+  setup(function () {
     mostRecentlyReportedLatex = NaN; // != to everything
     mq = MQ.MathField($('<span></span>').appendTo('#mock')[0], {
       handlers: {
-        edit: function() {
+        edit: function () {
           mostRecentlyReportedLatex = mq.latex();
-        }
-      }
+        },
+      },
     });
   });
 
-  function prayWellFormedPoint(pt) { prayWellFormed(pt.parent, pt[L], pt[R]); }
+  function prayWellFormedPoint(pt) {
+    prayWellFormed(pt.parent, pt[L], pt[R]);
+  }
   function assertLatex(latex) {
     prayWellFormedPoint(mq.__controller.cursor);
     assert.equal(mostRecentlyReportedLatex, latex, 'assertLatex failed');
@@ -32,23 +33,21 @@ suite('text', function() {
     if (prev) {
       assert.ok(dom.previousSibling instanceof Text);
       assert.equal(prev, dom.previousSibling.data, 'assertSplit failed');
-    }
-    else {
+    } else {
       assert.ok(!dom.previousSibling);
     }
 
     if (next) {
       assert.ok(dom.nextSibling instanceof Text);
       assert.equal(next, dom.nextSibling.data, 'assertSplit failed');
-    }
-    else {
+    } else {
       assert.ok(!dom.nextSibling);
     }
   }
 
-  test('changes the text nodes as the cursor moves around', function() {
+  test('changes the text nodes as the cursor moves around', function () {
     var block = fromLatex('\\text{abc}');
-    var ctrlr = Controller(block, 0, 0);
+    var ctrlr = new Controller(block, 0, 0);
     var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();
@@ -73,9 +72,9 @@ suite('text', function() {
     assertSplit(cursor.jQ, 'abc', null);
   });
 
-  test('does not change latex as the cursor moves around', function() {
+  test('does not change latex as the cursor moves around', function () {
     var block = fromLatex('\\text{x}');
-    var ctrlr = Controller(block, 0, 0);
+    var ctrlr = new Controller(block, 0, 0);
     var cursor = ctrlr.cursor.insAtRightEnd(block);
 
     ctrlr.moveLeft();
@@ -85,8 +84,8 @@ suite('text', function() {
     assert.equal(block.latex(), '\\text{x}');
   });
 
-  suite('typing', function() {
-    test('stepping out of an empty block deletes it', function() {
+  suite('typing', function () {
+    test('stepping out of an empty block deletes it', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -107,7 +106,7 @@ suite('text', function() {
       assertLatex('');
     });
 
-    test('typing $ in a textblock splits it', function() {
+    test('typing $ in a textblock splits it', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -123,8 +122,8 @@ suite('text', function() {
     });
   });
 
-  suite('pasting', function() {
-    test('sanity', function() {
+  suite('pasting', function () {
+    test('sanity', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -137,10 +136,9 @@ suite('text', function() {
       assertSplit(cursor.jQ, 'asfoo', 'df');
       assertLatex('\\text{asfoodf}');
       prayWellFormedPoint(cursor);
-
     });
 
-    test('pasting a dollar sign', function() {
+    test('pasting a dollar sign', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -155,7 +153,7 @@ suite('text', function() {
       prayWellFormedPoint(cursor);
     });
 
-    test('pasting a backslash', function() {
+    test('pasting a backslash', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -170,7 +168,7 @@ suite('text', function() {
       prayWellFormedPoint(cursor);
     });
 
-    test('pasting a curly brace', function() {
+    test('pasting a curly brace', function () {
       var controller = mq.__controller;
       var cursor = controller.cursor;
 
@@ -184,6 +182,65 @@ suite('text', function() {
       assertLatex('\\text{as\\{df}');
       prayWellFormedPoint(cursor);
     });
+  });
 
+  test('HTML for subclassed text blocks', function () {
+    var block = fromLatex('\\text{abc}');
+    var _id = block.html().match(/mathquill-command-id=([0-9]+)/)[1];
+    function id() {
+      _id = parseInt(_id) + 3;
+      return _id;
+    }
+
+    block = fromLatex('\\text{abc}');
+    assert.equal(
+      block.html(),
+      '<span class="mq-text-mode" mathquill-command-id=' + id() + '>abc</span>'
+    );
+    block = fromLatex('\\textit{abc}');
+    assert.equal(
+      block.html(),
+      '<i class="mq-text-mode" mathquill-command-id=' + id() + '>abc</i>'
+    );
+    block = fromLatex('\\textbf{abc}');
+    assert.equal(
+      block.html(),
+      '<b class="mq-text-mode" mathquill-command-id=' + id() + '>abc</b>'
+    );
+    block = fromLatex('\\textsf{abc}');
+    assert.equal(
+      block.html(),
+      '<span class="mq-sans-serif mq-text-mode" mathquill-command-id=' +
+        id() +
+        '>abc</span>'
+    );
+    block = fromLatex('\\texttt{abc}');
+    assert.equal(
+      block.html(),
+      '<span class="mq-monospace mq-text-mode" mathquill-command-id=' +
+        id() +
+        '>abc</span>'
+    );
+    block = fromLatex('\\textsc{abc}');
+    assert.equal(
+      block.html(),
+      '<span style="font-variant:small-caps" class="mq-text-mode" mathquill-command-id=' +
+        id() +
+        '>abc</span>'
+    );
+    block = fromLatex('\\uppercase{abc}');
+    assert.equal(
+      block.html(),
+      '<span style="text-transform:uppercase" class="mq-text-mode" mathquill-command-id=' +
+        id() +
+        '>abc</span>'
+    );
+    block = fromLatex('\\lowercase{abc}');
+    assert.equal(
+      block.html(),
+      '<span style="text-transform:lowercase" class="mq-text-mode" mathquill-command-id=' +
+        id() +
+        '>abc</span>'
+    );
   });
 });
