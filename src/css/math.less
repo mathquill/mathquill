@@ -458,4 +458,44 @@
       -ms-filter: "FlipH";
     }
   }
+
+  .mq-underarrow {
+    min-width: 0.5em;
+    border-bottom: 1px solid black;
+    margin-bottom: 1px;
+    padding-bottom: 0.2em;
+    text-align: center;
+    position: relative;
+
+    &:before {
+      position: absolute;
+      position: absolute;
+      display: block;
+      font-size: 0.5em;
+      line-height: 0em;
+      content: '\27A4';
+      text-align: right;
+      min-width: 0.8em;
+      bottom: -0.1em;
+      right: -0.1em;
+    }
+
+    &.mq-arrow-left:after {
+      content: '';
+      display: none;
+    }
+    &.mq-arrow-left:before {
+      position: absolute;
+      bottom: -0.1em;
+      left: -0.1em;
+      font-size: 0.5em;
+      content: '\27A4';
+      -moz-transform: scaleX(-1);
+      -o-transform: scaleX(-1);
+      -webkit-transform: scaleX(-1);
+      transform: scaleX(-1);
+      filter: FlipH;
+      -ms-filter: 'FlipH';
+    }
+  }
 }
