@@ -168,6 +168,20 @@ LatexCmds.overleftrightarrow = () =>
   );
 LatexCmds.overarc = () =>
   new Style('\\overarc', 'span', 'class="mq-non-leaf mq-overarc"', 'Over Arc');
+LatexCmds.underrightarrow = () =>
+  new Style(
+    '\\underrightarrow',
+    'span',
+    'class="mq-non-leaf mq-underarrow mq-arrow-right"',
+    'Under Right Arrow'
+  );
+LatexCmds.underleftarrow = () =>
+  new Style(
+    '\\underleftarrow',
+    'span',
+    'class="mq-non-leaf mq-underarrow mq-arrow-left"',
+    'Under Left Arrow'
+  );
 LatexCmds.dot = () => {
   return new MathCommand(
     '\\dot',
