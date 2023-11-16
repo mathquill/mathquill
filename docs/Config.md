@@ -16,6 +16,7 @@ The configuration options object is of the following form:
   substituteTextarea: function() {
     return document.createElement('textarea');
   },
+  mouseEvents: true,
   handlers: {
     edit: function(mathField) { ... },
     upOutOf: function(mathField) { ... },
@@ -66,6 +67,10 @@ Normally, to get out of a superscript or subscript, a user has to navigate out o
 
 If this option was set to `'+-'`, `+` and `-` would "break out" of the exponent. This doesn't apply to the first character in a superscript or subscript, so typing `x^-6` still results in `x^{-6}`. The downside to setting this option is that in order to type `x^{n+m}`, a workaround like typing `x^(n+m` and then deleting the `(` is required.
 
+## autoSubscriptNumerals
+
+When enabled, typing `x1` results in `x_1` with the cursor to the right of the subscript. Typing more numerals extends the subscript without putting the cursor inside the subscript, and backspacing "peels off" the last symbol in the subscript. Left and right arrow keys go around the subscript, skipping its contents entirely. The down arrow still goes into the subscript, but inside the subscript, typing `_` is ignored, and typing anything other than a symbol (`^` or `/`) pretends the cursor is to the right of the subscript.
+
 ## autoCommands
 
 `autoCommands` defines the set of commands automatically rendered by just typing the letters without typing a backslash first.
@@ -95,7 +100,9 @@ You can also specify a speech-friendly representation of the operator name by su
 
 For example, [Desmos](https://www.desmos.com/calculator) substitutes `<span tabindex=0></span>` on iOS to suppress the built-in virtual keyboard in favor of a custom math keypad that calls the MathQuill API. Unfortunately there's no universal [check for a virtual keyboard](http://stackoverflow.com/q/2593139/362030) or [way to detect a touchscreen](http://www.stucox.com/blog/you-cant-detect-a-touchscreen/), and even if you could, a touchscreen ≠ virtual keyboard (Windows 8 and ChromeOS devices have both physical keyboards and touchscreens and iOS and Android devices can have Bluetooth keyboards). Desmos currently sniffs the user agent for iOS, so Bluetooth keyboards just don't work in Desmos on iOS. The tradeoffs are up to you.
 
+## mouseEvents
 
+StaticMath supports mouse events to allow selection and copying of text.  To disable mouse interation, set `mouseEvents` to `false`.
 
 # Handlers
 
