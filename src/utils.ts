@@ -37,7 +37,7 @@ function walkUpAsFarAsPossible(node: NodeRef | undefined) {
 function pray(
   message: string,
   cond?: any,
-  optionalParentNode?: NodeRef
+  optionalContextNodes?: Record<string, NodeRef>
 ): asserts cond {
   if (!cond) {
     const error = new Error('prayer failed: ' + message);
@@ -45,7 +45,7 @@ function pray(
     // optionally add more context to this prayer failure. We will
     // trace up as far as possible to get all latex we can find as well
     // as output the latex down at the direct parent of the prayer failure
-    if (optionalParentNode) {
+    if (optionalContextNodes) {
       const jsonData: any = {};
 
       // this data is attached to the error. The app that controls the mathquill
@@ -53,12 +53,19 @@ function pray(
       // info with the error.
       (error as any).dcgExtraErrorMetaData = jsonData;
 
-      jsonData.localLatex = optionalParentNode.latex();
+      for (let contextName in optionalContextNodes) {
+        const localNode = optionalContextNodes[contextName];
+        const data: any = (jsonData[contextName] = {});
 
-      // walkup as far as possible
-      var root = walkUpAsFarAsPossible(optionalParentNode);
-      if (root) {
-        jsonData.fullLatex = root.latex();
+        if (localNode) {
+          data.localLatex = localNode.latex();
+          const root = walkUpAsFarAsPossible(localNode);
+          if (root) {
+            data.rootLatex = root.latex();
+          }
+        } else {
+          data.emptyNode = true;
+        }
       }
     }
 
