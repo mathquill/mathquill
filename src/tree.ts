@@ -380,7 +380,8 @@ function prayWellFormed(parent: MQNode, leftward: NodeRef, rightward: NodeRef) {
 
       // or it's there and its [R] and .parent are properly set up
       return leftward[R] === rightward && leftward.parent === parent;
-    })()
+    })(),
+    parent
   );
 
   pray(
