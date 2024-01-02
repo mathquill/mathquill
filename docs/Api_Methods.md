@@ -1,5 +1,6 @@
 # API Methods
 
+
 To use the MathQuill API, first get the latest version of the interface:
 
 ```js
