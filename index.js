@@ -1,1 +1,1 @@
-build/mathquill-basic.js
+build/mathquill.js
