@@ -59,7 +59,7 @@ SOURCES_FULL = \
 SOURCES_BASIC = \
   $(BASE_SOURCES) \
   $(SRC_DIR)/commands/math.ts \
-  $(SRC_DIR)/commands/math/advancedSymbols.js \
+  $(SRC_DIR)/commands/math/advancedSymbols.ts \
   $(SRC_DIR)/commands/math/basicSymbols.ts \
   $(SRC_DIR)/commands/math/commands.ts
 
