@@ -54,6 +54,7 @@ export namespace MathQuill {
         startIndex: number;
         endIndex: number;
       };
+      cursor(): any; // TODO: Cursor interface
 
       select: () => EditableMathQuill;
       moveToRightEnd: () => EditableMathQuill;
