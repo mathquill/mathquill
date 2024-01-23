@@ -1,4 +1,4 @@
-declare namespace MathQuill {
+export namespace MathQuill {
   /** The global MathQuill object */
   interface MathQuill {
     getInterface(version: 1): v1.API;
