@@ -286,7 +286,7 @@ function getInterface(v: number) {
         cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
-        var klass = (LatexCmds as LatexCmdsAny)[cmd] || Environments[cmd];
+        var klass = (LatexCmds as LatexCmdsAny)[cmd];
         var node;
         if (klass) {
           if (klass.constructor) {
