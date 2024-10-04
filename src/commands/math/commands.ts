@@ -1557,6 +1557,8 @@ LatexCmds.begin = class extends MathCommand {
   }
 }
 
+var Environments = {};
+
 class Environment extends MathCommand {
   template = [['\\begin{', '}'], ['\\end{', '}']];
   wrappers() {
