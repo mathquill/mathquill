@@ -1622,7 +1622,7 @@ class Matrix extends Environment {
       }
       cells[row].push('<td>&'+(i++)+'</td>');
     });
-    const = matrixCellMargin = SVG_SYMBOLS[this.parentheses.left].width;
+    const = matrixCellMargin = (this.parentheses.left == "") ? 0 : SVG_SYMBOLS[this.parentheses.left].width;
     this.htmlTemplate =
         '<span class="mq-matrix mq-non-leaf mq-bracket-container">'
       +   parenHtml(this.parentheses.left, false)
