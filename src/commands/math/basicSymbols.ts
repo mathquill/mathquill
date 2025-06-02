@@ -155,10 +155,10 @@ class DigitGroupingChar extends MQSymbol {
     if (this._groupingClass === cls) return;
 
     // remove existing class
-    if (this._groupingClass) this.jQ.removeClass(this._groupingClass);
+    if (this._groupingClass) this.domFrag().removeClass(this._groupingClass);
 
     // add new class
-    if (cls) this.jQ.addClass(cls);
+    if (cls) this.domFrag().addClass(cls);
 
     // cache the groupingClass
     this._groupingClass = cls;
@@ -166,10 +166,10 @@ class DigitGroupingChar extends MQSymbol {
 }
 
 class Digit extends DigitGroupingChar {
-  constructor(ch: string, html?: string, mathspeak?: string) {
+  constructor(ch: string, mathspeak?: string) {
     super(
       ch,
-      '<span class="mq-digit">' + (html || ch) + '</span>',
+      h('span', { class: 'mq-digit' }, [h.text(ch)]),
       undefined,
       mathspeak
     );
@@ -224,8 +224,8 @@ class Digit extends DigitGroupingChar {
 class Variable extends MQSymbol {
   isItalic?: boolean;
 
-  constructor(ch: string, html?: string) {
-    super(ch, '<var>' + (html || ch) + '</var>');
+  constructor(chOrCtrlSeq: string, html?: ChildNode) {
+    super(chOrCtrlSeq, h('var', {}, [html || h.text(chOrCtrlSeq)]));
   }
   text() {
     var text = this.ctrlSeq || '';
@@ -270,13 +270,19 @@ class Variable extends MQSymbol {
     }
   }
 }
-function bindVariable(ch: string, html: string, _unusedMathspeak?: string) {
-  return () => new Variable(ch, html);
+function bindVariable(
+  ch: string,
+  htmlEntity: string,
+  _unusedMathspeak?: string
+) {
+  return () => new Variable(ch, h.entityText(htmlEntity));
 }
 
-Options.prototype.autoCommands = { _maxLength: 0 };
-optionProcessors.autoCommands = function (cmds: string) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+Options.prototype.autoCommands = {
+  _maxLength: 0,
+};
+baseOptionProcessors.autoCommands = function (cmds: string | undefined) {
+  if (typeof cmds !== 'string' || !/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"' + cmds + '" not a space-delimited list of only letters';
   }
   var list = cmds.split(' ');
@@ -300,7 +306,7 @@ optionProcessors.autoCommands = function (cmds: string) {
 };
 
 Options.prototype.quietEmptyDelimiters = {};
-optionProcessors.quietEmptyDelimiters = function (dlms: string) {
+baseOptionProcessors.quietEmptyDelimiters = function (dlms: string = '') {
   var list = dlms.split(' ');
   var dict: { [id: string]: any } = {};
   for (var i = 0; i < list.length; i += 1) {
@@ -311,8 +317,8 @@ optionProcessors.quietEmptyDelimiters = function (dlms: string) {
 };
 
 Options.prototype.autoParenthesizedFunctions = { _maxLength: 0 };
-optionProcessors.autoParenthesizedFunctions = function (cmds) {
-  if (!/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
+baseOptionProcessors.autoParenthesizedFunctions = function (cmds) {
+  if (typeof cmds !== 'string' || !/^[a-z]+(?: [a-z]+)*$/i.test(cmds)) {
     throw '"' + cmds + '" not a space-delimited list of only letters';
   }
   var list = cmds.split(' ');
@@ -364,7 +370,7 @@ class Letter extends Variable {
           l = this;
           for (i = 1; l && i < str.length; i += 1, l = l[L]);
 
-          new Fragment(l as MQNode, this).remove();
+          new Fragment(l, this).remove();
           cursor[L] = (l as MQNode)[L];
 
           var cmd = LatexCmds[str];
@@ -384,7 +390,7 @@ class Letter extends Variable {
 
   autoParenthesize(cursor: Cursor) {
     //exit early if already parenthesized
-    var right = cursor.parent.ends[R];
+    var right = cursor.parent.getEnd(R);
     if (right && right instanceof Bracket && right.ctrlSeq === '\\left(') {
       return;
     }
@@ -427,7 +433,7 @@ class Letter extends Variable {
   italicize(bool: boolean) {
     this.isItalic = bool;
     this.isPartOfOperator = !bool;
-    this.jQ.toggleClass('mq-operator-name', !bool);
+    this.domFrag().toggleClass('mq-operator-name', !bool);
     return this;
   }
   finalizeTree(opts: CursorOptions, dir: Direction) {
@@ -467,25 +473,24 @@ class Letter extends Variable {
     var lR = l && l[R];
     var rL = r && r[L];
 
-    new Fragment(
-      lR || (this.parent.ends[L] as MQNode),
-      rL || (this.parent.ends[R] as MQNode)
-    ).each(function (el) {
-      if (el instanceof Letter) {
-        el.italicize(true).jQ.removeClass(
-          'mq-first mq-last mq-followed-by-supsub'
-        );
-        el.ctrlSeq = el.letter;
+    new Fragment(lR || this.parent.getEnd(L), rL || this.parent.getEnd(R)).each(
+      function (el) {
+        if (el instanceof Letter) {
+          el.italicize(true)
+            .domFrag()
+            .removeClass('mq-first mq-last mq-followed-by-supsub');
+          el.ctrlSeq = el.letter;
+        }
+        return undefined;
       }
-      return undefined;
-    });
+    );
 
     let autoOpsLength = autoOps._maxLength || 0;
 
     // check for operator names: at each position from left to right, check
     // substrings from longest to shortest
     outer: for (
-      var i = 0, first = (l as MQNode)[R] || this.parent.ends[L];
+      var i = 0, first = (l as MQNode)[R] || this.parent.getEnd(L);
       first && i < str.length;
       i += 1, first = (first as MQNode)[R]
     ) {
@@ -514,10 +519,11 @@ class Letter extends Variable {
             const lastL = last[L];
             const lastLL = lastL && lastL[L];
             const lastLLL = (lastLL && lastLL[L]) as MQNode;
-            lastLLL.jQ.addClass('mq-last');
+            lastLLL.domFrag().addClass('mq-last');
           }
 
-          if (!this.shouldOmitPadding(first[L])) first.jQ.addClass('mq-first');
+          if (!this.shouldOmitPadding(first[L]))
+            first.domFrag().addClass('mq-first');
           if (!this.shouldOmitPadding(last[R])) {
             if (last[R] instanceof SupSub) {
               var supsub = last[R] as MQNode; // XXX monkey-patching, but what's the right thing here?
@@ -527,14 +533,18 @@ class Letter extends Variable {
                 (supsub.siblingCreated =
                 supsub.siblingDeleted =
                   function () {
-                    supsub.jQ.toggleClass(
-                      'mq-after-operator-name',
-                      !(supsub[R] instanceof Bracket)
-                    );
+                    supsub
+                      .domFrag()
+                      .toggleClass(
+                        'mq-after-operator-name',
+                        !(supsub[R] instanceof Bracket)
+                      );
                   });
               respace();
             } else {
-              last.jQ.toggleClass('mq-last', !(last[R] instanceof Bracket));
+              last
+                .domFrag()
+                .toggleClass('mq-last', !(last[R] instanceof Bracket));
             }
           }
 
@@ -567,12 +577,16 @@ var BuiltInOpNames: AutoDict = {}; // the set of operator names like \sin, \cos,
 // and 'arsinh', which must be exported as \operatorname{hcf} and
 // \operatorname{arsinh}. Note: over/under line/arrow \lim variants like
 // \varlimsup are not supported
-var AutoOpNames: AutoDict = (Options.prototype.autoOperatorNames = {
-  _maxLength: 9,
-}); // the set
-// of operator names that MathQuill auto-unitalicizes by default; overridable
+
+// the set of operator names that MathQuill auto-unitalicizes by default; overridable
+Options.prototype.autoOperatorNames = defaultAutoOpNames();
+
 var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
-(function () {
+
+function defaultAutoOpNames() {
+  const AutoOpNames: AutoDict = {
+    _maxLength: 9,
+  };
   var mostOps = (
     'arg deg det dim exp gcd hom inf ker lg lim ln log max min sup' +
     ' limsup liminf injlim projlim Pr'
@@ -606,9 +620,10 @@ var TwoWordOpNames = { limsup: 1, liminf: 1, projlim: 1, injlim: 1 };
   for (var i = 0; i < moreNonstandardOps.length; i += 1) {
     AutoOpNames[moreNonstandardOps[i]] = 1;
   }
-})();
+  return AutoOpNames;
+}
 
-optionProcessors.autoOperatorNames = function (cmds) {
+baseOptionProcessors.autoOperatorNames = function (cmds) {
   if (typeof cmds !== 'string') {
     throw '"' + cmds + '" not a space-delimited list';
   }
@@ -658,19 +673,21 @@ class OperatorName extends MQSymbol {
     var fn = this.ctrlSeq;
     var block = new MathBlock();
     for (var i = 0; i < fn.length; i += 1) {
-      new Letter(fn.charAt(i)).adopt(block, block.ends[R], 0);
+      new Letter(fn.charAt(i)).adopt(block, block.getEnd(R), 0);
     }
-    return Parser.succeed(block.children()) as ParserAny;
+    return Parser.succeed(block.children());
   }
 }
-for (var fn in AutoOpNames)
-  if (AutoOpNames.hasOwnProperty(fn)) {
+
+for (var fn in Options.prototype.autoOperatorNames)
+  if (Options.prototype.autoOperatorNames.hasOwnProperty(fn)) {
     (LatexCmds as LatexCmdsAny)[fn as string] = OperatorName;
   }
+
 LatexCmds.operatorname = class extends MathCommand {
   createLeftOf() {}
   numBlocks() {
-    return 1;
+    return 1 as const;
   }
   parser() {
     return latexMathParser.block.map(function (b) {
@@ -692,7 +709,7 @@ LatexCmds.operatorname = class extends MathCommand {
       }
       // In cases other than `ans`, just return the children directly
       return children;
-    }) as ParserAny;
+    });
   }
 };
 
@@ -703,20 +720,29 @@ LatexCmds.f = class extends Letter {
     super(letter);
 
     this.letter = letter;
-    this.htmlTemplate = '<var class="mq-f">f</var>';
+    this.domView = new DOMView(0, () =>
+      h('var', { class: 'mq-f' }, [h.text('f')])
+    );
   }
   italicize(bool: boolean) {
-    this.jQ.html('f').toggleClass('mq-f', bool);
+    // Why is this necesssary? Does someone replace the `f` at some
+    // point?
+    this.domFrag().eachElement((el) => (el.textContent = 'f'));
+    this.domFrag().toggleClass('mq-f', bool);
     return super.italicize(bool);
   }
 };
 
 // VanillaSymbol's
 LatexCmds[' '] = LatexCmds.space = () =>
-  new DigitGroupingChar('\\ ', '<span>&nbsp;</span>', ' ');
+  new DigitGroupingChar('\\ ', h('span', {}, [h.text(U_NO_BREAK_SPACE)]), ' ');
 
 LatexCmds['.'] = () =>
-  new DigitGroupingChar('.', '<span class="mq-digit">.</span>', '.');
+  new DigitGroupingChar(
+    '.',
+    h('span', { class: 'mq-digit' }, [h.text('.')]),
+    '.'
+  );
 
 LatexCmds["'"] = LatexCmds.prime = bindVanillaSymbol("'", '&prime;', 'prime');
 LatexCmds['″'] = LatexCmds.dprime = bindVanillaSymbol(
@@ -735,16 +761,17 @@ LatexCmds.mid = bindVanillaSymbol('\\mid ', '\u2223', 'mid');
 
 // does not use Symbola font
 class NonSymbolaSymbol extends MQSymbol {
-  constructor(ch: string, html?: string, _unusedMathspeak?: string) {
-    super(ch, '<span class="mq-nonSymbola">' + (html || ch) + '</span>');
+  constructor(ch: string, html?: ChildNode, _unusedMathspeak?: string) {
+    super(ch, h('span', { class: 'mq-nonSymbola' }, [html || h.text(ch)]));
   }
 }
 
 LatexCmds['@'] = () => new NonSymbolaSymbol('@');
-LatexCmds['&'] = () => new NonSymbolaSymbol('\\&', '&amp;', 'and');
+LatexCmds['&'] = () =>
+  new NonSymbolaSymbol('\\&', h.entityText('&amp;'), 'and');
 LatexCmds['%'] = class extends NonSymbolaSymbol {
   constructor() {
-    super('\\%', '%', 'percent');
+    super('\\%', h.text('%'), 'percent');
   }
   parser() {
     var optWhitespace = Parser.optWhitespace;
@@ -758,7 +785,7 @@ LatexCmds['%'] = class extends NonSymbolaSymbol {
           return PercentOfBuilder();
         })
       )
-      .or(super.parser()) as ParserAny;
+      .or(super.parser());
   }
 };
 
@@ -801,7 +828,8 @@ LatexCmds.alpha =
   LatexCmds.chi =
   LatexCmds.psi =
   LatexCmds.omega =
-    (latex) => new Variable('\\' + latex + ' ', '&' + latex + ';');
+    (latex) =>
+      new Variable('\\' + latex + ' ', h.entityText('&' + latex + ';'));
 
 //why can't anybody FUCKING agree on these
 LatexCmds.phi = bindVariable('\\phi ', '&#981;', 'phi'); //W3C or Unicode?
@@ -853,9 +881,9 @@ LatexCmds.rhov = LatexCmds.varrho = bindVariable('\\varrho ', '&#1009;', 'rho');
 
 //Greek constants, look best in non-italicized Times New Roman
 LatexCmds.pi = LatexCmds['π'] = () =>
-  new NonSymbolaSymbol('\\pi ', '&pi;', 'pi');
+  new NonSymbolaSymbol('\\pi ', h.entityText('&pi;'), 'pi');
 LatexCmds.lambda = () =>
-  new NonSymbolaSymbol('\\lambda ', '&lambda;', 'lambda');
+  new NonSymbolaSymbol('\\lambda ', h.entityText('&lambda;'), 'lambda');
 
 //uppercase greek letters
 
@@ -866,7 +894,7 @@ LatexCmds.Upsilon = //LaTeX
     () =>
       new MQSymbol(
         '\\Upsilon ',
-        '<var style="font-family: serif">&upsih;</var>',
+        h('var', { style: 'font-family: serif' }, [h.entityText('&upsih;')]),
         'capital upsilon'
       ); //Symbola's 'upsilon with a hook' is a capital Y without hooks :(
 
@@ -882,7 +910,8 @@ LatexCmds.Gamma =
   LatexCmds.Psi =
   LatexCmds.Omega =
   LatexCmds.forall =
-    (latex) => new VanillaSymbol('\\' + latex + ' ', '&' + latex + ';');
+    (latex) =>
+      new VanillaSymbol('\\' + latex + ' ', h.entityText('&' + latex + ';'));
 
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
@@ -899,13 +928,13 @@ class LatexFragment extends MathCommand {
     block
       .children()
       .adopt(cursor.parent, cursor[L] as MQNode, cursor[R] as MQNode);
-    cursor[L] = block.ends[R];
-    block.jQize().insertBefore(cursor.jQ);
+    cursor[L] = block.getEnd(R);
+    domFrag(block.html()).insertBefore(cursor.domFrag());
     block.finalizeInsert(cursor.options, cursor);
-    var blockEndsR = block.ends[R];
+    var blockEndsR = block.getEnd(R);
     var blockEndsRR = blockEndsR && blockEndsR[R];
     if (blockEndsRR) blockEndsRR.siblingCreated(cursor.options, L);
-    var blockEndsL = block.ends[L];
+    var blockEndsL = block.getEnd(L);
     var blockEndsLL = blockEndsL && blockEndsL[L];
     if (blockEndsLL) blockEndsLL.siblingCreated(cursor.options, R);
     cursor.parent.bubble(function (node) {
@@ -918,7 +947,7 @@ class LatexFragment extends MathCommand {
   }
   parser() {
     var frag = latexMathParser.parse(this.latexStr).children();
-    return Parser.succeed(frag) as ParserAny;
+    return Parser.succeed(frag);
   }
 }
 
@@ -1019,7 +1048,7 @@ function isBinaryOperator(node: NodeRef): boolean {
 }
 
 var PlusMinus = class extends BinaryOperator {
-  constructor(ch?: string, html?: string, mathspeak?: string) {
+  constructor(ch?: string, html?: ChildNode, mathspeak?: string) {
     super(ch, html, undefined, mathspeak, true);
   }
 
@@ -1035,7 +1064,9 @@ var PlusMinus = class extends BinaryOperator {
 
   sharedSiblingMethod(_opts?: CursorOptions, dir?: Direction) {
     if (dir === R) return; // ignore if sibling only changed on the right
-    this.jQ[0].className = isBinaryOperator(this) ? 'mq-binary-operator' : '';
+    this.domFrag().oneElement().className = isBinaryOperator(this)
+      ? 'mq-binary-operator'
+      : '';
 
     return this;
   }
@@ -1043,7 +1074,7 @@ var PlusMinus = class extends BinaryOperator {
 
 LatexCmds['+'] = class extends PlusMinus {
   constructor() {
-    super('+', '+');
+    super('+', h.text('+'));
   }
   mathspeak(): string {
     return isBinaryOperator(this) ? 'plus' : 'positive';
@@ -1053,7 +1084,7 @@ LatexCmds['+'] = class extends PlusMinus {
 //yes, these are different dashes, en-dash, em-dash, unicode minus, actual dash
 class MinusNode extends PlusMinus {
   constructor() {
-    super('-', '&minus;');
+    super('-', h.entityText('&minus;'));
   }
   mathspeak(): string {
     return isBinaryOperator(this) ? 'minus' : 'negative';
@@ -1065,11 +1096,11 @@ LatexCmds['±'] =
   LatexCmds.pm =
   LatexCmds.plusmn =
   LatexCmds.plusminus =
-    () => new PlusMinus('\\pm ', '&plusmn;', 'plus-or-minus');
+    () => new PlusMinus('\\pm ', h.entityText('&plusmn;'), 'plus-or-minus');
 LatexCmds.mp =
   LatexCmds.mnplus =
   LatexCmds.minusplus =
-    () => new PlusMinus('\\mp ', '&#8723;', 'minus-or-plus');
+    () => new PlusMinus('\\mp ', h.entityText('&#8723;'), 'minus-or-plus');
 
 CharCmds['*'] =
   LatexCmds.sdot =
@@ -1078,7 +1109,7 @@ CharCmds['*'] =
 
 class To extends BinaryOperator {
   constructor() {
-    super('\\to ', '&rarr;', 'to');
+    super('\\to ', h.entityText('&rarr;'), 'to');
   }
   deleteTowards(dir: Direction, cursor: Cursor) {
     if (dir === L) {
@@ -1106,7 +1137,7 @@ class Inequality extends BinaryOperator {
     var strictness: '' | 'Strict' = strict ? 'Strict' : '';
     super(
       data[`ctrlSeq${strictness}`],
-      data[`html${strictness}`],
+      h.entityText(data[`htmlEntity${strictness}`]),
       data[`text${strictness}`],
       data[`mathspeak${strictness}`]
     );
@@ -1119,7 +1150,9 @@ class Inequality extends BinaryOperator {
     this.strict = strict;
     var strictness: '' | 'Strict' = strict ? 'Strict' : '';
     this.ctrlSeq = this.data[`ctrlSeq${strictness}`];
-    this.jQ.html(this.data[`html${strictness}`]);
+    this.domFrag()
+      .children()
+      .replaceWith(domFrag(h.entityText(this.data[`htmlEntity${strictness}`])));
     this.textTemplate = [this.data[`text${strictness}`]];
     this.mathspeakName = this.data[`mathspeak${strictness}`];
   }
@@ -1138,21 +1171,21 @@ class Inequality extends BinaryOperator {
 
 var less: InequalityData = {
   ctrlSeq: '\\le ',
-  html: '&le;',
+  htmlEntity: '&le;',
   text: '≤',
   mathspeak: 'less than or equal to',
   ctrlSeqStrict: '<',
-  htmlStrict: '&lt;',
+  htmlEntityStrict: '&lt;',
   textStrict: '<',
   mathspeakStrict: 'less than',
 };
 var greater: InequalityData = {
   ctrlSeq: '\\ge ',
-  html: '&ge;',
+  htmlEntity: '&ge;',
   text: '≥',
   mathspeak: 'greater than or equal to',
   ctrlSeqStrict: '>',
-  htmlStrict: '&gt;',
+  htmlEntityStrict: '&gt;',
   textStrict: '>',
   mathspeakStrict: 'greater than',
 };
@@ -1199,7 +1232,7 @@ LatexCmds['≠'] =
 
 class Equality extends BinaryOperator {
   constructor() {
-    super('=', '=', '=', 'equals');
+    super('=', h.text('='), '=', 'equals');
   }
   createLeftOf(cursor: Cursor) {
     var cursorL = cursor[L];
@@ -1231,7 +1264,7 @@ LatexCmds['÷'] =
 
 class Sim extends BinaryOperator {
   constructor() {
-    super('\\sim ', '~', '~', 'tilde');
+    super('\\sim ', h.text('~'), '~', 'tilde');
   }
   createLeftOf(cursor: Cursor) {
     if (cursor[L] instanceof Sim) {
@@ -1251,7 +1284,7 @@ class Sim extends BinaryOperator {
 
 class Approx extends BinaryOperator {
   constructor() {
-    super('\\approx ', '&approx;', '≈', 'approximately equal');
+    super('\\approx ', h.entityText('&approx;'), '≈', 'approximately equal');
   }
   deleteTowards(dir: Direction, cursor: Cursor) {
     if (dir === L) {

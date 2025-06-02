@@ -147,7 +147,7 @@
             .keystroke('Right');
           var textarea = $('#reflowing-test textarea');
           // paste some stuff that needs resizing
-          textarea.trigger('paste');
+          textarea[0].dispatchEvent(new ClipboardEvent('paste'));
           textarea.val('\\pi\\sqrt{\\sqrt{\\frac12}}');
           setTimeout(function () {
             if (count !== 1) throw 'reflow not called';
@@ -1054,7 +1054,9 @@
       $('.math-container')
         .mousedown(function (e) {
           if (e.target === $mq[0] || $.contains($mq[0], e.target)) return;
-          $mq.triggerHandler(e);
+          var originalEvent = e.originalEvent;
+          var newEvent = new MouseEvent(originalEvent.type, originalEvent);
+          $mq[0].dispatchEvent(newEvent);
         })
         // test API for "fast touch taps" #622 & #403
         .bind('touchstart', function () {
@@ -1087,8 +1089,10 @@
           $('#selection-tests .mathquill-text-field').each(function () {
             var start = +new Date();
             $('textarea', this)
-              .focus()
-              .trigger({ type: 'keydown', ctrlKey: true, which: 65 });
+              .focus()[0]
+              .dispatchEvent(
+                new KeyboardEvent('keydown', { key: 'A', ctrlKey: true })
+              );
             console.log(
               'Time taken to Select All (should be &lt;50ms):',
               new Date() - start
@@ -1251,9 +1255,11 @@
         },
       });
 
-      MQ.MathField($('#disable-typing-ske')[0], {
+      var MQ2 = MathQuill.getInterface(2);
+
+      MQ2.MathField($('#disable-typing-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               cut: $.noop,
@@ -1265,9 +1271,9 @@
         },
       });
 
-      var SKEMQ1 = MQ.MathField($('#wrap-typing-ske')[0], {
+      var SKEMQ1 = MQ2.MathField($('#wrap-typing-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               typedText: function (text) {
@@ -1280,9 +1286,9 @@
         },
       });
 
-      var SKEMQ2 = MQ.MathField($('#select-all-right-arrow-ske')[0], {
+      var SKEMQ2 = MQ2.MathField($('#select-all-right-arrow-ske')[0], {
         substituteKeyboardEvents: function (textarea, handlers) {
-          return MQ.saneKeyboardEvents(
+          return MQ2.saneKeyboardEvents(
             textarea,
             $.extend({}, handlers, {
               keystroke: function (key) {

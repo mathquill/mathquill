@@ -8,7 +8,7 @@ LatexCmds.notin =
   LatexCmds.oplus =
   LatexCmds.otimes =
     (latex: string) =>
-      new BinaryOperator('\\' + latex + ' ', '&' + latex + ';');
+      new BinaryOperator('\\' + latex + ' ', h.entityText('&' + latex + ';'));
 
 LatexCmds['∗'] =
   LatexCmds.ast =
@@ -129,7 +129,7 @@ LatexCmds.nsupe =
 LatexCmds.mathbb = class extends MathCommand {
   createLeftOf(_cursor: Cursor) {}
   numBlocks() {
-    return 1;
+    return 1 as const;
   }
   parser() {
     var string = Parser.string;

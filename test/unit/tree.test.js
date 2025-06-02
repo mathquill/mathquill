@@ -1,4 +1,5 @@
 suite('tree', function () {
+  const $ = window.test_only_jquery;
   suite('adopt', function () {
     function assertTwoChildren(parent, one, two) {
       assert.equal(one.parent, parent, 'one.parent is set');
@@ -159,7 +160,7 @@ suite('tree', function () {
 
   suite('fragments', function () {
     test('an empty fragment', function () {
-      var empty = new Fragment();
+      var empty = new Fragment(0, 0);
       var count = 0;
 
       empty.each(function () {

@@ -1,4 +1,5 @@
 suite('focusBlur', function () {
+  const $ = window.test_only_jquery;
   function assertHasFocus(mq, name, invert) {
     assert.ok(
       !!invert ^ ($(mq.el()).find('textarea')[0] === document.activeElement),
@@ -22,9 +23,7 @@ suite('focusBlur', function () {
     });
 
     function triggerUpOutOf(mq) {
-      $(mq.el())
-        .find('textarea')
-        .trigger(jQuery.extend(jQuery.Event('keydown'), { which: 38 }));
+      trigger.keydown(mq.el().querySelector('textarea'), 'ArrowUp');
       assert.ok(wasUpOutOfCalled);
     }
 

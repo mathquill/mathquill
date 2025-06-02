@@ -26,7 +26,12 @@ OUTRO = $(SRC_DIR)/outro.js
 
 BASE_SOURCES = \
   $(SRC_DIR)/utils.ts \
+  $(SRC_DIR)/dom.ts \
+  $(SRC_DIR)/unicode.ts \
+	$(SRC_DIR)/browser.ts \
+  $(SRC_DIR)/animate.ts \
   $(SRC_DIR)/services/aria.ts \
+  $(SRC_DIR)/domFragment.ts \
   $(SRC_DIR)/tree.ts \
   $(SRC_DIR)/cursor.ts \
   $(SRC_DIR)/controller.ts \
@@ -64,7 +69,8 @@ CSS_SOURCES = $(shell find $(CSS_DIR) -name '*.less')
 FONT_SOURCE = $(SRC_DIR)/fonts
 FONT_TARGET = $(BUILD_DIR)/fonts
 
-UNIT_TESTS = ./test/unit/*.test.js
+TEST_SUPPORT = ./test/support/assert.ts ./test/support/trigger-event.ts ./test/support/jquery-stub.ts
+UNIT_TESTS = ./test/unit/*.test.js ./test/unit/*.test.ts
 
 # outputs
 VERSION ?= $(shell node -e "console.log(require('./package.json').version)")
@@ -172,6 +178,8 @@ $(FONT_TARGET): $(FONT_SOURCE) $(BUILD_DIR_EXISTS)
 .PHONY:
 lint:
 	npx tsc --noEmit
+  # Make sure that the public, standalone type definitions do not depend on any internal sources.
+	npx tsc --noEmit -p test/tsconfig.public-types-test.json
 
 .PHONY: test server benchmark
 server:
@@ -181,8 +189,8 @@ test: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo "** now open test/{unit,visual}.html in your browser to run the {unit,visual} tests. **"
 benchmark: dev $(BUILD_TEST) $(BASIC_JS) $(BASIC_CSS)
 	@echo
-	@echo "** now open benchmark/{render,select}.html in your browser. **"
+	@echo "** now open benchmark/{render,select,update}.html in your browser. **"
 
-$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
+$(BUILD_TEST): $(INTRO) $(SOURCES_FULL) $(TEST_SUPPORT) $(UNIT_TESTS) $(OUTRO) $(BUILD_DIR_EXISTS)
 	cat $^ | ./script/tsc-emit-only > $@
 	perl -pi -e s/{VERSION}/v$(VERSION)/ $@

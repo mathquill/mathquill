@@ -3,32 +3,38 @@
  * (as owned by the Controller)
  ********************************************/
 Options.prototype.substituteTextarea = function () {
-  return $(
-    '<textarea autocapitalize=off autocomplete=off autocorrect=off ' +
-      'spellcheck=false x-palm-disable-ste-all=true/>'
-  )[0];
+  return h('textarea', {
+    autocapitalize: 'off',
+    autocomplete: 'off',
+    autocorrect: 'off',
+    spellcheck: false,
+    'x-palm-disable-ste-all': true,
+  });
 };
-Options.prototype.substituteKeyboardEvents = saneKeyboardEvents;
+function defaultSubstituteKeyboardEvents(jq: $, controller: Controller) {
+  return saneKeyboardEvents(jq[0] as HTMLTextAreaElement, controller);
+}
+Options.prototype.substituteKeyboardEvents = defaultSubstituteKeyboardEvents;
 
 class Controller extends Controller_scrollHoriz {
-  selectFn: (text: string) => void;
+  selectFn: (text: string) => void = noop;
 
   createTextarea() {
-    var textareaSpan = (this.textareaSpan = $(
-        '<span class="mq-textarea"></span>'
-      )),
-      textarea = this.options.substituteTextarea();
+    this.textareaSpan = h('span', { class: 'mq-textarea' });
+    const textarea = this.options.substituteTextarea();
     if (!textarea.nodeType) {
       throw 'substituteTextarea() must return a DOM element, got ' + textarea;
     }
-    this.textarea = $(textarea).appendTo(textareaSpan);
-    this.aria.setContainer(this.textareaSpan);
+    this.textarea = domFrag(textarea)
+      .appendTo(this.textareaSpan)
+      .oneElement() as HTMLTextAreaElement;
 
     var ctrlr = this;
     ctrlr.cursor.selectionChanged = function () {
       ctrlr.selectionChanged();
     };
   }
+
   selectionChanged() {
     var ctrlr = this;
 
@@ -43,6 +49,7 @@ class Controller extends Controller_scrollHoriz {
       });
     }
   }
+
   setTextareaSelection() {
     this.textareaSelectionTimeout = 0;
     var latex = '';
@@ -56,61 +63,52 @@ class Controller extends Controller_scrollHoriz {
     }
     this.selectFn(latex);
   }
+
   staticMathTextareaEvents() {
     var ctrlr = this;
-    var cursor = ctrlr.cursor;
-    const textarea = ctrlr.getTextareaOrThrow();
-    const textareaSpan = ctrlr.getTextareaSpanOrThrow();
-
-    this.container.prepend(
-      jQuery('<span aria-hidden="true" class="mq-selectable">').text(
-        '$' + ctrlr.exportLatex() + '$'
-      )
-    );
-    this.mathspeakSpan = $('<span class="mq-mathspeak"></span>');
-    this.container.prepend(this.mathspeakSpan);
-    ctrlr.blurred = true;
-    textarea.bind('cut paste', false);
+    this.removeTextareaEventListener('cut');
+    this.removeTextareaEventListener('paste');
     if (ctrlr.options.disableCopyPaste) {
-      textarea.bind('copy', false);
+      this.removeTextareaEventListener('copy');
     } else {
-      textarea.bind('copy', function () {
-        ctrlr.setTextareaSelection();
+      this.addTextareaEventListeners({
+        copy: function () {
+          ctrlr.setTextareaSelection();
+        },
       });
     }
-    textarea
-      .focus(function () {
-        ctrlr.blurred = false;
-      })
-      .blur(function () {
-        if (cursor.selection) cursor.selection.clear();
-        setTimeout(detach); //detaching during blur explodes in WebKit
-      });
-    function detach() {
-      textareaSpan.detach();
-      ctrlr.blurred = true;
-    }
+
+    this.addStaticFocusBlurListeners();
 
     ctrlr.selectFn = function (text: string) {
-      textarea.val(text);
+      const textarea = ctrlr.getTextareaOrThrow();
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.value = text;
       if (text) textarea.select();
     };
-    this.updateMathspeak();
   }
+
   editablesTextareaEvents() {
     var ctrlr = this;
     const textarea = ctrlr.getTextareaOrThrow();
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
-    var keyboardEventsShim = this.options.substituteKeyboardEvents(
-      textarea,
-      this
-    );
-    this.selectFn = function (text: string) {
-      keyboardEventsShim.select(text);
-    };
-    this.container.prepend(textareaSpan);
-    this.focusBlurEvents();
+    if (this.options.version < 3) {
+      const $ = this.options.assertJquery();
+      var keyboardEventsShim = this.options.substituteKeyboardEvents(
+        $(textarea),
+        this
+      );
+      this.selectFn = function (text: string) {
+        keyboardEventsShim.select(text);
+      };
+    } else {
+      const { select } = saneKeyboardEvents(textarea, this);
+      this.selectFn = select;
+    }
+
+    domFrag(this.container).prepend(domFrag(textareaSpan));
+    this.addEditableFocusBlurListeners();
     this.updateMathspeak();
   }
   unbindEditablesEvents() {
@@ -119,15 +117,18 @@ class Controller extends Controller_scrollHoriz {
     const textareaSpan = ctrlr.getTextareaSpanOrThrow();
 
     this.selectFn = function (text: string) {
-      textarea.val(text);
+      if (!(textarea instanceof HTMLTextAreaElement)) return;
+      textarea.value = text;
       if (text) textarea.select();
     };
-    textareaSpan.remove();
+    domFrag(textareaSpan).remove();
 
-    this.unbindFocusBlurEvents();
+    this.removeTextareaEventListener('focus');
+    this.removeTextareaEventListener('blur');
 
     ctrlr.blurred = true;
-    textarea.bind('cut paste', false);
+    this.removeTextareaEventListener('cut');
+    this.removeTextareaEventListener('paste');
   }
   typedText(ch: string) {
     if (ch === '\n') return this.handle('enter');
@@ -174,6 +175,16 @@ class Controller extends Controller_scrollHoriz {
       this.options.onPaste();
     }
   }
+
+  /** Set up for a static MQ field (i.e., create and attach the mathspeak element and initialize the focus state to blurred) */
+  setupStaticField() {
+    this.mathspeakSpan = h('span', { class: 'mq-mathspeak' });
+    domFrag(this.container).prepend(domFrag(this.mathspeakSpan));
+    this.updateMathspeak();
+    this.blurred = true;
+    this.cursor.hide().parent.blur(this.cursor);
+  }
+
   updateMathspeak() {
     var ctrlr = this;
     // If the controller's ARIA label doesn't end with a punctuation mark, add a colon by default to better separate it from mathspeak.
@@ -192,10 +203,14 @@ class Controller extends Controller_scrollHoriz {
     // so it is not included for static math mathspeak calculations.
     // The mathspeakSpan should exist only for static math, so we use its presence to decide which approach to take.
     if (!!ctrlr.mathspeakSpan) {
-      textarea.attr('aria-label', '');
-      ctrlr.mathspeakSpan.text((labelWithSuffix + ' ' + mathspeak).trim());
+      textarea.setAttribute('aria-label', '');
+      ctrlr.mathspeakSpan.textContent = (
+        labelWithSuffix +
+        ' ' +
+        mathspeak
+      ).trim();
     } else {
-      textarea.attr(
+      textarea.setAttribute(
         'aria-label',
         (labelWithSuffix + ' ' + mathspeak + ' ' + ctrlr.ariaPostLabel).trim()
       );
