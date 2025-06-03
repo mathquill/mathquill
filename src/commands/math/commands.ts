@@ -1556,8 +1556,47 @@ class Binomial extends DelimsNode {
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
 LatexCmds.choose = class extends Binomial {
-  createLeftOf(cursor: Cursor) {
-    LiveFraction.prototype.createLeftOf(cursor);
+ createLeftOf(cursor: Cursor) {
+    if (!this.replacedFragment) {
+      var leftward = cursor[L];
+
+      if (!cursor.options.typingSlashCreatesNewFraction) {
+        while (
+          leftward &&
+          !(
+            leftward instanceof BinaryOperator ||
+            leftward instanceof (LatexCmds.text || noop) ||
+            leftward instanceof SummationNotation ||
+            leftward.ctrlSeq === '\\ ' ||
+            /^[,;:]$/.test(leftward.ctrlSeq as string)
+          ) //lookbehind for operator
+        )
+          leftward = leftward[L];
+      }
+      if (
+        leftward instanceof SummationNotation &&
+        leftward[R] instanceof SupSub
+      ) {
+        leftward = leftward[R] as MQNode;
+        let leftwardR = leftward[R];
+        if (
+          leftwardR instanceof SupSub &&
+          leftwardR.ctrlSeq != leftward.ctrlSeq
+        )
+          leftward = leftward[R];
+      }
+
+      if (leftward !== cursor[L] && !cursor.isTooDeep(1)) {
+        let leftwardR = (leftward as MQNode)[R] as MQNode;
+        let cursorL = cursor[L] as MQNode;
+
+        this.replaces(
+          new Fragment(leftwardR || cursor.parent.ends[L], cursorL)
+        );
+        cursor[L] = leftward;
+      }
+    }
+    super.createLeftOf(cursor);
   }
 };
 
