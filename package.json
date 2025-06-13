@@ -12,6 +12,9 @@
     "build/fonts/Symbola.*",
     "quickstart.html"
   ],
+  "peerDependencies": {
+    "jquery": ">1.5.2"
+  },
   "devDependencies": {
     "@types/mocha": "^5.2.7",
     "husky": "^7.0.4",
