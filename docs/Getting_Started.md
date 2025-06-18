@@ -7,7 +7,7 @@ MathQuill depends on [jQuery 1.5.2+](http://jquery.com), we recommend the [Googl
 Load MathQuill with something like (order matters):
 ```html
 <link rel="stylesheet" href="/path/to/mathquill.css"/>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.5.2/jquery.min.js"></script>
 <script src="/path/to/mathquill.js"></script>
 <script>
 var MQ = MathQuill.getInterface(3);
