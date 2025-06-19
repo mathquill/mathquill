@@ -48,7 +48,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
         var cmd = (this.parent as LatexCommandInput).renderCommand(cursor);
         // TODO needs tests
         cursor.controller.aria.queue(cmd.mathspeak({ createdLeftOf: cursor }));
-        if (ch !== '\\' || !this.isEmpty()) cursor.parent.write(cursor, ch);
+        if ((ch !== '\\' || !this.isEmpty()) && ch !== ' ' && ch !== '\n' && ch !== '\t') cursor.parent.write(cursor, ch);
         else cursor.controller.aria.alert();
       }
     };
