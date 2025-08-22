@@ -1556,8 +1556,8 @@ class Binomial extends DelimsNode {
 LatexCmds.binom = LatexCmds.binomial = Binomial;
 
 LatexCmds.choose = class extends Binomial {
-  createLeftOf(cursor: Cursor) {
-    LiveFraction.prototype.createLeftOf(cursor);
+ createLeftOf(cursor: Cursor) {
+    LiveFraction.prototype.createLeftOf.call(this, cursor);
   }
 };
 
