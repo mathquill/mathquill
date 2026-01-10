@@ -189,6 +189,24 @@ Enter a LaTeX command at the current cursor position or with the current selecti
 mathField.cmd('\\sqrt'); // writes a square root command at the cursor position
 ```
 
+## .matrixCmd(command, ...arguments)
+
+Commands for interacting with a matrix.
+
+Add an empty matrix: `.matrixCmd('new', envtype, rows, colums)`
+
+```javascript
+mathField.matrixCmd('new','bmatrix',3,2); // inserts a 3x2 bracketed matrix at the cursor position
+```
+
+Altering shape:
+- `.matrixCmd('addRow')` inserts a row after the row that holds the cursor
+- `.matrixCmd('addRow', -1)` inserts a row before the row that holds the cursor
+- `.matrixCmd('deleteRow')` deletes the row that holds the cursor
+- `.matrixCmd('addColumn')` inserts a column after the column that holds the cursor
+- `.matrixCmd('addColumn', -1)` inserts a column before the column that holds the cursor
+- `.matrixCmd('deleteColumn')` deletes the row that holds the cursor
+
 ## .select()
 
 Selects the contents (just like [on `textarea`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-48880622) and [on `input`s](http://www.w3.org/TR/DOM-Level-2-HTML/html.html#ID-34677168)).

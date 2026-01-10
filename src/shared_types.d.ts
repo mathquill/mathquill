@@ -71,6 +71,9 @@ type LatexCmd =
 type LatexCmds = Record<string, LatexCmd>;
 type CharCmds = Record<string, LatexCmd>;
 
+type EnvironmentCmd = MQNodeBuilderNoParam;
+type EnvironmentCmds = Record<string, EnvironmentCmd>;
+
 declare var validateAutoCommandsOption: any;
 
 type JQSelector =

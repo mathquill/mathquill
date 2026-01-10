@@ -384,7 +384,7 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
         cursor = ctrlr.cursor;
       if (/^\\[a-z]+$/i.test(cmd) && !cursor.isTooDeep()) {
         cmd = cmd.slice(1);
-        var klass = (LatexCmds as LatexCmdsAny)[cmd];
+        var klass = (LatexCmds as LatexCmdsAny)[cmd] || EnvironmentCmds[cmd];
         var node;
         if (klass) {
           if (klass.constructor) {
@@ -396,6 +396,65 @@ function getInterface(v: number): MathQuill.v3.API | MathQuill.v1.API {
           node.createLeftOf(cursor.show());
         } /* TODO: API needs better error reporting */ else;
       } else cursor.parent.write(cursor, cmd);
+
+      ctrlr.scrollHoriz();
+      if (ctrlr.blurred) cursor.hide().parent.blur(cursor);
+      return this;
+    }
+    matrixCmd(cmd: string, ...args: unknown[]) {
+      var ctrlr = this.__controller.notify(undefined),
+        cursor = ctrlr.cursor;
+
+      if (
+        cursor.parent instanceof MatrixCell &&
+        cursor.parent.parent instanceof Matrix
+      ) {
+        var blockindex = cursor.parent.parent.blocks.indexOf(
+          cursor.parent as MatrixCell
+        );
+        if (cmd === 'addColumn') {
+          cursor.parent.parent.addColumn(blockindex, args[0]);
+        } else if (cmd === 'addRow') {
+          cursor.parent.parent.addRow(blockindex, args[0]);
+        } else if (cmd === 'deleteColumn') {
+          cursor.parent.parent.deleteColumn(blockindex, cursor);
+        } else if (cmd === 'deleteRow') {
+          cursor.parent.parent.deleteRow(blockindex, cursor);
+        }
+        this.reflow();
+      } else if (cmd === 'new' && args.length === 3) {
+        let envtype = args[0];
+        let rows = args[1];
+        let cols = args[2];
+        if (
+          EnvironmentCmds.hasOwnProperty(envtype as PropertyKey) &&
+          typeof rows === 'number' &&
+          typeof cols === 'number'
+        ) {
+          let latex = '\\begin{' + envtype + '}';
+          let row = '';
+          for (let i = 0; i < cols - 1; i++) {
+            row += '&';
+          }
+          for (let i = 0; i < rows; i++) {
+            if (i > 0) {
+              latex += '\\\\';
+            }
+            latex += row;
+          }
+          latex += '\\end{' + envtype + '}';
+          ctrlr.writeLatex(latex);
+          this.reflow();
+          // place cursor in first cell
+          if (cursor[L] instanceof Matrix) {
+            let cursorL = cursor[L] as Matrix;
+            if (cursorL.blocks) {
+              let firstcell = cursorL.blocks[0];
+              cursor.insAtLeftEnd(firstcell);
+            }
+          }
+        }
+      }
 
       ctrlr.scrollHoriz();
       if (ctrlr.blurred) cursor.hide().parent.blur(cursor);

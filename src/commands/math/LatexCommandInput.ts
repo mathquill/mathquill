@@ -106,7 +106,7 @@ CharCmds['\\'] = class LatexCommandInput extends MathCommand {
 
     var latex = this.getEnd(L).latex();
     if (!latex) latex = ' ';
-    var cmd = LatexCmds[latex];
+    var cmd = LatexCmds[latex] || EnvironmentCmds[latex];
 
     if (cmd) {
       let node: MQNode;

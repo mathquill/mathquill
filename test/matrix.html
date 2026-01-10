@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=624" />
+
+    <title>MathQuill Matrix Demo</title>
+
+    <link rel="stylesheet" type="text/css" href="support/home.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="../build/mathquill-basic.css"
+    />
+  </head>
+  <body>
+    <div id="body">
+      <h1>
+        <a href="http://mathquill.github.com">MathQuill</a> Matrix Demo
+        <small>local test page</small>
+      </h1>
+
+      <p>
+        <span id="basic"
+          >\begin{bmatrix}123&amp;2&amp;3+x\\4&amp;5&amp;6\end{bmatrix}</span
+        >
+      </p>
+
+      <p><textarea id="basic-latex" style="width: 100%" rows="7"></textarea></p>
+
+      <p>
+        <button onclick="mq.matrixCmd('new','bmatrix',3,4)">Add new 3x4</button>
+        <button onclick="mq.matrixCmd('addColumn')">Add column after</button>
+        <button onclick="mq.matrixCmd('addColumn',-1)">
+          Add column before
+        </button>
+        <button onclick="mq.matrixCmd('deleteColumn')">Delete column</button>
+        <button onclick="mq.matrixCmd('addRow')">Add row after</button>
+        <button onclick="mq.matrixCmd('addRow',-1)">Add row before</button>
+        <button onclick="mq.matrixCmd('deleteRow')">Delete row</button>
+      </p>
+    </div>
+
+    <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+    <script type="text/javascript">
+      MQ = MathQuill.getInterface(MathQuill.getInterface.MAX);
+
+      var latex = $('#basic-latex').bind('keydown keypress', function () {
+        var prev = latex.val();
+        setTimeout(function () {
+          var now = latex.val();
+          if (now !== prev) mq.latex(now);
+        });
+      });
+      var mq = MQ.MathField($('#basic')[0], {
+        tabindex: -1,
+        charsThatBreakOutOfSupSub: '=<>',
+        restrictMismatchedBrackets: true,
+        autoCommands: 'pi theta sqrt',
+        handlers: {
+          edit: function () {
+            if (!latex.is(':focus')) latex.val(mq.latex());
+          },
+        },
+      });
+      latex.val(mq.latex());
+      mq.config({ tabindex: 0 });
+    </script>
+  </body>
+</html>
