@@ -1695,3 +1695,505 @@ class EmbedNode extends MQSymbol {
   }
 }
 LatexCmds.embed = EmbedNode;
+
+/***************************
+ * Matrix Commands
+ **************************/
+
+/**
+ * Matrix command supporting various matrix types (matrix, pmatrix, bmatrix, etc.)
+ * with configurable rows and columns. Each cell is an editable MathBlock.
+ */
+class Matrix extends MathCommand {
+  rows: number;
+  cols: number;
+  matrixType: string;
+
+  constructor(
+    matrixType: string = 'matrix',
+    rows: number = 2,
+    cols: number = 2
+  ) {
+    super();
+    this.matrixType = matrixType;
+    this.rows = rows;
+    this.cols = cols;
+    this.ctrlSeq = `\\begin{${matrixType}}`;
+    this.ariaLabel = `${matrixType}`;
+
+    // Create N×M blocks (cells) for the matrix
+    const numCells = rows * cols;
+    this.domView = new DOMView(numCells, (blocks) => {
+      // Create table structure for matrix display
+      const table = h('table', { class: `mq-matrix mq-${matrixType}` }, []);
+      const tbody = h('tbody', {}, []);
+
+      for (let i = 0; i < rows; i++) {
+        const tr = h('tr', {}, []);
+        for (let j = 0; j < cols; j++) {
+          const cellIndex = i * cols + j;
+          const td = h('td', { class: 'mq-matrix-cell' }, [
+            h.block('span', {}, blocks[cellIndex]),
+          ]);
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+
+      table.appendChild(tbody);
+
+      // Wrap matrix with delimiters if needed
+      return this.wrapMatrixWithDelimiters(table, matrixType);
+    });
+
+    this.textTemplate = [`${matrixType}(`, ')'];
+  }
+
+  /**
+   * Wrap a matrix table with delimiters if needed
+   * @param table The matrix table element
+   * @param matrixType The type of matrix (matrix, pmatrix, bmatrix, etc.)
+   * @returns The wrapped element with delimiters, or the original table if no delimiters needed
+   */
+  private wrapMatrixWithDelimiters(
+    table: HTMLElement,
+    matrixType: string
+  ): HTMLElement {
+    const needsDelimiters =
+      ['pmatrix', 'bmatrix', 'vmatrix', 'Vmatrix', 'Bmatrix'].indexOf(
+        matrixType
+      ) >= 0;
+    if (!needsDelimiters) return table;
+
+    // Get SVG symbols for delimiters
+    const delimiterSymbols: {
+      [key: string]: [keyof typeof SVG_SYMBOLS, keyof typeof SVG_SYMBOLS];
+    } = {
+      pmatrix: ['(', ')'],
+      bmatrix: ['[', ']'],
+      vmatrix: ['|', '|'],
+      Vmatrix: ['&#8741;', '&#8741;'], // Double vertical line
+      Bmatrix: ['{', '}'],
+    };
+
+    const [leftKey, rightKey] = delimiterSymbols[matrixType] || [null, null];
+    if (
+      !leftKey ||
+      !rightKey ||
+      !SVG_SYMBOLS[leftKey] ||
+      !SVG_SYMBOLS[rightKey]
+    )
+      return table;
+
+    const leftSymbol = SVG_SYMBOLS[leftKey];
+    const rightSymbol = SVG_SYMBOLS[rightKey];
+
+    // Set margin on table to make room for delimiters
+    table.setAttribute(
+      'style',
+      'margin-left:' + leftSymbol.width + ';margin-right:' + rightSymbol.width
+    );
+
+    const leftDelim = h(
+      'span',
+      {
+        class: 'mq-scaled mq-matrix-delim mq-matrix-delim-left',
+        style: 'width:' + leftSymbol.width,
+      },
+      [leftSymbol.html()]
+    );
+
+    const rightDelim = h(
+      'span',
+      {
+        class: 'mq-scaled mq-matrix-delim mq-matrix-delim-right',
+        style: 'width:' + rightSymbol.width,
+      },
+      [rightSymbol.html()]
+    );
+
+    const wrapper = h('span', { class: 'mq-matrix-wrapper' }, [
+      leftDelim,
+      table,
+      rightDelim,
+    ]);
+
+    return wrapper;
+  }
+
+  /**
+   * Get the MathBlock at the specified row and column
+   */
+  getCell(row: number, col: number): MathBlock {
+    const index = row * this.cols + col;
+    return this.blocks![index];
+  }
+
+  /**
+   * Get the current cell that contains the cursor
+   */
+  getCurrentCell(cursor: Cursor): MathBlock | null {
+    let node: NodeRef = cursor.parent;
+    while (node) {
+      if (
+        node instanceof MathBlock &&
+        this.blocks &&
+        this.blocks.indexOf(node) !== -1
+      ) {
+        return node;
+      }
+      node = node.parent;
+    }
+    return null;
+  }
+
+  /**
+   * Get the position (row, col) of a cell block
+   */
+  getCellPosition(cell: MathBlock): { row: number; col: number } {
+    const index = this.blocks!.indexOf(cell);
+    return {
+      row: Math.floor(index / this.cols),
+      col: index % this.cols,
+    };
+  }
+
+  /**
+   * Override moveTowards to handle cursor navigation within matrix cells
+   */
+  moveTowards(dir: Direction, cursor: Cursor, updown?: 'up' | 'down') {
+    const currentCell = this.getCurrentCell(cursor);
+    if (!currentCell) {
+      return super.moveTowards(dir, cursor, updown);
+    }
+
+    const { row, col } = this.getCellPosition(currentCell);
+
+    if (updown === 'up' && row > 0) {
+      // Move up to the same column in the previous row
+      cursor.insAtRightEnd(this.getCell(row - 1, col));
+      cursor.controller.aria.queue(this.getCell(row - 1, col), true);
+    } else if (updown === 'down' && row < this.rows - 1) {
+      // Move down to the same column in the next row
+      cursor.insAtRightEnd(this.getCell(row + 1, col));
+      cursor.controller.aria.queue(this.getCell(row + 1, col), true);
+    } else if (dir === L && col > 0) {
+      // Move left to the previous column in the same row
+      cursor.insAtRightEnd(this.getCell(row, col - 1));
+      cursor.controller.aria.queue(this.getCell(row, col - 1), true);
+    } else if (dir === R && col < this.cols - 1) {
+      // Move right to the next column in the same row
+      cursor.insAtRightEnd(this.getCell(row, col + 1));
+      cursor.controller.aria.queue(this.getCell(row, col + 1), true);
+    } else {
+      // Out of bounds, move outside the matrix
+      super.moveTowards(dir, cursor, updown);
+    }
+  }
+
+  /**
+   * Set up navigation relationships between cells for up/down movement
+   */
+  finalizeTree() {
+    const self = this;
+    // Set up navigation relationships for each cell
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        const cell = this.getCell(i, j);
+        cell.ariaLabel = `matrix cell row ${i + 1} column ${j + 1}`;
+
+        // Set up/down navigation
+        if (i > 0) {
+          cell.upOutOf = this.getCell(i - 1, j);
+        }
+        if (i < this.rows - 1) {
+          cell.downOutOf = this.getCell(i + 1, j);
+        }
+
+        // Override moveOutOf to handle left/right navigation between cells
+        const originalMoveOutOf = cell.moveOutOf;
+        cell.moveOutOf = function (
+          dir: Direction,
+          cursor: Cursor,
+          updown?: 'up' | 'down'
+        ) {
+          // For left/right movement, check if we should move to adjacent cell
+          if (!updown && (dir === L || dir === R)) {
+            const { row, col } = self.getCellPosition(cell);
+            if (dir === L && col > 0) {
+              // Move left to previous column
+              cursor.insAtRightEnd(self.getCell(row, col - 1));
+              cursor.controller.aria.queue(self.getCell(row, col - 1), true);
+              return;
+            } else if (dir === R && col < self.cols - 1) {
+              // Move right to next column
+              cursor.insAtLeftEnd(self.getCell(row, col + 1));
+              cursor.controller.aria.queue(self.getCell(row, col + 1), true);
+              return;
+            }
+          }
+          // For up/down or out of bounds, use original behavior
+          return originalMoveOutOf.call(this, dir, cursor, updown);
+        };
+
+        // Override moveTowards for the rightmost node in each cell to handle right/left navigation
+        const rightEnd = cell.getEnd(R);
+        if (rightEnd && rightEnd !== cell) {
+          const originalMoveTowards = rightEnd.moveTowards;
+          rightEnd.moveTowards = function (
+            dir: Direction,
+            cursor: Cursor,
+            updown?: 'up' | 'down'
+          ) {
+            // If cursor is at the right end of the cell (cursor[R] === 0)
+            if (!updown && cursor.parent === cell && cursor[R] === 0) {
+              const { row, col } = self.getCellPosition(cell);
+              // If moving right, move to next cell
+              if (dir === R && col < self.cols - 1) {
+                cursor.insAtLeftEnd(self.getCell(row, col + 1));
+                cursor.controller.aria.queue(self.getCell(row, col + 1), true);
+                return;
+              }
+              // If moving left, move to previous cell (skip cell content)
+              if (dir === L && col > 0) {
+                cursor.insAtRightEnd(self.getCell(row, col - 1));
+                cursor.controller.aria.queue(self.getCell(row, col - 1), true);
+                return;
+              }
+            }
+            // Otherwise use original behavior
+            return originalMoveTowards.call(this, dir, cursor, updown);
+          };
+        }
+
+        // Override moveTowards for the leftmost node in each cell to handle left/right navigation
+        const leftEnd = cell.getEnd(L);
+        if (leftEnd && leftEnd !== cell) {
+          const originalMoveTowards = leftEnd.moveTowards;
+          leftEnd.moveTowards = function (
+            dir: Direction,
+            cursor: Cursor,
+            updown?: 'up' | 'down'
+          ) {
+            // Check if cursor is at cell boundary
+            if (!updown && cursor.parent === cell) {
+              const { row, col } = self.getCellPosition(cell);
+              // If at right boundary (cursor[R] === 0) and moving left, move to previous cell
+              if (dir === L && cursor[R] === 0 && col > 0) {
+                cursor.insAtRightEnd(self.getCell(row, col - 1));
+                cursor.controller.aria.queue(self.getCell(row, col - 1), true);
+                return;
+              }
+              // If at left boundary (cursor[L] === 0) and moving left, move to previous cell
+              if (dir === L && cursor[L] === 0 && col > 0) {
+                cursor.insAtRightEnd(self.getCell(row, col - 1));
+                cursor.controller.aria.queue(self.getCell(row, col - 1), true);
+                return;
+              }
+              // If at left boundary (cursor[L] === 0) and moving right, move to next cell
+              if (dir === R && cursor[L] === 0 && col < self.cols - 1) {
+                cursor.insAtLeftEnd(self.getCell(row, col + 1));
+                cursor.controller.aria.queue(self.getCell(row, col + 1), true);
+                return;
+              }
+            }
+            // Otherwise use original behavior
+            return originalMoveTowards.call(this, dir, cursor, updown);
+          };
+        }
+      }
+    }
+  }
+
+  /**
+   * Generate mathspeak output for the matrix
+   * Format: "Start {rows} by {cols} {matrixType}, {cell contents}, End {matrixType}"
+   */
+  mathspeak() {
+    let speech = `Start ${this.rows} by ${this.cols} ${this.matrixType}, `;
+
+    const cellSpeeches: string[] = [];
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        const cell = this.getCell(i, j);
+        const cellSpeech = cell.mathspeak();
+        cellSpeeches.push(cellSpeech || 'empty');
+      }
+    }
+
+    speech += cellSpeeches.join(', ');
+    speech += `, End ${this.matrixType}`;
+
+    return speech;
+  }
+
+  /**
+   * Export matrix to LaTeX format
+   */
+  latex() {
+    let latex = `\\begin{${this.matrixType}}`;
+    for (let i = 0; i < this.rows; i++) {
+      for (let j = 0; j < this.cols; j++) {
+        const cell = this.getCell(i, j);
+        latex += cell.latex();
+        if (j < this.cols - 1) latex += ' & ';
+      }
+      if (i < this.rows - 1) latex += ' \\\\ ';
+    }
+    latex += `\\end{${this.matrixType}}`;
+    return latex;
+  }
+
+  /**
+   * Parse LaTeX matrix environment
+   */
+  parser() {
+    const self = this;
+    const string = Parser.string;
+    const regex = Parser.regex;
+    const optWhitespace = Parser.optWhitespace;
+    const block = latexMathParser.block;
+    const succeed = Parser.succeed;
+
+    // Helper to check if we're at a delimiter (&, \\, or \end{)
+    const isAtDelimiter = (stream: string) => {
+      const trimmed = stream.replace(/^\s+/, '');
+      return (
+        trimmed.indexOf('&') === 0 ||
+        trimmed.indexOf('\\\\') === 0 ||
+        trimmed.indexOf('\\end{') === 0
+      );
+    };
+
+    // Create a parser that only parses a block if we're not at a delimiter
+    // First check if we're at a delimiter (after skipping whitespace), then skip whitespace and parse block
+    const blockUntilDelimiter: Parser<MathBlock> = new Parser(
+      (stream: string, onSuccess, onFailure) => {
+        // Check if we're at a delimiter (after skipping whitespace)
+        if (isAtDelimiter(stream)) return onFailure(stream, 'at delimiter');
+        // Skip whitespace and then parse block
+        return optWhitespace.then(block)._(stream, onSuccess, onFailure);
+      }
+    );
+
+    // Parse a single cell: parse blocks until we hit &, \\, or \end
+    function parseCell(): Parser<MathBlock> {
+      return blockUntilDelimiter
+        .many()
+        .map(function (blocks: MathBlock[]) {
+          if (blocks.length === 0) return new MathBlock();
+          // Join blocks into a single block
+          const result = blocks[0];
+          for (let i = 1; i < blocks.length; i++)
+            blocks[i].children().adopt(result, result.getEnd(R), 0);
+          return result;
+        })
+        .or(succeed(new MathBlock()));
+    }
+
+    // Parse a single row: parse cells separated by & until we hit \\ or \end
+    function parseRow(): Parser<MathBlock[]> {
+      // Parse first cell
+      return parseCell()
+        .then(function (firstCell: MathBlock) {
+          // Parse remaining cells separated by &
+          return optWhitespace
+            .then(string('&'))
+            .then(parseCell())
+            .many()
+            .map(function (moreCells: MathBlock[]) {
+              return [firstCell, ...moreCells];
+            })
+            .or(succeed([firstCell]));
+        })
+        .or(succeed([]));
+    }
+
+    // Note: \begin{...} is already parsed by the main parser, so we start from the content
+    return parseRow()
+      .then(function (firstRow: MathBlock[]) {
+        // Parse remaining rows separated by \\
+        return optWhitespace
+          .then(string('\\\\'))
+          .then(parseRow())
+          .many()
+          .map(function (moreRows: MathBlock[][]) {
+            return [firstRow, ...moreRows];
+          })
+          .or(succeed([firstRow]));
+      })
+      .or(
+        // Parse first row
+        succeed([])
+      )
+      .skip(optWhitespace)
+      .skip(string('\\end{'))
+      .skip(regex(/^(matrix|pmatrix|bmatrix|vmatrix|Vmatrix|Bmatrix)/))
+      .skip(string('}'))
+      .map(function (rows: MathBlock[][]) {
+        // Update matrix dimensions based on parsed content
+        if (rows.length > 0 && rows[0].length > 0) {
+          self.rows = rows.length;
+          self.cols = rows[0].length;
+          // Recreate domView with correct dimensions
+          const numCells = self.rows * self.cols;
+          self.domView = new DOMView(numCells, (blocks) => {
+            const table = h(
+              'table',
+              { class: `mq-matrix mq-${self.matrixType}` },
+              []
+            );
+            const tbody = h('tbody', {}, []);
+
+            for (let i = 0; i < self.rows; i++) {
+              const tr = h('tr', {}, []);
+              for (let j = 0; j < self.cols; j++) {
+                const cellIndex = i * self.cols + j;
+                const td = h('td', { class: 'mq-matrix-cell' }, [
+                  h.block('span', {}, blocks[cellIndex]),
+                ]);
+                tr.appendChild(td);
+              }
+              tbody.appendChild(tr);
+            }
+
+            table.appendChild(tbody);
+
+            // Wrap matrix with delimiters if needed
+            return self.wrapMatrixWithDelimiters(table, self.matrixType);
+          });
+        } else {
+          // Empty matrix - use default 2x2
+          self.rows = 2;
+          self.cols = 2;
+        }
+
+        // Flatten rows into blocks array, padding with empty blocks if needed
+        const allCells: MathBlock[] = [];
+        for (let i = 0; i < self.rows; i++) {
+          for (let j = 0; j < self.cols; j++) {
+            if (rows[i] && rows[i][j]) {
+              allCells.push(rows[i][j]);
+            } else {
+              const emptyBlock = new MathBlock();
+              allCells.push(emptyBlock);
+            }
+          }
+        }
+        self.blocks = allCells;
+        allCells.forEach((cell) => {
+          cell.adopt(self, self.getEnd(R), 0);
+        });
+
+        return self;
+      });
+  }
+}
+
+// Register matrix commands
+LatexCmds.matrix = () => new Matrix('matrix', 2, 2);
+LatexCmds.pmatrix = () => new Matrix('pmatrix', 2, 2);
+LatexCmds.bmatrix = () => new Matrix('bmatrix', 2, 2);
+LatexCmds.vmatrix = () => new Matrix('vmatrix', 2, 2);
+LatexCmds.Vmatrix = () => new Matrix('Vmatrix', 2, 2);
+LatexCmds.Bmatrix = () => new Matrix('Bmatrix', 2, 2);

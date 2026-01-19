@@ -938,6 +938,197 @@
         </span>
       </p>
 
+      <h3>Matrix Visual Tests</h3>
+
+      <h4>Basic Matrix Types</h4>
+      <p>
+        <strong>matrix</strong> (no delimiters):
+        <span class="mathquill-static-math"
+          >\begin{matrix} a & b \\ c & d \end{matrix}</span
+        >
+      </p>
+      <p>
+        <strong>pmatrix</strong> (parentheses):
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>bmatrix</strong> (square brackets):
+        <span class="mathquill-static-math"
+          >\begin{bmatrix} x & y \\ z & w \end{bmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>vmatrix</strong> (single vertical bars):
+        <span class="mathquill-static-math"
+          >\begin{vmatrix} a & b \\ c & d \end{vmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Vmatrix</strong> (double vertical bars):
+        <span class="mathquill-static-math"
+          >\begin{Vmatrix} 1 & 0 \\ 0 & 1 \end{Vmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Bmatrix</strong> (braces):
+        <span class="mathquill-static-math"
+          >\begin{Bmatrix} a & b \\ c & d \end{Bmatrix}</span
+        >
+      </p>
+
+      <h4>Different Matrix Sizes</h4>
+      <p>
+        <strong>2x2 matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>3x3 matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9
+          \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>2x4 matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} a & b & c & d \\ e & f & g & h \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>4x2 matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 2 \\ 3 & 4 \\ 5 & 6 \\ 7 & 8 \end{pmatrix}</span
+        >
+      </p>
+
+      <h4>Matrices with Complex Expressions</h4>
+      <p>
+        <strong>Matrix with fractions:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} \frac{1}{2} & \frac{3}{4} \\ \frac{5}{6} &
+          \frac{7}{8} \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Matrix with exponents and subscripts:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} x^2 & y_1 \\ z_2^3 & w^{a+b} \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Matrix with square roots:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} \sqrt{a} & \sqrt{b} \\ \sqrt{c} & \sqrt{d}
+          \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Matrix with mixed expressions:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} x^2+1 & \frac{a}{b} \\ \sqrt{y} & z_1
+          \end{pmatrix}</span
+        >
+      </p>
+
+      <h4>Special Cases</h4>
+      <p>
+        <strong>Empty cells:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} & \\ & \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Identity matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & 1
+          \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Zero matrix:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 0 & 0 \\ 0 & 0 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <strong>Matrix with negative numbers:</strong>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} -1 & -2 \\ -3 & -4 \end{pmatrix}</span
+        >
+      </p>
+
+      <h4>Editable Matrix Fields</h4>
+      <p>
+        Click to edit this matrix:
+        <span class="mathquill-math-field"
+          >\begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        Edit this pmatrix:
+        <span class="mathquill-math-field"
+          >\begin{pmatrix} a & b \\ c & d \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        Edit this bmatrix:
+        <span class="mathquill-math-field"
+          >\begin{bmatrix} x & y \\ z & w \end{bmatrix}</span
+        >
+      </p>
+      <p>
+        Edit this 3x3 matrix:
+        <span class="mathquill-math-field"
+          >\begin{pmatrix} 1 & 2 & 3 \\ 4 & 5 & 6 \\ 7 & 8 & 9
+          \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        Edit matrix with complex expressions:
+        <span class="mathquill-math-field"
+          >\begin{pmatrix} x^2+1 & \frac{a}{b} \\ \sqrt{y} & z_1
+          \end{pmatrix}</span
+        >
+      </p>
+
+      <h4>Matrix in Equations</h4>
+      <p>
+        <span class="mathquill-static-math"
+          >A = \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        <span class="mathquill-static-math"
+          >\det\begin{pmatrix} a & b \\ c & d \end{pmatrix} = ad - bc</span
+        >
+      </p>
+      <p>
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix} \begin{pmatrix} x \\ y
+          \end{pmatrix} = \begin{pmatrix} x \\ y \end{pmatrix}</span
+        >
+      </p>
+
+      <h4>Matrix Alignment and Spacing</h4>
+      <p>
+        Multiple matrices side by side:
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} 1 \\ 2 \end{pmatrix} + \begin{pmatrix} 3 \\ 4
+          \end{pmatrix} = \begin{pmatrix} 4 \\ 6 \end{pmatrix}</span
+        >
+      </p>
+      <p>
+        Nested matrices (matrix within matrix cell):
+        <span class="mathquill-static-math"
+          >\begin{pmatrix} \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} & 0 \\ 0
+          & \begin{pmatrix} 5 & 6 \\ 7 & 8 \end{pmatrix} \end{pmatrix}</span
+        >
+      </p>
+
       <h3>Adding CSS class</h3>
       <style type="text/css">
         .testclass {
