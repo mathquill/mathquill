@@ -184,9 +184,9 @@ LatexCmds.overleftrightarrow = () =>
     { class: 'mq-non-leaf mq-overarrow mq-arrow-leftright' },
     'Over Left and Right Arrow'
   );
-LatexCmds.overarc = LatexCmds.overgroup = () =>
+LatexCmds.overgroup = () =>
   new Style(
-    '\\overarc',
+    '\\overgroup',
     'span',
     { class: 'mq-non-leaf mq-overarc' },
     'Over Arc'
