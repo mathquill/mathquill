@@ -822,6 +822,7 @@ LatexCmds.alpha =
   LatexCmds.mu =
   LatexCmds.nu =
   LatexCmds.xi =
+  LatexCmds.omicron =
   LatexCmds.rho =
   LatexCmds.sigma =
   LatexCmds.tau =
@@ -879,6 +880,19 @@ LatexCmds.kappav = LatexCmds.varkappa = bindVariable(
 
 LatexCmds.rhov = LatexCmds.varrho = bindVariable('\\varrho ', '&#1009;', 'rho'); //Elsevier and 9573-13 //AMS and LaTeX
 
+//uppercase Greek letter variants (upright forms)
+LatexCmds.varXi = bindVanillaSymbol('\\varXi ', '&#926;', 'var Xi');
+LatexCmds.varPi = bindVanillaSymbol('\\varPi ', '&#928;', 'var Pi');
+LatexCmds.varSigma = bindVanillaSymbol('\\varSigma ', '&#931;', 'var Sigma');
+LatexCmds.varUpsilon = bindVanillaSymbol(
+  '\\varUpsilon ',
+  '&#933;',
+  'var Upsilon'
+);
+LatexCmds.varPhi = bindVanillaSymbol('\\varPhi ', '&#934;', 'var Phi');
+LatexCmds.varPsi = bindVanillaSymbol('\\varPsi ', '&#936;', 'var Psi');
+LatexCmds.varOmega = bindVanillaSymbol('\\varOmega ', '&#937;', 'var Omega');
+
 //Greek constants, look best in non-italicized Times New Roman
 LatexCmds.pi = LatexCmds['π'] = () =>
   new NonSymbolaSymbol('\\pi ', h.entityText('&pi;'), 'pi');
@@ -912,6 +926,21 @@ LatexCmds.Gamma =
   LatexCmds.forall =
     (latex) =>
       new VanillaSymbol('\\' + latex + ' ', h.entityText('&' + latex + ';'));
+
+//uppercase Greek letters that look like Roman letters (no special HTML entity)
+LatexCmds.Alpha = bindVanillaSymbol('\\Alpha ', '&#913;', 'Alpha');
+LatexCmds.Beta = bindVanillaSymbol('\\Beta ', '&#914;', 'Beta');
+LatexCmds.Epsilon = bindVanillaSymbol('\\Epsilon ', '&#917;', 'Epsilon');
+LatexCmds.Zeta = bindVanillaSymbol('\\Zeta ', '&#918;', 'Zeta');
+LatexCmds.Eta = bindVanillaSymbol('\\Eta ', '&#919;', 'Eta');
+LatexCmds.Iota = bindVanillaSymbol('\\Iota ', '&#921;', 'Iota');
+LatexCmds.Kappa = bindVanillaSymbol('\\Kappa ', '&#922;', 'Kappa');
+LatexCmds.Mu = bindVanillaSymbol('\\Mu ', '&#924;', 'Mu');
+LatexCmds.Nu = bindVanillaSymbol('\\Nu ', '&#925;', 'Nu');
+LatexCmds.Omicron = bindVanillaSymbol('\\Omicron ', '&#927;', 'Omicron');
+LatexCmds.Rho = bindVanillaSymbol('\\Rho ', '&#929;', 'Rho');
+LatexCmds.Tau = bindVanillaSymbol('\\Tau ', '&#932;', 'Tau');
+LatexCmds.Chi = bindVanillaSymbol('\\Chi ', '&#935;', 'Chi');
 
 // symbols that aren't a single MathCommand, but are instead a whole
 // Fragment. Creates the Fragment from a LaTeX string
