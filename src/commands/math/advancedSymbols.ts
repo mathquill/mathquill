@@ -651,10 +651,7 @@ LatexCmds.bigoplus = bindVanillaSymbol('\\bigoplus ', '&#8853;', 'big o plus');
 LatexCmds.biguplus = bindVanillaSymbol('\\biguplus ', '&#8846;', 'big u plus');
 
 //delimiters
-LatexCmds.lfloor = bindVanillaSymbol('\\lfloor ', '&#8970;', 'left floor');
-LatexCmds.rfloor = bindVanillaSymbol('\\rfloor ', '&#8971;', 'right floor');
-LatexCmds.lceil = bindVanillaSymbol('\\lceil ', '&#8968;', 'left ceiling');
-LatexCmds.rceil = bindVanillaSymbol('\\rceil ', '&#8969;', 'right ceiling');
+// Note: lfloor, rfloor, lceil, rceil are defined as Brackets in commands.ts
 LatexCmds.opencurlybrace = LatexCmds.lbrace = bindVanillaSymbol(
   '\\lbrace ',
   '{',

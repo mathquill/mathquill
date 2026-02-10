@@ -89,6 +89,38 @@ var SVG_SYMBOLS = {
         h('path', { d: 'M3.2 0 L6.8 27 L3.2 54 L2.2 54 L5.8 27 L2.2 0' }),
       ]),
   },
+  '&#8970;': {
+    // lfloor ⌊
+    width: '.55em',
+    html: () =>
+      h('svg', { preserveAspectRatio: 'none', viewBox: '0 0 11 24' }, [
+        h('path', { d: 'M3 0 L3 24 L8 24 L8 23 L4 23 L4 0' }),
+      ]),
+  },
+  '&#8971;': {
+    // rfloor ⌋
+    width: '.55em',
+    html: () =>
+      h('svg', { preserveAspectRatio: 'none', viewBox: '0 0 11 24' }, [
+        h('path', { d: 'M8 0 L8 24 L3 24 L3 23 L7 23 L7 0' }),
+      ]),
+  },
+  '&#8968;': {
+    // lceil ⌈
+    width: '.55em',
+    html: () =>
+      h('svg', { preserveAspectRatio: 'none', viewBox: '0 0 11 24' }, [
+        h('path', { d: 'M3 24 L3 0 L8 0 L8 1 L4 1 L4 24' }),
+      ]),
+  },
+  '&#8969;': {
+    // rceil ⌉
+    width: '.55em',
+    html: () =>
+      h('svg', { preserveAspectRatio: 'none', viewBox: '0 0 11 24' }, [
+        h('path', { d: 'M8 24 L8 0 L3 0 L3 1 L7 1 L7 24' }),
+      ]),
+  },
 };
 
 class Style extends MathCommand {
@@ -1421,12 +1453,24 @@ var OPP_BRACKS = {
   '|': '|',
   '\\lVert ': '\\rVert ',
   '\\rVert ': '\\lVert ',
+  '\\lfloor ': '\\rfloor ',
+  '\\rfloor ': '\\lfloor ',
+  '\\lceil ': '\\rceil ',
+  '\\rceil ': '\\lceil ',
+  '&#8970;': '&#8971;',
+  '&#8971;': '&#8970;',
+  '&#8968;': '&#8969;',
+  '&#8969;': '&#8968;',
 };
 
 var BRACKET_NAMES = {
   '&lang;': 'angle-bracket',
   '&rang;': 'angle-bracket',
   '|': 'pipe',
+  '&#8970;': 'floor',
+  '&#8971;': 'floor',
+  '&#8968;': 'ceiling',
+  '&#8969;': 'ceiling',
 };
 
 function bindCharBracketPair(
@@ -1450,6 +1494,14 @@ LatexCmds.langle = () =>
   new Bracket(L, '&lang;', '&rang;', '\\langle ', '\\rangle ');
 LatexCmds.rangle = () =>
   new Bracket(R, '&lang;', '&rang;', '\\langle ', '\\rangle ');
+LatexCmds.lfloor = () =>
+  new Bracket(L, '&#8970;', '&#8971;', '\\lfloor ', '\\rfloor ');
+LatexCmds.rfloor = () =>
+  new Bracket(R, '&#8970;', '&#8971;', '\\lfloor ', '\\rfloor ');
+LatexCmds.lceil = () =>
+  new Bracket(L, '&#8968;', '&#8969;', '\\lceil ', '\\rceil ');
+LatexCmds.rceil = () =>
+  new Bracket(R, '&#8968;', '&#8969;', '\\lceil ', '\\rceil ');
 CharCmds['|'] = () => new Bracket(L, '|', '|', '|', '|');
 LatexCmds.lVert = () =>
   new Bracket(L, '&#8741;', '&#8741;', '\\lVert ', '\\rVert ');
@@ -1463,7 +1515,11 @@ LatexCmds.left = class extends MathCommand {
     var optWhitespace = Parser.optWhitespace;
 
     return optWhitespace
-      .then(regex(/^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z]))/))
+      .then(
+        regex(
+          /^(?:[([|]|\\\{|\\langle(?![a-zA-Z])|\\lVert(?![a-zA-Z])|\\lfloor(?![a-zA-Z])|\\lceil(?![a-zA-Z]))/
+        )
+      )
       .then(function (ctrlSeq) {
         var open = ctrlSeq.replace(/^\\/, '');
         if (ctrlSeq == '\\langle') {
@@ -1474,11 +1530,21 @@ LatexCmds.left = class extends MathCommand {
           open = '&#8741;';
           ctrlSeq = ctrlSeq + ' ';
         }
+        if (ctrlSeq == '\\lfloor') {
+          open = '&#8970;';
+          ctrlSeq = ctrlSeq + ' ';
+        }
+        if (ctrlSeq == '\\lceil') {
+          open = '&#8968;';
+          ctrlSeq = ctrlSeq + ' ';
+        }
         return latexMathParser.then(function (block) {
           return string('\\right')
             .skip(optWhitespace)
             .then(
-              regex(/^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z]))/)
+              regex(
+                /^(?:[\])|]|\\\}|\\rangle(?![a-zA-Z])|\\rVert(?![a-zA-Z])|\\rfloor(?![a-zA-Z])|\\rceil(?![a-zA-Z]))/
+              )
             )
             .map(function (end) {
               var close = end.replace(/^\\/, '');
@@ -1488,6 +1554,14 @@ LatexCmds.left = class extends MathCommand {
               }
               if (end == '\\rVert') {
                 close = '&#8741;';
+                end = end + ' ';
+              }
+              if (end == '\\rfloor') {
+                close = '&#8971;';
+                end = end + ' ';
+              }
+              if (end == '\\rceil') {
+                close = '&#8969;';
                 end = end + ' ';
               }
               var cmd = new Bracket(0, open, close, ctrlSeq, end);
