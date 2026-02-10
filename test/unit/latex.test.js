@@ -198,6 +198,27 @@ suite('latex', function () {
     assertParsesLatex('\\square ');
   });
 
+  test('\\not combined with following symbols (lookahead parsing)', function () {
+    // \not\equiv should be parsed as a single symbol ≢
+    assertParsesLatex('\\not\\equiv ', '\\not\\equiv ');
+    // \not\in should be parsed as a single symbol ∉
+    assertParsesLatex('\\not\\in ', '\\not\\in ');
+    // \not\subset should be parsed as a single symbol ⊄
+    assertParsesLatex('\\not\\subset ', '\\not\\subset ');
+    // \not\supset should be parsed as a single symbol ⊅
+    assertParsesLatex('\\not\\supset ', '\\not\\supset ');
+    // \not\subseteq should be parsed as a single symbol ⊈
+    assertParsesLatex('\\not\\subseteq ', '\\not\\subseteq ');
+    // \not\supseteq should be parsed as a single symbol ⊉
+    assertParsesLatex('\\not\\supseteq ', '\\not\\supseteq ');
+    // \not\ni should be parsed as a single symbol ∌
+    assertParsesLatex('\\not\\ni ', '\\not\\ni ');
+    // \not followed by non-negatable symbol should remain as \not
+    assertParsesLatex('\\not x', '\\not x');
+    // \not at end of input should remain as \not
+    assertParsesLatex('\\not ', '\\not ');
+  });
+
   suite('public API', function () {
     var mq;
     setup(function () {

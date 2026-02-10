@@ -52,6 +52,24 @@ var latexMathParser = (function () {
       )
     )
     .then(function (ctrlSeq) {
+      // Handle \begin{env} environments (e.g., matrices)
+      if (ctrlSeq === 'begin') {
+        return string('{')
+          .then(regex(/^(matrix|pmatrix|bmatrix|vmatrix|Vmatrix|Bmatrix)/))
+          .skip(string('}'))
+          .then(function (envType) {
+            // Check if this environment type is registered
+            var envCmd = (LatexCmds as any)[envType];
+            if (envCmd) {
+              // Create matrix instance and use its parser
+              var matrix =
+                typeof envCmd === 'function' ? envCmd() : new envCmd();
+              return matrix.parser();
+            }
+            return fail('unknown environment: ' + envType);
+          });
+      }
+
       // TODO - is Parser<MQNode> correct?
       var cmdKlass = (LatexCmds as LatexCmdsSingleChar)[ctrlSeq];
 
@@ -74,7 +92,9 @@ var latexMathParser = (function () {
       return mathSequence;
     })
     .skip(string('}'));
-  var mathBlock = optWhitespace.then(mathGroup.or(command.map(commandToBlock)));
+  var mathBlock = optWhitespace.then(
+    mathGroup.or(command.map(commandToBlock as (result: unknown) => MathBlock))
+  );
   var mathSequence = mathBlock.many().map(joinBlocks).skip(optWhitespace);
 
   var optMathBlock = string('[')

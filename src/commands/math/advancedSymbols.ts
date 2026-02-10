@@ -10,6 +10,158 @@ LatexCmds.notin =
     (latex: string) =>
       new BinaryOperator('\\' + latex + ' ', h.entityText('&' + latex + ';'));
 
+LatexCmds.nequiv = bindBinaryOperator(
+  '\\not\\equiv ',
+  '&#8802;',
+  'not identical to'
+);
+
+// 定义可以被 \not 否定的符号映射表
+// 当解析 \not 时，会前瞻检查后面是否跟着这些符号，如果是则组合成一个整体符号
+const negatedSymbols: {
+  [key: string]: { latex: string; html: string; mathspeak: string };
+} = {
+  equiv: {
+    latex: '\\not\\equiv ',
+    html: '&#8802;',
+    mathspeak: 'not identical to',
+  },
+  in: { latex: '\\not\\in ', html: '&#8713;', mathspeak: 'not in' },
+  ni: { latex: '\\not\\ni ', html: '&#8716;', mathspeak: 'does not contain' },
+  subset: {
+    latex: '\\not\\subset ',
+    html: '&#8836;',
+    mathspeak: 'not a subset',
+  },
+  supset: {
+    latex: '\\not\\supset ',
+    html: '&#8837;',
+    mathspeak: 'not a superset',
+  },
+  subseteq: {
+    latex: '\\not\\subseteq ',
+    html: '&#8840;',
+    mathspeak: 'not subset or equal to',
+  },
+  supseteq: {
+    latex: '\\not\\supseteq ',
+    html: '&#8841;',
+    mathspeak: 'not superset or equal to',
+  },
+  // 其他常见的否定关系符号
+  le: {
+    latex: '\\not\\le ',
+    html: '&#8816;',
+    mathspeak: 'not less than or equal to',
+  },
+  leq: {
+    latex: '\\not\\leq ',
+    html: '&#8816;',
+    mathspeak: 'not less than or equal to',
+  },
+  ge: {
+    latex: '\\not\\ge ',
+    html: '&#8817;',
+    mathspeak: 'not greater than or equal to',
+  },
+  geq: {
+    latex: '\\not\\geq ',
+    html: '&#8817;',
+    mathspeak: 'not greater than or equal to',
+  },
+  sim: { latex: '\\not\\sim ', html: '&#8769;', mathspeak: 'not similar to' },
+  simeq: {
+    latex: '\\not\\simeq ',
+    html: '&#8772;',
+    mathspeak: 'not similar or equal to',
+  },
+  approx: {
+    latex: '\\not\\approx ',
+    html: '&#8777;',
+    mathspeak: 'not approximately equal to',
+  },
+  cong: {
+    latex: '\\not\\cong ',
+    html: '&#8775;',
+    mathspeak: 'not congruent to',
+  },
+  mid: { latex: '\\not\\mid ', html: '&#8740;', mathspeak: 'does not divide' },
+  parallel: {
+    latex: '\\not\\parallel ',
+    html: '&#8742;',
+    mathspeak: 'not parallel to',
+  },
+  perp: {
+    latex: '\\not\\perp ',
+    html: '&#8878;',
+    mathspeak: 'not perpendicular to',
+  },
+  sqsubseteq: {
+    latex: '\\not\\sqsubseteq ',
+    html: '&#8930;',
+    mathspeak: 'not square subset or equal',
+  },
+  sqsupseteq: {
+    latex: '\\not\\sqsupseteq ',
+    html: '&#8931;',
+    mathspeak: 'not square superset or equal',
+  },
+  prec: {
+    latex: '\\not\\prec ',
+    html: '&#8832;',
+    mathspeak: 'does not precede',
+  },
+  succ: {
+    latex: '\\not\\succ ',
+    html: '&#8833;',
+    mathspeak: 'does not succeed',
+  },
+  preceq: {
+    latex: '\\not\\preceq ',
+    html: '&#8928;',
+    mathspeak: 'does not precede or equal',
+  },
+  succeq: {
+    latex: '\\not\\succeq ',
+    html: '&#8929;',
+    mathspeak: 'does not succeed or equal',
+  },
+};
+
+// \not 命令：具有前瞻能力，可以与后续符号组合
+class NotSymbol extends MQSymbol {
+  constructor() {
+    // 默认情况下 \not 显示为斜杠叠加符号
+    super('\\not ', h('span', { class: 'mq-not' }, [h.text('/')]), 'not');
+  }
+
+  parser(): Parser<MQNode | Fragment> {
+    // 尝试前瞻：检查是否后面跟着可否定的符号
+    return Parser.optWhitespace
+      .then(Parser.string('\\'))
+      .then(Parser.regex(/^[a-z]+/i))
+      .then((nextCmd: string): Parser<MQNode> => {
+        const negated = negatedSymbols[nextCmd];
+        if (negated) {
+          // 找到可组合的符号，返回组合后的二元运算符
+          return Parser.succeed(
+            new BinaryOperator(
+              negated.latex,
+              h.entityText(negated.html),
+              undefined,
+              negated.mathspeak
+            )
+          );
+        }
+        // 不是可组合的符号，解析失败，让后续逻辑处理
+        return Parser.fail('not a negatable symbol');
+      })
+      .or(Parser.succeed(this)); // 如果前瞻失败，返回普通的 \not 符号
+  }
+}
+
+LatexCmds.not = () => new NotSymbol();
+
 LatexCmds['∗'] =
   LatexCmds.ast =
   LatexCmds.star =
@@ -124,6 +276,24 @@ LatexCmds.nsupe =
       '&#8841;',
       'not superset or equal to'
     );
+
+LatexCmds.subsetneq = bindBinaryOperator(
+  '\\subsetneq ',
+  '&#8842;',
+  'subset not equal to'
+);
+
+LatexCmds.supsetneq = bindBinaryOperator(
+  '\\supsetneq ',
+  '&#8843;',
+  'superset not equal to'
+);
+
+LatexCmds.complement = bindVanillaSymbol(
+  '\\complement ',
+  '&#8705;',
+  'complement'
+);
 
 //the canonical sets of numbers
 LatexCmds.mathbb = class extends MathCommand {
@@ -406,6 +576,11 @@ LatexCmds.rightharpoondown = bindVanillaSymbol(
   '&#8641;',
   'right harpoon down'
 );
+LatexCmds.rightleftharpoons = bindVanillaSymbol(
+  '\\rightleftharpoons ',
+  '&#8652;',
+  'right left harpoons'
+);
 LatexCmds.nwarrow = bindVanillaSymbol(
   '\\nwarrow ',
   '&#8598;',
@@ -449,6 +624,11 @@ LatexCmds.parallelogram = bindVanillaSymbol(
   'parallelogram'
 );
 LatexCmds.square = bindVanillaSymbol('\\square ', '&#11036;', 'square');
+LatexCmds.blacksquare = bindVanillaSymbol(
+  '\\blacksquare ',
+  '&#9632;',
+  'black square'
+);
 
 //variable-sized
 LatexCmds.oint = bindVanillaSymbol('\\oint ', '&#8750;', 'o int');
@@ -471,10 +651,7 @@ LatexCmds.bigoplus = bindVanillaSymbol('\\bigoplus ', '&#8853;', 'big o plus');
 LatexCmds.biguplus = bindVanillaSymbol('\\biguplus ', '&#8846;', 'big u plus');
 
 //delimiters
-LatexCmds.lfloor = bindVanillaSymbol('\\lfloor ', '&#8970;', 'left floor');
-LatexCmds.rfloor = bindVanillaSymbol('\\rfloor ', '&#8971;', 'right floor');
-LatexCmds.lceil = bindVanillaSymbol('\\lceil ', '&#8968;', 'left ceiling');
-LatexCmds.rceil = bindVanillaSymbol('\\rceil ', '&#8969;', 'right ceiling');
+// Note: lfloor, rfloor, lceil, rceil are defined as Brackets in commands.ts
 LatexCmds.opencurlybrace = LatexCmds.lbrace = bindVanillaSymbol(
   '\\lbrace ',
   '{',
@@ -497,12 +674,27 @@ LatexCmds.perp = LatexCmds.perpendicular = bindVanillaSymbol(
   'perpendicular'
 );
 LatexCmds.nabla = LatexCmds.del = bindVanillaSymbol('\\nabla ', '&nabla;');
-LatexCmds.hbar = bindVanillaSymbol('\\hbar ', '&#8463;', 'horizontal bar');
+LatexCmds.hbar = LatexCmds.hslash = bindVanillaSymbol(
+  '\\hbar ',
+  '&#8463;',
+  'h bar'
+);
+
+LatexCmds.imath = bindVanillaSymbol('\\imath ', '&#305;', 'dotless i');
+LatexCmds.jmath = bindVanillaSymbol('\\jmath ', '&#567;', 'dotless j');
 
 LatexCmds.AA =
   LatexCmds.Angstrom =
   LatexCmds.angstrom =
     bindVanillaSymbol('\\text\\AA ', '&#8491;', 'AA');
+
+//special letters
+LatexCmds.ss = bindVanillaSymbol('\\ss ', '&#223;', 'eszett');
+LatexCmds.aa = bindVanillaSymbol('\\aa ', '&#229;', 'a with ring');
+LatexCmds.ae = bindVanillaSymbol('\\ae ', '&#230;', 'ae ligature');
+LatexCmds.AE = bindVanillaSymbol('\\AE ', '&#198;', 'AE ligature');
+LatexCmds.oe = bindVanillaSymbol('\\oe ', '&#339;', 'oe ligature');
+LatexCmds.OE = bindVanillaSymbol('\\OE ', '&#338;', 'OE ligature');
 
 LatexCmds.ring =
   LatexCmds.circ =
@@ -521,10 +713,10 @@ LatexCmds.setminus = LatexCmds.smallsetminus = bindVanillaSymbol(
   'set minus'
 );
 
-LatexCmds.not = //bind(MQSymbol,'\\not ','<span class="not">/</span>', 'not');
-  LatexCmds['¬'] =
-  LatexCmds.neg =
-    bindVanillaSymbol('\\neg ', '&not;', 'not');
+// \neg 是逻辑非符号（¬），与 \not 不同
+// \not 是否定前缀，可以与后续符号组合（如 \not\equiv → ≢）
+// \neg 就是单独的逻辑非符号
+LatexCmds['¬'] = LatexCmds.neg = bindVanillaSymbol('\\neg ', '&not;', 'not');
 
 LatexCmds['…'] =
   LatexCmds.dots =
@@ -635,6 +827,15 @@ LatexCmds.alef =
   LatexCmds.alephsym =
     bindVanillaSymbol('\\aleph ', '&alefsym;', 'alef sym');
 
+LatexCmds.beth = bindVanillaSymbol('\\beth ', '&#8502;', 'beth');
+LatexCmds.gimel = bindVanillaSymbol('\\gimel ', '&#8503;', 'gimel');
+LatexCmds.daleth = bindVanillaSymbol('\\daleth ', '&#8504;', 'daleth');
+
+LatexCmds.eth = bindVanillaSymbol('\\eth ', '&#240;', 'eth');
+LatexCmds.Game = bindVanillaSymbol('\\Game ', '&#8513;', 'game');
+LatexCmds.Finv = bindVanillaSymbol('\\Finv ', '&#8498;', 'turned F');
+LatexCmds.Bbbk = bindVanillaSymbol('\\Bbbk ', '&#120156;', 'blackboard k');
+
 LatexCmds.xist = //LOL
   LatexCmds.xists =
   LatexCmds.exist =
@@ -661,11 +862,15 @@ LatexCmds.o =
   LatexCmds.O =
   LatexCmds.empty =
   LatexCmds.emptyset =
-  LatexCmds.oslash =
-  LatexCmds.Oslash =
   LatexCmds.nothing =
   LatexCmds.varnothing =
     bindBinaryOperator('\\varnothing ', '&empty;', 'nothing');
+
+LatexCmds.oslash = LatexCmds.Oslash = bindBinaryOperator(
+  '\\oslash ',
+  '&#8856;',
+  'circled slash'
+);
 
 LatexCmds.cup = LatexCmds.union = bindBinaryOperator(
   '\\cup ',

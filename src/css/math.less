@@ -459,3 +459,66 @@
     }
   }
 }
+
+/***************************
+ * Matrix Styles
+ **************************/
+.mq-matrix {
+  display: inline-table;
+  border-collapse: collapse;
+  margin: 0.2em 0;
+  vertical-align: middle;
+
+  tbody {
+    display: table-row-group;
+  }
+
+  tr {
+    display: table-row;
+  }
+
+  .mq-matrix-cell {
+    display: table-cell;
+    padding: 0.2em 0.3em;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+    min-width: 1em;
+    min-height: 1.2em;
+
+    &:focus-within {
+      outline: 1px dashed rgba(0, 0, 0, 0.3);
+    }
+
+    .mq-root-block {
+      min-width: 0.5em;
+    }
+  }
+}
+
+// Matrix wrapper for delimited matrices
+.mq-matrix-wrapper {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.mq-matrix-delim {
+  position: absolute;
+  top: 0;
+  bottom: 2px;
+}
+
+.mq-matrix-delim-left {
+  left: 0;
+}
+
+.mq-matrix-delim-right {
+  right: 0;
+}
+
+// Matrix table spacing is set inline via style attribute
+.mq-matrix-wrapper .mq-matrix {
+  display: inline-table;
+}
+
