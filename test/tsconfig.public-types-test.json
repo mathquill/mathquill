@@ -12,6 +12,7 @@
       "target": "ES5",
       "lib": ["ES5", "ScriptHost", "DOM", "ES2015.Collection"],
       "module": "ES2015",
+      "moduleResolution": "node",
       "importHelpers": true,
       "noEmit": true,
       "pretty": true

@@ -75,6 +75,14 @@ class MathElement extends MQNode {
       });
     }
   }
+  reflow() {
+    // if element reflows, and right is supsub, that needs to reflow too
+    // to recalculate layout
+    const right = this[R];
+    if (right instanceof SupSub) {
+      right.reflow();
+    }
+  }
 }
 
 class DOMView {

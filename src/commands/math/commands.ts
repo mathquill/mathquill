@@ -362,8 +362,11 @@ class SupSub extends MathCommand {
           var src = this[supsub],
             dest = thisDir[supsub];
           if (!src) continue;
-          if (!dest) thisDir.addBlock(src.disown());
-          else if (!src.isEmpty()) {
+          if (!dest) {
+            thisDir.addBlock(src.disown());
+            src.blur(cursor);
+            thisDir.reflow();
+          } else if (!src.isEmpty()) {
             // ins src children at -dir end of dest
             src
               .domFrag()
@@ -530,6 +533,7 @@ class SupSub extends MathCommand {
             cmd.domFrag().addClass('mq-sup-only').children().last().remove();
           }
           this.remove();
+          cmd.reflow();
         };
       })(
         this,
@@ -537,6 +541,52 @@ class SupSub extends MathCommand {
         'sup sub'.split(' ')[i] as 'sup' | 'sup',
         'down up'.split(' ')[i] as 'up' | 'down'
       );
+  }
+  reflow() {
+    const left = this[L];
+    if (left && this.blocks) {
+      const base = left.domFrag().oneElement();
+      const supsub = this.domFrag().oneElement();
+      supsub.style.verticalAlign = '0px';
+      const baseRect = base.getBoundingClientRect();
+      const supsubRect = supsub.getBoundingClientRect();
+      // Approximate x_height as 0.5 * font-size
+      const fontSize = parseFloat(getComputedStyle(base).fontSize);
+      const xHeight = fontSize * 0.5;
+      let shiftUp = 0;
+      let targetBottom = 0;
+      let targetTop = 0;
+
+      if (this.sup) {
+        const sup = this.sup.domFrag().oneElement();
+        const supRect = sup.getBoundingClientRect();
+        // Candidates for position
+        const default_bottom = baseRect.top + supRect.height / 2 + xHeight / 4; // align middle of exponent with top of base
+        const clearance_bottom = baseRect.bottom - xHeight / 4; // make sure exp bottom is a little above base bottom
+
+        // Take the min (higher on page) of these
+        targetBottom = Math.min(default_bottom, clearance_bottom);
+        shiftUp = supRect.bottom - targetBottom;
+      }
+      if (this.sub) {
+        const sub = this.sub.domFrag().oneElement();
+        const subRect = sub.getBoundingClientRect();
+        // Candidates for position
+        const default_top = baseRect.bottom - subRect.height / 2 - xHeight / 4; // align middle of sub with bottom of base
+        const clearance_top = baseRect.top + baseRect.height / 3; // make sure sub top is at least 1/3 down base
+
+        // Take the max (lower on page) of these
+        targetTop = Math.max(default_top, clearance_top);
+        if (!this.sup) {
+          sub.style.marginTop = '0px';
+          shiftUp = supsubRect.top - targetTop;
+        } else {
+          // if both, use margin-top to space
+          sub.style.marginTop = Math.max(0, targetTop - targetBottom) + 'px';
+        }
+      }
+      supsub.style.verticalAlign = shiftUp + 'px';
+    }
   }
 }
 
@@ -1025,6 +1075,22 @@ class NthRoot extends SquareRoot {
         radicandMathspeak +
         ', End Root'
       );
+    }
+  }
+  reflow() {
+    if (this.blocks) {
+      const index = this.blocks[0].domFrag().oneElement();
+      const radicand = this.blocks[1].domFrag().oneElement();
+      index.style.verticalAlign = '0px';
+      const indexRect = index.getBoundingClientRect();
+      const radicandRect = radicand.getBoundingClientRect();
+
+      // Take the min (higher on page) of these
+      const targetBottom = radicandRect.bottom - radicandRect.height / 2;
+      // Shift up by the difference between where bottom is now and where we want it
+      const shiftUp = indexRect.bottom - targetBottom;
+
+      index.style.verticalAlign = shiftUp + 'px';
     }
   }
 }
