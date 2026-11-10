@@ -1,7 +1,7 @@
 {
   "name": "mathquill4keyboard",
   "description": "Easily type math in your webapp",
-  "version": "0.10.11",
+  "version": "0.10.12",
   "license": "MPL-2.0",
   "repository": {
     "type": "git",
