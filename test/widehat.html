@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MathQuill Widehat Test</title>
+
+    <link rel="stylesheet" type="text/css" href="../build/mathquill.css" />
+    <script type="text/javascript" src="support/jquery-1.5.2.js"></script>
+    <script type="text/javascript" src="../build/mathquill.js"></script>
+    <style>
+      body {
+        font-size: 28px;
+        padding: 20px;
+      }
+      p {
+        margin: 24px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h3>\widehat (fork)</h3>
+    <p>Champ : <span id="field">\widehat{ABC}=30^\circ</span></p>
+    <p>
+      Statique :
+      <span class="static">\widehat{A}</span>,
+      <span class="static">\widehat{xOy}</span>,
+      <span class="static">\widehat{ABC}+\widehat{DEF}</span>,
+      <span class="static">\widehat{\square}</span>
+    </p>
+    <p>Champ vide (cmd) : <span id="empty"></span></p>
+    <pre id="out"></pre>
+
+    <script>
+      var MQ = MathQuill.getInterface(2);
+      var field = MQ.MathField(document.getElementById('field'));
+      document.querySelectorAll('.static').forEach(function (el) {
+        MQ.StaticMath(el);
+      });
+      var empty = MQ.MathField(document.getElementById('empty'));
+      empty.cmd('widehat');
+      empty.typedText('KUP');
+      document.getElementById('out').textContent =
+        field.latex() + '\n' + empty.latex();
+    </script>
+  </body>
+</html>

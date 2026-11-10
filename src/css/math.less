@@ -424,6 +424,28 @@
     padding-top: 0.15em;
   }
 
+  // Fork : \widehat, chapeau étiré sur toute la largeur du bloc (SVG sans
+  // proportions fixes, trait d'épaisseur constante).
+  .mq-widehat {
+    display: inline-block;
+    position: relative;
+    min-width: .5em;
+    margin-top: 1px;
+    padding-top: 0.35em;
+    text-align: center;
+
+    &:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 0.3em;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 10' preserveAspectRatio='none'%3E%3Cpolyline points='1,9.5 50,1 99,9.5' fill='none' stroke='black' stroke-width='1.2' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") no-repeat;
+      background-size: 100% 100%;
+    }
+  }
+
   .mq-overarrow {
     min-width: .5em;
     border-top: 1px solid black;
